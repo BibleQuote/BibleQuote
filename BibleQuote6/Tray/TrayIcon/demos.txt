@@ -1,0 +1,25 @@
+Tray Icon Demos
+
+The following demos are distributed with CoolTrayIcon 4.0.0:
+
+* CoolTrayTest - Main demo of CoolTrayIcon features
+* TextTrayTest - Main demo of TextTrayIcon features
+* StartHidden  - How to determine at runtime if your app. should start visible or not
+* CoolService  - A simple interactive service using CoolTrayIcon
+* TrayDraw     - A demo of the CoolTrayIcon.BitmapToIcon method
+* CustomHint1  - Modifying the common tray icon tooltip, changing the font and colors
+* CustomHint2  - Replacing the tray icon tooltip with your own custom tooltip
+                 (this is necessary if you need more than 128 chars. in the tooltip)
+
+
+CustomHint1 was more or less a port of a VB project by Eduardo A. Morcillo 
+(http://www.domaindlx.com/e_morcillo).
+CustomHint2 was made by Zeljko Avramovic and modified by me.
+All other demos were made by me.
+
+If you have a cool demo demonstrating how to accomplish a task with CoolTrayIcon
+or TextTrayIcon, send it to me.
+
+Troels Jakobsen
+delphiuser@get2net.dk
+

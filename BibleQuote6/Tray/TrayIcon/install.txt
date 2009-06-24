@@ -1,0 +1,37 @@
+How to install the components
+-----------------------------
+
+If you're running Delphi 5 or Delphi 6:
+
+- Open CoolTrayIcon_D5.dpk (Delphi 5) or CoolTrayIcon_D6.dpk (Delphi 6)
+  either by doubleclicking the file or by selecting "Open Project" inside
+  Delphi.
+
+- Click Compile, then Install.
+
+- That's it. The components should be visible in the component palette
+  in a tab called "Tray Icons" (if older versions of the components were
+  installed they may be found in "Custom").
+
+
+If you're running other Delphi versions than ver. 5 or 6:
+
+- Select "Install Component" from the "Component" menu item (may vary
+  depending on your Delphi version).
+
+- A dialog displays where you must select the components to install and
+  the package to install into. I recommend creating a new package, if you
+  haven't already done so, rather than installing into the default package.
+
+- Browse for the RegisterTrayIcons.pas file and select OK.
+
+- That's it. The components should be visible in the component palette
+  in a tab called "Tray Icons" (if older versions of the components were
+  installed they may be found in "Custom").
+
+(Note that in Delphi ver. 2 the component path is limited to 80 characters.
+If it's too long it will be partly ignored, which really messes things up.)
+
+
+***** YOU MUST INSTALL THE COMPONENTS BEFORE OPENING THE DEMOS IN DELPHI.  *****
+

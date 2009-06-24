@@ -1,0 +1,258 @@
+***************************************
+BEGIN: Unregistering Component Package
+***************************************
+
+Reading Extra Paths from Setup.ini
+   C:\Projects\BibleQuote6\Delphi Unicode Controls\Source
+
+Cleaning Known Package Registry Entry
+
+Reading Packages:
+c:\borland\bds\4.0\Bin\dclstd100.bpl
+c:\borland\bds\4.0\Bin\dcldb100.bpl
+c:\borland\bds\4.0\bin\dclado100.bpl
+c:\borland\bds\4.0\Bin\dcldbx100.bpl
+c:\borland\bds\4.0\Bin\dclnet100.bpl
+c:\borland\bds\4.0\Bin\dclofficexp100.bpl
+c:\borland\bds\4.0\Bin\dclsoap100.bpl
+c:\borland\bds\4.0\Bin\dcl31w100.bpl
+c:\borland\bds\4.0\Bin\dclmid100.bpl
+c:\borland\bds\4.0\Bin\dcldbxcds100.bpl
+c:\borland\bds\4.0\Bin\dclie100.bpl
+c:\borland\bds\4.0\Bin\dclsmpedit100.bpl
+c:\borland\bds\4.0\Bin\dclemacsedit100.bpl
+c:\borland\bds\4.0\Bin\dclmlwiz100.bpl
+c:\borland\bds\4.0\Bin\applet100.bpl
+c:\borland\bds\4.0\Bin\dclact100.bpl
+c:\borland\bds\4.0\bin\dclbde100.bpl
+$(BDS)\Bin\dbx100.bpl
+c:\borland\bds\4.0\Bin\dclib100.bpl
+c:\borland\bds\4.0\Bin\dclIntraweb_80_100.bpl
+c:\borland\bds\4.0\Bin\dclIndyCore100.bpl
+c:\borland\bds\4.0\Bin\dclsmp100.bpl
+c:\borland\bds\4.0\Bin\dclIndyProtocols100.bpl
+c:\borland\bds\4.0\Bin\dcltee100.bpl
+$(BDSPROJECTSDIR)\Bpl\dclusr100.bpl
+$(BDSPROJECTSDIR)\Bpl\FrameViewer2006.bpl
+ 
+Stripping off path and extension
+dclstd100
+dcldb100
+dclado100
+dcldbx100
+dclnet100
+dclofficexp100
+dclsoap100
+dcl31w100
+dclmid100
+dcldbxcds100
+dclie100
+dclsmpedit100
+dclemacsedit100
+dclmlwiz100
+applet100
+dclact100
+dclbde100
+dbx100
+dclib100
+dclIntraweb_80_100
+dclIndyCore100
+dclsmp100
+dclIndyProtocols100
+dcltee100
+dclusr100
+FrameViewer2006
+ 
+Reading Packages to remove
+bds4\TntUnicodeVcl.dpk
+bds4\TntUnicodeVcl_Design.dpk
+ 
+Stripping off path and extension
+bds4\TntUnicodeVcl100
+bds4\TntUnicodeVcl_Design100
+ 
+Scanning for previously installed packages....
+Known Package Registry Entry Cleaned
+
+Cleaning Disabled Package Registry Entry
+
+Reading Packages:
+ 
+Stripping off path and extension
+ 
+Reading Packages to remove
+bds4\TntUnicodeVcl.dpk
+bds4\TntUnicodeVcl_Design.dpk
+ 
+Stripping off path and extension
+bds4\TntUnicodeVcl100
+bds4\TntUnicodeVcl_Design100
+ 
+Scanning for previously installed packages....
+Disabled Package Registry Entry Cleaned
+
+Cleaning Package Cache Registry Entry
+
+Reading Packages:
+ 
+Stripping off path and extension
+ 
+Reading Packages to remove
+bds4\TntUnicodeVcl.dpk
+bds4\TntUnicodeVcl_Design.dpk
+ 
+Stripping off path and extension
+bds4\TntUnicodeVcl100
+bds4\TntUnicodeVcl_Design100
+ 
+Scanning for previously installed packages....
+Package Cache Registry Entry Cleaned
+
+Reading Search Path Registry Entry
+C:\Borland\BDS\4.0\lib
+C:\Borland\BDS\4.0\Imports
+C:\Borland\BDS\4.0\Lib\Indy10
+c:\projects\biblequote6
+c:\projects\biblequote6\thtml\package
+    
+    
+Writing Search Path Registry Entry
+Removing extra characters and blank lines
+Formatting.....
+$(BDS)\lib
+$(BDS)\Imports
+$(BDS)\Lib\Indy10
+c:\projects\biblequote6
+c:\projects\biblequote6\thtml\package
+Writing to Key: Software\Borland\BDS\4.0\Library  Value: Search Path
+Search Path Registry Entry written
+
+Reading Browse Path Registry Entry
+C:\Borland\BDS\4.0\source\Win32\vcl
+C:\Borland\BDS\4.0\source\Win32\rtl\common
+C:\Borland\BDS\4.0\source\Win32\rtl\sys
+C:\Borland\BDS\4.0\source\Win32\rtl\win
+C:\Borland\BDS\4.0\source\Win32\WebSnap
+C:\Borland\BDS\4.0\source\ToolsAPI
+C:\Borland\BDS\4.0\source\Win32\IBX
+C:\Borland\BDS\4.0\source\Win32\Internet
+C:\Borland\BDS\4.0\source\Win32\Property Editors
+C:\Borland\BDS\4.0\source\Win32\soap
+C:\Borland\BDS\4.0\source\win32\xml
+C:\Borland\BDS\4.0\source\Win32\db
+C:\Borland\BDS\4.0\source\Win32\Decision Cube
+C:\Borland\BDS\4.0\source\Indy10
+    
+    
+Writing Browse Path Registry Entry
+Removing extra characters and blank lines
+Formatting.....
+$(BDS)\source\Win32\vcl
+$(BDS)\source\Win32\rtl\common
+$(BDS)\source\Win32\rtl\sys
+$(BDS)\source\Win32\rtl\win
+$(BDS)\source\Win32\WebSnap
+$(BDS)\source\ToolsAPI
+$(BDS)\source\Win32\IBX
+$(BDS)\source\Win32\Internet
+$(BDS)\source\Win32\Property Editors
+$(BDS)\source\Win32\soap
+$(BDS)\source\win32\xml
+$(BDS)\source\Win32\db
+$(BDS)\source\Win32\Decision Cube
+$(BDS)\source\Indy10
+Writing to Key: Software\Borland\BDS\4.0\Library  Value: Browsing Path
+Browse Path Registry Entry written
+
+***************************************
+END: Unregistering Component Package
+***************************************
+
+
+***************************************
+BEGIN: Compiling Component Package
+***************************************
+Validating Output Folders
+Creating temp compile folder
+Folder Created: c:\temp\ESetup
+
+Config.ini -JP Switch: 
+Config.ini -U Switch: C:\Borland\BDS\4.0\lib;C:\Borland\BDS\4.0\Imports;C:\Borland\BDS\4.0\Lib\Indy10;c:\projects\BIBLEQ~1;c:\projects\BIBLEQ~1\thtml\package;
+Config.ini -I Switch: ..\Include
+Config.ini -LE Switch: C:\DOCUME~1\7B5C~1\C316~1\BORLAN~1\Bpl
+Config.ini -LN Switch: C:\DOCUME~1\7B5C~1\C316~1\BORLAN~1\Bpl
+Config.ini -N Switch: c:\temp\ESetup
+
+Compiling....
+
+Redirector Working Dir: C:\Projects\BIBLEQ~1\DELPHI~1\Delphi\bds4
+Redirector CreateProcess command: "C:\Borland\BDS\4.0\Bin\DCC32.exe" TntUnicodeVcl.dpk
+
+
+Could not execute process: "C:\Borland\BDS\4.0\Bin\DCC32.exe" TntUnicodeVcl.dpk
+Не удается найти указанный файл
+
+Compiling C++Builder Files
+
+Config.ini -JL Switch: 
+Config.ini -U Switch: C:\Borland\BDS\4.0\lib;C:\Borland\BDS\4.0\Imports;C:\Borland\BDS\4.0\Lib\Indy10;c:\projects\BIBLEQ~1;c:\projects\BIBLEQ~1\thtml\package;
+Config.ini -I Switch: ..\Include
+Config.ini -LE Switch: C:\DOCUME~1\7B5C~1\C316~1\BORLAN~1\Bpl
+Config.ini -LN Switch: C:\DOCUME~1\7B5C~1\C316~1\BORLAN~1\Bpl
+Config.ini -N Switch: c:\temp\ESetup
+
+Compiling....
+
+Redirector Working Dir: C:\Projects\BIBLEQ~1\DELPHI~1\Delphi\bds4
+Redirector CreateProcess command: "C:\Borland\BDS\4.0\Bin\DCC32.exe" TntUnicodeVcl.dpk
+
+
+Could not execute process: "C:\Borland\BDS\4.0\Bin\DCC32.exe" TntUnicodeVcl.dpk
+Не удается найти указанный файл
+
+Could not find compiled BPL file: C:\Documents and Settings\Владелец\Мои документы\Borland Studio Projects\Bpl\TntUnicodeVcl100.bpl
+
+
+Config.ini -JP Switch: 
+Config.ini -U Switch: C:\Borland\BDS\4.0\lib;C:\Borland\BDS\4.0\Imports;C:\Borland\BDS\4.0\Lib\Indy10;c:\projects\BIBLEQ~1;c:\projects\BIBLEQ~1\thtml\package;
+Config.ini -I Switch: ..\Include
+Config.ini -LE Switch: C:\DOCUME~1\7B5C~1\C316~1\BORLAN~1\Bpl
+Config.ini -LN Switch: C:\DOCUME~1\7B5C~1\C316~1\BORLAN~1\Bpl
+Config.ini -N Switch: c:\temp\ESetup
+
+Compiling....
+
+Redirector Working Dir: C:\Projects\BIBLEQ~1\DELPHI~1\Delphi\bds4
+Redirector CreateProcess command: "C:\Borland\BDS\4.0\Bin\DCC32.exe" TntUnicodeVcl_Design.dpk
+
+
+Could not execute process: "C:\Borland\BDS\4.0\Bin\DCC32.exe" TntUnicodeVcl_Design.dpk
+Не удается найти указанный файл
+
+Compiling C++Builder Files
+
+Config.ini -JL Switch: 
+Config.ini -U Switch: C:\Borland\BDS\4.0\lib;C:\Borland\BDS\4.0\Imports;C:\Borland\BDS\4.0\Lib\Indy10;c:\projects\BIBLEQ~1;c:\projects\BIBLEQ~1\thtml\package;
+Config.ini -I Switch: ..\Include
+Config.ini -LE Switch: C:\DOCUME~1\7B5C~1\C316~1\BORLAN~1\Bpl
+Config.ini -LN Switch: C:\DOCUME~1\7B5C~1\C316~1\BORLAN~1\Bpl
+Config.ini -N Switch: c:\temp\ESetup
+
+Compiling....
+
+Redirector Working Dir: C:\Projects\BIBLEQ~1\DELPHI~1\Delphi\bds4
+Redirector CreateProcess command: "C:\Borland\BDS\4.0\Bin\DCC32.exe" TntUnicodeVcl_Design.dpk
+
+
+Could not execute process: "C:\Borland\BDS\4.0\Bin\DCC32.exe" TntUnicodeVcl_Design.dpk
+Не удается найти указанный файл
+
+Could not find compiled BPL file: C:\Documents and Settings\Владелец\Мои документы\Borland Studio Projects\Bpl\TntUnicodeVcl_Design100.bpl
+
+
+ 
+Adding Package BPL to Registry
+***************************************
+END: Compiling Component Package
+***************************************
+
