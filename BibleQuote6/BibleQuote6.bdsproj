@@ -119,11 +119,11 @@
 			<Linker Name="ExeDescription"></Linker>
 		</Linker>
 		<Directories>
-			<Directories Name="OutputDir"></Directories>
+			<Directories Name="OutputDir">..\..\BQ6\SandBox</Directories>
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">D:\BibleQuote6\Delphi Unicode Controls\Source;D:\BibleQuote6\Thtml\package;D:\BibleQuote6\Tray\TrayIcon</Directories>
+			<Directories Name="SearchPath">D:\BibleQuote6\Delphi Unicode Controls\Source;D:\BibleQuote6\Thtml\package;D:\BibleQuote6\Tray\TrayIcon;E:\DevSoft\myprojects\bqnet\BibleQuote6\Thtml\package;E:\DevSoft\myprojects\bqnet\BibleQuote6\;E:\DevSoft\myprojects\bqnet\BibleQuote6\Delphi Unicode Controls\Source;E:\DevSoft\myprojects\bqnet\BibleQuote6\Tray\TrayIcon</Directories>
 			<Directories Name="Packages">rtl;vcl;vclx;VclSmp;dbrtl;vcldb;Jcl;vclactnband;TntUnicodeVcl;xmlrtl</Directories>
 			<Directories Name="Conditionals"></Directories>
 			<Directories Name="DebugSourceDirs"></Directories>

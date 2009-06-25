@@ -1,19 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <PersonalityInfo>
-    <Option>
-      <Option Name="Personality">Default.Personality</Option>
-      <Option Name="ProjectType"></Option>
-      <Option Name="Version">1.0</Option>
-      <Option Name="GUID">{1F093359-92B6-4302-BC4C-E7C8535F28AF}</Option>
-    </Option>
-  </PersonalityInfo>
-  <Default.Personality>
-    
-    <Projects>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{1F093359-92B6-4302-BC4C-E7C8535F28AF}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
       <Projects Name="BibleQuote6.exe">BibleQuote6.bdsproj</Projects>
       <Projects Name="FrameViewer2006.bpl">Thtml\package\FrameViewer2006.bdsproj</Projects>
-      <Projects Name="Targets">BibleQuote6.exe FrameViewer2006.bpl</Projects>
+      <Projects Name="AlekControls.bpl">AlekControls.bdsproj</Projects>
+      <Projects Name="Targets">BibleQuote6.exe FrameViewer2006.bpl AlekControls.bpl</Projects>
     </Projects>
     <Dependencies/>
   </Default.Personality>
