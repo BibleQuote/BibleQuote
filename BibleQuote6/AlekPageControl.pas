@@ -68,7 +68,7 @@ if (image_width<3) or (image_height<3) then exit;
 if not FCloseImage.Empty then
 Canvas.Draw(Rect.Right-image_width-4,Rect.Top+3, FCloseImage);
 if Active then begin
-Canvas.Font.Color:=clHighlight;
+//Canvas.Font.Color:=clHighlight; //выделение цветом убрано
 Canvas.Font.Style:=[fsBold];
 end;
 fontheight:=Canvas.Font.Height;
@@ -88,7 +88,7 @@ textlength:=length(TrimRight(_caption) );
 savelength:=textlength;
 pCaption:=PWideChar(integer(_caption) );
 DrawTextW(Canvas.Handle,pCaption,textlength, textRect, DT_CALCRECT or DT_CENTER or DT_VCENTER);
-delta:=(Rect.Right-textRect.Right- image_width-5);
+delta:=(Rect.Right-textRect.Right- image_width-17);
 oldright:=textRect.Right;
 while delta+textRect.Right-oldright<=0 do begin
 _caption:=_caption+'  ';
