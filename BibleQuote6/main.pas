@@ -1855,23 +1855,24 @@ procedure TMainForm.FirstBrowserHotSpotClick(Sender: TObject; const SRC: string;
 var
 //  tb, tc, tv,
   num, code: integer;
-  scode: WideString;
+  scode, unicodeSRC: WideString;
 begin
-  if Pos('go ', SRC) = 1 then {// гиперссылка на стих} begin
-    ProcessCommand(SRC);
+  unicodeSRC:=UTF8Decode(SRC);
+  if Pos('go ', unicodeSRC) = 1 then {// гиперссылка на стих} begin
+    ProcessCommand(unicodeSRC);
     Handled := true;
   end
-  else if Pos('http://', SRC) = 1 then {// WWW} begin
-    if WStrMessageBox(WideFormat(Lang.Say('GoingOnline'), [SRC]), 'WWW', MB_OKCancel + MB_DEFBUTTON1) = ID_OK then
-      ShellExecute(Application.Handle, nil, PChar(SRC), nil, nil, SW_NORMAL);
+  else if Pos('http://', unicodeSRC) = 1 then {// WWW} begin
+    if WStrMessageBox(WideFormat(Lang.Say('GoingOnline'), [unicodeSRC]), 'WWW', MB_OKCancel + MB_DEFBUTTON1) = ID_OK then
+      ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil, SW_NORMAL);
     Handled := true;
   end
-  else if Pos('mailto:', SRC) = 1 then begin
-    ShellExecute(Application.Handle, nil, PChar(SRC), nil, nil, SW_NORMAL);
+  else if Pos('mailto:', unicodeSRC) = 1 then begin
+    ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil, SW_NORMAL);
     Handled := true;
   end
-  else if Pos('verse ', SRC) = 1 then begin
-    XrefTab.Tag := StrToInt(Copy(SRC, 7, Length(SRC) - 6));
+  else if Pos('verse ', unicodeSRC) = 1 then begin
+    XrefTab.Tag := StrToInt(Copy(unicodeSRC, 7, Length(unicodeSRC) - 6));
     CommentsTab.Tag := XrefTab.Tag;
 
 //    MainBook.KJV2RST(MainBook.CurBook, MainBook.CurChapter, XrefTab.Tag, tb,tc,tv);
@@ -1908,8 +1909,8 @@ begin
 
     if not MainPages.Visible then ToggleButton.Click;
     if (MainPages.ActivePage <> XrefTab) and (MainPages.ActivePage <> CommentsTab) then MainPages.ActivePage := XrefTab;
-  end else if Pos('s', SRC) = 1 then begin
-    scode := Copy(SRC, 2, Length(SRC) - 1);
+  end else if Pos('s', unicodeSRC) = 1 then begin
+    scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
     Val(scode, num, code);
     if code = 0 then DisplayStrongs(num, (MainBook.CurBook < 40) and (MainBook.HasOldTestament));
   end;
@@ -4790,7 +4791,7 @@ procedure TMainForm.DicBrowserHotSpotClick(Sender: TObject;
 begin
   MainBook.IniFile := MainFileExists(DefaultModule + '\bibleqt.ini');
 
-  GoEdit.Text := SRC;
+  GoEdit.Text := UTF8Decode(SRC);//AlekId: и все дела!
   GoEditDblClick(nil);
   Handled := True;
 end;
@@ -4798,7 +4799,7 @@ end;
 procedure TMainForm.CommentsBrowserHotSpotClick(Sender: TObject;
   const SRC: string; var Handled: Boolean);
 begin
-  GoEdit.Text := SRC;
+  GoEdit.Text := UTF8Decode(SRC);
   GoEditDblClick(nil);
   Handled := True;
 end;
