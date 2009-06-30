@@ -1,6 +1,7 @@
 package AlekControls;
 
 {$R *.res}
+{$R 'SevenZip\SevenZipVCL.dcr'}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
@@ -27,13 +28,10 @@ package AlekControls;
 requires
   rtl,
   vcl,
-  TntUnicodeVcl,
-  vclactnband,
-  vclx,
-  vcldb,
-  dbrtl;
+  TntUnicodeVcl;
 
 contains
-  AlekPageControl in 'AlekPageControl.pas';
+  AlekPageControl in 'AlekPageControl.pas',
+  SevenZipVCL in 'SevenZip\SevenZipVCL.pas';
 
 end.

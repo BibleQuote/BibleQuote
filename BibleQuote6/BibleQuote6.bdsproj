@@ -30,7 +30,7 @@
 			<Compiler Name="L">1</Compiler>
 			<Compiler Name="M">0</Compiler>
 			<Compiler Name="N">1</Compiler>
-			<Compiler Name="O">1</Compiler>
+			<Compiler Name="O">0</Compiler>
 			<Compiler Name="P">1</Compiler>
 			<Compiler Name="Q">0</Compiler>
 			<Compiler Name="R">0</Compiler>
@@ -38,7 +38,7 @@
 			<Compiler Name="T">0</Compiler>
 			<Compiler Name="U">0</Compiler>
 			<Compiler Name="V">1</Compiler>
-			<Compiler Name="W">0</Compiler>
+			<Compiler Name="W">1</Compiler>
 			<Compiler Name="X">1</Compiler>
 			<Compiler Name="Y">1</Compiler>
 			<Compiler Name="Z">1</Compiler>
@@ -119,11 +119,11 @@
 			<Linker Name="ExeDescription"></Linker>
 		</Linker>
 		<Directories>
-			<Directories Name="OutputDir">..\..\BQ6\SandBox</Directories>
+			<Directories Name="OutputDir">E:\DevSoft\myprojects\BQ6\SandBox</Directories>
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">D:\BibleQuote6\Delphi Unicode Controls\Source;D:\BibleQuote6\Thtml\package;D:\BibleQuote6\Tray\TrayIcon;E:\DevSoft\myprojects\bqnet\BibleQuote6\Thtml\package;E:\DevSoft\myprojects\bqnet\BibleQuote6\;E:\DevSoft\myprojects\bqnet\BibleQuote6\Delphi Unicode Controls\Source;E:\DevSoft\myprojects\bqnet\BibleQuote6\Tray\TrayIcon</Directories>
+			<Directories Name="SearchPath">$(BDS)\lib\Debug;D:\BibleQuote6\Delphi Unicode Controls\Source;D:\BibleQuote6\Thtml\package;D:\BibleQuote6\Tray\TrayIcon;E:\DevSoft\myprojects\bqnet\BibleQuote6\Thtml\package;E:\DevSoft\myprojects\bqnet\BibleQuote6\;E:\DevSoft\myprojects\bqnet\BibleQuote6\Delphi Unicode Controls\Source;E:\DevSoft\myprojects\bqnet\BibleQuote6\Tray\TrayIcon</Directories>
 			<Directories Name="Packages">rtl;vcl;vclx;VclSmp;dbrtl;vcldb;Jcl;vclactnband;TntUnicodeVcl;xmlrtl</Directories>
 			<Directories Name="Conditionals"></Directories>
 			<Directories Name="DebugSourceDirs"></Directories>

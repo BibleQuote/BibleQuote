@@ -44,6 +44,7 @@ function LoadBibleqtIniFileEncoding (
 
 
 implementation
+uses SevenZipVCL;
 
 const
   cEncUnicode = 1;
@@ -51,15 +52,32 @@ const
 
 var
   fUnicodeToRussianXLAT: Array [0..65535] of AnsiChar;
+  S_SevenZip:TSevenZip;
+function ParseArchived(fileName:WideString; out fileIx, fileSz:integer):boolean;
+var
+fn:WideString;
+filenameEndPos:integer;
+begin
+if fileName[1]<>'?' then begin result:=false; exit; end;
+filenameEndPos:= Pos('??', fileName);
+if filenameEndPos<=0 then raise Exception.Create('Неверый путь к архиву');
+fn:=Copy(fileName, 2, filenameEndPos-2);
+S_SevenZip.SZFileName:=fn;
+fn:=Copy(fileName, filenameEndPos+2, $FFFFFF );
+fileIx:=S_SevenZip.GetIndexByFilename(fn, @fileSz);
+result:=true;
+end;
+
 
 procedure ReadFileContent (aFileName: WideString; var rBuffer: AnsiString);
 var
   dFile: TFileStream;
-  dSize: Integer;
+  dSize, indexOfFile: Integer;
+  isArchive:boolean;
 begin
   rBuffer := '';
   dFile := nil;
-
+  if not ParseArchived(aFileName, indexOfFile, dSize ) then begin
   try
     dFile := TFileStream.Create (aFileName, fmOpenRead);
     dSize := dFile.Size;
@@ -73,6 +91,14 @@ begin
   finally
     dFile.Free;
   end;
+  end //если несжатый
+  else begin
+  if dSize<0  then raise Exception.CreateFmt('Не найден в архиве: %s', [aFileName] );
+  SetLength (rBuffer, dSize);
+  S_SevenZip.ExtracttoMem(indexofFile, Pointer(rBuffer), dSize);
+
+  end;
+
 end;
 
 function IsContentUnicode (var aBuffer: AnsiString): Boolean;
@@ -1214,6 +1240,10 @@ begin
   end;
 end;
 
-begin
+
+initialization
   InitializeXLAT;
+  S_SevenZip:=TSevenZip.Create(nil);
+finalization
+S_SevenZip.Free();
 end.

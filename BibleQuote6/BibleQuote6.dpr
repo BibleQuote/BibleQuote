@@ -20,7 +20,8 @@ uses
   WComp in 'Hotkey\WComp.pas',
   SysHot in 'Hotkey\SysHot.pas',
   main in 'main.pas' {MainForm: TTntForm},
-  AlekPageControl in 'AlekPageControl.pas';
+  AlekPageControl in 'AlekPageControl.pas',
+  BibleQuoteConfig in 'BibleQuoteConfig.pas';
 
 {$R *.res}
 

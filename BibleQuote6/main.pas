@@ -89,9 +89,9 @@ type
     mwsLocation, mwsTitleLocation: WideString;
     mBible, mSecondBible: TBible;
     mSatelliteMenuItem: TTntMenuItem;
-    mReloadNeeded:boolean;
+    mReloadNeeded: boolean;
   public
-    property ReloadNeeded:boolean read mReloadNeeded write mReloadNeeded;
+    property ReloadNeeded: boolean read mReloadNeeded write mReloadNeeded;
     constructor Create(const aHtmlViewer: THTMLViewer; const bible: TBible;
       const awsLocation: WideString; aSatelliteMenuItem: TtntMenuItem);
     procedure Init(const aHtmlViewer: THTMLViewer;
@@ -533,6 +533,7 @@ type
     function _CreateNewBibleInstance(aBible: TBible; aOwner: TComponent): TBible;
     function GetActiveTabInfo(): TViewTabInfo;
     procedure AdjustBibleTabs(awsNewModuleName: WideString = ''); //при перемене модул€: навигаци€ или смена таба
+    procedure SafeProcessCommand(wsLocation: WideString);
     procedure UpdateUI();
     function ActiveSatteliteMenu(): TTntMenuItem;
     function SelectSatelliteMenuItem(aItem: TTntMenuItem): TTntMenuItem;
@@ -541,6 +542,8 @@ type
     procedure SaveTabsToFile(path: WideString);
     procedure LoadTabsFromFile(path: WideString);
     function NewViewTab(command, satellite: WideString): boolean;
+    procedure AddArchivedModules(path: WideString; tempBook: TBible; addAsCommentaries:boolean=false);
+    procedure AddFolderModules(path: WideString; tempBook: TBible; addAsCommentaries:boolean=false);
     (*AlekId:/ƒобавлено*)
     procedure GoAddress(var book, chapter, fromverse, toverse: integer);
     procedure SearchListInit;
@@ -606,7 +609,7 @@ var
 
 implementation
 
-uses copyright, input, config;
+uses copyright, input, config, BibleQuoteConfig;
 
 var
   Bibles, Books,
@@ -733,7 +736,7 @@ var
   ConfigFormHotKeyChoiceItemIndex: integer;
   (*AlekId:ƒобавлено*)
   UserDir: WideString;
-  HotMenuitems:array[0..9] of TTntMenuItem;
+  HotMenuitems: array[0..9] of TTntMenuItem;
   (*AlekId:/ƒобавлено*)
 {$R *.DFM}
 
@@ -846,11 +849,23 @@ begin
 end;
 
 function TMainForm.MainFileExists(s: WideString): WideString;
+var filePath, fullPath: WideString;
 begin
-  if FileExists(ExePath + s) then Result := ExePath + s
+  Result := '';
+  //сжатые модули имеют приоритет над иными
+  filePath := ExtractFilePath(s);
+  fullPath := ExePath + C_CompressedModulesSubPath + '\' + Copy(filePath, 1, length(filePath) - 1) + '.bqb';
+  if FileExists(fullpath) then
+    Result := '?' + fullpath + '??' + 'bibleqt.ini'
+  else if FileExists(ExePath + s) then Result := ExePath + s
   else if FileExists(SecondPath + s) then Result := SecondPath + s
-  else if FileExists(ExePath + 'Commentaries\' + s) then Result := ExePath + 'Commentaries\' + s
-  else Result := '';
+  else begin
+  filePath := ExtractFilePath(s);
+  fullPath := ExePath + C_CommentariesSubPath + '\' + Copy(filePath, 1, length(filePath) - 1) + '.bqb';
+  if FileExists(fullpath) then
+  Result := '?' + fullpath + '??' + 'bibleqt.ini'
+  else if FileExists(ExePath + 'Commentaries\' + s) then Result := ExePath + 'Commentaries\' + s;
+  end;
 end;
 
 procedure TMainForm.LoadConfiguration;
@@ -1857,7 +1872,7 @@ var
   num, code: integer;
   scode, unicodeSRC: WideString;
 begin
-  unicodeSRC:=UTF8Decode(SRC);
+  unicodeSRC := UTF8Decode(SRC);
   if Pos('go ', unicodeSRC) = 1 then {// гиперссылка на стих} begin
     ProcessCommand(unicodeSRC);
     Handled := true;
@@ -1943,6 +1958,55 @@ begin
 
 end;
 (*AlekId:/ƒобавлено*)
+
+procedure TMainForm.AddArchivedModules(path: WideString; tempBook: TBible; addAsCommentaries:boolean=false);
+var findRec: TSearchRec;
+begin
+  if not DirectoryExists(path) then exit;
+  if FindFirst(path + '\*.bqb', faAnyFile, findRec) <> 0 then exit;
+  repeat
+    try
+      tempBook.IniFile := '?' + path + '\' + findRec.Name + '??' + C_ModuleIniName;
+      ModulesList.Add(tempBook.Name + ' $$$ ' + tempBook.ShortPath);
+      ModulesCodeList.Add(tempBook.ShortName);
+      if addAsCommentaries then begin
+            Comments.Add(tempBook.Name);
+            CommentsPaths.Add(tempBook.ShortPath);
+      end
+      else begin
+          if tempBook.isBible then Bibles.Add(tempBook.Name)
+          else Books.Add(tempBook.Name);
+      end;
+    except {подавить!} end;
+  until FindNext(findRec) <> 0;
+  FindClose(findRec);
+end;
+
+procedure TMainForm.AddFolderModules(path: WideString; tempBook: TBible; addAsCommentaries:boolean=false);
+var findRecord: TSearchRec;
+begin
+  if FindFirst(path + '*.*', faDirectory, findRecord) <> 0 then exit;
+  repeat
+    if (findRecord.Attr and faDirectory = faDirectory) and
+      ((findRecord.Name <> '.') and (findRecord.Name <> '..')) and
+      FileExists(path + findRecord.Name + '\bibleqt.ini') then begin
+      try
+        tempBook.IniFile := path + findRecord.Name + '\bibleqt.ini';
+        ModulesList.Add(tempBook.Name + ' $$$ ' + tempBook.ShortPath);
+        ModulesCodeList.Add(tempBook.ShortName);
+        if addAsCommentaries then begin
+            Comments.Add(tempBook.Name);
+            CommentsPaths.Add(tempBook.ShortPath);
+        end
+        else begin
+          if tempBook.isBible then Bibles.Add(tempBook.Name)
+          else Books.Add(tempBook.Name);
+        end;
+      except end;
+    end; //if directory
+  until FindNext(findRecord) <> 0;
+  FindClose(findRecord);
+end;
 
 procedure TMainForm.AddressOKButtonClick(Sender: TObject);
 var
@@ -2307,20 +2371,21 @@ end;
 procedure TMainForm.SetFirstTabInitialLocation(wsCommand,
   wsSecondaryView: WideString);
 var menuItem: TTntMenuItem;
-  b, c, v1, v2: integer;
 begin
   if length(wsCommand) > 0 then LastAddress := wsCommand;
   menuItem := SatelliteMenuItemFromModuleName(wsSecondaryView);
   if Assigned(menuItem) then SelectSatelliteMenuItem(menuItem);
-  if LastAddress = '' then begin
+{  if length(LastAddress)>1 then begin
+   successed_load:=   ProcessCommand(LastAddress);
+  // if successed_load then BooksCB.ItemIndex := BooksCB.Items.IndexOf(MainBook.Name);
+  end
+  else successed_load:=false;
+  if not successed_load then begin
     GoModuleName(miHot1.Caption);
     b := 1; c := 1; v1 := 1; v2 := 0;
     GoAddress(b, c, v1, v2);
-  end
-  else begin
-    ProcessCommand(LastAddress);
-    BooksCB.ItemIndex := BooksCB.Items.IndexOf(MainBook.Name);
-  end;
+  end;}
+  SafeProcessCommand(LastAddress);
   UpdateUI();
 end;
 
@@ -2425,10 +2490,13 @@ begin
     if value <> '' then toverse := StrToInt(value)
     else toverse := 0;
  //формируем путь к ini модул€
-    if path = ExtractFileName(path) then path := MainFileExists(path + '\bibleqt.ini')
-    else path := ExePath + path + '\bibleqt.ini';
+    {if path = ExtractFileName(path) then} path := MainFileExists(path + '\bibleqt.ini');
+    //else path := ExePath + path + '\bibleqt.ini';
     // ??! никогда ветвление это не сработает
-    if path = '' then goto exitlabel;
+    //if path = '' then goto exitlabel;
+    if length(path) < 1 then begin
+      exit; end;
+
  // пытаемс€ подгрузить модуль
     if path <> MainBook.IniFile then try
       MainBook.IniFile := path;
@@ -3159,7 +3227,7 @@ begin
     Dec(i);
     Browser.DefFontSize := i;
     Browser.LoadFromString(Browser.DocumentSourceUtf16);
-
+    //Browser.Reload();
     SearchBrowser.DefFontSize := i;
     SearchBrowser.LoadFromString(SearchBrowser.DocumentSourceUtf16);
     DicBrowser.DefFontSize := i;
@@ -3213,6 +3281,7 @@ var
   tmpbook: TBible;
   i: integer;
   MI: TTntMenuItem;
+  compressedModulesDir: WideString;
 begin
   tmpbook := TBible.Create(Self);
 
@@ -3220,66 +3289,26 @@ begin
   Books.Clear;
   Comments.Clear;
   CommentsPaths.Clear;
-
   ModulesList.Clear;
+
   ModulesCodeList.Create;
 
-  if FindFirst(ExePath + '*.*', faDirectory, F) = 0 then begin
-    repeat
-      if (F.Attr and faDirectory = faDirectory) and
-        ((F.Name <> '.') and (F.Name <> '..')) and
-        FileExists(ExePath + F.Name + '\bibleqt.ini') then begin
-        try
-          tmpbook.IniFile := ExePath + F.Name + '\bibleqt.ini';
-
-          ModulesList.Add(tmpbook.Name + ' $$$ ' + tmpbook.ShortPath);
-          ModulesCodeList.Add(tmpbook.ShortName);
-
-          if tmpbook.isBible then begin
-            Bibles.Add(tmpbook.Name);
-            //BibleTabs.Tabs.Add(tmpbook.ShortName);
-          end else Books.Add(tmpbook.Name);
-        except
-          ;
-        end;
-      end;
-    until FindNext(F) <> 0;
-  end;
-
+  AddFolderModules(ExePath, tmpBook);
+  compressedModulesDir := ExePath + C_CompressedModulesSubPath;
+  AddArchivedModules(compressedModulesDir, tmpbook); //AlekId
   if (SecondPath <> '') and (ExtractFilePath(SecondPath) <> ExtractFilePath(ExePath)) then
-    if FindFirst(SecondPath + '*.*', faDirectory, F) = 0 then begin
-      repeat
-        if (F.Attr and faDirectory = faDirectory) and
-          ((F.Name <> '.') and (F.Name <> '..')) and
-          FileExists(SecondPath + F.Name + '\bibleqt.ini') then begin
-          try
-            tmpbook.IniFile := SecondPath + F.Name + '\bibleqt.ini';
-
-            ModulesList.Add(tmpbook.Name + ' $$$ ' + tmpbook.ShortPath);
-            ModulesCodeList.Add(tmpbook.ShortName);
-
-            if tmpbook.isBible then begin
-              Bibles.Add(tmpbook.Name);
-            //BibleTabs.Tabs.Add(tmpbook.ShortName);
-            end else Books.Add(tmpbook.Name);
-          except
-            ;
-          end;
-        end;
-      until FindNext(F) <> 0;
-    end;
-
-  if FindFirst(ExePath + 'Commentaries\*.*', faDirectory, F) = 0 then begin
+  AddFolderModules(SecondPath, tmpbook);
+  AddArchivedModules(ExePath+C_CommentariesSubPath, tmpBook, true);
+  AddFolderModules(ExePath + 'Commentaries\', tmpbook, true );
+  {if FindFirst(ExePath + 'Commentaries\*.*', faDirectory, F) = 0 then begin
     repeat
       if (F.Attr and faDirectory = faDirectory) and
         ((F.Name <> '.') and (F.Name <> '..')) and
         FileExists(ExePath + 'Commentaries\' + F.Name + '\bibleqt.ini') then begin
         try
           tmpbook.IniFile := ExePath + 'Commentaries\' + F.Name + '\bibleqt.ini';
-
           Comments.Add(tmpbook.Name);
           CommentsPaths.Add(tmpbook.ShortPath);
-
           ModulesList.Add(tmpbook.Name + ' $$$ Commentaries\' + tmpbook.ShortPath);
           ModulesCodeList.Add(tmpbook.ShortName);
         except
@@ -3287,7 +3316,7 @@ begin
         end;
       end;
     until FindNext(F) <> 0;
-  end;
+  end;}
 
   Comments.Add('---------');
   for i := 0 to Bibles.Count - 1 do Comments.Add(Bibles[i]);
@@ -3364,7 +3393,7 @@ begin
     SatelliteMenu.Items.Add(MI);
   end;
 
-  InitBibleTabs;
+  InitBibleTabs();
 
   tmpbook.Destroy;
 end;
@@ -3445,7 +3474,7 @@ begin
 
     try
       ProcessCommand(WideFormat('go %s %d %d %d %d',
-        [commentpath + MainBook.ShortPath, book, chapter, fromverse, toverse]));
+        [ MainBook.ShortPath, book, chapter, fromverse, toverse]));
     except
     end;
   end
@@ -3482,8 +3511,8 @@ end;
 
 procedure TMainForm.miFontConfigClick(Sender: TObject);
 var
-    browserCount,i:Integer;
-    viewTabInfo:TViewTabInfo;
+  browserCount, i: Integer;
+  viewTabInfo: TViewTabInfo;
 begin
   with FontDialog1 do begin
     Font.Name := Browser.DefFontName;
@@ -3493,17 +3522,17 @@ begin
   end;
 
   if FontDialog1.Execute then begin
-    browserCount:=mViewTabs.PageCount-1;
+    browserCount := mViewTabs.PageCount - 1;
     for I := 0 to browserCount do begin
       try
-      viewTabInfo:= TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
-      with viewTabInfo, viewTabInfo.mHtmlViewer do begin
-      if i<>mViewTabs.ActivePageIndex then ReloadNeeded:=true;
-       DefFontName := FontDialog1.Font.Name;
-       DefFontColor := FontDialog1.Font.Color;
-       DefFontSize := FontDialog1.Font.Size;
-      end//with      
-      except     end;
+        viewTabInfo := TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
+        with viewTabInfo, viewTabInfo.mHtmlViewer do begin
+          if i <> mViewTabs.ActivePageIndex then ReloadNeeded := true;
+          DefFontName := FontDialog1.Font.Name;
+          DefFontColor := FontDialog1.Font.Color;
+          DefFontSize := FontDialog1.Font.Size;
+        end //with
+      except end;
     end;
 {
     SearchBrowser.DefFontColor := FontDialog1.Font.Color;
@@ -3528,24 +3557,24 @@ begin
 end;
 
 procedure TMainForm.miBGConfigClick(Sender: TObject);
-var i, browserCount:integer;
-    viewTabInfo:TViewTabInfo;
+var i, browserCount: integer;
+  viewTabInfo: TViewTabInfo;
 begin
   Browser.DefBackground := ChooseColor(Browser.DefBackground);
   Browser.Refresh;
-  browserCount:=mViewTabs.PageCount-1;
-    for I := 0 to browserCount do begin
-      try
-      viewTabInfo:= TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
+  browserCount := mViewTabs.PageCount - 1;
+  for I := 0 to browserCount do begin
+    try
+      viewTabInfo := TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
       with viewTabInfo, viewTabInfo.mHtmlViewer do begin
-      if i<>mViewTabs.ActivePageIndex then begin
-      DefBackground:=Browser.DefBackground;
-      Refresh();
-      end;
-      end//with      
-      except     end;
-    end;
-  
+        if i <> mViewTabs.ActivePageIndex then begin
+          DefBackground := Browser.DefBackground;
+          Refresh();
+        end;
+      end //with
+    except end;
+  end;
+
   with SearchBrowser do begin
     DefBackground := Browser.DefBackground;
     Refresh;
@@ -3569,27 +3598,27 @@ begin
 end;
 
 procedure TMainForm.miHrefConfigClick(Sender: TObject);
-var i, browserCount:integer;
-    viewTabInfo:TViewTabInfo;
+var i, browserCount: integer;
+  viewTabInfo: TViewTabInfo;
 
 begin
   with Browser do begin
     DefHotSpotColor := ChooseColor(DefHotSpotColor);
 //    Browser.Repaint();//AlekId: увы, недостаточно
   end;
-   ProcessCommand(History[HistoryLB.ItemIndex]);
-    browserCount:=mViewTabs.PageCount-1;
-    for I := 0 to browserCount do begin
-      try
-      viewTabInfo:= TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
+  ProcessCommand(History[HistoryLB.ItemIndex]);
+  browserCount := mViewTabs.PageCount - 1;
+  for I := 0 to browserCount do begin
+    try
+      viewTabInfo := TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
       with viewTabInfo, viewTabInfo.mHtmlViewer do begin
-      if i<>mViewTabs.ActivePageIndex then begin
-      DefHotSpotColor:=Browser.DefHotSpotColor;
-      ReloadNeeded:=true;
-      end;
-      end//with      
-      except     end;
-    end;
+        if i <> mViewTabs.ActivePageIndex then begin
+          DefHotSpotColor := Browser.DefHotSpotColor;
+          ReloadNeeded := true;
+        end;
+      end //with
+    except end;
+  end;
 
   with SearchBrowser do begin
     DefHotSpotColor := Browser.DefHotSpotColor;
@@ -4791,7 +4820,7 @@ procedure TMainForm.DicBrowserHotSpotClick(Sender: TObject;
 begin
   MainBook.IniFile := MainFileExists(DefaultModule + '\bibleqt.ini');
 
-  GoEdit.Text := UTF8Decode(SRC);//AlekId: и все дела!
+  GoEdit.Text := UTF8Decode(SRC); //AlekId: и все дела!
   GoEditDblClick(nil);
   Handled := True;
 end;
@@ -5191,9 +5220,9 @@ begin
   end
   else TitleLabel.Caption := tabInfo.mwsTitleLocation + '; ' + Lang.Say('PublicDomainText');
   SelectSatelliteMenuItem(tabInfo.mSatelliteMenuItem);
-  if tabInfo.ReloadNeeded then begin 
-  tabInfo.ReloadNeeded:=false;
-  ProcessCommand(tabInfo.mwsLocation);
+  if tabInfo.ReloadNeeded then begin
+    tabInfo.ReloadNeeded := false;
+    ProcessCommand(tabInfo.mwsLocation);
   end;
 
 end;
@@ -5245,10 +5274,16 @@ begin
 
   Lines := '';
 
-  if CommentsCB.ItemIndex < CommentsPaths.Count then // ordinary commentaries
-    SecondBook.IniFile := ExePath + 'Commentaries\'
+  if CommentsCB.ItemIndex < CommentsPaths.Count then  begin// ordinary commentaries
+  s:= MainFileExists( CommentsPaths[CommentsCB.ItemIndex]+'\bibleqt.ini' );
+  if length(s)<1  then exit;
+  try
+  SecondBook.IniFile:=s;
+  except exit; end;
+     {ExePath + 'Commentaries\'
       + CommentsPaths[CommentsCB.ItemIndex]
-      + '\bibleqt.ini'
+      + '\bibleqt.ini}
+  end
   else if (CommentsCB.ItemIndex > CommentsPaths.Count) then begin
     found := false;
 
@@ -5467,7 +5502,7 @@ begin
     MainBook := newBible;
     mViewTabs.ActivePage := Tab1;
     SelectSatelliteMenuItem(satelliteMenuItem);
-    ProcessCommand(command);
+    SafeProcessCommand(command);
     UpdateUI();
   except
     result := false;
@@ -5907,28 +5942,28 @@ end;
 procedure TMainForm.BibleTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
 var tabIndex: integer;
   viewTabInfo: TViewTabInfo;
-  mi:TTntMenuItem;
+  mi: TTntMenuItem;
 begin
   tabIndex := BibleTabs.IndexOfTabAt(X, Y);
   if (tabIndex < 0) or (tabIndex > 9) then exit;
-  mi:=nil;
+  mi := nil;
   try
     viewTabInfo := TObject((TObject((Source as TAlekPageControl).Tag) as TTntTabSheet).Tag) as TViewTabInfo;
     //cp:=viewTabInfo.mBible.Name;
     case tabIndex of
-    0: mi:=miHot1;
-    1: mi:=miHot2;
-    2: mi:=miHot3;
-    3: mi:=miHot4;
-    4: mi:=miHot5;
-    5: mi:=miHot6;
-    6: mi:=miHot7;
-    7: mi:=miHot8;
-    8: mi:=miHot9;
-    9: mi:=miHot0;
-    end;//case
+      0: mi := miHot1;
+      1: mi := miHot2;
+      2: mi := miHot3;
+      3: mi := miHot4;
+      4: mi := miHot5;
+      5: mi := miHot6;
+      6: mi := miHot7;
+      7: mi := miHot8;
+      8: mi := miHot9;
+      9: mi := miHot0;
+    end; //case
     if not assigned(mi) then exit;
-    mi.Caption:=viewTabInfo.mBible.Name;
+    mi.Caption := viewTabInfo.mBible.Name;
     BibleTabs.Tabs[tabIndex] := viewTabInfo.mBible.ShortName;
   except
   end;
@@ -6532,6 +6567,22 @@ begin
   end;
 end;
 
+procedure TMainForm.SafeProcessCommand(wsLocation: WideString);
+var succeeded: boolean;
+  b, c, v1, v2: integer;
+begin
+  if length(wsLocation) > 1 then begin
+    succeeded := ProcessCommand(wsLocation);
+    if succeeded then exit; end;
+
+  if length(LastAddress) > 1 then begin
+    succeeded := ProcessCommand(LastAddress);
+    if succeeded then exit; end;
+  GoModuleName(miHot1.Caption);
+  b := 1; c := 1; v1 := 1; v2 := 0;
+  GoAddress(b, c, v1, v2);
+end;
+
 procedure TMainForm.SatelliteButtonClick(Sender: TObject);
 var
   P: TPoint;
@@ -6596,7 +6647,7 @@ begin
   mBible := bible;
   mwsLocation := awsLocation;
   mSatelliteMenuItem := aSatteliteMenuItem;
-  mReloadNeeded:=false;
+  mReloadNeeded := false;
 end;
 
 { TViewTabDragObject }

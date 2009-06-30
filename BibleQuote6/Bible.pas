@@ -347,6 +347,17 @@ begin
   if a < b then Result := b-a else Result := a-b;
 end;
 
+function GetArchiveFromSpecial(aSpecial:WideString):WideString;
+var pz:Integer;
+begin
+//строки типа rststrong.bqb??bibleqt.ini в rststrong.bqb
+pz:=Pos('??',aSpecial);
+if pz<=0 then result:=EmptyWideStr
+else
+result:=Copy(aSpecial, 1, pz-1);
+end;
+
+
 procedure Register;
 begin
   RegisterComponents('Samples', [TBible]);
@@ -355,10 +366,10 @@ end;
 constructor TBible.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  
+
   FLines := TWideStringList.Create;
   BookLines := TWideStringList.Create;
-  
+
 end;
 
 destructor TBible.Destroy;
@@ -423,7 +434,7 @@ var
   i, cur: integer;
   dFirstPart: WideString;
   dSecondPart: WideString;
-
+  isCompressed:boolean;
   function ToBoolean (aValue: WideString): Boolean;
   begin
     Result := (aValue = 'Y') or (aValue = 'y');
@@ -431,7 +442,7 @@ var
 
 begin
   s := Nil;
-  
+
   try
     FDefaultEncoding := LoadBibleqtIniFileEncoding (value);
     s := WChar_ReadTextFileToTWideStrings (value, FDefaultEncoding);
@@ -442,7 +453,7 @@ begin
     Exit;
 
   end;
-
+  isCompressed:=value[1]='?';
   FBookQty := 0;
   FBook := 1;
   FChapter := 1;
@@ -634,13 +645,13 @@ begin
     if dFirstPart = 'PathName' then
     begin
       Inc(i);
-      PathNames[i] := dSecondPart;
-      
+      {if isCompressed then PathNames[i] :=GetArchiveFromSpecial()  dSecondPart
+      else}                 PathNames[i] := dSecondPart;
     end else
     if dFirstPart = 'FullName' then
     begin
       FullNames[i] := dSecondPart;
-      
+
     end else
     if dFirstPart = 'ShortName' then
     begin
@@ -648,8 +659,8 @@ begin
 
     end else
     begin
+      if i<=0 then continue;    //alekid:!!!
       ShortNames[i] := FirstWord (VarShortNames[i]);
-
       if dFirstPart = 'ChapterQty' then
       begin
         ChapterQtys[i] := StrToInt(dSecondPart);
@@ -661,8 +672,19 @@ begin
   until false;
 
   FIniFile := value;
-  FPath := ExtractFilePath(value);
+ if isCompressed then begin
+  FPath := GetArchiveFromSpecial(value)+'??';
+  FShortPath:=GetArchiveFromSpecial( ExtractFileName(value) );
+  FShortPath:=Copy(FShortPath,1, length(FShortPath)-4 );
+ end
+ else   begin
+  FPath:=ExtractFilePath(value);
   FShortPath := WideLowerCase(ExtractFileName(Copy(FPath,1,Length(FPath)-1)));
+  end;
+{  if isCompressed then begin
+  FShortPath:=GetArchiveFromSpecial( ExtractFileName(FIniFile) );
+  end
+  else}
 
   FLasTBible := 0;
   FLastChapter := 0;
@@ -921,7 +943,9 @@ var
   words: TWideStrings;
   w: WideString;
   i: integer;
+  timeStart, time:Cardinal;
 begin
+  timeStart:=GetTickCount();
   words := TWideStringList.Create;
   w := s;
 
@@ -960,6 +984,7 @@ begin
   FLastVerse := 0;
 
   if Assigned(FOnSearchComplete) then FOnSearchComplete(Self);
+  time:=GetTickCount()- timeStart;
 end;
 
 procedure TBible.StopSearching;

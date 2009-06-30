@@ -182,7 +182,7 @@ object MainForm: TMainForm
     Top = 30
     Width = 298
     Height = 621
-    ActivePage = SearchTab
+    ActivePage = GoTab
     Align = alLeft
     Images = theImageList
     PopupMenu = RefPopupMenu
@@ -233,7 +233,7 @@ object MainForm: TMainForm
           Height = 23
           Style = csDropDownList
           DropDownCount = 25
-          ItemHeight = 0
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 1
           OnChange = BooksCBChange
@@ -313,10 +313,6 @@ object MainForm: TMainForm
         object BookmarksTab: TTntTabSheet
           Caption = 'BookmarksTab'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object BookmarksLB: TTntListBox
             Left = 0
             Top = 0
@@ -344,11 +340,13 @@ object MainForm: TMainForm
             object BookmarkLabel: TTntLabel
               Left = 10
               Top = 10
-              Width = 75
-              Height = 15
+              Width = 262
+              Height = 91
               Align = alClient
               Caption = 'BookmarkLabel'
               WordWrap = True
+              ExplicitWidth = 75
+              ExplicitHeight = 15
             end
           end
         end
@@ -415,6 +413,10 @@ object MainForm: TMainForm
     end
     object SearchTab: TTntTabSheet
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object SearchBrowser: THTMLViewer
         Left = 0
         Top = 179
@@ -460,7 +462,7 @@ object MainForm: TMainForm
           Width = 210
           Height = 23
           DropDownCount = 10
-          ItemHeight = 15
+          ItemHeight = 0
           PopupMenu = MemoPopupMenu
           TabOrder = 0
         end
@@ -533,7 +535,7 @@ object MainForm: TMainForm
           Width = 71
           Height = 23
           Style = csDropDownList
-          ItemHeight = 15
+          ItemHeight = 0
           TabOrder = 8
           OnChange = CBQtyChange
           Items.Strings = (
