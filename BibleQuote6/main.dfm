@@ -290,10 +290,6 @@ object MainForm: TMainForm
         TabOrder = 1
         object HistoryTab: TTntTabSheet
           Caption = 'HistoryTab'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object HistoryLB: TTntListBox
             Left = 0
             Top = 0
@@ -352,18 +348,15 @@ object MainForm: TMainForm
         end
         object TntTabSheet1: TTntTabSheet
           Caption = #1041#1099#1089#1090#1088#1099#1081' '#1087#1086#1080#1089#1082
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object SearchInWindowLabel: TTntLabel
             Left = 0
             Top = 0
-            Width = 94
+            Width = 282
             Height = 15
             Align = alTop
             Caption = #1053#1072#1081#1090#1080' '#1074' '#1101#1090#1086#1084' '#1086#1082#1085#1077
             Layout = tlCenter
+            ExplicitWidth = 94
           end
           object QuickSearchPanel: TTntPanel
             Left = 0
@@ -413,10 +406,6 @@ object MainForm: TMainForm
     end
     object SearchTab: TTntTabSheet
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object SearchBrowser: THTMLViewer
         Left = 0
         Top = 179
@@ -462,7 +451,7 @@ object MainForm: TMainForm
           Width = 210
           Height = 23
           DropDownCount = 10
-          ItemHeight = 0
+          ItemHeight = 15
           PopupMenu = MemoPopupMenu
           TabOrder = 0
         end
@@ -535,7 +524,7 @@ object MainForm: TMainForm
           Width = 71
           Height = 23
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 15
           TabOrder = 8
           OnChange = CBQtyChange
           Items.Strings = (
@@ -558,10 +547,6 @@ object MainForm: TMainForm
     end
     object DicTab: TTntTabSheet
       ImageIndex = 17
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object DicBrowser: THTMLViewer
         Left = 0
         Top = 232
@@ -610,7 +595,7 @@ object MainForm: TMainForm
           Width = 279
           Height = 23
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 1
           OnChange = DicFilterCBChange
@@ -620,7 +605,7 @@ object MainForm: TMainForm
           Top = 31
           Width = 279
           Height = 23
-          ItemHeight = 0
+          ItemHeight = 15
           TabOrder = 2
           OnChange = DicEditChange
           OnKeyPress = DicEditKeyPress
@@ -647,7 +632,7 @@ object MainForm: TMainForm
           Width = 279
           Height = 23
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 0
           OnChange = DicCBChange
@@ -656,10 +641,6 @@ object MainForm: TMainForm
     end
     object StrongTab: TTntTabSheet
       ImageIndex = 18
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object StrongBrowser: THTMLViewer
         Left = 0
         Top = 206
@@ -725,10 +706,6 @@ object MainForm: TMainForm
       end
     end
     object CommentsTab: TTntTabSheet
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object CommentsBrowser: THTMLViewer
         Left = 0
         Top = 30
@@ -766,7 +743,7 @@ object MainForm: TMainForm
           Height = 23
           Style = csDropDownList
           DropDownCount = 25
-          ItemHeight = 0
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 0
           OnChange = CommentsCBChange
@@ -775,10 +752,6 @@ object MainForm: TMainForm
     end
     object XRefTab: TTntTabSheet
       ImageIndex = 19
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object XRefBrowser: THTMLViewer
         Left = 0
         Top = 0
@@ -804,10 +777,6 @@ object MainForm: TMainForm
     end
     object MemoTab: TTntTabSheet
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object TREMemo: TTntRichEdit
         Left = 0
         Top = 27

@@ -21,7 +21,10 @@ uses
   SysHot in 'Hotkey\SysHot.pas',
   main in 'main.pas' {MainForm: TTntForm},
   AlekPageControl in 'AlekPageControl.pas',
-  BibleQuoteConfig in 'BibleQuoteConfig.pas';
+  BibleQuoteConfig in 'BibleQuoteConfig.pas',
+  BibleQuoteUtils in 'BibleQuoteUtils.pas',
+  SevenZipVCL in 'SevenZip\SevenZipVCL.pas',
+  PasswordDialog in 'PasswordDialog.pas' {frmPassBox};
 
 {$R *.res}
 

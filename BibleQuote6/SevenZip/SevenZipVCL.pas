@@ -235,9 +235,10 @@ interface
 {$IFDEF UseRes7zdll}
 {$R 7za.res}
 {$ENDIF}
-
+{$WARN UNIT_PLATFORM OFF}
+{$WARN SYMBOL_PLATFORM OFF}
 uses
-  Windows, SysUtils, Classes, ActiveX, comobj, filectrl
+  Windows, SysUtils, Classes, ActiveX, comobj,   filectrl
 {$IFDEF UseRes7zdll}
   , BTMemoryModule
 {$ENDIF}
@@ -788,6 +789,8 @@ type
   T7zPreProgressEvent = procedure(Sender: TObject; MaxProgress: int64) of object;
   T7zProgressEvent = procedure(Sender: TObject; Filename: Widestring; FilePosArc, FilePosFile: int64) of object;
   T7zMessageEvent = procedure(Sender: TObject; ErrCode: Integer; Message: string; Filename: Widestring) of object;
+  //AlekId:OnGetPassword
+  T7zGetPassword = procedure (aSender: TSevenZip; out aPassword: WideString) of object;
 //  T7zCRC32ErrorEvent = procedure( Sender: TObject; ForFile: string;  FoundCRC, ExpectedCRC: LongWord; var DoExtract: Boolean ) of object;
 //  TC7zommentEvent = procedure( Sender: TObject;Comment: string; ) of object;
 
@@ -821,6 +824,8 @@ type
     FOnSetAddName: T7zSetNewNameEvent;
     FOnSetExtractName: T7zSetNewNameEvent;
     FOnExtractOverwite: T7zExtractOverwrite;
+    //AlekId
+    FOnGetPassword : T7zGetPassword;
 
     FAddOptions: Addopts;
     FExtractOptions: Extractopts;
@@ -919,6 +924,7 @@ type
     property OnListfile: T7zlistfileEvent read FOnlistfile write FOnlistfile;
     property OnAddfile: T7zaddfileEvent read FOnaddfile write FOnaddfile;
     property OnExtractfile: T7zextractfileEvent read FOnextractfile write FOnextractfile;
+    property OnGetPassword: T7zGetPassword read FOnGetPassword write FOnGetPassword;
     property OnProgress: T7zProgressEvent read FOnProgress write FOnProgress;
     property OnPreProgress: T7zPreProgressEvent read FOnPreProgress write FOnPreProgress;
     property OnMessage: T7zMessageEvent read fOnMessage write fOnMessage;
@@ -1597,6 +1603,7 @@ begin
 {$IFDEF UseLog}
   Log(Format('__TMyArchiveExtractCallback.GetStream( %d, %.8x, %d )', [index, Integer(outStream), askExtractMode]));
 {$ENDIF}
+    result:=S_FALSE;
   DoOverwrite := ExtractOverwrite in FsevenZip.FExtractOptions;
   path.vt := VT_EMPTY;
   size.vt := VT_EMPTY;
@@ -1614,6 +1621,9 @@ begin
     kExtract: begin
         if FSevenzip.FMemoryPtrToExtract <> nil then begin
         FSevenzip.inA.GetProperty(index, kpidSize, size);//берем размер файла
+        if (size.hVal.QuadPart<0) or (size.hVal.QuadPart>10*1024*1024) then begin
+        outStream:=nil ;exit;
+        end;
         if FSevenzip.FMemorySize<size.uhVal.LowPart then begin//нужен больший буфер
         ReallocMem(FSevenzip.FMemoryPtrToExtract, size.uhVal.LowPart);
         FSevenzip.FMemorySize:=size.uhVal.LowPart;
@@ -1781,7 +1791,16 @@ begin
 end;
 
 function TMyArchiveExtractCallback.CryptoGetTextPassword(var Password: PWideChar): Integer;
+var pwd: WideString;
 begin
+  if assigned(FSevenzip) and assigned(FSevenzip.FOnGetPassword)  then begin
+  FSevenzip.OnGetPassword(FSevenzip, pwd);
+  if length(pwd)>0 then begin
+  Password:=SysAllocString( PWideChar(Pointer(pwd) ) );
+  Result:=S_OK; exit
+  end;//if password is not empty
+  end;// if callback available
+
   if Length(FPassword) > 0 then begin
     Password := SysAllocString(@FPassword[1]);
     Result := S_OK;
@@ -1796,11 +1815,21 @@ end;
 {============ TMyOpenarchiveCallbackReader =================================================}
 
 function TMyArchiveOpenCallback.CryptoGetTextPassword(var Password: PWideChar): Integer;
+var pwd:WideString;
 begin
+  if assigned(FSevenzip) and assigned(FSevenzip.FOnGetPassword)  then begin
+  FSevenzip.OnGetPassword(FSevenzip, pwd);
+  if length(pwd)>0 then begin
+  Password:=SysAllocString( PWideChar(Pointer(pwd) ) );
+  Result:=S_OK; exit
+  end;//if password is not empty
+  end;// if callback available
+
   if Length(FPassword) > 0 then begin
     Password := SysAllocString(@FPassword[1]);
     Result := S_OK;
   end else Result := S_FALSE;
+
 end;
 
 constructor TMyArchiveOpenCallback.Create(Owner: TSevenZip);
@@ -2582,7 +2611,6 @@ begin
       inA.GetProperty(n, kpidSize, fnameprop);
       outSize^:=fnameprop.uhVal.LowPart;
       end;
-      
       Break;
     end;
   end;

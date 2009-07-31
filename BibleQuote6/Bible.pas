@@ -171,10 +171,14 @@ type
   TBibleSet = set of 0..255;
 
 type
+//AlekId: это предварительное объ€вление, д.б. в одном блоке type с реальным
+  TBible =class;
   TBibleSearchEvent =
     procedure(Sender: TObject; NumVersesFound, book,chapter,verse: integer; s: WideString) of object;
 
-type
+  TBiblePasswordRequired =
+   procedure (aSender:TBible; out outPassword:WideString) of object;
+
   TBible = class(TComponent)
   private
     { Private declarations }
@@ -199,7 +203,7 @@ type
 
     FChapterZero: boolean; // has chapter zero ?
 
-    FDefaultEncoding: Integer; // Default 8-bit encoding for all book files of TBible. 
+    FDefaultEncoding: Integer; // Default 8-bit encoding for all book files of TBible.
 
     FFontName: WideString;
     FAlphabet: WideString; // ALL letters that can be parts of text in the module
@@ -230,7 +234,11 @@ type
     FStopSearching: boolean;
 
     FOnChangeModule: TNotifyEvent;
+
+    FOnPasswordRequired: TBiblePasswordRequired;
+
     AlphabetArray: array [0..2047] of Cardinal;
+
 
     procedure ClearAlphabetBits ();
     procedure SetAlphabetBit (aCode: Integer; aValue: Boolean);
@@ -244,6 +252,8 @@ type
     procedure SearchBook(words: TWideStrings; params: byte; book: integer);
 
     procedure SetHTMLFilter(value: WideString);
+
+    procedure GetPasswordCallback(aSender: TObject; out outPassword: WideString);
   public
     { Public declarations }
     ChapterQtys: array[1..MAX_BOOKQTY] of integer;
@@ -336,26 +346,18 @@ type
     property OnVerseFound: TBibleSearchEvent read FOnVerseFound write FOnVerseFound;
     property OnSearchComplete: TNotifyEvent read FOnSearchComplete write FOnSearchComplete;
     property OnChangeModule: TNotifyEvent read FOnChangeModule write FOnChangeModule;
+    property OnPasswordRequired: TBiblePasswordRequired read FOnPasswordRequired write FOnPasswordRequired;
   end;
 
 procedure Register;
 
 implementation
-
+uses BibleQuoteUtils;
 function Diff(a,b: integer): integer;
 begin
   if a < b then Result := b-a else Result := a-b;
 end;
 
-function GetArchiveFromSpecial(aSpecial:WideString):WideString;
-var pz:Integer;
-begin
-//строки типа rststrong.bqb??bibleqt.ini в rststrong.bqb
-pz:=Pos('??',aSpecial);
-if pz<=0 then result:=EmptyWideStr
-else
-result:=Copy(aSpecial, 1, pz-1);
-end;
 
 
 procedure Register;
@@ -411,7 +413,7 @@ var
   dMask: Cardinal;
 begin
   Result := false;
-  
+
   dIndex := aCode div 32;
   if (dIndex > 2047) or (dIndex < 0) then
     Exit;
@@ -420,6 +422,16 @@ begin
 
   Result := (AlphabetArray [dIndex] and dMask) <> 0;
 
+end;
+
+procedure TBible.GetPasswordCallback(aSender: TObject;
+  out outPassword: WideString);
+  //вызываетс€ архиваторным компонентом при запароленном модуле
+begin
+if assigned(FOnPasswordRequired) then begin
+  FOnPasswordRequired(self, outPassword);
+end
+else outPassword:=EmptyWideStr;
 end;
 
 procedure TBible.SetHTMLFilter(value: WideString);
@@ -448,9 +460,14 @@ begin
     s := WChar_ReadTextFileToTWideStrings (value, FDefaultEncoding);
 
   except
-    s.Free;
-    raise Exception.CreateFmt('TBible.LoadIniFile: Error loading file %s', [value]);
-    Exit;
+  on ex:TBQException do begin
+              s.Free();
+              raise;
+     end;
+  on Exception do begin
+      s.Free();
+      raise Exception.CreateFmt('TBible.LoadIniFile: Error loading file %s', [value]);
+  end;
 
   end;
   isCompressed:=value[1]='?';
@@ -625,7 +642,7 @@ begin
     if dFirstPart = 'VerseSign' then
     begin
       FVerseSign := dSecondPart;
-      
+
     end else
     if dFirstPart = 'BookQty' then
     begin
@@ -635,7 +652,7 @@ begin
     if dFirstPart = 'SoundDirectory' then
     begin
       FSoundDir := dSecondPart;
-      
+
     end else
     if dFirstPart = 'StrongsDirectory' then
     begin

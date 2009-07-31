@@ -3,8 +3,8 @@ object HotKeyForm: THotKeyForm
   Top = 109
   BorderStyle = bsDialog
   Caption = 'Ctrl+1 Ctrl+2 ...'
-  ClientHeight = 304
-  ClientWidth = 470
+  ClientHeight = 308
+  ClientWidth = 469
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

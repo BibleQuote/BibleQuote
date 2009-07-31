@@ -13,7 +13,7 @@ function WStrMessageBox (aInteger: Integer; aTitle: WideString = 'Message'; aBut
 function ReadFileSize (aFileName: WideString): Cardinal;
 
 implementation
-
+uses BibleQuoteUtils;
 function WindowsUserName (aDefault: WideString = 'default'): WideString;
 var
   dWBuffer: WideString;
@@ -140,15 +140,21 @@ function ReadFileSize (aFileName: WideString): Cardinal;
 var
   dFile: TFileStream;
 begin
-  dFile := nil;
 
+  dFile := nil;
   try
+    if aFileName<>'?' then begin
     Result := 0;
     dFile := TFileStream.Create (aFileName, fmOpenRead);
     Result := dFile.Size;
+    end
+    else begin
+    Result:=ArchiveFileSize(aFileName); if integer(Result)<0 then Result:=0;
+    end;
   finally
     dFile.Free;
   end;
+
 end;
 
 end.

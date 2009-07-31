@@ -24,21 +24,27 @@ type TDict = class(TObject)
   end;
 
 implementation
+uses BibleQuoteUtils;
+
+
 
 constructor TDict.Create;
 begin
   inherited Create;
-  
+
   FName := '';
   FWords := TWideStringList.Create;
 end;
+
+
 
 function TDict.Initialize(IndexFile, DictFile: WideString): boolean;
 var
   Lines: TWideStrings;
   i: integer;
+  linecount:integer;
 begin
-  if (not FileExists(IndexFile)) or (not FileExists(DictFile)) then
+  if (FileExistsEx(IndexFile)<0) or (FileExistsEx(DictFile)<0) then
   begin
     Result := false;
     Exit;
@@ -46,23 +52,21 @@ begin
 
   FIndex := IndexFile;
   FDict := DictFile;
-
+//  if IndexFile[1]='?' then IndexFile:=GetArchiveFromSpecial(IndexFile);
   FPath := ExtractFileName(IndexFile);
   FPath := Copy(FPath,1,Length(FPath)-3);
-
+  
   Lines := WChar_ReadTextFileToTWideStrings (FIndex);
-
   FName := Lines[0]; Lines.Delete(0);
-
   FWords.Clear;
-
-  for i:=0 to (Lines.Count div 2 - 1) do
+  linecount:=(Lines.Count div 2 - 1);
+  FWords.Capacity:=linecount;
+  for i:=0 to linecount{(Lines.Count div 2 - 1)} do
   begin
-    FWords.AddObject(Lines[2*i], Pointer (StrToInt (Trim (Lines[2*i+1]))));
+   // FWords.AddObject(Lines[2*i], Pointer (StrToInt (Trim (Lines[2*i+1]))));
+   FWords.InsertObject(i,Lines[2*i], Pointer ( StrToInt ({Trim} (Lines[2*i+1]))) );
   end;
-
   Result := (FWords.Count > 0);
-
   Lines.Free;
 end;
 
@@ -80,7 +84,7 @@ begin
   if i = -1 then
   begin
     Result := '';
-    
+
   end else
   begin
     dDictSize := ReadFileSize (FDict);

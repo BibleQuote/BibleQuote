@@ -58,7 +58,7 @@ var        image_width, image_height, textlength, fontheight:integer;
             pCaption:PWideChar;
             ts:TTntTabSheet;
             delta, oldright, savelength:integer;
-            currentFontHandle:HFont;
+  //          currentFontHandle:HFont;
 begin
 //  inherited;
 //Canvas.Brush.Color:=RGB(255,0,0);
@@ -80,7 +80,7 @@ with textRect do begin
   Right:=Rect.Right-image_width-4;
   Bottom:=Rect.Bottom;
 end;
-currentFontHandle:=Canvas.Font.Handle;
+//currentFontHandle:=Canvas.Font.Handle;
 saveRect:=textRect;
 ts:= TTntTabSheet(Pages[TabIndex]);
 _caption:=ts.Caption;

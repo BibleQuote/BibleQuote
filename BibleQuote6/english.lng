@@ -10,9 +10,13 @@ SoundNotFound = Could not find sound file for "%s". Probably, you
 = Please contact with the authors.
 
 FileNotFound = Could not find file %s
+#1%s=Error reading module %s. Module is corrupt or wrong password was supplied.
 GoingOnline = Now Bible Quote will open the site %s in your default Internet browser
-
+e:\DevSoft\myprojects\BQ6\SandBox\english.lng
 HelpFileName = indexrus.htm
+lblPasswordNeeded=To open this module, please enter the password (%s)
+lblPassword=Password:
+btnCancel=Cancel
 
 AllBooks = All
 OTOnly = OT.

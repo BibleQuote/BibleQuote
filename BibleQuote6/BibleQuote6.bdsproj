@@ -24,13 +24,13 @@
 			<Compiler Name="F">0</Compiler>
 			<Compiler Name="G">1</Compiler>
 			<Compiler Name="H">1</Compiler>
-			<Compiler Name="I">1</Compiler>
+			<Compiler Name="I">0</Compiler>
 			<Compiler Name="J">0</Compiler>
 			<Compiler Name="K">0</Compiler>
 			<Compiler Name="L">1</Compiler>
 			<Compiler Name="M">0</Compiler>
 			<Compiler Name="N">1</Compiler>
-			<Compiler Name="O">0</Compiler>
+			<Compiler Name="O">1</Compiler>
 			<Compiler Name="P">1</Compiler>
 			<Compiler Name="Q">0</Compiler>
 			<Compiler Name="R">0</Compiler>
@@ -40,7 +40,7 @@
 			<Compiler Name="V">1</Compiler>
 			<Compiler Name="W">1</Compiler>
 			<Compiler Name="X">1</Compiler>
-			<Compiler Name="Y">1</Compiler>
+			<Compiler Name="Y">2</Compiler>
 			<Compiler Name="Z">1</Compiler>
 			<Compiler Name="ShowHints">True</Compiler>
 			<Compiler Name="ShowWarnings">True</Compiler>
@@ -119,7 +119,7 @@
 			<Linker Name="ExeDescription"></Linker>
 		</Linker>
 		<Directories>
-			<Directories Name="OutputDir">E:\DevSoft\myprojects\BQ6\SandBox</Directories>
+			<Directories Name="OutputDir">E:\BibleQuote 5 Bibliologia Edition</Directories>
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
