@@ -857,7 +857,7 @@ begin
     offset := 0;
     if MainBook.ChapterZero then offset := 1;
 
-    for i := 1 to MainBook.ChapterQtys[BookLB.ItemIndex + 1] - 1 do
+    for i := 1 to MainBook.ChapterQtys[BookLB.ItemIndex + 1] do
       Items.Add(IntToStr(i - offset));
 
     Items.EndUpdate;
@@ -1339,7 +1339,7 @@ begin
   // height of nav window, above the history box
   ini.Learn('Panel2Height', IntToStr((Panel2.Height * MAXHEIGHT) div Screen.Height));
 
-  ini.Learn('DefFontName', Browser.DefFontName);
+  ini.Learn('DefFontName', mBrowserDefaultFontName);
   ini.Learn('DefFontSize', IntToStr(Browser.DefFontSize));
   ini.Learn('DefFontColor', Color2Hex(Browser.DefFontColor));
 //  ini.Learn('Charset', IntToStr(DefaultCharset));
@@ -3034,7 +3034,7 @@ begin
 
   //BookLBClick(Self);
   // copy of BookLBClick....
-  if (oldpath<>path) or (oldbook<>book) then
+  if (oldpath<>path) or (oldbook<>book) or (ChapterLB.Items.Count=0) then
   with ChapterLB do begin
     Items.BeginUpdate;
     Items.Clear;
@@ -3890,7 +3890,7 @@ var
   viewTabInfo: TViewTabInfo;
 begin
   with FontDialog1 do begin
-    Font.Name := Browser.DefFontName;
+    Font.Name :=  mBrowserDefaultFontName;
     Font.Color := Browser.DefFontColor;
     Font.Size := Browser.DefFontSize;
     //Font.Charset := DefaultCharset;
@@ -5179,7 +5179,7 @@ begin
   Splitter2Moved(Sender);
 
   if SatelliteBible = '' then
-    SatelliteMenuItemClick(SatelliteMenu.Items[0])
+    //SatelliteMenuItemClick(SatelliteMenu.Items[0])
   else begin
     for i := 1 to SatelliteMenu.Items.Count - 1 do
       if SatelliteMenu.Items[i].Caption = SatelliteBible then begin
