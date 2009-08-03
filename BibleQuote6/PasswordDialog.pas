@@ -10,11 +10,12 @@ type
   TfrmPassBox = class(TForm)
     lblPasswordNeeded: TTntLabel;
     btnOk: TTntButton;
-    TntEdit1: TTntEdit;
+    edPwd: TTntEdit;
     lblEnterPassword: TTntLabel;
-    btnAcqirePassword: TTntButton;
     btnCancel: TTntButton;
+    cbxSavePwd: TTntCheckBox;
     procedure FormCreate(Sender: TObject);
+    procedure edPwdKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -27,6 +28,12 @@ var
 implementation
 uses main;
 {$R *.dfm}
+
+procedure TfrmPassBox.edPwdKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+if (Key=13) then btnOk.Click();
+end;
 
 procedure TfrmPassBox.FormCreate(Sender: TObject);
 begin

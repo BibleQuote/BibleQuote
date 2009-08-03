@@ -204,6 +204,7 @@ type
     FChapterZero: boolean; // has chapter zero ?
 
     FDefaultEncoding: Integer; // Default 8-bit encoding for all book files of TBible.
+    FDesiredFontCharset:Integer; //AlekId
 
     FFontName: WideString;
     FAlphabet: WideString; // ALL letters that can be parts of text in the module
@@ -253,7 +254,6 @@ type
 
     procedure SetHTMLFilter(value: WideString);
 
-    procedure GetPasswordCallback(aSender: TObject; out outPassword: WideString);
   public
     { Public declarations }
     ChapterQtys: array[1..MAX_BOOKQTY] of integer;
@@ -284,7 +284,8 @@ type
     property VerseSign: WideString read FVerseSign;
 
     property DefaultEncoding: Integer read FDefaultEncoding;
-
+    property DesiredCharset:integer read FDesiredFontCharset;
+    
     property Alphabet: WideString read FAlphabet;
     property FontName: WideString read FFontName;
 
@@ -424,15 +425,7 @@ begin
 
 end;
 
-procedure TBible.GetPasswordCallback(aSender: TObject;
-  out outPassword: WideString);
-  //вызывается архиваторным компонентом при запароленном модуле
-begin
-if assigned(FOnPasswordRequired) then begin
-  FOnPasswordRequired(self, outPassword);
-end
-else outPassword:=EmptyWideStr;
-end;
+
 
 procedure TBible.SetHTMLFilter(value: WideString);
 begin
@@ -474,7 +467,7 @@ begin
   FBookQty := 0;
   FBook := 1;
   FChapter := 1;
-
+  FDesiredFontCharset:=-1;
   FName := '';
   FShortName := '';
 
@@ -619,14 +612,14 @@ begin
       if FDefaultEncoding = -1 then
         FDefaultEncoding := cRussianCodePage;
 
-    end else
+    end else}
     if dFirstPart = 'DesiredFontCharset' then
     begin
-      dTempInt := StrToInt (dSecondPart);
-      FDefaultEncoding := GetEncodingByWinCharSet (dTempInt);
+      FDesiredFontCharset:= StrToInt (dSecondPart);//AlekId
+//AlekId:      FDefaultEncoding := GetEncodingByWinCharSet (dTempInt);
 
     end else
-}
+
 {
     if dFirstPart = 'ParagraphSkips' then
     begin
@@ -960,9 +953,13 @@ var
   words: TWideStrings;
   w: WideString;
   i: integer;
+  {$IFDEF debug_profile}
   timeStart, time:Cardinal;
+  {$ENDIF}
 begin
+  {$IFDEF debug_profile}
   timeStart:=GetTickCount();
+  {$ENDIF}
   words := TWideStringList.Create;
   w := s;
 
@@ -1001,7 +998,10 @@ begin
   FLastVerse := 0;
 
   if Assigned(FOnSearchComplete) then FOnSearchComplete(Self);
+    {$IFDEF debug_profile}
   time:=GetTickCount()- timeStart;
+  ShowMessage(Format('Поиск занял: %d', [time]));
+  {$ENDIF}
 end;
 
 procedure TBible.StopSearching;

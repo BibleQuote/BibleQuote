@@ -13,6 +13,8 @@ TAlekPageControlDeleteTab=procedure (sender:TAlekPageControl;index:integer) of o
  FFontHandle:HFont;
  procedure DrawTab(TabIndex: Integer; const Rect: TRect; Active: Boolean); override;
  procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);override;
+ procedure MouseDown(Button: TMouseButton;  Shift: TShiftState; X, Y: Integer);override;
+
  procedure DblClick; override;
  public
  property CloseTabImage:TBitmap read FCloseImage;
@@ -99,6 +101,34 @@ end ;
 if length(ts.Caption)<>length(_caption) then ts.Caption:=_caption;
 DrawTextW(Canvas.Handle,pCaption,savelength, saveRect,  DT_CENTER or DT_VCENTER);
 //textlength,nil);
+end;
+
+
+
+
+
+
+procedure TAlekPageControl.MouseDown(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+var _tabIndex, saveTabIndex:integer;
+     tabRect:TRect;
+     point:TPoint;
+     image_width, image_height:integer;
+  label default_processing;
+begin
+if Button <>mbLeft then goto default_processing;
+_tabIndex:=  IndexOfTabAt(X,Y);
+if _tabIndex<0 then goto default_processing;
+TabCtrl_GetItemRect(Handle, tabIndex, tabRect);
+point.X:=X; point.Y:=Y;
+saveTabIndex:=TabIndex;
+image_width:=FCloseImage.Width; image_height:=FCloseImage.Height;
+if (image_width<3) or (image_height<3) then  goto default_processing;
+tabRect.Left:=tabRect.Right-image_width-4; Inc(tabRect.Top,3); tabRect.Bottom:=tabRect.Top+image_height+3;
+if not PtInRect(TabRect,point) then goto default_processing;
+exit;
+default_processing:
+  inherited;
 end;
 
 procedure TAlekPageControl.MouseUp(Button: TMouseButton; Shift: TShiftState;

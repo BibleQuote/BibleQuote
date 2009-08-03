@@ -64,7 +64,7 @@ begin
   for i:=0 to linecount{(Lines.Count div 2 - 1)} do
   begin
    // FWords.AddObject(Lines[2*i], Pointer (StrToInt (Trim (Lines[2*i+1]))));
-   FWords.InsertObject(i,Lines[2*i], Pointer ( StrToInt ({Trim} (Lines[2*i+1]))) );
+   FWords.InsertObject(i,Lines[2*i], Pointer ( StrToInt (Trim (Lines[2*i+1]))) );
   end;
   Result := (FWords.Count > 0);
   Lines.Free;

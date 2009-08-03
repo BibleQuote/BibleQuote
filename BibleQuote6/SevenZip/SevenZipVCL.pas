@@ -238,7 +238,7 @@ interface
 {$WARN UNIT_PLATFORM OFF}
 {$WARN SYMBOL_PLATFORM OFF}
 uses
-  Windows, SysUtils, Classes, ActiveX, comobj,   filectrl
+  Windows, SysUtils, Classes, ActiveX, comobj, filectrl
 {$IFDEF UseRes7zdll}
   , BTMemoryModule
 {$ENDIF}
@@ -645,16 +645,14 @@ type
 
   TArrayOfFiles = array of TFiles; //FHO 17.01.2007
 
-  TAlekMemoryWriteStream= class (TInterfacedObject, ISequentialOutStream)
-      protected
-      FMemory:PChar;
-      FCurrentPtr:PChar;
-      public
-      constructor Create();
-      function Write(const data; size: DWORD; processedSize: PDWORD): Integer; stdcall;
+  TAlekMemoryWriteStream = class(TInterfacedObject, ISequentialOutStream)
+  protected
+    FMemory: PChar;
+    FCurrentPtr: PChar;
+  public
+    constructor Create();
+    function Write(const data; size: DWORD; processedSize: PDWORD): Integer; stdcall;
   end;
-
-
 
   TMyStreamWriter = class(TInterfacedObject, ISequentialOutStream, IOutStream)
   private
@@ -748,9 +746,10 @@ type
     FLastFileToExt: Boolean;
     FAllFilesExt: Boolean;
     FPassword: WideString;
-    FPersistentMemoryOutputStream:TAlekMemoryWriteStream;
+    FPersistentMemoryOutputStream: TAlekMemoryWriteStream;
+    FAborted: boolean;//AlekId
     constructor Create(Owner: TSevenZip);
-    destructor Destroy();override;
+    destructor Destroy(); override;
     function GetStream(index: DWORD; out outStream: ISequentialOutStream; askExtractMode: DWORD): Integer; stdcall;
     // GetStream OUT: S_OK - OK, S_FALSE - skeep this file
     function PrepareOperation(askExtractMode: Integer): Integer; stdcall;
@@ -790,7 +789,7 @@ type
   T7zProgressEvent = procedure(Sender: TObject; Filename: Widestring; FilePosArc, FilePosFile: int64) of object;
   T7zMessageEvent = procedure(Sender: TObject; ErrCode: Integer; Message: string; Filename: Widestring) of object;
   //AlekId:OnGetPassword
-  T7zGetPassword = procedure (aSender: TSevenZip; out aPassword: WideString) of object;
+  T7zGetPassword = function(aSender: TSevenZip; out aPassword: WideString):boolean of object;
 //  T7zCRC32ErrorEvent = procedure( Sender: TObject; ForFile: string;  FoundCRC, ExpectedCRC: LongWord; var DoExtract: Boolean ) of object;
 //  TC7zommentEvent = procedure( Sender: TObject;Comment: string; ) of object;
 
@@ -825,7 +824,7 @@ type
     FOnSetExtractName: T7zSetNewNameEvent;
     FOnExtractOverwite: T7zExtractOverwrite;
     //AlekId
-    FOnGetPassword : T7zGetPassword;
+    FOnGetPassword: T7zGetPassword;
 
     FAddOptions: Addopts;
     FExtractOptions: Extractopts;
@@ -861,13 +860,13 @@ type
 
     { Private "helper" functions }
     FMemoryPtrToExtract: Pointer;
-    FMemorySize:Cardinal;
+    FMemorySize: Cardinal;
 //    procedure LogMessage( var msg: TMessage ); message 9999;
     procedure ResetCancel;
     function AppendSlash(sDir: widestring): widestring;
     procedure SetVolumeSize(const Value: Integer);
     procedure SetSFXCreate(const Value: Boolean);
-    function  InternalGetIndexByFilename(FileToExtract: Widestring; outSize:PInteger=nil): Integer; //ZSA 21.02.2007
+    function InternalGetIndexByFilename(FileToExtract: Widestring; outSize: PInteger = nil): Integer; //ZSA 21.02.2007
     procedure ClearNamesOfVolumeWritten;
     procedure SetLastError(const Value: Integer); //FHO 17.01.2007
   protected
@@ -875,12 +874,13 @@ type
     outA: IOutArchive;
     sp: ISetProperties;
   public
+    mPasswordProtected: boolean;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
     { Public Properties ( run-time only ) }
     property MemoryPtrToExtract: Pointer read FMemoryPtrToExtract write FMemoryPtrToExtract;
-    property MemoryToExtractSize:Cardinal read FMemorySize write FMemorySize;
+    property MemoryToExtractSize: Cardinal read FMemorySize write FMemorySize;
     property Handle: HWND read fHandle write fHandle;
     property ErrCode: Integer read fErrCode write fErrCode;
     property LastError: Integer read FLastError write SetLastError; // FLastError;//FHO 22.01.2007
@@ -894,10 +894,10 @@ type
     { Public Methods }
     function Add: Integer;
     function Extract(TestArchive: Boolean = False): Integer;
-    function ExtracttoMem(indexOfFile:integer; memoryToExtract: Pointer; memorySize:integer; TestArchive: Boolean = False): Integer;
+    function ExtracttoMem(indexOfFile: integer; memoryToExtract: Pointer; memorySize: integer; TestArchive: Boolean = False): Integer;
     function List: Integer;
     procedure Cancel;
-    function GetIndexByFilename(FileToExtract: Widestring;  pOutSize:PInteger=nil): Integer;
+    function GetIndexByFilename(FileToExtract: Widestring; pOutSize: PInteger = nil): Integer;
     function SFXCheck(Fn: Widestring): Boolean;
     function ConvertSFXto7z(Fn: Widestring): boolean;
     function Convert7ztoSFX(Fn: Widestring): boolean;
@@ -1581,7 +1581,7 @@ constructor TMyArchiveExtractCallback.Create(Owner: TSevenZip);
 begin
   inherited Create;
   FSevenzip := Owner;
-  FPersistentMemoryOutputStream:=TAlekMemoryWriteStream.Create();
+  FPersistentMemoryOutputStream := TAlekMemoryWriteStream.Create();
 // Shadow 29.11.2006
   if Assigned(FSevenzip) then
     FPassword := FSevenzip.Password
@@ -1603,7 +1603,7 @@ begin
 {$IFDEF UseLog}
   Log(Format('__TMyArchiveExtractCallback.GetStream( %d, %.8x, %d )', [index, Integer(outStream), askExtractMode]));
 {$ENDIF}
-    result:=S_FALSE;
+  result := S_FALSE;
   DoOverwrite := ExtractOverwrite in FsevenZip.FExtractOptions;
   path.vt := VT_EMPTY;
   size.vt := VT_EMPTY;
@@ -1620,17 +1620,17 @@ begin
   case askExtractMode of
     kExtract: begin
         if FSevenzip.FMemoryPtrToExtract <> nil then begin
-        FSevenzip.inA.GetProperty(index, kpidSize, size);//берем размер файла
-        if (size.hVal.QuadPart<0) or (size.hVal.QuadPart>10*1024*1024) then begin
-        outStream:=nil ;exit;
-        end;
-        if FSevenzip.FMemorySize<size.uhVal.LowPart then begin//нужен больший буфер
-        ReallocMem(FSevenzip.FMemoryPtrToExtract, size.uhVal.LowPart);
-        FSevenzip.FMemorySize:=size.uhVal.LowPart;
-        end;//если нужен больший размер
-        FPersistentMemoryOutputStream.FCurrentPtr:=PChar(FSevenzip.FMemoryPtrToExtract);
-        outStream:=FPersistentMemoryOutputStream;
-        FPersistentMemoryOutputStream.FMemory:=PChar(FSevenZip.FMemoryPtrToExtract);
+          FSevenzip.inA.GetProperty(index, kpidSize, size); //берем размер файла
+          if (size.hVal.QuadPart < 0) or (size.hVal.QuadPart > 10 * 1024 * 1024) then begin
+            outStream := nil; exit;
+          end;
+          if FSevenzip.FMemorySize < size.uhVal.LowPart then begin //нужен больший буфер
+            ReallocMem(FSevenzip.FMemoryPtrToExtract, size.uhVal.LowPart);
+            FSevenzip.FMemorySize := size.uhVal.LowPart;
+          end; //если нужен больший размер
+          FPersistentMemoryOutputStream.FCurrentPtr := PChar(FSevenzip.FMemoryPtrToExtract);
+          outStream := FPersistentMemoryOutputStream;
+          FPersistentMemoryOutputStream.FMemory := PChar(FSevenZip.FMemoryPtrToExtract);
         end
         else begin
           FSevenzip.inA.GetProperty(index, kpidPath, path);
@@ -1744,8 +1744,9 @@ begin
         if assigned(Fsevenzip.onmessage) then
           Fsevenzip.onmessage(Fsevenzip, FCRCError, c7zipResMsg[FCRCError], FProgressFile);
       end;
-  end;
 
+  end;
+  if FAborted then FSevenzip.ErrCode:=FUsercancel;
   if FLastFileToExt then FAllFilesExt := true; //no more files to extract, we can stop
 end;
 
@@ -1792,18 +1793,32 @@ end;
 
 function TMyArchiveExtractCallback.CryptoGetTextPassword(var Password: PWideChar): Integer;
 var pwd: WideString;
+    getPwdResult:boolean;
 begin
-  if assigned(FSevenzip) and assigned(FSevenzip.FOnGetPassword)  then begin
-  FSevenzip.OnGetPassword(FSevenzip, pwd);
-  if length(pwd)>0 then begin
-  Password:=SysAllocString( PWideChar(Pointer(pwd) ) );
-  Result:=S_OK; exit
-  end;//if password is not empty
-  end;// if callback available
+      FSevenzip.mPasswordProtected := true;
+  if assigned(FSevenzip) and assigned(FSevenzip.FOnGetPassword) then begin
+    getPwdResult:=FSevenzip.OnGetPassword(FSevenzip, pwd);
+    if not getPwdResult then begin
+    FAborted:=true;
+    result:=S_FALSE;
+    exit;
+    end;
+    if length(pwd) > 0 then begin
+      Password := SysAllocString(PWideChar(Pointer(pwd)));
+      FSevenzip.FPassword := pwd;
+      Result := S_OK;
+      exit;
+    end //if password is not empty
+    else
+      FSevenzip.FPassword := EmptyStr;
+      result:=S_FALSE;
+      exit;
+  end; // if callback available
 
   if Length(FPassword) > 0 then begin
     Password := SysAllocString(@FPassword[1]);
     Result := S_OK;
+
   end else Result := S_FALSE;
 end;
 
@@ -1815,15 +1830,15 @@ end;
 {============ TMyOpenarchiveCallbackReader =================================================}
 
 function TMyArchiveOpenCallback.CryptoGetTextPassword(var Password: PWideChar): Integer;
-var pwd:WideString;
+var pwd: WideString;
 begin
-  if assigned(FSevenzip) and assigned(FSevenzip.FOnGetPassword)  then begin
-  FSevenzip.OnGetPassword(FSevenzip, pwd);
-  if length(pwd)>0 then begin
-  Password:=SysAllocString( PWideChar(Pointer(pwd) ) );
-  Result:=S_OK; exit
-  end;//if password is not empty
-  end;// if callback available
+  if assigned(FSevenzip) and assigned(FSevenzip.FOnGetPassword) then begin
+    FSevenzip.OnGetPassword(FSevenzip, pwd);
+    if length(pwd) > 0 then begin
+      Password := SysAllocString(PWideChar(Pointer(pwd)));
+      Result := S_OK; exit
+    end; //if password is not empty
+  end; // if callback available
 
   if Length(FPassword) > 0 then begin
     Password := SysAllocString(@FPassword[1]);
@@ -2591,7 +2606,7 @@ end;
 //	the Extract function to translate filenames into indices correctly
 //	without closing 'inA'
 
-function TSevenZip.InternalGetIndexByFilename(FileToExtract: Widestring; outSize:PInteger=nil): Integer;
+function TSevenZip.InternalGetIndexByFilename(FileToExtract: Widestring; outSize: PInteger = nil): Integer;
 var
   n: Integer;
   w: DWORD;
@@ -2608,15 +2623,15 @@ begin
     if (fileInArchive = FileToExtract) then begin
       Result := n;
       if Assigned(outSize) then begin
-      inA.GetProperty(n, kpidSize, fnameprop);
-      outSize^:=fnameprop.uhVal.LowPart;
+        inA.GetProperty(n, kpidSize, fnameprop);
+        outSize^ := fnameprop.uhVal.LowPart;
       end;
       Break;
     end;
   end;
 end;
 
-function TSevenZip.GetIndexByFilename(FileToExtract: Widestring; pOutSize:PInteger=nil): Integer;
+function TSevenZip.GetIndexByFilename(FileToExtract: Widestring; pOutSize: PInteger = nil): Integer;
 var
   ms: TMyStreamReader;
 begin
@@ -2726,7 +2741,7 @@ begin
   Buffer := nil;
   Source := -1;
   Dest := -1;
-  Result := False;
+//  Result := False;
   //ErikGG End 08.11.06
   try
     DestFn := changefileextW(Fn, '.7z');
@@ -3354,17 +3369,18 @@ begin
   end;
 end;
 
-function TSevenZip.ExtractToMem(indexOfFile:integer; memoryToExtract: Pointer; memorySize:integer; TestArchive: Boolean = False): Integer;
+function TSevenZip.ExtractToMem(indexOfFile: integer; memoryToExtract: Pointer; memorySize: integer; TestArchive: Boolean = False): Integer;
 var
   updateCallback: TMyArchiveExtractCallback;
   updateOpenCallback: TmyArchiveOpenCallback;
   ms: TMyStreamReader;
   filesDW: array of DWORD;
   Filestoex, w: DWORD;
-  i, j, n: Integer;
+  i, j: Integer;
   FMaxProgress: int64;
   size: PROPVARIANT;
 begin
+  mPasswordProtected := false;
   try
     ms := TMyStreamReader.Create(Self, FSevenZipFileName, TRUE);
     inA.Close;
@@ -3381,9 +3397,8 @@ begin
     FMaxProgress := 0;
     inA.GetNumberOfItems(w); //1..end
     dec(w); //Starting with 0..end-1
-    n := 0;
     SetLength(filesDW, 1);
-    j:=indexOfFile;
+    j := indexOfFile;
     if (j < 0) or (abs(j) > abs(w)) then begin
       ErrCode := FIndexOutOfRange; //FHO 21.01.2007
       if Assigned(onMessage) then
@@ -3400,7 +3415,7 @@ begin
     if FMaxProgress > 0 then if assigned(OnPreProgress) then OnPreProgress(self, FMaxProgress);
     // filesdw must be sorted asc
     FMemoryPtrToExtract := memoryToExtract;
-    FMemorySize:= memorySize;
+    FMemorySize := memorySize;
     updatecallback := TMyArchiveExtractCallback.Create(self);
     updatecallback.FExtractDirectory := appendslash(Fextrbasedir);
     updatecallback.FFilestoextract := 1; //with all files ffiles.count = 0, thats ok
@@ -3414,6 +3429,7 @@ begin
 end;
 
 //
+
 procedure TSevenZip.ClearNamesOfVolumeWritten;
 var
   i: Integer;
@@ -3453,19 +3469,19 @@ end;
 
 constructor TAlekMemoryWriteStream.Create;
 begin
-inherited;
-FCurrentPtr:=nil;
+  inherited;
+  FCurrentPtr := nil;
 end;
 
 function TAlekMemoryWriteStream.Write(const data; size: DWORD;
   processedSize: PDWORD): Integer;
 begin
-if FCurrentPtr=nil then FCurrentPtr:=FMemory;
-Move(data, FCurrentPtr^,size);
-Inc(FCurrentPtr, size);
-if Assigned(processedSize) then processedSize^:=size;
+  if FCurrentPtr = nil then FCurrentPtr := FMemory;
+  Move(data, FCurrentPtr^, size);
+  Inc(FCurrentPtr, size);
+  if Assigned(processedSize) then processedSize^ := size;
 
-Result:=S_OK;
+  Result := S_OK;
 end;
 
 end.
