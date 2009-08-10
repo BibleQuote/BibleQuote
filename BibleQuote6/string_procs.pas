@@ -316,9 +316,8 @@ var
   ok: boolean;
 begin
   len := Length(s);
-  if len<=0 then begin Result:=s; exit end;
+
   i := 0;
-  //AlekId:BUGFIX Access Violation если строка пуста€ - Ћопухин, полнотекстовый поиск
   repeat
     Inc(i);
     ok := (s[i] >= '0') and (s[i] <= '9');

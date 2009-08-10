@@ -1,5 +1,46 @@
 program BibleQuote6;
 
+{%TogetherDiagram 'ModelSupport_BibleQuote6\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\XPTheme\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\input\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\config\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\main\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\WCharWindows\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\WComp\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\SysHot\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\Dict\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\AlekPageControl\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\WCharReader\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\Tabs\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\BibleQuote6\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\string_procs\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\bible\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\MultiLanguage\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\links_parser\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\copyright\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\AlekNavigator\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\hotkeys\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\config\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\BibleQuote6\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\XPTheme\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\AlekPageControl\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\input\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\WCharWindows\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\copyright\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\hotkeys\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\Dict\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\string_procs\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\MultiLanguage\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\SysHot\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\bible\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\WCharReader\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\links_parser\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\WComp\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\main\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\Tabs\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\AlekNavigator\default.txvpck'}
+
 uses
   XPTheme in 'XPTheme.pas',
   Forms,
@@ -19,19 +60,18 @@ uses
   Bible in 'Bible.pas',
   WComp in 'Hotkey\WComp.pas',
   SysHot in 'Hotkey\SysHot.pas',
-  main in 'main.pas' {MainForm: TTntForm},
   AlekPageControl in 'AlekPageControl.pas',
+  Tabs in 'Tabs.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
-  SevenZipVCL in 'SevenZip\SevenZipVCL.pas',
-  PasswordDialog in 'PasswordDialog.pas' {frmPassBox};
+  main in 'main.pas' {MainForm: TTntForm};
 
 {$R *.res}
 
 begin
+
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
-  Application.CreateForm(THotKeyForm, HotKeyForm);
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TCopyrightForm, CopyrightForm);
   Application.CreateForm(TConfigForm, ConfigForm);

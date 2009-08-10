@@ -1,0 +1,11 @@
+--- G:/Program Files/Borland/BDS/4.0/source/Win32/rtl/common/WideStrings.pas	׳ע סום  7 16:40:10 2006
++++ e:/DevSoft/myprojects/bqnet/BibleQuote6/res/WideStrings.pas	ֿם אגד  3 14:19:52 2009
+@@ -637,7 +637,7 @@
+   BeginUpdate;
+   try
+     Size := Stream.Size - Stream.Position;
+-    SetString(S, nil, Size);
++    SetString(S, nil, (Size div 2) + (Size mod 2) );
+     Stream.Read(Pointer(S)^, Size);
+     SetTextStr(S);
+   finally

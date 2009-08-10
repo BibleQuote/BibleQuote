@@ -120,9 +120,9 @@
 		</Linker>
 		<Directories>
 			<Directories Name="OutputDir" Type="String"></Directories>
-			<Directories Name="UnitOutputDir" Type="String">c:\000</Directories>
-			<Directories Name="PackageDLLOutputDir" Type="String">c:\000</Directories>
-			<Directories Name="PackageDCPOutputDir" Type="String">c:\000</Directories>
+			<Directories Name="UnitOutputDir" Type="String"></Directories>
+			<Directories Name="PackageDLLOutputDir" Type="String"></Directories>
+			<Directories Name="PackageDCPOutputDir" Type="String"></Directories>
 			<Directories Name="SearchPath" Type="String"></Directories>
 			<Directories Name="Packages" Type="String"></Directories>
 			<Directories Name="Conditionals" Type="String"></Directories>

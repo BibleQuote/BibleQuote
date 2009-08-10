@@ -4,11 +4,11 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes,
-  Graphics, Controls,
+  Graphics, Controls, ActiveX,
   Forms, TntForms,
   StdCtrls, TntStdCtrls,
   ComCtrls, TntComCtrls,
-  TntFileCtrl, TntExtCtrls;
+  TntFileCtrl, TntExtCtrls, Buttons;
 
 type
   TConfigForm = class(TTntForm)
@@ -20,28 +20,7 @@ type
     AddReferenceRadio: TTntRadioGroup;
     AddModuleName: TTntCheckBox;
     AddLineBreaks: TTntCheckBox;
-    FavoritesTabSheet: TTntTabSheet;
     OtherOptionsTabSheet: TTntTabSheet;
-    Label1: TTntLabel;
-    HotCB1: TTntComboBox;
-    HotCB2: TTntComboBox;
-    Label2: TTntLabel;
-    Label5: TTntLabel;
-    HotCB3: TTntComboBox;
-    HotCB4: TTntComboBox;
-    Label3: TTntLabel;
-    Label7: TTntLabel;
-    HotCB5: TTntComboBox;
-    HotCB6: TTntComboBox;
-    Label6: TTntLabel;
-    Label9: TTntLabel;
-    HotCB7: TTntComboBox;
-    HotCB8: TTntComboBox;
-    Label8: TTntLabel;
-    Label11: TTntLabel;
-    HotCB9: TTntComboBox;
-    HotCB0: TTntComboBox;
-    Label10: TTntLabel;
     OKButton: TTntButton;
     CancelButton: TTntButton;
     SelectSecondPathLabel: TTntLabel;
@@ -50,11 +29,22 @@ type
     DeleteButton: TTntButton;
     MinimizeToTray: TTntCheckBox;
     HotKeyChoice: TTntRadioGroup;
+    FavouriteExTabSheet: TTntTabSheet;
+    lblAvailableModules: TTntLabel;
+    lblFavourites: TTntLabel;
+    lbxFavourites: TTntListBox;
+    BitBtn1: TBitBtn;
+    BitBtn2: TBitBtn;
+    cbxAvailableModules: TTntComboBox;
+    BitBtn3: TBitBtn;
+    btnAddHotModule: TBitBtn;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure OKButtonClick(Sender: TObject);
     procedure CancelButtonClick(Sender: TObject);
     procedure SelectPathButtonClick(Sender: TObject);
     procedure DeleteButtonClick(Sender: TObject);
+    procedure LBButtonClick(Sender: TObject);
+    procedure btnAddHotModuleClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -65,6 +55,8 @@ var
   ConfigForm: TConfigForm;
 
 implementation
+
+uses WideStrings;
 
 {$R *.DFM}
 
@@ -77,6 +69,40 @@ end;
 procedure TConfigForm.OKButtonClick(Sender: TObject);
 begin
   ModalResult := mrOK;
+end;
+
+
+
+
+procedure TConfigForm.LBButtonClick(Sender: TObject);
+var itemIx, newItemIx, itemCount:integer;
+     op:integer;
+begin
+itemIx:= lbxFavourites.ItemIndex; itemCount:=lbxFavourites.Count-1;
+if (itemIx<0) or (itemIx>itemCount) then exit;
+op:=(Sender as TBitBtn).Tag;
+if op=0 then begin
+ lbxFavourites.Items.Delete(itemIx);
+ Dec(itemCount);
+  if (itemCount>=0)then begin
+    if  (itemIx>itemCount) then itemIx:=itemCount;
+    lbxFavourites.ItemIndex:=itemIx;
+ end;
+ exit end;
+newItemIx:=itemIx+ op;
+if (newItemIx<0) or (newItemIx>itemCount) then exit;
+lbxFavourites.Items.Move(itemIx, newItemIx);
+lbxFavourites.ItemIndex:=newItemIx;
+end;
+
+procedure TConfigForm.btnAddHotModuleClick(Sender: TObject);
+var ix, cnt:integer;
+begin
+cnt:=cbxAvailableModules.Items.Count;
+ix:=cbxAvailableModules.ItemIndex;
+if (ix<0) or (ix>=cnt) then exit;
+ix:=lbxFavourites.Items.Add(cbxAvailableModules.Items[ix]);
+lbxFavourites.ItemIndex:=ix;
 end;
 
 procedure TConfigForm.CancelButtonClick(Sender: TObject);
@@ -121,6 +147,13 @@ begin
   end;
   }
 end;
+
+
+
+
+
+
+
 
 procedure TConfigForm.DeleteButtonClick(Sender: TObject);
 begin

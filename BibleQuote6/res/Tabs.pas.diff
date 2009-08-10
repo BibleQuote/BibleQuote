@@ -1,0 +1,437 @@
+--- G:/Program Files/Borland/BDS/4.0/source/Win32/vcl/Tabs.pas	Чт сен  7 16:40:16 2006
++++ E:/DevSoft/myprojects/BQ6/Tabs.pas	Вт июн  9 01:05:18 2009
+@@ -24,7 +24,7 @@
+ 
+ interface
+ 
+-uses Windows, Classes, Graphics, Forms, Controls, Messages, ImgList,
++uses Windows, WideStrings, Classes, Graphics, Forms, Controls, Messages, ImgList,
+   ComCtrls, ExtCtrls;
+ 
+ type
+@@ -96,6 +96,19 @@
+     procedure AddStrings(Strings: TStrings); override;
+   end;
+ 
++  TUnicodeTabList = class(TWideStringList)
++  private
++    FTabSet: TTabSet;
++  public
++    constructor Create(const ATabSet: TTabSet);
++    procedure Insert(Index: Integer; const ws: WideString); override;
++    procedure Delete(Index: Integer); override;
++    function Add(const ws: WideString): Integer; override;
++    procedure Put(Index: Integer; const ws: WideString); override;
++    procedure Clear; override;
++  end;
++
++
+   { each TEdgeType is made up of one or two of these parts }
+   TEdgePart = (epSelectedLeft, epUnselectedLeft, epSelectedRight,
+     epUnselectedRight);
+@@ -120,6 +133,7 @@
+     FStartMargin: Integer;
+     FEndMargin: Integer;
+     FTabs: TStrings;
++    FWideTabs:TWideStrings;
+     FTabIndex: Integer;
+     FFirstIndex: Integer;
+     FVisibleTabs: Integer;
+@@ -160,6 +174,7 @@
+     procedure SetEndMargin(Value: Integer);
+     procedure SetFirstIndex(Value: Integer);
+     procedure SetTabList(Value: TStrings);
++    procedure SetWideTabList(Value:TWideStrings);
+     procedure SetTabStyle(Value: TTabStyle);
+     procedure SetTabHeight(Value: Integer);
+     { private methods }
+@@ -192,6 +207,7 @@
+     procedure DoPopoutModernPainting;
+     procedure SetupTabPositions;
+     function ScrollerShown: Boolean;
++    function TextWidth(canvas:TCanvas; wText:WideString):integer;
+   protected
+     function CanChange(NewIndex: Integer): Boolean;
+     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+@@ -219,6 +235,7 @@
+     procedure SelectNext(Direction: Boolean);
+     property Canvas;
+     property FirstIndex: Integer read FFirstIndex write SetFirstIndex default 0;
++    property WideTabs: TWideStrings read FWideTabs write SetWideTabList;
+   published
+     property Align;
+     property Anchors;
+@@ -583,7 +600,7 @@
+   FTabHeight := 20;
+ 
+   FTabs := TTabList.Create(Self);
+-  
++  FWideTabs:=TUnicodeTabList.Create(self);
+   InitBitmaps;
+ 
+   CreateScroller;
+@@ -648,6 +665,7 @@
+ destructor TTabSet.Destroy;
+ begin
+   FTabs.Free;
++  FWideTabs.Free();
+   FTabPositions.Free;
+   FSortedTabPositions.Free;
+   DoneBitmaps;
+@@ -692,14 +710,14 @@
+   Index := First;
+   Start := AStart;
+   Stop := AStop;
+-  while (Start < Stop) and (Index < Tabs.Count) do
++  while (Start < Stop) and (Index < WideTabs.Count) do
+   begin
+     with Canvas do
+     begin
+       TabPos.StartPos := Start;
+       TabPos.Size := ItemWidth(Index);
+       Inc(Start, TabPos.Size + FEdgeWidth);    { next usable position }
+-                                              
++
+       if (Start <= Stop) or (not FullTabs) then { Allowing this allows partial tabs }
+       begin
+         FTabPositions.Add(Pointer(TabPos));    { add to list }
+@@ -709,11 +727,11 @@
+     end;
+   end;
+   { If we are to "resize" tabs, then do that }
+-  if FShrinkToFit and (Index < Tabs.Count) then
++  if FShrinkToFit and (Index < WideTabs.Count) then
+   begin
+     Inc(Index); { Last one already added in the above loop }
+     { First, finish "adding" in all the tabs. }
+-    while (Index < Tabs.Count) do
++    while (Index < WideTabs.Count) do
+     begin
+       TabPos.StartPos := Start;
+       TabPos.Size := ItemWidth(Index);
+@@ -766,7 +784,7 @@
+       Index := First;
+       Start := AStart;
+       Stop := AStop;
+-      while (Start < Stop) and (Index < Tabs.Count) do
++      while (Start < Stop) and (Index < WideTabs.Count) do
+       begin
+         with Canvas do
+         begin
+@@ -906,10 +924,34 @@
+   R: TRect;
+   MinRect: Integer;
+   S: string;
++  sz: tagSIZE;
++  ws:WideString;
+   ImageIndex: Integer;
+   TabTop: Integer;
+   TotalSize: Integer;
++
++ procedure _TextRect(handle:HDC; var Rect: TRect; var Text: WideString;
++  TextFormat: TTextFormat = []);
++  const
++  cTextFormats: array[TTextFormats] of Integer =
++  (DT_BOTTOM, DT_CALCRECT, DT_CENTER, DT_EDITCONTROL, DT_END_ELLIPSIS,
++   DT_PATH_ELLIPSIS, DT_EXPANDTABS, DT_EXTERNALLEADING, DT_LEFT,
++   DT_MODIFYSTRING, DT_NOCLIP, DT_NOPREFIX, DT_RIGHT, DT_RTLREADING,
++   DT_SINGLELINE, DT_TOP, DT_VCENTER, DT_WORDBREAK);
++var
++  Format: Integer;
++  F: TTextFormats;
++  r:integer;
+ begin
++  Format := 0;
++  for F := Low(TTextFormats) to High(TTextFormats) do
++    if F in TextFormat then
++      Format := Format or cTextFormats[F];
++  r:=DrawTextExW(Handle, PWideChar(Pointer(Text)), Length(Text), Rect, Format, nil);
++end;
++
++
++begin
+   { Calculate our true drawing positions }
+   if FTabPosition in [tpBottom, tpRight] then
+   begin
+@@ -1086,10 +1128,15 @@
+             end;
+           end;
+         end;
+-        S := Tabs[Tab + FirstIndex];
++        //S := Tabs[Tab + FirstIndex];
++        ws:=WideTabs[Tab + FirstIndex];
++        sz.cX := 0;
++        sz.cY := 0;
++        Windows.GetTextExtentPoint32W(Canvas.Handle, PWideChar(Pointer(ws) ), Length(ws), sz);
+         if (R.Right - R.Left >= MinRect) or
+-            (TextWidth(S) <= (R.Right - R.Left)) then
+-          TextRect(R, S, [tfEndEllipsis, tfNoClip]);
++            (sz.cX <= (R.Right - R.Left)) then begin
++           _TextRect(FMemBitmap.Canvas.Handle, R, ws, [tfEndEllipsis, tfNoClip]);
++          end
+       end;
+     end;
+ 
+@@ -1509,7 +1556,7 @@
+     else
+       Result := Height - EndMargin;
+ 
+-    if AutoScroll and (FVisibleTabs < Tabs.Count - 1) then
++    if AutoScroll and (FVisibleTabs < WideTabs.Count - 1) then
+       Dec(Result, ScrollerSize);
+   end;
+ 
+@@ -1538,9 +1585,9 @@
+   end;
+ 
+ begin
+-  if (not FShrinkToFit) and (Tabs.Count > 0) then
++  if (not FShrinkToFit) and (WideTabs.Count > 0) then
+   begin
+-    if FVisibleTabs < Tabs.Count then
++    if FVisibleTabs < WideTabs.Count then
+       SetupTabPositions; { Insure FVisibleTabs is up to date }
+     LastVisibleTab := FFirstIndex + FVisibleTabs - 1;
+     if (LastVisibleTab > 0) and (FTabIndex >= LastVisibleTab) then
+@@ -1640,7 +1687,7 @@
+ begin
+   if Value <> FTabIndex then
+   begin
+-    if (Value < -1) or (Value >= Tabs.Count) then
++    if (Value < -1) or (Value >= WideTabs.Count) then
+        raise Exception.CreateRes(@SInvalidTabIndex);
+     if CanChange(Value) then
+     begin
+@@ -1665,23 +1712,23 @@
+ var
+   NewIndex: Integer;
+ begin
+-  if Tabs.Count > 1 then
++  if WideTabs.Count > 1 then
+   begin
+     NewIndex := TabIndex;
+     if Direction then
+       Inc(NewIndex)
+     else Dec(NewIndex);
+-    if NewIndex = Tabs.Count then
++    if NewIndex = WideTabs.Count then
+       NewIndex := 0
+     else if NewIndex < 0 then
+-      NewIndex := Tabs.Count - 1;
++      NewIndex := WideTabs.Count - 1;
+     SetTabIndex(NewIndex);
+   end;
+ end;
+ 
+ procedure TTabSet.SetFirstIndex(Value: Integer);
+ begin
+-  if (Value >= 0) and (Value < Tabs.Count) then
++  if (Value >= 0) and (Value < WideTabs.Count) then
+   begin
+     FFirstIndex := Value;
+     Invalidate;
+@@ -1692,7 +1739,7 @@
+ begin
+   FTabs.Assign(Value);
+   FTabIndex := -1;
+-  if FTabs.Count > 0 then TabIndex := 0
++  if FWideTabs.Count > 0 then TabIndex := 0
+   else Invalidate;
+ end;
+ 
+@@ -1708,6 +1755,24 @@
+   end;
+ end;
+ 
++procedure TTabSet.SetWideTabList(Value: TWideStrings);
++begin
++  FWideTabs.Assign(Value);
++  FTabIndex := -1;
++  if FTabs.Count > 0 then TabIndex := 0
++  else Invalidate;
++end;
++
++
++function TTabSet.TextWidth(canvas: TCanvas; wText: WideString): integer;
++var sz:tagSize;
++begin
++sz.cX := 0;
++sz.cY := 0;
++Windows.GetTextExtentPoint32W(Canvas.Handle, PWideChar(Pointer(wText) ), Length(wText), sz);
++result:=sz.cX;
++end;
++
+ procedure TTabSet.SetTabHeight(Value: Integer);
+ var
+   SaveHeight: Integer;
+@@ -1765,7 +1830,7 @@
+     First: Integer): Integer;
+   begin
+     Result := First;
+-    while (Start < Stop) and (Result < Tabs.Count) do
++    while (Start < Stop) and (Result < WideTabs.Count) do
+       with Canvas do
+       begin
+         Inc(Start, ItemWidth(Result) + FEdgeWidth);    { next usable position }
+@@ -1776,7 +1841,7 @@
+ 
+ begin
+   inherited;
+-  if (not FShrinkToFit) and (Tabs.Count > 1) then
++  if (not FShrinkToFit) and (WideTabs.Count > 1) then
+   begin
+     if FTabPosition in [tpTop, tpBottom] then
+       LastTabPos := Width - EndMargin
+@@ -1784,9 +1849,9 @@
+       LastTabPos := Height - EndMargin;
+ 
+     NumVisTabs := CalcNumTabs(StartMargin + FEdgeWidth, LastTabPos, Canvas, 0);
+-    if (FTabIndex = Tabs.Count) or (NumVisTabs > FVisibleTabs) or
+-       (NumVisTabs = Tabs.Count) then
+-      FirstIndex := Tabs.Count - NumVisTabs;
++    if (FTabIndex = WideTabs.Count) or (NumVisTabs > FVisibleTabs) or
++       (NumVisTabs = WideTabs.Count) then
++      FirstIndex := WideTabs.Count - NumVisTabs;
+     FDoFix := True;
+   end;
+   Invalidate;
+@@ -1833,12 +1898,12 @@
+ 
+ function TTabSet.MinClientRect: TRect;
+ begin
+-  Result := MinClientRect(Tabs.Count, False);
++  Result := MinClientRect(WideTabs.Count, False);
+ end;
+ 
+ function TTabSet.MinClientRect(IncludeScroller: Boolean): TRect;
+ begin
+-  Result := MinClientRect(Tabs.Count, IncludeScroller);
++  Result := MinClientRect(WideTabs.Count, IncludeScroller);
+ end;
+ 
+ function TTabSet.MinClientRect(TabCount: Integer; IncludeScroller: Boolean): TRect;
+@@ -1877,7 +1942,7 @@
+   with Canvas do
+   begin
+     SetFontOrientation(Canvas);
+-    Result := TextWidth(Tabs[Index]);
++    Result := self.TextWidth(Canvas, WideTabs[Index]);
+     if (FImages <> nil) then
+     begin
+       I := GetImageIndex(Index);
+@@ -1963,13 +2028,13 @@
+         if (FImages <> nil) and (GetImageIndex(I) <> -1) then
+           Inc(R.Left, FImages.Width + 2);
+         Calced := R;
+-        S := FTabs[I];
++        S := FWideTabs[I];
+         Canvas.TextRect(Calced, S, [tfCalcRect]);
+         if R.Right < Calced.Right then
+         begin
+           Message.Result := 0; { Show the hint }
+           Message.HintInfo.CursorRect := R;
+-          HintStr := FTabs[I];
++          HintStr := FWideTabs[I];
+         end;
+       end;
+     end;
+@@ -2422,10 +2487,10 @@
+     { set the scroller's range }
+     Scroller.Visible := True;
+     Scroller.Min := 0;
+-    Scroller.Max := Tabs.Count - WholeVisibleTabs;
++    Scroller.Max := WideTabs.Count - WholeVisibleTabs;
+     Scroller.Position := FirstIndex;
+   end
+-  else if VisibleTabs >= Tabs.Count then
++  else if VisibleTabs >= WideTabs.Count then
+     Scroller.Visible := False;
+ 
+   if FDoFix then
+@@ -2439,7 +2504,7 @@
+ 
+ function TTabSet.ScrollerShown: Boolean;
+ begin
+-  Result := AutoScroll and (FVisibleTabs < Tabs.Count);
++  Result := AutoScroll and (FVisibleTabs < WideTabs.Count);
+ end;
+ 
+ procedure TTabSet.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+@@ -2450,5 +2515,77 @@
+     Message.Result := 0;
+ end;
+ 
++{ TUnicodeTabList }
++
++function TUnicodeTabList.Add(const ws: WideString): Integer;
++begin
++  Result := inherited Add(ws);
++  if FTabSet <> nil then
++  FTabSet.Invalidate;
++end;
++
++procedure TUnicodeTabList.Clear;
++begin
++  inherited Clear;
++  FTabSet.FTabIndex := -1;
++  FTabSet.Invalidate;
++end;
++
++constructor TUnicodeTabList.Create(const ATabSet: TTabSet);
++begin
++  inherited Create();
++  FTabSet := ATabSet;
++end;
++
++procedure TUnicodeTabList.Delete(Index: Integer);
++var
++  OldIndex: Integer;
++  LastVisibleTab: Integer;
++begin
++  OldIndex := FTabSet.Tabindex;
++  inherited Delete(Index);
++
++  if OldIndex < Count then
++    FTabSet.FTabIndex := OldIndex
++  else
++    FTabSet.FTabIndex := Count - 1;
++
++  if FTabSet.HandleAllocated then
++  begin
++    { See if we can fit more tabs onto the screen now }
++    if (not FTabSet.FShrinkToFit) and (Count > 0) then
++    begin
++      if FTabSet.FVisibleTabs < Count then
++        FTabSet.SetupTabPositions; { Insure FVisibleTabs is up to date }
++      LastVisibleTab := FTabSet.FFirstIndex + FTabSet.FVisibleTabs - 1;
++      if (LastVisibleTab = Count - 1) and (FTabSet.FFirstIndex > 0) then
++        FTabSet.FFirstIndex := FTabSet.FFirstIndex - 1; { We could probably fit one more on screen }
++      FTabSet.FixTabPos;
++    end;
++  end;
++
++  FTabSet.SetupTabPositions;
++  FTabSet.Invalidate;
++  if OldIndex = Index then
++    FTabSet.Click;  { We deleted the selected tab }
++end;
++
++procedure TUnicodeTabList.Insert(Index: Integer; const ws: WideString);
++begin
++  inherited Insert(Index, ws);
++  if FTabSet <> nil then
++  begin
++    if Index <= FTabSet.FTabIndex then Inc(FTabSet.FTabIndex);
++    FTabSet.Invalidate;
++  end;
++  end;
++
++procedure TUnicodeTabList.Put(Index: Integer; const ws: WideString);
++begin
++  inherited Put(Index, ws);
++  if FTabSet <> nil then
++    FTabSet.Invalidate;
++end;
++
+ end.
+ 

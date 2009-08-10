@@ -3,8 +3,8 @@ object CopyrightForm: TCopyrightForm
   Top = 122
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'CopyrightForm'
-  ClientHeight = 362
-  ClientWidth = 587
+  ClientHeight = 359
+  ClientWidth = 583
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,8 +20,8 @@ object CopyrightForm: TCopyrightForm
   object Browser: THTMLViewer
     Left = 0
     Top = 0
-    Width = 587
-    Height = 362
+    Width = 583
+    Height = 359
     OnHotSpotClick = BrowserHotSpotClick
     TabOrder = 0
     Align = alClient
