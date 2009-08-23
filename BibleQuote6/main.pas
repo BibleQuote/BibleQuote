@@ -1004,7 +1004,7 @@ begin
     //DefaultCharset := 1251;
     //DefaultCharset := StrToInt(ini.SayDefault('Charset', '204'));
 
-    DefBackGround := Hex2Color(ini.SayDefault('DefBackground', '#DEEFF7'));
+    DefBackGround := Hex2Color(ini.SayDefault('DefBackground', '#E2E8EB'));
     DefHotSpotColor := Hex2Color(ini.SayDefault('DefHotSpotColor', '#0000FF'));
   end;
 

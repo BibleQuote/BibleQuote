@@ -230,6 +230,8 @@ var
   delta, oldright, savelength: integer;
 begin
   inherited;
+  if csDesigning in ComponentState then exit;
+  
   themeServices := Themes.ThemeServices();
   aix := ActivePageIndex;
   cnt := PageCount - 1;
@@ -286,11 +288,15 @@ end;
 
 procedure TAlekPanel.Paint;
 begin
-//  inherited;
+
+if not (csDesigning in ComponentState) then begin
+
   GradientFillCanvas(canvas, mGradientStartColor, mGradientEndColor,
     GetClientRect(),
     mGradientDirection);
+end else   inherited;
 end;
+
 
 end.
 
