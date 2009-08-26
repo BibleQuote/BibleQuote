@@ -235,6 +235,7 @@ begin
   themeServices := Themes.ThemeServices();
   aix := ActivePageIndex;
   cnt := PageCount - 1;
+  if cnt<=0 then exit;
   image_width := FCloseImage.Width; image_height := FCloseImage.Height;
 //  if (image_width < 3) or (image_height < 3) then exit;
   for i := 0 to cnt do begin

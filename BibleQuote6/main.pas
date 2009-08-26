@@ -312,6 +312,7 @@ type
     tbLinksToolBar:TTntToolBar;
     lbTitleLabel: TTntLabel;
     lbCopyRightNotice: TTntLabel;
+    miTechnoForum: TTntMenuItem;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -514,6 +515,9 @@ type
     procedure mBibleTabsExMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure TntFormDeactivate(Sender: TObject);
+    procedure FirstBrowserFileBrowse(Sender, Obj: TObject; var S: string);
+    procedure FirstBrowserImageRequest(Sender: TObject; const SRC: string;
+      var Stream: TMemoryStream);
 //    procedure BrowserMouseMove(Sender: TObject; Shift: TShiftState; X,
 //      Y: Integer);
 //    procedure CommBrowserHotSpotClick(Sender: TObject; const SRC: String;
@@ -551,6 +555,7 @@ type
     function _CreateNewBibleInstance(aBible: TBible; aOwner: TComponent):
       TBible;
     function GetActiveTabInfo(): TViewTabInfo;
+    function TabInfoFromBrowser(browser:THTMLViewer):TViewTabInfo;
     procedure AdjustBibleTabs(awsNewModuleName: WideString = '');
       //при перемене модул€: навигаци€ или смена таба
     procedure SafeProcessCommand(wsLocation: WideString);
@@ -847,7 +852,7 @@ var
 begin
   dUserName := WindowsUserName;
 
-  Result := ExePath + 'users\' + DumpFileName(dUserName) + '\';
+  Result :=ExePath + 'users\' + DumpFileName(dUserName) + '\';
   if ForceDirectories(Result) then
     Exit;
 
@@ -1004,7 +1009,7 @@ begin
     //DefaultCharset := 1251;
     //DefaultCharset := StrToInt(ini.SayDefault('Charset', '204'));
 
-    DefBackGround := Hex2Color(ini.SayDefault('DefBackground', '#E2E8EB'));
+    DefBackGround := Hex2Color(ini.SayDefault('DefBackground', '#EBE8E2'));
     DefHotSpotColor := Hex2Color(ini.SayDefault('DefHotSpotColor', '#0000FF'));
   end;
 
@@ -2237,6 +2242,11 @@ begin
   ConvertClipboard;
 end;
 
+procedure TMainForm.FirstBrowserFileBrowse(Sender, Obj: TObject; var S: string);
+begin
+ //
+end;
+
 procedure TMainForm.FirstBrowserHotSpotClick(Sender: TObject; const SRC: string;
   var Handled: Boolean);
 var
@@ -2310,6 +2320,31 @@ begin
   end;
 
   // во всех остальных случа€х ссылка обрабатываетс€ по правилам HTML :-)
+end;
+
+procedure TMainForm.FirstBrowserImageRequest(Sender: TObject; const SRC: string;
+  var Stream: TMemoryStream);
+  var vti:TViewTabInfo;
+      archive:WideString;
+      ix, sz:integer;
+      {$J+}
+      const ms:TMemoryStream=nil;
+      {$J-}
+begin
+try
+vti :=TabInfoFromBrowser(sender as THTMLViewer);
+
+if not assigned(vti) then exit;
+  archive:=vti.mBible.IniFile;
+  if archive[1]<>'?' then exit;
+  S_SevenZip.SZFileName := Copy(GetArchiveFromSpecial(archive), 2, $FFFFFF);
+  ix := S_SevenZip.GetIndexByFilename(SRC, @sz);
+  if ix=0 then exit;
+  if not assigned(ms) then ms:=TMemoryStream.Create;
+  ms.Size:=sz;
+  S_SevenZip.ExtracttoMem(ix, ms.Memory, ms.Size);
+  if S_SevenZip.ErrCode=0 then Stream:=ms;
+except end;
 end;
 
 (*AlekId:ƒобавлено*)
@@ -3076,13 +3111,9 @@ label
   end;
 begin
   Result := false;
-  //выйти, если команда пуста€
-  if s = '' then Exit;
-
+  if s = '' then Exit;//выйти, если команда пуста€
   wasFile := false;
-
   browserpos := Browser.Position;
-
   Browser.Tag := bsText;
 
   oldpath := MainBook.IniFile;
@@ -3122,8 +3153,8 @@ begin
     //else path := ExePath + path + '\bibleqt.ini';
     // ??! никогда ветвление это не сработает
     //if path = '' then goto exitlabel;
-    if length(path) < 1 then begin
-      exit; end;
+    if length(path) < 1 then goto exitlabel;
+
 
  // пытаемс€ подгрузить модуль
     if path <> MainBook.IniFile then try
@@ -3138,13 +3169,6 @@ begin
     try
    //читаем, отображаем адрес
       GoAddress(book, chapter, fromverse, toverse);
-
-      {
-      firstverse := ParseHTML(MainBook.Lines[fromverse-1],'');
-      StrDeleteFirstNumber(firstverse);
-      if MainBook.StrongNumbers then
-        firstverse := DeleteStrongNumbers(firstverse);
-      }
    //записываем историю
       with MainBook do
         if toverse = 0 then
@@ -3167,7 +3191,6 @@ begin
               ]);
 
       HistoryAdd(s);
-
       (*AlekId:ƒобавлено*)
       //here we set proper name to tab
       with MainBook, mViewTabs do begin
@@ -3288,12 +3311,10 @@ begin
     ;
   end;
 
-  exitlabel:
+exitlabel:
   Screen.Cursor := crDefault;
   //ActiveControl := Browser;
-
   miStrong.Enabled := MainBook.StrongNumbers;
-
   Result := true;
 
   i := BooksCB.Items.IndexOf(MainBook.Name);
@@ -3748,7 +3769,18 @@ end;
 procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   F: TSearchRec;
-  {i: integer;}
+  procedure _finalizeDics();
+  var i:integer;
+    begin
+    for i := 0 to DicsCount- 1 do Dics[i].Free();
+    end;
+ procedure _finalizeViewTabs();
+ var i,c:integer;
+ begin
+ c:=mViewTabs.PageCount-1;
+ for i := 0 to c do (TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo).Free();
+
+ end;
 begin
   if MainForm.Height < 100 then MainForm.Height := MainFormTempHeight;
 
@@ -3771,6 +3803,11 @@ begin
     G_ArchivedModuleList.Free();
     Memos.Free(); Bookmarks.Free(); History.Free(); SearchResults.Free();
     SearchWords.Free();
+    StrongHebrew.Free(); StrongGreek.Free();
+   _finalizeDics();//CleanUp
+    S_cachedModules.Free();
+   _finalizeViewTabs();
+   PasswordPolicy.Free();
   except end;
   (*AlekId:/ƒобавлено*)
 {
@@ -5605,6 +5642,22 @@ begin
   end;
 end;
 
+function TMainForm.TabInfoFromBrowser(browser: THTMLViewer): TViewTabInfo;
+var pageCount,i:integer;
+    vti:TViewTabInfo;
+begin
+result:=nil;
+pageCount:= mViewTabs.PageCount-1;
+for i:=0 to pageCount do
+try
+ vti:=TObject(mViewTabs.ActivePage.Tag) as TViewTabInfo;
+if vti.mHtmlViewer = browser then begin
+ result:=vti; break;
+ end;
+except end;
+
+end;
+
 procedure TMainForm.TntFormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose := FInShutdown;
@@ -6380,6 +6433,7 @@ begin
     tabInfo := TViewTabInfo.Create(newBrowser, newBible, command,
       satelliteMenuItem);
     Tab1.Tag := Integer(tabInfo);
+
       //какждой вкладке по броузеру
     MainBook := newBible;
     mViewTabs.ActivePage := Tab1;
@@ -6700,6 +6754,7 @@ begin
       OnKeyPress := FirstBrowserKeyPress;
       OnKeyUp := FirstBrowserKeyUp;
       OnMouseDouble := FirstBrowserMouseDouble;
+      OnImageRequest:=FirstBrowserImageRequest;
       PopupMenu := BrowserPopupMenu;
       OnHotSpotClick := FirstBrowserHotSpotClick;
     end;
@@ -6850,6 +6905,7 @@ begin
    // event of TPageControl is NOT triggered
     mViewTabsChange(nil);
     tabInfo.Free();
+    if mViewTabs.PageCount<=1 then mViewTabs.Repaint();
   except {do nothing,eat} end;
 (*AlekId:/ƒобавлено*)
 end;
@@ -7119,7 +7175,7 @@ end;
 procedure TMainForm.CopyrightButtonClick(Sender: TObject);
 begin
   if MainBook.Copyright = '' then
-    WideShowMessage(CopyrightButton.Hint)
+    WideShowMessage(Copy(CopyrightButton.Hint, 2,$FFFFFF) )
   else begin
     CopyrightForm.Caption := 'Copyright (c) ' + MainBook.Copyright;
     if FileExists(MainBook.Path + 'copyright.htm') then begin
@@ -7746,5 +7802,12 @@ begin
   Names.Free(); Paths.Free();
   inherited;
 end;
+
+
+
+
+
+
+
 end.
 

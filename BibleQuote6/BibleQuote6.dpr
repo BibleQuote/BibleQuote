@@ -42,6 +42,9 @@ program BibleQuote6;
 {%TogetherDiagram 'ModelSupport_BibleQuote6\AlekNavigator\default.txvpck'}
 
 uses
+  {$IFDEF MEMCHECK}
+  MemCheck,
+  {$ENDIF}
   XPTheme in 'XPTheme.pas',
   Forms,
   string_procs in 'string_procs.pas',
@@ -63,17 +66,28 @@ uses
   AlekPageControl in 'AlekPageControl.pas',
   Tabs in 'Tabs.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
-  BibleQuoteUtils in 'BibleQuoteUtils.pas',
-  main in 'main.pas' {MainForm: TTntForm};
+  main in 'main.pas' {MainForm: TTntForm},
+  BibleQuoteUtils in 'BibleQuoteUtils.pas';
 
 {$R *.res}
-
+var fn:string;
 begin
-
+  try
+  if  AnsiUpperCase(ParamStr(1))='debug' then
+  fn:=ExtractFilePath(Application.ExeName)+'dbg.log'
+  else fn:='nul';
+  Assign(Output, fn );
+  if FileExists(fn) then   Append(Output)
+  else Rewrite(Output);
+  except end;
+  writeln(Now, ': Старт Цитаты');
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TCopyrightForm, CopyrightForm);
   Application.CreateForm(TConfigForm, ConfigForm);
   Application.Run;
+  try
+  Close(Output);
+  except end;
 end.

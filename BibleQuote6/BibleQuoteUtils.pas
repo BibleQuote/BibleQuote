@@ -1,7 +1,7 @@
 unit BibleQuoteUtils;
 
 interface
-uses SevenZipVCL, Contnrs, WideStrings, Windows, SysUtils;
+uses SevenZipVCL, Contnrs, WideStrings, Windows, SysUtils ;
 type
   TBibleModuleSecurity = class
     path, folder: WideString;
@@ -199,6 +199,7 @@ begin //
         _EncodeDecode();
         crcCalculated := GetCRC32(PByteArray(buf), fileSz);
         if crcCalculated <> crcExpected then begin
+
           result := false; exit; end;
         wsStrings.SetText(buf);
 
@@ -252,6 +253,7 @@ begin
   mPasswordList := TWideStringList.Create();
   LoadFromFile(wsString);
   mUserHash := GetUserHash();
+  writeln('хэш: ', mUserHash);
   S_SevenZip.OnGetPassword := GetPassword;
 end;
 
@@ -259,6 +261,7 @@ destructor TPasswordPolicy.Destroy;
 begin
 //nothing
   S_SevenZip.OnGetPassword := nil;
+  mPasswordList.Free();
   inherited;
 end;
 
@@ -288,6 +291,7 @@ begin
       aPassword, blSavePwd);
     if (pwFormShowResult = mrOk) and (length(aPassword) > 0) then begin
       s := XorPassword(UTF8Encode(aPassword));
+       Writeln(filename, ' ', s);
       mPasswordList.AddObject(WideFormat('%s=%s', [filename, s]), TObject(ord(blSavePwd)));
     end
     else if (pwFormShowResult = mrCancel) then begin
@@ -304,7 +308,11 @@ begin
       pwdEncoded[ix] := chr(HexDigitVal(Char(s[(ix - 1) * 2 + 1])) * 16
         + HexDigitVal(Char(s[ix * 2])));
     end;
-    aPassword := UTF8Decode(XorPassword(pwdEncoded, false));
+     writeln('найден  ', pwdEncoded);
+    pwdEncoded := XorPassword(pwdEncoded, false);
+    writeln('после ксора  ', pwdEncoded);
+    Flush(output);
+    aPassword := UTF8Decode(pwdEncoded);
   end;
   result := true;
 end;
@@ -313,10 +321,14 @@ function TPasswordPolicy.GetUserHash: int64;
 var userFolder: string;
   len : integer;
   data: int64;
+  userFolderW:WideString;
 begin
-  userFolder := UTF8Encode(CreateAndGetConfigFolder());
+  userFolderW:=WideUpperCase( CreateAndGetConfigFolder());
+  userFolder := UTF8Encode(userFolderW);
   len := length(userFolder);
+  if len<=0 then begin result:=0; exit;end;
   FillChar(data, 8, 0);
+
   asm
 pushad
 mov ecx, [len]
@@ -337,7 +349,6 @@ adc edi, 0
 inc eax
 dec ecx
 ja @lp
-
 
 @done:
 mov dword ptr [data], edx

@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 726
+  ClientHeight = 732
   ClientWidth = 973
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
@@ -37,7 +37,7 @@ object MainForm: TMainForm
     Left = 298
     Top = 27
     Width = 2
-    Height = 699
+    Height = 705
     MinSize = 100
     OnMoved = Splitter1Moved
     ExplicitTop = 23
@@ -47,14 +47,14 @@ object MainForm: TMainForm
     Left = 430
     Top = 27
     Width = 543
-    Height = 699
+    Height = 705
     Align = alRight
     Caption = 'MainPanel'
     TabOrder = 0
     object mBibleTabsEx: TDockTabSet
       Tag = -1
       Left = 1
-      Top = 670
+      Top = 676
       Width = 541
       Height = 28
       Align = alBottom
@@ -80,7 +80,7 @@ object MainForm: TMainForm
       Left = 1
       Top = 1
       Width = 541
-      Height = 669
+      Height = 675
       Margins.Top = 10
       ActivePage = mInitialViewPage
       Align = alClient
@@ -100,6 +100,7 @@ object MainForm: TMainForm
           Width = 533
           Height = 511
           OnHotSpotClick = FirstBrowserHotSpotClick
+          OnImageRequest = FirstBrowserImageRequest
           TabOrder = 0
           PopupMenu = BrowserPopupMenu
           DefBackground = 14870763
@@ -118,6 +119,7 @@ object MainForm: TMainForm
           OnKeyDown = FirstBrowserKeyDown
           OnKeyUp = FirstBrowserKeyUp
           OnKeyPress = FirstBrowserKeyPress
+          OnFileBrowse = FirstBrowserFileBrowse
           OnMouseDouble = FirstBrowserMouseDouble
         end
       end
@@ -180,7 +182,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 27
     Width = 298
-    Height = 699
+    Height = 705
     ActivePage = MemoTab
     Align = alLeft
     Images = theImageList
@@ -285,7 +287,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 253
         Width = 290
-        Height = 416
+        Height = 422
         ActivePage = TntTabSheet1
         Align = alClient
         TabOrder = 1
@@ -295,7 +297,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 282
-            Height = 386
+            Height = 392
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -313,7 +315,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 282
-            Height = 275
+            Height = 281
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -325,7 +327,7 @@ object MainForm: TMainForm
           end
           object BookmarkPanel: TTntPanel
             Left = 0
-            Top = 275
+            Top = 281
             Width = 282
             Height = 111
             Align = alBottom
@@ -335,13 +337,11 @@ object MainForm: TMainForm
             object BookmarkLabel: TTntLabel
               Left = 10
               Top = 10
-              Width = 262
-              Height = 91
+              Width = 87
+              Height = 15
               Align = alClient
               Caption = 'BookmarkLabel'
               WordWrap = True
-              ExplicitWidth = 87
-              ExplicitHeight = 15
             end
           end
         end
@@ -409,7 +409,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 290
-        Height = 490
+        Height = 496
         OnHotSpotClick = SearchBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -550,7 +550,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 232
         Width = 290
-        Height = 437
+        Height = 443
         OnHotSpotClick = DicBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -644,7 +644,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 206
         Width = 290
-        Height = 463
+        Height = 469
         OnHotSpotClick = StrongBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -709,7 +709,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 290
-        Height = 639
+        Height = 645
         OnHotSpotClick = CommentsBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -751,11 +751,15 @@ object MainForm: TMainForm
     end
     object XRefTab: TTntTabSheet
       ImageIndex = 19
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object XRefBrowser: THTMLViewer
         Left = 0
         Top = 0
         Width = 290
-        Height = 669
+        Height = 675
         OnHotSpotClick = XRefBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -780,7 +784,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 27
         Width = 290
-        Height = 617
+        Height = 623
         Align = alClient
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
@@ -812,7 +816,7 @@ object MainForm: TMainForm
       object TntToolBar1: TTntToolBar
         AlignWithMargins = True
         Left = 2
-        Top = 646
+        Top = 652
         Width = 285
         Height = 23
         Margins.Left = 2
@@ -1506,6 +1510,10 @@ object MainForm: TMainForm
     end
     object miWebSites: TTntMenuItem
       Caption = 'JesusChrist.ru'
+      object miTechnoForum: TTntMenuItem
+        Caption = #1054#1073#1089#1091#1078#1076#1077#1085#1080#1077' 6-'#1081' '#1074#1077#1088#1089#1080#1080' "'#1062#1080#1090#1072#1090#1099'"'
+        OnClick = JCRU_HomeClick
+      end
       object JCRU_Home: TTntMenuItem
         Caption = 'JesusChrist.ru'
         OnClick = JCRU_HomeClick
@@ -1554,7 +1562,7 @@ object MainForm: TMainForm
     Left = 360
     Top = 432
     Bitmap = {
-      494C010121002200040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C010121002200040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000009000000001002000000000000090
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2746,17 +2754,21 @@ object MainForm: TMainForm
       C40F800300000001C7FF800300007EFDC401800300007EFDC7FF810300007EFD
       C40F810300007EFDC7FF000100007EFDC401000100007EFDC7FF000100007EFD
       C40F000100007EFDC7FFC10100007EFDC401F11F00000001FFFFF11F00000001
-      FFFFFFFF00000001FFFFFFFF0000FFFF}
+      FFFFFFFF00000001FFFFFFFF0000FFFF00000000000000000000000000000000
+      000000000000}
   end
   object mViewTabsPopup: TTntPopupMenu
+    Images = theImageList
     Left = 400
     Top = 128
     object miCloseViewTab: TTntMenuItem
       Caption = #1047#1072#1082#1088#1099#1090#1100' '#1074#1082#1083#1072#1076#1082#1091
+      ImageIndex = 31
       OnClick = miCloseTabClick
     end
     object miNewViewTab: TTntMenuItem
       Caption = #1053#1086#1074#1072#1103' '#1074#1082#1083#1072#1076#1082#1072
+      ImageIndex = 30
       OnClick = miNewTabClick
     end
   end

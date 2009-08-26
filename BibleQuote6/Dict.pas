@@ -15,6 +15,7 @@ type TDict = class(TObject)
     FPath: WideString;
   public
     constructor Create;
+    destructor Destroy(); override;
     function Initialize(IndexFile, DictFile: WideString): boolean;
     function Lookup(wrd: WideString): WideString; // lookup a word in dictionary...
   published
@@ -33,10 +34,17 @@ begin
   inherited Create;
 
   FName := '';
+
   FWords := TWideStringList.Create;
 end;
 
 
+
+destructor TDict.Destroy;
+begin
+  FWords.Free();
+  inherited;
+end;
 
 function TDict.Initialize(IndexFile, DictFile: WideString): boolean;
 var

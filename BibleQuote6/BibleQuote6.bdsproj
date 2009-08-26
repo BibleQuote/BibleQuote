@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="us-ascii"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<PersonalityInfo>
 		<Option>
@@ -18,7 +18,7 @@
 		<Compiler>
 			<Compiler Name="A">4</Compiler>
 			<Compiler Name="B">0</Compiler>
-			<Compiler Name="C">1</Compiler>
+			<Compiler Name="C">0</Compiler>
 			<Compiler Name="D">1</Compiler>
 			<Compiler Name="E">0</Compiler>
 			<Compiler Name="F">0</Compiler>
@@ -30,10 +30,10 @@
 			<Compiler Name="L">1</Compiler>
 			<Compiler Name="M">0</Compiler>
 			<Compiler Name="N">1</Compiler>
-			<Compiler Name="O">0</Compiler>
+			<Compiler Name="O">1</Compiler>
 			<Compiler Name="P">1</Compiler>
-			<Compiler Name="Q">0</Compiler>
-			<Compiler Name="R">0</Compiler>
+			<Compiler Name="Q">1</Compiler>
+			<Compiler Name="R">1</Compiler>
 			<Compiler Name="S">0</Compiler>
 			<Compiler Name="T">0</Compiler>
 			<Compiler Name="U">0</Compiler>
@@ -106,11 +106,11 @@
 			<Compiler Name="CodePage"></Compiler>
 		</Compiler>
 		<Linker>
-			<Linker Name="MapFile">3</Linker>
+			<Linker Name="MapFile">0</Linker>
 			<Linker Name="OutputObjs">0</Linker>
 			<Linker Name="GenerateHpps">False</Linker>
 			<Linker Name="ConsoleApp">1</Linker>
-			<Linker Name="DebugInfo">False</Linker>
+			<Linker Name="DebugInfo">True</Linker>
 			<Linker Name="RemoteSymbols">False</Linker>
 			<Linker Name="GenerateDRC">False</Linker>
 			<Linker Name="MinStackSize">16384</Linker>
@@ -123,14 +123,14 @@
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">$(BDS)\lib\Debug;e:\DevSoft\myprojects\BQ6\;$(BDS)\Lib\Debug\Indy10;$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\tb2k\Source;.\Tray\TrayIcon;.\HotKey</Directories>
-			<Directories Name="Packages">vcl;rtl;vclx;vcldb;xmlrtl;vclactnband;inet;IntrawebDB_80_100;Intraweb_80_100;vclie;inetdbbde;inetdbxpress;dclOfficeXP;VclSmp;soaprtl;dsnap;bdertl;dsnapcon;websnap;webdsnap;TntUnicodeVcl;CoolTrayIcon_D6;Jcl;JvCoreD10R</Directories>
+			<Directories Name="SearchPath">$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy9;$(BDS)\Lib\Debug\Indy10;.\Delphi Unicode Controls\Source;.\Thtml\package;.\tb2k\Source;.\Tray\TrayIcon;.\HotKey</Directories>
+			<Directories Name="Packages">vcl;rtl;vclx;vcldb;xmlrtl;vclactnband;inet;IntrawebDB_80_100;Intraweb_80_100;vclie;inetdbbde;inetdbxpress;dclOfficeXP;VclSmp;soaprtl;dsnap;bdertl;dsnapcon;websnap;webdsnap;TntUnicodeVcl;CoolTrayIcon_D6;Jcl;JvCoreD10R;AlekControls;TrayIcon</Directories>
 			<Directories Name="Conditionals"></Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
 		<Parameters>
-			<Parameters Name="RunParams"></Parameters>
+			<Parameters Name="RunParams">/MemCheck</Parameters>
 			<Parameters Name="HostApplication"></Parameters>
 			<Parameters Name="Launcher"></Parameters>
 			<Parameters Name="UseLauncher">False</Parameters>
@@ -170,10 +170,8 @@
 			<VersionInfoKeys Name="ProductName"></VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments"></VersionInfoKeys>
-		</VersionInfoKeys>  <Excluded_Packages>
-      <Excluded_Packages Name="g:\program files\borland\bds\4.0\Bin\dclbcbsmp100.bpl">Borland Sample Controls Design Time Package</Excluded_Packages>
-    </Excluded_Packages>
-  </Delphi.Personality>
+		</VersionInfoKeys>
+	</Delphi.Personality>
 	<!-- EurekaLog First Line
 [Exception Log]
 EurekaLog Version=6020

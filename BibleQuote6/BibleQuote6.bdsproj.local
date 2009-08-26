@@ -1,2 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject/>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2009.08.23 21:35:34.347.pas,E:\DevSoft\myprojects\bqnet\BibleQuote6\BibleQuoteUtils.pas=</Transaction>
+  </Transactions>
+</BorlandProject>
