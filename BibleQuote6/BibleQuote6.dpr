@@ -40,11 +40,15 @@ program BibleQuote6;
 {%TogetherDiagram 'ModelSupport_BibleQuote6\main\default.txvpck'}
 {%TogetherDiagram 'ModelSupport_BibleQuote6\Tabs\default.txvpck'}
 {%TogetherDiagram 'ModelSupport_BibleQuote6\AlekNavigator\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\BibleQuoteConfig\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\BibleQuoteUtils\default.txaPackage'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\BibleQuoteConfig\default.txvpck'}
+{%TogetherDiagram 'ModelSupport_BibleQuote6\BibleQuoteUtils\default.txvpck'}
 
 uses
-  {$IFDEF MEMCHECK}
+{$IFDEF MEMCHECK}
   MemCheck,
-  {$ENDIF}
+{$ENDIF}
   XPTheme in 'XPTheme.pas',
   Forms,
   string_procs in 'string_procs.pas',
@@ -70,16 +74,21 @@ uses
   BibleQuoteUtils in 'BibleQuoteUtils.pas';
 
 {$R *.res}
-var fn:string;
+var
+  fn: string;
 begin
   try
-  if  AnsiUpperCase(ParamStr(1))='debug' then
-  fn:=ExtractFilePath(Application.ExeName)+'dbg.log'
-  else fn:='nul';
-  Assign(Output, fn );
-  if FileExists(fn) then   Append(Output)
-  else Rewrite(Output);
-  except end;
+    if AnsiUpperCase(ParamStr(1)) = '/DEBUG' then
+      fn := ExtractFilePath(Application.ExeName) + 'dbg.log'
+    else
+      fn := 'nul';
+    Assign(Output, fn);
+    if FileExists(fn) then
+      Append(Output)
+    else
+      Rewrite(Output);
+  except
+  end;
   writeln(Now, ': Старт Цитаты');
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
@@ -88,6 +97,8 @@ begin
   Application.CreateForm(TConfigForm, ConfigForm);
   Application.Run;
   try
-  Close(Output);
-  except end;
+    Close(Output);
+  except
+  end;
 end.
+

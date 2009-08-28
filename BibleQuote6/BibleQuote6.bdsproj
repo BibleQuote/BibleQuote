@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="us-ascii"?>
 <BorlandProject>
 	<PersonalityInfo>
 		<Option>
@@ -18,7 +18,7 @@
 		<Compiler>
 			<Compiler Name="A">4</Compiler>
 			<Compiler Name="B">0</Compiler>
-			<Compiler Name="C">0</Compiler>
+			<Compiler Name="C">1</Compiler>
 			<Compiler Name="D">1</Compiler>
 			<Compiler Name="E">0</Compiler>
 			<Compiler Name="F">0</Compiler>
@@ -30,7 +30,7 @@
 			<Compiler Name="L">1</Compiler>
 			<Compiler Name="M">0</Compiler>
 			<Compiler Name="N">1</Compiler>
-			<Compiler Name="O">1</Compiler>
+			<Compiler Name="O">0</Compiler>
 			<Compiler Name="P">1</Compiler>
 			<Compiler Name="Q">1</Compiler>
 			<Compiler Name="R">1</Compiler>
@@ -40,7 +40,7 @@
 			<Compiler Name="V">1</Compiler>
 			<Compiler Name="W">1</Compiler>
 			<Compiler Name="X">1</Compiler>
-			<Compiler Name="Y">2</Compiler>
+			<Compiler Name="Y">1</Compiler>
 			<Compiler Name="Z">1</Compiler>
 			<Compiler Name="ShowHints">True</Compiler>
 			<Compiler Name="ShowWarnings">True</Compiler>
@@ -106,11 +106,11 @@
 			<Compiler Name="CodePage"></Compiler>
 		</Compiler>
 		<Linker>
-			<Linker Name="MapFile">0</Linker>
+			<Linker Name="MapFile">3</Linker>
 			<Linker Name="OutputObjs">0</Linker>
 			<Linker Name="GenerateHpps">False</Linker>
 			<Linker Name="ConsoleApp">1</Linker>
-			<Linker Name="DebugInfo">True</Linker>
+			<Linker Name="DebugInfo">False</Linker>
 			<Linker Name="RemoteSymbols">False</Linker>
 			<Linker Name="GenerateDRC">False</Linker>
 			<Linker Name="MinStackSize">16384</Linker>
@@ -119,7 +119,7 @@
 			<Linker Name="ExeDescription"></Linker>
 		</Linker>
 		<Directories>
-			<Directories Name="OutputDir">e:\DevSoft\myprojects\BQ6\SandBox\</Directories>
+			<Directories Name="OutputDir">D:\BibleQuote 5 Bibliologia Edition</Directories>
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
@@ -130,7 +130,7 @@
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
 		<Parameters>
-			<Parameters Name="RunParams">/MemCheck</Parameters>
+			<Parameters Name="RunParams">/debug /MemCheck</Parameters>
 			<Parameters Name="HostApplication"></Parameters>
 			<Parameters Name="Launcher"></Parameters>
 			<Parameters Name="UseLauncher">False</Parameters>
@@ -655,5 +655,5 @@ Count mtInvalidEmailMsg=1
 mtInvalidEmailMsg0="Invalid email."
 TextsCollection=
 EurekaLog Last Line -->
-	<ModelSupport>True</ModelSupport>
+	<ModelSupport>False</ModelSupport>
 </BorlandProject>

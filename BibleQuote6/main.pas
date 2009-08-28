@@ -40,11 +40,11 @@ uses
   Dialogs, TntDialogs;
 
 const
-  ConstBuildCode: WideString = '2009.08.08';
-//  ConstBuildCode: WideString = '2005.03.25';
-  ConstBuildTitle: WideString = 'BibleQuote 6.0.1b3';
-//  ConstBuildTitle: WideString = 'BibleQuote 5.5';
-//  ConstBuildTitle: WideString = 'BibleQuote 4.5 A Bible Research Software ';
+  ConstBuildCode: WideString = '2009.08.26';
+  //  ConstBuildCode: WideString = '2005.03.25';
+  ConstBuildTitle: WideString = 'BibleQuote 6.0.1b4';
+  //  ConstBuildTitle: WideString = 'BibleQuote 5.5';
+  //  ConstBuildTitle: WideString = 'BibleQuote 4.5 A Bible Research Software ';
 
 const
 
@@ -69,7 +69,7 @@ const
     '<BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>' +
     '<BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>';
 
-//  Skips20 = '<BR>';
+  //  Skips20 = '<BR>';
 
   DefaultTextTemplate = '<h1>%HEAD%</h1>' + #13#10#13#10
     + '<font size=+1>' + #13#10 + '%TEXT%' + #13#10 + '</font>' + #13#10#13#10
@@ -82,7 +82,7 @@ type
     B, C, V, RB, RC, RV: byte;
   end;
 
-(*AlekId:Добавлено*)
+  (*AlekId:Добавлено*)
 type
   TViewTabInfo = class
   protected
@@ -107,7 +107,7 @@ type
     constructor Create(aViewTabInfo: TViewTabInfo);
     property ViewTabInfo: TViewTabInfo read mViewTabInfo;
   end;
-(*AlekId:/Добавлено*)
+  (*AlekId:/Добавлено*)
 type
   TMainForm = class(TTntForm)
     OpenDialog1: TTntOpenDialog;
@@ -306,10 +306,11 @@ type
     SearchForward: TTntBitBtn;
     LinksCB: TTntComboBox;
     mViewTabs: TAlekPageControl;
-    mBibleTabsEx: TDockTabSet; mInitialViewPage: TTntTabSheet;
+    mBibleTabsEx: TDockTabSet;
+    mInitialViewPage: TTntTabSheet;
     FirstBrowser: THTMLViewer;
     miDeteleBibleTab: TTntMenuItem;
-    tbLinksToolBar:TTntToolBar;
+    tbLinksToolBar: TTntToolBar;
     lbTitleLabel: TTntLabel;
     lbCopyRightNotice: TTntLabel;
     miTechnoForum: TTntMenuItem;
@@ -354,7 +355,7 @@ type
     procedure miXrefClick(Sender: TObject);
     procedure SoundButtonClick(Sender: TObject);
     procedure miHotkeyClick(Sender: TObject);
-//    procedure miAddPassageBookmarkClick(Sender: TObject);
+    //    procedure miAddPassageBookmarkClick(Sender: TObject);
     procedure miDialogFontConfigClick(Sender: TObject);
     procedure miCopyPassageClick(Sender: TObject);
 
@@ -364,12 +365,12 @@ type
     procedure PB1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
 
-{
-    procedure BrowserPrintHeader(Sender: TObject; Canvas: TCanvas; NumPage,
-      W, H: Integer; var StopPrinting: Boolean);
-    procedure BrowserPrintFooter(Sender: TObject; Canvas: TCanvas; NumPage,
-      W, H: Integer; var StopPrinting: Boolean);
-}
+    {
+        procedure BrowserPrintHeader(Sender: TObject; Canvas: TCanvas; NumPage,
+          W, H: Integer; var StopPrinting: Boolean);
+        procedure BrowserPrintFooter(Sender: TObject; Canvas: TCanvas; NumPage,
+          W, H: Integer; var StopPrinting: Boolean);
+    }
     procedure MainBookVerseFound(Sender: TObject; NumVersesFound, book,
       chapter, verse: Integer; s: WideString);
     procedure MainBookChangeModule(Sender: TObject);
@@ -378,8 +379,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure FirstBrowserKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-//    procedure BookmarkLBKeyDown(Sender: TObject; var Key: Word;
-//      Shift: TShiftState);
+    //    procedure BookmarkLBKeyDown(Sender: TObject; var Key: Word;
+    //      Shift: TShiftState);
     procedure miPrintPreviewClick(Sender: TObject);
     procedure HistoryLBDblClick(Sender: TObject);
     procedure miStrongClick(Sender: TObject);
@@ -418,8 +419,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure XRefBrowserHotSpotClick(Sender: TObject; const SRC: string;
       var Handled: Boolean);
-//    procedure BrowserMouseUp(Sender: TObject; Button: TMouseButton;
-//      Shift: TShiftState; X, Y: Integer);
+    //    procedure BrowserMouseUp(Sender: TObject; Button: TMouseButton;
+    //      Shift: TShiftState; X, Y: Integer);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
     procedure MemoOpenClick(Sender: TObject);
@@ -518,10 +519,10 @@ type
     procedure FirstBrowserFileBrowse(Sender, Obj: TObject; var S: string);
     procedure FirstBrowserImageRequest(Sender: TObject; const SRC: string;
       var Stream: TMemoryStream);
-//    procedure BrowserMouseMove(Sender: TObject; Shift: TShiftState; X,
-//      Y: Integer);
-//    procedure CommBrowserHotSpotClick(Sender: TObject; const SRC: String;
-//      var Handled: Boolean);
+    //    procedure BrowserMouseMove(Sender: TObject; Shift: TShiftState; X,
+    //      Y: Integer);
+    //    procedure CommBrowserHotSpotClick(Sender: TObject; const SRC: String;
+    //      var Handled: Boolean);
   private
     { Private declarations }
 
@@ -541,7 +542,7 @@ type
       mArchivedBiblesScanned, mArchivedCommentsScanned, mAllBkScanDone,
       mDictionariesAdded, mDictionariesFullyInitialized: boolean;
     mDefaultLocation: WideString;
-    mBibleTabsInCtrlKeyDownState:boolean;
+    mBibleTabsInCtrlKeyDownState: boolean;
     {AlekId: /добавлено}
     procedure WMQueryEndSession(var Message: TWMQueryEndSession);
       message WM_QUERYENDSESSION;
@@ -555,9 +556,9 @@ type
     function _CreateNewBibleInstance(aBible: TBible; aOwner: TComponent):
       TBible;
     function GetActiveTabInfo(): TViewTabInfo;
-    function TabInfoFromBrowser(browser:THTMLViewer):TViewTabInfo;
+    function TabInfoFromBrowser(browser: THTMLViewer): TViewTabInfo;
     procedure AdjustBibleTabs(awsNewModuleName: WideString = '');
-      //при перемене модуля: навигация или смена таба
+    //при перемене модуля: навигация или смена таба
     procedure SafeProcessCommand(wsLocation: WideString);
     procedure UpdateUI();
     function ActiveSatteliteMenu(): TTntMenuItem;
@@ -589,8 +590,8 @@ type
     function LoadDictionaries(maxAdd: integer): boolean;
     procedure UpdateDictionariesCombo();
     function LoadCachedModules(): boolean;
-    function CachedModuleIxFromFullname(const wsFullModuleName:WideString;
-      searchFromIndex:integer=0):integer;
+    function CachedModuleIxFromFullname(const wsFullModuleName: WideString;
+      searchFromIndex: integer = 0): integer;
     function UpdateFromCashed(): boolean;
     procedure SaveCachedModules();
     procedure Idle(Sender: TObject; var Done: boolean);
@@ -609,9 +610,9 @@ type
 
     procedure LoadConfiguration;
     procedure SaveConfiguration;
-//    procedure InitHotModulesConfigPage(refreshModuleList: boolean = false);
+    //    procedure InitHotModulesConfigPage(refreshModuleList: boolean = false);
     procedure InitBibleTabs;
-    procedure SetBibleTabsHintsState(showHints:boolean=true);
+    procedure SetBibleTabsHintsState(showHints: boolean = true);
     procedure MainMenuInit(cacheupdate: boolean);
     procedure GoModuleName(s: WideString);
 
@@ -621,7 +622,7 @@ type
 
     function ChooseColor(color: TColor): TColor;
 
-//    function LocateMemo(book,chapter,verse: integer; var cursor: integer): boolean;
+    //    function LocateMemo(book,chapter,verse: integer; var cursor: integer): boolean;
 
     function MainFileExists(s: WideString): WideString;
 
@@ -664,7 +665,7 @@ var
   MainForm: TMainForm;
   Lang: TMultiLanguage;
   MFPrinter: TMetaFilePrinter;
-  G_ControlKeyDown:boolean;
+  G_ControlKeyDown: boolean;
 implementation
 
 uses copyright, input, config, PasswordDialog, BibleQuoteConfig,
@@ -690,8 +691,8 @@ type
 var
   Bibles, Books,
     Comments, CommentsPaths {,
-    CacheModPaths, CacheDicPaths,
-    CacheModTitles, CacheDicTitles // new for 24.07.2002 - cache for module and dictionary titles}
+  CacheModPaths, CacheDicPaths,
+  CacheModTitles, CacheDicTitles // new for 24.07.2002 - cache for module and dictionary titles}
   : TWideStringList; // global module names
 
   Dics: array[0..255] of TDict;
@@ -753,7 +754,7 @@ var
   LastAddress: WideString;
   LastLanguageFile: WideString;
 
-//  DefaultEncoding: Integer;
+  //  DefaultEncoding: Integer;
 
   History: TWideStrings;
   SearchResults: TWideStrings;
@@ -794,15 +795,15 @@ var
 
   CurFromVerse, CurToVerse,
     VersePosition: integer;
-      // positionto(...) when changing modules you need to know which verse it was
+  // positionto(...) when changing modules you need to know which verse it was
 
-  // config
+// config
   MainFormLeft, MainFormTop, MainFormWidth, MainFormHeight,
     MainPagesWidth, Panel2Height: integer;
 
   MainFormTempHeight: integer;
 
-//  MainBookFontName: WideString;
+  //  MainBookFontName: WideString;
 
   miHrefUnderlineChecked,
     CopyOptionsCopyVerseNumbersChecked,
@@ -837,7 +838,8 @@ begin
     Exit;
 
   TrimNullTerminatedString(dBuffer);
-  if dBuffer = '' then Exit;
+  if dBuffer = '' then
+    Exit;
 
   if Copy(dBuffer, Length(dBuffer), 1) <> '\' then
     dBuffer := dBuffer + '\';
@@ -852,7 +854,7 @@ var
 begin
   dUserName := WindowsUserName;
 
-  Result :=ExePath + 'users\' + DumpFileName(dUserName) + '\';
+  Result := ExePath + 'users\' + DumpFileName(dUserName) + '\';
   if ForceDirectories(Result) then
     Exit;
 
@@ -861,7 +863,8 @@ begin
     Exit;
 
   dPath := GetAppDataFolder;
-  if dPath <> '' then begin
+  if dPath <> '' then
+  begin
     Result := dPath + 'BibleQuote\';
     if ForceDirectories(Result) then
       Exit;
@@ -876,34 +879,40 @@ var
   i: integer;
   offset: integer;
 begin
-  with BookLB do begin
+  with BookLB do
+  begin
     Items.BeginUpdate;
     Items.Clear;
-    for i := 1 to MainBook.BookQty do Items.Add(MainBook.FullNames[i]);
+    for i := 1 to MainBook.BookQty do
+      Items.Add(MainBook.FullNames[i]);
     Items.EndUpdate;
-    ItemIndex := MainBook.CurBook-1;
+    ItemIndex := MainBook.CurBook - 1;
   end;
 
-  with ChapterLB do begin
+  with ChapterLB do
+  begin
     Items.BeginUpdate;
     Items.Clear;
 
     offset := 0;
-    if MainBook.ChapterZero then offset := 1;
+    if MainBook.ChapterZero then
+      offset := 1;
 
     for i := 1 to MainBook.ChapterQtys[BookLB.ItemIndex + 1] do
       Items.Add(IntToStr(i - offset));
 
     Items.EndUpdate;
-    ItemIndex := MainBook.CurChapter-1;
+    ItemIndex := MainBook.CurChapter - 1;
   end;
 end;
 
 procedure TMainForm.HistoryAdd(s: WideString);
 begin
-  if (not HistoryOn) or ((History.Count > 0) and (History[0] = s)) then Exit;
+  if (not HistoryOn) or ((History.Count > 0) and (History[0] = s)) then
+    Exit;
 
-  if History.Count = MAXHISTORY then begin
+  if History.Count = MAXHISTORY then
+  begin
     History.Delete(History.Count - 1);
     HistoryLB.Items.Delete(HistoryLB.Items.Count - 1);
   end;
@@ -920,9 +929,9 @@ var
 begin
   Randomize();
   book := Random(MainBook.BookQty) + 1;
-//  Randomize;// AlekId: ни к чему
+  //  Randomize;// AlekId: ни к чему
   chapter := Random(MainBook.ChapterQtys[book]) + 1;
-//  Randomize;// AlekId: ни к чему
+  //  Randomize;// AlekId: ни к чему
   verse := Random(MainBook.CountVerses(book, chapter)) + 1;
 
   ProcessCommand(WideFormat('go %s %d %d %d', [MainBook.ShortPath, book,
@@ -945,9 +954,12 @@ begin
     length(filePath) - 1) + '.bqb';
   if FileExists(fullpath) then
     Result := '?' + fullpath + '??' + C_ModuleIniName
-  else if FileExists(ExePath + s) then Result := ExePath + s
-  else if FileExists(SecondPath + s) then Result := SecondPath + s
-  else begin
+  else if FileExists(ExePath + s) then
+    Result := ExePath + s
+  else if FileExists(SecondPath + s) then
+    Result := SecondPath + s
+  else
+  begin
     filePath := ExtractFilePath(s);
     fullPath := ExePath + C_CommentariesSubPath + '\' + Copy(filePath, 1,
       length(filePath) - 1) + '.bqb';
@@ -995,12 +1007,15 @@ begin
 
   MainForm.Font := fnt;
   mBibleTabsEx.Font.Assign(fnt);
-  h := fnt.Height; if h < 0 then h := -h;
+  h := fnt.Height;
+  if h < 0 then
+    h := -h;
   mBibleTabsEx.Height := h + 13;
   MainForm.Update;
   fnt.Free;
 
-  with Browser do begin
+  with Browser do
+  begin
     DefFontName := ini.SayDefault('DefFontName', 'Times New Roman');
     mBrowserDefaultFontName := DefFontName;
     DefFontSize := StrToInt(ini.SayDefault('DefFontSize', '12'));
@@ -1013,7 +1028,8 @@ begin
     DefHotSpotColor := Hex2Color(ini.SayDefault('DefHotSpotColor', '#0000FF'));
   end;
 
-  with SearchBrowser do begin
+  with SearchBrowser do
+  begin
     DefFontName := ini.SayDefault('RefFontName', 'Times New Roman');
     DefFontSize := StrToInt(ini.SayDefault('RefFontSize', '12'));
     DefFontColor := Hex2Color(ini.SayDefault('RefFontColor', '#000000'));
@@ -1022,7 +1038,8 @@ begin
     DefHotSpotColor := Browser.DefHotSpotColor;
   end;
 
-  with DicBrowser do begin
+  with DicBrowser do
+  begin
     DefFontName := SearchBrowser.DefFontName;
     DefFontSize := SearchBrowser.DefFontSize;
     DefFontColor := SearchBrowser.DefFontColor;
@@ -1031,7 +1048,8 @@ begin
     DefHotSpotColor := SearchBrowser.DefHotSpotColor;
   end;
 
-  with StrongBrowser do begin
+  with StrongBrowser do
+  begin
     DefFontName := SearchBrowser.DefFontName;
     DefFontSize := SearchBrowser.DefFontSize;
     DefFontColor := SearchBrowser.DefFontColor;
@@ -1040,7 +1058,8 @@ begin
     DefHotSpotColor := SearchBrowser.DefHotSpotColor;
   end;
 
-  with CommentsBrowser do begin
+  with CommentsBrowser do
+  begin
     DefFontName := SearchBrowser.DefFontName;
     DefFontSize := SearchBrowser.DefFontSize;
     DefFontColor := SearchBrowser.DefFontColor;
@@ -1049,7 +1068,8 @@ begin
     DefHotSpotColor := SearchBrowser.DefHotSpotColor;
   end;
 
-  with XRefBrowser do begin
+  with XRefBrowser do
+  begin
     DefFontName := SearchBrowser.DefFontName;
     DefFontSize := SearchBrowser.DefFontSize;
     DefFontColor := SearchBrowser.DefFontColor;
@@ -1073,8 +1093,8 @@ begin
 
   // by default, these are checked
   miHrefUnderlineChecked := ini.SayDefault('HrefUnderline', '0') = '1';
-//  miCopyVerseNum.Checked := ini.SayDefault('CopyVerseNum', '0') = '1';
-//  miCopyRTF.Checked := ini.SayDefault('CopyRTF', '0') = '1';
+  //  miCopyVerseNum.Checked := ini.SayDefault('CopyVerseNum', '0') = '1';
+  //  miCopyRTF.Checked := ini.SayDefault('CopyRTF', '0') = '1';
 
   if miHrefUnderlineChecked then
     Browser.htOptions := Browser.htOptions - [htNoLinkUnderline]
@@ -1095,7 +1115,7 @@ begin
   fname := UserDir + 'bibleqt_history.ini';
   if FileExists(fname) then
     History.LoadFromFile(fname);
-// COPYING OPTIONS
+  // COPYING OPTIONS
   CopyOptionsCopyVerseNumbersChecked :=
     ini.SayDefault('CopyOptionsCopyVerseNumbers', '1') = '1';
   CopyOptionsCopyFontParamsChecked :=
@@ -1124,14 +1144,18 @@ end;
   integer): boolean;
 begin
   result := false;
-  if not (mDictionariesAdded) then begin
+  if not (mDictionariesAdded) then
+  begin
     mDictionariesAdded := AddDictionaries(maxAdd);
-    if not mDictionariesAdded then exit;
+    if not mDictionariesAdded then
+      exit;
     UpdateDictionariesCombo();
   end;
 
-  if not (mDictionariesFullyInitialized) then begin
-    if (maxAdd < maxInt) then maxAdd := maxAdd * 400;
+  if not (mDictionariesFullyInitialized) then
+  begin
+    if (maxAdd < maxInt) then
+      maxAdd := maxAdd * 400;
     mDictionariesFullyInitialized := DictionaryStartup(maxAdd);
   end;
   result := mDictionariesFullyInitialized;
@@ -1139,12 +1163,14 @@ end;
 
 function TMainForm.AddDictionaries(maxLoad: integer): boolean;
 begin
-  if not __searchInitialized then begin
+  if not __searchInitialized then
+  begin
     __r := FindFirst(ExePath + 'Dictionaries\*.idx', faAnyFile, __addModulesSR);
     __searchInitialized := true;
   end;
 
-  if __r = 0 then begin
+  if __r = 0 then
+  begin
     result := false;
     repeat
       try
@@ -1155,28 +1181,34 @@ begin
           Length(ExePath + 'Dictionaries\' + __addModulesSR.Name) - 3) + 'htm');
         Inc(DicsCount);
         Dec(maxLoad);
-      except end;
+      except
+      end;
       __r := FindNext(__addModulesSR);
     until (__r <> 0) or (maxLoad <= 0);
 
-    if (__r <> 0) then begin
+    if (__r <> 0) then
+    begin
       FindClose(__addModulesSR);
       __searchInitialized := false;
       result := true;
     end
-  end else result := true;
+  end
+  else
+    result := true;
 end;
 
 function TMainForm.LoadModules(background: boolean): boolean;
 var
   compressedModulesDir: Widestring;
-//  done: boolean;
+  //  done: boolean;
 begin
   result := false;
   try
-    if not Assigned(__tmpBook) then __tmpBook := TBible.Create(self);
+    if not Assigned(__tmpBook) then
+      __tmpBook := TBible.Create(self);
     try
-      if not background then begin
+      if not background then
+      begin
         AddFolderModules(ExePath, __tmpBook, background);
         compressedModulesDir := ExePath + C_CompressedModulesSubPath;
         AddArchivedModules(compressedModulesDir, __tmpBook, background);
@@ -1189,55 +1221,67 @@ begin
           true);
         mAllBkScanDone := true;
       end
-      else begin
-        if not (mFolderModulesScanned) then begin
+      else
+      begin
+        if not (mFolderModulesScanned) then
+        begin
           mFolderModulesScanned := AddFolderModules(ExePath, __tmpBook,
             background);
           exit;
         end;
-        if not mArchivedBiblesScanned then begin
+        if not mArchivedBiblesScanned then
+        begin
           compressedModulesDir := ExePath + C_CompressedModulesSubPath;
           mArchivedBiblesScanned := AddArchivedModules(compressedModulesDir,
             __tmpBook, background);
           exit;
         end;
-        if not mSecondFolderModulesScanned then begin
+        if not mSecondFolderModulesScanned then
+        begin
           if (SecondPath <> '') and (ExtractFilePath(SecondPath) <>
-            ExtractFilePath(ExePath)) then begin
+            ExtractFilePath(ExePath)) then
+          begin
             mSecondFolderModulesScanned := AddFolderModules(SecondPath,
               __tmpBook, background);
             exit;
           end
-          else mSecondFolderModulesScanned := true;
+          else
+            mSecondFolderModulesScanned := true;
         end; //sencond folder
-        if not mArchivedCommentsScanned then begin
+        if not mArchivedCommentsScanned then
+        begin
           mArchivedCommentsScanned := AddArchivedModules(ExePath +
             C_CommentariesSubPath, __tmpBook, background, true);
           exit;
         end;
-        if not mFolderCommentsScanned then begin
+        if not mFolderCommentsScanned then
+        begin
           mFolderCommentsScanned := AddFolderModules(ExePath + 'Commentaries\',
             __tmpBook, background, true);
           exit;
         end
-        else begin
-          mAllBkScanDone := true; result := true;
+        else
+        begin
+          mAllBkScanDone := true;
+          result := true;
         end;
       end; //else --- background
     finally
       if mAllBkScanDone then
         ; //        FreeAndNil(__tmpBook);
     end;
-  except end;
+  except
+  end;
 end; //fn
 
 function TMainForm.LoadHotModulesConfig(aMUIEngine: TMultiLanguage): boolean;
 var
   hotList: TWideStringList;
-  hotCount, i : integer;
+  hotCount, i: integer;
   favouriteMenuItem, hotMenuItem: TTntMenuItem;
   hotMUITag, menuText: WideString;
-
+  fn1, fn2: string;
+  f1Exists, f2Exists: boolean;
   procedure DefaultHotModules();
   begin
   end;
@@ -1246,32 +1290,50 @@ begin
   try
     hotList := nil;
     Result := false;
+    fn1 := CreateAndGetConfigFolder() + C_HotModulessFileName;
+    fn2 := ExePath + 'hotlist.txt';
     try
-      if FileExists(ExePath + 'hotlist.txt') then begin
+      f1Exists := FileExists(fn1);
+      f2Exists := FileExists(fn2);
+      if f1Exists or f2Exists then
+      begin
         hotList := TWideStringList.Create();
-        hotList.LoadFromFile(ExePath + 'hotlist.txt');
-        hotCount := hotList.Count - 1;
-        if hotCount >= 20 then hotCount := 20;
-        if hotCount <= 0 then begin
-          exit end;
-      end
-      else begin //Использовать TMultiLanguage
-        hotCount := StrToIntDef(aMUIEngine.SayDefault('HotAddressCount', '20'),
-          20) - 1;
-      end; //else
+        try
+          if f1Exists then
+            hotList.LoadFromFile(fn1);
+        except f1Exists := false;
+        end;
+        if (not f1Exists) and f2Exists then
+          try
+            hotList.LoadFromFile(fn2);
+          except f2Exists := false;
+          end;
+        if f1Exists or f2Exists then
+          hotCount := hotList.Count - 1
+        else
+          hotCount := -1;
+        if hotCount < 0 then
+        begin
+          hotCount := StrToIntDef(aMUIEngine.SayDefault('HotAddressCount',
+            '20'),
+            20) - 1;
+          FreeAndNil(hotList);
+        end;
+      end;
       favouriteMenuItem := FindTaggedTopMenuItem(3333);
-      if (not Assigned(favouriteMenuItem)) then exit;
+      if (not Assigned(favouriteMenuItem)) then
+        exit;
 
-      for i := 0 to hotCount do begin
+      for i := 0 to hotCount do
+      begin
         if (hotList = nil) then begin
           hotMUITag := WideFormat('HotAddress%d', [i]);
           menuText := aMUIEngine.SayDefault(hotMUITag, '');
-          if (length(menuText) = 0) or (menuText = hotMUITag) then  continue
+          if (length(menuText) = 0) or (menuText = hotMUITag) then
+            continue
         end //if use MUI
-        else menuText := hotList[i];
-
-//        moduleIndex := ModuleIndexByName(menuText);
-//        if moduleIndex < 0 then continue;
+        else
+          menuText := hotList[i];
         hotMenuItem := TTntMenuItem.Create(self);
         hotMenuItem.Tag := i + 7000;
         if i < 9 then
@@ -1283,32 +1345,37 @@ begin
         favouriteMenuItem.Add(hotMenuItem);
       end; //for
       Result := true;
-    finally hotList.Free();
-    end //finally
-  except Result := false; end;
+    finally hotList.Free();end //finally
+  except Result := false;
+  end;
 end;
 
 function TMainForm.SaveHotModulesConfig(aMUIEngine: TMultiLanguage): boolean;
 var
   favoriteMenuItem, currentMenuItem: TTntMenuItem;
   menuItemCount, i, j: integer;
+  hotList:TWideStringList;
 begin
   Result := false;
+  hotList:=TWideStringList.Create();
+  try
   try //for except
     favoriteMenuItem := FindTaggedTopMenuItem(3333);
-    if (not Assigned(favoriteMenuItem)) then exit;
+    if (not Assigned(favoriteMenuItem)) then
+      exit;
     j := 0;
-    menuItemCount := GetHotModuleCount-1;
-    for I := 0 to menuItemCount do begin
+    menuItemCount := GetHotModuleCount - 1;
+    for I := 0 to menuItemCount do
+    begin
       currentMenuItem := GetHotMenuItem(i);
       if length(currentMenuItem.Caption) = 0 then continue;
-      aMUIEngine.Learn(WideFormat('HotAddress%d', [j]),
-        currentMenuItem.Caption);
-      inc(j);
+      hotList.Add(currentMenuItem.Caption);
     end; //for
-    aMUIEngine.Learn('HotAddressCount', IntToStr(j));
+    hotList.SaveToFile(CreateAndGetConfigFolder + C_HotModulessFileName);
     Result := true;
-  except end;
+  except
+  end;
+  finally hotList.Free(); end;
 
 end;
 
@@ -1323,7 +1390,8 @@ begin
   firstTabInitialized := false;
   try
     try
-      if (not FileExists(path)) then begin
+      if (not FileExists(path)) then
+      begin
         SetFirstTabInitialLocation(LastAddress, '');
         exit;
       end;
@@ -1331,30 +1399,49 @@ begin
       tabStringList.LoadFromFile(path);
       activeTabIx := -1;
       tabIx := 0;
-      with tabStringList do begin
+      with tabStringList do
+      begin
         linesCount := Count - 1; //?;
         i := 0;
-        if (linesCount < 1) then exit;
+        if (linesCount < 1) then
+          exit;
         repeat
-          if (Strings[i]) = '+' then begin
+          if (Strings[i]) = '+' then
+          begin
             activeTabIx := tabIx;
-            inc(i); if i >= linesCount then exit; end;
-          location := Strings[i]; inc(i);
-          if ((i < linesCount) and (Strings[i] <> '***')) then begin
-            second_bible := Strings[i]; inc(i) end else second_bible := '';
-          if length(Trim(location)) > 0 then begin
+            inc(i);
+            if i >= linesCount then
+              exit;
+          end;
+          location := Strings[i];
+          inc(i);
+          if ((i < linesCount) and (Strings[i] <> '***')) then
+          begin
+            second_bible := Strings[i];
+            inc(i)
+          end
+          else
+            second_bible := '';
+          if length(Trim(location)) > 0 then
+          begin
 
             if (tabIx > 0) then
               addTabResult := NewViewTab(location, second_bible)
-            else begin
+            else
+            begin
               addTabResult := true;
               SetFirstTabInitialLocation(location, second_bible);
               firstTabInitialized := true;
             end;
-          end else addTabResult := false;
-          if (addTabResult) then Inc(TabIx);
-          while ((i < linesCount) and (Strings[i] <> '***')) do inc(i);
-          if (i < linesCount) then inc(i);
+          end
+          else
+            addTabResult := false;
+          if (addTabResult) then
+            Inc(TabIx);
+          while ((i < linesCount) and (Strings[i] <> '***')) do
+            inc(i);
+          if (i < linesCount) then
+            inc(i);
         until (i >= linesCount);
 
         if (activeTabIx < 0) or (activeTabIx >= mViewTabs.PageCount) then
@@ -1365,7 +1452,8 @@ begin
     finally
       tabStringList.Free();
     end; //try
-  except end;
+  except
+  end;
   if not firstTabInitialized then
     SetFirstTabInitialLocation(LastAddress, '');
 end;
@@ -1384,11 +1472,14 @@ begin
     modStringList := TWideStringList.Create();
     try
       count := S_cachedModules.Count - 1;
-      if count <= 0 then exit;
-      for i := 0 to count do begin
+      if count <= 0 then
+        exit;
+      for i := 0 to count do
+      begin
         try
           moduleEntry := TModuleEntry(S_cachedModules[i]);
-          with modStringList, moduleEntry do begin
+          with modStringList, moduleEntry do
+          begin
             Add(IntToStr(ord(modType)));
             Add(wsFullName);
             Add(wsShortName);
@@ -1396,12 +1487,15 @@ begin
             Add(wsFullPath);
             Add('***');
           end; //with tabInfo, tabStringList
-        except end;
+        except
+        end;
       end; //for
       wsFolder := GetCachedModulesListDir();
       modStringList.SaveToFile(wsFolder + C_CachedModsFileName);
-    finally modStringList.Free() end;
-  except end;
+    finally modStringList.Free()
+    end;
+  except
+  end;
 end;
 
 (*AlekId:/Добавлено*)
@@ -1411,7 +1505,7 @@ var
   ini: TMultiLanguage;
   fname: WideString;
   i: integer;
-{  Lst: TWideStrings;}
+  {  Lst: TWideStrings;}
 begin
   UserDir := CreateAndGetConfigFolder;
   (*AlekId:Добавлено*)
@@ -1424,7 +1518,8 @@ begin
 
   if MainForm.WindowState = wsMaximized then
     ini.Learn('MainFormMaximized', '1')
-  else begin
+  else
+  begin
     ini.Learn('MainFormWidth', IntToStr((MainForm.Width * MAXWIDTH) div
       Screen.Width));
     ini.Learn('MainFormHeight', IntToStr((MainForm.Height * MAXHEIGHT) div
@@ -1447,7 +1542,7 @@ begin
   ini.Learn('DefFontName', mBrowserDefaultFontName);
   ini.Learn('DefFontSize', IntToStr(Browser.DefFontSize));
   ini.Learn('DefFontColor', Color2Hex(Browser.DefFontColor));
-//  ini.Learn('Charset', IntToStr(DefaultCharset));
+  //  ini.Learn('Charset', IntToStr(DefaultCharset));
 
   ini.Learn('RefFontName', SearchBrowser.DefFontName);
   ini.Learn('RefFontSize', IntToStr(SearchBrowser.DefFontSize));
@@ -1457,21 +1552,21 @@ begin
   ini.Learn('DefHotSpotColor', Color2Hex(Browser.DefHotSpotColor));
   ini.Learn('SelTextColor', SelTextColor);
 
-{  ini.Learn('HotAddress1', miHot1.Caption);
-  ini.Learn('HotAddress2', miHot2.Caption);
-  ini.Learn('HotAddress3', miHot3.Caption);
-  ini.Learn('HotAddress4', miHot4.Caption);
-  ini.Learn('HotAddress5', miHot5.Caption);
-  ini.Learn('HotAddress6', miHot6.Caption);
-  ini.Learn('HotAddress7', miHot7.Caption);
-  ini.Learn('HotAddress8', miHot8.Caption);
-  ini.Learn('HotAddress9', miHot9.Caption);
-  ini.Learn('HotAddress0', miHot0.Caption);}
-  {AlekId:Добавлено}
+  {  ini.Learn('HotAddress1', miHot1.Caption);
+    ini.Learn('HotAddress2', miHot2.Caption);
+    ini.Learn('HotAddress3', miHot3.Caption);
+    ini.Learn('HotAddress4', miHot4.Caption);
+    ini.Learn('HotAddress5', miHot5.Caption);
+    ini.Learn('HotAddress6', miHot6.Caption);
+    ini.Learn('HotAddress7', miHot7.Caption);
+    ini.Learn('HotAddress8', miHot8.Caption);
+    ini.Learn('HotAddress9', miHot9.Caption);
+    ini.Learn('HotAddress0', miHot0.Caption);}
+    {AlekId:Добавлено}
   SaveHotModulesConfig(ini); {/AlekId:Добавлено}
   ini.Learn('HrefUnderline', IntToStr(Ord(miHrefUnderlineChecked)));
-//  ini.Learn('CopyVerseNum', IntToStr(Ord(miCopyVerseNum.Checked)));
-//  ini.Learn('CopyRTF', IntToStr(Ord(miCopyRTF.Checked)));
+  //  ini.Learn('CopyVerseNum', IntToStr(Ord(miCopyVerseNum.Checked)));
+  //  ini.Learn('CopyRTF', IntToStr(Ord(miCopyRTF.Checked)));
 
   ini.Learn('CopyOptionsCopyVerseNumbers',
     IntToStr(Ord(ConfigForm.CopyVerseNumbers.Checked)));
@@ -1492,7 +1587,8 @@ begin
   ini.Learn('MinimizeToTray', IntToStr(Ord(TrayIcon.MinimizeToTray)));
 
   for i := 0 to SatelliteMenu.Items.Count - 1 do
-    if SatelliteMenu.Items[i].Checked then begin
+    if SatelliteMenu.Items[i].Checked then
+    begin
       if i > 0 then
         ini.Learn('SatelliteBible', SatelliteMenu.Items[i].Caption)
       else
@@ -1547,24 +1643,24 @@ begin
     or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
     Memos.SaveToFile(fname);
 
-{  Lst := TWideStringList.Create;
+  {  Lst := TWideStringList.Create;
 
-  fname := UserDir + 'cachemods.ini';
-  if (not FileExists(fname))
-    or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then begin
-    for i := 0 to CacheModTitles.Count - 1 do
-      Lst.Add(CacheModPaths[i] + '=' + CacheModTitles[i]);
-    Lst.SaveToFile(fname);
-  end;
-  fname := UserDir + 'cachedics.ini';
-  if (not FileExists(fname))
-    or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then begin
-    for i := 0 to CacheDicTitles.Count - 1 do
-      Lst.Add(CacheDicPaths[i] + '=' + CacheDicTitles[i]);
-    Lst.SaveToFile(fname);
-  end;
+    fname := UserDir + 'cachemods.ini';
+    if (not FileExists(fname))
+      or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then begin
+      for i := 0 to CacheModTitles.Count - 1 do
+        Lst.Add(CacheModPaths[i] + '=' + CacheModTitles[i]);
+      Lst.SaveToFile(fname);
+    end;
+    fname := UserDir + 'cachedics.ini';
+    if (not FileExists(fname))
+      or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then begin
+      for i := 0 to CacheDicTitles.Count - 1 do
+        Lst.Add(CacheDicPaths[i] + '=' + CacheDicTitles[i]);
+      Lst.SaveToFile(fname);
+    end;
 
-  Lst.Free;}
+    Lst.Free;}
 end;
 
 procedure TMainForm.SaveTabsToFile(path: WideString);
@@ -1579,16 +1675,20 @@ begin
     tabCount := mViewTabs.PageCount - 1;
     activeTabInfo := TObject(mViewTabs.ActivePage.Tag) as TViewTabInfo;
 
-    for i := 0 to tabCount do begin
+    for i := 0 to tabCount do
+    begin
       try
         tabInfo := TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
-        with tabStringList do begin
-          if tabInfo = activeTabInfo then Add('+');
+        with tabStringList do
+        begin
+          if tabInfo = activeTabInfo then
+            Add('+');
           Add(tabInfo.mwsLocation);
           Add(tabinfo.mSatelliteMenuItem.Caption);
           Add('***');
         end; //with tabInfo, tabStringList
-      except end;
+      except
+      end;
     end; //for
 
     tabStringList.SaveToFile(path);
@@ -1607,14 +1707,14 @@ var
 begin
   InitBkScan();
   FInShutdown := true;
-//  TrayIcon.Visible := true;
+  //  TrayIcon.Visible := true;
   MainFormInitialized := false; // prohibit re-entry into FormShow
 
   Browser := FirstBrowser;
   Browser.Align := alClient;
 
   MainBook := TBible.Create(mInitialViewPage);
-    //AlekId: библия принадлежит табу
+  //AlekId: библия принадлежит табу
   SecondBook := TBible.Create(Self);
 
   MainBook.OnVerseFound := MainBookVerseFound;
@@ -1631,14 +1731,14 @@ begin
 
   DefaultModule := 'rststrong';
 
-//  if FileExists(ExePath + 'Strongs\grk.ttf') then
-//  begin
-//    AddFontResource(PChar(ExePath + 'Strongs\grk.ttf'));
-//    AddFontResource(PChar(ExePath + 'Strongs\heb.ttf'));
-//  end else begin
-//    AddFontResource(PChar(ExePath + 'grk.ttf'));
-//    AddFontResource(PChar(ExePath + 'heb.ttf'));
-//  end;
+  //  if FileExists(ExePath + 'Strongs\grk.ttf') then
+  //  begin
+  //    AddFontResource(PChar(ExePath + 'Strongs\grk.ttf'));
+  //    AddFontResource(PChar(ExePath + 'Strongs\heb.ttf'));
+  //  end else begin
+  //    AddFontResource(PChar(ExePath + 'grk.ttf'));
+  //    AddFontResource(PChar(ExePath + 'heb.ttf'));
+  //  end;
 
   Bibles := TWideStringList.Create;
   Books := TWideStringList.Create;
@@ -1721,20 +1821,25 @@ begin
   if Panel2Height <> 0 then
     Panel2.Height := Panel2Height;
 
-  if MainFormWidth = 0 then begin
+  if MainFormWidth = 0 then
+  begin
     MainForm.WindowState := wsMaximized;
 
-    with MainForm do begin
+    with MainForm do
+    begin
       Left := (Screen.Width - Width) div 2;
       Top := (Screen.Height - Height) div 2;
     end;
-  end else begin
+  end
+  else
+  begin
     MainForm.Width := MainFormWidth;
     MainForm.Height := MainFormHeight;
     MainForm.Left := MainFormLeft;
     MainForm.Top := MainFormTop;
 
-    if MainFormMaximized then MainForm.WindowState := wsMaximized;
+    if MainFormMaximized then
+      MainForm.WindowState := wsMaximized;
   end;
 
   //MainForm.WindowState := wsMaximized;
@@ -1742,7 +1847,8 @@ begin
   TemplatePath := ExePath + 'templates\default\';
 
   TempDir := WindowsTempDirectory + 'BibleQuote\';
-  if not FileExists(TempDir) then ForceDirectories(TempDir);
+  if not FileExists(TempDir) then
+    ForceDirectories(TempDir);
 
   if FileExists(TemplatePath + 'text.htm') then
     TextTemplate := TextFromFile(TemplatePath + 'text.htm')
@@ -1760,7 +1866,8 @@ begin
   { why are we doing this: browser sets base to the module's directory, while
   templates can contain references to their background or inline images...}
 
-  if FindFirst(ExePath + '*.lng', faAnyFile, F) = 0 then begin
+  if FindFirst(ExePath + '*.lng', faAnyFile, F) = 0 then
+  begin
     repeat { TODO -oAlekId -cqa : FindCLose }
       mi := TTntMenuItem.Create(Self);
       mi.Caption := UpperCaseFirstLetter(Copy(F.Name, 1, Length(F.Name) - 4));
@@ -1772,17 +1879,20 @@ begin
 
   if LastLanguageFile <> '' then
     TranslateInterface(LastLanguageFile)
-  else begin
+  else
+  begin
     foundmenu := false;
     for i := 0 to miLanguage.Count - 1 do
-      if (miLanguage.Items[i]).Caption = 'Russian' then begin
+      if (miLanguage.Items[i]).Caption = 'Russian' then
+      begin
         foundmenu := true;
         break;
       end;
 
     if not foundmenu then
       (miLanguage.Items[miLanguage.Count - 1]).Click // choose last file
-    else TranslateInterface('Russian.lng');
+    else
+      TranslateInterface('Russian.lng');
   end;
 
   MainMenuInit(false);
@@ -1793,7 +1903,8 @@ begin
     HistoryLB.Items.Add(Comment(History[i]));
   HistoryLB.Items.EndUpdate;
 
-  if HistoryLB.Items.Count > 0 then HistoryLB.ItemIndex := 0;
+  if HistoryLB.Items.Count > 0 then
+    HistoryLB.ItemIndex := 0;
 
   BookmarksLB.Items.BeginUpdate;
   for i := 0 to Bookmarks.Count - 1 do
@@ -1806,24 +1917,25 @@ begin
 
   (*AlekId:Добавлено*)
   mViewTabs.CloseTabImage.LoadFromResourceID(0, 1233);
+  mViewTabs.CloseTabImage.TransparentColor:=0;
   mInitialViewPage.Tag := integer(TViewTabInfo.Create(FirstBrowser, MainBook,
     '', ActiveSatteliteMenu()));
   FirstBrowser := nil;
- (*AlekId:/Добавлено*)
+  (*AlekId:/Добавлено*)
 
   LoadTabsFromFile(UserDir + 'viewtabs.cfg');
-{  if LastAddress = '' then begin
-    GoModuleName(miHot1.Caption);
-    b := 1; c := 1; v1 := 1; v2 := 0;
-    //MainForm.
-    GoAddress(b, c, v1, v2);
-  end
-  else begin
-    ProcessCommand(LastAddress);
-    BooksCB.ItemIndex := BooksCB.Items.IndexOf(MainBook.Name);
+  {  if LastAddress = '' then begin
+      GoModuleName(miHot1.Caption);
+      b := 1; c := 1; v1 := 1; v2 := 0;
+      //MainForm.
+      GoAddress(b, c, v1, v2);
+    end
+    else begin
+      ProcessCommand(LastAddress);
+      BooksCB.ItemIndex := BooksCB.Items.IndexOf(MainBook.Name);
 
-    //ShowComments;
-  end;}
+      //ShowComments;
+    end;}
 
   StrongsDir := 'Strongs';
 
@@ -1861,12 +1973,17 @@ begin
   result := nil;
   try
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    if (favouriteMenuItem = nil) then exit;
+    if (favouriteMenuItem = nil) then
+      exit;
     itemCount := favouriteMenuItem.Count - 1;
     for I := 0 to itemCount do
-      if (favouriteMenuItem[i].Tag = itemIndex + 7000) then begin
-        result := favouriteMenuItem[i] as TTntMenuItem; break end;
-  except {just to be safe} end;
+      if (favouriteMenuItem[i].Tag = itemIndex + 7000) then
+      begin
+        result := favouriteMenuItem[i] as TTntMenuItem;
+        break
+      end;
+  except {just to be safe}
+  end;
 end;
 
 function TMainForm.GetHotModuleCount: integer;
@@ -1877,11 +1994,14 @@ begin
   result := 0;
   try
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    if (favouriteMenuItem = nil) then exit;
+    if (favouriteMenuItem = nil) then
+      exit;
     itemCount := favouriteMenuItem.Count - 1;
     for I := 0 to itemCount do
-      if (favouriteMenuItem[i].Tag >= 7000) then Inc(result);
-  except {just to be safe} end;
+      if (favouriteMenuItem[i].Tag >= 7000) then
+        Inc(result);
+  except {just to be safe}
+  end;
 end;
 
 (*AlekId:/Добавлено*)
@@ -1897,19 +2017,24 @@ var
   activeMenu: TtntMenuItem; //AlekId:добавлено
   fontName: WideString;
 begin
-// провека и коррекция номера книги
-  if book < 1 then book := 1;
-  if book > MainBook.BookQty then book := MainBook.BookQty;
+  // провека и коррекция номера книги
+  if book < 1 then
+    book := 1;
+  if book > MainBook.BookQty then
+    book := MainBook.BookQty;
   //проверка и коррекция номера главы
-  if chapter < 0 then chapter := 1;
+  if chapter < 0 then
+    chapter := 1;
   if chapter > MainBook.ChapterQtys[book] then
     chapter := MainBook.ChapterQtys[book];
-// загружаем главу
+  // загружаем главу
   try
     MainBook.OpenChapter(book, chapter);
   except
-    on e: EAbort do raise;
-  else begin
+    on e: EAbort do
+      raise;
+  else
+    begin
       MainBook.OpenChapter(1, 1);
       book := 1;
       chapter := 1;
@@ -1919,49 +2044,54 @@ begin
   end;
 
   found := false;
-// Поиск вторичной Библии, если первый модуль библейский
-  if MainBook.isBible then begin
-  //поиск отмеченного пункта меню
+  // Поиск вторичной Библии, если первый модуль библейский
+  if MainBook.isBible then
+  begin
+    //поиск отмеченного пункта меню
     activeMenu := ActiveSatteliteMenu();
-{    if not SatelliteMenu.Items[0].Checked then begin
-      for i := 0 to SatelliteMenu.Items.Count - 1 do
-        if SatelliteMenu.Items[i].Checked then begin
-          s := SatelliteMenu.Items[i].Caption;
-          found := true; //AlekId:добавлено
-          break;
-        end;}
-    if (activeMenu = SatelliteMenu.Items[0]) then found := false
-    else begin
+    {    if not SatelliteMenu.Items[0].Checked then begin
+          for i := 0 to SatelliteMenu.Items.Count - 1 do
+            if SatelliteMenu.Items[i].Checked then begin
+              s := SatelliteMenu.Items[i].Caption;
+              found := true; //AlekId:добавлено
+              break;
+            end;}
+    if (activeMenu = SatelliteMenu.Items[0]) then
+      found := false
+    else
+    begin
       s := activeMenu.Caption;
       found := false;
 
-        //поиск в списке модулей
-      for i := 0 to ModulesList.Count - 1 do begin
+      //поиск в списке модулей
+      for i := 0 to ModulesList.Count - 1 do
+      begin
         if Pos(s + ' $$$', ModulesList[i]) = 1 then
-          begin //если найдено в списке модулей
+        begin //если найдено в списке модулей
           found := true;
           break;
         end; //if Pos
       end; //for - цикл поиска
 
       if found then
-      {// now found will be used if satellite text is found...}begin
+        {// now found will be used if satellite text is found...}
+      begin
         ipos := Pos(' $$$ ', ModulesList[i]);
         try
-  //открываем вторичную
+          //открываем вторичную
           SecondBook.IniFile :=
             MainFileExists(Copy(ModulesList[i], ipos + 5, Length(ModulesList[i]))
             + '\bibleqt.ini');
         except
-  // при неудаче открытия
+          // при неудаче открытия
           found := false;
         end; //try
 
-  // если первичный модуль показыввает ВЗ, а второй не содержит ВЗ
+        // если первичный модуль показыввает ВЗ, а второй не содержит ВЗ
         if ((MainBook.CurBook < 40) and (MainBook.HasOldTestament) and (not
           SecondBook.HasOldTestament))
           or //или если в первичном модуль НЗ а второй не содержит НЗ
-          ((MainBook.CurBook > 39) and (MainBook.HasNewTestament) and (not
+        ((MainBook.CurBook > 39) and (MainBook.HasNewTestament) and (not
           SecondBook.HasNewTestament)) then
           found := false; // отменить отображение
       end; // if found- если найден в списке  модулей
@@ -1969,36 +2099,49 @@ begin
   end; //если модуль Библейский
 
   // проверка и коррекция начального стиха
-  if MainBook.VerseQty < fromverse then fromverse := 1;
+  if MainBook.VerseQty < fromverse then
+    fromverse := 1;
   //проверка и коррекция конечного стиха стиха
-  if (toverse > MainBook.VerseQty) or (toverse < fromverse) then toverse := 0;
+  if (toverse > MainBook.VerseQty) or (toverse < fromverse) then
+    toverse := 0;
   //??
   if MainBook.NoForcedLineBreaks then
     paragraph := ''
-  else begin
-    if MainBook.isBible then paragraph := '<BR>'
-    else paragraph := '<P>';
+  else
+  begin
+    if MainBook.isBible then
+      paragraph := '<BR>'
+    else
+      paragraph := '<P>';
   end;
-//??
-  if toverse = 0 then begin // если отображать всю главу??
-  (*если в книге только одна глава *)
-    if MainBook.ChapterQtys[book] = 1 then head := MainBook.FullNames[book]
-    else head := MainBook.FullPassageSignature(book, chapter, 1, 0);
+  //??
+  if toverse = 0 then
+  begin // если отображать всю главу??
+    (*если в книге только одна глава *)
+    if MainBook.ChapterQtys[book] = 1 then
+      head := MainBook.FullNames[book]
+    else
+      head := MainBook.FullPassageSignature(book, chapter, 1, 0);
   end //если отображать всю главу
-  else head := MainBook.FullPassageSignature(book, chapter, fromverse, toverse);
+  else
+    head := MainBook.FullPassageSignature(book, chapter, fromverse, toverse);
 
   title := '<title>' + head + '</title>';
 
   text := '';
-// коррекция начального стиха
-  if fromverse = 0 then fromverse := 1;
+  // коррекция начального стиха
+  if fromverse = 0 then
+    fromverse := 1;
 
   bverse := 1;
-  if toverse > 0 then bverse := fromverse;
+  if toverse > 0 then
+    bverse := fromverse;
 
-//  everse := toverse; AlekId: неразумно
-  if toverse = 0 then everse := MainBook.VerseQty
-  (*AlekId: добавлено*)else
+  //  everse := toverse; AlekId: неразумно
+  if toverse = 0 then
+    everse := MainBook.VerseQty
+    (*AlekId: добавлено*)
+  else
     everse := toverse; {AlekId:/добавлено}
 
   CurFromVerse := bverse;
@@ -2006,49 +2149,54 @@ begin
 
   opened := false;
 
-  if not SatelliteMenu.Items[0].Checked then begin
+  if not SatelliteMenu.Items[0].Checked then
+  begin
     if MainBook.ChapterZero and (chapter = 1) then
-    {если нулевая глава в первичном виде}
+      {если нулевая глава в первичном виде}
       found := false;
     {AlekId:?? уже было вроде}
     if (MainBook.HasOldTestament and (book < 40)) and (not
       SecondBook.HasOldTestament) then
       found := false;
-{если модуль содержит НЗ и нужно отобразить новозаветную книгу, а
-в во вторичном ее нет}
+    {если модуль содержит НЗ и нужно отобразить новозаветную книгу, а
+    в во вторичном ее нет}
     if (MainBook.HasNewTestament and
       (((book > 0) and (MainBook.BookQty = 27)) or ((book > 39) and
       (MainBook.BookQty >= 66))))
       and (not SecondBook.HasNewTestament) then
       found := false;
   end;
-// Обработка текста по стихам
-  for verse := bverse to everse do begin
+  // Обработка текста по стихам
+  for verse := bverse to everse do
+  begin
     s := MainBook.Lines[verse - 1];
     s0 := StrDeleteFirstNumber(s);
 
     //if (verse = fromverse) and (verse <> 1) then
     //  s0 := '<font color=' + SelTextColor + '>&gt;&gt;&gt;' + s0 + '</font>';
 
-    if MainBook.isBible then s0 := '<a href="verse ' + s0 + '">' + s0 + '</a>';
+    if MainBook.isBible then
+      s0 := '<a href="verse ' + s0 + '">' + s0 + '</a>';
 
-    if MainBook.StrongNumbers then begin
+    if MainBook.StrongNumbers then
+    begin
       if (not StrongNumbersOn) then
         s := DeleteStrongNumbers(s)
       else
         s := FormatStrongNumbers(s, (MainBook.CurBook < 40) and
           (MainBook.HasOldTestament), true);
     end;
-//если модуль НЕбиблейский или нет вторичной Библии
+    //если модуль НЕбиблейский или нет вторичной Библии
     if (not MainBook.isBible) or SatelliteMenu.Items[0].Checked then
-      begin // no satellite text
+    begin // no satellite text
       text := text + WideFormat(#13#10 + '<a name="%d">%s <F>%s</F>', [verse,
         s0, s]);
       text := text + paragraph;
     end
-    else begin
+    else
+    begin
       if found then
-        begin // если найден подходящий текст во вторичной Библии
+      begin // если найден подходящий текст во вторичной Библии
         try
           // синхронизация мест
           with MainBook do
@@ -2056,7 +2204,8 @@ begin
           SecondBook.InternalToAddress(b, c, v, ib, ic, iv);
 
           if (ib <> SecondBook.CurBook) or (ic <> SecondBook.CurChapter)
-            or (not opened) then begin
+            or (not opened) then
+          begin
             SecondBook.OpenChapter(ib, ic);
             opened := true;
           end;
@@ -2064,10 +2213,12 @@ begin
           found := false;
         end;
         //коррекция номера стиха снизу
-        if iv <= 0 then iv := 1;
+        if iv <= 0 then
+          iv := 1;
 
         // если номер стиха в во вторичной библии не более кол-ва стихов
-        if iv <= SecondBook.Lines.Count then begin
+        if iv <= SecondBook.Lines.Count then
+        begin
           ss := SecondBook.Lines[iv - 1];
           ss := DeleteStrongNumbers(ss);
 
@@ -2098,8 +2249,9 @@ begin
 
     end;
 
-//  memos...
-    if MemosOn then begin //если всключены заметки
+    //  memos...
+    if MemosOn then
+    begin //если всключены заметки
       with MainBook do // search for 'RST Быт.1:1 $$$' in Memos.
         i := FindString(Memos, ShortName + ' ' + ShortPassageSignature(CurBook,
           CurChapter, verse, verse) + ' $$$');
@@ -2113,38 +2265,47 @@ begin
   dBrowserSource := TextTemplate;
   StrReplace(dBrowserSource, '%HEAD%', head, false);
   StrReplace(dBrowserSource, '%TEXT%', text, false);
-    { AddFontResourceW(PWideChar(MainBook.Path + '\' + MainBook.FontName + '.ttf'));}
-  //если у нас спецшрифт и он установлен
-  if (MainBook.FontName <> Browser.DefFontName) then begin
+  { AddFontResourceW(PWideChar(MainBook.Path + '\' + MainBook.FontName + '.ttf'));}
+//если у нас спецшрифт и он установлен
+  if (MainBook.FontName <> Browser.DefFontName) then
+  begin
     if {(MainBook.DesiredCharset < 2) and}
-      (FontExists(Self.Canvas.Handle, MainBook.FontName)) then begin
-      fontname := MainBook.FontName; Browser.DefFontName := fontName; end;
- //   end
- //   else fontName := MainBook.FontName;
+    (FontExists(Self.Canvas.Handle, MainBook.FontName)) then
+    begin
+      fontname := MainBook.FontName;
+      Browser.DefFontName := fontName;
+    end;
+    //   end
+    //   else fontName := MainBook.FontName;
   end
-  else   fontName:=MainBook.FontName;
-   //if (MainBook.FontName <> '') and (MainBook.FontName<>Browser.DefFontName)
-  (*если предподчтительного шрифта нет или он не найден и указана кодировка*)
-  if (length(fontname) <= 0) and (MainBook.DesiredCharset >= 2) then begin
-  {находим шрифт с нужной кодировкой учитывая предподчтительный и дефолтный}
-    if length(MainBook.FontName) > 0 then fontName := MainBook.FontName
-    else fontName := mBrowserDefaultFontName;
+  else
+    fontName := MainBook.FontName;
+  //if (MainBook.FontName <> '') and (MainBook.FontName<>Browser.DefFontName)
+ (*если предподчтительного шрифта нет или он не найден и указана кодировка*)
+  if (length(fontname) <= 0) and (MainBook.DesiredCharset >= 2) then
+  begin
+    {находим шрифт с нужной кодировкой учитывая предподчтительный и дефолтный}
+    if length(MainBook.FontName) > 0 then
+      fontName := MainBook.FontName
+    else
+      fontName := mBrowserDefaultFontName;
     fontname := FontFromCharset(self.Canvas.Handle, MainBook.DesiredCharset,
       fontName);
     Browser.DefFontName := fontname;
   end;
   //если все еще не найден шрифт то берем исходный из настроек программы
-  if (length(fontname) <= 0) then fontName := mBrowserDefaultFontName;
+  if (length(fontname) <= 0) then
+    fontName := mBrowserDefaultFontName;
   StrReplace(dBrowserSource, '<F>', '<font face="' + fontName + '">', true);
   StrReplace(dBrowserSource, '</F>', '</font>', true);
-{*/Обработка шрифтов*}
+  {*/Обработка шрифтов*}
 
   dBrowserSource := title + dBrowserSource;
   Browser.Base := MainBook.Path;
 
-//  if MainBook.FontCharset = -1
-//  then Browser.CharSet := DefaultCharset
-//  else Browser.Charset := MainBook.FontCharset;
+  //  if MainBook.FontCharset = -1
+  //  then Browser.CharSet := DefaultCharset
+  //  else Browser.Charset := MainBook.FontCharset;
 
   Browser.LoadFromString(dBrowserSource);
 
@@ -2157,30 +2318,33 @@ begin
 
   s := MainBook.ShortName + ' '
     + MainBook.FullPassageSignature(book, chapter, fromverse, toverse);
- lbTitleLabel.Font.Name:=fontName;
-  lbTitleLabel.Caption:=s;
+  lbTitleLabel.Font.Name := fontName;
+  lbTitleLabel.Caption := s;
 
   lbTitleLabel.Hint := s + '   ';
   try
     GetActiveTabInfo().mwsTitleLocation := s;
-    GetActiveTabInfo().mwsTitleFont:=fontName;
-  except end;
-  if MainBook.Copyright <> '' then begin
+    GetActiveTabInfo().mwsTitleFont := fontName;
+  except
+  end;
+  if MainBook.Copyright <> '' then
+  begin
     s := '; © ' + MainBook.Copyright;
   end
   else
-    s :=  '; ' + Lang.Say('PublicDomainText');
+    s := '; ' + Lang.Say('PublicDomainText');
 
-  lbCopyRightNotice.Caption:=s;
-   try
+  lbCopyRightNotice.Caption := s;
+  try
     GetActiveTabInfo().mwsCopyrightNotice := s;
-  except end;
-{  if Length(lbTitleLabel.Hint) < 83 then
-    lbTitleLabel.Caption := lbTitleLabel.Hint
-  else
-    lbTitleLabel.Caption := Copy(lbTitleLabel.Hint, 1, 80) + '...';}
+  except
+  end;
+  {  if Length(lbTitleLabel.Hint) < 83 then
+      lbTitleLabel.Caption := lbTitleLabel.Hint
+    else
+      lbTitleLabel.Caption := Copy(lbTitleLabel.Hint, 1, 80) + '...';}
 
-//  lbTitleLabel.Font.Style := [fsBold];
+  //  lbTitleLabel.Font.Style := [fsBold];
 
   CopyrightButton.Hint := s;
   //MainStatusBar.SimpleText := s;
@@ -2203,7 +2367,8 @@ begin
   s := Browser.DocumentTitle;
   SaveFileDialog.FileName := DumpFileName(s) + '.htm';
 
-  if SaveFileDialog.Execute then begin
+  if SaveFileDialog.Execute then
+  begin
     WChar_WriteHtmlFile(SaveFileDialog.FileName, Browser.DocumentSourceUtf16);
     SaveFileDialog.InitialDir := ExtractFilePath(SaveFileDialog.FileName);
   end;
@@ -2214,9 +2379,11 @@ begin
   BookLB.ItemIndex := MainBook.CurBook - 1;
   ChapterLB.ItemIndex := MainBook.CurChapter - 1;
 
-  if ChapterLB.ItemIndex < 0 then ChapterLB.ItemIndex := 0;
+  if ChapterLB.ItemIndex < 0 then
+    ChapterLB.ItemIndex := 0;
 
-  if not MainPages.Visible then ToggleButton.Click;
+  if not MainPages.Visible then
+    ToggleButton.Click;
   MainPages.ActivePage := GoTab;
   ActiveControl := GoEdit;
 end;
@@ -2226,17 +2393,20 @@ var
   s: WideString;
 begin
   if (Browser.SelLength <> 0) or ((Browser.SelLength = 0) and (Browser.Tag <>
-    bsText)) then begin
+    bsText)) then
+  begin
     Browser.CopyToClipboard;
 
-    if Browser.Tag = bsText then begin
+    if Browser.Tag = bsText then
+    begin
       s := TntClipboard.AsText;
       StrReplace(s, #13#10, ' ', true); // carriage returns are replaced by space
       StrReplace(s, '  ', ' ', true);
-        // double spaces are replaced by single space
+      // double spaces are replaced by single space
       TntClipboard.AsText := s;
     end;
-  end else
+  end
+  else
     TntClipboard.AsText := CopyPassage(CurFromVerse, CurToVerse);
 
   ConvertClipboard;
@@ -2244,42 +2414,46 @@ end;
 
 procedure TMainForm.FirstBrowserFileBrowse(Sender, Obj: TObject; var S: string);
 begin
- //
+  //
 end;
 
 procedure TMainForm.FirstBrowserHotSpotClick(Sender: TObject; const SRC: string;
   var Handled: Boolean);
 var
-//  tb, tc, tv,
+  //  tb, tc, tv,
   num, code: integer;
   scode, unicodeSRC: WideString;
 begin
   unicodeSRC := UTF8Decode(SRC);
   if Pos('go ', unicodeSRC) = 1 then
-  {// гиперссылка на стих}begin
+    {// гиперссылка на стих}
+  begin
     ProcessCommand(unicodeSRC);
     Handled := true;
   end
-  else if Pos('http://', unicodeSRC) = 1 then {// WWW} begin
+  else if Pos('http://', unicodeSRC) = 1 then {// WWW}
+  begin
     if WStrMessageBox(WideFormat(Lang.Say('GoingOnline'), [unicodeSRC]), 'WWW',
       MB_OKCancel + MB_DEFBUTTON1) = ID_OK then
       ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil,
         SW_NORMAL);
     Handled := true;
   end
-  else if Pos('mailto:', unicodeSRC) = 1 then begin
+  else if Pos('mailto:', unicodeSRC) = 1 then
+  begin
     ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil,
       SW_NORMAL);
     Handled := true;
   end
-  else if Pos('verse ', unicodeSRC) = 1 then begin
+  else if Pos('verse ', unicodeSRC) = 1 then
+  begin
     XrefTab.Tag := StrToInt(Copy(unicodeSRC, 7, Length(unicodeSRC) - 6));
     CommentsTab.Tag := XrefTab.Tag;
 
-//    MainBook.KJV2RST(MainBook.CurBook, MainBook.CurChapter, XrefTab.Tag, tb,tc,tv);
+    //    MainBook.KJV2RST(MainBook.CurBook, MainBook.CurChapter, XrefTab.Tag, tb,tc,tv);
 
-//    ShowMessage('This verse can be RST ' + IntToStr(tb) + ' ' +
-//      IntToStr(tc) + ' ' + IntToStr(tv));
+    //    ShowMessage('This verse can be RST ' + IntToStr(tb) + ' ' +
+    //      IntToStr(tc) + ' ' + IntToStr(tv));
 
     with MainBook do
       HistoryAdd(
@@ -2291,7 +2465,7 @@ begin
           CurChapter,
           XrefTab.Tag,
           0,
-            // history comment
+          // history comment
         ShortName,
           FullPassageSignature(CurBook, CurChapter, XrefTab.Tag, 0)
           ]
@@ -2300,7 +2474,8 @@ begin
 
     if MainPages.Visible and (MainPages.ActivePage = CommentsTab) then
       ShowComments
-    else begin
+    else
+    begin
       try
         ShowXref;
       finally
@@ -2308,10 +2483,14 @@ begin
       end;
     end;
 
-    if not MainPages.Visible then ToggleButton.Click;
+    if not MainPages.Visible then
+      ToggleButton.Click;
     if (MainPages.ActivePage <> XrefTab) and (MainPages.ActivePage <>
-      CommentsTab) then MainPages.ActivePage := XrefTab;
-  end else if Pos('s', unicodeSRC) = 1 then begin
+      CommentsTab) then
+      MainPages.ActivePage := XrefTab;
+  end
+  else if Pos('s', unicodeSRC) = 1 then
+  begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
     Val(scode, num, code);
     if code = 0 then
@@ -2324,27 +2503,35 @@ end;
 
 procedure TMainForm.FirstBrowserImageRequest(Sender: TObject; const SRC: string;
   var Stream: TMemoryStream);
-  var vti:TViewTabInfo;
-      archive:WideString;
-      ix, sz:integer;
-      {$J+}
-      const ms:TMemoryStream=nil;
-      {$J-}
+var
+  vti: TViewTabInfo;
+  archive: WideString;
+  ix, sz: integer;
+{$J+}
+const
+  ms: TMemoryStream = nil;
+{$J-}
 begin
-try
-vti :=TabInfoFromBrowser(sender as THTMLViewer);
+  try
+    vti := TabInfoFromBrowser(sender as THTMLViewer);
 
-if not assigned(vti) then exit;
-  archive:=vti.mBible.IniFile;
-  if archive[1]<>'?' then exit;
-  S_SevenZip.SZFileName := Copy(GetArchiveFromSpecial(archive), 2, $FFFFFF);
-  ix := S_SevenZip.GetIndexByFilename(SRC, @sz);
-  if ix=0 then exit;
-  if not assigned(ms) then ms:=TMemoryStream.Create;
-  ms.Size:=sz;
-  S_SevenZip.ExtracttoMem(ix, ms.Memory, ms.Size);
-  if S_SevenZip.ErrCode=0 then Stream:=ms;
-except end;
+    if not assigned(vti) then
+      exit;
+    archive := vti.mBible.IniFile;
+    if archive[1] <> '?' then
+      exit;
+    S_SevenZip.SZFileName := Copy(GetArchiveFromSpecial(archive), 2, $FFFFFF);
+    ix := S_SevenZip.GetIndexByFilename(SRC, @sz);
+    if ix = 0 then
+      exit;
+    if not assigned(ms) then
+      ms := TMemoryStream.Create;
+    ms.Size := sz;
+    S_SevenZip.ExtracttoMem(ix, ms.Memory, ms.Size);
+    if S_SevenZip.ErrCode = 0 then
+      Stream := ms;
+  except
+  end;
 end;
 
 (*AlekId:Добавлено*)
@@ -2355,16 +2542,19 @@ var
   found: boolean;
   count: integer;
 begin
-  Result := nil; found := false;
+  Result := nil;
+  found := false;
   try
     count := SatelliteMenu.Items.Count - 1;
     for i := 0 to count do
-      if (SatelliteMenu.Items[i].Checked) then begin
+      if (SatelliteMenu.Items[i].Checked) then
+      begin
         Result := SatelliteMenu.Items[i] as TTntMenuItem;
         found := true;
         break;
       end;
-    if (not found) then begin
+    if (not found) then
+    begin
       Result := SatelliteMenu.Items[0] as TTntMenuItem;
       Result.Checked := true;
     end;
@@ -2404,15 +2594,18 @@ var
   mt: TModuleType;
   modEntry: TModuleEntry;
 begin
-//count - либо несколько либо все
+  //count - либо несколько либо все
   count := C_NumOfModulesToScan + (ord(not background) shl 12);
-  if not DirectoryExists(path) then begin
+  if not DirectoryExists(path) then
+  begin
     __searchInitialized := false;
-      //на всякий случай сбросить флаг активного поиска
-    result := true; exit //сканирование завершено
+    //на всякий случай сбросить флаг активного поиска
+    result := true;
+    exit //сканирование завершено
   end;
-  if (not __searchInitialized) then begin
-  //инициализация поиска, установка флага акт. поиска
+  if (not __searchInitialized) then
+  begin
+    //инициализация поиска, установка флага акт. поиска
     __r := FindFirst(path + '\*.bqb', faAnyFile, __addModulesSR);
     __searchInitialized := true;
   end;
@@ -2422,27 +2615,36 @@ begin
       try
         tempBook.IniFile := '?' + path + '\' + __addModulesSR.Name + '??' +
           C_ModuleIniName;
-       //ТИП МОДУЛЯ
-        if (addAsCommentaries) then mt := modtypeComment
-        else begin
-          if tempBook.isBible then mt := modtypeBible
-          else mt := modtypeBook;
+        //ТИП МОДУЛЯ
+        if (addAsCommentaries) then
+          mt := modtypeComment
+        else
+        begin
+          if tempBook.isBible then
+            mt := modtypeBible
+          else
+            mt := modtypeBook;
         end;
         modEntry := TModuleEntry.Create(mt, tempBook.Name, tempBook.ShortName,
           tempBook.ShortPath, path + '\' + __addModulesSR.Name);
         S_cachedModules.Add(modEntry);
-        if not background then begin
+        if not background then
+        begin
           G_ArchivedModuleList.Names.Add(modEntry.wsFullName);
           G_ArchivedModuleList.Paths.Add(modEntry.wsFullPath);
           ModulesList.Add(tempBook.Name + ' $$$ ' + tempBook.ShortPath);
           ModulesCodeList.Add(tempBook.ShortName);
-          if addAsCommentaries then begin
+          if addAsCommentaries then
+          begin
             Comments.Add(tempBook.Name);
             CommentsPaths.Add(tempBook.ShortPath);
           end
-          else begin
-            if tempBook.isBible then Bibles.Add(tempBook.Name)
-            else Books.Add(tempBook.Name);
+          else
+          begin
+            if tempBook.isBible then
+              Bibles.Add(tempBook.Name)
+            else
+              Books.Add(tempBook.Name);
           end;
         end //not background
       except
@@ -2454,12 +2656,14 @@ begin
       __r := FindNext(__addModulesSR);
       dec(count);
     until (__r <> 0) or (count <= 0);
-  if __r <> 0 then begin //если поиск завершен
+  if __r <> 0 then
+  begin //если поиск завершен
     FindClose(__addModulesSR);
     __searchInitialized := false;
     result := true;
   end
-  else result := false;
+  else
+    result := false;
 end;
 
 function TMainForm.AddFolderModules(path: WideString; tempBook: TBible;
@@ -2469,10 +2673,10 @@ var
   modEntry: TModuleEntry;
   mt: TModuleType;
 begin
-//count - либо несколько либо все
+  //count - либо несколько либо все
   count := C_NumOfModulesToScan + (ord(not background) shl 12);
   if not (__searchInitialized) then
-    begin //инициализация поиска
+  begin //инициализация поиска
     __r := FindFirst(path + '*.*', faDirectory, __addModulesSR);
     __searchInitialized := true;
   end;
@@ -2481,43 +2685,59 @@ begin
     repeat
       if (__addModulesSR.Attr and faDirectory = faDirectory) and
         ((__addModulesSR.Name <> '.') and (__addModulesSR.Name <> '..')) and
-        FileExists(path + __addModulesSR.Name + '\bibleqt.ini') then begin
+        FileExists(path + __addModulesSR.Name + '\bibleqt.ini') then
+      begin
         try
           tempBook.IniFile := path + __addModulesSR.Name + '\bibleqt.ini';
           //ТИП МОДУЛЯ
-          if (addAsCommentaries) then mt := modtypeComment
-          else begin
+          if (addAsCommentaries) then
+            mt := modtypeComment
+          else
+          begin
             if tempBook.isBible then
               mt := modtypeBible
-            else mt := modtypeBook;
+            else
+              mt := modtypeBook;
           end;
           modEntry := TModuleEntry.Create(mt, tempBook.Name, tempBook.ShortName,
             tempBook.ShortPath, EmptyWideStr);
           S_cachedModules.Add(modEntry);
 
-    {f}if not (background) then begin
-    {o}ModulesList.Add(tempBook.Name + ' $$$ ' + tempBook.ShortPath);
-    {r}ModulesCodeList.Add(tempBook.ShortName);
-    {e}if addAsCommentaries then begin
-    {g}Comments.Add(tempBook.Name);
-    {r}CommentsPaths.Add(tempBook.ShortPath);
-            {o}end
-            {u}else begin
-    {n}if tempBook.isBible then Bibles.Add(tempBook.Name)
-              {d}else Books.Add(tempBook.Name);
-            { }end;
+          {f}if not (background) then
+          begin
+            {o}ModulesList.Add(tempBook.Name + ' $$$ ' + tempBook.ShortPath);
+            {r}ModulesCodeList.Add(tempBook.ShortName);
+            {e}if addAsCommentaries then
+            begin
+              {g}Comments.Add(tempBook.Name);
+              {r}CommentsPaths.Add(tempBook.ShortPath);
+              {o}
+            end
+              {u}
+            else
+            begin
+              {n}if tempBook.isBible then
+                Bibles.Add(tempBook.Name)
+                {d}
+              else
+                Books.Add(tempBook.Name);
+              { }
+            end;
           end; //if not background
-        except end;
+        except
+        end;
       end; //if directory
       dec(count);
       __r := FindNext(__addModulesSR);
     until (__r <> 0) or (count <= 0);
-  if (__r <> 0) then begin //если сканирование завершено
+  if (__r <> 0) then
+  begin //если сканирование завершено
     FindClose(__addModulesSR);
     __searchInitialized := false;
     result := true // то есть сканирование завершено
   end
-  else result := false; // нужен повторный проход
+  else
+    result := false; // нужен повторный проход
 end;
 (*AlekId:/Добавлено*)
 
@@ -2529,27 +2749,32 @@ begin
   Result := -1;
   try
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    if not Assigned(favouriteMenuItem) then exit;
+    if not Assigned(favouriteMenuItem) then
+      exit;
     hotMenuItem := TTntMenuItem.Create(self);
-    if tag < 0 then tag := GetHotModuleCount();
+    if tag < 0 then
+      tag := GetHotModuleCount();
     Result := tag + 7000;
     hotMenuItem.Tag := Result;
     hotMenuItem.Caption := module.Name;
     hotMenuItem.OnClick := HotKeyClick;
     favouriteMenuItem.Add(hotMenuItem);
-    if not addBibleTab then exit;
+    if not addBibleTab then
+      exit;
     mBibleTabsEx.WideTabs.Insert(tag, module.ShortName);
     mBibleTabsEx.WideTabs.Objects[tag] := hotMenuItem;
-  except end;
+  except
+  end;
 end;
 (*AlekId:/Добавлено*)
 
 procedure TMainForm.AddressOKButtonClick(Sender: TObject);
 var
   offset: integer;
-//  Lines: TWideStrings;
+  //  Lines: TWideStrings;
 begin
-  if not AddressFromMenus then begin
+  if not AddressFromMenus then
+  begin
     GoEditDblClick(Sender);
     Exit;
   end;
@@ -2566,19 +2791,19 @@ begin
       ]
       )
     );
-{
-//JUNKY STUFF :-)
-//GUESS WHAT!
-  if MainBook.ShortPath = 'rststrong' then
-  begin
-    Lines := TWideStringList.Create;
-    for offset:= 1 to 66 do
-    Lines.Add('''' + MainBook.VarShortNames[offset] + ''',');
+  {
+  //JUNKY STUFF :-)
+  //GUESS WHAT!
+    if MainBook.ShortPath = 'rststrong' then
+    begin
+      Lines := TWideStringList.Create;
+      for offset:= 1 to 66 do
+      Lines.Add('''' + MainBook.VarShortNames[offset] + ''',');
 
-    Lines.SaveToFile('c:\out.txt');
-  end;
-}
-{  LinksCB.Visible := false;}tbLinksToolbar.Visible:=false;
+      Lines.SaveToFile('c:\out.txt');
+    end;
+  }
+  {  LinksCB.Visible := false;}tbLinksToolbar.Visible := false;
 
 end;
 
@@ -2586,12 +2811,15 @@ procedure TMainForm.GoPrevChapter;
 var
   cmd: WideString;
 begin
-  if PreviewBox.Visible then begin
-    if CurPreviewPage > 0 then CurPreviewPage := CurPreviewPage - 1;
+  if PreviewBox.Visible then
+  begin
+    if CurPreviewPage > 0 then
+      CurPreviewPage := CurPreviewPage - 1;
     Exit;
   end;
 
-  if not PrevChapterButton.Enabled then Exit;
+  if not PrevChapterButton.Enabled then
+    Exit;
 
   with MainBook do
     if CurChapter > 1 then
@@ -2604,7 +2832,7 @@ begin
   ProcessCommand(cmd);
   HistoryOn := true;
 
-//  ShowXref;
+  //  ShowXref;
   CommentsTab.Tag := 0;
   ShowComments;
   ActiveControl := Browser;
@@ -2614,13 +2842,15 @@ procedure TMainForm.GoNextChapter;
 var
   cmd: WideString;
 begin
-  if PreviewBox.Visible then begin
+  if PreviewBox.Visible then
+  begin
     if CurPreviewPage < MFPrinter.LastAvailablePage - 1 then
       CurPreviewPage := CurPreviewPage + 1;
     Exit;
   end;
 
-  if not NextChapterButton.Enabled then Exit;
+  if not NextChapterButton.Enabled then
+    Exit;
 
   with MainBook do
     if CurChapter < ChapterQtys[CurBook] then
@@ -2632,7 +2862,7 @@ begin
   ProcessCommand(cmd);
   HistoryOn := true;
 
-//  ShowXref;
+  //  ShowXref;
   CommentsTab.Tag := 0;
   ShowComments;
   ActiveControl := Browser;
@@ -2657,7 +2887,8 @@ begin
     with miLanguage.Items[i] do
       Checked := WideLowerCase(Caption + '.lng') = WideLowerCase(inifile);
 
-  if Assigned(ConfigForm) then begin
+  if Assigned(ConfigForm) then
+  begin
     Lang.TranslateForm(ConfigForm);
 
     ConfigForm.CopyVerseNumbers.Checked := CopyOptionsCopyVerseNumbersChecked;
@@ -2674,12 +2905,12 @@ begin
     ConfigForm.AddReferenceRadio.Items[2] :=
       Lang.Say('CopyOptionsAddReference_FullAtEnd');
 
-    ConfigForm.FavouriteExTabSheet.Caption:=Lang.SayDefault(
-              'ConfigForm.FavouriteExTabSheet.Caption', 'Любимые модули');
-    ConfigForm.lblAvailableModules.Caption:=Lang.SayDefault(
-              'ConfigForm.lblAvailableModules.Caption', 'Модули');
-    ConfigForm.lblFavourites.Caption:=Lang.SayDefault(
-              'ConfigForm.lblFavourites.Caption', 'Избранные модули');
+    ConfigForm.FavouriteExTabSheet.Caption := Lang.SayDefault(
+      'ConfigForm.FavouriteExTabSheet.Caption', 'Любимые модули');
+    ConfigForm.lblAvailableModules.Caption := Lang.SayDefault(
+      'ConfigForm.lblAvailableModules.Caption', 'Модули');
+    ConfigForm.lblFavourites.Caption := Lang.SayDefault(
+      'ConfigForm.lblFavourites.Caption', 'Избранные модули');
 
   end;
 
@@ -2712,7 +2943,8 @@ begin
   SetButtonHint(StrongNumbersButton, miStrong);
 
   MemosButton.Hint := miMemosToggle.Caption + ' (' +
-    ShortCutToText(miMemosToggle.ShortCut) + ')'; ;
+    ShortCutToText(miMemosToggle.ShortCut) + ')';
+  ;
 
   //BackButton.Hint := miGoBack.Caption + ' (Backspace)';
 
@@ -2724,7 +2956,8 @@ begin
   Application.Title := MainForm.Caption;
   TrayIcon.Hint := MainForm.Caption;
 
-  if MainBook.IniFile <> '' then begin
+  if MainBook.IniFile <> '' then
+  begin
     with MainBook do
       s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter,
         CurFromVerse, CurToVerse);
@@ -2769,7 +3002,8 @@ end;
 procedure TMainForm.ChapterComboBoxKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if Key = #13 then begin
+  if Key = #13 then
+  begin
     AddressFromMenus := true;
     AddressOKButtonClick(Sender);
   end;
@@ -2778,7 +3012,8 @@ end;
 procedure TMainForm.PrintButtonClick(Sender: TObject);
 begin
   with PrintDialog1 do
-    if Execute then Browser.Print(MinPage, MaxPage);
+    if Execute then
+      Browser.Print(MinPage, MaxPage);
 end;
 
 // --------- preview begin
@@ -2790,7 +3025,8 @@ procedure TMainForm.EnableMenus(aEnabled: Boolean);
 var
   i: integer;
 begin
-  for i := 0 to MainForm.ComponentCount - 1 do begin
+  for i := 0 to MainForm.ComponentCount - 1 do
+  begin
     if MainForm.Components[i] is TTntMenuItem then
       (MainForm.Components[i] as TTntMenuItem).Enabled := aEnabled;
   end;
@@ -2798,7 +3034,8 @@ end;
 
 procedure TMainForm.PreviewButtonClick(Sender: TObject);
 begin
-  if PreviewBox.Visible then begin
+  if PreviewBox.Visible then
+  begin
     EnableMenus(true);
 
     PreviewBox.Visible := false;
@@ -2810,7 +3047,8 @@ begin
 
     Screen.Cursor := crDefault;
   end
-  else begin
+  else
+  begin
     refvisible := MainPages.Visible;
 
     EnableMenus(false);
@@ -2895,10 +3133,13 @@ begin
 
   {Make sure the scroll bars are hidden if not needed}
   if (PagePanel.Width + BORD <= PreviewBox.Width) and
-    (PagePanel.Height + BORD <= PreviewBox.Height) then begin
+    (PagePanel.Height + BORD <= PreviewBox.Height) then
+  begin
     PreviewBox.HorzScrollBar.Visible := False;
     PreviewBox.VertScrollBar.Visible := False;
-  end else begin
+  end
+  else
+  begin
     PreviewBox.HorzScrollBar.Visible := True;
     PreviewBox.VertScrollBar.Visible := True;
   end;
@@ -2910,40 +3151,50 @@ procedure TMainForm.SetBibleTabsHintsState(showHints: boolean);
 var
   i, num, bibleTabsCount, curItem: integer;
   s: WideString;
-//  hotModuleMenuItem: TtntMenuItem;
-  saveOnChange:TTabChangeEvent;
+  //  hotModuleMenuItem: TtntMenuItem;
+  saveOnChange: TTabChangeEvent;
 begin
-  bibleTabsCount := mBibleTabsEx.WideTabs.Count-1;
-  curItem:=mBibleTabsEx.TabIndex;
-  if bibleTabsCount>9 then bibleTabsCount:=9
-  else Dec(bibleTabsCount);
-  for i := 0 to bibleTabsCount do begin
-  s:=mBibleTabsEx.WideTabs[i];
-  if showHints then begin
-  if (i<9) then num:=i+1 else num:=0;
-  mBibleTabsEx.WideTabs[i]:=WideFormat('%d-%s',[num, s]);
-  end
-  else begin
-    if (s[2]<>'-') or (not (Char(s[1]) in ['0'..'9'])) then break;
-      mBibleTabsEx.WideTabs[i]:=Copy(s,3, $FFFFFF);
-  end;
+  bibleTabsCount := mBibleTabsEx.WideTabs.Count - 1;
+  curItem := mBibleTabsEx.TabIndex;
+  if bibleTabsCount > 9 then
+    bibleTabsCount := 9
+  else
+    Dec(bibleTabsCount);
+  for i := 0 to bibleTabsCount do
+  begin
+    s := mBibleTabsEx.WideTabs[i];
+    if showHints then
+    begin
+      if (i < 9) then
+        num := i + 1
+      else
+        num := 0;
+      mBibleTabsEx.WideTabs[i] := WideFormat('%d-%s', [num, s]);
+    end
+    else
+    begin
+      if (s[2] <> '-') or (not (Char(s[1]) in ['0'..'9'])) then
+        break;
+      mBibleTabsEx.WideTabs[i] := Copy(s, 3, $FFFFFF);
+    end;
   end; //for
 
-  if showHints then   begin
-   mBibleTabsEx.FirstIndex:=0;
-   mBibleTabsEx.TabIndex:=curItem;
+  if showHints then
+  begin
+    mBibleTabsEx.FirstIndex := 0;
+    mBibleTabsEx.TabIndex := curItem;
   end
-  else begin
-    saveOnChange:= mBibleTabsEx.OnChange;
-    mBibleTabsEx.OnChange:=nil;
-  if curItem>0 then
-   mBibleTabsEx.TabIndex:= curItem-1;
-    mBibleTabsEx.TabIndex:=curItem;
-   mBibleTabsEx.OnChange:=saveOnChange;
+  else
+  begin
+    saveOnChange := mBibleTabsEx.OnChange;
+    mBibleTabsEx.OnChange := nil;
+    if curItem > 0 then
+      mBibleTabsEx.TabIndex := curItem - 1;
+    mBibleTabsEx.TabIndex := curItem;
+    mBibleTabsEx.OnChange := saveOnChange;
   end;
 
-
-   mBibleTabsInCtrlKeyDownState:=showHints;
+  mBibleTabsInCtrlKeyDownState := showHints;
 end;
 
 procedure TMainForm.SetCurPreviewPage(Val: integer);
@@ -2956,23 +3207,30 @@ end;
 
 procedure TMainForm.SetFavouritesShortcuts();
 var
-  favouriteMenuItem, hotMenuItem: TTntMenuItem; i, j, hotCount: integer;
+  favouriteMenuItem, hotMenuItem: TTntMenuItem;
+  i, j, hotCount: integer;
 begin
   try
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
     hotcount := favouriteMenuItem.Count - 1;
     j := 0;
-    for i := 0 to hotCount do begin
+    for i := 0 to hotCount do
+    begin
       hotMenuItem := favouriteMenuItem.items[i] as TTntMenuItem;
-      if hotMenuItem.Tag < 7000 then continue;
+      if hotMenuItem.Tag < 7000 then
+        continue;
       hotMenuItem.Tag := 7000 + j;
-      if j < 9 then hotMenuItem.ShortCut := ShortCut($31 + j, [ssCtrl])
-      else if j = 9 then hotMenuItem.ShortCut := ShortCut($30, [ssCtrl])
-      else hotMenuItem.ShortCut := 0;
+      if j < 9 then
+        hotMenuItem.ShortCut := ShortCut($31 + j, [ssCtrl])
+      else if j = 9 then
+        hotMenuItem.ShortCut := ShortCut($30, [ssCtrl])
+      else
+        hotMenuItem.ShortCut := 0;
       inc(j)
     end;
 
-  except end;
+  except
+  end;
 end;
 
 procedure TMainForm.SetFirstTabInitialLocation(wsCommand,
@@ -2980,19 +3238,21 @@ procedure TMainForm.SetFirstTabInitialLocation(wsCommand,
 var
   menuItem: TTntMenuItem;
 begin
-  if length(wsCommand) > 0 then LastAddress := wsCommand;
+  if length(wsCommand) > 0 then
+    LastAddress := wsCommand;
   menuItem := SatelliteMenuItemFromModuleName(wsSecondaryView);
-  if Assigned(menuItem) then SelectSatelliteMenuItem(menuItem);
-{  if length(LastAddress)>1 then begin
-   successed_load:=   ProcessCommand(LastAddress);
-  // if successed_load then BooksCB.ItemIndex := BooksCB.Items.IndexOf(MainBook.Name);
-  end
-  else successed_load:=false;
-  if not successed_load then begin
-    GoModuleName(miHot1.Caption);
-    b := 1; c := 1; v1 := 1; v2 := 0;
-    GoAddress(b, c, v1, v2);
-  end;}
+  if Assigned(menuItem) then
+    SelectSatelliteMenuItem(menuItem);
+  {  if length(LastAddress)>1 then begin
+     successed_load:=   ProcessCommand(LastAddress);
+    // if successed_load then BooksCB.ItemIndex := BooksCB.Items.IndexOf(MainBook.Name);
+    end
+    else successed_load:=false;
+    if not successed_load then begin
+      GoModuleName(miHot1.Caption);
+      b := 1; c := 1; v1 := 1; v2 := 0;
+      GoAddress(b, c, v1, v2);
+    end;}
   SafeProcessCommand(LastAddress);
   UpdateUI();
 end;
@@ -3032,10 +3292,14 @@ begin
   result := mrCancel;
   try
     i := G_ArchivedModuleList.Paths.IndexOf(aModule);
-    if (i < 0) then modName := ' '
-    else modName := G_ArchivedModuleList.Names[i];
-    if not assigned(frmPassBox) then frmPassBox := TfrmPassBox.Create(self);
-    with frmPassBox do begin
+    if (i < 0) then
+      modName := ' '
+    else
+      modName := G_ArchivedModuleList.Names[i];
+    if not assigned(frmPassBox) then
+      frmPassBox := TfrmPassBox.Create(self);
+    with frmPassBox do
+    begin
       Font.Assign(self.Font);
       lblPasswordNeeded.Caption := WideFormat(
         Lang.SayDefault('lblPasswordNeeded',
@@ -3049,13 +3313,15 @@ begin
       edPwd.Text := '';
       cbxSavePwd.Checked := false;
       result := frmPassBox.ShowModal();
-      if result = mrOk then begin
+      if result = mrOk then
+      begin
         Pwd := edPwd.Text;
         savePwd := cbxSavePwd.Checked;
       end;
     end;
 
-  except end;
+  except
+  end;
 
 end;
 {AlekId:/добавлено}
@@ -3069,8 +3335,10 @@ begin
   sx := X / PagePanel.Width;
   sy := Y / PagePanel.Height;
 
-  if (ssLeft in Shift) and (Zoom < 20.0) then Zoom := Zoom * ZOOMFACTOR;
-  if (ssRight in Shift) and (Zoom > 0.1) then Zoom := Zoom / ZOOMFACTOR;
+  if (ssLeft in Shift) and (Zoom < 20.0) then
+    Zoom := Zoom * ZOOMFACTOR;
+  if (ssRight in Shift) and (Zoom > 0.1) then
+    Zoom := Zoom / ZOOMFACTOR;
 
   ZoomIndex := 2;
   PreviewBoxResize(nil);
@@ -3097,9 +3365,11 @@ label
 
   procedure revertToOldLocation();
   begin
-    if oldpath = '' then begin
+    if oldpath = '' then
+    begin
       oldPath := MainFileExists(mDefaultLocation + '\' + C_ModuleIniName);
-      if Browser.GetTextLen() <= 0 then begin
+      if Browser.GetTextLen() <= 0 then
+      begin
         ProcessCommand(WideFormat('go %s 1 1 1', [mDefaultLocation]));
         exit
       end;
@@ -3111,7 +3381,8 @@ label
   end;
 begin
   Result := false;
-  if s = '' then Exit;//выйти, если команда пустая
+  if s = '' then
+    Exit; //выйти, если команда пустая
   wasFile := false;
   browserpos := Browser.Position;
   Browser.Tag := bsText;
@@ -3124,52 +3395,62 @@ begin
 
   dup := s; //копия команды
 
-  if FirstWord(dup) = 'go' then begin
-  //стандартный переход
+  if FirstWord(dup) = 'go' then
+  begin
+    //стандартный переход
     DeleteFirstWord(dup);
- //читаем имя папки
+    //читаем имя папки
     path := DeleteFirstWord(dup);
 
- //читаем номер книги
+    //читаем номер книги
     value := DeleteFirstWord(dup);
-    if value <> '' then book := StrToInt(value)
-    else book := 1;
+    if value <> '' then
+      book := StrToInt(value)
+    else
+      book := 1;
 
- //читаем номер главы
+    //читаем номер главы
     value := DeleteFirstWord(dup);
-    if value <> '' then chapter := StrToInt(value)
-    else chapter := 1;
- //читаем номер начального стиха
+    if value <> '' then
+      chapter := StrToInt(value)
+    else
+      chapter := 1;
+    //читаем номер начального стиха
     value := DeleteFirstWord(dup);
-    if value <> '' then fromverse := StrToInt(value)
-    else fromverse := 1;
- // читаем номер конечного стиха
+    if value <> '' then
+      fromverse := StrToInt(value)
+    else
+      fromverse := 1;
+    // читаем номер конечного стиха
     value := DeleteFirstWord(dup);
-    if value <> '' then toverse := StrToInt(value)
-    else toverse := 0;
- //формируем путь к ini модуля
-    {if path = ExtractFileName(path) then}path := MainFileExists(path +
+    if value <> '' then
+      toverse := StrToInt(value)
+    else
+      toverse := 0;
+    //формируем путь к ini модуля
+       {if path = ExtractFileName(path) then}path := MainFileExists(path +
       '\bibleqt.ini');
     //else path := ExePath + path + '\bibleqt.ini';
     // ??! никогда ветвление это не сработает
     //if path = '' then goto exitlabel;
-    if length(path) < 1 then goto exitlabel;
+    if length(path) < 1 then
+      goto exitlabel;
 
-
- // пытаемся подгрузить модуль
-    if path <> MainBook.IniFile then try
-      MainBook.IniFile := path;
-    except // если что-то не так -- откат
-      {MainBook.IniFile := oldpath;
-      book := oldbook;
-      chapter := oldchapter;}
-      revertToOldLocation();
-    end;
+    // пытаемся подгрузить модуль
+    if path <> MainBook.IniFile then
+      try
+        MainBook.IniFile := path;
+      except // если что-то не так -- откат
+        {MainBook.IniFile := oldpath;
+        book := oldbook;
+        chapter := oldchapter;}
+        revertToOldLocation();
+      end;
 
     try
-   //читаем, отображаем адрес
+      //читаем, отображаем адрес
       GoAddress(book, chapter, fromverse, toverse);
-   //записываем историю
+      //записываем историю
       with MainBook do
         if toverse = 0 then
           // если конечный стих не указан
@@ -3178,14 +3459,14 @@ begin
 
           s := WideFormat('go %s %d %d %d 0 $$$%s %s',
             [ShortPath, CurBook, CurChapter, fromverse,
-        // history comment
+            // history comment
             ShortName,
               FullPassageSignature(CurBook, CurChapter, fromverse, 0)
               ])
         else
           s := WideFormat('go %s %d %d %d %d $$$%s %s',
             [ShortPath, CurBook, CurChapter, fromverse, toverse,
-        // history comment
+            // history comment
             ShortName,
               FullPassageSignature(CurBook, CurChapter, fromverse, toverse)
               ]);
@@ -3193,17 +3474,20 @@ begin
       HistoryAdd(s);
       (*AlekId:Добавлено*)
       //here we set proper name to tab
-      with MainBook, mViewTabs do begin
-        if Assigned(ActivePage) then try
-          (ActivePage as TTntTabSheet).Caption := WideFormat('%.6s-%.6s:%d',
-            [ShortName, ShortNames[CurBook], CurChapter - ord(ChapterZero)]);
-          with (TObject(ActivePage.Tag) as TViewTabInfo) do begin
-          //сохранить контекст
-            mwsLocation := s;
-          end;
+      with MainBook, mViewTabs do
+      begin
+        if Assigned(ActivePage) then
+          try
+            (ActivePage as TTntTabSheet).Caption := WideFormat('%.6s-%.6s:%d',
+              [ShortName, ShortNames[CurBook], CurChapter - ord(ChapterZero)]);
+            with (TObject(ActivePage.Tag) as TViewTabInfo) do
+            begin
+              //сохранить контекст
+              mwsLocation := s;
+            end;
 
-        except //try frame
-        end;
+          except //try frame
+          end;
       end; //with MainBook, mMainViewTabs
       (*AlekId:/Добавлено*)
 {
@@ -3214,54 +3498,67 @@ begin
       //if LastAddress = s then Browser.Position := browserpos;
       LastAddress := s;
     except
-      on e: TBQPasswordException do begin
+      on e: TBQPasswordException do
+      begin
         PasswordPolicy.InvalidatePassword(e.mArchive);
         MessageBoxW(self.Handle, PWideChar(Pointer(e.mWideMsg)), nil,
           MB_ICONERROR or MB_OK);
         revertToOldLocation();
       end;
-      on e: TBqException do begin
+      on e: TBqException do
+      begin
         MessageBoxW(self.Handle, PWideChar(Pointer(e.mWideMsg)), nil,
           MB_ICONERROR or MB_OK);
-        revertToOldLocation(); end
-    else revertToOldLocation(); //в любом случае
+        revertToOldLocation();
+      end
+    else
+      revertToOldLocation(); //в любом случае
     end;
 
     goto exitlabel;
   end; //first word is go
 
-  if FirstWord(dup) = 'file' then begin
+  if FirstWord(dup) = 'file' then
+  begin
     wasFile := true; // *** - not a favorite
     wasSearchHistory := false;
     // if a Bible path was stored with file... (after search procedure)
     i := Pos('***', dup);
-    if i > 0 then begin
+    if i > 0 then
+    begin
       j := Pos('$$$', dup);
       value := MainFileExists(Copy(dup, i + 3, j - i - 4) + '\bibleqt.ini');
-      if MainBook.IniFile <> value then MainBook.IniFile := value;
+      if MainBook.IniFile <> value then
+        MainBook.IniFile := value;
       wasSearchHistory := true;
     end;
 
     DeleteFirstWord(dup);
 
-    i := Pos('***', dup); if i = 0 then i := Length(dup);
+    i := Pos('***', dup);
+    if i = 0 then
+      i := Length(dup);
     j := Pos('$$$', dup);
 
-    if i > j then path := Copy(dup, 1, j - 1)
-    else path := Copy(dup, 1, i - 1);
+    if i > j then
+      path := Copy(dup, 1, j - 1)
+    else
+      path := Copy(dup, 1, i - 1);
 
-    if not FileExists(path) then begin
+    if not FileExists(path) then
+    begin
       WideShowMessage(WideFormat(Lang.Say('FileNotFound'), [path]));
       goto exitlabel;
     end;
 
     Browser.Base := ExtractFilePath(path);
 
-//    Browser.Charset := DefaultCharset;
+    //    Browser.Charset := DefaultCharset;
 
     WChar_ReadHtmlFileTo(path, dBrowserSource);
 
-    if wasSearchHistory then begin
+    if wasSearchHistory then
+    begin
       StrReplace(
         dBrowserSource, '<*>',
         '<font color="' + SelTextColor + '">', true
@@ -3272,26 +3569,30 @@ begin
 
     Browser.LoadFromString(dBrowserSource);
 
-    if Browser.DocumentTitle <> '' then value := Browser.DocumentTitle
-    else value := ExtractFileName(path);
-{
-    if wasSearchHistory then
-      MainTabs.Tabs[MainTabs.TabIndex] := value
+    if Browser.DocumentTitle <> '' then
+      value := Browser.DocumentTitle
     else
-      MainTabs.Tabs[MainTabs.TabIndex] := ExtractFileName(path);
-}
-    //MainForm.Caption := Application.Title + ' — ' +
-    //TitleLabel.Caption := '  ' + value;
-    //TitleLabel.Font.Style := [fsBold];
+      value := ExtractFileName(path);
+    {
+        if wasSearchHistory then
+          MainTabs.Tabs[MainTabs.TabIndex] := value
+        else
+          MainTabs.Tabs[MainTabs.TabIndex] := ExtractFileName(path);
+    }
+        //MainForm.Caption := Application.Title + ' — ' +
+        //TitleLabel.Caption := '  ' + value;
+        //TitleLabel.Font.Style := [fsBold];
 
-//    TabBuffers[MainTabs.TabIndex] := s;
+    //    TabBuffers[MainTabs.TabIndex] := s;
 
     if (History.Count > 0) and (History[0] = s) then
       Browser.Position := browserpos;
 
     HistoryAdd(s);
-    if wasSearchHistory then Browser.Tag := bsSearch
-    else Browser.Tag := bsFile;
+    if wasSearchHistory then
+      Browser.Tag := bsSearch
+    else
+      Browser.Tag := bsFile;
     (*AlekId:Добавлено*)
     mViewTabs.ActivePage.Caption := WideFormat('%.12s', [value]);
     (TObject(mViewTabs.ActivePage.Tag) as TViewTabInfo).mwsLocation := s;
@@ -3299,33 +3600,37 @@ begin
     goto exitlabel;
   end; //first word is "file"
 
-  if ExtractFileName(dup) = dup then try
-    Browser.LoadFromFile(Browser.Base + dup);
-        (*AlekId:Добавлено*)
+  if ExtractFileName(dup) = dup then
+    try
+      Browser.LoadFromFile(Browser.Base + dup);
+      (*AlekId:Добавлено*)
 
-    mViewTabs.ActivePage.Caption := WideFormat('%.12s', [s]);
-    (TObject(mViewTabs.ActivePage.Tag) as TViewTabInfo).mwsLocation := s;
+      mViewTabs.ActivePage.Caption := WideFormat('%.12s', [s]);
+      (TObject(mViewTabs.ActivePage.Tag) as TViewTabInfo).mwsLocation := s;
 
-    (*AlekId:/Добавлено*)
-  except
-    ;
-  end;
+      (*AlekId:/Добавлено*)
+    except
+      ;
+    end;
 
-exitlabel:
+  exitlabel:
   Screen.Cursor := crDefault;
   //ActiveControl := Browser;
   miStrong.Enabled := MainBook.StrongNumbers;
   Result := true;
 
   i := BooksCB.Items.IndexOf(MainBook.Name);
-  if i <> BooksCB.ItemIndex then BooksCB.ItemIndex := i;
+  if i <> BooksCB.ItemIndex then
+    BooksCB.ItemIndex := i;
   i := MainBook.CurBook - 1;
-  if i <> BookLB.ItemIndex then BookLB.ItemIndex := i;
+  if i <> BookLB.ItemIndex then
+    BookLB.ItemIndex := i;
 
   //BookLBClick(Self);
   // copy of BookLBClick....
   if (oldpath <> path) or (oldbook <> book) or (ChapterLB.Items.Count = 0) then
-    with ChapterLB do begin
+    with ChapterLB do
+    begin
       Items.BeginUpdate;
       Items.Clear;
 
@@ -3340,22 +3645,25 @@ exitlabel:
       ItemIndex := 0;
     end;
   i := MainBook.CurChapter - 1;
-  if ChapterLB.ItemIndex <> i then ChapterLB.ItemIndex := i;
-//AlekId: этот код используется теперь дважды так что в процедуру его
-{  BibleTabs.OnChange := nil;
+  if ChapterLB.ItemIndex <> i then
+    ChapterLB.ItemIndex := i;
+  //AlekId: этот код используется теперь дважды так что в процедуру его
+  {  BibleTabs.OnChange := nil;
 
-  if (not wasFile) and (BibleTabs.Tabs.IndexOf(MainBook.ShortName) <> -1) then
-    BibleTabs.TabIndex := BibleTabs.Tabs.IndexOf(MainBook.ShortName)
-  else
-    BibleTabs.TabIndex := 10; // not a favorite book
-  BibleTabs.OnChange := BibleTabsChange;}
-  if (not wasFile) then AdjustBibleTabs();
-  if HistoryLB.ItemIndex <> -1 then begin
+    if (not wasFile) and (BibleTabs.Tabs.IndexOf(MainBook.ShortName) <> -1) then
+      BibleTabs.TabIndex := BibleTabs.Tabs.IndexOf(MainBook.ShortName)
+    else
+      BibleTabs.TabIndex := 10; // not a favorite book
+    BibleTabs.OnChange := BibleTabsChange;}
+  if (not wasFile) then
+    AdjustBibleTabs();
+  if HistoryLB.ItemIndex <> -1 then
+  begin
     BackButton.Enabled := HistoryLB.ItemIndex < HistoryLB.Items.Count - 1;
     ForwardButton.Enabled := HistoryLB.ItemIndex > 0;
   end;
 {$IFOPT D+}
-//Caption:=Format('Отладочная сборка:',[AllocMemCount, AllocMemSize]);
+  //Caption:=Format('Отладочная сборка:',[AllocMemCount, AllocMemSize]);
 {$ENDIF}
   //ActiveControl := Browser;
 end; //proc processcommand
@@ -3364,7 +3672,8 @@ end; //proc processcommand
 
 procedure TMainForm.HistoryButtonClick(Sender: TObject);
 begin
-  if History.Count = 0 then Exit;
+  if History.Count = 0 then
+    Exit;
   //ResultPages.ActivePage := HistoryTab;
 end;
 
@@ -3372,49 +3681,65 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   OldKey: Word;
-hotMenuItem: TtntMenuItem; label
+  hotMenuItem: TtntMenuItem;
+label
   exitlabel;
 begin
-  if PreviewBox.Visible then begin
-    if Key = VK_NEXT then begin
+  if PreviewBox.Visible then
+  begin
+    if Key = VK_NEXT then
+    begin
       if CurPreviewPage < MFPrinter.LastAvailablePage - 1 then
         CurPreviewPage := CurPreviewPage + 1;
     end
-    else if Key = VK_PRIOR then begin
-      if CurPreviewPage > 0 then CurPreviewPage := CurPreviewPage - 1;
+    else if Key = VK_PRIOR then
+    begin
+      if CurPreviewPage > 0 then
+        CurPreviewPage := CurPreviewPage - 1;
     end
-    else if Key = VK_HOME then begin
+    else if Key = VK_HOME then
+    begin
       PreviewBox.VertScrollBar.Position := 0;
     end
-    else if Key = VK_END then begin
+    else if Key = VK_END then
+    begin
       PreviewBox.VertScrollBar.Position := PreviewBox.VertScrollBar.Range;
     end
-    else if Key = VK_UP then begin
+    else if Key = VK_UP then
+    begin
       if PreviewBox.VertScrollBar.Position > 50 then
         PreviewBox.VertScrollBar.Position := PreviewBox.VertScrollBar.Position -
           50
-      else PreviewBox.VertScrollBar.Position := 0;
+      else
+        PreviewBox.VertScrollBar.Position := 0;
     end
-    else if Key = VK_DOWN then begin
+    else if Key = VK_DOWN then
+    begin
       if PreviewBox.VertScrollBar.Position < PreviewBox.VertScrollBar.Range - 50
         then
         PreviewBox.VertScrollBar.Position := PreviewBox.VertScrollBar.Position +
           50
-      else PreviewBox.VertScrollBar.Position := PreviewBox.VertScrollBar.Range;
+      else
+        PreviewBox.VertScrollBar.Position := PreviewBox.VertScrollBar.Range;
     end
-    else if Key = VK_LEFT then begin
+    else if Key = VK_LEFT then
+    begin
       if PreviewBox.HorzScrollBar.Position > 50 then
         PreviewBox.HorzScrollBar.Position := PreviewBox.HorzScrollBar.Position -
           50
-      else PreviewBox.HorzScrollBar.Position := 0;
+      else
+        PreviewBox.HorzScrollBar.Position := 0;
     end
-    else if Key = VK_RIGHT then begin
+    else if Key = VK_RIGHT then
+    begin
       if PreviewBox.HorzScrollBar.Position < PreviewBox.HorzScrollBar.Range - 50
         then
         PreviewBox.HorzScrollBar.Position := PreviewBox.HorzScrollBar.Position +
           50
-      else PreviewBox.HorzScrollBar.Position := PreviewBox.HorzScrollBar.Range;
-    end else if (Key = Ord('Z')) and (Shift = [ssCtrl]) then
+      else
+        PreviewBox.HorzScrollBar.Position := PreviewBox.HorzScrollBar.Range;
+    end
+    else if (Key = Ord('Z')) and (Shift = [ssCtrl]) then
       GoPrevChapter
     else if (Key = Ord('X')) and (Shift = [ssCtrl]) then
       GoNextChapter
@@ -3425,18 +3750,21 @@ begin
 
     Key := 0;
     goto exitlabel;
-  end;//if previewbox visible
+  end; //if previewbox visible
 
-  if Key=VK_CONTROL then begin
-    if not G_ControlKeyDown then begin
-      G_ControlKeyDown:=true;
+  if Key = VK_CONTROL then
+  begin
+    if not G_ControlKeyDown then
+    begin
+      G_ControlKeyDown := true;
       SetBibleTabsHintsState(true);
     end
   end;
 
   MainShiftState := Shift;
 
-  if Shift = [ssShift] then begin
+  if Shift = [ssShift] then
+  begin
     OldKey := Key;
     Key := 0;
 
@@ -3450,30 +3778,34 @@ begin
       goto exitlabel;
   end;
 
-  if Shift = [ssCtrl] then begin
+  if Shift = [ssCtrl] then
+  begin
     OldKey := Key;
     Key := 0;
 
     case OldKey of
-    //Ord('H'): HistoryButton.Click;
+      //Ord('H'): HistoryButton.Click;
 
-      Ord('Z'): if ActiveControl <> TREMemo then GoPrevChapter;
-      Ord('X'): if ActiveControl <> TREMemo then GoNextChapter;
+      Ord('Z'): if ActiveControl <> TREMemo then
+          GoPrevChapter;
+      Ord('X'): if ActiveControl <> TREMemo then
+          GoNextChapter;
       Ord('T'): ToggleButton.Click;
-//    Ord('G'):
-//        begin
-//          MainPages.Visible := true;
-//          MainPages.ActivePage := GoTab;
-//          ActiveControl := GoEdit;
-//        end;
+      //    Ord('G'):
+      //        begin
+      //          MainPages.Visible := true;
+      //          MainPages.ActivePage := GoTab;
+      //          ActiveControl := GoEdit;
+      //        end;
 
-//    Ord('F'):
-//        begin
-//          MainPages.Visible := true;
-//          MainPages.ActivePage := SearchTab;
-//          ActiveControl := SearchCB;
-//        end;
-      Ord('C'), VK_INSERT: begin
+      //    Ord('F'):
+      //        begin
+      //          MainPages.Visible := true;
+      //          MainPages.ActivePage := SearchTab;
+      //          ActiveControl := SearchCB;
+      //        end;
+      Ord('C'), VK_INSERT:
+        begin
           if ActiveControl = TREMemo then
             TREMemo.CopyToClipboard
           else if ActiveControl = Browser then
@@ -3481,10 +3813,10 @@ begin
           else if ActiveControl is THTMLViewer then
             TntClipboard.AsText := (ActiveControl as THTMLViewer).SelText;
         end;
-    //Ord('B'): BookmarkButton.Click;
-    //Ord('D'): miAddPassageBookmark.Click;
+      //Ord('B'): BookmarkButton.Click;
+      //Ord('D'): miAddPassageBookmark.Click;
 
-    //Ord('N'): NewButton.Click;
+      //Ord('N'): NewButton.Click;
       Ord('O'): miOpen.Click;
       Ord('S'): miSave.Click;
       Ord('P'): PrintButton.Click;
@@ -3498,7 +3830,7 @@ begin
       VK_F1: ToggleButton.Click;
       Ord('G'), VK_F2: miQuickNav.Click;
       Ord('F'), VK_F3: miQuickSearch.Click;
-    //VK_F4: ToggleButton.Click;
+      //VK_F4: ToggleButton.Click;
       VK_F5: miCopy.Click;
       VK_F10: miSound.Click;
 
@@ -3515,11 +3847,19 @@ begin
       Ord('8'): miHot8.Click;
       Ord('9'): miHot9.Click;
       Ord('0'): miHot0.Click;}
-      Ord('0'): begin
-          hotMenuItem := GetHotMenuItem(10); if assigned(hotMenuItem) then
-            hotMenuItem.Click(); end; Ord('1')..Ord('9'): begin
-          hotMenuItem := GetHotMenuItem(ord(OldKey) - ord('0')); if
-          assigned(hotMenuItem) then hotMenuItem.Click(); end;
+      Ord('0'):
+        begin
+          hotMenuItem := GetHotMenuItem(10);
+          if assigned(hotMenuItem) then
+            hotMenuItem.Click();
+        end;
+      Ord('1')..Ord('9'):
+        begin
+          hotMenuItem := GetHotMenuItem(ord(OldKey) - ord('0'));
+          if
+            assigned(hotMenuItem) then
+            hotMenuItem.Click();
+        end;
     else
       Key := OldKey;
     end;
@@ -3551,12 +3891,15 @@ end;
 
 procedure TMainForm.OpenButtonClick(Sender: TObject);
 begin
-  with OpenDialog1 do begin
-    if InitialDir = '' then InitialDir := ExePath;
+  with OpenDialog1 do
+  begin
+    if InitialDir = '' then
+      InitialDir := ExePath;
 
     Filter := 'HTML (*.htm, *.html)|*.htm;*.html|*.*|*.*';
 
-    if Execute then begin
+    if Execute then
+    begin
       ProcessCommand('file ' + FileName + ' $$$' + FileName);
       InitialDir := ExtractFilePath(FileName);
     end;
@@ -3565,7 +3908,8 @@ end;
 
 procedure TMainForm.SearchButtonClick(Sender: TObject);
 begin
-  if not MainPages.Visible then ToggleButton.Click;
+  if not MainPages.Visible then
+    ToggleButton.Click;
 
   MainPages.ActivePage := SearchTab;
   ActiveControl := SearchCB;
@@ -3575,7 +3919,8 @@ end;
 procedure TMainForm.SearchEditKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Key = 13 then begin
+  if Key = 13 then
+  begin
     ActiveControl := SearchForward;
     SearchForward.Click();
   end;
@@ -3584,38 +3929,45 @@ end;
 
 procedure TMainForm.FormKeyPress(Sender: TObject; var Key: Char);
 begin
-  if Key = #27 then begin
+  if Key = #27 then
+  begin
     Key := #0;
     if not MainPanel.Visible then
-        {previewing}
+      {previewing}
       miPrintPreview.Click // this turns preview off
-    else begin
-      if IsSearching then FindButtonClick(Sender)
-      else begin
+    else
+    begin
+      if IsSearching then
+        FindButtonClick(Sender)
+      else
+      begin
         Application.Minimize;
-  { wrap to title bar like KDE/Linux
-        if MainForm.Height > 100 then
-        begin
-          MainFormTempHeight := MainForm.Height;
-          MainForm.Height := 0;
-//          MainForm.FormStyle := fsStayOnTop;
-        end else
-        begin
-          MainForm.Height := MainFormTempHeight;
-//          MainForm.FormStyle := fsNormal;
-        end;
-}
+        { wrap to title bar like KDE/Linux
+              if MainForm.Height > 100 then
+              begin
+                MainFormTempHeight := MainForm.Height;
+                MainForm.Height := 0;
+      //          MainForm.FormStyle := fsStayOnTop;
+              end else
+              begin
+                MainForm.Height := MainFormTempHeight;
+      //          MainForm.FormStyle := fsNormal;
+              end;
+      }
       end;
     end;
     Exit;
   end;
 
-  if Key = #13 then begin
-    if MainPages.ActivePage = SearchTab then begin
+  if Key = #13 then
+  begin
+    if MainPages.ActivePage = SearchTab then
+    begin
       Key := #0;
       FindButtonClick(Sender);
     end
-    else if ActiveControl = HistoryLB then begin
+    else if ActiveControl = HistoryLB then
+    begin
       Key := #0;
       HistoryLBDblClick(Sender);
     end;
@@ -3624,7 +3976,8 @@ end;
 
 procedure TMainForm.GoEditKeyPress(Sender: TObject; var Key: Char);
 begin
-  if Key = #13 then begin
+  if Key = #13 then
+  begin
     Key := #0;
     GoEditDblClick(Sender);
   end;
@@ -3641,7 +3994,8 @@ begin
   else
     SearchPageSize := 50000;
 
-  if IsSearching then begin
+  if IsSearching then
+  begin
     IsSearching := false;
     MainBook.StopSearching;
     Screen.Cursor := crDefault;
@@ -3655,14 +4009,16 @@ begin
   s := [];
 
   if (not MainBook.isBible) or
-    (not MainBook.HasOldTestament) or (not MainBook.HasNewTestament) then begin
+    (not MainBook.HasOldTestament) or (not MainBook.HasNewTestament) then
+  begin
     if CBList.ItemIndex = 0 then
       s := [0..MainBook.BookQty - 1]
-      //for i := 1 to MainBook.BookQty do s := s + [i-1];
+        //for i := 1 to MainBook.BookQty do s := s + [i-1];
     else
       s := [CBList.ItemIndex - 1];
   end
-  else begin // FULL BIBLE SEARCH
+  else
+  begin // FULL BIBLE SEARCH
     case CBList.ItemIndex of
       0: s := [0..65];
       1: s := [0..38];
@@ -3672,13 +4028,16 @@ begin
       5: s := [22..38];
       6: s := [39..43];
       7: s := [44..65];
-      8: begin
-          if MainBook.HasApocrypha then s := [66..MainBook.BookQty - 1]
-          else s := [0];
+      8:
+        begin
+          if MainBook.HasApocrypha then
+            s := [66..MainBook.BookQty - 1]
+          else
+            s := [0];
         end;
     else
       s := [CBList.ItemIndex - 8 - Ord(MainBook.HasApocrypha)];
-        // search in single book
+      // search in single book
     end;
   end;
 
@@ -3691,7 +4050,8 @@ begin
   data := Trim(data);
   //SearchCB.Text := data;
 
-  if data <> '' then begin
+  if data <> '' then
+  begin
     //if SingleLetterDelete(data) then
     //  ShowMessage(Lang.Say('OneLetterWordsDeleted'));
 
@@ -3699,30 +4059,33 @@ begin
     SearchCB.Items.Insert(0, data);
 
     SearchResults.Clear;
-//    SearchLB.Items.Clear;
+    //    SearchLB.Items.Clear;
 
     SearchWords.Clear;
     wrd := SearchCB.Text;
 
-    if not CBExactPhrase.Checked then begin
-      while wrd <> '' do begin
+    if not CBExactPhrase.Checked then
+    begin
+      while wrd <> '' do
+      begin
         wrdnew := DeleteFirstWord(wrd);
 
-//        if not CBCase.Checked then
-//        begin
-//          SearchWords.Add(UpperCaseFirstLetter(wrdnew)); // Господь
-//          SearchWords.Add(WideLowerCase(wrdnew)); // господь
-//          SearchWords.Add(WideUpperCase(wrdnew)); // LORD OF LORDS, in English :-)
-//        end
-//        else
+        //        if not CBCase.Checked then
+        //        begin
+        //          SearchWords.Add(UpperCaseFirstLetter(wrdnew)); // Господь
+        //          SearchWords.Add(WideLowerCase(wrdnew)); // господь
+        //          SearchWords.Add(WideUpperCase(wrdnew)); // LORD OF LORDS, in English :-)
+        //        end
+        //        else
         SearchWords.Add(wrdnew);
       end;
     end
-    else begin
+    else
+    begin
       wrdnew := Trim(wrd);
-//      SearchWords.Add(UpperCaseFirstLetter(wrdnew)); // Господь
-//      SearchWords.Add(WideLowerCase(wrdnew)); // господь
-//      SearchWords.Add(WideUpperCase(wrdnew)); // LORD OF LORDS, in English :-)
+      //      SearchWords.Add(UpperCaseFirstLetter(wrdnew)); // Господь
+      //      SearchWords.Add(WideLowerCase(wrdnew)); // господь
+      //      SearchWords.Add(WideUpperCase(wrdnew)); // LORD OF LORDS, in English :-)
       SearchWords.Add(wrdnew);
     end;
 
@@ -3745,44 +4108,51 @@ procedure TMainForm.MainBookSearchComplete(Sender: TObject);
 begin
   IsSearching := false;
   DisplaySearchResults(1);
-//  ProcessCommand(History[HistoryLB.Count-1]);
+  //  ProcessCommand(History[HistoryLB.Count-1]);
   ProcessCommand(History[0]);
 end;
 
 procedure TMainForm.ForceBackgroundLoad;
 begin
-  if not mDictionariesFullyInitialized then begin
+  if not mDictionariesFullyInitialized then
+  begin
     mDictionariesFullyInitialized := LoadDictionaries(MaxInt);
   end;
-  if not mAllBkScanDone then begin
+  if not mAllBkScanDone then
+  begin
     repeat
-    LoadModules(true);
+      LoadModules(true);
     until mAllBkScanDone;
 
     Application.OnIdle := nil;
     Self.UpdateFromCashed();
     self.UpdateAllBooks();
     self.UpdateUI();
- end;
+  end;
 end;
 
 procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   F: TSearchRec;
   procedure _finalizeDics();
-  var i:integer;
-    begin
-    for i := 0 to DicsCount- 1 do Dics[i].Free();
-    end;
- procedure _finalizeViewTabs();
- var i,c:integer;
- begin
- c:=mViewTabs.PageCount-1;
- for i := 0 to c do (TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo).Free();
+  var
+    i: integer;
+  begin
+    for i := 0 to DicsCount - 1 do
+      Dics[i].Free();
+  end;
+  procedure _finalizeViewTabs();
+  var
+    i, c: integer;
+  begin
+    c := mViewTabs.PageCount - 1;
+    for i := 0 to c do
+      (TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo).Free();
 
- end;
+  end;
 begin
-  if MainForm.Height < 100 then MainForm.Height := MainFormTempHeight;
+  if MainForm.Height < 100 then
+    MainForm.Height := MainFormTempHeight;
 
   // clearing temporary files directory
   if FindFirst(TempDir + '*.*', faAnyFile, F) = 0 then
@@ -3797,18 +4167,27 @@ begin
   SaveConfiguration;
   (*AlekId:Добавлено*)
   try
-    Bibles.Free(); Books.Free(); Comments.Free(); CommentsPaths.Free();
-   { CacheDicPaths.Free(); CacheDicTitles.Free(); CacheModPaths.Free();
-    CacheModTitles.Free(); }ModulesList.Free(); ModulesCodeList.Free();
+    Bibles.Free();
+    Books.Free();
+    Comments.Free();
+    CommentsPaths.Free();
+    { CacheDicPaths.Free(); CacheDicTitles.Free(); CacheModPaths.Free();
+     CacheModTitles.Free(); }ModulesList.Free();
+    ModulesCodeList.Free();
     G_ArchivedModuleList.Free();
-    Memos.Free(); Bookmarks.Free(); History.Free(); SearchResults.Free();
+    Memos.Free();
+    Bookmarks.Free();
+    History.Free();
+    SearchResults.Free();
     SearchWords.Free();
-    StrongHebrew.Free(); StrongGreek.Free();
-   _finalizeDics();//CleanUp
+    StrongHebrew.Free();
+    StrongGreek.Free();
+    _finalizeDics(); //CleanUp
     S_cachedModules.Free();
-   _finalizeViewTabs();
-   PasswordPolicy.Free();
-  except end;
+    _finalizeViewTabs();
+    PasswordPolicy.Free();
+  except
+  end;
   (*AlekId:/Добавлено*)
 {
   ShowMessage('Saving properties');
@@ -3838,7 +4217,8 @@ var
 begin
   if (not MainBook.isBible) or
     (not MainBook.HasOldTestament) or (not MainBook.HasNewTestament) then
-    with CBList do begin
+    with CBList do
+    begin
       Items.BeginUpdate;
       Items.Clear;
 
@@ -3852,7 +4232,8 @@ begin
       Exit;
     end;
 
-  with CBList do begin
+  with CBList do
+  begin
     Items.BeginUpdate;
     Items.Clear;
 
@@ -3865,7 +4246,8 @@ begin
     Items.Add(Lang.Say('SearchGA')); // Gospels and Acts
     Items.Add(Lang.Say('SearchER')); // Epistles and Revelation
 
-    if MainBook.HasApocrypha then Items.Add(Lang.Say('SearchAP')); // Apocrypha
+    if MainBook.HasApocrypha then
+      Items.Add(Lang.Say('SearchAP')); // Apocrypha
 
     for i := 1 to MainBook.BookQty do
       Items.Add(MainBook.FullNames[i]);
@@ -3881,13 +4263,15 @@ var
   Links: TWideStrings;
   i: integer;
 begin
-  if Trim(GoEdit.Text) = '' then Exit;
+  if Trim(GoEdit.Text) = '' then
+    Exit;
 
   Links := TWideStringList.Create;
 
   StrToLinks(GoEdit.Text, Links);
 
-  if Links.Count > 0 then begin
+  if Links.Count > 0 then
+  begin
     LinksCB.Items.Clear;
     for i := 0 to Links.Count - 1 do
       LinksCB.Items.Add(Links[i]);
@@ -3922,7 +4306,8 @@ procedure TMainForm.FirstBrowserKeyPress(Sender: TObject; var Key: Char);
 var
   i: integer;
 begin
-  if Key = '+' then begin
+  if Key = '+' then
+  begin
     Key := #0;
     i := Browser.DefFontSize;
     Inc(i);
@@ -3941,7 +4326,8 @@ begin
     Exit;
   end;
 
-  if Key = '-' then begin
+  if Key = '-' then
+  begin
     Key := #0;
     i := Browser.DefFontSize;
     Dec(i);
@@ -3966,26 +4352,31 @@ begin
   Close;
 end;
 
-
-
 procedure TMainForm.Idle(Sender: TObject; var Done: boolean);
 begin
-//фоновая загрузка модулей
-  if not mDictionariesFullyInitialized then begin
+  //фоновая загрузка модулей
+  if not mDictionariesFullyInitialized then
+  begin
     mDictionariesFullyInitialized := LoadDictionaries(1);
     Done := False;
     exit;
   end;
 
-  if mAllBkScanDone then begin
-    Application.OnIdle := nil; Done := true; exit; end;
+  if mAllBkScanDone then
+  begin
+    Application.OnIdle := nil;
+    Done := true;
+    exit;
+  end;
   LoadModules(true);
-  if mAllBkScanDone then begin
+  if mAllBkScanDone then
+  begin
     Self.UpdateFromCashed();
     self.UpdateAllBooks();
     self.UpdateUI();
   end
-  else Done := false;
+  else
+    Done := false;
 end;
 
 procedure TMainForm.InitBibleTabs;
@@ -3996,14 +4387,18 @@ var
 begin
   bibleTabsCount := GetHotModuleCount() - 1;
   mBibleTabsEx.WideTabs.Clear();
-  for i := 0 to bibleTabsCount do begin
+  for i := 0 to bibleTabsCount do
+  begin
     hotModuleMenuItem := GetHotMenuItem(i);
-    if not Assigned(hotModuleMenuItem) then continue;
+    if not Assigned(hotModuleMenuItem) then
+      continue;
     s := hotModuleMenuItem.Caption;
-    if length(s) <= 0 then continue;
-    j:=ModuleIndexByName(s);
-      if j>=0 then mBibleTabsEx.WideTabs.AddObject(ModulesCodeList[j],
-          hotModuleMenuItem);
+    if length(s) <= 0 then
+      continue;
+    j := ModuleIndexByName(s);
+    if j >= 0 then
+      mBibleTabsEx.WideTabs.AddObject(ModulesCodeList[j],
+        hotModuleMenuItem);
   end; //for
   mBibleTabsEx.WideTabs.AddObject('***', nil);
 end;
@@ -4011,9 +4406,11 @@ end;
 procedure TMainForm.InitBkScan;
 begin
   __searchInitialized := false;
-  mFolderModulesScanned := false; mFolderCommentsScanned := false;
+  mFolderModulesScanned := false;
+  mFolderCommentsScanned := false;
   mSecondFolderModulesScanned := false;
-  mArchivedBiblesScanned := false; mArchivedCommentsScanned := false;
+  mArchivedBiblesScanned := false;
+  mArchivedCommentsScanned := false;
   mAllBkScanDone := false;
 end;
 
@@ -4032,20 +4429,23 @@ begin
     S_cachedModules.Clear();
     i := 0;
     linecount := cachedModulesList.Count - 1;
-    if linecount < 5 then abort;
+    if linecount < 5 then
+      abort;
     repeat
-    modIx:=CachedModuleIxFromFullname(cachedModulesList[i + 1] );
-    if modIx<0 then begin
+      modIx := CachedModuleIxFromFullname(cachedModulesList[i + 1]);
+      if modIx < 0 then
+      begin
 {$R+}
-      modEntry :=
-        TModuleEntry.Create(TModuleType(StrToInt(cachedModulesList[i])),
-        cachedModulesList[i + 1], cachedModulesList[i + 2],
-        cachedModulesList[i + 3], cachedModulesList[i + 4]);
+        modEntry :=
+          TModuleEntry.Create(TModuleType(StrToInt(cachedModulesList[i])),
+          cachedModulesList[i + 1], cachedModulesList[i + 2],
+          cachedModulesList[i + 3], cachedModulesList[i + 4]);
 {$R-}
-     S_cachedModules.Add(modEntry);
-    end;
+        S_cachedModules.Add(modEntry);
+      end;
       Inc(i, 5);
-      while (i <= linecount) and (cachedModulesList[i] <> '***') do inc(i);
+      while (i <= linecount) and (cachedModulesList[i] <> '***') do
+        inc(i);
       inc(i);
 
     until (i + 5) > linecount;
@@ -4097,21 +4497,29 @@ procedure TMainForm.MainMenuInit(cacheupdate: boolean);
 var
   r: boolean;
 begin
-  Bibles.Clear; Books.Clear; Comments.Clear; CommentsPaths.Clear;  ModulesList.Clear;
+  Bibles.Clear;
+  Books.Clear;
+  Comments.Clear;
+  CommentsPaths.Clear;
+  ModulesList.Clear;
   G_ArchivedModuleList.Clear();
   ModulesCodeList.Create;
-  if cacheupdate then begin
+  if cacheupdate then
+  begin
     S_cachedModules.Clear();
     LoadModules(false);
   end
-  else begin
+  else
+  begin
     r := LoadCachedModules;
-    if r then r := UpdateFromCashed();
+    if r then
+      r := UpdateFromCashed();
     if not r then
-      begin //не удалось загрузить или обновиться
+    begin //не удалось загрузить или обновиться
       LoadModules(false);
     end
-    else S_cachedModules.Clear();
+    else
+      S_cachedModules.Clear();
   end;
   mDefaultLocation := DefaultLocation();
   DicsCount := 0;
@@ -4131,7 +4539,7 @@ begin
     with miLanguage.Items[i] do
       Checked := (WideLowerCase(Caption + '.lng') =
         WideLowerCase(LastLanguageFile));
-        { TODO -oAlekId -cQA : Кажется, вызов MainMenuInit лишний }
+  { TODO -oAlekId -cQA : Кажется, вызов MainMenuInit лишний }
 //  MainMenuInit(false);
 end;
 
@@ -4142,24 +4550,27 @@ var
   wasBible: boolean;
   commentpath: WideString;
 begin
-{  if ModulesList.Count = 0 then Exit;
-  found := false;
-  for i := 0 to ModulesList.Count - 1 do begin
-    if Pos(s + ' $$$', ModulesList[i]) = 1 then begin
-      found := true;
-      break;
+  {  if ModulesList.Count = 0 then Exit;
+    found := false;
+    for i := 0 to ModulesList.Count - 1 do begin
+      if Pos(s + ' $$$', ModulesList[i]) = 1 then begin
+        found := true;
+        break;
+      end;
     end;
-  end;
-  if not found then Exit;}
+    if not found then Exit;}
   i := ModuleIndexByName(s);
-  if i < 0 then exit;
+  if i < 0 then
+    exit;
 
-  if i >= Bibles.Count + Books.Count then commentpath := 'Commentaries\'
-  else commentpath := '';
+  if i >= Bibles.Count + Books.Count then
+    commentpath := 'Commentaries\'
+  else
+    commentpath := '';
   // remember old module's params
   wasBible := MainBook.isBible;
-//  MainBook.InternalToAddress(MainBook.CurBook,MainBook.CurChapter,VersePosition,
-//    book,chapter,fromverse);
+  //  MainBook.InternalToAddress(MainBook.CurBook,MainBook.CurChapter,VersePosition,
+  //    book,chapter,fromverse);
   MainBook.AddressToInternal(MainBook.CurBook, MainBook.CurChapter,
     VersePosition,
     book, chapter, fromverse);
@@ -4167,33 +4578,37 @@ begin
   toverse := 0;
 
   with MainBook do
-    if (CurToVerse - CurFromVerse + 1 < VerseQty) then toverse := CurToVerse;
+    if (CurToVerse - CurFromVerse + 1 < VerseQty) then
+      toverse := CurToVerse;
 
   if toverse > 0 then
-//    MainBook.InternalToAddress(MainBook.CurBook,MainBook.CurChapter,toverse,
-//    book,chapter,toverse);
+    //    MainBook.InternalToAddress(MainBook.CurBook,MainBook.CurChapter,toverse,
+    //    book,chapter,toverse);
     MainBook.AddressToInternal(MainBook.CurBook, MainBook.CurChapter, toverse,
       book, chapter, toverse);
 
   ipos := Pos(' $$$ ', ModulesList[i]);
 
   try
-    if not assigned(__tmpBook) then __tmpBook := TBible.Create(self);
-{    MainBook.IniFile :=}
+    if not assigned(__tmpBook) then
+      __tmpBook := TBible.Create(self);
+    {    MainBook.IniFile :=}
     __tmpBook.IniFile :=
       MainFileExists(Copy(ModulesList[i], ipos + 5, Length(ModulesList[i])) +
       '\bibleqt.ini');
-  except; end;
+  except;
+  end;
 
-  if __tmpBook.isBible and wasBible then begin
+  if __tmpBook.isBible and wasBible then
+  begin
     tb := book; // save old values
     tc := chapter;
-//    MainBook.AddressToInternal(book,chapter,fromverse,book,chapter,fromverse);
+    //    MainBook.AddressToInternal(book,chapter,fromverse,book,chapter,fromverse);
     __tmpBook.InternalToAddress(book, chapter, fromverse, book, chapter,
       fromverse);
 
     if toverse > 0 then
-//    MainBook.AddressToInternal(tb,tc,toverse,tb,tc,toverse);
+      //    MainBook.AddressToInternal(tb,tc,toverse,tb,tc,toverse);
       __tmpBook.InternalToAddress(tb, tc, toverse, tb, tc, toverse);
 
     try
@@ -4202,16 +4617,19 @@ begin
     except
     end;
   end
-  else SafeProcessCommand('go ' + commentpath + __tmpBook.ShortPath + ' 1 1 0');
+  else
+    SafeProcessCommand('go ' + commentpath + __tmpBook.ShortPath + ' 1 1 0');
 end;
 
 procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   MainShiftState := Shift;
-  if (Key=VK_CONTROL) then begin
-    if G_ControlKeyDown then SetBibleTabsHintsState(false);
-    G_ControlKeyDown:=false;
+  if (Key = VK_CONTROL) then
+  begin
+    if G_ControlKeyDown then
+      SetBibleTabsHintsState(false);
+    G_ControlKeyDown := false;
   end;
 end;
 
@@ -4220,18 +4638,21 @@ procedure TMainForm.FirstBrowserKeyDown(Sender: TObject; var Key: Word;
 begin
   BrowserPosition := Browser.Position;
 
-  if (Shift = [ssCtrl]) and (Key = VK_INSERT) then begin
+  if (Shift = [ssCtrl]) and (Key = VK_INSERT) then
+  begin
     Key := 0;
     CopyButtonClick(Sender);
     Exit;
   end;
 
   if ((Key = VK_BACK) and (Shift = []))
-    or ((Key = VK_LEFT) and (Shift = [ssAlt])) then begin
+    or ((Key = VK_LEFT) and (Shift = [ssAlt])) then
+  begin
     Key := 0;
     BackButton.Click;
   end
-  else if ((Key = VK_RIGHT) and (Shift = [ssAlt])) then begin
+  else if ((Key = VK_RIGHT) and (Shift = [ssAlt])) then
+  begin
     Key := 0;
     ForwardButton.Click;
   end;
@@ -4242,35 +4663,41 @@ var
   browserCount, i: Integer;
   viewTabInfo: TViewTabInfo;
 begin
-  with FontDialog1 do begin
+  with FontDialog1 do
+  begin
     Font.Name := mBrowserDefaultFontName;
     Font.Color := Browser.DefFontColor;
     Font.Size := Browser.DefFontSize;
     //Font.Charset := DefaultCharset;
   end;
 
-  if FontDialog1.Execute then begin
+  if FontDialog1.Execute then
+  begin
     browserCount := mViewTabs.PageCount - 1;
-    for I := 0 to browserCount do begin
+    for I := 0 to browserCount do
+    begin
       try
         viewTabInfo := TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
-        with viewTabInfo, viewTabInfo.mHtmlViewer do begin
-          if i <> mViewTabs.ActivePageIndex then ReloadNeeded := true;
+        with viewTabInfo, viewTabInfo.mHtmlViewer do
+        begin
+          if i <> mViewTabs.ActivePageIndex then
+            ReloadNeeded := true;
           DefFontName := FontDialog1.Font.Name;
           mBrowserDefaultFontName := DefFontName;
           DefFontColor := FontDialog1.Font.Color;
           DefFontSize := FontDialog1.Font.Size;
         end //with
-      except end;
+      except
+      end;
     end;
-{
-    SearchBrowser.DefFontColor := FontDialog1.Font.Color;
-    DicBrowser.DefFontColor := FontDialog1.Font.Color;
-    StrongBrowser.DefFontColor := FontDialog1.Font.Color;
-    CommentsBrowser.DefFontColor := FontDialog1.Font.Color;
-    XrefBrowser.DefFontColor := FontDialog1.Font.Color;
-}
-//    DefaultCharset := FontDialog1.Font.Charset;
+    {
+        SearchBrowser.DefFontColor := FontDialog1.Font.Color;
+        DicBrowser.DefFontColor := FontDialog1.Font.Color;
+        StrongBrowser.DefFontColor := FontDialog1.Font.Color;
+        CommentsBrowser.DefFontColor := FontDialog1.Font.Color;
+        XrefBrowser.DefFontColor := FontDialog1.Font.Color;
+    }
+    //    DefaultCharset := FontDialog1.Font.Charset;
 
     ProcessCommand(History[HistoryLB.ItemIndex]);
   end;
@@ -4293,35 +4720,44 @@ begin
   Browser.DefBackground := ChooseColor(Browser.DefBackground);
   Browser.Refresh;
   browserCount := mViewTabs.PageCount - 1;
-  for I := 0 to browserCount do begin
+  for I := 0 to browserCount do
+  begin
     try
       viewTabInfo := TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
-      with viewTabInfo, viewTabInfo.mHtmlViewer do begin
-        if i <> mViewTabs.ActivePageIndex then begin
+      with viewTabInfo, viewTabInfo.mHtmlViewer do
+      begin
+        if i <> mViewTabs.ActivePageIndex then
+        begin
           DefBackground := Browser.DefBackground;
           Refresh();
         end;
       end //with
-    except end;
+    except
+    end;
   end;
 
-  with SearchBrowser do begin
+  with SearchBrowser do
+  begin
     DefBackground := Browser.DefBackground;
     Refresh;
   end;
-  with DicBrowser do begin
+  with DicBrowser do
+  begin
     DefBackground := Browser.DefBackground;
     Refresh;
   end;
-  with StrongBrowser do begin
+  with StrongBrowser do
+  begin
     DefBackground := Browser.DefBackground;
     Refresh;
   end;
-  with CommentsBrowser do begin
+  with CommentsBrowser do
+  begin
     DefBackground := Browser.DefBackground;
     Refresh;
   end;
-  with XrefBrowser do begin
+  with XrefBrowser do
+  begin
     DefBackground := Browser.DefBackground;
     Refresh;
   end;
@@ -4333,41 +4769,51 @@ var
   viewTabInfo: TViewTabInfo;
 
 begin
-  with Browser do begin
+  with Browser do
+  begin
     DefHotSpotColor := ChooseColor(DefHotSpotColor);
-//    Browser.Repaint();//AlekId: увы, недостаточно
+    //    Browser.Repaint();//AlekId: увы, недостаточно
   end;
   ProcessCommand(History[HistoryLB.ItemIndex]);
   browserCount := mViewTabs.PageCount - 1;
-  for I := 0 to browserCount do begin
+  for I := 0 to browserCount do
+  begin
     try
       viewTabInfo := TObject(mViewTabs.Pages[i].Tag) as TViewTabInfo;
-      with viewTabInfo, viewTabInfo.mHtmlViewer do begin
-        if i <> mViewTabs.ActivePageIndex then begin
+      with viewTabInfo, viewTabInfo.mHtmlViewer do
+      begin
+        if i <> mViewTabs.ActivePageIndex then
+        begin
           DefHotSpotColor := Browser.DefHotSpotColor;
           ReloadNeeded := true;
         end;
       end //with
-    except end;
+    except
+    end;
   end;
 
-  with SearchBrowser do begin
+  with SearchBrowser do
+  begin
     DefHotSpotColor := Browser.DefHotSpotColor;
     Refresh;
   end;
-  with DicBrowser do begin
+  with DicBrowser do
+  begin
     DefHotSpotColor := Browser.DefHotSpotColor;
     Refresh;
   end;
-  with StrongBrowser do begin
+  with StrongBrowser do
+  begin
     DefHotSpotColor := Browser.DefHotSpotColor;
     Refresh;
   end;
-  with CommentsBrowser do begin
+  with CommentsBrowser do
+  begin
     DefHotSpotColor := Browser.DefHotSpotColor;
     Refresh;
   end;
-  with XrefBrowser do begin
+  with XrefBrowser do
+  begin
     DefHotSpotColor := Browser.DefHotSpotColor;
     Refresh;
   end;
@@ -4377,7 +4823,8 @@ procedure TMainForm.miFoundTextConfigClick(Sender: TObject);
 begin
   ColorDialog1.Color := Hex2Color(SelTextColor);
 
-  if ColorDialog1.Execute then begin
+  if ColorDialog1.Execute then
+  begin
     SelTextColor := Color2Hex(ColorDialog1.Color);
     ProcessCommand(History[HistoryLB.ItemIndex]);
   end;
@@ -4390,34 +4837,41 @@ var
 begin
   Result := '';
 
-  for i := fromverse to toverse do begin
+  for i := fromverse to toverse do
+  begin
     s := MainBook.Lines[i - 1];
     StrDeleteFirstNumber(s);
 
     if MainBook.StrongNumbers and (not StrongNumbersOn) then
       s := DeleteStrongNumbers(s);
 
-    if CopyOptionsCopyVerseNumbersChecked then begin
+    if CopyOptionsCopyVerseNumbersChecked then
+    begin
       if CopyOptionsAddReferenceChecked and
-        (CopyOptionsAddReferenceRadioItemIndex = 0) then begin
+        (CopyOptionsAddReferenceRadioItemIndex = 0) then
+      begin
         with MainBook do
           s := ShortPassageSignature(CurBook, CurChapter, i, i) + ' ' + s;
 
         if CopyOptionsAddModuleNameChecked then
           s := MainBook.ShortName + ' ' + s;
-      end else
+      end
+      else
         s := IntToStr(i) + ' ' + s;
     end;
 
-    if CopyOptionsAddLineBreaksChecked then begin
+    if CopyOptionsAddLineBreaksChecked then
+    begin
       s := s + #13#10;
       Result := Result + s;
-    end else
+    end
+    else
       Result := Result + ' ' + s;
   end;
 
   if CopyOptionsAddReferenceChecked and (CopyOptionsAddReferenceRadioItemIndex >
-    0) then begin
+    0) then
+  begin
     if not CopyOptionsAddLineBreaksChecked then
       Result := Result + ' ('
     else
@@ -4458,33 +4912,35 @@ var
   s, scap: WideString;
   i: integer;
 
-//  dMessage: WideString;
-//  dSrcPos: Integer;
-//  dPrevText: WideString;
+  //  dMessage: WideString;
+  //  dSrcPos: Integer;
+  //  dPrevText: WideString;
 
 begin
-  if Browser.Tag <> bsText then begin
+  if Browser.Tag <> bsText then
+  begin
     miCopyPassage.Enabled := false;
     miCopyVerse.Enabled := false;
     Exit;
   end
-  else begin
+  else
+  begin
     miCopyPassage.Enabled := true;
     miCopyVerse.Enabled := true;
   end;
 
-{  dSrcPos := Browser.FindSourcePos (Browser.RightMouseClickPos);
-  if dSrcPos > 500 then
-    dPrevText := Copy (BrowserSource, dSrcPos - 500, 500)
-  else
-    dPrevText := Copy (BrowserSource, 1, dSrcPos);
+  {  dSrcPos := Browser.FindSourcePos (Browser.RightMouseClickPos);
+    if dSrcPos > 500 then
+      dPrevText := Copy (BrowserSource, dSrcPos - 500, 500)
+    else
+      dPrevText := Copy (BrowserSource, 1, dSrcPos);
 
-  dMessage := IntToStr (Browser.RightMouseClickPos) + ', ' +
-    IntToStr (dSrcPos) + #13 +
-    dPrevText + '|' + #13 +
-    Copy (BrowserSource, dSrcPos+1, 500);
+    dMessage := IntToStr (Browser.RightMouseClickPos) + ', ' +
+      IntToStr (dSrcPos) + #13 +
+      dPrevText + '|' + #13 +
+      Copy (BrowserSource, dSrcPos+1, 500);
 
-  WStrMessageBox (dMessage);}
+    WStrMessageBox (dMessage);}
 
   CurVerseNumber := Get_ANAME_VerseNumber(
     Browser.DocumentSourceUtf16,
@@ -4504,7 +4960,8 @@ begin
     Browser.FindSourcePos(Browser.SelStart + Browser.SelLength)
     );
 
-  if CurSelStart > CurSelEnd then begin
+  if CurSelStart > CurSelEnd then
+  begin
     i := CurSelStart;
     CurSelStart := CurSelEnd;
     CurSelEnd := i;
@@ -4512,11 +4969,14 @@ begin
 
   miCopyPassage.Enabled := (CurSelStart < CurSelEnd);
 
-  if CurVerseNumber = 0 then begin
+  if CurVerseNumber = 0 then
+  begin
     miCompare.Enabled := false;
     miCopyVerse.Enabled := false;
   end
-  else with MainBook do begin
+  else
+    with MainBook do
+    begin
       if miCopyPassage.Enabled then
         miCopyPassage.Caption :=
           WideFormat('%s  "%s"', [FirstWord(miCopyVerse.Caption),
@@ -4542,22 +5002,23 @@ begin
         WideFormat('%s  "%s"', [s,
         FullPassageSignature(CurBook, CurChapter, CurVerseNumber,
           CurVerseNumber)]);
-{
-    scap := miGoBack.Caption;
-    s := DeleteFirstWord(scap);
-    s := s + ' ' + FirstWord(scap);
+      {
+          scap := miGoBack.Caption;
+          s := DeleteFirstWord(scap);
+          s := s + ' ' + FirstWord(scap);
 
-    miGoBack.Enabled := History.Count > 1;
+          miGoBack.Enabled := History.Count > 1;
 
-    if miGoBack.Enabled then
-      miGoBack.Caption := s + ' ' + Comment(History[History.Count-2]);
-}
+          if miGoBack.Enabled then
+            miGoBack.Caption := s + ' ' + Comment(History[History.Count-2]);
+      }
     end;
 end;
 
 procedure TMainForm.miXrefClick(Sender: TObject);
 begin
-  if not MainPages.Visible then ToggleButton.Click;
+  if not MainPages.Visible then
+    ToggleButton.Click;
 
   XrefTab.Tag := 1;
   MainPages.ActivePage := XrefTab;
@@ -4570,8 +5031,10 @@ var
 begin
   result := -1;
   modulecount := ModulesList.Count - 1;
-  for i := 0 to modulecount do begin
-    if Pos(awsModule + ' $$$', ModulesList[i]) = 1 then begin
+  for i := 0 to modulecount do
+  begin
+    if Pos(awsModule + ' $$$', ModulesList[i]) = 1 then
+    begin
       result := i;
       break;
     end;
@@ -4586,27 +5049,30 @@ var
   s, snew: WideString;
   verse, tmpverse,
     book, chapter, fromverse, toverse,
-//  rb,rc,rv,
+    //  rb,rc,rv,
   i, j: integer;
   RefLines: WideString;
   RefText: WideString;
   Links: TWideStrings;
   slink: WideString;
-//  was0: boolean;
+  //  was0: boolean;
   diff: integer;
 begin
-  if Bibles.IndexOf(MainBook.Name) = -1 then Exit;
-  if not MainPages.Visible then Exit;
+  if Bibles.IndexOf(MainBook.Name) = -1 then
+    Exit;
+  if not MainPages.Visible then
+    Exit;
   if MainPages.ActivePage <> XrefTab then
     MainPages.ActivePage := XrefTab;
 
-  if XrefTab.Tag = 0 then XrefTab.Tag := 1;
+  if XrefTab.Tag = 0 then
+    XrefTab.Tag := 1;
 
   RefLines := '';
   Links := TWideStringList.Create;
 
-//  with MainBook do
-//    RefLines.Add('<font size=-1>');
+  //  with MainBook do
+  //    RefLines.Add('<font size=-1>');
 
   SecondBook.IniFile := MainBook.IniFile;
 
@@ -4614,8 +5080,10 @@ begin
     book, chapter, verse);
   s := IntToStr(book);
 
-  if Length(s) = 1 then s := '0' + s;
-  if FindFirst(ExePath + 'TSK\' + s + '_*.ini', faAnyFile, TF) <> 0 then Exit;
+  if Length(s) = 1 then
+    s := '0' + s;
+  if FindFirst(ExePath + 'TSK\' + s + '_*.ini', faAnyFile, TF) <> 0 then
+    Exit;
 
   TI := TMultiLanguage.Create(nil);
   TI.Inifile := ExePath + 'TSK\' + TF.Name;
@@ -4624,7 +5092,8 @@ begin
 
   tmpverse := XrefTab.Tag;
 
-  if tmpverse > SecondBook.Lines.Count then tmpverse := SecondBook.Lines.Count;
+  if tmpverse > SecondBook.Lines.Count then
+    tmpverse := SecondBook.Lines.Count;
   s := SecondBook.Lines[tmpverse - 1];
   StrDeleteFirstNumber(s);
   s := DeleteStrongNumbers(s);
@@ -4639,14 +5108,17 @@ begin
   slink := TI.ReadString(IntToStr(chapter), IntToStr(verse), '');
   if slink = '' then
     AddLine(RefLines, RefText + '<b>.............</b>')
-    //RefLines.Add(RefText + '<hr>')
-  else begin
+      //RefLines.Add(RefText + '<hr>')
+  else
+  begin
     StrToLinks(slink, Links);
 
     // get xrefs
-    for i := 0 to Links.Count - 1 do begin
+    for i := 0 to Links.Count - 1 do
+    begin
       if not SecondBook.OpenTSKAddress(Links[i], book, chapter, fromverse,
-        toverse) then continue;
+        toverse) then
+        continue;
 
       diff := toverse - fromverse;
       SecondBook.ENG2RUS(book, chapter, fromverse, book, chapter, fromverse);
@@ -4657,7 +5129,8 @@ begin
 
       toverse := fromverse + diff;
 
-      if fromverse = 0 then fromverse := 1;
+      if fromverse = 0 then
+        fromverse := 1;
       if toverse < fromverse then
         toverse := fromverse; // if one verse
 
@@ -4667,12 +5140,14 @@ begin
         continue;
       end;
 
-      if fromverse > SecondBook.Lines.Count then continue;
+      if fromverse > SecondBook.Lines.Count then
+        continue;
       if toverse > SecondBook.Lines.Count then
         toverse := SecondBook.Lines.Count;
 
       s := '';
-      for j := fromverse to toverse do begin
+      for j := fromverse to toverse do
+      begin
         snew := SecondBook.Lines[j - 1];
         s := s + ' ' + StrDeleteFirstNumber(snew);
         snew := DeleteStrongNumbers(snew);
@@ -4711,7 +5186,7 @@ begin
 
   AddLine(RefLines, '</font><br><br>');
 
-//  XrefBrowser.CharSet := MainBook.FontCharset;
+  //  XrefBrowser.CharSet := MainBook.FontCharset;
   XRefBrowser.DefFontName := Browser.DefFontName;
   XRefBrowser.LoadFromString(RefLines);
 
@@ -4809,24 +5284,27 @@ var
   fname3, fname2: WideString;
   find: string;
 begin
-{
-  find := '';
-  for chapter := 1 to 150 do
-  find := find + IntToStr(MainBook.CountVerses(19, chapter)) + ', ';
-  BrowserSource.Text := find;
-  Browser.LoadStrings(BrowserSource);
-  Exit;
-}
-  if not MainBook.isBible then Exit;
+  {
+    find := '';
+    for chapter := 1 to 150 do
+    find := find + IntToStr(MainBook.CountVerses(19, chapter)) + ', ';
+    BrowserSource.Text := find;
+    Browser.LoadStrings(BrowserSource);
+    Exit;
+  }
+  if not MainBook.isBible then
+    Exit;
 
   MainBook.InternalToAddress(MainBook.CurBook, MainBook.CurChapter, 1, book,
     chapter, verse);
 
-  if MainBook.SoundDirectory = '' then begin // 3 digits
+  if MainBook.SoundDirectory = '' then
+  begin // 3 digits
     fname3 := WideFormat('Sounds\%.2d\%.3d', [book, chapter]);
     fname2 := WideFormat('Sounds\%.2d\%.2d', [book, chapter]);
   end
-  else begin // 2 digits
+  else
+  begin // 2 digits
     fname3 := WideFormat('%s\%.2d\%.3d', [MainBook.SoundDirectory, book,
       chapter]);
     fname2 := WideFormat('%s\%.2d\%.2d', [MainBook.SoundDirectory, book,
@@ -4834,16 +5312,21 @@ begin
   end;
 
   find := MainFileExists(fname3 + '.wav');
-  if find = '' then find := MainFileExists(fname3 + '.mp3');
-  if find = '' then find := MainFileExists(fname2 + '.wav');
-  if find = '' then find := MainFileExists(fname2 + '.mp3');
+  if find = '' then
+    find := MainFileExists(fname3 + '.mp3');
+  if find = '' then
+    find := MainFileExists(fname2 + '.wav');
+  if find = '' then
+    find := MainFileExists(fname2 + '.mp3');
 
-  if find = '' then begin
+  if find = '' then
+  begin
     WideShowMessage(WideFormat(Lang.Say('SoundNotFound'),
       [Browser.DocumentTitle]));
     Exit;
   end
-  else begin
+  else
+  begin
     ShellExecute(Application.Handle, nil, PChar(find), nil, nil, SW_MINIMIZE);
     //ActiveControl := Browser;
   end;
@@ -4853,8 +5336,8 @@ procedure TMainForm.miHotkeyClick(Sender: TObject);
 begin
   ConfigForm.PageControl1.ActivePageIndex := 1;
   ShowConfigDialog;
-//ShowMessage('Просто перетащите корешок закладки той страницы,'
-//+#13#10' на которой отображается нужный модуль на закладку панели Любимых Модулей');
+  //ShowMessage('Просто перетащите корешок закладки той страницы,'
+  //+#13#10' на которой отображается нужный модуль на закладку панели Любимых Модулей');
 end;
 
 { TODO -oAlekId -cQA : проверить зачем закомментирована функция }{
@@ -4888,10 +5371,12 @@ end;
 
 procedure TMainForm.miDeteleBibleTabClick(Sender: TObject);
 begin
-  if miDeteleBibleTab.Tag < 0 then exit;
+  if miDeteleBibleTab.Tag < 0 then
+    exit;
   try
     DeleteHotModule(miDeteleBibleTab.Tag);
-  except end;
+  except
+  end;
 end;
 (*AlekId:/добавлено*)
 
@@ -4900,14 +5385,16 @@ var
   fnt: TFont;
   h: integer;
 begin
-  with FontDialog1 do begin
+  with FontDialog1 do
+  begin
     Font.Name := MainForm.Font.Name;
     Font.Size := MainForm.Font.Size;
     Font.Charset := MainForm.Font.Charset;
   end;
 
   if FontDialog1.Execute then
-    with MainForm do begin
+    with MainForm do
+    begin
       fnt := TFont.Create;
       fnt.Name := FontDialog1.Font.Name;
       fnt.Charset := FontDialog1.Font.Charset;
@@ -4915,15 +5402,15 @@ begin
 
       Font := fnt;
       mBibleTabsEx.Font.Assign(fnt);
-      h := fnt.Height; if h < 0 then h := -h;
+      h := fnt.Height;
+      if h < 0 then
+        h := -h;
       mBibleTabsEx.Height := h + 13;
       fnt.Free;
       Update;
       lbTitleLabel.Font.Assign(fnt);
       lbCopyRightNotice.Font.Assign(fnt);
     end;
-
-
 
 end;
 
@@ -4990,7 +5477,8 @@ begin
   SearchLabel.Caption :=
     WideFormat('[%d] %s', [NumVersesFound, MainBook.FullNames[book]]);
 
-  if s <> '' then begin
+  if s <> '' then
+  begin
     s := ParseHTML(s, '');
     if MainBook.StrongNumbers and (not StrongNumbersOn) then
       s := DeleteStrongNumbers(s);
@@ -5035,28 +5523,34 @@ procedure TMainForm.FirstBrowserMouseDouble(Sender: TObject;
 var
   num, code: integer;
 begin
-  if not mDictionariesFullyInitialized then begin
+  if not mDictionariesFullyInitialized then
+  begin
     LoadDictionaries(MaxInt);
   end;
 
   Val(Trim(Browser.SelText), num, code);
-  if code = 0 then begin
+  if code = 0 then
+  begin
     DisplayStrongs(num, (MainBook.CurBook < 40) and (MainBook.HasOldTestament));
-  end else begin
+  end
+  else
+  begin
     DisplayDictionary(Trim(Browser.SelText));
   end;
 
-  if not MainPages.Visible then ToggleButton.Click;
+  if not MainPages.Visible then
+    ToggleButton.Click;
 end;
 
 procedure TMainForm.DisplayDictionary(s: WideString);
 var
   res: WideString;
-//  Key: Word;
-//  KeyChar: Char;
+  //  Key: Word;
+  //  KeyChar: Char;
   i, j: integer;
 begin
-  if Trim(s) = '' then Exit;
+  if Trim(s) = '' then
+    Exit;
 
   if DicEdit.Items.IndexOf(s) = -1 then
     DicEdit.Items.Insert(0, s);
@@ -5072,7 +5566,8 @@ begin
 
   j := 0;
 
-  for i := 0 to DicsCount - 1 do begin
+  for i := 0 to DicsCount - 1 do
+  begin
     res := Dics[i].Lookup(DicLB.Items[DicLB.ItemIndex]);
     if res <> '' then
       DicCB.Items.Add(Dics[i].Name);
@@ -5081,7 +5576,8 @@ begin
       j := DicCB.Items.Count - 1;
   end;
 
-  if DicCB.Items.Count > 0 then DicCB.ItemIndex := j;
+  if DicCB.Items.Count > 0 then
+    DicCB.ItemIndex := j;
   DicCB.Items.EndUpdate;
 
   //DicCB.Enabled := not (DicCB.Items.Count = 1);
@@ -5096,22 +5592,22 @@ begin
 
   if DicCB.Items.Count > 0 then
     DicCBChange(Self) // invoke showing first dictionary result
-{
-  else
-  begin
-    repeat
-      DicEditKeyUp(nil, Key, []);
-      if (DicEdit.Text <> '') and
-      (WideLowerCase(DicEdit.Text) <> WideLowerCase(DicLB.Items[0])) and
-      (DicLB.ItemIndex = 0) then
-        DicEdit.Text := Copy(DicEdit.Text,1,Length(DicEdit.Text)-1);
-    until (DicEdit.Text = '') or (DicLB.ItemIndex <> 0);
+    {
+      else
+      begin
+        repeat
+          DicEditKeyUp(nil, Key, []);
+          if (DicEdit.Text <> '') and
+          (WideLowerCase(DicEdit.Text) <> WideLowerCase(DicLB.Items[0])) and
+          (DicLB.ItemIndex = 0) then
+            DicEdit.Text := Copy(DicEdit.Text,1,Length(DicEdit.Text)-1);
+        until (DicEdit.Text = '') or (DicLB.ItemIndex <> 0);
 
-    //ActiveControl := DicEdit;
-    KeyChar := #13;
-    DicEditKeyPress(nil, KeyChar);
-  end;
-}
+        //ActiveControl := DicEdit;
+        KeyChar := #13;
+        DicEditKeyPress(nil, KeyChar);
+      end;
+    }
 end;
 
 procedure TMainForm.DisplayStrongs(num: integer; hebrew: boolean);
@@ -5122,15 +5618,18 @@ begin
   //if num = 0 then Exit;
 
   s := IntToStr(num);
-  for i := Length(s) to 4 do s := '0' + s;
+  for i := Length(s) to 4 do
+    s := '0' + s;
 
   if ((MainBook.StrongsDirectory = '') and (StrongsDir <> 'Strongs'))
     or ((MainBook.StrongsDirectory <> '') and (StrongsDir <>
-    MainBook.StrongsDirectory)) then begin
+    MainBook.StrongsDirectory)) then
+  begin
     // re-initialize Strongs ....
 
     StrongsDir := MainBook.StrongsDirectory;
-    if StrongsDir = '' then StrongsDir := 'Strongs';
+    if StrongsDir = '' then
+      StrongsDir := 'Strongs';
 
     if not (StrongHebrew.Initialize(ExePath + StrongsDir + '\hebrew.idx',
       ExePath + StrongsDir + '\hebrew.htm')) then
@@ -5141,28 +5640,33 @@ begin
       WideShowMessage('Error in' + ExePath + StrongsDir + '\greek.*');
   end;
 
-  if hebrew or (num = 0) then begin
+  if hebrew or (num = 0) then
+  begin
     res := StrongHebrew.Lookup(s);
     copyright := StrongHebrew.Name;
   end
-  else begin
+  else
+  begin
     res := StrongGreek.Lookup(s);
     copyright := StrongGreek.Name;
   end;
 
   MainPages.ActivePage := StrongTab;
 
-  if res <> '' then begin
+  if res <> '' then
+  begin
     res := FormatStrongNumbers(res, false, false);
 
     AddLine(res, '<p><font size=-1>' + copyright + '</font>');
     StrongBrowser.LoadFromString(res);
 
     s := IntToStr(num);
-    if hebrew then s := '0' + s;
+    if hebrew then
+      s := '0' + s;
 
     i := StrongLB.Items.IndexOf(s);
-    if i = -1 then begin
+    if i = -1 then
+    begin
       StrongLB.Items.Add(s);
       StrongLB.ItemIndex := StrongLB.Items.Count - 1;
     end
@@ -5177,19 +5681,23 @@ procedure TMainForm.FirstBrowserKeyUp(Sender: TObject; var Key: Word;
 var
   oxt, oct: integer;
 begin
-  if Copy(History[0], 1, 4) = 'file' then Exit;
+  if Copy(History[0], 1, 4) = 'file' then
+    Exit;
 
   if (Key = VK_NEXT) and (Browser.Position = BrowserPosition) then
     GoNextChapter;
 
-  if (Key = VK_PRIOR) and (Browser.Position = BrowserPosition) then begin
+  if (Key = VK_PRIOR) and (Browser.Position = BrowserPosition) then
+  begin
     GoPrevChapter;
     if (MainBook.CurBook <> 1) or (MainBook.CurChapter <> 1) then
       Browser.PositionTo('endofchapterNMFHJAHSTDGF123');
   end;
 
-  if Key = VK_LEFT then BackButton.Click;
-  if Key = VK_RIGHT then ForwardButton.Click;
+  if Key = VK_LEFT then
+    BackButton.Click;
+  if Key = VK_RIGHT then
+    ForwardButton.Click;
 
   Browser.AcceptClick(Sender, Browser.Width div 2, 10);
 
@@ -5201,7 +5709,8 @@ begin
     Browser.FindSourcePos(Browser.CaretPos)
     );
   CommentsTab.Tag := XrefTab.Tag;
-  if (MainPages.ActivePage = XrefTab) and (oxt <> XrefTab.Tag) then ShowXref;
+  if (MainPages.ActivePage = XrefTab) and (oxt <> XrefTab.Tag) then
+    ShowXref;
   if (MainPages.ActivePage = CommentsTab) and (oct <> CommentsTab.Tag) then
     ShowComments;
 end;
@@ -5223,12 +5732,13 @@ begin
   ProcessCommand(s);
   //ComplexLinksPanel.Visible := false;
   {LinksCB.Visible := false;}
-  tbLinksToolBar.Visible:=false;
+  tbLinksToolBar.Visible := false;
 end;
 
 procedure TMainForm.miStrongClick(Sender: TObject);
 begin
-  if not MainBook.StrongNumbers then Exit;
+  if not MainBook.StrongNumbers then
+    Exit;
 
   StrongNumbersOn := not StrongNumbersOn;
   miStrong.Checked := StrongNumbersOn;
@@ -5241,13 +5751,16 @@ end;
 
 procedure TMainForm.ConvertClipboard;
 begin
-  if not CopyOptionsCopyFontParamsChecked then Exit;
+  if not CopyOptionsCopyFontParamsChecked then
+    Exit;
 
   TRE.SelectAll;
   TRE.ClearSelection;
 
-  if MainBook.FontName <> '' then TRE.Font.Name := MainBook.FontName
-  else TRE.Font.Name := Browser.DefFontName;
+  if MainBook.FontName <> '' then
+    TRE.Font.Name := MainBook.FontName
+  else
+    TRE.Font.Name := Browser.DefFontName;
 
   TRE.Font.Size := Browser.DefFontSize;
   TRE.Lines.Add(TntClipboard.AsText);
@@ -5264,7 +5777,8 @@ var
   dSource: WideString;
 begin
   if (SearchPageSize * (page - 1) > SearchResults.Count) or (SearchResults.Count
-    = 0) then begin
+    = 0) then
+  begin
     Screen.Cursor := crDefault;
     Exit;
   end;
@@ -5281,16 +5795,18 @@ begin
       );
 
   limit := SearchResults.Count div SearchPageSize + 1;
-  if SearchPageSize * (limit - 1) = SearchResults.Count then limit := limit - 1;
-{
-  if page > 2 then s := s + Format('<a href="%d">-200</a>', [page-2]);
-  if page > 1 then s := s + Format('<a href="%d">-100</a>', [page-1]);
-  if page < limit-1 then s := s + Format('<a href="%d">+100</a>', [page+1]);
-  if page < limit then s := s + Format('<a href="%d">+200</a>', [page+2]);
-}
+  if SearchPageSize * (limit - 1) = SearchResults.Count then
+    limit := limit - 1;
+  {
+    if page > 2 then s := s + Format('<a href="%d">-200</a>', [page-2]);
+    if page > 1 then s := s + Format('<a href="%d">-100</a>', [page-1]);
+    if page < limit-1 then s := s + Format('<a href="%d">+100</a>', [page+1]);
+    if page < limit then s := s + Format('<a href="%d">+200</a>', [page+2]);
+  }
 
   s := '';
-  for i := 1 to limit - 1 do begin
+  for i := 1 to limit - 1 do
+  begin
     if i <> page then
       s := s + WideFormat('<a href="%d">%d-%d</a> ', [i, SearchPageSize * (i - 1)
         + 1, SearchPageSize * i])
@@ -5309,7 +5825,8 @@ begin
   //SearchBrowserSource.Add(s + '<p>');
 
   limit := SearchPageSize * page - 1;
-  if limit >= SearchResults.Count then limit := SearchResults.Count - 1;
+  if limit >= SearchResults.Count then
+    limit := SearchResults.Count - 1;
 
   for i := SearchPageSize * (page - 1) to limit do
     AddLine(dSource, '<font size=-1>' + IntToStr(i + 1) + '.</font> ' +
@@ -5349,7 +5866,8 @@ end;
 
 procedure TMainForm.miSearchWordClick(Sender: TObject);
 begin
-  if Browser.SelLength = 0 then Exit;
+  if Browser.SelLength = 0 then
+    Exit;
 
   IsSearching := false;
   SearchCB.Text := Trim(Browser.SelText);
@@ -5365,13 +5883,15 @@ var
   s: WideString;
   dBrowserSource: WideString;
 begin
-  if not MainBook.isBible then Exit;
+  if not MainBook.isBible then
+    Exit;
 
   dBrowserSource := '<font size=+1><table>';
 
   s := MainBook.Lines[CurVerseNumber - 1];
   StrDeleteFirstNumber(s);
-  if not StrongNumbersOn then s := DeleteStrongNumbers(s);
+  if not StrongNumbersOn then
+    s := DeleteStrongNumbers(s);
 
   AddLine(dBrowserSource,
     WideFormat(
@@ -5394,27 +5914,34 @@ begin
     '<tr><td></td><td><hr width=100%></td></tr>'
     );
 
-  for imenu := 0 to Bibles.Count - 1 do begin
+  for imenu := 0 to Bibles.Count - 1 do
+  begin
     found := false;
-    for i := 0 to ModulesList.Count - 1 do begin
-      if Pos(Bibles[imenu] + ' $$$', ModulesList[i]) = 1 then begin
+    for i := 0 to ModulesList.Count - 1 do
+    begin
+      if Pos(Bibles[imenu] + ' $$$', ModulesList[i]) = 1 then
+      begin
         found := true;
         break;
       end;
     end;
-    if found then begin
+    if found then
+    begin
       if ExePath + Comment(ModulesList[i]) + '\bibleqt.ini' = MainBook.IniFile
-        then Continue;
+        then
+        Continue;
 
       SecondBook.IniFile := ExePath + Comment(ModulesList[i]) + '\bibleqt.ini';
 
       // don't display New Testament mixed with Old Testament...
 
       if (MainBook.CurBook < 40) and (MainBook.HasOldTestament) and (not
-        SecondBook.HasOldTestament) then Continue;
+        SecondBook.HasOldTestament) then
+        Continue;
 
       if (MainBook.CurBook > 39) and (MainBook.HasNewTestament) and (not
-        SecondBook.HasNewTestament) then Continue;
+        SecondBook.HasNewTestament) then
+        Continue;
 
       with MainBook do
         AddressToInternal(CurBook, CurChapter, CurVerseNumber, book, chapter,
@@ -5428,12 +5955,14 @@ begin
         continue;
       end;
 
-      if iv > SecondBook.Lines.Count then continue;
+      if iv > SecondBook.Lines.Count then
+        continue;
 
       s := SecondBook.Lines[iv - 1];
       StrDeleteFirstNumber(s);
 
-      if not StrongNumbersOn then s := DeleteStrongNumbers(s);
+      if not StrongNumbersOn then
+        s := DeleteStrongNumbers(s);
 
       AddLine(dBrowserSource,
         WideFormat(
@@ -5463,7 +5992,8 @@ procedure TMainForm.FormShow(Sender: TObject);
 var
   i: integer;
 begin
-  if MainFormInitialized then Exit; // run only once...
+  if MainFormInitialized then
+    Exit; // run only once...
   MainFormInitialized := true;
 
   //SearchBoxPanel.Height := CBAll.Top; // hide search options
@@ -5495,21 +6025,25 @@ begin
     Lang.Say('CopyOptionsAddReference_ShortAtEnd');
   ConfigForm.AddReferenceRadio.Items[2] :=
     Lang.Say('CopyOptionsAddReference_FullAtEnd');
-//  InitHotModulesConfigPage(true);
+  //  InitHotModulesConfigPage(true);
   Splitter1Moved(Sender);
   Splitter2Moved(Sender);
 
   if SatelliteBible = '' then
     //SatelliteMenuItemClick(SatelliteMenu.Items[0])
-  else begin
+  else
+  begin
     for i := 1 to SatelliteMenu.Items.Count - 1 do
-      if SatelliteMenu.Items[i].Caption = SatelliteBible then begin
-      //SatelliteMenu.Items[i].Checked := true;
+      if SatelliteMenu.Items[i].Caption = SatelliteBible then
+      begin
+        //SatelliteMenu.Items[i].Checked := true;
         SatelliteMenuItemClick(SatelliteMenu.Items[i]);
       end;
   end;
   try
-  ActiveControl := Browser; except end;
+    ActiveControl := Browser;
+  except
+  end;
 
 end;
 
@@ -5535,13 +6069,16 @@ begin
   if ModulesList.Count = 0 then
     raise
       Exception.Create('Не найдено ни одного модуля!');
-  for i := 0 to 9 do begin
+  for i := 0 to 9 do
+  begin
     ix := -1;
-{ TODO -oAlekId -cport : нужен fix следующей строки }
-//ix:=ModuleIndexByName( HotMenuitems[i].Caption);
-    if ix >= 0 then break;
+    { TODO -oAlekId -cport : нужен fix следующей строки }
+    //ix:=ModuleIndexByName( HotMenuitems[i].Caption);
+    if ix >= 0 then
+      break;
   end;
-  if ix < 0 then ix := 0;
+  if ix < 0 then
+    ix := 0;
   i := Pos(' $$$ ', ModulesList[ix]);
   result := Copy(ModulesList[ix], i + 5, Length(ModulesList[ix]));
 end;
@@ -5553,13 +6090,15 @@ begin
   try
     hotMenuItem := mBibleTabsEx.WideTabs.Objects[moduleTabIx] as TTntMenuItem;
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    if not Assigned(favouriteMenuItem) then exit;
+    if not Assigned(favouriteMenuItem) then
+      exit;
     favouriteMenuItem.Remove(hotMenuItem);
     mBibleTabsEx.WideTabs.Delete(moduleTabIx);
     hotMenuItem.Free();
     AdjustBibleTabs(MainBook.ShortName);
     SetFavouritesShortcuts();
-  except {} end;
+  except {}
+  end;
 end;
 
 procedure TMainForm.DicBrowserHotSpotClick(Sender: TObject;
@@ -5610,10 +6149,11 @@ end;
 
 procedure TMainForm.DicEditKeyPress(Sender: TObject; var Key: Char);
 begin
-  if Key = #13 then begin
+  if Key = #13 then
+  begin
     Key := #0;
-//    if (Length(DicEdit.Text) > 0) and (DicLB.ItemIndex > -1) then
-//      DisplayDictionary(DicLB.Items[DicLB.ItemIndex]);
+    //    if (Length(DicEdit.Text) > 0) and (DicLB.ItemIndex > -1) then
+    //      DisplayDictionary(DicLB.Items[DicLB.ItemIndex]);
     DisplayDictionary(DicEdit.Text);
   end;
 end;
@@ -5622,7 +6162,8 @@ procedure TMainForm.StrongEditKeyPress(Sender: TObject; var Key: Char);
 var
   num, code: integer;
 begin
-  if Key = #13 then begin
+  if Key = #13 then
+  begin
     Key := #0;
 
     Val(Trim(StrongEdit.Text), num, code);
@@ -5643,18 +6184,22 @@ begin
 end;
 
 function TMainForm.TabInfoFromBrowser(browser: THTMLViewer): TViewTabInfo;
-var pageCount,i:integer;
-    vti:TViewTabInfo;
+var
+  pageCount, i: integer;
+  vti: TViewTabInfo;
 begin
-result:=nil;
-pageCount:= mViewTabs.PageCount-1;
-for i:=0 to pageCount do
-try
- vti:=TObject(mViewTabs.ActivePage.Tag) as TViewTabInfo;
-if vti.mHtmlViewer = browser then begin
- result:=vti; break;
- end;
-except end;
+  result := nil;
+  pageCount := mViewTabs.PageCount - 1;
+  for i := 0 to pageCount do
+    try
+      vti := TObject(mViewTabs.ActivePage.Tag) as TViewTabInfo;
+      if vti.mHtmlViewer = browser then
+      begin
+        result := vti;
+        break;
+      end;
+    except
+    end;
 
 end;
 
@@ -5665,7 +6210,8 @@ end;
 
 procedure TMainForm.TntFormDeactivate(Sender: TObject);
 begin
-if G_ControlKeyDown then SetBibleTabsHintsState(false);
+  if G_ControlKeyDown then
+    SetBibleTabsHintsState(false);
 end;
 
 procedure TMainForm.ToggleButtonClick(Sender: TObject);
@@ -5709,8 +6255,9 @@ begin
     DisplaySearchResults(SearchPage + 1);
 
   if (Key = VK_PRIOR) and (SearchBrowser.Position = SearchBrowserPosition) then
-    begin
-    if SearchPage = 1 then Exit;
+  begin
+    if SearchPage = 1 then
+      Exit;
     DisplaySearchResults(SearchPage - 1);
     SearchBrowser.PositionTo('endofsearchresults');
   end;
@@ -5732,36 +6279,41 @@ var
 begin
   result := false;
   try
-    if not __searchInitialized then begin
+    if not __searchInitialized then
+    begin
       __searchInitialized := true;
       __DicList := TWideStringList.Create;
       __DicList.Sorted := true;
-      __i := 0; __j := 0;
+      __i := 0;
+      __j := 0;
     end;
     dicCount := DicsCount;
 
-    while __j < dicCount do begin
+    while __j < dicCount do
+    begin
       wordCount := Dics[__j].Words.Count;
-      while __i < wordCount do begin
+      while __i < wordCount do
+      begin
         __DicList.Add(Dics[__j].Words[__i]);
         inc(__i);
         dec(maxAdd);
-        if maxAdd <= 0 then exit;
+        if maxAdd <= 0 then
+          exit;
       end;
       inc(__j);
     end;
-{  for j := 0 to DicsCount - 1 do
-    for i := 0 to Dics[j].Words.Count - 1 do
-      DicList.Add(Dics[j].Words[i]);
+    {  for j := 0 to DicsCount - 1 do
+        for i := 0 to Dics[j].Words.Count - 1 do
+          DicList.Add(Dics[j].Words[i]);
 
-  // delete repeated words from MERGED wordlists
-{  i := 0;
-  repeat
-    if (i<DicLB.Items.Count-1) and (DicLB.Items[i] = DicLB.Items[i+1])
-    then DicLB.Items.Delete(i);
-    Inc(i);
-  until i = DicLB.Items.Count;
-}
+      // delete repeated words from MERGED wordlists
+    {  i := 0;
+      repeat
+        if (i<DicLB.Items.Count-1) and (DicLB.Items[i] = DicLB.Items[i+1])
+        then DicLB.Items.Delete(i);
+        Inc(i);
+      until i = DicLB.Items.Count;
+    }
     try
       DicLB.Items.BeginUpdate;
       DicLB.Items.Clear;
@@ -5772,7 +6324,8 @@ begin
       result := true;
       __searchInitialized := false;
     end;
-  except end;
+  except
+  end;
 end;
 
 procedure TMainForm.DicEditKeyUp(Sender: TObject; var Key: Word;
@@ -5783,11 +6336,13 @@ begin
   len := Length(DicEdit.Text);
 
   if len > 0 then
-    for i := 0 to DicLB.Items.Count - 1 do begin
+    for i := 0 to DicLB.Items.Count - 1 do
+    begin
       if WideLowerCase(Copy(DicLB.Items[i], 1, len))
-        = WideLowerCase(DicEdit.Text) then begin
+        = WideLowerCase(DicEdit.Text) then
+      begin
         DicLB.ItemIndex := i;
-      //DicLBClick(Sender);
+        //DicLBClick(Sender);
         Exit;
       end;
     end;
@@ -5801,24 +6356,30 @@ end;
 procedure TMainForm.AdjustBibleTabs(awsNewModuleName: WideString = '');
 var
   i, tabCount, tabIx, offset: integer;
-  ws:WideString;
+  ws: WideString;
 begin
-  if length(awsNewModuleName) = 0 then awsNewModuleName := MainBook.ShortName;
-  offset:=ord(mBibleTabsInCtrlKeyDownState)shl 1;
-  tabCount:=mBibleTabsEx.WideTabs.Count-1;
-  tabIx:=-1;
-  for i:=0 to tabCount do begin
-  ws:=mBibleTabsEx.WideTabs.Strings[i];
-  if CompareStringW(LOCALE_SYSTEM_DEFAULT, 0, PWideChar(Pointer(awsNewModuleName)),
-                  -1, PWideChar(Pointer(ws))+offset,-1 )=CSTR_EQUAL then begin
-                    tabIx:=i; break;
-  end;
+  if length(awsNewModuleName) = 0 then
+    awsNewModuleName := MainBook.ShortName;
+  offset := ord(mBibleTabsInCtrlKeyDownState) shl 1;
+  tabCount := mBibleTabsEx.WideTabs.Count - 1;
+  tabIx := -1;
+  for i := 0 to tabCount do
+  begin
+    ws := mBibleTabsEx.WideTabs.Strings[i];
+    if CompareStringW(LOCALE_SYSTEM_DEFAULT, 0,
+      PWideChar(Pointer(awsNewModuleName)),
+      -1, PWideChar(Pointer(ws)) + offset, -1) = CSTR_EQUAL then
+    begin
+      tabIx := i;
+      break;
+    end;
   end;
   mBibleTabsEx.OnChange := nil;
-  if tabIx >= 0 then mBibleTabsEx.TabIndex := tabIx
+  if tabIx >= 0 then
+    mBibleTabsEx.TabIndex := tabIx
   else
     mBibleTabsEx.TabIndex := mBibleTabsEx.WideTabs.Count - 1;
-    // not a favorite book
+  // not a favorite book
   mBibleTabsEx.OnChange := mBibleTabsExChange;
 end; //proc AdjustBibleTabs
 (*AlekId:/Добавлено*)
@@ -5826,7 +6387,8 @@ end; //proc AdjustBibleTabs
 procedure TMainForm.BackButtonClick(Sender: TObject);
 begin
   HistoryOn := false;
-  if HistoryLB.ItemIndex < HistoryLB.Items.Count - 1 then begin
+  if HistoryLB.ItemIndex < HistoryLB.Items.Count - 1 then
+  begin
     HistoryLB.ItemIndex := HistoryLB.ItemIndex + 1;
     ProcessCommand(History[HistoryLB.ItemIndex]);
   end;
@@ -5844,7 +6406,8 @@ end;
 procedure TMainForm.ForwardButtonClick(Sender: TObject);
 begin
   HistoryOn := false;
-  if HistoryLB.ItemIndex > 0 then begin
+  if HistoryLB.ItemIndex > 0 then
+  begin
     HistoryLB.ItemIndex := HistoryLB.ItemIndex - 1;
     ProcessCommand(History[HistoryLB.ItemIndex]);
   end;
@@ -5912,7 +6475,8 @@ procedure TMainForm.MemoOpenClick(Sender: TObject);
 begin
   OpenDialog1.Filter := 'RTF (*.rtf)|*.rtf|DOC (*.doc)|*.doc|*.*|*.*';
   OpenDialog1.Filename := MemoFileName;
-  if OpenDialog1.Execute then begin
+  if OpenDialog1.Execute then
+  begin
     TREMemo.Lines.LoadFromFile(OpenDialog1.FileName);
     TREMemo.Tag := 0; // not changed
 
@@ -5928,7 +6492,8 @@ begin
   SaveFileDialog.DefaultExt := '.rtf';
   SaveFileDialog.Filter := 'RTF (*.rtf)|*.rtf|DOC (*.doc)|*.doc|*.*|*.*';
   SaveFileDialog.Filename := MemoFileName;
-  if SaveFileDialog.Execute then begin
+  if SaveFileDialog.Execute then
+  begin
     MemoFileName := SaveFileDialog.Filename;
     i := Length(MemoFileName);
 
@@ -5972,7 +6537,8 @@ end;
 
 procedure TMainForm.MemoFontClick(Sender: TObject);
 begin
-  with TREMemo.SelAttributes do begin
+  with TREMemo.SelAttributes do
+  begin
     FontDialog1.Font.Name := Name;
     FontDialog1.Font.Charset := Charset;
     FontDialog1.Font.Size := Size;
@@ -5981,7 +6547,8 @@ begin
   end;
 
   if FontDialog1.Execute then
-    with TREMemo.SelAttributes do begin
+    with TREMemo.SelAttributes do
+    begin
       Name := FontDialog1.Font.Name;
       Charset := FontDialog1.Font.Charset;
       Size := FontDialog1.Font.Size;
@@ -6002,7 +6569,8 @@ var
   mi: TTntMenuItem;
 begin
   Comments.Add('---------');
-  for i := 0 to Bibles.Count - 1 do Comments.Add(Bibles[i]);
+  for i := 0 to Bibles.Count - 1 do
+    Comments.Add(Bibles[i]);
 
   BooksCB.Items.BeginUpdate;
   BooksCB.Items.Clear;
@@ -6042,7 +6610,8 @@ begin
   MI.Checked := false;
   SatelliteMenu.Items.Add(MI);
 
-  for i := 0 to Bibles.Count - 1 do begin
+  for i := 0 to Bibles.Count - 1 do
+  begin
     MI := TTntMenuItem.Create(Self);
     MI.Caption := Bibles[i];
     MI.OnClick := SatelliteMenuItemClick;
@@ -6074,11 +6643,16 @@ var
 begin
   try
     modCount := S_cachedModules.count - 1;
-    ModulesList.Clear(); G_ArchivedModuleList.Clear();
-    ModulesCodeList.Clear(); Bibles.Clear(); Books.Clear;
-    Comments.Clear(); CommentsPaths.Clear();
+    ModulesList.Clear();
+    G_ArchivedModuleList.Clear();
+    ModulesCodeList.Clear();
+    Bibles.Clear();
+    Books.Clear;
+    Comments.Clear();
+    CommentsPaths.Clear();
 
-    for i := 0 to modCount do begin
+    for i := 0 to modCount do
+    begin
       modEntry := TModuleEntry(S_cachedModules[i]);
       ModulesList.Add(modEntry.wsFullName + ' $$$ ' + modEntry.wsShortPath);
       G_ArchivedModuleList.Names.Add(modEntry.wsFullName);
@@ -6089,14 +6663,17 @@ begin
           Bibles.Add(modEntry.wsFullName);
         modtypeBook:
           Books.Add(modEntry.wsFullName);
-        modtypeComment: begin
+        modtypeComment:
+          begin
             Comments.Add(modEntry.wsFullName);
-            CommentsPaths.Add(modEntry.wsShortPath); end;
+            CommentsPaths.Add(modEntry.wsShortPath);
+          end;
       end; //case
     end; //for
     result := true;
     mDefaultLocation := DefaultLocation();
-  except result := false; end;
+  except result := false;
+  end;
 end;
 
 procedure TMainForm.UpdateUI();
@@ -6105,19 +6682,21 @@ var
   tabInfo: TViewTabInfo;
 begin
   tabInfo := GetActiveTabInfo();
-  if not Assigned(tabInfo) then exit;
+  if not Assigned(tabInfo) then
+    exit;
   MainBook := tabInfo.mBible;
   Browser := tabInfo.mHtmlViewer;
   AdjustBibleTabs(MainBook.ShortName);
 
-//комбо модулей
-  with BooksCB do begin
+  //комбо модулей
+  with BooksCB do
+  begin
     saveEvent := OnChange;
     OnChange := nil;
     ItemIndex := Items.IndexOf(MainBook.Name);
     OnChange := saveEvent;
   end;
-//списки книг и глав
+  //списки книг и глав
   saveEvent := BookLB.OnClick;
   BookLB.OnClick := nil;
   saveEvent2 := ChapterLB.OnClick;
@@ -6126,16 +6705,17 @@ begin
   BookLB.OnClick := saveEvent;
   ChapterLB.OnClick := saveEvent2;
   SearchListInit();
-{  if MainBook.Copyright <> '' then begin}
-    lbTitleLabel.Font.Name:=tabInfo.mwsTitleFont;
-    lbTitleLabel.Caption := tabInfo.mwsTitleLocation;
-    lbCopyRightNotice.Caption:=tabInfo.mwsCopyrightNotice;
-{  end
-  else
-    lbTitleLabel.Caption := tabInfo.mwsTitleLocation + '; ' +
-      Lang.Say('PublicDomainText');}
+  {  if MainBook.Copyright <> '' then begin}
+  lbTitleLabel.Font.Name := tabInfo.mwsTitleFont;
+  lbTitleLabel.Caption := tabInfo.mwsTitleLocation;
+  lbCopyRightNotice.Caption := tabInfo.mwsCopyrightNotice;
+  {  end
+    else
+      lbTitleLabel.Caption := tabInfo.mwsTitleLocation + '; ' +
+        Lang.Say('PublicDomainText');}
   SelectSatelliteMenuItem(tabInfo.mSatelliteMenuItem);
-  if tabInfo.ReloadNeeded then begin
+  if tabInfo.ReloadNeeded then
+  begin
     tabInfo.ReloadNeeded := false;
     SafeProcessCommand(tabInfo.mwsLocation);
   end;
@@ -6162,7 +6742,8 @@ end;
 
 procedure TMainForm.miNotepadClick(Sender: TObject);
 begin
-  if not MainPages.Visible then ToggleButton.Click;
+  if not MainPages.Visible then
+    ToggleButton.Click;
   MainPages.ActivePage := MemoTab;
 end;
 
@@ -6173,14 +6754,18 @@ var
   Lines: WideString;
   iscomm, found: boolean;
   s, aname: WideString;
-//  offset: integer;
+  //  offset: integer;
 begin
-  if not MainBook.isBible then Exit;
-  if (not MainPages.Visible) or (MainPages.ActivePage <> CommentsTab) then Exit;
+  if not MainBook.isBible then
+    Exit;
+  if (not MainPages.Visible) or (MainPages.ActivePage <> CommentsTab) then
+    Exit;
 
-  if CommentsTab.Tag = 0 then CommentsTab.Tag := 1;
+  if CommentsTab.Tag = 0 then
+    CommentsTab.Tag := 1;
 
-  if CommentsCB.ItemIndex = CommentsPaths.Count then begin
+  if CommentsCB.ItemIndex = CommentsPaths.Count then
+  begin
     CommentsCB.ItemIndex := CommentsPaths.Count + 1;
     CommentsCBChange(Self);
     Exit;
@@ -6189,27 +6774,33 @@ begin
   Lines := '';
 
   if CommentsCB.ItemIndex < CommentsPaths.Count then
-    begin // ordinary commentaries
+  begin // ordinary commentaries
     s := MainFileExists(CommentsPaths[CommentsCB.ItemIndex] + '\bibleqt.ini');
-    if length(s) < 1 then exit;
+    if length(s) < 1 then
+      exit;
     try
       SecondBook.IniFile := s;
-    except exit; end;
-     {ExePath + 'Commentaries\'
-      + CommentsPaths[CommentsCB.ItemIndex]
-      + '\bibleqt.ini}
+    except exit;
+    end;
+    {ExePath + 'Commentaries\'
+     + CommentsPaths[CommentsCB.ItemIndex]
+     + '\bibleqt.ini}
   end
-  else if (CommentsCB.ItemIndex > CommentsPaths.Count) then begin
+  else if (CommentsCB.ItemIndex > CommentsPaths.Count) then
+  begin
     found := false;
 
-    for i := 0 to Bibles.Count + Books.Count - 1 do begin
+    for i := 0 to Bibles.Count + Books.Count - 1 do
+    begin
       if Pos(CommentsCB.Items[CommentsCB.ItemIndex] + ' $$$', ModulesList[i]) = 1
-        then begin
+        then
+      begin
         found := true;
         break;
       end;
     end;
-    if not found then Exit;
+    if not found then
+      Exit;
 
     ipos := Pos(' $$$ ', ModulesList[i]);
 
@@ -6226,9 +6817,9 @@ begin
     iv);
   SecondBook.InternalToAddress(ib, ic, iv, b, c, v);
 
-//  offset := 0;
-//  if SecondBook.ChapterQtys[ib] > MainBook.ChapterQtys[MainBook.CurBook] then
-//    offset := 1;
+  //  offset := 0;
+  //  if SecondBook.ChapterQtys[ib] > MainBook.ChapterQtys[MainBook.CurBook] then
+  //    offset := 1;
 
   iscomm := (CommentsCB.ItemIndex < CommentsPaths.Count);
   {
@@ -6239,14 +6830,18 @@ begin
   // if it's a commentary or it has chapter zero (introduction to book)
   // and it's chapter 1, show chapter 0, too :-)
 
-  if SecondBook.ChapterZero and (c = 2) then begin
+  if SecondBook.ChapterZero and (c = 2) then
+  begin
     SecondBook.OpenChapter(b, 1);
-    for i := 0 to SecondBook.Lines.Count - 1 do begin
+    for i := 0 to SecondBook.Lines.Count - 1 do
+    begin
       s := SecondBook.Lines[i];
       //StrReplace(s, '<b>', '<br><b>', false); // add spaces
-      if not iscomm then begin
+      if not iscomm then
+      begin
         StrDeleteFirstNumber(s);
-        if SecondBook.StrongNumbers then s := DeleteStrongNumbers(s);
+        if SecondBook.StrongNumbers then
+          s := DeleteStrongNumbers(s);
 
         AddLine(Lines, WideFormat(
           '<a name=%d>%d <font face="%s">%s</font><br>',
@@ -6259,7 +6854,8 @@ begin
             ));
 
       end
-      else begin
+      else
+      begin
         aname := StrGetFirstNumber(s);
         AddLine(Lines, WideFormat(
           '<a name=%s><font face="%s">%s</font><br>',
@@ -6273,21 +6869,26 @@ begin
   try
     SecondBook.OpenChapter(b, c);
   except
-    on e: TBQPasswordException do begin
+    on e: TBQPasswordException do
+    begin
       PasswordPolicy.InvalidatePassword(e.mArchive);
       MessageBoxW(self.Handle, PWideChar(Pointer(e.mWideMsg)), nil, MB_ICONERROR
         or MB_OK);
     end
-  else SecondBook.OpenChapter(1, 1);
+  else
+    SecondBook.OpenChapter(1, 1);
   end;
 
   //Lines.Add('<b>' + SecondBook.FullPassageSignature(ib,ic,0,0) + '</b><p>');
 
-  for i := 0 to SecondBook.Lines.Count - 1 do begin
+  for i := 0 to SecondBook.Lines.Count - 1 do
+  begin
     s := SecondBook.Lines[i];
-    if not iscomm then begin
+    if not iscomm then
+    begin
       StrDeleteFirstNumber(s);
-      if SecondBook.StrongNumbers then s := DeleteStrongNumbers(s);
+      if SecondBook.StrongNumbers then
+        s := DeleteStrongNumbers(s);
 
       AddLine(Lines, WideFormat(
         '<a name=%d>%d <font face="%s">%s</font><br>',
@@ -6295,7 +6896,8 @@ begin
         ));
 
     end
-    else begin
+    else
+    begin
       aname := StrGetFirstNumber(s);
       AddLine(Lines, WideFormat(
         '<a name=%s><font face="%s">%s</font><br>',
@@ -6331,11 +6933,13 @@ end;
 
 procedure TMainForm.SearchOptionsButtonClick(Sender: TObject);
 begin
-  if SearchBoxPanel.Height > CBCase.Top + CBCase.Height then begin // wrap it
+  if SearchBoxPanel.Height > CBCase.Top + CBCase.Height then
+  begin // wrap it
     SearchBoxPanel.Height := CBAll.Top;
     SearchOptionsButton.Caption := '>';
   end
-  else begin
+  else
+  begin
     SearchBoxPanel.Height := SearchLabel.Top + SearchLabel.Height + 10;
     SearchOptionsButton.Caption := '<';
   end;
@@ -6349,8 +6953,10 @@ var
 begin
   itemIx := -1;
   itemCount := SatelliteMenu.Items.Count - 1;
-  for i := 0 to itemCount do begin
-    if SatelliteMenu.Items[i] = aItem then itemIx := i - 1;
+  for i := 0 to itemCount do
+  begin
+    if SatelliteMenu.Items[i] = aItem then
+      itemIx := i - 1;
     SatelliteMenu.Items[i].Checked := false;
   end;
   Result := TTntMenuItem(SatelliteMenu.Items[itemIx + 1]);
@@ -6359,18 +6965,24 @@ end;
 
 function TMainForm.CachedModuleIxFromFullname(
   const wsFullModuleName: WideString; searchFromIndex: integer): integer;
-  var i, cachedModuleListCount:integer;
+var
+  i, cachedModuleListCount: integer;
 begin
-result:=-1;
-cachedModuleListCount:=S_cachedModules.Count-1;
-for i:=0 to cachedModuleListCount do
-  if (TModuleEntry(S_cachedModules.Items[i]).wsFullName=wsFullModuleName) then begin
-    result:=i; break end;
+  result := -1;
+  cachedModuleListCount := S_cachedModules.Count - 1;
+  for i := 0 to cachedModuleListCount do
+    if (TModuleEntry(S_cachedModules.Items[i]).wsFullName = wsFullModuleName)
+      then
+    begin
+      result := i;
+      break
+    end;
 end;
 
 procedure TMainForm.CBExactPhraseClick(Sender: TObject);
 begin
-  if CBExactPhrase.Checked then begin
+  if CBExactPhrase.Checked then
+  begin
     CBAll.Checked := false;
     CBPhrase.Checked := false;
     CBParts.Checked := false;
@@ -6384,7 +6996,8 @@ var
   res: WideString;
 begin
   for i := 0 to DicsCount - 1 do
-    if Dics[i].Name = DicCB.Items[DicCB.ItemIndex] then begin
+    if Dics[i].Name = DicCB.Items[DicCB.ItemIndex] then
+    begin
       res := Dics[i].Lookup(DicLB.Items[DicLB.ItemIndex]);
       break;
     end;
@@ -6415,26 +7028,33 @@ var
   satelliteMenuItem: TTntMenuItem;
   saveMainBook: TBible;
 begin
-//
-  Tab1 := nil; newBrowser := nil; newBible := nil; saveBrowser := Browser;
-  saveMainBook := MainBook; Result := true;
+  //
+  Tab1 := nil;
+  newBrowser := nil;
+  newBible := nil;
+  saveBrowser := Browser;
+  saveMainBook := MainBook;
+  Result := true;
   try
     Tab1 := TTntTabSheet.Create(MainForm);
     Tab1.PageControl := mViewTabs;
     Tab1.OnContextPopup := mInitialViewPageContextPopup;
     newBrowser := _CreateNewBrowserInstanse(Browser, Tab1, Tab1);
-    if not Assigned(newBrowser) then abort;
+    if not Assigned(newBrowser) then
+      abort;
     Browser := newBrowser;
-  //конструируем TBible
+    //конструируем TBible
     newBible := _CreateNewBibleInstance(MainBook, Tab1);
-    if not Assigned(newBible) then abort;
+    if not Assigned(newBible) then
+      abort;
     satelliteMenuItem := SatelliteMenuItemFromModuleName(satellite);
-    if not Assigned(satelliteMenuItem) then abort;
+    if not Assigned(satelliteMenuItem) then
+      abort;
     tabInfo := TViewTabInfo.Create(newBrowser, newBible, command,
       satelliteMenuItem);
     Tab1.Tag := Integer(tabInfo);
 
-      //какждой вкладке по броузеру
+    //какждой вкладке по броузеру
     MainBook := newBible;
     mViewTabs.ActivePage := Tab1;
     SelectSatelliteMenuItem(satelliteMenuItem);
@@ -6465,13 +7085,15 @@ procedure TMainForm.MainPagesChange(Sender: TObject);
 var
   saveCursor: TCursor;
 begin
-  if (MainPages.ActivePage = DicTab) and (not mDictionariesFullyInitialized) then
-    begin
+  if (MainPages.ActivePage = DicTab) and (not mDictionariesFullyInitialized)
+    then
+  begin
     saveCursor := self.Cursor;
     Self.Cursor := crHourGlass;
     try
       mDictionariesFullyInitialized := LoadDictionaries(maxInt);
-    except end;
+    except
+    end;
     self.Cursor := saveCursor;
   end;
   //if (MainPages.ActivePage = CommentsTab) and (CommentsBrowserSource.Count = 0)
@@ -6494,29 +7116,36 @@ var
   i, moduleCodelistCount: integer;
   found: boolean;
   s: WideString;
-  pwsNewModuleText:PWideChar;
+  pwsNewModuleText: PWideChar;
 begin
   found := false;
-  i:=ord(mBibleTabsInCtrlKeyDownState) shl 1;
-  s:=mBibleTabsEx.WideTabs[NewTab];
-  pwsNewModuleText:=PWideChar(Pointer(s))+i;
+  i := ord(mBibleTabsInCtrlKeyDownState) shl 1;
+  s := mBibleTabsEx.WideTabs[NewTab];
+  pwsNewModuleText := PWideChar(Pointer(s)) + i;
   moduleCodelistCount := ModulesCodeList.Count - 1;
-  for i := 0 to moduleCodelistCount do begin
+  for i := 0 to moduleCodelistCount do
+  begin
 
-    if CompareStringW(LOCALE_SYSTEM_DEFAULT, 0, pwsNewModuleText,-1,
-          PWideChar(Pointer(ModulesCodeList[i])),-1)=CSTR_EQUAL then begin
-      found := true; break;
+    if CompareStringW(LOCALE_SYSTEM_DEFAULT, 0, pwsNewModuleText, -1,
+      PWideChar(Pointer(ModulesCodeList[i])), -1) = CSTR_EQUAL then
+    begin
+      found := true;
+      break;
     end;
   end;
-  if not found then begin
-    AllowChange := false; exit; end;
+  if not found then
+  begin
+    AllowChange := false;
+    exit;
+  end;
   s := ModulesList[i];
   i := Pos('$$$', s);
   //  HistoryOn := false;
-  if i > 0 then GoModuleName(Copy(s, 1, i - 2));
+  if i > 0 then
+    GoModuleName(Copy(s, 1, i - 2));
   //  HistoryOn := true;
 //  LinksCB.Visible := false;
-tbLinksToolBar.Visible:=false;
+  tbLinksToolBar.Visible := false;
 end;
 
 procedure TMainForm.mBibleTabsExDrawTab(Sender: TObject; TabCanvas: TCanvas;
@@ -6537,11 +7166,14 @@ var
   pt: TPoint;
   ix: integer;
 begin
-  if Button <> mbLeft then exit;
-  pt.X := X; pt.Y := Y;
+  if Button <> mbLeft then
+    exit;
+  pt.X := X;
+  pt.Y := Y;
   ix := mBibleTabsEx.ItemAtPos(pt);
   mBibleTabsEx.Tag := ix;
-  if (ix < 0) or (ix >= mBibleTabsEx.WideTabs.Count - 1) then exit;
+  if (ix < 0) or (ix >= mBibleTabsEx.WideTabs.Count - 1) then
+    exit;
   mBibleTabsEx.BeginDrag(false, 20);
 end;
 
@@ -6556,18 +7188,23 @@ var
   tm: Cardinal;
 begin
   deltaX := X - last_mouse_pos.X;
-  if deltaX < 0 then deltaX := -deltaX;
+  if deltaX < 0 then
+    deltaX := -deltaX;
   deltaY := Y - last_mouse_pos.Y;
-  if deltaY < 0 then deltaX := -deltaY;
+  if deltaY < 0 then
+    deltaX := -deltaY;
   tm := GetTickCount();
-  if (deltaX + deltaY) > 15 then begin
+  if (deltaX + deltaY) > 15 then
+  begin
     last_mouse_time := tm;
-    last_mouse_pos.X := X; last_mouse_pos.Y := Y;
+    last_mouse_pos.X := X;
+    last_mouse_pos.Y := Y;
     exit;
   end;
-  if (tm - last_mouse_time) < 2000 then exit;
-{ TODO 3 -oAlekId -cdev : добавить hint }
-///mBibleTabsEx.ShowHint:=true;
+  if (tm - last_mouse_time) < 2000 then
+    exit;
+  { TODO 3 -oAlekId -cdev : добавить hint }
+  ///mBibleTabsEx.ShowHint:=true;
 end;
 
 procedure TMainForm.mBibleTabsExMouseUp(Sender: TObject;
@@ -6577,11 +7214,14 @@ var
   itemIx: integer;
 begin
   miDeteleBibleTab.Tag := 0;
-  if Button <> mbRight then exit;
-  pt.X := X; pt.Y := Y;
+  if Button <> mbRight then
+    exit;
+  pt.X := X;
+  pt.Y := Y;
   itemIx := mBibleTabsEx.ItemAtPos(pt);
   if ((itemIx < 0) or (itemIx >= mBibleTabsEx.WideTabs.Count - 1))
-    or (mBibleTabsEx.WideTabs.Count <= 2) then exit;
+    or (mBibleTabsEx.WideTabs.Count <= 2) then
+    exit;
   miDeteleBibleTab.Tag := ItemIx;
   pt := mBibleTabsEx.ClientToScreen(pt);
   EmptyPopupMenu.Popup(pt.X, pt.Y);
@@ -6600,7 +7240,8 @@ begin
     //переключение контекста
     //обновить
     UpdateUI();
-  except {just eat everything wrong} end;
+  except {just eat everything wrong}
+  end;
 end;
 
 {AlekId:добавлено}
@@ -6608,7 +7249,7 @@ end;
 procedure TMainForm.mViewTabsDeleteTab(sender: TAlekPageControl;
   index: Integer);
 begin
-//
+  //
   mViewTabs.Tag := index;
   miCloseTabClick(sender);
 end;
@@ -6629,14 +7270,18 @@ var
 var
   ix: integer;
 begin
-//
+  //
   try
     mousePos := Mouse.CursorPos;
-    with mViewTabs do begin
+    with mViewTabs do
+    begin
       mousePos := ScreenToClient(mousePos);
       ix := IndexOfTabAt(mousePos.X, mousePos.Y);
-      if ((ix < 0) or (ix >= PageCount)) then begin
-        CancelDrag(); exit; end;
+      if ((ix < 0) or (ix >= PageCount)) then
+      begin
+        CancelDrag();
+        exit;
+      end;
       mViewTabs.Tag := integer(Pages[ix]);
     end;
   except
@@ -6655,7 +7300,8 @@ begin
   try
     if ix >= 0 then
       ix := integer(mViewTabs.Pages[ix])
-    else ix := 0;
+    else
+      ix := 0;
   except
     ix := 0;
   end;
@@ -6673,29 +7319,34 @@ var
   i, list_ix, len: integer;
 
 begin
-{AlekId:добавлено}
-{это чтобы избежать ненужных "рывков" в списке при двойном щелчке}
+  {AlekId:добавлено}
+  {это чтобы избежать ненужных "рывков" в списке при двойном щелчке}
   list_ix := DicLb.itemIndex;
   if (list_ix >= 0) and (list_ix < DicLB.Count)
     and (DicLB.Items[list_ix] = DicEdit.Text) then
     exit;
-{//AlekId:добавлено}
-  if Trim(DicEdit.Text) = '' then Exit
-  else s := Trim(DicEdit.Text);
+  {//AlekId:добавлено}
+  if Trim(DicEdit.Text) = '' then
+    Exit
+  else
+    s := Trim(DicEdit.Text);
 
   len := Length(s);
 
   DicLB.ItemIndex := 0;
 
-  if DicLB.Items.IndexOf(s) <> -1 then begin
+  if DicLB.Items.IndexOf(s) <> -1 then
+  begin
     DicLB.ItemIndex := DicLB.Items.IndexOf(s);
     Exit;
   end;
 
   if len > 0 then
-    for i := 0 to DicLB.Items.Count - 1 do begin
+    for i := 0 to DicLB.Items.Count - 1 do
+    begin
       if WideLowerCase(Copy(DicLB.Items[i], 1, len))
-        = WideLowerCase(DicEdit.Text) then begin
+        = WideLowerCase(DicEdit.Text) then
+      begin
         DicLB.ItemIndex := i;
         Exit;
       end;
@@ -6721,7 +7372,8 @@ begin
   Result := nil;
   try
     Result := TBible.Create(aOwner);
-    with Result do begin
+    with Result do
+    begin
       OnVerseFound := MainBook.OnVerseFound;
       OnChangeModule := MainBook.OnChangeModule;
       OnSearchComplete := MainBook.OnSearchComplete;
@@ -6740,11 +7392,12 @@ begin
     Result := THtmlViewer.Create(aOwner); //AlekId
     Result.Parent := aParent;
     Result.Scrollbars := ssBoth;
-    with Result do begin
+    with Result do
+    begin
       DefFontName := mBrowserDefaultFontName {Browser.DefFontName};
       DefFontSize := Browser.DefFontSize;
       DefFontColor := Browser.DefFontColor;
-    //DefaultCharset := Browser.DefaultCharset;
+      //DefaultCharset := Browser.DefaultCharset;
       DefBackGround := Browser.DefBackGround;
       DefHotSpotColor := Browser.DefHotSpotColor;
       BorderStyle := Browser.BorderStyle;
@@ -6754,7 +7407,7 @@ begin
       OnKeyPress := FirstBrowserKeyPress;
       OnKeyUp := FirstBrowserKeyUp;
       OnMouseDouble := FirstBrowserMouseDouble;
-      OnImageRequest:=FirstBrowserImageRequest;
+      OnImageRequest := FirstBrowserImageRequest;
       PopupMenu := BrowserPopupMenu;
       OnHotSpotClick := FirstBrowserHotSpotClick;
     end;
@@ -6767,7 +7420,8 @@ end;
 
 procedure TMainForm.miDicClick(Sender: TObject);
 begin
-  if not MainPages.Visible then ToggleButton.Click;
+  if not MainPages.Visible then
+    ToggleButton.Click;
 
   MainPages.ActivePage := DicTab;
 end;
@@ -6779,15 +7433,19 @@ var
   tabInfo, ActiveTabInfo: TViewTabInfo;
   newBible, saveMainBible: TBible;
 begin
-  Tab1 := nil; newBrowser := nil; newBible := nil;
-  saveBrowser := Browser; saveMainBible := MainBook;
+  Tab1 := nil;
+  newBrowser := nil;
+  newBible := nil;
+  saveBrowser := Browser;
+  saveMainBible := MainBook;
   try
     try
       if mViewTabs.Tag >= 64 * 1024 then
         ActiveTabInfo := TObject((TObject(mViewTabs.Tag) as TTntTabSheet).tag)
           as
           TViewTabInfo
-      else ActiveTabInfo := GetActiveTabInfo();
+      else
+        ActiveTabInfo := GetActiveTabInfo();
     except
       ActiveTabInfo := GetActiveTabInfo();
     end;
@@ -6796,7 +7454,8 @@ begin
     Tab1.PageControl := mViewTabs;
     Tab1.OnContextPopup := mInitialViewPageContextPopup;
     newBrowser := _CreateNewBrowserInstanse(Browser, Tab1, Tab1);
-    if not Assigned(newBrowser) then abort;
+    if not Assigned(newBrowser) then
+      abort;
     {
     Browser1 := THtmlViewer.Create(Tab1); //AlekId
     Browser1.Parent := Tab1;
@@ -6822,18 +7481,21 @@ begin
 //  Browser1.LoadTextFromString(''); AlekId: no need anymore
 
     Browser := newBrowser;
-  (*AlekId:Добавлено*)
-  //конструируем TBible
+    (*AlekId:Добавлено*)
+    //конструируем TBible
     newBible := _CreateNewBibleInstance(MainBook, Tab1);
-    if not Assigned(newBible) then abort;
-    with ActiveTabInfo.mBible do begin
+    if not Assigned(newBible) then
+      abort;
+    with ActiveTabInfo.mBible do
+    begin
       if IniFile = '' then
         newBible.IniFile := MainFileExists(mDefaultLocation + '\' +
           C_ModuleIniName)
-      else begin
+      else
+      begin
         newBible.IniFile := IniFile;
-      //newBible.OpenChapter(CurBook, CurChapter);//AlekId: по видимому, ни к чему
-      // так как далее следует ProcessCommand
+        //newBible.OpenChapter(CurBook, CurChapter);//AlekId: по видимому, ни к чему
+        // так как далее следует ProcessCommand
       end;
     end;
 
@@ -6841,7 +7503,7 @@ begin
       ActiveTabInfo.mwsLocation,
       ActiveTabInfo.mSatelliteMenuItem);
     Tab1.Tag := Integer(tabInfo);
-      //какждой вкладке по броузеру
+    //какждой вкладке по броузеру
     MainBook := newBible;
     mViewTabs.ActivePageIndex := mViewTabs.PageCount - 1;
     SelectSatelliteMenuItem(ActiveTabInfo.mSatelliteMenuItem);
@@ -6854,7 +7516,7 @@ begin
     newBrowser.Free();
     Tab1.Free();
   end;
- (*AlekId:/Добавлено*)
+  (*AlekId:/Добавлено*)
 end;
 
 procedure TMainForm.miCloseTabClick(Sender: TObject);
@@ -6863,56 +7525,62 @@ var
   tab: TTabSheet;
   tabIx: integer;
 begin
-//AlekId: закомментировано
-{ if mMainViewTabs.PageCount > 1 then
- try
-    i := mMainViewTabs.ActivePageIndex;
-    mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Destroy;
-    if i > mMainViewTabs.PageCount - 1 then
-      mMainViewTabs.ActivePageIndex := mMainViewTabs.PageCount - 1
-    else
-      mMainViewTabs.ActivePageIndex := i;
-  finally
-    // find the browser component on the current tab
-    for i := 0 to mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].ComponentCount - 1 do begin
-      if mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Components[i].ClassName = 'THtmlViewer' then begin
-        Browser := Pointer(mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Components[i]);
-        break;
+  //AlekId: закомментировано
+  { if mMainViewTabs.PageCount > 1 then
+   try
+      i := mMainViewTabs.ActivePageIndex;
+      mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Destroy;
+      if i > mMainViewTabs.PageCount - 1 then
+        mMainViewTabs.ActivePageIndex := mMainViewTabs.PageCount - 1
+      else
+        mMainViewTabs.ActivePageIndex := i;
+    finally
+      // find the browser component on the current tab
+      for i := 0 to mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].ComponentCount - 1 do begin
+        if mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Components[i].ClassName = 'THtmlViewer' then begin
+          Browser := Pointer(mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Components[i]);
+          break;
+        end;
       end;
-    end;
-  end;}
+    end;}
 
-(*AlekId:Добавлено*)
-  if mViewTabs.PageCount > 1 then try
-    if (Sender = miCloseViewTab) and (mViewTabs.Tag <> 0) then begin
+  (*AlekId:Добавлено*)
+  if mViewTabs.PageCount > 1 then
+    try
+      if (Sender = miCloseViewTab) and (mViewTabs.Tag <> 0) then
+      begin
         //close tab under cursor
-      try
-        tab := TObject(mViewTabs.Tag) as TTntTabSheet;
-        mViewTabs.Tag := 0; //now is done
-      except //some goes wrong
+        try
+          tab := TObject(mViewTabs.Tag) as TTntTabSheet;
+          mViewTabs.Tag := 0; //now is done
+        except //some goes wrong
+          tab := TTntTabSheet(mViewTabs.ActivePage);
+        end;
+      end //if (Sender=mmiCloseViewTab)
+      else
+      begin //close active tab
         tab := TTntTabSheet(mViewTabs.ActivePage);
       end;
-    end //if (Sender=mmiCloseViewTab)
-    else begin //close active tab
-      tab := TTntTabSheet(mViewTabs.ActivePage);
+      tabIx := tab.TabIndex;
+      tabinfo := TObject(tab.Tag) as TViewTabInfo;
+      tab.Free();
+      if tabIx = mViewTabs.PageCount then
+        mViewTabs.ActivePageIndex := tabIx - 1;
+      //if active tab is being closed, another one is activated, but on OnChange
+      // event of TPageControl is NOT triggered
+      mViewTabsChange(nil);
+      tabInfo.Free();
+      if mViewTabs.PageCount <= 1 then
+        mViewTabs.Repaint();
+    except {do nothing,eat}
     end;
-    tabIx := tab.TabIndex;
-    tabinfo := TObject(tab.Tag) as TViewTabInfo;
-    tab.Free();
-    if tabIx = mViewTabs.PageCount then
-      mViewTabs.ActivePageIndex := tabIx - 1;
-   //if active tab is being closed, another one is activated, but on OnChange
-   // event of TPageControl is NOT triggered
-    mViewTabsChange(nil);
-    tabInfo.Free();
-    if mViewTabs.PageCount<=1 then mViewTabs.Repaint();
-  except {do nothing,eat} end;
-(*AlekId:/Добавлено*)
+  (*AlekId:/Добавлено*)
 end;
 
 procedure TMainForm.miCommentsClick(Sender: TObject);
 begin
-  if not MainPages.Visible then ToggleButton.Click;
+  if not MainPages.Visible then
+    ToggleButton.Click;
 
   MainPages.ActivePage := CommentsTab;
 end;
@@ -6923,7 +7591,8 @@ var
 begin
   AddressFromMenus := true;
 
-  with ChapterLB do begin
+  with ChapterLB do
+  begin
     Items.BeginUpdate;
     Items.Clear;
 
@@ -6948,19 +7617,22 @@ begin
 end;
 
 procedure TMainForm.DeleteInvalidHotModules();
-var i, favouriteCount, moduleIndex:integer;
-    favouriteMenuItem, mi:TTntMenuItem;
+var
+  i, favouriteCount, moduleIndex: integer;
+  favouriteMenuItem, mi: TTntMenuItem;
 begin
- favouriteCount:=GetHotModuleCount()-1;
- favouriteMenuItem := FindTaggedTopMenuItem(3333);
- for i:=0 to favouriteCount do begin
- mi:=GetHotMenuItem(i);
- moduleIndex := ModuleIndexByName( mi.Caption);
-  if moduleIndex < 0 then begin
-   favouriteMenuItem.Remove(mi);
-   end;
- end;
-InitBibleTabs();
+  favouriteCount := GetHotModuleCount() - 1;
+  favouriteMenuItem := FindTaggedTopMenuItem(3333);
+  for i := 0 to favouriteCount do
+  begin
+    mi := GetHotMenuItem(i);
+    moduleIndex := ModuleIndexByName(mi.Caption);
+    if moduleIndex < 0 then
+    begin
+      favouriteMenuItem.Remove(mi);
+    end;
+  end;
+  InitBibleTabs();
 end;
 
 procedure TMainForm.Splitter2Moved(Sender: TObject);
@@ -7010,36 +7682,45 @@ var
   dragDropPoint: TPoint;
   i, count, firstHotMenuItemPos: integer;
 begin
-  dragDropPoint.X := X; dragDropPoint.Y := Y;
+  dragDropPoint.X := X;
+  dragDropPoint.Y := Y;
   tabIndex := mBibleTabsEx.ItemAtPos(dragDropPoint);
-  if (tabIndex < 0) or (tabIndex >= mBibleTabsEx.WideTabs.Count) then exit;
+  if (tabIndex < 0) or (tabIndex >= mBibleTabsEx.WideTabs.Count) then
+    exit;
 
-  if Source is TAlekPageControl then begin
+  if Source is TAlekPageControl then
+  begin
     try
       viewTabInfo := TObject((TObject((Source as TAlekPageControl).Tag) as
         TTntTabSheet).Tag) as TViewTabInfo;
-      if tabIndex = mBibleTabsEx.WideTabs.Count - 1 then begin
-  // drop on *** - last tab, adding new tab
+      if tabIndex = mBibleTabsEx.WideTabs.Count - 1 then
+      begin
+        // drop on *** - last tab, adding new tab
         AddHotModule(viewTabInfo.mBible);
         exit;
       end;
-    //cp:=viewTabInfo.mBible.Name;
+      //cp:=viewTabInfo.mBible.Name;
       mi := mBibleTabsEx.WideTabs.Objects[tabIndex] as TtntMenuItem;
-      if not assigned(mi) then exit;
+      if not assigned(mi) then
+        exit;
       mi.Caption := viewTabInfo.mBible.Name;
       mBibleTabsEx.WideTabs[tabIndex] := viewTabInfo.mBible.ShortName;
     except
     end;
   end
-  else if source is TDockTabSet then begin
-    if (tabIndex = mBibleTabsEx.WideTabs.Count) then exit;
+  else if source is TDockTabSet then
+  begin
+    if (tabIndex = mBibleTabsEx.WideTabs.Count) then
+      exit;
     sourceTabIx := mBibleTabsEx.Tag;
     if (sourceTabIx < 0) or (sourceTabIx >= mBibleTabsEx.WideTabs.Count) or
-      (sourceTabIx = tabIndex) then exit;
+      (sourceTabIx = tabIndex) then
+      exit;
     mBibleTabsEx.WideTabs.Move(sourceTabIx, tabIndex);
     count := mBibleTabsEx.WideTabs.Count - 2;
     firstHotMenuItemPos := GetHotMenuItem(0).MenuIndex;
-    for i := 0 to count do begin
+    for i := 0 to count do
+    begin
       mi := mBibleTabsEx.WideTabs.Objects[i] as TTntMenuItem;
       mi.MenuIndex := firstHotMenuItemPos + i;
     end;
@@ -7055,9 +7736,13 @@ var
   tabIx, delta: integer;
   dragOverPoint: TPoint;
 begin
-  dragOverPoint.X := X; dragOverPoint.Y := Y;
+  dragOverPoint.X := X;
+  dragOverPoint.Y := Y;
   tabIx := mBibleTabsEx.ItemAtPos(dragOverPoint);
-  if Source is TDockTabSet then delta := 1 else delta := 0;
+  if Source is TDockTabSet then
+    delta := 1
+  else
+    delta := 0;
   Accept := (tabIx >= 0) and (tabIx < mBibleTabsEx.WideTabs.Count - delta);
 end;
 
@@ -7082,44 +7767,51 @@ end;
 
 procedure TMainForm.miRefFontConfigClick(Sender: TObject);
 begin
-  with FontDialog1 do begin
+  with FontDialog1 do
+  begin
     Font.Name := SearchBrowser.DefFontName;
     Font.Color := SearchBrowser.DefFontColor;
     Font.Size := SearchBrowser.DefFontSize;
     //Font.Charset := DefaultCharset;
   end;
 
-  if FontDialog1.Execute then begin
+  if FontDialog1.Execute then
+  begin
     //DefaultCharset := FontDialog1.Font.Charset;
 
-    with SearchBrowser do begin
+    with SearchBrowser do
+    begin
       DefFontName := FontDialog1.Font.Name;
       DefFontColor := FontDialog1.Font.Color;
       DefFontSize := FontDialog1.Font.Size;
       LoadFromString(DocumentSourceUtf16);
     end;
 
-    with DicBrowser do begin
+    with DicBrowser do
+    begin
       DefFontName := SearchBrowser.DefFontName;
       DefFontColor := SearchBrowser.DefFontColor;
       DefFontSize := SearchBrowser.DefFontSize;
       LoadFromString(DocumentSourceUtf16);
     end;
 
-    with StrongBrowser do begin
+    with StrongBrowser do
+    begin
       DefFontName := SearchBrowser.DefFontName;
       DefFontColor := SearchBrowser.DefFontColor;
       DefFontSize := SearchBrowser.DefFontSize;
       LoadFromString(DocumentSourceUtf16);
     end;
 
-    with XrefBrowser do begin
+    with XrefBrowser do
+    begin
       DefFontName := SearchBrowser.DefFontName;
       DefFontColor := SearchBrowser.DefFontColor;
       DefFontSize := SearchBrowser.DefFontSize;
     end;
 
-    with CommentsBrowser do begin
+    with CommentsBrowser do
+    begin
       DefFontName := SearchBrowser.DefFontName;
       DefFontColor := SearchBrowser.DefFontColor;
       DefFontSize := SearchBrowser.DefFontSize;
@@ -7146,7 +7838,8 @@ begin
     else
       InputForm.Edit1.Text := ShortPassageSignature(CurBook, CurChapter, 1, 0);
 
-  if InputForm.ShowModal = mrOK then begin
+  if InputForm.ShowModal = mrOK then
+  begin
     GoEdit.Text := InputForm.Edit1.Text;
     InputForm.Edit1.Text := '';
     AddressOKButton.Click;
@@ -7163,8 +7856,10 @@ begin
   with MainBook do
     InputForm.Edit1.Text := SearchCB.Text;
 
-  if InputForm.ShowModal = mrOK then begin
-    if not MainPages.Visible then ToggleButton.Click;
+  if InputForm.ShowModal = mrOK then
+  begin
+    if not MainPages.Visible then
+      ToggleButton.Click;
     MainPages.ActivePage := SearchTab;
 
     SearchCB.Text := InputForm.Edit1.Text;
@@ -7175,13 +7870,16 @@ end;
 procedure TMainForm.CopyrightButtonClick(Sender: TObject);
 begin
   if MainBook.Copyright = '' then
-    WideShowMessage(Copy(CopyrightButton.Hint, 2,$FFFFFF) )
-  else begin
+    WideShowMessage(Copy(CopyrightButton.Hint, 2, $FFFFFF))
+  else
+  begin
     CopyrightForm.Caption := 'Copyright (c) ' + MainBook.Copyright;
-    if FileExists(MainBook.Path + 'copyright.htm') then begin
+    if FileExists(MainBook.Path + 'copyright.htm') then
+    begin
       CopyrightForm.Browser.LoadFromFile(MainBook.Path + 'copyright.htm');
       CopyrightForm.ShowModal;
-    end else
+    end
+    else
       WideShowMessage('File not found: ' + MainBook.Path + 'copyright.htm');
   end;
 end;
@@ -7192,7 +7890,8 @@ begin
     TREMemo.CutToClipboard
   else if MemoPopupMenu.PopupComponent is TTntEdit then
     (MemoPopupMenu.PopupComponent as TTntEdit).CutToClipboard
-  else if MemoPopupMenu.PopupComponent is TTntComboBox then begin
+  else if MemoPopupMenu.PopupComponent is TTntComboBox then
+  begin
     TntClipboard.AsText := (MemoPopupMenu.PopupComponent as TTntComboBox).Text;
     (MemoPopupMenu.PopupComponent as TTntComboBox).Text := '';
   end;
@@ -7203,7 +7902,8 @@ var
   DicList: TWideStringList;
   i, j: integer;
 begin
-  if DicFilterCB.ItemIndex <> 0 then begin
+  if DicFilterCB.ItemIndex <> 0 then
+  begin
     DicLB.Items.BeginUpdate;
     DicLB.Items.Clear;
 
@@ -7219,7 +7919,8 @@ begin
     DicLB.Items.EndUpdate;
     DicList.Free;
   end
-  else begin
+  else
+  begin
     DictionaryStartup;
   end;
 end;
@@ -7242,7 +7943,8 @@ begin
 
   InputForm.Memo1.Text := newstring;
 
-  if InputForm.ShowModal = mrOK then begin
+  if InputForm.ShowModal = mrOK then
+  begin
     with MainBook do
       newstring := ShortName + ' ' + ShortPassageSignature(CurBook, CurChapter,
         CurVerseNumber, CurVerseNumber)
@@ -7270,10 +7972,12 @@ var
   num, code: integer;
   scode: WideString;
 begin
-  if Pos('s', SRC) = 1 then begin
+  if Pos('s', SRC) = 1 then
+  begin
     scode := Copy(SRC, 2, Length(SRC) - 1);
     Val(scode, num, code);
-    if code = 0 then DisplayStrongs(num, (Copy(scode, 1, 1) = '0'));
+    if code = 0 then
+      DisplayStrongs(num, (Copy(scode, 1, 1) = '0'));
   end;
 end;
 
@@ -7287,19 +7991,24 @@ procedure TMainForm.BookmarksLBKeyUp(Sender: TObject; var Key: Word;
 var
   i: integer;
 begin
-  if BookmarksLB.Items.Count = 0 then Exit;
+  if BookmarksLB.Items.Count = 0 then
+    Exit;
 
-  if Key = VK_DELETE then begin
+  if Key = VK_DELETE then
+  begin
     if Application.MessageBox('Удалить закладку?',
       'Подтвердите удаление', MB_YESNO + MB_DEFBUTTON1) <>
-      ID_YES then Exit;
+      ID_YES then
+      Exit;
 
     i := BookmarksLB.ItemIndex;
     Bookmarks.Delete(i);
     BookmarksLB.Items.Delete(i);
-    if i = BookmarksLB.Items.Count then i := i - 1;
+    if i = BookmarksLB.Items.Count then
+      i := i - 1;
 
-    if i < 0 then Exit;
+    if i < 0 then
+      Exit;
 
     BookmarksLB.ItemIndex := i;
     BookmarksLBClick(Sender);
@@ -7311,19 +8020,24 @@ procedure TMainForm.HistoryLBKeyUp(Sender: TObject; var Key: Word;
 var
   i: integer;
 begin
-  if HistoryLB.Items.Count = 0 then Exit;
+  if HistoryLB.Items.Count = 0 then
+    Exit;
 
-  if Key = VK_DELETE then begin
+  if Key = VK_DELETE then
+  begin
     if Application.MessageBox('Удалить запись в истории?',
       'Подтвердите удаление', MB_YESNO + MB_DEFBUTTON1) <>
-      ID_YES then Exit;
+      ID_YES then
+      Exit;
 
     i := HistoryLB.ItemIndex;
     History.Delete(i);
     HistoryLB.Items.Delete(i);
-    if i = HistoryLB.Items.Count then i := i - 1;
+    if i = HistoryLB.Items.Count then
+      i := i - 1;
 
-    if i < 0 then Exit;
+    if i < 0 then
+      Exit;
 
     HistoryLB.ItemIndex := i;
     HistoryLBClick(Sender);
@@ -7341,7 +8055,8 @@ begin
     1))
     );
 
-  if i > 0 then begin
+  if i > 0 then
+  begin
     dx := Browser.FindDisplayPos(i, true);
     dy := Browser.FindDisplayPos(i + Length(SearchEdit.Text), true);
 
@@ -7357,7 +8072,8 @@ begin
     else
       Browser.VScrollBarPosition := y;
   end
-  else BrowserSearchPosition := 0;
+  else
+    BrowserSearchPosition := 0;
 end;
 
 procedure TMainForm.SearchForwardClick(Sender: TObject);
@@ -7365,7 +8081,8 @@ var
   i, dx, dy: integer;
   x, y: LongInt;
 begin
-  if BrowserSearchPosition = 0 then begin
+  if BrowserSearchPosition = 0 then
+  begin
     BrowserSearchPosition := Pos('</title>', Browser.DocumentSourceUtf16);
     if BrowserSearchPosition > 0 then
       Inc(BrowserSearchPosition, Length('</title>'));
@@ -7377,7 +8094,8 @@ begin
     Length(Browser.DocumentSourceUtf16)))
     );
 
-  if i > 0 then begin
+  if i > 0 then
+  begin
     i := BrowserSearchPosition + i;
     dx := Browser.FindDisplayPos(i, true);
     dy := Browser.FindDisplayPos(i + Length(SearchEdit.Text), true);
@@ -7393,24 +8111,26 @@ begin
     else
       Browser.VScrollBarPosition := y;
   end
-  else BrowserSearchPosition := 0; //AlekId:??
+  else
+    BrowserSearchPosition := 0; //AlekId:??
 end;
 
 procedure TMainForm.miSearchWindowClick(Sender: TObject);
 begin
-{AlekId: теперь по другому}
-{  SearchToolbar.Visible := not SearchToolbar.Visible;
-  miSearchWindow.Checked := SearchToolbar.Visible;
-  //AlekId: не понятна логика сл. строки
- if SearchToolbar.Visible then ActiveControl := SearchEdit;}
-(*AlekId:Добавлено*)
+  {AlekId: теперь по другому}
+  {  SearchToolbar.Visible := not SearchToolbar.Visible;
+    miSearchWindow.Checked := SearchToolbar.Visible;
+    //AlekId: не понятна логика сл. строки
+   if SearchToolbar.Visible then ActiveControl := SearchEdit;}
+  (*AlekId:Добавлено*)
   MainPages.ActivePageIndex := 0; //на первую вкладку
   HistoryBookmarkPages.ActivePageIndex := 2;
-    //на вкладку быстрого поиска
+  //на вкладку быстрого поиска
   ActiveControl := SearchEdit;
-(*AlekId:/Добавлено*)
+  (*AlekId:/Добавлено*)
 
-  if Browser.SelLength <> 0 then begin
+  if Browser.SelLength <> 0 then
+  begin
     SearchEdit.Text := Trim(Browser.SelText);
     SearchForward.Click;
   end;
@@ -7434,8 +8154,10 @@ var
 begin
   Result := nil;
   menuItemCount := theMainMenu.Items.Count - 1;
-  for i := 0 to menuItemCount do begin
-    if (theMainMenu.Items[i].Tag = tag) then begin
+  for i := 0 to menuItemCount do
+  begin
+    if (theMainMenu.Items[i].Tag = tag) then
+    begin
       Result := theMainMenu.Items[i] as TTntMenuItem;
       break
     end //if
@@ -7446,7 +8168,8 @@ end;
 
 procedure TMainForm.FindStrongNumberPanelClick(Sender: TObject);
 begin
-  if StrongLB.ItemIndex < 0 then Exit;
+  if StrongLB.ItemIndex < 0 then
+    Exit;
 
   MainPages.ActivePage := SearchTab;
 
@@ -7474,52 +8197,70 @@ begin
 end;
 
 procedure TMainForm.ShowConfigDialog;
-var i, moduleCount, favMenuItemCount:integer;
-    favMenuItem, mi:TTntMenuItem;
+var
+  i, moduleCount, favMenuItemCount: integer;
+  favMenuItem, mi: TTntMenuItem;
+  sl: TWideStringList;
 begin
-    ForceBackgroundLoad();
-  with ConfigForm do begin
+  ForceBackgroundLoad();
+  with ConfigForm do
+  begin
     Left := (Screen.Width - Width) div 2;
     Top := (Screen.Height - Height) div 2;
     SelectPathEdit.Text := SecondPath;
     MinimizeToTray.Checked := TrayIcon.MinimizeToTray;
     HotKeyChoice.ItemIndex := ConfigFormHotKeyChoiceItemIndex;
-    moduleCount:=ModulesList.Count-1;
+    moduleCount := ModulesList.Count - 1;
     cbxAvailableModules.Clear();
-    cbxAvailableModules.Items.BeginUpdate();
-    for i:=0 to moduleCount do begin
-    cbxAvailableModules.Items.Add(ExtractModuleName(ModulesList[i]) );
+    sl := TWideStringList.Create;
+    try
+      sl.Sorted := true;
+      sl.BeginUpdate;
+      for i := 0 to moduleCount do
+      begin
+        sl.Add(ExtractModuleName(ModulesList[i]));
+      end;
+      sl.EndUpdate();
+      cbxAvailableModules.Items.Assign(sl);
+    finally
+      sl.Free;
     end;
-    if moduleCount>=0 then cbxAvailableModules.ItemIndex:=0;
-    cbxAvailableModules.Items.EndUpdate();
-    moduleCount:=GetHotModuleCount()-1;
+    if moduleCount >= 0 then
+      cbxAvailableModules.ItemIndex := 0;
+    moduleCount := GetHotModuleCount() - 1;
     lbxFavourites.Clear();
     lbxFavourites.Items.BeginUpdate();
-    for i:=0 to moduleCount do begin
+    for i := 0 to moduleCount do
+    begin
       lbxFavourites.Items.Add(GetHotMenuItem(i).Caption);
     end;
     lbxFavourites.Items.EndUpdate();
   end;
 
-  if ConfigForm.ShowModal = mrCancel then Exit;
-  moduleCount:=ConfigForm.lbxFavourites.Count-1;
-  favMenuItemCount:=GetHotModuleCount();
-  favMenuItem:=FindTaggedTopMenuItem(3333);
-  for i:=0 to moduleCount do begin
-    if (i<favMenuItemCount) then begin
-      GetHotMenuItem(i).Caption:=ConfigForm.lbxFavourites.Items[i];
+  if ConfigForm.ShowModal = mrCancel then
+    Exit;
+  moduleCount := ConfigForm.lbxFavourites.Count - 1;
+  favMenuItemCount := GetHotModuleCount();
+  favMenuItem := FindTaggedTopMenuItem(3333);
+  for i := 0 to moduleCount do
+  begin
+    if (i < favMenuItemCount) then
+    begin
+      GetHotMenuItem(i).Caption := ConfigForm.lbxFavourites.Items[i];
     end
-    else  begin
-      mi:=TTntMenuItem.Create(self);
-      mi.Tag:=7000+i;
-      mi.Caption:=ConfigForm.lbxFavourites.Items[i];
-     favMenuItem.Add(mi);
+    else
+    begin
+      mi := TTntMenuItem.Create(self);
+      mi.Tag := 7000 + i;
+      mi.Caption := ConfigForm.lbxFavourites.Items[i];
+      favMenuItem.Add(mi);
     end;
   end;
   Inc(moduleCount);
   Dec(favMenuItemCount);
-  for i:=moduleCount to favMenuItemCount do begin
-     mi:=GetHotMenuItem(i);
+  for i := moduleCount to favMenuItemCount do
+  begin
+    mi := GetHotMenuItem(i);
     favMenuItem.Remove(mi);
     mi.Free();
   end;
@@ -7535,7 +8276,8 @@ begin
   CopyOptionsAddModuleNameChecked := ConfigForm.AddModuleName.Checked;
   ConfigFormHotKeyChoiceItemIndex := ConfigForm.HotKeyChoice.ItemIndex;
   TrayIcon.MinimizeToTray := ConfigForm.MinimizeToTray.Checked;
-  if ConfigForm.SelectPathEdit.Text <> SecondPath then begin
+  if ConfigForm.SelectPathEdit.Text <> SecondPath then
+  begin
     SecondPath := ConfigForm.SelectPathEdit.Text;
     MainMenuInit(true);
   end;
@@ -7564,18 +8306,21 @@ begin
 
   InputForm.Memo1.Text := newstring;
 
-  if InputForm.ShowModal = mrOK then begin
+  if InputForm.ShowModal = mrOK then
+  begin
     newstring := InputForm.Memo1.Text;
     StrReplace(newstring, #13#10, ' ', true);
 
-    if i > -1 then Memos.Delete(i); // for SORTED WideString, first delete it...
+    if i > -1 then
+      Memos.Delete(i); // for SORTED WideString, first delete it...
 
     if Trim(newstring) <> '' then
       Memos.Add(signature + newstring);
 
     if not MemosOn then
       miMemosToggle.Click
-    else begin
+    else
+    begin
       miMemosToggle.Click; // off
       miMemosToggle.Click; // on - to show new memos...
     end;
@@ -7592,21 +8337,27 @@ end;
 
 procedure TMainForm.SysHotKeyHotKey(Sender: TObject; Index: Integer);
 begin
-  if Index <> ConfigFormHotKeyChoiceItemIndex then Exit;
+  if Index <> ConfigFormHotKeyChoiceItemIndex then
+    Exit;
 
-  if TrayIcon.MinimizeToTray then begin
-    if MainForm.Visible then begin
+  if TrayIcon.MinimizeToTray then
+  begin
+    if MainForm.Visible then
+    begin
       if Application.Active then
         Application.Minimize
       else
         Application.BringToFront;
-    end else
+    end
+    else
       TrayIcon.ShowMainForm;
-  end else
-    begin // if not minimizing to tray, hot key only activates or minimizes the app
+  end
+  else
+  begin // if not minimizing to tray, hot key only activates or minimizes the app
     if Application.Active then
       Application.Minimize
-    else begin
+    else
+    begin
       Application.Restore;
       Application.BringToFront;
     end;
@@ -7657,7 +8408,8 @@ begin
     s := 'http://jesuschrist.ru/' + LowerCase(Copy(s, 6, Length(s))) + '/';
 
   if WStrMessageBox(WideFormat(Lang.Say('GoingOnline'), [s]), 'JesusChrist.ru',
-    MB_OKCancel + MB_DEFBUTTON1) <> ID_OK then Exit;
+    MB_OKCancel + MB_DEFBUTTON1) <> ID_OK then
+    Exit;
 
   ShellExecute(Application.Handle, nil, PChar(s), nil, nil, SW_NORMAL);
 end;
@@ -7666,7 +8418,8 @@ procedure TMainForm.MemoPrintClick(Sender: TObject);
 var
   opt: TPrintDialogOptions;
 begin
-  with PrintDialog1 do begin
+  with PrintDialog1 do
+  begin
     opt := Options;
     Options := [];
     if Execute then
@@ -7679,13 +8432,19 @@ procedure TMainForm.SafeProcessCommand(wsLocation: WideString);
 var
   succeeded: boolean;
 begin
-  if length(trim(wsLocation)) > 1 then begin
+  if length(trim(wsLocation)) > 1 then
+  begin
     succeeded := ProcessCommand(wsLocation);
-    if succeeded then exit; end;
+    if succeeded then
+      exit;
+  end;
 
-  if length(trim(LastAddress)) > 1 then begin
+  if length(trim(LastAddress)) > 1 then
+  begin
     succeeded := ProcessCommand(LastAddress);
-    if succeeded then exit; end;
+    if succeeded then
+      exit;
+  end;
   ProcessCommand(WideFormat('go %s %d %d %d', [mDefaultLocation, 1, 1, 1]));
 end;
 
@@ -7706,31 +8465,37 @@ var
 begin
   itemIx := -1;
   itemCount := SatelliteMenu.Items.Count - 1;
-  for i := 0 to itemCount do begin
-    if SatelliteMenu.Items[i].Caption = aName then begin
-      itemIx := i; break; end;
+  for i := 0 to itemCount do
+  begin
+    if SatelliteMenu.Items[i].Caption = aName then
+    begin
+      itemIx := i;
+      break;
+    end;
   end;
-  if itemIx >= 0 then Result := TTntMenuItem(SatelliteMenu.Items[itemIx])
-  else Result := nil;
+  if itemIx >= 0 then
+    Result := TTntMenuItem(SatelliteMenu.Items[itemIx])
+  else
+    Result := nil;
 end;
 
 procedure TMainForm.SatelliteMenuItemClick(Sender: TObject);
 var
   tabInfo: TViewTabInfo;
 begin
-{  num := -1;//AlekId:исправлено было 0
-  for i := 0 to SatelliteMenu.Items.Count - 1 do begin
-    if SatelliteMenu.Items[i] = Sender then num := i - 1;
-    SatelliteMenu.Items[i].Checked := false;
-  end;
-  satMenuItem:=TTntMenuItem( SatelliteMenu.Items[num + 1]);
-  satMenuItem.Checked := true;}
+  {  num := -1;//AlekId:исправлено было 0
+    for i := 0 to SatelliteMenu.Items.Count - 1 do begin
+      if SatelliteMenu.Items[i] = Sender then num := i - 1;
+      SatelliteMenu.Items[i].Checked := false;
+    end;
+    satMenuItem:=TTntMenuItem( SatelliteMenu.Items[num + 1]);
+    satMenuItem.Checked := true;}
   try
     tabInfo := GetActiveTabInfo();
     tabInfo.mSatelliteMenuItem := SelectSatelliteMenuItem(Sender as
       TTntMenuItem);
     ProcessCommand(tabInfo.mwsLocation {History[HistoryLB.ItemIndex]});
-      //перегрузить
+    //перегрузить
   except
 
   end;
@@ -7788,7 +8553,8 @@ end;
 
 procedure TArchivedModules.Clear();
 begin
-  Names.Clear(); Paths.Clear();
+  Names.Clear();
+  Paths.Clear();
 end;
 
 constructor TArchivedModules.Create;
@@ -7799,15 +8565,10 @@ end;
 
 destructor TArchivedModules.Destroy;
 begin
-  Names.Free(); Paths.Free();
+  Names.Free();
+  Paths.Free();
   inherited;
 end;
-
-
-
-
-
-
 
 end.
 

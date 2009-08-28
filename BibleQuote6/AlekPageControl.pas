@@ -215,7 +215,7 @@ end;
 procedure TAlekPageControl.WMPaint(var Message: TWMPaint);
 var
   i, cnt, aix: integer;
-  r2: TRect;
+  r2, bitmapRect, destBtnRect: TRect;
   themesEnabled: boolean;
   themeServices: TThemeServices;
   themedElemId: TThemedTab;
@@ -231,7 +231,7 @@ var
 begin
   inherited;
   if csDesigning in ComponentState then exit;
-  
+
   themeServices := Themes.ThemeServices();
   aix := ActivePageIndex;
   cnt := PageCount - 1;
@@ -242,8 +242,10 @@ begin
     active := i = aix;
     if (SendMessage(Handle, TCM_GETITEMRECT, i, LPARAM(@r2)) = 0) then continue;
 
-    if not FCloseImage.Empty then
+    if not FCloseImage.Empty then begin
+
       Canvas.Draw(r2.Right - image_width - 4, r2.Top + 3, FCloseImage);
+      end;
     if Active then begin
 //Canvas.Font.Color:=clHighlight; //выделение цветом убрано
       Canvas.Font.Style := [fsBold];
