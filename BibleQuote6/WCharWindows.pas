@@ -5,16 +5,16 @@ interface
 Uses
   Windows, SysUtils, TNTSysUtils, Classes;
 
-function WindowsUserName (aDefault: WideString = 'default'): WideString;
+function WindowsUserName (const aDefault: WideString = 'default'): WideString;
 function WindowsDirectory: WideString;
 function WindowsTempDirectory: WideString;
 function WStrMessageBox (aMessage: WideString; aTitle: WideString = 'Message'; aButtons: Cardinal = 0; aHWND: HWND = 0): Integer; overload;
 function WStrMessageBox (aInteger: Integer; aTitle: WideString = 'Message'; aButtons: Cardinal = 0; aHWND: HWND = 0): Integer; overload;
-function ReadFileSize (aFileName: WideString): Cardinal;
+function ReadFileSize (const aFileName: WideString): Cardinal;
 
 implementation
 
-function WindowsUserName (aDefault: WideString = 'default'): WideString;
+function WindowsUserName (const aDefault: WideString = 'default'): WideString;
 var
   dWBuffer: WideString;
   dABuffer: String;
@@ -136,7 +136,7 @@ begin
 end;
 
 // Пока что ленивый вариант.
-function ReadFileSize (aFileName: WideString): Cardinal;
+function ReadFileSize (const aFileName: WideString): Cardinal;
 var
   dFile: TFileStream;
 begin

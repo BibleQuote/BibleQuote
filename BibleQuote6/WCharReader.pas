@@ -9,38 +9,35 @@ const
   cRussianCodePage = 1251;
 
 // Чтение html-файла, с автоматическим распознаванием кодировки.
-procedure WChar_ReadHtmlFileTo(aFileName: WideString; var rResult: TWideStrings; aDefaultByteEncoding: Integer = cRussianCodePage); overload;
-procedure WChar_ReadHtmlFileTo(aFileName: WideString; var rResult: WideString; aDefaultByteEncoding: Integer = cRussianCodePage); overload;
-function WChar_ReadHtmlFile(aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): TWideStrings;
+procedure WChar_ReadHtmlFileTo(const aFileName: WideString; var rResult: TWideStrings; aDefaultByteEncoding: Integer = cRussianCodePage); overload;
+procedure WChar_ReadHtmlFileTo(const aFileName: WideString; var rResult: WideString; aDefaultByteEncoding: Integer = cRussianCodePage); overload;
+function WChar_ReadHtmlFile(const aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): TWideStrings;
 
 // Запись html-файла в кодировке 1251 (если возможно) или в utf-8.
-procedure WChar_WriteHtmlFile(aFileName: WideString; const aContent: WideString);
+procedure WChar_WriteHtmlFile(const aFileName: WideString; const aContent: WideString);
 
 // Чтение текстового файла, с автоматическим распознаванием кодировки.
-function WChar_ReadTextFileToTWideStrings(aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): TWideStrings;
-function WChar_ReadTextFileToWideString(aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): WideString;
+function WChar_ReadTextFileToTWideStrings(const aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): TWideStrings;
+function WChar_ReadTextFileToWideString(const aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): WideString;
 
 // Запись текстового файла, с автоматическим принятием решения, в какой кодировке записывать..
-procedure WChar_WriteTextFile(aFileName: WideString; aContent: TWideStrings); overload;
-procedure WChar_WriteTextFile(aFileName: WideString; const aContent: WideString); overload;
+procedure WChar_WriteTextFile(const aFileName: WideString; aContent: TWideStrings); overload;
+procedure WChar_WriteTextFile(const aFileName: WideString; const aContent: WideString); overload;
 
 // Чтение фрагмента словаря, с автоматическим распознаванием кодировки.
-function WChar_ReadDictFragment(aFileName: WideString; aOffset: Integer; aCount: Integer; aDefaultByteEncoding: Integer = cRussianCodePage): WideString;
+function WChar_ReadDictFragment(const aFileName: WideString; aOffset: Integer; aCount: Integer; aDefaultByteEncoding: Integer = cRussianCodePage): WideString;
 
 function TextFromFile(filename: WideString): WideString;
 
 // Получение ID кодировки по ее html-названию
 // (скажем, 'win-1251' -> 1251, 'utf-8' -> CP_UTF8).
-function GetEncodingByName(aName: WideString): Integer;
+function GetEncodingByName(const aName: WideString): Integer;
 
 // Получение ID кодировки по внутреннему виндовому набору символов
 // (скажем, 204 -> 1251).
 function GetEncodingByWinCharSet(aCharSet: Integer): Integer;
 
-function LoadBibleqtIniFileEncoding(
-  aFileName: WideString;
-  aDefault: Integer = cRussianCodePage
-  ): Integer;
+function LoadBibleqtIniFileEncoding( const  aFileName: WideString; aDefault: Integer = cRussianCodePage ): Integer;
 
 implementation
 uses SevenZipVCL, BibleQuoteUtils;
@@ -301,13 +298,13 @@ begin
 
 end;
 
-function GetEncodingByName(aName: WideString): Integer;
+function GetEncodingByName(const aName: WideString): Integer;
 var
   dName: WideString;
 begin
   dName := WideLowerCase(aName);
 
-  if dName = 'windows-1251' then Result := 1251 else
+    if dName = 'windows-1251' then Result := 1251 else
     if dName = 'windows-1252' then Result := 1252 else
     if dName = 'windows-1253' then Result := 1253 else
     if dName = 'utf-8' then Result := CP_UTF8 else
@@ -814,7 +811,7 @@ begin
 
 end;
 
-function WChar_ReadHtmlFile(aFileName: WideString; aDefaultByteEncoding: Integer): TWideStrings;
+function WChar_ReadHtmlFile(const aFileName: WideString; aDefaultByteEncoding: Integer): TWideStrings;
 var
   dRes: TWideStrings;
   dSuccess: Boolean;
@@ -835,7 +832,7 @@ begin
 
 end;
 
-procedure WChar_ReadHtmlFileTo(aFileName: WideString; var rResult: TWideStrings; aDefaultByteEncoding: Integer); overload;
+procedure WChar_ReadHtmlFileTo(const aFileName: WideString; var rResult: TWideStrings; aDefaultByteEncoding: Integer); overload;
 var
   dBuffer: AnsiString;
   dEncoding: Integer;
@@ -863,7 +860,7 @@ begin
 
 end;
 
-procedure WChar_ReadHtmlFileTo(aFileName: WideString; var rResult: WideString; aDefaultByteEncoding: Integer); overload;
+procedure WChar_ReadHtmlFileTo(const aFileName: WideString; var rResult: WideString; aDefaultByteEncoding: Integer); overload;
 var
   dBuffer: AnsiString;
   dEncoding: Integer;
@@ -890,7 +887,7 @@ begin
 
 end;
 
-function WChar_ReadTextFileToTWideStrings(aFileName: WideString; aDefaultByteEncoding: Integer): TWideStrings;
+function WChar_ReadTextFileToTWideStrings(const aFileName: WideString; aDefaultByteEncoding: Integer): TWideStrings;
 var
   dBuffer: AnsiString;
   dRes: TWideStrings;
@@ -911,7 +908,7 @@ begin
 
 end;
 
-function WChar_ReadTextFileToWideString(aFileName: WideString; aDefaultByteEncoding: Integer): WideString;
+function WChar_ReadTextFileToWideString(const aFileName: WideString; aDefaultByteEncoding: Integer): WideString;
 var
   dBuffer: AnsiString;
 begin
@@ -932,7 +929,7 @@ begin
 
 end;
 
-procedure WChar_WriteTextFile(aFileName: WideString; aContent: TWideStrings); overload;
+procedure WChar_WriteTextFile(const aFileName: WideString; aContent: TWideStrings); overload;
 var
   dFile: TFileStream;
   dCount: Integer;
@@ -986,7 +983,7 @@ begin
   end;
 end;
 
-procedure WChar_WriteTextFile(aFileName: WideString; const aContent: WideString); overload;
+procedure WChar_WriteTextFile(const aFileName: WideString; const aContent: WideString); overload;
 var
   dFile: TFileStream;
   dAString: AnsiString;
@@ -1018,7 +1015,7 @@ begin
   end;
 end;
 
-procedure WChar_WriteHtmlFile(aFileName: WideString; const aContent: WideString);
+procedure WChar_WriteHtmlFile(const aFileName: WideString; const aContent: WideString);
 var
   dWContent: WideString;
   dAContent: AnsiString;
@@ -1045,7 +1042,7 @@ begin
 
 end;
 
-function WChar_ReadDictFragment(aFileName: WideString; aOffset: Integer; aCount: Integer; aDefaultByteEncoding: Integer): WideString;
+function WChar_ReadDictFragment(const aFileName: WideString; aOffset: Integer; aCount: Integer; aDefaultByteEncoding: Integer): WideString;
 var
   dFile: TFileStream;
   dEncoding: Integer;
@@ -1099,7 +1096,7 @@ begin
 end;
 
 function LoadBibleqtIniFileEncoding(
-  aFileName: WideString;
+  const aFileName: WideString;
   aDefault: Integer
   ): Integer;
 var

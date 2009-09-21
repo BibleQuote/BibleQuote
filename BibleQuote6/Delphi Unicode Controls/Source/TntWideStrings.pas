@@ -16,7 +16,7 @@ unit TntWideStrings;
 interface
 
 {$IFDEF COMPILER_10_UP}
-  {$MESSAGE FATAL 'Do not refer to TntWideStrings.pas.  It works correctly in Delphi 2006.'}
+  {/$MESSAGE FATAL 'Do not refer to TntWideStrings.pas.  It works correctly in Delphi 2006.'}
 {$ENDIF}
 
 uses

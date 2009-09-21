@@ -46,9 +46,6 @@ program BibleQuote6;
 {%TogetherDiagram 'ModelSupport_BibleQuote6\BibleQuoteUtils\default.txvpck'}
 
 uses
-{$IFDEF MEMCHECK}
-  MemCheck,
-{$ENDIF}
   XPTheme in 'XPTheme.pas',
   Forms,
   string_procs in 'string_procs.pas',
@@ -71,7 +68,8 @@ uses
   Tabs in 'Tabs.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
   main in 'main.pas' {MainForm: TTntForm},
-  BibleQuoteUtils in 'BibleQuoteUtils.pas';
+  BibleQuoteUtils in 'BibleQuoteUtils.pas',
+  AboutForm in 'AboutForm.pas' {frmAbout: TTntForm};
 
 {$R *.res}
 var
@@ -89,12 +87,13 @@ begin
       Rewrite(Output);
   except
   end;
-  writeln(Now, ': Старт Цитаты');
+
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TCopyrightForm, CopyrightForm);
   Application.CreateForm(TConfigForm, ConfigForm);
+  Application.CreateForm(TfrmAbout, frmAbout);
   Application.Run;
   try
     Close(Output);

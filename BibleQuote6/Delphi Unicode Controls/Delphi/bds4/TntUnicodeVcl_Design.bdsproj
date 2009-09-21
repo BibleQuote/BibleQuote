@@ -176,8 +176,11 @@
 			<VersionInfoKeys Name="OriginalFilename" Type="String"></VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName" Type="String"></VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion" Type="String">2.3.0.1</VersionInfoKeys>
-		</VersionInfoKeys>
-	</Delphi.Personality>
+		</VersionInfoKeys>  <Excluded_Packages>
+      <Excluded_Packages Name="C:\Documents and Settings\UsrX\Мои документы\Borland Studio Projects\Bpl\AlekControls.bpl">(untitled)</Excluded_Packages>
+      <Excluded_Packages Name="C:\Documents and Settings\UsrX\Мои документы\Borland Studio Projects\Bpl\TrayIcon.bpl">(untitled)</Excluded_Packages>
+    </Excluded_Packages>
+  </Delphi.Personality>
 	<StarTeamAssociation></StarTeamAssociation>
 	<StarTeamNonRelativeFiles></StarTeamNonRelativeFiles>
 </BorlandProject>

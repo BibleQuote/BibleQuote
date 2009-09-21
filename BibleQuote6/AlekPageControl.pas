@@ -14,7 +14,7 @@ type
   protected
     FCloseImage: TBitmap;
     FOnDeleteTab: TAlekPageControlDeleteTab;
-    FFontHandle: HFont;
+{    FFontHandle: HFont;}
     procedure DrawTab(TabIndex: Integer; const Rect: TRect; Active: Boolean);
       override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -61,7 +61,6 @@ constructor TAlekPageControl.Create(AOwner: TComponent);
 begin
   inherited;
   FCloseImage := TBitmap.Create();
-  FFontHandle := 0;
 end;
 
 procedure TAlekPageControl.DblClick;

@@ -35,6 +35,12 @@ type
     mWrongPassword: WideString;
     constructor CreateFmt(const password, module: WideString; const Msg: string; const Args: array of const);
   end;
+  TBQInstalledFontInfo=class
+    mPath:WideString;
+    mFileNeedsCleanUp:boolean;
+    mHandle:HFont;
+    constructor Create(const aPath:WideString; afileNeedsCleanUp:boolean; aHandle:HFont);
+    end;
 
 const
   Crc32Bytes = 4;
@@ -76,7 +82,8 @@ const
     $AFB010B1, $AB710D06, $A6322BDF, $A2F33668, $BCB4666D, $B8757BDA, $B5365D03, $B1F740B4
     );
 
-function GetArchiveFromSpecial(const aSpecial: WideString): WideString;
+function GetArchiveFromSpecial(const aSpecial: WideString): WideString;overload;
+function GetArchiveFromSpecial(const aSpecial: WideString; out fileName: WideString): WideString;overload;
 function GetCachedModulesListDir(): WideString;
 function FileExistsEx(aPath: WideString): integer;
 function ArchiveFileSize(wsPath: WideString): integer;
@@ -85,7 +92,12 @@ function FontExists(aHDC: HDC; const wsFontName: WideString): boolean;
 function FontFromCharset(aHDC: HDC; charset: integer; wsDesiredFont: WideString = ''): WideString;
 function GetCRC32(pData: PByteArray; count: Integer; Crc: Cardinal = 0): Cardinal;
 function ExtractModuleName(aModuleSignature:WideString):WideString;
+function StrPosW(const Str, SubStr: PWideChar): PWideChar;
+function ExctractName(const wsFile:WideString):WideString;
+function IsDown(key:integer):boolean;
+
 var S_SevenZip: TSevenZip;
+    G_InstalledFonts:TWideStringList;
 implementation
 uses WCharReader, MultiLanguage, main, Controls;
 
@@ -462,7 +474,7 @@ var logFont: tagLOGFONTW;
 begin
   __hitCount := 0;
   FillChar(logFont, sizeof(logFont), 0);
-  FillChar(fontName, 32, 0);
+  FillChar(fontName, 64, 0);
   logFont.lfCharSet := charset;
   fontNameLength := Length(wsDesiredFont);
   if fontNameLength > 0 then begin
@@ -476,7 +488,7 @@ begin
   end;
   __hitCount := 0;
   FillChar(logFont, sizeof(logFont), 0);
-  FillChar(fontName, 32, 0);
+  FillChar(fontName, 64, 0);
   logFont.lfCharSet := charset;
   EnumFontFamiliesExW(aHDC, logFont, @EnumFontFamExProc, integer(@fontName), 0);
   if (__hitCount > 0) and (fontName[0] <> #0) then result := PWideChar(@fontName)
@@ -488,6 +500,7 @@ function FontExists(aHDC: HDC; const wsFontName: WideString): boolean;
 var logFont: tagLOGFONTW;
   fontNameLength: integer;
 begin
+  if G_InstalledFonts.IndexOf(wsFontName)>=0 then begin result:=true; exit; end;
   __hitCount := 0;
   FillChar(logFont, sizeof(logFont), 0);
   fontNameLength := Length(wsFontName);
@@ -498,6 +511,19 @@ begin
   result := __hitCount > 0;
 end;
 
+function ExctractName(const wsFile:WideString):WideString;
+var pC, pLastDot:PWideChar;
+begin
+pC:=PWideChar(Pointer(wsFile));
+if (pC=nil) or (pC^=#0) then begin result:=''; exit end;
+pLastDot:=nil;
+repeat
+if pC^='.' then pLastDot:=pC;
+inc(pC);
+until (pC^=#0);
+if pLastDot<>nil then result:=Copy(wsFile, 1, pLastDot-PWideChar(Pointer(wsFile)))
+else result:='';
+end;
 
 function ExtractModuleName(aModuleSignature:WideString):WideString;
 var ipos:integer;
@@ -506,10 +532,83 @@ begin
   if ipos<=0 then begin result:=''; exit end;
   result:= Copy(aModuleSignature,1,  ipos -1);
 end;
+function StrPosW(const Str, SubStr: PWideChar): PWideChar;
+var
+  P: PWideChar;
+  I: Integer;
+begin
+  Result := nil;
+  if (Str = nil) or (SubStr = nil) or (Str^ = #0) or (SubStr^ = #0) then
+    Exit;
+  Result := Str;
+  while Result^ <> #0 do
+  begin
+    if Result^ <> SubStr^ then
+      Inc(Result)
+    else
+    begin
+      P := Result + 1;
+      I := 1;
+      while (P^ <> #0) and (P^ = SubStr[I]) do
+      begin
+        Inc(I);
+        Inc(P);
+      end;
+      if SubStr[I] = #0 then
+        Exit
+      else
+        Inc(Result);
+    end;
+  end;
+  Result := nil;
+end;
+
+
+{ TBQInstalledFontInfo }
+
+constructor TBQInstalledFontInfo.Create(const aPath: WideString;
+  afileNeedsCleanUp: boolean; aHandle: HFont);
+begin
+mHandle:=aHandle; mFileNeedsCleanUp:= afileNeedsCleanUp; mPath:=aPath;
+end;
+
+function IsDown(key:integer):boolean;
+begin
+result:=(GetKeyState(key) and  $8000)<>0;
+end;
+
+procedure _cleanUpInstalledFonts();
+var cnt, i:integer;
+    ifi:TBQInstalledFontInfo;
+    test:BOOL;
+   tf: array[0..1023] of WideChar;
+   tempPathLen:integer;
+begin
+cnt:=G_InstalledFonts.Count-1;
+if cnt<0 then exit;
+tempPathLen := GetTempPathW(1023, tf);
+if tempPathLen > 1024 then exit;
+for i:=0 to cnt do begin
+  try
+  ifi:= G_InstalledFonts.Objects[i] as TBQInstalledFontInfo;
+  if ifi.mHandle<>0 then test:=RemoveFontMemResourceEx(ifi.mHandle)
+  else begin
+    test:=RemoveFontResourceW(PWideChar(Pointer(ifi.mPath)));
+    if ifi.mFileNeedsCleanUp then begin
+      { TODO -oAlekId -cQA : Добавить безопасное удаление файла шрифта }
+    //пока ничего
+    end;
+  end;
+  except end;
+end; //for
+end;
+
 
 initialization
+   G_InstalledFonts:=TWideStringList.Create;
   S_SevenZip := TSevenZip.Create(nil);
 finalization
+  _cleanUpInstalledFonts();
   S_SevenZip.Free();
 end.
 

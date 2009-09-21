@@ -1,4 +1,3 @@
-
 {*****************************************************************************}
 {                                                                             }
 {    Tnt Delphi Unicode Controls                                              }
@@ -916,7 +915,9 @@ begin
     R := ClientRect;
     Inc(R.Left, 2);
     Inc(R.Top, 2);
-    Canvas.Font.Color := Screen.HintFont.Color;
+    {AlekId}
+//    Canvas.Font.Color := Screen.HintFont.Color;
+    Canvas.Font.Assign(Screen.HintFont);
     Tnt_DrawTextW(Canvas.Handle, PWideChar(Caption), -1, R, DT_LEFT or DT_NOPREFIX or
       DT_WORDBREAK or DrawTextBiDiModeFlagsReadingOnly);
   end;

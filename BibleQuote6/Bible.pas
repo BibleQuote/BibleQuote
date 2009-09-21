@@ -205,6 +205,7 @@ type
 
     FDefaultEncoding: Integer; // Default 8-bit encoding for all book files of TBible.
     FDesiredFontCharset:Integer; //AlekId
+    FUseRightAlignment:boolean;//AlekId
 
     FFontName: WideString;
     FAlphabet: WideString; // ALL letters that can be parts of text in the module
@@ -227,7 +228,7 @@ type
 
 //    FZeroChapter: boolean; // commentaries or special modules may have chapter 0 (intro) for each book
 
-    FLasTBible, FLastChapter, FLastVerse: integer;
+    {FLasTBible, FLastChapter, FLastVerse: integer;}//AlekId:QA
 
     FVersesFound: integer; // run-time counter of words found during search
     FOnVerseFound: TBibleSearchEvent;
@@ -251,7 +252,6 @@ type
 
     function SearchOK(source: WideString; words: TWideStrings; params: byte): boolean;
     procedure SearchBook(words: TWideStrings; params: byte; book: integer);
-
     procedure SetHTMLFilter(value: WideString);
 
   public
@@ -285,7 +285,8 @@ type
 
     property DefaultEncoding: Integer read FDefaultEncoding;
     property DesiredCharset:integer read FDesiredFontCharset;
-    
+    property UseRightAlignment:boolean read FUseRightAlignment;
+
     property Alphabet: WideString read FAlphabet;
     property FontName: WideString read FFontName;
 
@@ -336,6 +337,7 @@ type
         var book,chapter,verse: integer): boolean;
 (*AlekId:Äîáàâëåíî*)
     procedure _InternalSetContext(book, chapter:integer);
+    procedure SetHTMLFilterX(value: WideString;  forceUserFilter:boolean);
 (*AlekId:/Äîáàâëåíî*)
   published
     { Published declarations }
@@ -408,6 +410,7 @@ begin
 
 end;
 
+
 function TBible.GetAlphabetBit (aCode: Integer): Boolean;
 var
   dIndex: Integer;
@@ -426,10 +429,16 @@ begin
 end;
 
 
-
 procedure TBible.SetHTMLFilter(value: WideString);
 begin
-  FHTML := DefaultHTMLFilter + value;
+FHTML := DefaultHTMLFilter + value;
+FDefaultFilter := false;
+end;
+
+procedure TBible.SetHTMLFilterX(value: WideString; forceUserFilter:boolean);
+begin
+  if forceUserFilter then   FHTML := value
+  else FHTML := DefaultHTMLFilter + value;
   FDefaultFilter := false;
 end;
 
@@ -480,7 +489,7 @@ begin
   FFiltered := true;
   FHTML := DefaultHTMLFilter;
   FDefaultFilter := true;
-
+  FUseRightAlignment:=false;
   FAlphabet :=
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' +
     'ÀÁÂÃÄÅ¨ÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäå¸æçèéêëìíîïğñòóôõö÷øùúûüışÿ';
@@ -490,9 +499,9 @@ begin
 
   FStopSearching := false;
 
-  FLasTBible := 0;
+  {FLasTBible := 0;
   FLastChapter := 0;
-  FLastVerse := 0;
+  FLastVerse := 0;}
 
   FRememberPlace := true;
 
@@ -619,6 +628,9 @@ begin
 //AlekId:      FDefaultEncoding := GetEncodingByWinCharSet (dTempInt);
 
     end else
+    if dFirstPart='UseRightAlignment' then begin
+    FUseRightAlignment:=ToBoolean(dSecondPart)
+    end else
 
 {
     if dFirstPart = 'ParagraphSkips' then
@@ -696,9 +708,9 @@ begin
   end
   else}
 
-  FLasTBible := 0;
+  {FLasTBible := 0;
   FLastChapter := 0;
-  FLastVerse := 0;
+  FLastVerse := 0;}
 
   FAlphabet := FAlphabet + '0123456789';
 
@@ -993,9 +1005,9 @@ begin
 
   words.Free;
 
-  FLasTBible := 0;
+  {FLasTBible := 0;
   FLastChapter := 0;
-  FLastVerse := 0;
+  FLastVerse := 0;}
 
   if Assigned(FOnSearchComplete) then FOnSearchComplete(Self);
     {$IFDEF debug_profile}
@@ -1105,9 +1117,9 @@ procedure TBible.ClearBuffers;
 begin
   BookLines.Clear;
   FLines.Clear;
-  FLasTBible := 0;
+  {FLasTBible := 0;
   FLastChapter := 0;
-  FLastVerse := 0;
+  FLastVerse := 0;}
 end;
 
 function TBible.isEnglish: boolean;

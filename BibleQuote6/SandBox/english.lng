@@ -1,0 +1,247 @@
+
+; SYSTEM MESSAGES ===================================
+
+; Note:
+; Long messages can be broken into several lines by placing '=' sign
+; at the first position
+
+SoundNotFound = Could not find sound file for "%s". Probably, you
+= need to purchase a special version with audio recordings of the Bible.
+= Please contact with the authors.
+
+FileNotFound = Could not find file %s
+#1%s=Error reading module %s. Module is corrupt or wrong password was supplied.
+GoingOnline = Now Bible Quote will open the site %s in your default Internet browser
+e:\DevSoft\myprojects\BQ6\SandBox\english.lng
+HelpFileName=indexeng.htm
+lblPasswordNeeded=To open this module, please enter the password (%s)
+lblPassword=Password:
+btnCancel=Cancel
+cbxSavePwd=Save password
+
+AllBooks = All
+OTOnly = OT.
+NTOnly = NT.
+APOnly = AP.
+
+PublicDomainText = This text is public domain
+
+OneLetterWordsDeleted = One letter expressions have been deleted because they occur too many times in the text
+SearchTitle = Search results for: "%s"
+SearchHeaders = <b>Module name: %s<P>Search range: %s<P>
+SearchInterrupted = THE PROCESS WAS INTERRUPTED.<P>
+SearchOptions = Search options:</b>
+SearchResults = <b>Found: %d</b><P>
+
+SearchAllBooks = All books of the module
+
+SearchWholeBible = WHOLE BIBLE
+SearchOT = OLD TESTAMENT
+SearchNT = NEW TESTAMENT
+SearchPT = # Pentateuch
+SearchHP = # Historic and poetic books
+SearchPR = # The Prophets
+SearchGA = # The Gospels and Acts
+SearchER = # Epistles and Revelation
+SearchAP = # Apocrypha
+
+ViewPrevPage = Previous page
+ViewNextPage = Next page
+
+; FORM ELEMENTS AND MENU ITEMS =================================
+;
+MainForm.Caption = Bible Quote
+;
+MainForm.CBAll.Caption = results contain at least one word
+MainForm.CBAll.Hint = Example: display not only verses that contain "Jesus Christ", but also those that contain "Jesus" or "Christ"
+MainForm.CBCase.Caption = case sensitive search
+MainForm.CBCase.Hint = Example: search for "God", but not "god"
+MainForm.CBDisplayOptions.Caption = display chosen options in output
+MainForm.CBDisplayOptions.Hint = The search results page will contain detailed information
+MainForm.CBParts.Caption = search for whole words
+MainForm.CBParts.Hint = Example: searching for "Christ" but not "christian"
+MainForm.CBPhrase.Caption = words should follow the given order
+MainForm.CBPhrase.Hint = Example: display verses that contain "Jesus Christ", but not "Christ Jesus"
+MainForm.CBExactPhrase.Caption = exact phrase matching
+MainForm.CBExactPhrase.Hint = Example: verses that contain "in that day", but not "in that very day"
+;
+CBAllNotCaption = results contain all given words
+CBCaseNotCaption = case unsensitive search
+CBPartsNotCaption = parts of words are allowed
+CBPhraseNotCaption = words can be in any order
+;
+MainForm.BackButton.Hint = Previous history record (Backspace, Alt+Left arrow)
+MainForm.ForwardButton.Hint = Next history record (Alt+Right arrow)
+MainForm.PrevChapterButton.Hint = Previous chapter (Ctrl+Z)
+MainForm.NextChapterButton.Hint = Next chapter (Ctrl+X)
+;
+MainForm.AddressOKButton.Caption = OK
+MainForm.AddressOKButton.Hint = Show the chosen passage
+MainForm.FindButton.Caption = Find
+MainForm.FindButton.Hint = Begin/stop searching
+MainForm.HelpButton.Hint = User's manual
+MainForm.HotKeyCancelButton.Caption = Cancel
+MainForm.HotKeyCancelButton.Hint = Quit without saving settings
+MainForm.HotKeyLabel.Hint = Assign your favorites to quick-access (hot) keys
+MainForm.HotKeyOKButton.Caption = OK
+MainForm.HotKeyOKButton.Hint = Save settings
+MainForm.MemoCancelButton.Caption = Cancel
+MainForm.MemoCancelButton.Hint = 
+MainForm.MemoOKButton.Caption = OK
+MainForm.MemoOKButton.Hint = Save your comment
+MainForm.MemoPanelLabel.Caption = 
+MainForm.MemoPanelLabel.Hint = 
+MainForm.miActions.Caption = Actions
+MainForm.miAddBookmark.Caption = Add bookmark ...
+MainForm.miAddMemo.Caption = Add memo ...
+MainForm.miMemosToggle.Caption = Show/hide memos
+MainForm.miAddPassageBookmark.Caption = Bookmark current passage
+MainForm.miBibleModules.Caption = Bibles
+MainForm.miBookmark.Caption = Bookmarks...
+MainForm.miCloseWindow.Caption = Close current viewpage
+MainForm.miCompare.Caption = Compare translations...
+MainForm.miCopy.Caption = Copy selection to clipboard
+MainForm.miCopyPassage.Caption = Copy ...
+MainForm.miCopySelection.Caption = 
+MainForm.miCopyVerse.Caption = Copy ...
+MainForm.miCopyVerseNumbers.Caption = Insert verse numbers when copying
+MainForm.miExit.Caption = Exit
+MainForm.miFavorites.Caption = Favorite modules
+MainForm.miFile.Caption = File
+MainForm.miNewTab.Caption = New Tab
+MainForm.miCloseTab.Caption = Close Tab
+MainForm.miNewViewTab.Caption = New Tab
+MainForm.miCloseViewTab.Caption = Close Tab
+
+
+MainForm.miDic.Caption = Dictionaries
+MainForm.miStrong.Caption = Strong's Lexicons
+MainForm.miComments.Caption = Commentaries
+MainForm.miXref.Caption = Treasury of Scripture Knowledge
+
+MainForm.miToggle.Caption = Toggle left panel on/off
+MainForm.miQuickNav.Caption = Quick navigation box
+MainForm.miQuickSearch.Caption = Quick search box
+MainForm.miCopy.Caption = Copy selected text
+
+MainForm.miColors.Caption = Select colors
+MainForm.miBGConfig.Caption = Select background color
+MainForm.miHrefConfig.Caption = Select color for hyperlinks
+MainForm.miFoundTextConfig.Caption = Select color for found text and memos
+
+MainForm.miFonts.Caption = Select fonts
+MainForm.miFontConfig.Caption = Main window text
+MainForm.miRefFontConfig.Caption = Reference windows text
+MainForm.miDialogFontConfig.Caption = Dialog boxes and choices
+
+MainForm.miCopyVerseNum.Caption = Include verse numbers in copying
+
+
+MainForm.miHelpMenu.Caption = Help
+MainForm.miHelp.Caption = User manual
+MainForm.miAbout.Caption = About this program
+
+MainForm.miGoBack.Caption = Back to previous page
+MainForm.miHistory.Caption = Program history...
+MainForm.miHotKey.Caption = Select your favorites...
+MainForm.miHrefUnderline.Caption = Underline hyperlinks
+MainForm.miLargeButtons.Caption = Use large toolbar buttons
+MainForm.miNotepad.Caption = Notepad
+MainForm.miNewWindow.Caption = Create a new viewpage
+MainForm.miNextChapter.Caption = Go to next chapter
+MainForm.miOpen.Caption = Open a file...
+MainForm.miOpenPassage.Caption = Open a passage
+MainForm.miOptions.Caption = Options
+MainForm.miPrevChapter.Caption = Go to previous chapter
+MainForm.miPrint.Caption = Print...
+MainForm.miPrintPreview.Caption = Print preview
+MainForm.miSave.Caption = Save to file...
+MainForm.miSearch.Caption = Search...
+MainForm.miSearchResults.Caption = Last search results
+MainForm.miSearchWord.Caption = Search for selected text
+MainForm.miSound.Caption = Listen to sound recording, if exists
+MainForm.miTextModules.Caption = Other books
+MainForm.miXref.Caption = Cross references
+MainForm.SearchLabel.Caption = Please enter search options...
+MainForm.SearchLabel.Hint = By narrowing search range and options you will get better results
+;
+MainForm.MaxCB.Items = Display a maximum of 100 results,Display a maximum of 200 results,Display a maximum of 300 results,Display all search results
+;
+MainForm.HistoryTab.Caption = History
+MainForm.BookmarksTab.Caption = Favorites
+;
+MainForm.miSearchWindow.Caption = Search within this window...
+MainForm.SearchInWindowPanel.Caption = Search within this window
+MainForm.TBSearchForward.Hint = Search forward
+MainForm.TBSearchBackward.Hint = Search backward
+;
+;
+StrBibleTranslations = BIBLE TRANSLATIONS
+StrBooks = OTHER BOOKS
+StrCommentaries = COMMENTARIES
+StrAllDictionaries = ALL DICTIONARIES
+;
+FoundInSeveralDictionaries = found in several dictionaries
+FoundInOneDictionary = found in one dictionary
+;
+MainForm.DicFoundSeveral.Caption = found in several dictionaries
+MainForm.FindStrongNumberPanel.Caption = find verses with this number
+;
+MainForm.miCopyOptions.Caption = Parameters of copying
+;
+ConfigForm.Caption = Parameters
+;
+ConfigForm.CopyOptionsTabSheet.Caption = Parameters of copying
+ConfigForm.FavoritesTabSheet.Caption = Favorite modules
+ConfigForm.FavouriteExTabSheet.Caption=Favorite modules
+ConfigForm.OtherOptionsTabSheet.Caption = Other options
+;
+ConfigForm.CopyVerseNumbers.Caption = Copy verse numbers
+ConfigForm.CopyFontParams.Caption = Copy font parameters
+ConfigForm.CopyFontParams.Hint = Text will be copied as RTF
+ConfigForm.AddReference.Caption = Add passage reference
+ConfigForm.AddLineBreaks.Caption = Add line breaks at the end of each verse
+ConfigForm.AddModuleName.Caption = Add name of module/translation
+;
+ConfigForm.OKButton.Caption = OK
+ConfigForm.CancelButton.Caption = Cancel
+;
+ConfigForm.SelectSecondPathLabel.Caption = Secondary path for modules
+;
+ConfigForm.MinimizeToTray.Caption = Minimize to tray
+ConfigForm.MinimizeToTray.Hint = An icon will be placed near the system clock
+ConfigForm.HotKeyChoice.Caption = Hotkey combination
+;
+ConfigForm.lblAvailableModules.Caption=Available modules
+ConfigForm.lblFavourites.Caption=Favorites
+
+CopyOptionsAddReference_ShortAtBeginning = Short reference at the beginning of each verse
+CopyOptionsAddReference_ShortAtEnd = Short reference at the end of each passage
+CopyOptionsAddReference_FullAtEnd = Full reference at the end of each passage
+;
+;
+MainForm.JCRU_Home.Caption = JesusChrist.ru - Christian fellowship site
+MainForm.JCRU_Software.Caption = Free Christian software
+MainForm.JCRU_Bible.Caption = Bible online
+MainForm.JCRU_News.Caption = News digest from all over the world
+MainForm.JCRU_Forum.Caption = Russian Christian forum
+MainForm.JCRU_Chat.Caption = Historical Russian Christian chat
+MainForm.JCRU_Library.Caption = Christian library, clib.ru
+MainForm.JCRU_Docs.Caption = Spiritual readings
+MainForm.JCRU_Mail.Caption = Mailing lists server
+
+;
+
+;COPY - PASTE - PRINT
+
+MainForm.miRefCopy.Caption = Copy
+MainForm.miRefPrint.Caption = Print
+
+MainForm.miMemoCopy.Caption = Copy
+MainForm.miMemoCut.Caption = Cut
+MainForm.miMemoPaste.Caption = Paste
+
+
+;
+
+MainForm.SatelliteButton.Hint = Satellite Bible
