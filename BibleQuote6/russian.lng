@@ -15,6 +15,7 @@ GoingOnline = Сейчас "Цитата из Библии" откроет сайт %s в Вашем Интернет-браузер
 lblPasswordNeeded=Для открытия модуля нужно ввести пароль (%s)
 lblPassword=Пароль:
 btnCancel=Отмена
+cbxSavePwd=Сохранить пароль
 
 HelpFileName = indexrus.htm
 
@@ -81,7 +82,7 @@ MainForm.FindButton.Hint = Начать/остановить поиск
 MainForm.HelpButton.Hint = Документация
 MainForm.HotKeyCancelButton.Caption = Отмена
 MainForm.HotKeyCancelButton.Hint = Выйти без сохранения
-MainForm.HotKeyLabel.Hint = Привяжите любимые модули к клавишам быстрого доступа
+MainForm.HotKeyLabel.Hint = Привяжите избранные модули к клавишам быстрого доступа
 MainForm.HotKeyOKButton.Caption = OK
 MainForm.HotKeyOKButton.Hint = Сохранить настройки
 MainForm.MemoCancelButton.Caption = Отмена
@@ -106,11 +107,11 @@ MainForm.miCopy.Caption = Копировать текст в буфер обмена
 MainForm.miCopyPassage.Caption = Копировать ...
 MainForm.miCopyVerse.Caption = Копировать ...
 MainForm.miExit.Caption = Выход
-MainForm.miFavorites.Caption = Любимые модули
+MainForm.miFavorites.Caption = Избранные модули
 MainForm.miFile.Caption = Файл
 MainForm.miGoBack.Caption = Вернуться к предыдущей странице
 MainForm.miHistory.Caption = Журнал работы...
-MainForm.miHotKey.Caption = Выбрать любимые модули...
+MainForm.miHotKey.Caption = Выбрать избранные модули...
 MainForm.miHrefUnderline.Caption = Подчеркивать гиперссылки
 MainForm.miLargeButtons.Caption = Использовать большие кнопки на панели
 MainForm.miNotepad.Caption = Мини-редактор
@@ -132,14 +133,20 @@ MainForm.miXref.Caption = Параллельные места
 MainForm.SearchLabel.Caption = Введите опции для поиска
 MainForm.SearchLabel.Hint = Путем сужения диапазона поиска и задания точных параметров можно получить лучшие результаты
 MainForm.miNewTab.Caption = Новая вкладка
+MainForm.miNewTab.Hint=Создать новую вкладку вида
 MainForm.miNewViewTab.Caption = Новая вкладка
 MainForm.miCloseTab.Caption = Закрыть вкладку
+MainForm.miCloseTab.Caption = Закрыть активную вкладку вида
 MainForm.miCloseViewTab.Caption = Закрыть вкладку
 ;
 MainForm.MaxCB.Items = Показать не более 100 стихов,Показать не более 200 стихов,Показать не более 300 стихов,Показать все найденные стихи
 ;
 MainForm.HistoryTab.Caption = Журнал
 MainForm.BookmarksTab.Caption = Закладки
+MainForm.tbQuickSearch.Caption=Быстрый поиск
+MainForm.SearchInWindowLabel.Caption=Найти в данном виде
+MainForm.SearchEdit.Hint=Введите слово или выражение  для поиска
+
 ;
 MainForm.miDic.Caption = Словари
 MainForm.miStrong.Caption = Лексиконы Стронга
@@ -183,7 +190,8 @@ MainForm.miCopyOptions.Caption = Опции копирования
 ConfigForm.Caption = Настройки
 ;
 ConfigForm.CopyOptionsTabSheet.Caption = Опции копирования
-ConfigForm.FavoritesTabSheet.Caption = Любимые модули
+ConfigForm.FavoritesTabSheet.Caption = Избранные модули
+ConfigForm.FavouriteExTabSheet.Caption=Избранные модули
 ConfigForm.OtherOptionsTabSheet.Caption = Другие опции
 ;
 ConfigForm.CopyVerseNumbers.Caption = Копировать номера стихов
@@ -206,6 +214,8 @@ CopyOptionsAddReference_ShortAtBeginning = Короткая подпись в начале каждого сти
 CopyOptionsAddReference_ShortAtEnd = Короткая подпись в конце отрывка
 CopyOptionsAddReference_FullAtEnd = Полная подпись в конце отрывка
 ;
+ConfigForm.lblAvailableModules.Caption=Доступные модули
+ConfigForm.lblFavourites.Caption=Избранные
 ;
 MainForm.JCRU_Home.Caption = JesusChrist.ru - сервер христианского общения
 MainForm.JCRU_Software.Caption = Бесплатные христианские софт-твари

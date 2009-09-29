@@ -303,13 +303,13 @@ type
     miNewViewTab: TTntMenuItem;
     miCloseViewTab: TTntMenuItem;
     tbbMainPanelLastSeparator: TTntToolButton;
-    TntTabSheet1: TTntTabSheet;
+    tbQuickSearch: TTntTabSheet;
     SearchInWindowLabel: TTntLabel;
     SearchLabel: TTntLabel;
     QuickSearchPanel: TTntPanel;
-    TntBitBtn1: TTntBitBtn;
+    btnQuickSearchBack: TTntBitBtn;
     SearchEdit: TTntEdit;
-    SearchForward: TTntBitBtn;
+    btnQuickSearchFwd: TTntBitBtn;
     LinksCB: TTntComboBox;
     mViewTabs: TAlekPageControl;
     mBibleTabsEx: TDockTabSet;
@@ -321,7 +321,6 @@ type
     lbCopyRightNotice: TTntLabel;
     miTechnoForum: TTntMenuItem;
     miOpenNewView: TTntMenuItem;
-    tbAddBibleLink: TTntToolButton;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -475,7 +474,7 @@ type
     procedure HistoryLBKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure SearchBackwardClick(Sender: TObject);
-    procedure SearchForwardClick(Sender: TObject);
+    procedure btnQuickSearchFwdClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure FindStrongNumberPanelMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -530,7 +529,8 @@ type
     procedure FirstBrowserHotSpotCovered(Sender: TObject; const SRC: string);
     procedure FirstBrowserMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure tbAddBibleLinkClick(Sender: TObject);
+    procedure LoadFontFromFolder(awsFolder:WideString);
+//    procedure tbAddBibleLinkClick(Sender: TObject);
     //    procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
     //      Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     //    procedure vstBooksInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode;
@@ -587,11 +587,12 @@ type
     function ActiveSatteliteMenu(): TTntMenuItem;
     function SelectSatelliteMenuItem(aItem: TTntMenuItem): TTntMenuItem;
     procedure SetFirstTabInitialLocation(wsCommand, wsSecondaryView:
-      WideString);
+      WideString; showStrongs, showNotes:boolean);
     function SatelliteMenuItemFromModuleName(aName: WideString): TTntMenuItem;
     procedure SaveTabsToFile(path: WideString);
     procedure LoadTabsFromFile(path: WideString);
-    function NewViewTab(const command, satellite: WideString): boolean;
+    function NewViewTab(const command, satellite: WideString;
+    showStrongs, showNotes:boolean): boolean;
     function FindTaggedTopMenuItem(tag: integer): TTntMenuItem;
 
     function AddArchivedModules(path: WideString; tempBook: TBible;
@@ -627,12 +628,13 @@ type
     function ActivateFont(const fontPath: WideString): DWORD;
     function PrepareFont(const aFontName, aFontPath: WideString): boolean;
     function SuggestFont(const desiredFontName, desiredFontPath: WideString; desiredCharset: integer): WideString;
-    function NewTab(const location: WideString): boolean;
+//    function NewTab(const location: WideString): boolean;
     function GetModuleText(cmd: WideString; out fontName: WideString): WideString;
     procedure FontChanged(delta: integer);
     procedure ShowHintEventHandler(var HintStr: string; var CanShow: Boolean;
       var HintInfo: THintInfo);
     procedure LoadUserMemos();
+//    procedure SetStrongsAndNotesState(showStrongs, showNotes:boolean; ti:TViewTabInfo);
     (*AlekId:/ƒобавлено*)
     procedure GoAddress(var book, chapter, fromverse, toverse: integer);
     procedure SearchListInit;
@@ -1201,6 +1203,25 @@ begin
   result := mDictionariesFullyInitialized;
 end;
 
+procedure TMainForm.LoadFontFromFolder(awsFolder: WideString);
+var sr:TSearchRec;
+r:integer;
+begin
+try
+r:=FindFirst(awsFolder+'*.ttf',faArchive or faReadOnly or faHidden, sr);
+if r<>0 then abort;
+repeat
+PrepareFont(FileRemoveExtension(sr.Name), awsFolder);
+r:=FindNext(sr);
+until r<>0;
+
+finally
+  FindClose(sr);
+end;
+
+
+end;
+
 function TMainForm.AddDictionaries(maxLoad: integer): boolean;
 begin
   if not __searchInitialized then
@@ -1428,9 +1449,9 @@ end;
 procedure TMainForm.LoadTabsFromFile(path: WideString);
 var
   tabStringList: TWideStringList;
-  linesCount, tabIx, i, activeTabIx: integer;
+  linesCount, tabIx, i, activeTabIx, strongs_notes_code, valErr: integer;
   location, second_bible: WideString;
-  addTabResult, firstTabInitialized: boolean;
+  addTabResult, firstTabInitialized{, viewNotes, viewStrongs}: boolean;
 begin
   tabStringList := nil;
   firstTabInitialized := false;
@@ -1438,7 +1459,7 @@ begin
     try
       if (not FileExists(path)) then
       begin
-        SetFirstTabInitialLocation(LastAddress, '');
+        SetFirstTabInitialLocation(LastAddress, '', false, true);
         exit;
       end;
       tabStringList := TWideStringList.Create();
@@ -1461,22 +1482,30 @@ begin
           end;
           location := Strings[i];
           inc(i);
-          if ((i < linesCount) and (Strings[i] <> '***')) then
+          if ((i < linesCount) and (Strings[i] <> '***')
+             and not (CHAR(Strings[i][1]) in [#0..#9])  )  then
           begin
             second_bible := Strings[i];
             inc(i)
           end
           else
             second_bible := '';
+          strongs_notes_code:=1;
+          if ((i < linesCount) and (Strings[i] <> '***')) then begin
+          val(Strings[i],strongs_notes_code,valErr);
+          inc(i);
+          end;
           if length(Trim(location)) > 0 then
           begin
 
             if (tabIx > 0) then
-              addTabResult := NewViewTab(location, second_bible)
+              addTabResult := NewViewTab(location, second_bible,
+                strongs_notes_code>=10, Odd(strongs_notes_code) )
             else
             begin
               addTabResult := true;
-              SetFirstTabInitialLocation(location, second_bible);
+              SetFirstTabInitialLocation(location, second_bible,strongs_notes_code>=10,
+               Odd(strongs_notes_code));
               firstTabInitialized := true;
             end;
           end
@@ -1501,7 +1530,7 @@ begin
   except
   end;
   if not firstTabInitialized then
-    SetFirstTabInitialLocation(LastAddress, '');
+    SetFirstTabInitialLocation(LastAddress, '', false, true);
 end;
 
 procedure TMainForm.LoadUserMemos;
@@ -1740,6 +1769,7 @@ begin
             Add('+');
           Add(tabInfo.mwsLocation);
           Add(tabinfo.mSatelliteMenuItem.Caption);
+          Add(InttoStr(ord(tabInfo.mShowStrongs)*10 +ord(tabInfo.mShowNotes)) );
           Add('***');
         end; //with tabInfo, tabStringList
       except
@@ -1762,6 +1792,8 @@ var
 begin
   //mBookCategories := TObjectList.Create();
 //  TrayIcon.Icon:=Application.Icon;
+  theImageList.GetBitmap(4,btnQuickSearchBack.Glyph);
+  theImageList.GetBitmap(6, btnQuickSearchFwd.Glyph);
   InitBkScan();
   FInShutdown := true;
   Application.OnShowHint := ShowHintEventHandler;
@@ -1781,10 +1813,9 @@ begin
 
   SysHotKey := TSysHotKey.Create(Self);
   SysHotKey.OnHotKey := SysHotKeyHotKey;
-
   SysHotKey.AddHotKey(vkB, [hkExt]);
   SysHotKey.AddHotKey(vkB, [hkCtrl, hkAlt]);
-
+  SysHotKey.Active:=true;
   ConfigFormHotKeyChoiceItemIndex := 0;
 
   DefaultModule := 'rststrong';
@@ -1992,7 +2023,7 @@ begin
     end;}
 //  LoadBookNodes();
   StrongsDir := 'Strongs';
-
+ LoadFontFromFolder(ExePath+StrongsDir+'\');
   StrongHebrew := TDict.Create;
   if not (StrongHebrew.Initialize(
     ExePath + 'Strongs\hebrew.idx',
@@ -2290,6 +2321,7 @@ begin
       or (SecondBook.DesiredCharset > 2) then fontName := SuggestFont(SecondBook.FontName, SecondBook.Path,
         SecondBook.DesiredCharset)
     else fontName := mBrowserDefaultFontName;
+    Browser.DefFontName:=fontName;
   end;
 
   // ќбработка текста по стихам
@@ -2352,11 +2384,11 @@ begin
         if mainbook_right_aligned then
           fistBookCell := '<table width=100% border=0 cellspacing=5 cellpadding=0>'
             + '<tr><td valign=top width=50% align=right>'
-            + WideFormat(#13#10'<a name="%d">%s<F>%s</F> ', [verse, strVerseNumber,s])
+            + WideFormat(#13#10'<a name="%d">%s <F>%s</F> ', [verse, strVerseNumber,s])
         else
           fistBookCell := '<table width=100% border=0 cellspacing=5 cellpadding=0>'
             + '<tr><td valign=top width=50% align=left>'
-            + WideFormat(#13#10'<a name="%d">%s<F>%s</F>', [verse, strVerseNumber, s]);
+            + WideFormat(#13#10'<a name="%d">%s<F> %s</F>', [verse, strVerseNumber, s]);
         SecondbookCell := '';
         // если номер стиха в во вторичной библии не более кол-ва стихов
         if iv <= SecondBook.Lines.Count then
@@ -2551,6 +2583,7 @@ procedure TMainForm.CopyButtonClick(Sender: TObject);
 var
   s: WideString;
 begin
+
   if (Browser.SelLength <> 0) or ((Browser.SelLength = 0) and (Browser.Tag <>
     bsText)) then
   begin
@@ -2587,7 +2620,7 @@ begin
   if Pos('go ', unicodeSRC) = 1 then
     {// гиперссылка на стих}
   begin
-    if IsDown(VK_MENU) then NewTab(unicodeSRC) else
+    if IsDown(VK_MENU) then NewViewTab(unicodeSRC,'', miStrong.Checked, miMemosToggle.Checked) else
       ProcessCommand(unicodeSRC);
     Handled := true;
   end
@@ -2746,29 +2779,35 @@ begin
     try
       S_SevenZip.ExtracttoMem(fileIx, pFile, fileSz);
       if S_SevenZip.ErrCode <> 0 then exit;
-      if (Win32MajorVersion >= 5) then begin
-        fontHandle := AddFontMemResourceEx(pFile, fileSz, nil, @result);
+      if (Win32MajorVersion >= 5) and (assigned(G_AddFontMemResourceEx)) then begin
+        fontHandle := G_AddFontMemResourceEx(pFile, fileSz, nil, @result);
       end;
       if result = 0 then begin //стара€ ось или не удалось в пам€ть
         tempPathLen := GetTempPathW(1023, tf);
         if tempPathLen > 1024 then exit;
         wsArchive := tf + wsFile;
-        fileHandle := CreateFileW(PWideChar(Pointer(wsArchive)), GENERIC_WRITE,
-          0, nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-        try
+        if not FileExists(wsArchive) then begin
+          fileHandle := CreateFileW(PWideChar(Pointer(wsArchive)), GENERIC_WRITE,
+            0, nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
           if fileHandle = INVALID_HANDLE_VALUE then exit;
-          writeResult := WriteFile(fileHandle, pFile^, fileSz, bytesWritten, nil);
-        finally CloseHandle(fileHandle); end;
-        fileNeedsCleanUp := true;
-        if not writeResult then exit;
+          try
+            writeResult := WriteFile(fileHandle, pFile^, fileSz, bytesWritten, nil);
+          finally CloseHandle(fileHandle); end;
+          fileNeedsCleanUp := true;
+          if not writeResult then exit;
+        end;
       end //если стара€ ось или не удалось в пам€ть
 
     finally FreeMem(pFile); end;
-  end; //если в архиве
-  if result = 0 then result := AddFontResourceW(PWideChar(Pointer(wsArchive)));
+  end //если в архиве
+  else wsFile:=FileRemoveExtension(ExtractFileName(fontPath));
+  if result = 0 then  result := AddFontResourceW(PWideChar(Pointer(wsArchive)));
+
   if result <> 0 then begin
+   // SendMessage(HWND_BROADCAST, WM_FONTCHANGE,0,0);
+    Screen.Fonts.Add(ExctractName(wsFile));
     G_InstalledFonts.AddObject(ExctractName(wsFile),
-      TBQInstalledFontInfo.Create(wsArchive, FileNeedsCleanUp, fontHandle));
+    TBQInstalledFontInfo.Create(wsArchive, FileNeedsCleanUp, fontHandle));
   end;
 end;
 
@@ -3473,9 +3512,10 @@ begin
 end;
 
 procedure TMainForm.SetFirstTabInitialLocation(wsCommand,
-  wsSecondaryView: WideString);
+  wsSecondaryView: WideString; showStrongs, showNotes:boolean);
 var
   menuItem: TTntMenuItem;
+  vti:TViewTabInfo;
 begin
   if length(wsCommand) > 0 then
     LastAddress := wsCommand;
@@ -3492,9 +3532,34 @@ begin
       b := 1; c := 1; v1 := 1; v2 := 0;
       GoAddress(b, c, v1, v2);
     end;}
+//  StrongNumbersOn:=miStrong.Checked;
+  try
+  StrongNumbersOn:=showStrongs;
+  MemosOn:=showNotes;
+  vti:=(TObject(mViewTabs.Pages[0].Tag) as TViewTabInfo);
+  vti.mShowStrongs:=showStrongs;
+  vti.mShowNotes:=showNotes;
+  except end;
   SafeProcessCommand(LastAddress);
   UpdateUI();
 end;
+
+{procedure TMainForm.SetStrongsAndNotesState(showStrongs, showNotes: boolean;
+  ti: TViewTabInfo);
+begin
+ti.mShowStrongs:=showStrongs;
+ti.mShowNotes:=showNotes;
+StrongNumbersOn:=showStrongs;
+MemosOn:=showNotes;
+{cti:= GetActiveTabInfo();
+if assigned(cti) and cti=ti then begin
+
+  StrongNumbersButton.Down:=showStrongs;
+  miStrong.Checked:=showStrongs;
+  miMemosToggle.Checked:=showNotes;
+  MemosButton.Down:=showNotes;
+end;
+end;}
 
 procedure TMainForm.DrawMetaFile(PB: TTntPaintBox; mf: TMetaFile);
 begin
@@ -4162,8 +4227,8 @@ procedure TMainForm.SearchEditKeyUp(Sender: TObject; var Key: Word;
 begin
   if Key = 13 then
   begin
-    ActiveControl := SearchForward;
-    SearchForward.Click();
+    ActiveControl := btnQuickSearchFwd;
+    btnQuickSearchFwd.Click();
   end;
 end;
 (*AlekId:/ƒобавлено*)
@@ -4360,31 +4425,34 @@ begin
     if ((delta>0) and (defFontSz>48)) or ((delta<0) and (defFontSz<6))
           then exit;
     Inc(defFontSz, delta);
-
+    Screen.Cursor:=crHourGlass;
+    try
     Browser.DefFontSize := defFontSz;
     browserPos:=Browser.Position and $FFFF0000;
-    Browser.LoadFromString(Browser.DocumentSourceUtf16);
+    Browser.LoadFromString(Browser.DocumentSource);
     Browser.Position:=browserPos;
 
     browserPos:=SearchBrowser.Position and $FFFF0000;
     SearchBrowser.DefFontSize := defFontSz;
-    SearchBrowser.LoadFromString(SearchBrowser.DocumentSourceUtf16);
+    SearchBrowser.LoadFromString(SearchBrowser.DocumentSource);
     SearchBrowser.Position:=browserPos;
 
     browserPos:=DicBrowser.Position and $FFFF0000;
     DicBrowser.DefFontSize := defFontSz;
-    DicBrowser.LoadFromString(DicBrowser.DocumentSourceUtf16);
+    DicBrowser.LoadFromString(DicBrowser.DocumentSource);
     DicBrowser.Position:=browserPos;
 
     browserPos:=StrongBrowser.Position and $FFFF0000;
     StrongBrowser.DefFontSize := defFontSz;
-    StrongBrowser.LoadFromString(StrongBrowser.DocumentSourceUtf16);
+    StrongBrowser.LoadFromString(StrongBrowser.DocumentSource);
     StrongBrowser.Position:=browserPos;
 
     browserPos:=CommentsBrowser.Position and $FFFF0000;
     CommentsBrowser.DefFontSize := defFontSz;
-    CommentsBrowser.LoadFromString(CommentsBrowser.DocumentSourceUtf16);
+    CommentsBrowser.LoadFromString(CommentsBrowser.DocumentSource);
     CommentsBrowser.Position:=browserPos;
+    except    end;
+    Screen.Cursor:=crDefault;
 end;
 
 
@@ -4580,8 +4648,7 @@ begin
 end;
 
 procedure TMainForm.FirstBrowserKeyPress(Sender: TObject; var Key: Char);
-var
-  i: integer;
+//var
 begin
   if Key = '+' then
   begin
@@ -5150,7 +5217,7 @@ var
   s: WideString;
 begin
   Result := '';
-
+  if MainBook.Lines.Count=0 then MainBook.OpenChapter(MainBook.CurBook, MainBook.CurChapter);
   for i := fromverse to toverse do
   begin
     s := MainBook.Lines[i - 1];
@@ -5577,7 +5644,7 @@ begin
                                        and (XRef[XRefCur].V = iverse));
 
       //RefText := Copy(RefText,1,Length(RefText)-6) + '</a>'; // delete last ', ' combination
-      RefLines.Add(RefText);
+      RefLines.Add(RefText);               ыв
     end
     else RefLines.Add(RefText + '<b>.............</b>');
 //  end;
@@ -5649,7 +5716,7 @@ procedure TMainForm.miHotkeyClick(Sender: TObject);
 begin
   ConfigForm.PageControl1.ActivePageIndex := 1;
   ShowConfigDialog;
-  //ShowMessage('ѕросто перетащите корешок закладки той страницы,'
+  //ShowMessage('ѕросто перетащите корешок закладки той страницы,'                              
   //+#13#10' на которой отображаетс€ нужный модуль на закладку панели Ћюбимых ћодулей');
 end;
 
@@ -5861,7 +5928,7 @@ end;
 procedure TMainForm.FirstBrowserMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
   var fontSize:integer;
-      delta, browserPos:integer;
+      delta:integer;
 
 begin
 if not (ssCtrl in Shift) then exit;
@@ -6556,14 +6623,14 @@ begin
     end;
 
 end;
-function _escallback(dwCookie: Longint; pbBuff: PByte;
+{function _escallback(dwCookie: Longint; pbBuff: PByte;
     cb: Longint; var pcb: Longint): Longint; stdcall;
 begin
 
-end;
+end;}
 
 
-procedure TMainForm.tbAddBibleLinkClick(Sender: TObject);
+{procedure TMainForm.tbAddBibleLinkClick(Sender: TObject);
 var es:TEditStream;
 begin
 //es.dwCookie=0;
@@ -6861,7 +6928,7 @@ end;
 procedure TMainForm.XRefBrowserHotSpotClick(Sender: TObject;
   const SRC: string; var Handled: Boolean);
 begin
-  if IsDown(VK_MENU) then NewTab(SRC) else
+  if IsDown(VK_MENU) then NewViewTab(SRC,'', miStrong.Checked, miMemosToggle.Checked) else
     ProcessCommand(SRC);
   Handled := true;
 end;
@@ -7506,7 +7573,7 @@ begin
   HistoryOn := true;
 end;
 
-function TMainForm.NewTab(const location: WideString): boolean;
+{function TMainForm.NewTab(const location: WideString): boolean;
 var
   Tab1: TTntTabSheet;
   newBrowser, saveBrowser: THtmlViewer;
@@ -7538,6 +7605,7 @@ begin
     MainBook := newBible;
     mViewTabs.ActivePageIndex := mViewTabs.PageCount - 1;
     SelectSatelliteMenuItem(tabInfo.mSatelliteMenuItem);
+
     SafeProcessCommand(location);
     UpdateUI();
     result := true;
@@ -7548,10 +7616,11 @@ begin
     newBrowser.Free();
     Tab1.Free();
   end;
-end;
+end;}
 
 
-function TMainForm.NewViewTab(const command, satellite: WideString): boolean;
+function TMainForm.NewViewTab(const command, satellite: WideString;
+         showStrongs, showNotes:boolean): boolean;
 var
   Tab1: TTntTabSheet;
   tabInfo: TViewTabInfo;
@@ -7583,12 +7652,14 @@ begin
     if not Assigned(satelliteMenuItem) then
       abort;
     tabInfo := TViewTabInfo.Create(newBrowser, newBible, command,
-      satelliteMenuItem, miStrong.Checked, miMemosToggle.Checked);
+      satelliteMenuItem, showStrongs, showNotes);
     Tab1.Tag := Integer(tabInfo);
 
     //какждой вкладке по броузеру
     MainBook := newBible;
     mViewTabs.ActivePage := Tab1;
+    StrongNumbersOn:=showStrongs;
+    MemosOn:=showNotes;
     SelectSatelliteMenuItem(satelliteMenuItem);
     SafeProcessCommand(command);
     UpdateUI();
@@ -7610,8 +7681,8 @@ end;
 
 function TMainForm.PrepareFont(const aFontName, aFontPath: WideString): boolean;
 begin
-  result := FontExists(Self.Canvas.Handle, aFontName);
-  if (not result) then
+  result := FontExists( aFontName);
+ if (not result) then
     result := ActivateFont(aFontPath + aFontName + '.ttf') > 0;
 end;
 
@@ -7963,16 +8034,13 @@ end;
 
 procedure TMainForm.miNewTabClick(Sender: TObject);
 var
-  Tab1: TTntTabSheet;
-  newBrowser, saveBrowser: THtmlViewer;
-  tabInfo, ActiveTabInfo: TViewTabInfo;
-  newBible, saveMainBible: TBible;
+//  newBrowser, saveBrowser: THtmlViewer;
+  ActiveTabInfo: TViewTabInfo;
+  satBibleName:WideString;
 begin
-  Tab1 := nil;
-  newBrowser := nil;
-  newBible := nil;
-  saveBrowser := Browser;
-  saveMainBible := MainBook;
+{  newBrowser := nil;
+  newBible := nil;}
+
   try
     try
       if mViewTabs.Tag >= 64 * 1024 then
@@ -7982,15 +8050,18 @@ begin
     except
       ActiveTabInfo := GetActiveTabInfo();
     end;
-
-    Tab1 := TTntTabSheet.Create(MainForm);
+   if assigned(ActiveTabInfo.mSatelliteMenuItem) then
+   satBibleName:=ActiveTabInfo.mSatelliteMenuItem.Caption
+   else satBibleName:='';
+   NewViewTab(ActiveTabInfo.mwsLocation, satBibleName,
+           ActiveTabInfo.mShowStrongs, ActiveTabInfo.mShowNotes);
+(*    Tab1 := TTntTabSheet.Create(MainForm);
     Tab1.PageControl := mViewTabs;
     Tab1.OnContextPopup := mInitialViewPageContextPopup;
     newBrowser := _CreateNewBrowserInstanse(Browser, Tab1, Tab1);
     if not Assigned(newBrowser) then abort;
     Browser := newBrowser;
-    (*AlekId:ƒобавлено*)
-    //конструируем TBible
+      //конструируем TBible
     newBible := _CreateNewBibleInstance(MainBook, Tab1);
     if not Assigned(newBible) then
       abort;
@@ -8015,6 +8086,7 @@ begin
     mViewTabs.ActivePageIndex := mViewTabs.PageCount - 1;
     SelectSatelliteMenuItem(ActiveTabInfo.mSatelliteMenuItem);
     StrongNumbersOn:=ActiveTabInfo.mShowStrongs;
+    MemosOn:=ActiveTabInfo.mShowNotes;
     SafeProcessCommand(ActiveTabInfo.mwsLocation);
     UpdateUI();
   except
@@ -8023,8 +8095,9 @@ begin
     newBible.Free();
     newBrowser.Free();
     Tab1.Free();
-  end;
+  end;*)
   (*AlekId:/ƒобавлено*)
+  except end;
 end;
 
 procedure TMainForm.miCloseTabClick(Sender: TObject);
@@ -8592,7 +8665,7 @@ begin
     BrowserSearchPosition := 0;
 end;
 
-procedure TMainForm.SearchForwardClick(Sender: TObject);
+procedure TMainForm.btnQuickSearchFwdClick(Sender: TObject);
 var
   i, dx, dy: integer;
   x, y: LongInt;
@@ -8648,7 +8721,7 @@ begin
   if Browser.SelLength <> 0 then
   begin
     SearchEdit.Text := Trim(Browser.SelText);
-    SearchForward.Click;
+    btnQuickSearchFwd.Click;
   end;
 end;
 

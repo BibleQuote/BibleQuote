@@ -46,7 +46,6 @@ program BibleQuote6;
 {%TogetherDiagram 'ModelSupport_BibleQuote6\BibleQuoteUtils\default.txvpck'}
 
 uses
-  XPTheme in 'XPTheme.pas',
   Forms,
   string_procs in 'string_procs.pas',
   WCharWindows in 'WCharWindows.pas',
@@ -69,7 +68,8 @@ uses
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
   main in 'main.pas' {MainForm: TTntForm},
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
-  AboutForm in 'AboutForm.pas' {frmAbout: TTntForm};
+  AboutForm in 'AboutForm.pas' {frmAbout: TTntForm},
+  XPTheme in 'XPTheme.pas';
 
 {$R *.res}
 var

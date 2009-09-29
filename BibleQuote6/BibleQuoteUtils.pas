@@ -1,7 +1,7 @@
 unit BibleQuoteUtils;
 
 interface
-uses SevenZipVCL, Contnrs, WideStrings, Windows, SysUtils ;
+uses SevenZipVCL, Contnrs, WideStrings, Windows, SysUtils,Classes ;
 type
   TBibleModuleSecurity = class
     path, folder: WideString;
@@ -88,18 +88,22 @@ function GetCachedModulesListDir(): WideString;
 function FileExistsEx(aPath: WideString): integer;
 function ArchiveFileSize(wsPath: WideString): integer;
 function SpecialIO(const wsFileName: WideString; wsStrings: TWideStrings; obf: Int64; read: boolean = true): boolean;
-function FontExists(aHDC: HDC; const wsFontName: WideString): boolean;
+function FontExists(const wsFontName: WideString): boolean;
 function FontFromCharset(aHDC: HDC; charset: integer; wsDesiredFont: WideString = ''): WideString;
 function GetCRC32(pData: PByteArray; count: Integer; Crc: Cardinal = 0): Cardinal;
 function ExtractModuleName(aModuleSignature:WideString):WideString;
 function StrPosW(const Str, SubStr: PWideChar): PWideChar;
 function ExctractName(const wsFile:WideString):WideString;
 function IsDown(key:integer):boolean;
-
+function FileRemoveExtension(const Path: string): string;
+type PfnAddFontMemResourceEx=function(p1: Pointer; p2: DWORD; p3: PDesignVector; p4: LPDWORD): THandle; stdcall;
+type PfnRemoveFontMemResourceEx=function(p1: THandle): BOOL; stdcall;
+var G_AddFontMemResourceEx:PfnAddFontMemResourceEx;
+    G_RemoveFontMemResourceEx:PfnRemoveFontMemResourceEx;
 var S_SevenZip: TSevenZip;
     G_InstalledFonts:TWideStringList;
 implementation
-uses WCharReader, MultiLanguage, main, Controls;
+uses WCharReader, MultiLanguage, main, Controls, Forms;
 
 function GetArchiveFromSpecial(const aSpecial: WideString): WideString; overload;
 var pz: Integer;
@@ -109,6 +113,17 @@ begin
   if pz <= 0 then result := EmptyWideStr
   else
     result := Copy(aSpecial, 1, pz - 1);
+end;
+
+function FileRemoveExtension(const Path: string): string;
+var
+  I: Integer;
+begin
+  I := LastDelimiter(':.\', Path);
+  if (I > 0) and (Path[I] = '.') then
+    Result := Copy(Path, 1, I - 1)
+  else
+    Result := Path;
 end;
 
 function GetArchiveFromSpecial(const aSpecial: WideString; out fileName: WideString): WideString; overload;
@@ -496,19 +511,20 @@ begin
 end;
 
 
-function FontExists(aHDC: HDC; const wsFontName: WideString): boolean;
-var logFont: tagLOGFONTW;
-  fontNameLength: integer;
+function FontExists(const wsFontName: WideString): boolean;
 begin
   if G_InstalledFonts.IndexOf(wsFontName)>=0 then begin result:=true; exit; end;
-  __hitCount := 0;
+  (*закоменнтированыый код надежнее: он использует
+   unicode, а альтернативный - быстрее*)
+{  __hitCount := 0;
   FillChar(logFont, sizeof(logFont), 0);
   fontNameLength := Length(wsFontName);
   logFont.lfCharSet := DEFAULT_CHARSET;
   if (fontNameLength > 31) then fontNameLength := 31;
   Move(Pointer(wsFontName)^, logFont.lfFaceName, fontNameLength * 2);
   EnumFontFamiliesExW(aHDC, logFont, @EnumFontFamExProc, 0, 0);
-  result := __hitCount > 0;
+  result := __hitCount > 0;}
+  result:=Screen.Fonts.IndexOf(wsFontName)>=0;
 end;
 
 function ExctractName(const wsFile:WideString):WideString;
@@ -522,7 +538,7 @@ if pC^='.' then pLastDot:=pC;
 inc(pC);
 until (pC^=#0);
 if pLastDot<>nil then result:=Copy(wsFile, 1, pLastDot-PWideChar(Pointer(wsFile)))
-else result:='';
+else result:=wsFile;
 end;
 
 function ExtractModuleName(aModuleSignature:WideString):WideString;
@@ -591,7 +607,7 @@ if tempPathLen > 1024 then exit;
 for i:=0 to cnt do begin
   try
   ifi:= G_InstalledFonts.Objects[i] as TBQInstalledFontInfo;
-  if ifi.mHandle<>0 then test:=RemoveFontMemResourceEx(ifi.mHandle)
+  if (ifi.mHandle<>0) and assigned(G_RemoveFontMemResourceEx) then test:=G_RemoveFontMemResourceEx(ifi.mHandle)
   else begin
     test:=RemoveFontResourceW(PWideChar(Pointer(ifi.mPath)));
     if ifi.mFileNeedsCleanUp then begin
@@ -604,9 +620,21 @@ end; //for
 end;
 
 
+
+procedure load_proc();
+var h:THandle;
+begin
+h:=LoadLibrary('gdi32.dll');
+G_AddFontMemResourceEx:= PfnAddFontMemResourceEx ( GetProcAddress(h, 'AddFontMemResourceEx'));
+G_RemoveFontMemResourceEx:=PfnRemoveFontMemResourceEx(GetProcAddress(h,'RemoveFontMemResourceEx'));
+end;
+
 initialization
    G_InstalledFonts:=TWideStringList.Create;
+   G_InstalledFonts.Sorted:=true;
+   G_InstalledFonts.Duplicates:=dupIgnore;
   S_SevenZip := TSevenZip.Create(nil);
+  load_proc();
 finalization
   _cleanUpInstalledFonts();
   S_SevenZip.Free();

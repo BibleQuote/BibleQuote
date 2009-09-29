@@ -143,6 +143,10 @@ MainForm.MaxCB.Items = Показать не более 100 стихов,Показать не более 200 стихов
 ;
 MainForm.HistoryTab.Caption = Журнал
 MainForm.BookmarksTab.Caption = Закладки
+MainForm.tbQuickSearch.Caption=Быстрый поиск
+MainForm.SearchInWindowLabel.Caption=Найти в данном виде
+MainForm.SearchEdit.Hint=Введите слово или выражение  для поиска
+
 ;
 MainForm.miDic.Caption = Словари
 MainForm.miStrong.Caption = Лексиконы Стронга

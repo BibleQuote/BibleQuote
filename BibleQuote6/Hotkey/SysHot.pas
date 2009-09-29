@@ -177,9 +177,12 @@ begin
 end;
 
 procedure TSysHotKey.RegisterHotKeyNr(Index : Integer);
+var r:boolean;
 begin
-  with PHotKeyItem(FList.Items[Index])^ do
-    Registered := WordBool(RegisterHotKey(Handle, Index, ModifiersToFlag(Modifiers), VirtKeys[VirtKey]));
+  with PHotKeyItem(FList.Items[Index])^ do begin
+    r := WordBool(RegisterHotKey(Handle, Index, ModifiersToFlag(Modifiers), VirtKeys[VirtKey]));
+    Registered:=r;
+    end
 end;
 
 procedure TSysHotKey.UnRegisterHotKeyNr(Index : Integer);

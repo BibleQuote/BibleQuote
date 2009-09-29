@@ -134,9 +134,9 @@ begin
         //begin
           //if hebrew and (link <> '0') then link := '0' + link;
           if supercase then
-            Result := Result + '<font size=1><a href=s' + link + '>' + link + '</a></font> '
+            Result := Result + '<SUP><font size=0><a href=s' + link + '>' + link + '</a></font></SUP>'
           else
-            Result := Result + '<a href=s' + link + '>' + link + '</a> '
+            Result := Result + '<a href=s' + link + '>' + link + '</a>'
         //end;
       end;
       // finish the link, draw the symbol

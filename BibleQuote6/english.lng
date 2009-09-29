@@ -13,10 +13,11 @@ FileNotFound = Could not find file %s
 #1%s=Error reading module %s. Module is corrupt or wrong password was supplied.
 GoingOnline = Now Bible Quote will open the site %s in your default Internet browser
 e:\DevSoft\myprojects\BQ6\SandBox\english.lng
-HelpFileName = indexrus.htm
+HelpFileName=indexeng.htm
 lblPasswordNeeded=To open this module, please enter the password (%s)
 lblPassword=Password:
 btnCancel=Cancel
+cbxSavePwd=Save password
 
 AllBooks = All
 OTOnly = OT.
@@ -168,6 +169,9 @@ MainForm.MaxCB.Items = Display a maximum of 100 results,Display a maximum of 200
 ;
 MainForm.HistoryTab.Caption = History
 MainForm.BookmarksTab.Caption = Favorites
+MainForm.tbQuickSearch.Caption= Quick Search
+MainForm.SearchInWindowLabel.Caption=Find in current view
+MainForm.SearchEdit.Hint=Enter an expression to search
 ;
 MainForm.miSearchWindow.Caption = Search within this window...
 MainForm.SearchInWindowPanel.Caption = Search within this window
@@ -192,6 +196,7 @@ ConfigForm.Caption = Parameters
 ;
 ConfigForm.CopyOptionsTabSheet.Caption = Parameters of copying
 ConfigForm.FavoritesTabSheet.Caption = Favorite modules
+ConfigForm.FavouriteExTabSheet.Caption=Favorite modules
 ConfigForm.OtherOptionsTabSheet.Caption = Other options
 ;
 ConfigForm.CopyVerseNumbers.Caption = Copy verse numbers
@@ -210,6 +215,9 @@ ConfigForm.MinimizeToTray.Caption = Minimize to tray
 ConfigForm.MinimizeToTray.Hint = An icon will be placed near the system clock
 ConfigForm.HotKeyChoice.Caption = Hotkey combination
 ;
+ConfigForm.lblAvailableModules.Caption=Available modules
+ConfigForm.lblFavourites.Caption=Favorites
+
 CopyOptionsAddReference_ShortAtBeginning = Short reference at the beginning of each verse
 CopyOptionsAddReference_ShortAtEnd = Short reference at the end of each passage
 CopyOptionsAddReference_FullAtEnd = Full reference at the end of each passage

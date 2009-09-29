@@ -28,6 +28,7 @@ package AlekControls;
 requires
   rtl,
   vcl,
+  vclx,
   TntUnicodeVcl;
 
 contains

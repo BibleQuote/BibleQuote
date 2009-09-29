@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject>
-	<Transactions>
-    <Transaction>2009.09.04 09:10:09.356.pas,E:\DevSoft\myprojects\bqnet\BibleQuote6\Unit1.pas=E:\DevSoft\myprojects\bqnet\BibleQuote6\AboutForm.pas</Transaction>
-    <Transaction>2009.09.04 09:10:09.366.dfm,E:\DevSoft\myprojects\bqnet\BibleQuote6\Unit1.dfm=E:\DevSoft\myprojects\bqnet\BibleQuote6\AboutForm.dfm</Transaction>
-  </Transactions>
-</BorlandProject>

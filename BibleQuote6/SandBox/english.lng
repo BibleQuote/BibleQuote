@@ -169,6 +169,9 @@ MainForm.MaxCB.Items = Display a maximum of 100 results,Display a maximum of 200
 ;
 MainForm.HistoryTab.Caption = History
 MainForm.BookmarksTab.Caption = Favorites
+MainForm.tbQuickSearch.Caption= Quick Search
+MainForm.SearchInWindowLabel.Caption=Find in current view
+MainForm.SearchEdit.Hint=Enter an expression to search
 ;
 MainForm.miSearchWindow.Caption = Search within this window...
 MainForm.SearchInWindowPanel.Caption = Search within this window

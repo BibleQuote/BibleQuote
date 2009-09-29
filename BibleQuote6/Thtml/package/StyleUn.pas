@@ -237,7 +237,7 @@ uses
   {$ifdef Delphi6_Plus}
   Variants,
   {$endif}
-  htmlsubs, htmlun2, readhtml;
+  htmlsubs, htmlun2, readhtml, BibleQuoteUtils;
 
 var
   DefPointSize: double;
@@ -254,6 +254,8 @@ begin
 end;
 {$endif}
 {$endif}
+
+
 
 {----------------AlignmentFromString}
 function AlignmentFromString(S: string): AlignmentType;   
@@ -1628,7 +1630,9 @@ Done := False;
 S1 := NextFontName;
 while (S1 <> '') and not Done do
   begin
-  Done := Screen.Fonts.IndexOf(S1) >= 0;
+//  Done := Screen.Fonts.IndexOf(S1) >= 0;
+//AlekId:
+  Done:=FontExists(S1);
   if Done then
     Result := S1
   else S1 := NextFontName;
@@ -1703,7 +1707,8 @@ S := Props[FontFamily];
 S1 := NextFontName;
 while (S1 <> '') and not Done do
   begin
-  Done := Screen.Fonts.IndexOf(S1) >= 0;
+ // Done := Screen.Fonts.IndexOf(S1) >= 0;
+ Done:=FontExists(s1);
   if Done then
     begin
     Font.iName := S1;
