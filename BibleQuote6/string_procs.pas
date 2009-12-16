@@ -41,6 +41,7 @@ function Color2Hex(col: TColor): WideString;
 function ParseHTML(s, HTML: WideString): WideString;
 
 function Get_ANAME_VerseNumber(const s: WideString; start, iPos: integer): integer;
+function Get_AHREF_VerseCommand(const s: string;  iPos: integer): string;
 
 function DeleteStrongNumbers(s: WideString): WideString;
 function FormatStrongNumbers(s: WideString; hebrew: boolean; supercase: boolean): WideString;
@@ -61,7 +62,7 @@ const
   DefaultHTMLFilter: WideString = '<b></b><i></i><u></u><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6>';
 
 implementation
-
+uses StrUtils ;
 // find string in SORTED list, maybe partial match
 function FindString(List: TWideStringList; s: WideString): integer;
 var
@@ -579,7 +580,35 @@ begin
   Result := i-1;
   if Result < 1 then Result := 1;
 end;
+ {AlekId}
+function Get_AHREF_VerseCommand(const s: string;  iPos: integer): string;
+var
+  anamepos,  i, searchpos: integer;
+  sign: WideString;
+  label found;
+begin
+  searchpos:=1;
+  sign := '<a href="go';
 
+  repeat
+
+    anamepos := PosEx (sign, s, searchpos);
+    if anamepos>0 then begin
+
+    if (anamepos > iPos) then break
+    else if anamepos=iPos then begin searchpos:=anamepos+1; break; end;
+    searchpos:=anamepos+1;
+    end;
+  until (anamepos=0);
+if  (searchpos=0) then begin result:=''; exit; end;
+
+    i:=PosEx('">',s, searchpos);
+    if i>0 then begin
+      result:=copy(s,searchpos+8,i-searchpos-8);
+      exit;
+    end;
+end;
+{/ALekID}
 procedure AddLine (var rResult: WideString; const aLine: WideString);
 begin
   if rResult = '' then

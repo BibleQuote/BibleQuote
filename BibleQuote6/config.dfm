@@ -23,7 +23,7 @@ object ConfigForm: TConfigForm
     Top = 0
     Width = 475
     Height = 305
-    ActivePage = CopyOptionsTabSheet
+    ActivePage = OtherOptionsTabSheet
     Align = alTop
     TabOrder = 0
     object CopyOptionsTabSheet: TTntTabSheet
@@ -320,7 +320,7 @@ object ConfigForm: TConfigForm
         Caption = 'HotKeyChoice'
         ItemIndex = 0
         Items.Strings = (
-          'Win + B'
+          'Win + Q'
           'Ctrl + Alt + B')
         TabOrder = 4
       end

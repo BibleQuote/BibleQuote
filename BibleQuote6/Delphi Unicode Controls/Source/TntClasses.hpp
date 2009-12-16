@@ -181,7 +181,7 @@ class PASCALIMPLEMENTATION TTntStringList : public TTntStrings
 	
 private:
 	bool FUpdating;
-	Widestrings::TWideStringItem *FList;
+	Widestrings::TWideStringItemList *FList;
 	int FCount;
 	int FCapacity;
 	bool FSorted;

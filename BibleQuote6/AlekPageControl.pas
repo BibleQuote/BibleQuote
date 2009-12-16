@@ -12,11 +12,11 @@ type
   private
 
   protected
-    FCloseImage: TBitmap;
+    FCloseImage: HICON;
     FOnDeleteTab: TAlekPageControlDeleteTab;
 {    FFontHandle: HFont;}
-    procedure DrawTab(TabIndex: Integer; const Rect: TRect; Active: Boolean);
-      override;
+    //procedure DrawTab(TabIndex: Integer; const Rect: TRect; Active: Boolean);
+//      override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
       override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -24,7 +24,7 @@ type
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
     procedure DblClick; override;
   public
-    property CloseTabImage: TBitmap read FCloseImage;
+    property CloseTabImage: HICON read FCloseImage write FCloseImage;
   published
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -60,7 +60,9 @@ end;
 constructor TAlekPageControl.Create(AOwner: TComponent);
 begin
   inherited;
-  FCloseImage := TBitmap.Create();
+//  FCloseImage := TIcon.Create();
+//  FCloseImage.SetSize(13,13);
+
 end;
 
 procedure TAlekPageControl.DblClick;
@@ -72,10 +74,10 @@ end;
 destructor TAlekPageControl.Destroy;
 begin
   inherited;
-  FCloseImage.Free();
+//  FCloseImage.Free();
 end;
 
-procedure TAlekPageControl.DrawTab(TabIndex: Integer; const Rect: TRect;
+(*procedure TAlekPageControl.DrawTab(TabIndex: Integer; const Rect: TRect;
   Active: Boolean);
 var
   image_width, image_height, textlength, fontheight: integer;
@@ -116,7 +118,9 @@ begin
 ReleaseDC(Self.Handle, nDC);
 end;   }
   if not FCloseImage.Empty then
-    Canvas.Draw(r2.Right - image_width - 4, r2.Top + 3, FCloseImage);
+  //  Canvas.Draw(r2.Right - image_width - 4, r2.Top + 3, FCloseImage);
+  BitBlt(Canvas.Handle,r2.Right - image_width - 4, r2.Top + 3,
+   image_width,  image_height, FCloseImage.Handle, 0,0, SRCINVERT);
   if Active then begin
 //Canvas.Font.Color:=clHighlight; //выделение цветом убрано
     Canvas.Font.Style := [fsBold];
@@ -157,6 +161,7 @@ end;   }
 //ExtTextOutW(Canvas.Handle, saveRect.Left, saveRect.Top, ETO_CLIPPED,nil, pCaption,savelength, nil);
 //textlength,nil);
 end;
+  *)
 
 procedure TAlekPageControl.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
@@ -174,7 +179,7 @@ begin
   TabCtrl_GetItemRect(Handle, tabIndex, tabRect);
   point.X := X; point.Y := Y;
   saveTabIndex := TabIndex;
-  image_width := FCloseImage.Width; image_height := FCloseImage.Height;
+  image_width := 13; image_height :=13;
   if (image_width < 3) or (image_height < 3) then goto default_processing;
   tabRect.Left := tabRect.Right - image_width - 4; Inc(tabRect.Top, 3);
     tabRect.Bottom := tabRect.Top + image_height + 3;
@@ -199,7 +204,7 @@ begin
   TabCtrl_GetItemRect(Handle, tabIndex, tabRect);
   point.X := X; point.Y := Y;
   saveTabIndex := TabIndex;
-  image_width := FCloseImage.Width; image_height := FCloseImage.Height;
+  image_width := 13; image_height := 13;
   if (image_width < 3) or (image_height < 3) then exit;
   tabRect.Left := tabRect.Right - image_width - 4; Inc(tabRect.Top, 3);
     tabRect.Bottom := tabRect.Top + image_height + 3;
@@ -235,15 +240,21 @@ begin
   aix := ActivePageIndex;
   cnt := PageCount - 1;
   if cnt<=0 then exit;
-  image_width := FCloseImage.Width; image_height := FCloseImage.Height;
+  image_width := 13; image_height := 13;
 //  if (image_width < 3) or (image_height < 3) then exit;
   for i := 0 to cnt do begin
     active := i = aix;
     if (SendMessage(Handle, TCM_GETITEMRECT, i, LPARAM(@r2)) = 0) then continue;
 
-    if not FCloseImage.Empty then begin
+    if FCloseImage<>0 then begin
+      DrawIconEx(Canvas.Handle, r2.Right - image_width - 4, r2.Top + 3, FCloseImage, 13,13,0, 0, DI_NORMAL);
+//      Canvas.Draw(r2.Right - image_width - 4, r2.Top + 3, FCloseImage);
+//       bitmapRect.Left:=r2.Right - image_width - 4;
+//       bitmapRect.Top:=r2.Top + 3;
 
-      Canvas.Draw(r2.Right - image_width - 4, r2.Top + 3, FCloseImage);
+//       Canvas.BrushCopy();
+//       BitBlt(Canvas.Handle,r2.Right - image_width - 4, r2.Top + 3,
+//   image_width,  image_height, FCloseImage.Handle, 0,0, SRCCOPY);
       end;
     if Active then begin
 //Canvas.Font.Color:=clHighlight; //выделение цветом убрано
@@ -277,7 +288,7 @@ begin
         DT_CENTER or DT_VCENTER);
     end;
     if length(ts.Caption) <> length(_caption) then ts.Caption := _caption;
-    SetBkMode(Canvas.Handle, TRANSPARENT);
+//    SetBkMode(Canvas.Handle, TRANSPARENT);
 //    DrawTextW(Canvas.Handle, pCaption, savelength, saveRect, DT_CENTER or
 //      DT_VCENTER);
 //  themedElementDetails:=themeServices.GetElementDetails(tt;

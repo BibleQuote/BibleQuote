@@ -321,6 +321,7 @@ type
     lbCopyRightNotice: TTntLabel;
     miTechnoForum: TTntMenuItem;
     miOpenNewView: TTntMenuItem;
+    miChooseSatelliteBible: TTntMenuItem;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -530,6 +531,11 @@ type
     procedure FirstBrowserMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure LoadFontFromFolder(awsFolder:WideString);
+    procedure miOpenNewViewClick(Sender: TObject);
+    procedure RefPopupMenuPopup(Sender: TObject);
+    procedure miChooseSatelliteBibleClick(Sender: TObject);
+    procedure FirstBrowserMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
 //    procedure tbAddBibleLinkClick(Sender: TObject);
     //    procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
     //      Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -705,7 +711,7 @@ var
 implementation
 
 uses copyright, input, config, PasswordDialog, BibleQuoteConfig,
-  BibleQuoteUtils, AboutForm, RichEdit;
+  BibleQuoteUtils, AboutForm, RichEdit, HTMLSubs;
 type
   TModuleType = (modtypeBible, modtypeBook, modtypeComment);
   TModuleEntry = class
@@ -858,6 +864,7 @@ var
   __searchInitialized: boolean;
   __r: integer;
   __tmpBook: TBible = nil;
+G_XRefVerseCmd:string;
   (*AlekId:/Добавлено*)
 {$R *.DFM}
 
@@ -1813,7 +1820,7 @@ begin
 
   SysHotKey := TSysHotKey.Create(Self);
   SysHotKey.OnHotKey := SysHotKeyHotKey;
-  SysHotKey.AddHotKey(vkB, [hkExt]);
+  SysHotKey.AddHotKey(vkQ, [hkExt]);
   SysHotKey.AddHotKey(vkB, [hkCtrl, hkAlt]);
   SysHotKey.Active:=true;
   ConfigFormHotKeyChoiceItemIndex := 0;
@@ -2000,8 +2007,9 @@ begin
     BookmarkLabel.Caption := Comment(Bookmarks[0]);
 
   (*AlekId:Добавлено*)
-  mViewTabs.CloseTabImage.LoadFromResourceID(0, 1233);
-  mViewTabs.CloseTabImage.TransparentColor := 0;
+  mViewTabs.CloseTabImage:=LoadIcon(MainInstance, PAnsiChar(1233));
+//  mViewTabs.CloseTabImage.LoadFromResourceID(MainInstance, 1233);
+//  mViewTabs.CloseTabImage.TransparentColor := 0;
   mInitialViewPage.Tag := integer(TViewTabInfo.Create(FirstBrowser, MainBook,
     '', ActiveSatteliteMenu(), false, true));
     
@@ -2261,7 +2269,7 @@ begin
   begin
     if MainBook.isBible then
       paragraph := '<BR>'
-    else {AlekId} paragraph := '<P>';
+    else {AlekId} paragraph := '<P style="background-color:beige">';
 //      paragraph := '<P>';
   end;
   //??
@@ -2354,7 +2362,7 @@ begin
         text := text + WideFormat(#13#10'<a name="%d">%s <F>%s</F>', [verse,
           strVerseNumber, s])
         else
-        text:=text + WideFormat(#13#10'<SPAN STYLE="text-align:justify"><a name="%d">%s <F>%s</F></SPAN>', [verse,
+        text:=text + WideFormat(#13#10'<span STYLE="text-align:justify"><a name="%d">%s <F>%s</F></SPAN>', [verse,
           strVerseNumber, s]);
         text := text + paragraph;
       end;
@@ -2620,7 +2628,7 @@ begin
   if Pos('go ', unicodeSRC) = 1 then
     {// гиперссылка на стих}
   begin
-    if IsDown(VK_MENU) then NewViewTab(unicodeSRC,'', miStrong.Checked, miMemosToggle.Checked) else
+    if IsDown(VK_MENU) then NewViewTab(unicodeSRC, GetActiveTabInfo.mSecondBible.Name, miStrong.Checked, miMemosToggle.Checked) else
       ProcessCommand(unicodeSRC);
     Handled := true;
   end
@@ -3696,7 +3704,7 @@ begin
   oldchapter := MainBook.CurChapter;
 
   Screen.Cursor := crHourGlass;
-
+  try
   dup := s; //копия команды
 
   if FirstWord(dup) = 'go' then
@@ -3916,7 +3924,9 @@ begin
     end;
 
   exitlabel:
+  finally
   Screen.Cursor := crDefault;
+  end;
   //ActiveControl := Browser;
 //  miStrong.Enabled := MainBook.StrongNumbers;
   if length(path) <= 0 then
@@ -5925,6 +5935,34 @@ begin
     ToggleButton.Click;
 end;
 
+procedure TMainForm.FirstBrowserMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+  var section,s:TSectionBase;
+    topPos, index, i, c:integer;
+  classname:string;
+  sl:TSectionList;
+begin
+//
+section:=Browser.SectionList.FindSectionAtPosition(Browser.LeftMouseClickPos, topPos, index);
+//repeat
+classname:=section.ClassName;
+OutputDebugString(Pointer(classname));
+sl:=section.ParentSectionList;
+c:=sl.Count;
+i:=index;
+
+{repeat
+s:= sl.Items[i];
+Dec(i);
+OutputDebugString(Pointer(string(s.classname)));
+until i<0;}
+//section.ParentSectionList
+//if section is TSection then
+
+
+//until
+end;
+
 procedure TMainForm.FirstBrowserMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
   var fontSize:integer;
@@ -6927,8 +6965,21 @@ end;
 
 procedure TMainForm.XRefBrowserHotSpotClick(Sender: TObject;
   const SRC: string; var Handled: Boolean);
+  var ti:TViewTabInfo;
+      satBible:WideString;
 begin
-  if IsDown(VK_MENU) then NewViewTab(SRC,'', miStrong.Checked, miMemosToggle.Checked) else
+  if IsDown(VK_MENU) then begin
+  ti:=GetActiveTabInfo();
+  if assigned(ti) then
+   satBible:=ti.mSatelliteMenuItem.Caption
+   else satBible:='-------';
+
+   NewViewTab(SRC,satBible, miStrong.Checked,
+    miMemosToggle.Checked)
+
+
+  end
+    else
     ProcessCommand(SRC);
   Handled := true;
 end;
@@ -7650,7 +7701,9 @@ begin
       abort;
     satelliteMenuItem := SatelliteMenuItemFromModuleName(satellite);
     if not Assigned(satelliteMenuItem) then
-      abort;
+      if SatelliteMenu.Items.Count>0 then satelliteMenuItem:=SatelliteMenu.Items as TTntMenuItem
+      else abort;
+
     tabInfo := TViewTabInfo.Create(newBrowser, newBible, command,
       satelliteMenuItem, showStrongs, showNotes);
     Tab1.Tag := Integer(tabInfo);
@@ -8100,6 +8153,11 @@ begin
   except end;
 end;
 
+procedure TMainForm.miChooseSatelliteBibleClick(Sender: TObject);
+begin
+SatelliteButton.Click();
+end;
+
 procedure TMainForm.miCloseTabClick(Sender: TObject);
 var
   tabInfo: TViewTabInfo;
@@ -8419,7 +8477,6 @@ begin
   InputForm.Tag := 0; // use TTntEdit
   InputForm.Caption := miQuickNav.Caption;
   InputForm.Font := MainForm.Font;
-
   with MainBook do
     if CurFromVerse > 1 then
       InputForm.Edit1.Text := ShortPassageSignature(CurBook, CurChapter,
@@ -8780,6 +8837,25 @@ begin
 end;
 
 
+
+procedure TMainForm.miOpenNewViewClick(Sender: TObject);
+var addr:WideString;
+    ti:TViewTabInfo;
+    satBible:WideString;
+
+begin
+//
+addr:=UTF8Decode(G_XRefVerseCmd);
+if length(addr)<=0 then exit;
+ti:=GetActiveTabInfo();
+  if assigned(ti) then
+   satBible:=ti.mSatelliteMenuItem.Caption
+   else satBible:='-------';
+
+   NewViewTab(addr,satBible, miStrong.Checked,
+    miMemosToggle.Checked)
+
+end;
 
 procedure TMainForm.miOptionsClick(Sender: TObject);
 begin
@@ -9179,6 +9255,16 @@ end;
 constructor TBookCategory.Create(aName: WideString);
 begin
   name := aName;
+end;
+
+procedure TMainForm.RefPopupMenuPopup(Sender: TObject);
+begin
+  miOpenNewView.Visible:=MainPages.ActivePage=XRefTab;
+
+
+  G_XRefVerseCmd:= Get_AHREF_VerseCommand( XRefBrowser.DocumentSource,
+    XRefBrowser.SectionList.FindSourcePos(XRefBrowser.RightMouseClickPos ));
+
 end;
 
 end.

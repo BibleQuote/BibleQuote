@@ -585,7 +585,7 @@ type
     procedure DrawTheList(Canvas: TCanvas; ARect: TRect; ClipWidth, X,
                           XRef, YRef :integer);
     procedure AddSectionsToList; override;
-    procedure FormTree(Indent: string; var Tree: string);
+//    procedure FormTree(Indent: string; var Tree: string);
     end;
 
   ListTypeType = (None, Ordered, Unordered, Definition, liAlone);
@@ -929,7 +929,7 @@ type
              var Y: integer): boolean;
     function GetChAtPos(Pos: integer; var Ch: WideChar; var Obj: TObject): boolean;
     procedure AddSectionsToList;
-    procedure FormTree(Indent: string; var Tree: string);
+//    procedure FormTree(Indent: string; var Tree: string);
     end;
 
   TCell = class(TCellBasic)
@@ -3863,7 +3863,7 @@ for I := 0 to Count-1 do
   end;
 end;
 
-procedure TCellBasic.FormTree(Indent: string; var Tree: string);
+{procedure TCellBasic.FormTree(Indent: string; var Tree: string);
 var
   I: integer;
   Item: TSectionBase;
@@ -3878,7 +3878,7 @@ for I := 0 to Count-1 do
   else
     Tree := Tree + Indent + '----'^M+^J;
   end;
-end;
+end;           }
 
 {----------------TCellBasic.FindDocPos}
 function TCellBasic.FindDocPos(SourcePos: integer; Prev: boolean): integer;
@@ -5207,7 +5207,7 @@ with DrawList do
     end;
 end;
 
-procedure TBlock.FormTree(Indent: string; var Tree: string);
+{procedure TBlock.FormTree(Indent: string; var Tree: string);
 var
   MyIndent: string;
   TM, BM: string;
@@ -5217,7 +5217,7 @@ TM := IntToStr(MargArray[MarginTop]);
 BM := IntToStr(MargArray[MarginBottom]);
 Tree := Tree+Indent+TagClass+'  '+TM+'  '+BM+^M+^J;
 MyCell.FormTree(MyIndent, Tree);
-end;
+end;}
 
 {----------------TTableAndCaptionBlock.Create}
 constructor TTableAndCaptionBlock.Create(Master: TSectionList; Prop: TProperties;

@@ -14,7 +14,9 @@ object InputForm: TInputForm
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
+  Position = poMainFormCenter
   OnKeyPress = TntFormKeyPress
+  OnShow = TntFormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Edit1: TTntEdit

@@ -160,7 +160,9 @@ type
     // added by Timothy
     FRightMouseClickPos: Integer;
     // timothy  Longint
-
+    {AlekId}
+    FLeftMouseClickPos:integer;
+    {/AlekId}
     FOptions: ThtmlViewerOptions;
     sbWidth: integer;
     ScrollWidth: integer;
@@ -432,6 +434,7 @@ type
     property Processing: boolean read FProcessing;
     // added by Timothy
     property RightMouseClickPos: Integer read FRightMouseClickPos;
+    property LeftMouseClickPos:integer read FLeftMouseClickPos;
     //
     property SelStart: integer read FCaretPos write SetSelStart;
     property SelLength: integer read GetSelLength write SetSelLength;
@@ -1582,6 +1585,10 @@ else if (Button = mbLeft) then
     Sel1 := FindCursor(PaintPanel.Canvas, X, Y+YOff, XR, YR, CaretHt, InText);
     if Sel1 > -1 then
       begin
+      {AlekId}
+      FLeftMouseClickPos:=Sel1;
+
+      {/AlekId}
       if (SelB <> SelE) or (ssShift in Shift) then
         InvalidateRect(PaintPanel.Handle, Nil, True);
       if (ssShift in Shift) then

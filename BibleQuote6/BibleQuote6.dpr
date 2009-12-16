@@ -1,3 +1,5 @@
+// JCL_DEBUG_EXPERT_GENERATEJDBG ON
+// JCL_DEBUG_EXPERT_INSERTJDBG ON
 program BibleQuote6;
 
 {%TogetherDiagram 'ModelSupport_BibleQuote6\default.txaPackage'}
@@ -69,7 +71,9 @@ uses
   main in 'main.pas' {MainForm: TTntForm},
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
   AboutForm in 'AboutForm.pas' {frmAbout: TTntForm},
-  XPTheme in 'XPTheme.pas';
+  XPTheme in 'XPTheme.pas',
+  htmlview in 'Thtml\package\htmlview.pas',
+  HTMLSubs in 'Thtml\package\HTMLSubs.pas';
 
 {$R *.res}
 var

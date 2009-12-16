@@ -237,7 +237,7 @@ uses
   {$ifdef Delphi6_Plus}
   Variants,
   {$endif}
-  htmlsubs, htmlun2, readhtml, BibleQuoteUtils;
+  htmlsubs, htmlun2, readhtml{$IFDEF SMARTFONTS}, BibleQuoteUtils{$ENDIF};
 
 var
   DefPointSize: double;
@@ -1630,9 +1630,12 @@ Done := False;
 S1 := NextFontName;
 while (S1 <> '') and not Done do
   begin
-//  Done := Screen.Fonts.IndexOf(S1) >= 0;
+{$IFDEF SMARTFONTS}
 //AlekId:
   Done:=FontExists(S1);
+{$ELSE}
+  Done := Screen.Fonts.IndexOf(S1) >= 0;
+  {$ENDIF}
   if Done then
     Result := S1
   else S1 := NextFontName;
@@ -1708,7 +1711,11 @@ S1 := NextFontName;
 while (S1 <> '') and not Done do
   begin
  // Done := Screen.Fonts.IndexOf(S1) >= 0;
+ {$IFDEF SMARTFONTS}
  Done:=FontExists(s1);
+ {$ELSE}
+ Done:=Screen.Fonts.IndexOf(s1)>=0;
+ {$ENDIF}
   if Done then
     begin
     Font.iName := S1;
