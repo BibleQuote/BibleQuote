@@ -106,7 +106,7 @@
 			<Compiler Name="CodePage">1251</Compiler>
 		</Compiler>
 		<Linker>
-			<Linker Name="MapFile">0</Linker>
+			<Linker Name="MapFile">3</Linker>
 			<Linker Name="OutputObjs">0</Linker>
 			<Linker Name="GenerateHpps">False</Linker>
 			<Linker Name="ConsoleApp">1</Linker>
@@ -119,11 +119,11 @@
 			<Linker Name="ExeDescription"></Linker>
 		</Linker>
 		<Directories>
-			<Directories Name="OutputDir">E:\DevSoft\myprojects\bqnet\BibleQuote6\SandBox</Directories>
+			<Directories Name="OutputDir">D:\BibleQuote 5 Bibliologia Edition</Directories>
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">$(BDS)\lib\Debug;I:\PROGRA~1\DevLab\omega\used\jcl\lib\d10\debug;$(BDS)\Lib\Debug\Indy9;$(BDS)\Lib\Debug\Indy10;.\Delphi Unicode Controls\Source;.\Thtml\package;.\tb2k\Source;.\Tray\TrayIcon;.\HotKey</Directories>
+			<Directories Name="SearchPath">L:\devsoft\Components\jcl211\lib\d10\debug;E:\DevSoft\Components\jcl211\lib\d10\debug;E:\DevSoft\COMPON~1\jcl201\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;I:\PROGRA~1\DevLab\omega\used\jcl\lib\d10\debug;$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;L:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source</Directories>
 			<Directories Name="Packages">vcl;rtl;vclx;vcldb;xmlrtl;vclactnband;inet;IntrawebDB_80_100;Intraweb_80_100;vclie;inetdbbde;inetdbxpress;dclOfficeXP;VclSmp;soaprtl;dsnap;bdertl;dsnapcon;websnap;webdsnap;TntUnicodeVcl;CoolTrayIcon_D6;Jcl;JvCoreD10R;TrayIcon;ssWebBrowser;AlekControls</Directories>
 			<Directories Name="Conditionals">SMARTFONTS</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
@@ -146,11 +146,11 @@
 		</Language>
 		<VersionInfo>
 			<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
-			<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+			<VersionInfo Name="AutoIncBuild">True</VersionInfo>
 			<VersionInfo Name="MajorVer">6</VersionInfo>
 			<VersionInfo Name="MinorVer">0</VersionInfo>
 			<VersionInfo Name="Release">1</VersionInfo>
-			<VersionInfo Name="Build">0</VersionInfo>
+			<VersionInfo Name="Build">1209</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -162,19 +162,17 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">BibleQuote 6</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">6.0.1.0</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">6.0.1.1209</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">GNU GPL</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
 			<VersionInfoKeys Name="OriginalFilename">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">BibleQuote 6</VersionInfoKeys>
-			<VersionInfoKeys Name="ProductVersion">6.0.1b7c</VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">6.0.1a8</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments"></VersionInfoKeys>
 			<VersionInfoKeys Name="PrivateBuild">Yes</VersionInfoKeys>
-		</VersionInfoKeys>  <Excluded_Packages>
-      <Excluded_Packages Name="I:\Program Files\Borland\BDS\4.0\Bin\JclStackTraceViewerExpert100.bpl">JCL Stack Trace Viewer</Excluded_Packages>
-    </Excluded_Packages>
-  </Delphi.Personality>
+		</VersionInfoKeys>
+	</Delphi.Personality>
 	<!-- EurekaLog First Line
 [Exception Log]
 EurekaLog Version=6020

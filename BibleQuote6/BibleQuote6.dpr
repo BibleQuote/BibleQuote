@@ -73,7 +73,10 @@ uses
   AboutForm in 'AboutForm.pas' {frmAbout: TTntForm},
   XPTheme in 'XPTheme.pas',
   htmlview in 'Thtml\package\htmlview.pas',
-  HTMLSubs in 'Thtml\package\HTMLSubs.pas';
+  HTMLSubs in 'Thtml\package\HTMLSubs.pas',
+  BQExceptionTracker in 'BQExceptionTracker.pas' {bqExceptionForm},
+  qNavTest in 'qNavTest.pas' {frmQNav},
+  VersesDB in 'VersesDB.pas' {VerseListEngine: TDataModule};
 
 {$R *.res}
 var
@@ -95,9 +98,9 @@ begin
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TInputForm, InputForm);
-  Application.CreateForm(TCopyrightForm, CopyrightForm);
   Application.CreateForm(TConfigForm, ConfigForm);
-  Application.CreateForm(TfrmAbout, frmAbout);
+  Application.CreateForm(TbqExceptionForm, bqExceptionForm);
+  Application.CreateForm(TVerseListEngine, VerseListEngine);
   Application.Run;
   try
     Close(Output);

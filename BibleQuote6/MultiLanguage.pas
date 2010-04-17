@@ -20,7 +20,7 @@ type
     FSeparator: WideString;
   protected
     { Protected declarations }
-    procedure LoadIniFile (value: WideString);
+    procedure _LoadIniFile(value: WideString);
     procedure SetProperty (AComponent : TComponent; sProperty, sValue : WideString);
     procedure SetStringsProperty (
       AComponent : TComponent;
@@ -31,8 +31,9 @@ type
     { Public declarations }
     class function IsStringProperty (PropInfo : PPropInfo) : Boolean;
     class function IsIntegerProperty (PropInfo : PPropInfo) : Boolean;
+    function LoadIniFile (value: WideString):boolean;
 
-    property IniFile: WideString read FIniFile write LoadIniFile;
+    property IniFile: WideString read FIniFile write _LoadIniFile;
     procedure SaveToFile;
 
     function Say(s: WideString): WideString; // default = s
@@ -72,20 +73,9 @@ begin
   inherited Destroy;
 end;
 
-procedure TMultiLanguage.LoadIniFile(value: WideString);
+procedure TMultiLanguage._LoadIniFile(value: WideString);
 begin
-//  FIniFile := StrReplace (value, '&', '');
-  FIniFile := value;
-
-  if not FileExists(value) then Exit;
-
-  try
-    FLines.Free;
-    FLines := WChar_ReadTextFileToTWideStrings (value);
-  except
-    raise Exception.CreateFmt('TMultiLanguage.LoadIniFile: Error loading file %s',
-      [value]);
-  end;
+LoadIniFile(value)
 end;
 
 procedure TMultiLanguage.SaveToFile;
@@ -112,6 +102,22 @@ begin
   end;
 
   if not Result then FLines.Add(s + ' = ' + value);
+end;
+
+function TMultiLanguage.LoadIniFile(value: WideString): boolean;
+begin
+//  FIniFile := StrReplace (value, '&', '');
+  FIniFile := value;
+  result:=false;
+  if not FileExists(value) then exit;
+  try
+    FLines.Free;
+    FLines := WChar_ReadTextFileToTWideStrings (value);
+  except
+    raise Exception.CreateFmt('TMultiLanguage.LoadIniFile: Error loading file %s',
+      [value]);
+  end;
+  result:=true;
 end;
 
 function TMultiLanguage.Say(s: WideString): WideString;

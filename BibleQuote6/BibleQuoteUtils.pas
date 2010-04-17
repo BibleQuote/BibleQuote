@@ -1,7 +1,8 @@
 unit BibleQuoteUtils;
 
 interface
-uses SevenZipVCL, Contnrs, WideStrings, Windows, SysUtils,Classes ;
+uses SevenZipVCL, MultiLanguage,
+ Contnrs, WideStrings, Windows, SysUtils,Classes,  JCLDebug;
 type
   TBibleModuleSecurity = class
     path, folder: WideString;
@@ -42,6 +43,20 @@ type
     constructor Create(const aPath:WideString; afileNeedsCleanUp:boolean; aHandle:HFont);
     end;
 
+  TModuleType = (modtypeBible, modtypeBook, modtypeComment);
+  TModuleEntry = class
+    wsFullName, wsShortName, wsShortPath, wsFullPath: Widestring;
+    modType: TModuleType;
+    constructor Create(amodType: TModuleType; awsFullName, awsShortName,
+      awsShortPath, awsFullPath: Widestring);overload;
+    constructor Create(me:TModuleEntry);overload;
+    procedure Init(amodType: TModuleType; awsFullName, awsShortName,
+      awsShortPath, awsFullPath: Widestring);
+    procedure Assign(source:TModuleEntry);
+
+
+  end;
+  
 const
   Crc32Bytes = 4;
   Crc32Start: Cardinal = $FFFFFFFF;
@@ -96,14 +111,34 @@ function StrPosW(const Str, SubStr: PWideChar): PWideChar;
 function ExctractName(const wsFile:WideString):WideString;
 function IsDown(key:integer):boolean;
 function FileRemoveExtension(const Path: string): string;
+procedure CopyHTMLToClipBoard(const str: WideString; const htmlStr: AnsiString = '');
+function OmegaCompareTxt(const str1, str2:WideString; len:integer=-1):integer;
+procedure InsertDefaultFontInfo(var html:string; fontName:string; fontSz:integer);
+
 type PfnAddFontMemResourceEx=function(p1: Pointer; p2: DWORD; p3: PDesignVector; p4: LPDWORD): THandle; stdcall;
 type PfnRemoveFontMemResourceEx=function(p1: THandle): BOOL; stdcall;
 var G_AddFontMemResourceEx:PfnAddFontMemResourceEx;
     G_RemoveFontMemResourceEx:PfnRemoveFontMemResourceEx;
 var S_SevenZip: TSevenZip;
     G_InstalledFonts:TWideStringList;
+     Lang: TMultiLanguage;
+
 implementation
-uses WCharReader, MultiLanguage, main, Controls, Forms;
+uses WCharReader,  main, Controls, Forms, Clipbrd;
+
+function OmegaCompareTxt(const str1, str2:WideString; len:integer=-1):integer;
+var str1len, str2len:integer;
+    ptr:PCHAR;
+    ch:char;
+begin
+if  len<0 then begin
+str1len:=length(str1); str2len:=Length(str2);
+if str1len>str2len then  len:=str2len  else len:=str1len;
+end;
+
+result:=CompareStringW(LOCALE_USER_DEFAULT,NORM_IGNORECASE,PWIDECHAR(Pointer(str1)),len,
+         PWIDECHAR(Pointer(str2)), len )-2;
+end;
 
 function GetArchiveFromSpecial(const aSpecial: WideString): WideString; overload;
 var pz: Integer;
@@ -629,14 +664,212 @@ G_AddFontMemResourceEx:= PfnAddFontMemResourceEx ( GetProcAddress(h, 'AddFontMem
 G_RemoveFontMemResourceEx:=PfnRemoveFontMemResourceEx(GetProcAddress(h,'RemoveFontMemResourceEx'));
 end;
 
+
+ function FormatHTMLClipboardHeader(HTMLText: string): string;
+ const
+   CrLf = #13#10;
+begin
+  HTMLText:= '<!--StartFragment-->'+#13#10 +HTMLText+#13#10+'<!--EndFragment -->'+#13#10;
+  Result := 'Version:0.9' + CrLf;
+   Result := Result + 'StartHTML:-1' + CrLf;
+   Result := Result + 'EndHTML:-1' + CrLf;
+   Result := Result + 'StartFragment:000081' + CrLf;
+   Result := Result + 'EndFragment:같같같' + CrLf;
+   Result := Result + HTMLText + CrLf;
+   Result := StringReplace(Result, '같같같', Format('%.6d', [Length(Result)]), []);
+ end;
+
+  function GetHeader(HTML: string): string;
+  const
+    Version = 'Version:1.0'#13#10;
+    StartHTML = 'StartHTML:';
+    EndHTML = 'EndHTML:';
+    StartFragment = 'StartFragment:';
+    EndFragment = 'EndFragment:';
+    SourceURL = 'SourceURL:';
+    NumberLengthAndCR = 10;
+const
+  StartFrag = '<!--StartFragment-->';
+  EndFrag = '<!--EndFragment-->';
+  DocType = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">'#13#10;
+
+
+    // Let the compiler determine the description length.
+    PreliminaryLength = Length(Version) + Length(StartHTML) +
+                        Length(EndHTML) + Length(StartFragment) +
+                        Length(EndFragment) + 4 * NumberLengthAndCR +
+                        2;  {2 for last CRLF}
+  var
+    URLString: string;
+    StartHTMLIndex,
+    EndHTMLIndex,
+    StartFragmentIndex,
+    EndFragmentIndex: integer;
+  begin
+  Insert(StartFrag, HTML, 1);
+  HTML := DocType+HTML;
+  {Append the EndFrag string}
+  HTML := HTML+EndFrag;
+  {Add the header to start}
+
+  UrlString := 'about:blank';
+  StartHTMLIndex := PreliminaryLength + Length(URLString);
+  EndHTMLIndex := StartHTMLIndex + Length(HTML);
+  StartFragmentIndex := StartHTMLIndex + Pos(StartFrag, HTML) + Length(StartFrag)-1;
+  EndFragmentIndex := StartHTMLIndex + Pos(EndFrag, HTML)-1;
+
+  Result := Version +
+    SysUtils.Format('%s%.8d', [StartHTML, StartHTMLIndex]) + #13#10 +
+    SysUtils.Format('%s%.8d', [EndHTML, EndHTMLIndex]) + #13#10 +
+    SysUtils.Format('%s%.8d', [StartFragment, StartFragmentIndex]) + #13#10 +
+    SysUtils.Format('%s%.8d', [EndFragment, EndFragmentIndex]) + #13#10 +
+    URLString + #13#10+HTML;
+  end;
+
+ //The second parameter is optional and is put into the clipboard as CF_HTML.
+//Function can be used standalone or in conjunction with the VCL clipboard so long as
+//you use the USEVCLCLIPBOARD conditional define
+//($define USEVCLCLIPBOARD}
+//(and clipboard.open, clipboard.close).
+//Code from http://www.lorriman.com
+procedure InsertDefaultFontInfo(var html:string; fontName:string; fontSz:integer);
+  var
+    I: integer;
+    S, L: string;
+    HeadFound: boolean;
+  begin
+  L := LowerCase(HTML);
+  I := Pos('<head>', L);
+  HeadFound := I > 0;
+  if not HeadFound then
+    I := Pos('<html>', L);
+  if I <= 0 then
+    I := 1;
+  S := '<style> body {font-size: '+IntToStr(fontSz)+'pt; font-family: "'+
+       fontName+'"; }</style>';
+  if not HeadFound then
+    S := '<head>'+S+'</head>';
+  Insert(S, HTML, I);
+  end;
+
+
+procedure CopyHTMLToClipBoard(const str: WideString; const htmlStr: AnsiString = '');
+ var
+   gMem: HGLOBAL;
+   lp: PChar;
+    i,l: Integer;
+   astr:string;
+   uf, hf:UINT;
+ begin
+   gMem := 0;
+   hf:= RegisterClipboardFormat('HTML Format');
+   clipboard.Open;
+   try
+     //most descriptive first as per api docs
+//     astr:=FormatHTMLClipboardHeader(htmlStr );
+     astr:=GetHeader(htmlStr);
+     uf:= CF_UNICODETEXT;
+     {$IFNDEF USEVCLCLIPBOARD}
+     //Win32Check(EmptyClipBoard);
+     {$ENDIF}
+        if length(htmlStr)>0 then begin
+       //an extra "1" for the null terminator
+        l:=Length(astr)+1;
+        gMem := GlobalAlloc(GMEM_DDESHARE + GMEM_MOVEABLE, l);
+       {Succeeded, now read the stream contents into the memory the pointer points at}
+        try
+         Win32Check(gmem <> 0);
+         lp := GlobalLock(gMem);
+         Win32Check(lp <> nil);
+         CopyMemory(lp, Pointer(astr), l );
+        finally
+         GlobalUnlock(gMem);
+        end;
+        Win32Check(gmem <> 0);
+        SetClipboardData(hf, gMEm);
+        Win32Check(gmem <> 0);
+        gmem := 0;
+     end;
+     if false{length(str)>0} then begin
+       l:=Length(str)*2+2;
+        gMem := GlobalAlloc(GMEM_DDESHARE + GMEM_MOVEABLE, l);
+       {Succeeded, now read the stream contents into the memory the pointer points at}
+        try
+         Win32Check(gmem <> 0);
+         lp := GlobalLock(gMem);
+         Win32Check(lp <> nil);
+         CopyMemory(lp, Pointer(str), l );
+        finally
+         GlobalUnlock(gMem);
+        end;
+        Win32Check(gmem <> 0);
+        SetClipboardData(uf, gMEm);
+        Win32Check(gmem <> 0);
+        gmem := 0;
+     end;
+
+   finally
+     {$IFNDEF USEVCLCLIPBOARD}
+     clipboard.close;
+     {$ENDIF}
+   end;
+ end;
+{ TModuleEntry }
+
+procedure TModuleEntry.Assign(source: TModuleEntry);
+begin
+Init(source.modType, source.wsFullName, source.wsShortName, source.wsShortPath,
+source.wsFullPath);
+end;
+
+constructor TModuleEntry.Create(amodType: TModuleType; awsFullName,
+  awsShortName,
+  awsShortPath, awsFullPath: Widestring);
+begin
+  inherited Create;
+//  modType := amodType;
+//  wsFullName := awsFullName;
+//  wsShortPath := awsShortPath;
+//  wsShortName := awsShortName;
+//  wsFullPath := awsFullPath;
+Init(amodType,awsFullName,awsShortName,awsShortPath, awsFullPath);
+end;
+
+constructor TModuleEntry.Create(me: TModuleEntry);
+begin
+Assign(me);
+end;
+
+procedure TModuleEntry.Init(amodType: TModuleType; awsFullName, awsShortName,
+  awsShortPath, awsFullPath: Widestring);
+begin
+  modType := amodType;
+  wsFullName := awsFullName;
+  wsShortPath := awsShortPath;
+  wsShortName := awsShortName;
+  wsFullPath := awsFullPath;
+end;
+
+
+
+
+
 initialization
+   // Enable raw mode (default mode uses stack frames which aren't always generated by the compiler)
+//  Include(JclStackTrackingOptions, stRawMode);
+  // Disable stack tracking in dynamically loaded modules (it makes stack tracking code a bit faster)
+  Include(JclStackTrackingOptions, stStaticModuleList);
+  // Initialize Exception tracking
+  JclStartExceptionTracking;
    G_InstalledFonts:=TWideStringList.Create;
    G_InstalledFonts.Sorted:=true;
    G_InstalledFonts.Duplicates:=dupIgnore;
-  S_SevenZip := TSevenZip.Create(nil);
-  load_proc();
+   S_SevenZip := TSevenZip.Create(nil);
+   load_proc();
+
 finalization
   _cleanUpInstalledFonts();
   S_SevenZip.Free();
+  JclStopExceptionTracking();
 end.
 

@@ -23,7 +23,7 @@ object ConfigForm: TConfigForm
     Top = 0
     Width = 475
     Height = 305
-    ActivePage = OtherOptionsTabSheet
+    ActivePage = CopyOptionsTabSheet
     Align = alTop
     TabOrder = 0
     object CopyOptionsTabSheet: TTntTabSheet

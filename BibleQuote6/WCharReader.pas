@@ -107,7 +107,7 @@ begin
   Result :=
     (Length(aBuffer) >= 2) and (
     (aBuffer[1] = #255) and (aBuffer[2] = #254)
-    ) or (
+     or
     (aBuffer[1] = #254) and (aBuffer[2] = #255)
     );
 end;

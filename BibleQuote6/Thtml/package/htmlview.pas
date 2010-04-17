@@ -394,7 +394,7 @@ type
     procedure DoEnter; override;
     procedure DoExit; override;
     procedure Repaint; override;
-    function FindSourcePos(DisplayPos: integer): integer;
+    function FindSourcePos(DisplayPos: integer; vvdfix:boolean=false): integer;
     function FindDisplayPos(SourcePos: integer; Prev: boolean): integer;
     function DisplayPosToXy(DisplayPos: integer; var X, Y: integer): boolean;
     function PtInObject(X, Y: integer; var Obj: TObject): boolean;  {X, Y, are client coord}
@@ -4401,6 +4401,7 @@ var
     clipboard.Open;
     try
       //an extra "1" for the null terminator
+
       gMem := globalalloc(GMEM_DDESHARE + GMEM_MOVEABLE, length(source)+1);
       lp := globallock(gMem);
       copymemory(lp, pchar(source), length(source)+1);
@@ -4581,7 +4582,7 @@ FSectionList.CopyToClipboardA(Leng+1);
 HTML := DocumentSource;
 StSrc := FindSourcePos(FSectionList.SelB)+1;
 EnSrc := FindSourcePos(FSectionList.SelE);
-if EnSrc < 0 then    {check to see if end selection is at end of document}
+if EnSrc <= 0 then    {check to see if end selection is at end of document}
   begin
   EnSrc := Length(HTML);
   if HTML[EnSrc] = '>' then
@@ -4607,7 +4608,7 @@ MessUp('page-break-');
 {Add in default font information which wouldn't be in the HTML}
 InsertDefaultFontInfo;
 {Convert character set to UTF-8}
-HTML := ConvertToUTF8(HTML);
+//HTML := ConvertToUTF8(HTML);   //AlekID
 {Add Doctype tag at start}
 HTML := DocType+HTML;
 {Append the EndFrag string}
@@ -4814,13 +4815,13 @@ if Value >= 0 then
   end;
 end;
 
-function ThtmlViewer.FindSourcePos(DisplayPos: integer): integer;
+function ThtmlViewer.FindSourcePos(DisplayPos: integer; vvdfix:boolean=false): integer;
 begin
 Result := FSectionList.FindSourcePos(DisplayPos);
 
 // Added by vvd
 
-if FIsUtf16Source then
+if vvdFix and FIsUtf16Source  then
 begin
   // Utf8 -> Utf16
   if Result > Length (FDocumentSource) then
