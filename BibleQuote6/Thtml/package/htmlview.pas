@@ -69,6 +69,7 @@ type
     procedure WMLButtonDblClk(var Message: TWMMouse); message WM_LButtonDblClk;
     procedure DoBackground(ACanvas: TCanvas);
     constructor CreateIt(AOwner: TComponent; Viewer: ThtmlViewer);
+    procedure CMHintShow(var Message: TMessage); message CM_HINTSHOW;
     property OnPaint: TNotifyEvent read FOnPaint write FOnPaint;
   public
     procedure Paint; override;
@@ -212,7 +213,9 @@ type
     FDocumentSourceUtf16: WideString;
 
     // End of Added by vvd
-
+    {ALekId}
+    procedure CMHintShow(var Message: TMessage); message CM_HINTSHOW;
+    {AlekId}
     function CreateHeaderFooter: ThtmlViewer;
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
     procedure ScrollTo(Y: integer);
@@ -310,7 +313,7 @@ type
     PaintPanel: TPaintPanel;
     BorderPanel: TPanel;
     Sel1: integer;
-
+    SellNeedAdjust:boolean;
     procedure DoLogic;
     procedure DoScrollBars;
     procedure SetupAndLogic;
@@ -435,7 +438,8 @@ type
     // added by Timothy
     property RightMouseClickPos: Integer read FRightMouseClickPos;
     property LeftMouseClickPos:integer read FLeftMouseClickPos;
-    //
+	  property NoScollJump:boolean read NoJump write NoJump;
+	//
     property SelStart: integer read FCaretPos write SetSelStart;
     property SelLength: integer read GetSelLength write SetSelLength;
     property SelText: WideString read GetSelText;   
@@ -576,7 +580,7 @@ type
 implementation
 
 uses
-  Clipbrd, htmlgif2;    
+  Clipbrd, htmlgif2, tntControls;
 
 const
   ScrollGap = 20;
@@ -751,7 +755,7 @@ HTMLTimer := TTimer.Create(Self);
 HTMLTimer.Enabled := False;
 HTMLTimer.Interval := 200;
 HTMLTimer.OnTimer := HTMLTimerTimer;
-FLinkAttributes := TStringList.Create;   
+FLinkAttributes := TStringList.Create;
 InCreate := False;
 
 // Added by vvd
@@ -1583,11 +1587,12 @@ else if (Button = mbLeft) then
   with FSectionList do
     begin
     Sel1 := FindCursor(PaintPanel.Canvas, X, Y+YOff, XR, YR, CaretHt, InText);
-    if Sel1 > -1 then
+     if Sel1 > -1 then
       begin
       {AlekId}
-      FLeftMouseClickPos:=Sel1;
 
+      FLeftMouseClickPos:=Sel1;
+      SellNeedAdjust:=not InText;
       {/AlekId}
       if (SelB <> SelE) or (ssShift in Shift) then
         InvalidateRect(PaintPanel.Handle, Nil, True);
@@ -1612,23 +1617,24 @@ else if (Button = mbLeft) then
     LButtonDown(True);   {signal to TSectionList}
     end;
   end
-// added by timothy, dorosh
+// added
 else if (Button = mbRight) then
   begin
   with FSectionList do
     begin
-    Sel1 := FindCursor(PaintPanel.Canvas, X, Y+YOff, XR, YR, CaretHt, InText);
+    Sel1 :=  FindCursor(PaintPanel.Canvas, X, Y+YOff, XR, YR, CaretHt, InText);
     if Sel1 > -1 then
       begin
         FRightMouseClickPos := Sel1;
+        Dec(FRightMouseClickPos, ord (not(Intext))*2);
       end;
     end;
   end;
-// end of added by timothy, dorosh
+// end of added
 
 end;
 
-procedure ThtmlViewer.HTMLTimerTimer(Sender: TObject);  
+procedure ThtmlViewer.HTMLTimerTimer(Sender: TObject);
 var
   Pt: TPoint;
 begin
@@ -1732,7 +1738,7 @@ if guUrl in guResult then
   Url := UrlTarget.Url;
   Target := UrlTarget.Target;
   FLinkAttributes.Text := UrlTarget.Attr;
-  FLinkText := GetTextByIndices(UrlTarget.Start, UrlTarget.Last);   
+  FLinkText := GetTextByIndices(UrlTarget.Start, UrlTarget.Last);
   UrlTarget.Free;
   end; 
 if guControl in guResult then
@@ -1834,6 +1840,7 @@ if (Button = mbLeft) and not (ssShift in Shift) then
   begin
   MouseScrolling := False;
   DoHilite(X, Y);
+  if SellNeedAdjust then begin Dec(Sel1); Dec(FSectionList.SelE); end;
   Hiliting := False;
   FSectionList.LButtonDown(False);
   TmpLeft := LeftButtonDown;
@@ -2035,8 +2042,10 @@ if Hiliting and (Sel1 >= 0) then
       begin
       if Curs > Sel1 then
         begin
-        SelE := Curs;
+        dec(Curs,ord(not InText));
+        SelE := curs;
         SelB := Sel1;
+        SellNeedAdjust:=false;
         end
       else
         begin
@@ -3675,6 +3684,12 @@ if Assigned(vwP) then
   end;
 end;
 
+procedure THTMLViewer.CMHintShow(var Message: TMessage);
+begin
+inherited;
+ProcessCMHintShowMsg(Message);
+end;
+
 procedure ThtmlViewer.AbortPrint;   
 begin
 if Assigned(vwP) then
@@ -4302,8 +4317,10 @@ if Sender is TFormControlObj then
     Invalidate;
     end;
   end
-else if Sender is TFontObj and not NoJump then  
+else if (Sender is TFontObj) and (not NoJump) and
+ ((GetKeyState(VK_TAB) and  $8000)<>0) then
   begin
+
   Y := TFontObj(Sender).YValue;
   Pos := VScrollBarPosition;
   if (Y < Pos) then  
@@ -5095,6 +5112,12 @@ if Assigned(FOnProgress) then
 end;
 
 {----------------TPaintPanel.CreateIt}
+procedure TPaintPanel.CMHintShow(var Message: TMessage);
+begin
+inherited;
+ProcessCMHintShowMsg(Message);
+end;
+
 constructor TPaintPanel.CreateIt(AOwner: TComponent; Viewer: ThtmlViewer);
 
 begin

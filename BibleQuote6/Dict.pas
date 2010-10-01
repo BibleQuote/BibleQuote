@@ -13,12 +13,17 @@ type TDict = class(TObject)
     FWords: TWideStrings;
     FName: WideString;
     FPath: WideString;
+    FiLines: TWideStrings;
+    Fii: integer;
+    Filinecount:integer;
+    FInitialized:boolean;
   public
     constructor Create;
     destructor Destroy(); override;
-    function Initialize(IndexFile, DictFile: WideString): boolean;
+    function Initialize(IndexFile, DictFile: WideString; background:boolean=false): boolean;
     function Lookup(wrd: WideString): WideString; // lookup a word in dictionary...
   published
+    property Initialized:boolean read FInitialized;
     property Words: TWideStrings read FWords;
     property Name: WideString read FName;
     property Path: WideString read FPath;
@@ -46,12 +51,11 @@ begin
   inherited;
 end;
 
-function TDict.Initialize(IndexFile, DictFile: WideString): boolean;
-var
-  Lines: TWideStrings;
-  i: integer;
-  linecount:integer;
+function TDict.Initialize(IndexFile, DictFile: WideString; background:boolean=false): boolean;
+
+
 begin
+if not assigned(FiLines) then begin
   if (FileExistsEx(IndexFile)<0) or (FileExistsEx(DictFile)<0) then
   begin
     Result := false;
@@ -63,19 +67,35 @@ begin
 //  if IndexFile[1]='?' then IndexFile:=GetArchiveFromSpecial(IndexFile);
   FPath := ExtractFileName(IndexFile);
   FPath := Copy(FPath,1,Length(FPath)-3);
-  
-  Lines := WChar_ReadTextFileToTWideStrings (FIndex);
-  FName := Lines[0]; Lines.Delete(0);
+
+  FiLines := WChar_ReadTextFileToTWideStrings (FIndex);
+
+  FName := FiLines[0]; FiLines.Delete(0);
   FWords.Clear;
-  linecount:=(Lines.Count div 2 - 1);
-  FWords.Capacity:=linecount;
-  for i:=0 to linecount{(Lines.Count div 2 - 1)} do
-  begin
-   // FWords.AddObject(Lines[2*i], Pointer (StrToInt (Trim (Lines[2*i+1]))));
-   FWords.InsertObject(i,Lines[2*i], Pointer ( StrToInt (Trim (Lines[2*i+1]))) );
+  Filinecount:=(FiLines.Count div 2 )-1;
+  FWords.Capacity:=Filinecount;
+  FIi:=0;
+  if background then exit;
   end;
+
+  if (not background) or (Fii<=Filinecount) then
+  repeat
+//  for i:=0 to linecount{(Lines.Count div 2 - 1)} do
+//  begin
+   // FWords.AddObject(Lines[2*i], Pointer (StrToInt (Trim (Lines[2*i+1]))));
+   FWords.InsertObject(Fii,Trim(FiLines[2*Fii]),
+       Pointer ( StrToInt (Trim (FiLines[2*Fii+1]))) );
+  Inc(Fii);
+  until (Fii>Filinecount) or (background and ((FiI and $3FF)=$3FF));
+
+
+  result:= Fii>Filinecount;
+  if not result then exit;
+  FInitialized:=true;
   Result := (FWords.Count > 0);
-  Lines.Free;
+//  MessageBeep(MB_ICONEXCLAMATION);
+  FreeandNil(FiLines);
+  Fii:=0;
 end;
 
 function TDict.Lookup(wrd: WideString): WideString;

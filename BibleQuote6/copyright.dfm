@@ -20,7 +20,7 @@ object CopyrightForm: TCopyrightForm
   DesignSize = (
     663
     366)
-  PixelsPerInch = 105
+  PixelsPerInch = 108
   TextHeight = 13
   object Shape1: TShape
     Left = 0
@@ -229,7 +229,6 @@ object CopyrightForm: TCopyrightForm
     PrintMarginBottom = 2.000000000000000000
     PrintScale = 1.000000000000000000
     htOptions = []
-    ExplicitWidth = 651
-    ExplicitHeight = 282
+    OnKeyUp = BrowserKeyUp
   end
 end

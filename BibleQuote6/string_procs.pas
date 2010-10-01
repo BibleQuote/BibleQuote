@@ -313,18 +313,20 @@ end;
 
 function StrDeleteFirstNumber(var s: WideString): WideString;
 var
-  i,len: integer;
+  i,len,nums: integer;
   ok: boolean;
 begin
   len := Length(s);
-
+  if len<1 then begin result:='' ; exit;end;
   i := 0;
+  repeat inc(i); until (s[i]<>#32) or (i>=len);
+  nums:=i; dec(i);
   repeat
     Inc(i);
     ok := (s[i] >= '0') and (s[i] <= '9');
   until (not ok) or (i = len);
 
-  Result := Copy(s,1,i-1);
+  Result := Copy(s,nums,i-nums);
   s := Trim(Copy(s,i,len));
 end;
 
@@ -469,20 +471,20 @@ end;
 function ParseHTML(s, HTML: WideString): WideString;
 var
   Tokens: TWideStrings;
-  i, minvalue, s_length, tmp_max, tmp_ix: integer;
-  tmp: array of WideChar;
-  bydefault: boolean;
+  i, minCharCode, s_length, tmp_max, tmp_ix, tc: integer;
+  charArrayAccumullator: array of WideChar;
+  useDefaultFilter: boolean;
   wstr:WideString;
   procedure grow_tmp();
   begin
   Inc(tmp_max);
   tmp_max:=tmp_max*2;
-  SetLength(tmp, tmp_max);
+  SetLength(charArrayAccumullator, tmp_max);
   dec(tmp_max);
   //FillChar(tmp[tmp_ix+1], tmp_max, 0);
   end;
 begin
-  bydefault := (HTML = DefaultHTMLFilter);
+  useDefaultFilter := (HTML = DefaultHTMLFilter);
 
   if s = '' then
   begin
@@ -495,23 +497,25 @@ begin
   i := 0;
   tmp_max:=1024;
   tmp_ix:=0;
-  SetLength(tmp, tmp_max);
+  SetLength(charArrayAccumullator, tmp_max);
   Dec(tmp_max);
 //  FillChar(Pointer(tmp)^, tmp_max*2, 0);
-  minvalue := 65535;
+  minCharCode := 65535;
   s_length:=Length(s);
+  tc:=GetTickCount();
   repeat
     Inc(i);
 
     if s[i] = '<' then
     begin
-      tmp[tmp_ix]:=#0; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
-      wstr:=PWideChar(@tmp[0]);
+      charArrayAccumullator[tmp_ix]:=#0; inc(tmp_ix);
+      if tmp_ix>=tmp_max then grow_tmp();
+      wstr:=PWideChar(Pointer(charArrayAccumullator));
       Tokens.AddObject(wstr, Pointer(0));
 
-      minvalue := 65535;
+      minCharCode := 65535;
       tmp_ix:=0;
-      tmp[tmp_ix] := '<';
+      charArrayAccumullator[tmp_ix] := '<';
       Inc(tmp_ix);
       if tmp_ix>=tmp_max then grow_tmp();
       continue;
@@ -519,37 +523,40 @@ begin
 
     if s[i] = '>' then
     begin
-      tmp[tmp_ix]:='>'; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
-      tmp[tmp_ix]:=#0; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
-      wstr:=PWideChar(@tmp[0]);
-      if (minvalue <= Integer ('z'))
-      then Tokens.AddObject(wstr, Pointer(1))
-      else Tokens.AddObject('&lt;' + Copy(wstr,2,Length(wstr)-2) + '&gt;', Pointer(0));
-
+      charArrayAccumullator[tmp_ix]:='>'; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
+      charArrayAccumullator[tmp_ix]:=#0; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
+      if charArrayAccumullator[0]<>#0 then begin
+        wstr:=PWideChar(@charArrayAccumullator[0]);
+        if (minCharCode <= Integer ('z'))
+        then Tokens.AddObject(wstr, Pointer(1))
+        else Tokens.AddObject('&lt;' + Copy(wstr,2,Length(wstr)-2) + '&gt;', Pointer(0));
+      end;
       // <русское слово> преобразовывается в [русское слово]
       // компонента браузера не показывает текст типа <русское слово>
 
-      minvalue := 65535;
+      minCharCode := 65535;
       //tmp := '';
       tmp_ix:=0;
       continue;
     end else
 
-    if (s[i] <> ' ') and (s[i] <> #9) and (Integer (s[i]) < minvalue) then
-      minvalue := Integer (s[i]);
+    if (s[i] <> ' ') and (s[i] <> #9) and (Integer (s[i]) < minCharCode) then
+      minCharCode := Integer (s[i]);
 
-    tmp[tmp_ix] :=s[i]; //Copy(s,i,1);
+    charArrayAccumullator[tmp_ix] :=s[i]; //Copy(s,i,1);
     inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
   until i >=s_length ;
-  tmp[tmp_ix]:=#0; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
-  wstr:=PWideChar(@tmp[0]);
-  Tokens.AddObject(wstr, Pointer(0));
 
+  charArrayAccumullator[tmp_ix]:=#0; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
+  wstr:=PWideChar(@charArrayAccumullator[0]);
+  Tokens.AddObject(wstr, Pointer(0));
+  tc:=GetTickCount()-tc;
   Result := '';
+   tc:=GetTickCount();
 
   for i := 0 to Tokens.Count-1 do
   begin
-    if bydefault then
+    if useDefaultFilter then
       wstr := WideLowerCase(Tokens[i])
     else
       wstr := FirstWord(WideLowerCase(Tokens[i]));
@@ -558,7 +565,8 @@ begin
     or (Pos(wstr,HTML) <> 0)
     then Result := Result + Tokens[i];
   end;
-  finally  SetLength(tmp,0); Tokens.Free; end;
+  tc:=GetTickCount()-tc;
+  finally  SetLength(charArrayAccumullator,0); Tokens.Free; end;
 end;
 
 function Get_ANAME_VerseNumber(const s: WideString; start, iPos: integer): integer;
@@ -569,7 +577,7 @@ begin
   i := start;
 
   repeat
-    sign := '<a name="' + IntToStr(i) + '">';
+    sign := '<a name="bqverse' + IntToStr(i) + '">';
     len := Length(sign);
 
     anamepos := Pos(sign, s);
@@ -588,17 +596,17 @@ var
   label found;
 begin
   searchpos:=1;
-  sign := '<a href="go';
+  sign := '<a href="';
 
   repeat
 
     anamepos := PosEx (sign, s, searchpos);
     if anamepos>0 then begin
-
     if (anamepos > iPos) then break
     else if anamepos=iPos then begin searchpos:=anamepos+1; break; end;
     searchpos:=anamepos+1;
     end;
+
   until (anamepos=0);
 if  (searchpos=0) then begin result:=''; exit; end;
 

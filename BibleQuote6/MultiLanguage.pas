@@ -3,13 +3,13 @@ unit MultiLanguage;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, WideStrings,
+  Windows, Messages, SysUtils, Classes, 
   Graphics, Controls,
   Forms, TntForms, Dialogs, TntDialogs,
   Menus, TntMenus,
   StdCtrls, TntStdCtrls,
   TypInfo,
-  string_procs, WCharReader;
+  string_procs, WCharReader,WideStrings;
 
 type
   TMultiLanguage = class (TComponent)
@@ -38,9 +38,10 @@ type
 
     function Say(s: WideString): WideString; // default = s
     function SayDefault(s,def: WideString): WideString; // default = def
+    function GetIntDefault(valueTag:WideString; defValue:integer=0):integer;
     function ReadString(section,s,def: WideString): WideString;
-    function Learn(s, value: WideString): boolean;
-
+    function Learn(s, value: WideString): boolean;overload;
+    function Learn(s:WideString; val:integer):boolean;overload;
     procedure TranslateForm(form: TTntForm);
 
     constructor Create (AOwner: TComponent); override;
@@ -73,6 +74,14 @@ begin
   inherited Destroy;
 end;
 
+function TMultiLanguage.GetIntDefault(valueTag: WideString;
+  defValue: integer): integer;
+  var val:AnsiString;
+begin
+val:=Say(valueTag);
+result:=StrToIntDef(val, defValue);
+end;
+
 procedure TMultiLanguage._LoadIniFile(value: WideString);
 begin
 LoadIniFile(value)
@@ -102,6 +111,11 @@ begin
   end;
 
   if not Result then FLines.Add(s + ' = ' + value);
+end;
+
+function TMultiLanguage.Learn(s: WideString; val: integer): boolean;
+begin
+result:=Learn(s, inttostr(val));
 end;
 
 function TMultiLanguage.LoadIniFile(value: WideString): boolean;

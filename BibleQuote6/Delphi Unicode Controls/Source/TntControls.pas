@@ -126,6 +126,9 @@ procedure CreateUnicodeHandle(Control: TWinControl; const Params: TCreateParams;
                                         const SubClass: WideString; IDEWindow: Boolean = False);
 procedure ReCreateUnicodeWnd(Control: TWinControl; Subclass: WideString; IDEWindow: Boolean = False);
 
+function DataPointsToHintInfoForTnt(AData: Pointer): Boolean;
+function ExtractTntHintCaption(AData: Pointer): WideString;
+
 type
   IWideCustomListControl = interface
     ['{C1801F41-51E9-4DB5-8DB8-58AC86698C2E}']
@@ -916,10 +919,11 @@ begin
     Inc(R.Left, 2);
     Inc(R.Top, 2);
     {AlekId}
-//    Canvas.Font.Color := Screen.HintFont.Color;
+  Canvas.Font.Color := 0;
     Canvas.Font.Assign(Screen.HintFont);
-    Tnt_DrawTextW(Canvas.Handle, PWideChar(Caption), -1, R, DT_LEFT or DT_NOPREFIX or
-      DT_WORDBREAK or DrawTextBiDiModeFlagsReadingOnly);
+    Tnt_DrawTextW(Canvas.Handle, PWideChar(Caption), -1, R,
+     DT_LEFT or  DT_VCENTER or DT_NOPREFIX or DT_WORDBREAK  or
+      DT_EDITCONTROL);
   end;
 end;
 
@@ -934,6 +938,7 @@ end;
 procedure TTntCustomHintWindow.ActivateHint(Rect: TRect; const AHint: AnsiString);
 var
   SaveActivating: Boolean;
+
 begin
   SaveActivating := FActivating;
   try

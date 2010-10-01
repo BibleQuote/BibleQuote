@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{2DA1BA6E-7F84-4B5A-844C-CA83EDAD9DC5}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
+      <Projects Name="BibleQuote6.exe">BibleQuote6.bdsproj</Projects>
+      <Projects Name="Omega.exe">..\..\omega\Omega.bdsproj</Projects>
+      <Projects Name="Project1.exe">C:\Documents and Settings\UsrX\Мои документы\Borland Studio Projects\Project1.bdsproj</Projects>
+      <Projects Name="Targets">BibleQuote6.exe Omega.exe Project1.exe</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

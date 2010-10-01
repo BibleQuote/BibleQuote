@@ -3,7 +3,7 @@ unit WCharReader;
 interface
 
 uses
-  Windows, Classes, SysUtils, StrUtils, WideStrings, string_procs;
+  Windows, Classes, SysUtils, StrUtils, {WideStrings,} string_procs, WideStrings;
 
 const
   cRussianCodePage = 1251;
@@ -40,7 +40,7 @@ function GetEncodingByWinCharSet(aCharSet: Integer): Integer;
 function LoadBibleqtIniFileEncoding( const  aFileName: WideString; aDefault: Integer = cRussianCodePage ): Integer;
 
 implementation
-uses SevenZipVCL, BibleQuoteUtils;
+uses SevenZipVCL, sevenZipHelper, BibleQuoteUtils;
 
 const
   cEncUnicode = 1;
@@ -59,10 +59,10 @@ begin
   filenameEndPos := Pos('??', fileName);
   if filenameEndPos <= 0 then raise Exception.Create('Неверый путь к архиву');
   fn := Copy(fileName, 2, filenameEndPos - 2);
-  if S_SevenZip.SZFileName<>fn then
-  S_SevenZip.SZFileName := fn;
+  if getSevenZ().SZFileName<>fn then
+  getSevenZ().SZFileName := fn;
   fn := Copy(fileName, filenameEndPos + 2, $FFFFFF);
-  fileIx := S_SevenZip.GetIndexByFilename(fn, @fileSz);
+  fileIx := getSevenZ().GetIndexByFilename(fn, @fileSz);
   result := true;
 end;
 
@@ -90,11 +90,11 @@ begin
   else begin
     if dSize < 0 then raise Exception.CreateFmt('Не найден в архиве: %s', [aFileName]);
     SetLength(rBuffer, dSize);
-    S_SevenZip.ExtracttoMem(indexofFile, Pointer(rBuffer), dSize);
-    if S_SevenZip.ErrCode <> 0 then begin
-      if (S_SevenZip.mPasswordProtected) and (S_SevenZip.ErrCode=2) then begin
+    getSevenZ().ExtracttoMem(indexofFile, Pointer(rBuffer), dSize);
+    if getSevenZ().ErrCode <> 0 then begin
+      if (getSevenZ().mPasswordProtected) and (getSevenZ().ErrCode=2) then begin
       aFileName := Copy(GetArchiveFromSpecial(aFileName), 2, $FFFF);
-      raise TBQPasswordException.CreateFmt(S_SevenZip.Password, aFileName, '#1%s', [aFileName]);
+      raise TBQPasswordException.CreateFmt(getSevenZ().Password, aFileName, '#1%s', [aFileName]);
       end
       else abort;
     end;
@@ -1115,7 +1115,7 @@ begin
 
       if dValue = '' then Continue;
 
-      if dValue = 'DefaultEncoding' then begin
+      if dName = 'DefaultEncoding' then begin
         Result := GetEncodingByName(dValue);
         if Result = -1 then
           Result := aDefault;
@@ -1179,4 +1179,6 @@ initialization
   InitializeXLAT;
 
 end.
+
+
 

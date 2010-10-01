@@ -8,12 +8,17 @@ type
   TAlekPageControl = class;
   TAlekPageControlDeleteTab = procedure(sender: TAlekPageControl; index: integer)
     of object;
+   TAlekPageControlDblClck = procedure(sender: TAlekPageControl; index: integer)
+    of object;
   TAlekPageControl = class(TTntPageControl)
   private
+
 
   protected
     FCloseImage: HICON;
     FOnDeleteTab: TAlekPageControlDeleteTab;
+    FOnDblClk:TAlekPageControlDblClck;
+    mWheelAcc:integer;
 {    FFontHandle: HFont;}
     //procedure DrawTab(TabIndex: Integer; const Rect: TRect; Active: Boolean);
 //      override;
@@ -22,7 +27,9 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
       override;
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
-    procedure DblClick; override;
+    procedure WMLButtonDblClk(var Message: TWMLButtonDblClk); message WM_LBUTTONDBLCLK;
+//    procedure WMMouseWheel(var Message: TWMMouseWheel); message WM_MOUSEWHEEL;
+    procedure CMMouseWheel(var Message: TCMMouseWheel); message CM_MOUSEWHEEL;
   public
     property CloseTabImage: HICON read FCloseImage write FCloseImage;
   published
@@ -30,6 +37,7 @@ type
     destructor Destroy; override;
     property OnDeleteTab: TAlekPageControlDeleteTab read FOnDeleteTab write
       FOnDeleteTab;
+    property OnDblClick :TAlekPageControlDblClck read FOnDblClk write FOnDblClk;
   end;
 
   TAlekPanel = class(TPanel)
@@ -57,19 +65,25 @@ begin
 end;
 { TAlekPageControl }
 
+procedure TAlekPageControl.CMMouseWheel(var Message: TCMMouseWheel);
+begin
+//
+inherited;
+Inc(mWheelAcc,Message.WheelDelta);
+if (mWheelAcc>=360) or (mWheelAcc<=-360) then begin
+  ScrollTabs(ord(mWheelAcc<0)*2-1);
+  mWheelAcc:=0;
+end;
+end;
+
 constructor TAlekPageControl.Create(AOwner: TComponent);
 begin
   inherited;
+
 //  FCloseImage := TIcon.Create();
 //  FCloseImage.SetSize(13,13);
-
 end;
 
-procedure TAlekPageControl.DblClick;
-begin
-  inherited;
-
-end;
 
 destructor TAlekPageControl.Destroy;
 begin
@@ -216,6 +230,21 @@ begin
   TabIndex := saveTabIndex;
 end;
 
+procedure TAlekPageControl.WMLButtonDblClk(var Message: TWMLButtonDblClk);
+var ix:integer;
+begin
+if not assigned(FOnDblClk ) then begin inherited; exit end;
+ix:=IndexOfTabAt(message.XPos,message.YPos);
+if (ix<0) or (ix>=PageCount) then begin inherited; exit end;
+FOnDblClk(self, ix);
+end;
+
+//procedure TAlekPageControl.WMMouseWheel(var Message: TWMMouseWheel);
+//begin
+////
+//
+//end;
+
 procedure TAlekPageControl.WMPaint(var Message: TWMPaint);
 var
   i, cnt, aix: integer;
@@ -278,7 +307,7 @@ begin
     Canvas.TextFlags := 0;
     DrawTextW(Canvas.Handle, pCaption, textlength, textRect, DT_CALCRECT or
       DT_CENTER or DT_VCENTER);
-    delta := (r2.Right - textRect.Right - image_width - 13);
+    delta := (r2.Right - textRect.Right - image_width - 7);
     oldright := textRect.Right;
     while delta + textRect.Right - oldright <= 0 do begin
       _caption := _caption + '  ';

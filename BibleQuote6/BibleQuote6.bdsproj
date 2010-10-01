@@ -16,7 +16,7 @@
 			<FileVersion Name="Version">7.0</FileVersion>
 		</FileVersion>
 		<Compiler>
-			<Compiler Name="A">4</Compiler>
+			<Compiler Name="A">8</Compiler>
 			<Compiler Name="B">0</Compiler>
 			<Compiler Name="C">1</Compiler>
 			<Compiler Name="D">1</Compiler>
@@ -25,7 +25,7 @@
 			<Compiler Name="G">1</Compiler>
 			<Compiler Name="H">1</Compiler>
 			<Compiler Name="I">1</Compiler>
-			<Compiler Name="J">0</Compiler>
+			<Compiler Name="J">1</Compiler>
 			<Compiler Name="K">0</Compiler>
 			<Compiler Name="L">1</Compiler>
 			<Compiler Name="M">0</Compiler>
@@ -119,18 +119,18 @@
 			<Linker Name="ExeDescription"></Linker>
 		</Linker>
 		<Directories>
-			<Directories Name="OutputDir">D:\BibleQuote 5 Bibliologia Edition</Directories>
+			<Directories Name="OutputDir">H:\BibleQuote 5 Bibliologia Edition</Directories>
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">L:\devsoft\Components\jcl211\lib\d10\debug;E:\DevSoft\Components\jcl211\lib\d10\debug;E:\DevSoft\COMPON~1\jcl201\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;I:\PROGRA~1\DevLab\omega\used\jcl\lib\d10\debug;$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;L:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source</Directories>
+			<Directories Name="SearchPath">$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;L:\devsoft\Components\jcl211\lib\d10\debug;$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components</Directories>
 			<Directories Name="Packages">vcl;rtl;vclx;vcldb;xmlrtl;vclactnband;inet;IntrawebDB_80_100;Intraweb_80_100;vclie;inetdbbde;inetdbxpress;dclOfficeXP;VclSmp;soaprtl;dsnap;bdertl;dsnapcon;websnap;webdsnap;TntUnicodeVcl;CoolTrayIcon_D6;Jcl;JvCoreD10R;TrayIcon;ssWebBrowser;AlekControls</Directories>
 			<Directories Name="Conditionals">SMARTFONTS</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
 		<Parameters>
-			<Parameters Name="RunParams">/debug /MemCheck</Parameters>
+			<Parameters Name="RunParams">/DEBUG /MemCheck</Parameters>
 			<Parameters Name="HostApplication"></Parameters>
 			<Parameters Name="Launcher"></Parameters>
 			<Parameters Name="UseLauncher">False</Parameters>
@@ -150,7 +150,7 @@
 			<VersionInfo Name="MajorVer">6</VersionInfo>
 			<VersionInfo Name="MinorVer">0</VersionInfo>
 			<VersionInfo Name="Release">1</VersionInfo>
-			<VersionInfo Name="Build">1209</VersionInfo>
+			<VersionInfo Name="Build">1302</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -160,19 +160,21 @@
 			<VersionInfo Name="CodePage">1251</VersionInfo>
 		</VersionInfo>
 		<VersionInfoKeys>
-			<VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
-			<VersionInfoKeys Name="FileDescription">BibleQuote 6</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">6.0.1.1209</VersionInfoKeys>
+			<VersionInfoKeys Name="CompanyName">DevAlek</VersionInfoKeys>
+			<VersionInfoKeys Name="FileDescription">BibleQuote 6 - Bible Research and Study Tool</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">6.0.1.1302</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">BibleQuote</VersionInfoKeys>
-			<VersionInfoKeys Name="LegalCopyright">GNU GPL</VersionInfoKeys>
+			<VersionInfoKeys Name="LegalCopyright">GNU GPL v2</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
 			<VersionInfoKeys Name="OriginalFilename">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">BibleQuote 6</VersionInfoKeys>
-			<VersionInfoKeys Name="ProductVersion">6.0.1a8</VersionInfoKeys>
-			<VersionInfoKeys Name="Comments"></VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">6.0.1a9b</VersionInfoKeys>
+			<VersionInfoKeys Name="Comments">Bible Research and Study Tool</VersionInfoKeys>
 			<VersionInfoKeys Name="PrivateBuild">Yes</VersionInfoKeys>
-		</VersionInfoKeys>
-	</Delphi.Personality>
+		</VersionInfoKeys>  <Excluded_Packages>
+      <Excluded_Packages Name="E:\Program Files\Borland\BDS\4.0\Bin\JclVersionControlExpert100.bpl">JCL Integration of version control systems in the IDE</Excluded_Packages>
+    </Excluded_Packages>
+  </Delphi.Personality>
 	<!-- EurekaLog First Line
 [Exception Log]
 EurekaLog Version=6020
@@ -656,5 +658,5 @@ Count mtInvalidEmailMsg=1
 mtInvalidEmailMsg0="Invalid email."
 TextsCollection=
 EurekaLog Last Line -->
-	<ModelSupport>False</ModelSupport>
+	<ModelSupport>True</ModelSupport>
 </BorlandProject>

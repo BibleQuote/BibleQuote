@@ -777,6 +777,7 @@ class PASCALIMPLEMENTATION TTntTabSheet : public Comctrls::TTabSheet
 	
 private:
 	bool Force_Inherited_WMSETTEXT;
+	WideString mTabHint;
 	HIDESBASE bool __fastcall IsCaptionStored(void);
 	WideString __fastcall GetCaption();
 	void __fastcall SetCaption(const WideString Value);
@@ -794,6 +795,7 @@ protected:
 __published:
 	__property WideString Caption = {read=GetCaption, write=SetCaption, stored=IsCaptionStored};
 	__property WideString Hint = {read=GetHint, write=SetHint, stored=IsHintStored};
+	__property WideString TabHint = {read=mTabHint, write=mTabHint, stored=true};
 public:
 	#pragma option push -w-inl
 	/* TTabSheet.Create */ inline __fastcall virtual TTntTabSheet(Classes::TComponent* AOwner) : Comctrls::TTabSheet(AOwner) { }
@@ -817,6 +819,7 @@ class PASCALIMPLEMENTATION TTntPageControl : public Comctrls::TPageControl
 	
 private:
 	TTntTabSheet* FNewDockSheet;
+	bool mHideTabHints;
 	HIDESBASE bool __fastcall IsHintStored(void);
 	WideString __fastcall GetHint();
 	void __fastcall SetHint(const WideString Value);
@@ -829,11 +832,15 @@ protected:
 	virtual void __fastcall DefineProperties(Classes::TFiler* Filer);
 	DYNAMIC TMetaClass* __fastcall GetActionLinkClass(void);
 	DYNAMIC void __fastcall ActionChange(System::TObject* Sender, bool CheckDefaults);
+	HIDESBASE MESSAGE void __fastcall WMMouseMove(Messages::TWMMouse &Message);
+	HIDESBASE MESSAGE void __fastcall CMMouseLeave(Messages::TMessage &Message);
+	HIDESBASE MESSAGE void __fastcall CMMouseEnter(Messages::TMessage &Message);
 	virtual void __fastcall WndProc(Messages::TMessage &Message);
 	DYNAMIC void __fastcall DoAddDockClient(Controls::TControl* Client, const Types::TRect &ARect);
 	
 __published:
 	__property WideString Hint = {read=GetHint, write=SetHint, stored=IsHintStored};
+	__property bool HideTabsHints = {read=mHideTabHints, write=mHideTabHints, default=1};
 public:
 	#pragma option push -w-inl
 	/* TPageControl.Create */ inline __fastcall virtual TTntPageControl(Classes::TComponent* AOwner) : Comctrls::TPageControl(AOwner) { }

@@ -18,7 +18,7 @@ uses
 const
   VersionNo = '9.43';
   MaxHScroll = 6000;  {max horizontal display in pixels}      
-  HandCursor = 10101;        
+  HandCursor = {10101} crHandPoint;        
   OldThickIBeamCursor = 2;
   UpDownCursor = 10103;
   UpOnlyCursor = 10104;
@@ -4093,7 +4093,7 @@ ErrorBitMap := TBitmap.Create;
 ErrorBitMap.Handle := LoadBitmap(HInstance, MakeIntResource(ErrBitmap));
 ErrorBitMapMask := TBitmap.Create;
 ErrorBitMapMask.Handle := LoadBitmap(HInstance, MakeIntResource(ErrBitmapMask));
-Screen.Cursors[HandCursor] := LoadCursor(HInstance, MakeIntResource(Hand_Cursor));
+//Screen.Cursors[HandCursor] := LoadCursor(HInstance, MakeIntResource(Hand_Cursor));
 Screen.Cursors[UpDownCursor] := LoadCursor(HInstance, 'UPDOWNCURSOR');
 Screen.Cursors[UpOnlyCursor] := LoadCursor(HInstance, 'UPONLYCURSOR');
 Screen.Cursors[DownOnlyCursor] := LoadCursor(HInstance, 'DOWNONLYCURSOR');

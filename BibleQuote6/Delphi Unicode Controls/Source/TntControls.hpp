@@ -126,6 +126,8 @@ extern PACKAGE void __fastcall SubClassUnicodeControl(Controls::TWinControl* Con
 extern PACKAGE void __fastcall RegisterUnicodeClass(const Controls::TCreateParams &Params, /* out */ WideString &WideWinClassName, bool IDEWindow = false);
 extern PACKAGE void __fastcall CreateUnicodeHandle(Controls::TWinControl* Control, const Controls::TCreateParams &Params, const WideString SubClass, bool IDEWindow = false);
 extern PACKAGE void __fastcall ReCreateUnicodeWnd(Controls::TWinControl* Control, WideString Subclass, bool IDEWindow = false);
+extern PACKAGE bool __fastcall DataPointsToHintInfoForTnt(void * AData);
+extern PACKAGE WideString __fastcall ExtractTntHintCaption(void * AData);
 extern PACKAGE void __fastcall WideListControl_AddItem(Controls::TCustomListControl* Control, const WideString Item, System::TObject* AObject);
 
 }	/* namespace Tntcontrols */

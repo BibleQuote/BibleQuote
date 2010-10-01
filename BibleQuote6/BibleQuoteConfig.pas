@@ -12,11 +12,14 @@ const C_CompressedModulesSubPath='compressed\modules';
       C_BQTechnoForumAddr='http://jesuschrist.ru/forum/686798.php';
       C_BQQuickLoad='http://AlekMBox.narod.ru';
       C_NumOfModulesToScan= 5;
+      C_BulletChar=#9679;
 const
   C_crlf: packed array[0..2] of WideChar = (#13, #10,#0);
   C_plus: WideChar = '+';
   C_minus: WideChar = '-';
-      
+  C_frmMyLibWidth:WideString='frmMyLibWidth';
+  C_frmMyLibHeight:WideString='frmMyLibHeight';
+  C__bqAutoBible:WideString='_bqAutoBible';
 implementation
 
 end.

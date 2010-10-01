@@ -98,7 +98,9 @@ type
                         var WantPanel: boolean) of Object;                 
   TObjectClickEvent = procedure(Sender, Obj: TObject; const OnClick: string) of Object;
   ThtObjectEvent = procedure(Sender, Obj: TObject; const Attribute: string) of Object;   
-  TExpandNameEvent = procedure(Sender: TObject; const SRC: string; var Result: string) of Object;
+  TExpandNameEvent = procedure(Sender: TObject; const SRC: string; var Result: 
+    string) of Object;
+    
   guResultType = set of (guUrl, guControl, guTitle);  
   TCell = Class;
   TBlockCell = Class;
@@ -1127,8 +1129,10 @@ const
 var
   CurrentStyle: TFontStyles;  {as set by <b>, <i>, etc.}
   CurrentForm: ThtmlForm;
-  UnicodeControls:  boolean;   
-
+  UnicodeControls:  boolean;
+  //Alek begin
+  NoScrollJump:boolean;
+  //Alek end
 implementation
          
 uses
@@ -11590,7 +11594,7 @@ with LR do
       Inc(XR, Delta);
       end;
     end
-  else InText := False;
+  else begin InText := False; {L:=Ln-1;} end;
   Result := L+L1+StartCurs;
   if Justify = FullJustify then
     SetTextJustification(Canvas.Handle, 0, 0);

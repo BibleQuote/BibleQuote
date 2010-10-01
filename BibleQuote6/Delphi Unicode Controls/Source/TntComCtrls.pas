@@ -593,6 +593,7 @@ type
   TTntTabSheet = class(TTabSheet{TNT-ALLOW TTabSheet})
   private
     Force_Inherited_WMSETTEXT: Boolean;
+    mTabHint:WideString;
     function IsCaptionStored: Boolean;
     function GetCaption: TWideCaption;
     procedure SetCaption(const Value: TWideCaption);
@@ -605,30 +606,39 @@ type
     procedure DefineProperties(Filer: TFiler); override;
     function GetActionLinkClass: TControlActionLinkClass; override;
     procedure ActionChange(Sender: TObject; CheckDefaults: Boolean); override;
+//    procedure CMHintShow(var Message: TMessage); message CM_HINTSHOW;
   published
     property Caption: TWideCaption read GetCaption write SetCaption stored IsCaptionStored;
     property Hint: WideString read GetHint write SetHint stored IsHintStored;
+    property TabHint:WideString read mTabHint write mTabHint stored true;
   end;
 
 {TNT-WARN TPageControl}
   TTntPageControl = class(TPageControl{TNT-ALLOW TPageControl})
   private
     FNewDockSheet: TTntTabSheet;
+    mHideTabHints:boolean;
     function IsHintStored: Boolean;
     function GetHint: WideString;
     procedure SetHint(const Value: WideString);
     procedure CMDialogChar(var Message: TCMDialogChar); message CM_DIALOGCHAR;
     procedure CMDockNotification(var Message: TCMDockNotification); message CM_DOCKNOTIFICATION;
     procedure CMDockClient(var Message: TCMDockClient); message CM_DOCKCLIENT;
+
   protected
     procedure CreateWindowHandle(const Params: TCreateParams); override;
     procedure DefineProperties(Filer: TFiler); override;
     function GetActionLinkClass: TControlActionLinkClass; override;
     procedure ActionChange(Sender: TObject; CheckDefaults: Boolean); override;
+    procedure WMMouseMove(var Message : TWMMouseMove); message WM_MouseMove;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+    procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
+//    procedure CMHintShow(var Message: TMessage); message CM_HINTSHOW;
     procedure WndProc(var Message: TMessage); override;
     procedure DoAddDockClient(Client: TControl; const ARect: TRect); override;
   published
     property Hint: WideString read GetHint write SetHint stored IsHintStored;
+    property HideTabsHints:boolean read mHideTabHints write mHideTabHints default true;
   end;
 
 {TNT-WARN TTrackBar}
@@ -3256,6 +3266,8 @@ end;
 
 { TTntTabSheet }
 
+
+
 procedure TTntTabSheet.CreateWindowHandle(const Params: TCreateParams);
 begin
   CreateUnicodeHandle(Self, Params, '');
@@ -3352,6 +3364,22 @@ end;
 procedure TTntPageControl.SetHint(const Value: WideString);
 begin
   TntControl_SetHint(Self, Value);
+end;
+
+procedure TTntPageControl.WMMouseMove(var Message: TWMMouseMove);
+var
+  tabInfo : TC_HITTESTINFO;
+  tabidx  : Integer;
+  hnt:WideString;
+begin
+  tabInfo.pt := point(message.XPos,message.YPos);
+  tabidx := perform(TCM_HITTEST,0,integer(@tabInfo));
+  if tabidx = -1 then
+    hnt := ''
+  else
+    hnt := TTntTabSheet(pages[tabidx]).TabHint;
+  if Hint<>hnt then begin Hint:=hnt; Application.CancelHint(); end;
+  inherited;
 end;
 
 procedure TTntPageControl.WndProc(var Message: TMessage);
@@ -3485,6 +3513,16 @@ begin
       end;
     TTntTabSheet(Page).Caption := S;
   end;
+end;
+
+procedure TTntPageControl.CMMouseEnter(var Message: TMessage);
+begin
+
+end;
+
+procedure TTntPageControl.CMMouseLeave(var Message: TMessage);
+begin
+Hint:='';
 end;
 
 procedure TTntPageControl.ActionChange(Sender: TObject; CheckDefaults: Boolean);

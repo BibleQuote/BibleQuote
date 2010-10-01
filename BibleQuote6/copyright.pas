@@ -23,6 +23,7 @@ type
     procedure TntFormShow(Sender: TObject);
     procedure TntFormKeyPress(Sender: TObject; var Key: Char);
     procedure TntFormCreate(Sender: TObject);
+    procedure BrowserKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -62,11 +63,19 @@ begin
   end;
 end;
 
+procedure TCopyrightForm.BrowserKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+case key of
+VK_INSERT,$43: Browser.CopyToClipboard(); 
+end;
+end;
+
 procedure TCopyrightForm.TntFormCreate(Sender: TObject);
 var Icn:TIcon;
 begin
 Icn:=TIcon.Create;
-MainForm.theImageList.GetIcon(32,Icn);
+MainForm.theImageList.GetIcon(38,Icn);
 imgCopyRight.Picture.Graphic:=Icn;
 Icn.Free;
 end;

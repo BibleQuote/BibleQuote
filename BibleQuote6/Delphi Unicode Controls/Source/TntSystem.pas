@@ -876,6 +876,7 @@ begin
   // figure PLine1 and operand size
   DataSize := 2; { try 16 bit operand for line 1 }
   PLine1 := PLine2 - DataSize - SizeOf(LEA_OPCODE);
+//  if false then  begin//AlekId
   if (PLine1^ <> LEA_OPCODE) and (not (IsDebugging and (PLine1^ = BREAK_OPCODE))) then
   begin
     DataSize := 5; { try 40 bit operand for line 1 }
@@ -889,6 +890,8 @@ begin
       Result := True; // It is probably OK. (The side effects of being wrong aren't very bad.)
     end;
   end;
+//  end;
+//  result:=true;
 end;
 
 threadvar
