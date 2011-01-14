@@ -9,13 +9,14 @@ program BibleQuote6;
 uses
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
   Forms,
+  tntForms,
   string_procs in 'string_procs.pas',
   WCharWindows in 'WCharWindows.pas',
   WCharReader in 'WCharReader.pas',
   Classes,
   WideStrings,
   SysUtils,
-  links_parser in 'links_parser.pas',
+  TntSysUtils,
   MultiLanguage in 'MultiLanguage.pas',
   input in 'input.pas' {InputForm},
   copyright in 'copyright.pas' {CopyrightForm},
@@ -42,7 +43,11 @@ uses
   sevenZipHelper in 'sevenZipHelper.pas',
   bqContainers in 'bqContainers.pas',
   bqPlainUtils in 'bqPlainUtils.pas',
-  bqHistoryContainer in 'bqHistoryContainer.pas';
+  bqHistoryContainer in 'bqHistoryContainer.pas',
+  bqServices in 'bqServices.pas',
+  StyleUn in 'Thtml\package\StyleUn.pas',
+  links_parser in 'links_parser.pas',
+  BibleLinkParser in 'BibleLinkParser.pas';
 
 {$R *.res}
 var
@@ -50,7 +55,7 @@ var
 begin
   try
     if AnsiUpperCase(ParamStr(1)) = '/DEBUG' then begin
-      fn := ExtractFilePath(Application.ExeName) + 'dbg.log';
+      fn := WideExtractFilePath(tntApplication.Exename) + 'dbg.log';
       G_DebugEx:=1;
       end
     else begin
@@ -58,10 +63,12 @@ begin
       G_DebugEx:=0;
      end;
     Assign(Output, fn);
-    if FileExists(fn) then
-      Append(Output)
-    else
+//    if FileExists(fn) then
+//      Append(Output)
+//    else
       Rewrite(Output);
+    writeln('BibleQuote dbg log started' );
+    Flush(Output);
   except
   end;
 

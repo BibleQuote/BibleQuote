@@ -19,6 +19,7 @@ const
   C_minus: WideChar = '-';
   C_frmMyLibWidth:WideString='frmMyLibWidth';
   C_frmMyLibHeight:WideString='frmMyLibHeight';
+  C_opt_FullContextLinks='FullContextLinks';
   C__bqAutoBible:WideString='_bqAutoBible';
 implementation
 

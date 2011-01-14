@@ -256,7 +256,8 @@ type
     mCategories: TWideStringList;
     mChapterHead: WideString;
     mUseChapterHead: boolean;
-
+    mLoadedPath:WideString;
+    
     procedure ClearAlphabetBits();
     procedure SetAlphabetBit(aCode: Integer; aValue: Boolean);
     function GetAlphabetBit(aCode: Integer): Boolean;
@@ -283,6 +284,7 @@ ShortNames: array[1..MAX_BOOKQTY] of WideString;
       // стандартное сокращение
 PathNames: array[1..MAX_BOOKQTY] of WideString;
 function GetStucture(): AnsiString;
+function LinkValidnessStatus(path:wideString; bl:TBibleLink; internalAddr:boolean=true):integer;
 property IniFile: WideString read FIniFile write LoadIniFile;
 property Path: WideString read FPath;
 property ShortPath: WideString read FShortPath;
@@ -342,12 +344,11 @@ procedure StopSearching;
 procedure ClearBuffers;
 
 function AddressToInternal(book, chapter, verse: integer;
-  var ibook, ichapter, iverse: integer): boolean;
-function InternalAddr(bookIx, chapterIx, verseStart, verseEnd: integer; out
-  intAddr: TModuleLocation): boolean;
+  var ibook, ichapter, iverse: integer): boolean;overload;
+function AddressToInternal(moduleRelatedAddr:TBibleLink; out independent:TBibleLink):integer;overload;
 function InternalToAddress(ibook, ichapter, iverse: integer;
-  var book, chapter, verse: integer): boolean;
-
+  var book, chapter, verse: integer): boolean; overload;
+function InternalToAddress(inputLnk:TBibleLink; out outLink:TBibleLink):integer ;overload;
 function ShortPassageSignature(book, chapter, fromverse, toverse: integer):
   WideString;
 function FullPassageSignature(book, chapter, fromverse, toverse: integer):
@@ -392,7 +393,7 @@ property RecognizeBibleLinks: boolean read mRecognizeBibleLinks write
     procedure Register;
 
 implementation
-uses BQExceptionTracker,bqPlainUtils;
+uses BQExceptionTracker,bqPlainUtils, tntSysUtils, links_parser,bibleLinkParser;
 
 function Diff(a, b: integer): integer;
 begin
@@ -418,6 +419,18 @@ begin
   FLines.Free;
   mCategories.Free();
   inherited Destroy;
+end;
+
+function TBible.AddressToInternal(moduleRelatedAddr: TBibleLink;
+  out independent: TBibleLink): integer;
+begin
+result:=-2;
+moduleRelatedAddr.AssignTo(independent);
+result:=ord(AddressToInternal(moduleRelatedAddr.book,moduleRelatedAddr.chapter,
+moduleRelatedAddr.vstart,independent.book,independent.chapter, independent.vstart))-1;
+if result<0 then begin result:=-2; exit; end;
+Inc(result,ord(AddressToInternal(moduleRelatedAddr.book,moduleRelatedAddr.chapter,
+moduleRelatedAddr.vend,independent.book,independent.chapter, independent.vend))-1);
 end;
 
 procedure TBible.ClearAlphabetBits();
@@ -774,12 +787,12 @@ begin
   end;
   if isCompressed then begin
     FPath := GetArchiveFromSpecial(value) + '??';
-    FShortPath := GetArchiveFromSpecial(ExtractFileName(value));
+    FShortPath := GetArchiveFromSpecial(WideExtractFileName(value));
     FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
   end
   else begin
-    FPath := ExtractFilePath(value);
-    FShortPath := WideLowerCase(ExtractFileName(Copy(FPath, 1, Length(FPath) -
+    FPath := WideExtractFilePath(value);
+    FShortPath := WideLowerCase(WideExtractFileName(Copy(FPath, 1, Length(FPath) -
       1)));
   end;
 {  if isCompressed then begin
@@ -1248,6 +1261,26 @@ begin
     or (ChapterQtys[45] = 16);
 end;
 
+function TBible.LinkValidnessStatus(path:wideString; bl: TBibleLink; internalAddr:boolean=true): integer;
+var effectiveLnk:TBibleLink;
+    r:integer;
+begin
+result:=0;
+try
+if fpath<>path then LoadIniFile(path);
+if internalAddr then begin
+  result:=InternalToAddress(bl, effectiveLnk);
+  if result<-1 then begin exit;end;
+end else bl.AssignTo(effectiveLnk);
+OpenChapter(effectiveLnk.book, effectiveLnk.chapter);
+
+if (effectiveLnk.vstart>VerseQty) or (effectiveLnk.vstart<0) then begin result:=-2; exit; end;
+if effectiveLnk.vend>effectiveLnk.vstart then Dec(result, ord(effectiveLnk.vend>VerseQty));
+
+except result:=-2;  end;
+
+end;
+
 function TBible.ShortPassageSignature(book, chapter, fromverse, toverse:
   integer): WideString;
 var
@@ -1653,10 +1686,18 @@ begin
   end;
 end;
 
-function TBible.InternalAddr(bookIx, chapterIx, verseStart, verseEnd: integer;
-  out intAddr: TModuleLocation): boolean;
-begin
 
+function TBible.InternalToAddress(inputLnk: TBibleLink;
+  out outLink: TBibleLink): integer;
+begin
+inputLnk.AssignTo(outLink);
+outLink.tokenEndOffset:=outLink.tokenEndOffset;
+result:=-2;
+result:= ord(InternalToAddress(inputLnk.book, inputLnk.chapter, inputLnk.vstart,
+outLink.book, outLink.chapter, outLink.vstart)) -1;
+if result<0 then begin  result:=-2;exit; end;
+Inc(result,ord(InternalToAddress(inputLnk.book, inputLnk.chapter, inputLnk.vend,
+outLink.book, outLink.chapter, outLink.vend))-1);
 end;
 
 function TBible.InternalToAddress(ibook, ichapter, iverse: integer;
@@ -1672,7 +1713,7 @@ begin
 
   if ichapter > 150 then chapter := 1;
 
-  if (not FBible) or (ibook > 66) then
+  if (not FBible) then
   begin
     book := 1;
     chapter := 1;
@@ -1680,6 +1721,8 @@ begin
     Result := false;
     Exit;
   end;
+  if  (ibook > 66) then begin result:=true; exit; end;
+  
 
   newtestament := (not FHasOT) and FHasNT;
   englishbible := (newtestament and (ChapterQtys[6] = 16))

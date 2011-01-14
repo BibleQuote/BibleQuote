@@ -30,7 +30,7 @@ type TDict = class(TObject)
   end;
 
 implementation
-uses BibleQuoteUtils;
+uses BibleQuoteUtils, tntSysUtils;
 
 
 
@@ -65,7 +65,7 @@ if not assigned(FiLines) then begin
   FIndex := IndexFile;
   FDict := DictFile;
 //  if IndexFile[1]='?' then IndexFile:=GetArchiveFromSpecial(IndexFile);
-  FPath := ExtractFileName(IndexFile);
+  FPath := WideExtractFileName(IndexFile);
   FPath := Copy(FPath,1,Length(FPath)-3);
 
   FiLines := WChar_ReadTextFileToTWideStrings (FIndex);

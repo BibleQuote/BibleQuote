@@ -38,6 +38,7 @@ type
     cbxAvailableModules: TTntComboBox;
     BitBtn3: TBitBtn;
     btnAddHotModule: TBitBtn;
+    cbFullContextOnRestrictedLinks: TTntCheckBox;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure OKButtonClick(Sender: TObject);
     procedure CancelButtonClick(Sender: TObject);

@@ -99,10 +99,12 @@ type
 {$ENDIF}
     procedure Paint; override;
   public
+    class var hintHandle:HWND;
     procedure ActivateHint(Rect: TRect; const AHint: AnsiString); override;
     procedure ActivateHintData(Rect: TRect; const AHint: AnsiString; AData: Pointer); override;
     function CalcHintRect(MaxWidth: Integer; const AHint: AnsiString; AData: Pointer): TRect; override;
     property Caption: TWideCaption read GetCaption write SetCaption;
+
   end;
 
   TTntHintWindow = class(TTntCustomHintWindow)
@@ -883,6 +885,7 @@ end;
 procedure TTntCustomHintWindow.CreateWindowHandle(const Params: TCreateParams);
 begin
   CreateUnicodeHandle(Self, Params, '');
+  hintHandle:=Self.Handle;
 end;
 
 {$IFNDEF COMPILER_7_UP}

@@ -92,7 +92,7 @@ type
     mWideMsg: WideString;
     constructor CreateFmt(const Msg: string; const Args: array of const);
   end;
-
+  TbqHLVerseOption=( hlFalse, hlTrue, hlDefault);
   TBQPasswordException = class(TBQException)
     mArchive: WideString;
     mWrongPassword: WideString;
@@ -154,6 +154,7 @@ type
      function BookNameByIx(ix:integer):WideString;
      function VisualSignature():WideString;
      function BibleBookPresent(ix:integer):boolean;
+     function getIniPath():WideString;
   protected
 
 
@@ -309,7 +310,7 @@ function ExtractModuleName(aModuleSignature: WideString): WideString;
 function StrPosW(const Str, SubStr: PWideChar): PWideChar;
 function ExctractName(const wsFile: WideString): WideString;
 function IsDown(key: integer): boolean;
-function FileRemoveExtension(const Path: string): string;
+function FileRemoveExtension(const Path: widestring): widestring;
 procedure CopyHTMLToClipBoard(const str: WideString; const htmlStr: AnsiString =
   '');
 function OmegaCompareTxt(const str1, str2: WideString; len: integer = -1;
@@ -321,8 +322,8 @@ function TokensToStr(Lst: TWideStrings; delim: WideString; addlastDelim: boolean
 function StrMathTokens(const str: WideString; tkns: TWideStrings; fullMatch:
   boolean): boolean;
 function StrGetTokenByIx(tknString:AnsiString;tokenIx:integer):AnsiString;
-
-
+function MainFileExists(s: WideString): WideString;
+function ExePath():WideString;
 type
   PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector;
     p4: LPDWORD): THandle; stdcall;
@@ -337,8 +338,10 @@ var
   G_DebugEx: integer;
   G_NoCategoryStr: WideString = 'Без категории';
   MainCfgIni: TMultiLanguage;
+  G_SecondPath:WideString;
 implementation
-uses WCharReader, main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig;
+uses WCharReader, main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, tntSysUtils;
+var __exe__path:WideString;
 
 function OmegaCompareTxt(const str1, str2: WideString; len: integer = -1;
   strict: boolean = false): integer;
@@ -370,11 +373,12 @@ begin
     result := Copy(aSpecial, 1, pz - 1);
 end;
 
-function FileRemoveExtension(const Path: string): string;
+function FileRemoveExtension(const Path: WideString): WideString;
 var
   I: Integer;
 begin
-  I := LastDelimiter(':.\', Path);
+
+  I := WideLastDelimiter(':.\', Path);
   if (I > 0) and (Path[I] = '.') then
     Result := Copy(Path, 1, I - 1)
   else
@@ -452,7 +456,7 @@ begin
   if length(__cachedModulesListFolder) <= 0 then begin
 
     __cachedModulesListFolder := CreateAndGetConfigFolder();
-    __cachedModulesListFolder := ExtractFilePath(
+    __cachedModulesListFolder := WideExtractFilePath(
       Copy(__cachedModulesListFolder, 1, length(__cachedModulesListFolder) -
         1));
   end;
@@ -720,7 +724,7 @@ begin
   try
     if not assigned(mPasswordList) then mPasswordList := TWideStringList.Create()
     else mPasswordList.Clear();
-    mPath := ExtractFilePath(fileName);
+    mPath := WideExtractFilePath(fileName);
     result := SpecialIo(filename, mPasswordList, $1F6D35AC138E5311);
     if not result then exit;
     count := mPasswordList.Count - 1;
@@ -1172,6 +1176,11 @@ begin
   inherited;
 end;
 
+function TModuleEntry.getIniPath: WideString;
+begin
+result:=MainFileExists(wsShortPath+'\'+C_ModuleIniName);
+end;
+
 constructor TModuleEntry.Create(amodType: TModuleType; awsFullName,
   awsShortName, awsShortPath, awsFullPath: WideString; awsBookNames: AnsiString;
     modCats: WideString);
@@ -1541,7 +1550,53 @@ begin
   result := fullMatch;
 end;
 
+function MainFileExists(s: WideString): WideString;
+var
+  filePath, fullPath, modfolder: WideString;
+begin
+  Result := '';
+  //сжатые модули имеют приоритет над иными
+  filePath := WideExtractFilePath(s);
+  modfolder := Copy(filePath, 1, length(filePath) - 1);
+  fullPath := ExePath + C_CompressedModulesSubPath + '\' + modfolder + '.bqb';
+  if FileExists(fullpath) then
+    Result := '?' + fullpath + '??' + C_ModuleIniName
+  else if FileExists(ExePath + s) then
+    Result := ExePath + s
+  else if FileExists(G_SecondPath + s) then
+    Result := G_SecondPath + s
+  else
+  begin
+    fullPath := ExePath + 'compressed\' + Copy(filePath, 1,
+      length(filePath) - 1) + '.bqb';
+    if FileExists(fullpath) then
+      Result := '?' + fullpath + '??' + C_ModuleIniName
+    else
+    begin
+      filePath := WideExtractFilePath(s);
+      fullPath := ExePath + C_CommentariesSubPath + '\' + Copy(filePath, 1,
+        length(filePath) - 1) + '.bqb';
+      if WideFileExists(fullpath) then
+        Result := '?' + fullpath + '??' + C_ModuleIniName
+      else if WideFileExists(ExePath + 'Commentaries\' + s) then
+        Result := ExePath + 'Commentaries\' + s;
+    end;
+  end;
+end;
+procedure __init_vars();
+var buff:PWideChar;
+    wrtn:integer;
+begin
+GetMem(buff, 4096);
+wrtn:=Windows.GetModuleFileNameW(0, buff, 2047);
+__exe__path:=WideExtractFilePath(  buff);
 
+FreeMem(buff);
+end;
+function ExePath():WideString; 
+begin
+result:=__exe__path;
+end;
 
 
 initialization
@@ -1551,10 +1606,10 @@ initialization
   Include(JclStackTrackingOptions, stStaticModuleList);
   // Initialize Exception tracking
   JclStartExceptionTracking;
+  __init_vars();
   G_InstalledFonts := TWideStringList.Create;
   G_InstalledFonts.Sorted := true;
   G_InstalledFonts.Duplicates := dupIgnore;
-//  S_SevenZip := TSevenZip.Create(nil);
   load_proc();
 
 finalization

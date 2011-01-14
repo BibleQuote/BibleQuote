@@ -310,6 +310,10 @@ begin
     if s <> sname + '.Hint' then
       SetProperty(Components[i], 'Hint', s);
 
+   s:=Say(sname+'.TabHint');
+   if s <> sname + '.TabHint' then
+      SetProperty(Components[i], 'TabHint', s);
+
     s := Say(sname + '.Items');
     if s <> sname + '.Items' then
       SetProperty(Components[i], 'Items', s);

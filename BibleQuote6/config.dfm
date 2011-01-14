@@ -16,16 +16,17 @@ object ConfigForm: TConfigForm
   Position = poScreenCenter
   ShowHint = True
   OnKeyPress = FormKeyPress
-  PixelsPerInch = 105
+  PixelsPerInch = 108
   TextHeight = 13
   object PageControl1: TTntPageControl
     Left = 0
     Top = 0
     Width = 475
     Height = 305
-    ActivePage = FavouriteExTabSheet
+    ActivePage = OtherOptionsTabSheet
     Align = alTop
     TabOrder = 0
+    HideTabsHints = False
     object CopyOptionsTabSheet: TTntTabSheet
       Caption = 'CopyOptionsTabSheet'
       object CopyVerseNumbers: TTntCheckBox
@@ -323,6 +324,14 @@ object ConfigForm: TConfigForm
           'Win + Q'
           'Ctrl + Alt + B')
         TabOrder = 4
+      end
+      object cbFullContextOnRestrictedLinks: TTntCheckBox
+        Left = 8
+        Top = 206
+        Width = 210
+        Height = 17
+        Caption = 'Full context on restricted links'
+        TabOrder = 5
       end
     end
   end

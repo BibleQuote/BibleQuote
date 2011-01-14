@@ -382,7 +382,7 @@ type
     function NumPrinterPages: integer; overload;
     function NumPrinterPages(var WidthRatio: double): integer; overload;
     function PrintPreview(MFPrinter: TMetaFilePrinter; NoOutput: boolean = False): integer; 
-    function PositionTo(Dest: string): boolean;
+    function PositionTo(Dest: string; vcenter:boolean=false): boolean;
     function Find(const S: WideString; MatchCase: boolean): boolean;
     function FindEx(const S: WideString; MatchCase, Reverse: boolean): boolean;
     procedure Clear; virtual;
@@ -470,7 +470,7 @@ type
     property DocumentSourceUtf16: WideString read FDocumentSourceUtf16;
     property IsUtf16Source: Boolean read FIsUtf16Source;
     // End fo Added by vvd
-
+    property __PaintPanel:TPaintPanel read PaintPanel;
   published
     { Published declarations }
     property OnHotSpotCovered: THotSpotEvent read FOnHotSpotCovered
@@ -2123,7 +2123,7 @@ if MiddleScrollOn then
   PaintPanel.Cursor := UpDownCursor;  
 end;
 
-function ThtmlViewer.PositionTo(Dest: string): boolean;
+function ThtmlViewer.PositionTo(Dest: string;vcenter:boolean=false): boolean;
 var
   I: integer;
   Obj: TObject;
@@ -2137,7 +2137,7 @@ if I > -1 then
   begin
   Obj := FNameList.Objects[I];
   if (Obj is TIDObject) then
-     ScrollTo(TIDObject(Obj).YPosition); 
+     ScrollTo(TIDObject(Obj).YPosition - (ord(vcenter)*PaintPanel.Height div 2 ));
 
   HScrollBar.Position := 0;
   Result := True;

@@ -34,7 +34,8 @@ requires
   vcl,
   vcljpg,
   designide,
-  rtl;
+  rtl,
+  TntUnicodeVcl;
 
 contains
   framview in 'framview.pas',
