@@ -1,10 +1,30 @@
-{Version 9.43}
+{Version 9.45}
 {*********************************************************}
 {*                     FRAMVIEW.PAS                      *}
-{*              Copyright (c) 1995-2007 by               *}
-{*                   L. David Baldwin                    *}
-{*                 All rights reserved.                  *}
 {*********************************************************}
+{
+Copyright (c) 1995-2008 by L. David Baldwin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Note that the source modules, HTMLGIF1.PAS, PNGZLIB1.PAS, DITHERUNIT.PAS, and
+URLCON.PAS are covered by separate copyright notices located in those modules.
+}
 
 {$i htmlcons.inc}
 
@@ -25,7 +45,8 @@ type
   TWindowRequestEvent = procedure(Sender: TObject; const Target, URL: string) of Object;
   fvOptionEnum = (fvMetaRefresh, fvNoBorder, fvNoLinkUnderline, fvOverLinksActive,
                   fvPrintMonochromeBlack, fvPrintTableBackground, fvPrintBackground,  
-                  fvShowVScroll, fvNoFocusRect, fvShowDummyCaret, fvNoWheelMouse);
+                  fvShowVScroll, fvNoFocusRect, fvShowDummyCaret, fvNoWheelMouse,
+                  fvNoLinkHilite);     
   TFrameViewerOptions = set of fvOptionEnum;
 
   {for TFrameViewer}
@@ -895,6 +916,8 @@ with MasterSet.FrameViewer do
     Viewer.htOptions := Viewer.htOptions + [htNoWheelMouse];
   if fvShowDummyCaret in FOptions then
     Viewer.htOptions := Viewer.htOptions + [htShowDummyCaret];   
+  if fvNoLinkHilite in FOptions then
+    Viewer.htOptions := Viewer.htOptions + [htNoLinkHilite];   
   Viewer.OnImageRequest := FOnImageRequest;
   Viewer.OnFormSubmit := FOnFormSubmit;
   Viewer.OnLink := FOnLink;   
@@ -3435,6 +3458,10 @@ for I := 0 to CurFrameSet.Viewers.Count-1 do
     if (fvShowDummyCaret in Value) then     
       htOptions := htOptions + [htShowDummyCaret]
     else htOptions := htOptions - [htShowDummyCaret];
+
+    if (fvNoLinkHilite in Value) then                
+      htOptions := htOptions + [htNoLinkHilite]
+    else htOptions := htOptions - [htNoLinkHilite];
 
     if (fvNoFocusRect in Value) or (fvNoBorder in Value) then
       BorderStyle := htNone

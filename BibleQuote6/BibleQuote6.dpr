@@ -4,17 +4,19 @@ program BibleQuote6;
 
 
 
+
+
 {%TogetherDiagram 'ModelSupport_BibleQuote6\default.txaPackage'}
 
 uses
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
-  Forms,
   tntForms,
+  forms,
   string_procs in 'string_procs.pas',
   WCharWindows in 'WCharWindows.pas',
   WCharReader in 'WCharReader.pas',
   Classes,
-  WideStrings,
+  WideStringsMod,
   SysUtils,
   TntSysUtils,
   MultiLanguage in 'MultiLanguage.pas',
@@ -24,19 +26,14 @@ uses
   hotkeys in 'hotkeys.pas' {HotKeyForm},
   Dict in 'Dict.pas',
   Bible in 'Bible.pas',
-  WComp in 'Hotkey\WComp.pas',
-  SysHot in 'Hotkey\SysHot.pas',
   AlekPageControl in 'AlekPageControl.pas',
   Tabs in 'Tabs.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
   main in 'main.pas' {MainForm: TTntForm},
   AboutForm in 'AboutForm.pas' {frmAbout: TTntForm},
   XPTheme in 'XPTheme.pas',
-  htmlview in 'Thtml\package\htmlview.pas',
-  HTMLSubs in 'Thtml\package\HTMLSubs.pas',
   BQExceptionTracker in 'BQExceptionTracker.pas' {bqExceptionForm},
   qNavTest in 'qNavTest.pas' {frmQNav},
-  SevenZipVCL in 'SevenZip\SevenZipVCL.pas',
   VersesDB in 'VersesDB.pas' {VerseListEngine: TDataModule},
   bqHintTools in 'bqHintTools.pas',
   bqLinksParserIntf in 'bqLinksParserIntf.pas',
@@ -44,10 +41,14 @@ uses
   bqContainers in 'bqContainers.pas',
   bqPlainUtils in 'bqPlainUtils.pas',
   bqHistoryContainer in 'bqHistoryContainer.pas',
-  bqServices in 'bqServices.pas',
-  StyleUn in 'Thtml\package\StyleUn.pas',
   links_parser in 'links_parser.pas',
-  BibleLinkParser in 'BibleLinkParser.pas';
+  BibleLinkParser in 'BibleLinkParser.pas',
+  bqCollectionsEdit in 'bqCollectionsEdit.pas' {bqCollectionsEditor},
+  bqGfxRenderers in 'bqGfxRenderers.pas',
+  bqICommandProcessor in 'bqICommandProcessor.pas',
+  bqWinUIServices in 'bqWinUIServices.pas',
+  bqCommandProcessor in 'bqCommandProcessor.pas',
+  bqHTMLViewerSite in 'bqHTMLViewerSite.pas';
 
 {$R *.res}
 var
@@ -73,10 +74,12 @@ begin
   end;
 
   Application.Initialize;
+//  Application.HintPause :=100;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
   Application.CreateForm(TbqExceptionForm, bqExceptionForm);
+  Application.CreateForm(TbqCollectionsEditor, bqCollectionsEditor);
   Application.Run;
   try
     Close(Output);

@@ -5,11 +5,11 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, 
   Graphics, Controls,
-  Forms, TntForms, Dialogs, TntDialogs,
+  Forms, TntForms, Dialogs, 
   Menus, TntMenus,
-  StdCtrls, TntStdCtrls,
+  
   TypInfo,
-  string_procs, WCharReader,WideStrings;
+  string_procs, WCharReader,WideStringsMod;
 
 type
   TMultiLanguage = class (TComponent)

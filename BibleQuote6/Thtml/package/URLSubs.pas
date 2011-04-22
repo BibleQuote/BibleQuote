@@ -1,4 +1,4 @@
-{Version 9.43}   
+{Version 9.45}   
 unit URLSubs;
 
 interface
@@ -197,6 +197,8 @@ Result := '';
 I := Pos('?', URL);
 if I > 0 then N := I-1
   else N := Length(URL);
+I := Pos('#', URL);
+if (I > 0) and (I < N) then N := I-1;   
 for I := N downto IntMax(1, N-5) do
   if URL[I] = '.' then
     begin

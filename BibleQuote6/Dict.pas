@@ -3,7 +3,7 @@ unit Dict;
 interface
 
 uses
-  Windows, Classes, SysUtils, WideStrings,
+  Windows, Classes, SysUtils, WideStringsMod,
   WCharReader, WCharWindows;
 
 type TDict = class(TObject)
@@ -30,7 +30,7 @@ type TDict = class(TObject)
   end;
 
 implementation
-uses BibleQuoteUtils, tntSysUtils;
+uses BibleQuoteUtils, tntSysUtils,BQExceptionTracker;
 
 
 
@@ -55,6 +55,7 @@ function TDict.Initialize(IndexFile, DictFile: WideString; background:boolean=fa
 
 
 begin
+try
 if not assigned(FiLines) then begin
   if (FileExistsEx(IndexFile)<0) or (FileExistsEx(DictFile)<0) then
   begin
@@ -96,6 +97,11 @@ if not assigned(FiLines) then begin
 //  MessageBeep(MB_ICONEXCLAMATION);
   FreeandNil(FiLines);
   Fii:=0;
+except
+on e:Exception do begin
+BqShowException(e);
+end;
+end;
 end;
 
 function TDict.Lookup(wrd: WideString): WideString;

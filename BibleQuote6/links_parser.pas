@@ -2,7 +2,7 @@ unit links_parser;
 
 interface
 
-uses SysUtils, Classes, WideStrings;
+uses SysUtils, Classes, WideStringsMod;
 
 procedure StrToLinks(s: WideString; Links: TWideStrings);
 procedure Tokenize(sourcestr: WideString; var Tokens: TWideStrings);
@@ -117,6 +117,7 @@ var
         := false;
       result := true;
       if not (firstComma and defBook) then begin
+        chapter:=1;
         chapter := StrToIntDef(list[ci], -1);
         if chapter = -1 then chapter := 1
         else begin inc(ci);

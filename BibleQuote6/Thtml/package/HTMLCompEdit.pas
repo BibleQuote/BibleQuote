@@ -1,4 +1,4 @@
-{Version 9.43}
+{Version 9.45}
 
 {$I htmlcons.inc}  
 
@@ -56,9 +56,7 @@ procedure THTMLEditor.ExecuteVerb(index:integer);
 begin
   MessageDlg('ThtmlViewer'+#13#13+
              'Version     : '+VersionNo+#13#13+
-             'Copyright  : 1995-2007 by L. David Baldwin, All Rights Reserved'+#13#13+
-             'Support    : davidbaldwin@pbear.com'+#13#13+
-             'Web Site : http://www.pbear.com/ '
+             'Copyright  : 1995-2008 by L. David Baldwin'+#13#13
              ,mtInformation,[mbOk],0)
 end;
 
@@ -77,9 +75,7 @@ procedure TFMVEditor.ExecuteVerb(index:integer);
 begin
   MessageDlg('TFrameViewer'+#13#13+
              'Version     : '+VersionNo+#13#13+
-             'Copyright  : 1995-2007 by L. David Baldwin, All Rights Reserved'+#13#13+
-             'Support    : davidbaldwin@pbear.com'+#13#13+
-             'Web Site : http://www.pbear.com/ '
+             'Copyright  : 1995-2008 by L. David Baldwin'+#13#13
              ,mtInformation,[mbOk],0)
 end;
 
@@ -98,9 +94,7 @@ procedure TFMBEditor.ExecuteVerb(index:integer);
 begin
   MessageDlg('TFrameBrowser'+#13#13+
              'Version     : '+VersionNo+#13#13+
-             'Copyright  : 1995-2007 by L. David Baldwin, All Rights Reserved'+#13#13+  
-             'Support    : davidbaldwin@pbear.com'+#13#13+
-             'Web Site : http://www.pbear.com/ '
+             'Copyright  : 1995-2008 by L. David Baldwin'+#13#13
              ,mtInformation,[mbOk],0)
 end;
 

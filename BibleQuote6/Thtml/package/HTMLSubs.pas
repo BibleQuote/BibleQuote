@@ -98,9 +98,7 @@ type
                         var WantPanel: boolean) of Object;                 
   TObjectClickEvent = procedure(Sender, Obj: TObject; const OnClick: string) of Object;
   ThtObjectEvent = procedure(Sender, Obj: TObject; const Attribute: string) of Object;   
-  TExpandNameEvent = procedure(Sender: TObject; const SRC: string; var Result: 
-    string) of Object;
-    
+  TExpandNameEvent = procedure(Sender: TObject; const SRC: string; var Result: string) of Object;
   guResultType = set of (guUrl, guControl, guTitle);  
   TCell = Class;
   TBlockCell = Class;
@@ -217,6 +215,8 @@ type
     Panel, OPanel: ThvPanel;
     OSender: TObject;
     PanelPrintEvent: TPanelPrintEvent;
+    FUserData: TObject;     
+    FMyPanelObj: TPanelObj;
     constructor Create(AMasterList: TSectionList; Position: integer;
                     L: TAttributeList; ACell: TCellBasic; ObjectTag: boolean);
     constructor CreateCopy(AMasterList: TSectionList; T: TPanelObj);
@@ -587,7 +587,7 @@ type
     procedure DrawTheList(Canvas: TCanvas; ARect: TRect; ClipWidth, X,
                           XRef, YRef :integer);
     procedure AddSectionsToList; override;
-//    procedure FormTree(Indent: string; var Tree: string);
+    procedure FormTree(Indent: string; var Tree: string);
     end;
 
   ListTypeType = (None, Ordered, Unordered, Definition, liAlone);
@@ -931,7 +931,7 @@ type
              var Y: integer): boolean;
     function GetChAtPos(Pos: integer; var Ch: WideChar; var Obj: TObject): boolean;
     procedure AddSectionsToList;
-//    procedure FormTree(Indent: string; var Tree: string);
+    procedure FormTree(Indent: string; var Tree: string);
     end;
 
   TCell = class(TCellBasic)
@@ -1041,6 +1041,7 @@ type
     LinkPage: integer;  
     PrintingTable: ThtmlTable;   
     ScaleX, ScaleY: single;
+    SkipDraw: boolean;     
 
     constructor Create(Owner, APaintPanel: TWinControl);
     constructor CreateCopy(T: TSectionList);
@@ -1249,7 +1250,7 @@ begin
       X := -LfEdge + IW;
       YT := Y;
       YB := Y + IH;
-      Float := True;
+      Float := True;     //ID := CurrentID;
       L.Add(IR);
       end;
     end
@@ -1260,7 +1261,7 @@ begin
       X := RightSide(Y) - IW;
       YT := Y;
       YB := Y + IH;
-      Float := True;
+      Float := True;     //ID := CurrentID;
       R.Add(IR);
       end;
     end;
@@ -1291,6 +1292,7 @@ if I >= 0 then
     if (Self.UrlTarget.ID = TFontObj(List[J]).UrlTarget.ID) then
       TFontObj(List[J]).Active := True
     else Break;
+  if assigned(Section.ParentSectionList.ControlEnterEvent) then
 Section.ParentSectionList.ControlEnterEvent(Self);
 end;
 
@@ -1341,7 +1343,7 @@ procedure TFontObj.AKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   Viewer: ThtmlViewer;
 begin
-Viewer := ThtmlViewer(Section.ParentSectionList.TheOwner);
+Viewer := (Section.ParentSectionList.TheOwner as ThtmlViewer);
 if (Key = vk_Return) then
   begin
   Viewer.Url := UrlTarget.Url;
@@ -1356,7 +1358,7 @@ end;
 
 procedure TFontObj.CreateTabControl(TabIndex: integer);     
 var
-  PntPanel: TPaintPanel;
+  PntPanel: TWinControl;
   I, J: integer;
   List: TList;
 begin
@@ -1371,8 +1373,9 @@ if I >= 0 then
       if Assigned(TFontObj(List[J]).TabControl) then
         Exit;
 
-PntPanel := TPaintPanel(Section.ParentSectionList.PPanel);
+PntPanel := Section.ParentSectionList.PPanel;
 TabControl := ThtTabcontrol.Create(PntPanel);
+
 with ThtTabcontrol(TabControl) do
   begin
   Left := -4000  ;   {so will be invisible until placed}
@@ -1381,7 +1384,7 @@ with ThtTabcontrol(TabControl) do
   TabStop := True;
   OnEnter := EnterEvent;
   OnExit := ExitEvent;
-  OnKeyDown := Self.AKeyDown;   
+  OnKeyDown := Self.AKeyDown;
   end;
 TabControl.Parent := PntPanel;
 
@@ -1389,7 +1392,7 @@ if TabIndex > 0 then
   {Adding leading 0's to the number string allows it to be sorted numerically,
    and the Count takes care of duplicates}
   with Section.ParentSectionList.TabOrderList do
-    AddObject(Format('%.5d%.3d', [TabIndex, Count]), TabControl);   
+    AddObject(Format('%.5d%.3d', [TabIndex, Count]), TabControl);
 end;
 {$endif}
 
@@ -2744,7 +2747,7 @@ if (Key in [vk_up, vk_down, vk_left, vk_right]) and (Sender is TFormRadioButton)
     end;
   end
 else  {send other keys to ThtmlViewer}
-  ThtmlViewer(MasterList.TheOwner).KeyDown(Key, Shift);
+  (MasterList.TheOwner as ThtmlViewer).KeyDown(Key, Shift);
 end;
 
 procedure ThtmlForm.ResetControls;
@@ -2906,7 +2909,7 @@ end;
 procedure TFormControlObj.HandleMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-ThtmlViewer(MasterList.TheOwner).ControlMouseMove(Self, Shift, X, Y);
+(MasterList.TheOwner as ThtmlViewer).ControlMouseMove(Self, Shift, X, Y);
 end;
 
 function TFormControlObj.GetYPosition: integer;
@@ -3180,7 +3183,7 @@ procedure TEditFormControlObj.ProcessProperties(Prop: TProperties);
 begin
 inherited;
 if BkColor <> clNone then
-  TEdit(FControl).Color := BkColor;
+  ThtEdit(FControl).Color := BkColor;   
 end;
 
 procedure TEditFormControlObj.ResetToValue;
@@ -3191,21 +3194,52 @@ else
   ThtEdit(FControl).Text := Value;
 end;
 
+{$ifdef bloop}
 procedure TEditFormControlObj.Draw(Canvas: TCanvas; X1, Y1: integer);
 var
   H2, Addon: integer;
   ARect: TRect;
 begin
-if TEdit(FControl).BorderStyle <> bsNone then
+if ThtEdit(FControl).BorderStyle <> bsNone then   
   Addon := 4   {normal 3D border}
 else Addon := 2; {inline border, 3D Border removed}
 with ThtEdit(FControl) do
   begin
   Canvas.Font := Font;
   H2 := Abs(Font.Height);
-  if TEdit(FControl).BorderStyle <> bsNone then
-    FormControlRect(Canvas, X1, Y1, X1+Width, Y1+Height, False, MasterList.PrintMonoBlack, False, TEdit(FControl).Color)    
-  else FillRectWhite(Canvas, X1, Y1, X1+Width, Y1+Height, TEdit(FControl).Color);   
+  if BorderStyle <> bsNone then
+    FormControlRect(Canvas, X1, Y1, X1+Width, Y1+Height, False, MasterList.PrintMonoBlack, False, Color)  
+  else FillRectWhite(Canvas, X1, Y1, X1+Width, Y1+Height, Color);
+  SetTextAlign(Canvas.handle, TA_Left);
+  SetBkMode(Canvas.Handle, Windows.Transparent);
+  Canvas.Brush.Style := bsClear;
+  ARect := Rect(X1+Addon, Y1, X1+Width-(Addon div 2), Y1+Height);  
+  if UnicodeControls then
+    {$Warnings Off}
+    ExtTextOutW(Canvas.Handle, X1+Addon, Y1+(Height-H2)div 2, ETO_CLIPPED, @ARect,
+      PWideChar(Text), Length(Text), nil)
+    {$Warnings On}
+  else
+    Canvas.TextRect(ARect, X1+Addon, Y1+(Height-H2)div 2-1, Text); 
+  end
+end;
+{$endif}
+
+procedure TEditFormControlObj.Draw(Canvas: TCanvas; X1, Y1: integer);
+var
+  H2, Addon: integer;
+  ARect: TRect;
+begin
+if ThtEdit(FControl).BorderStyle <> bsNone then
+  Addon := 4   {normal 3D border}
+else Addon := 2; {inline border, 3D Border removed}
+with ThtEdit(FControl) do
+  begin
+  Canvas.Font := Font;
+  H2 := Abs(Font.Height);
+  if BorderStyle <> bsNone then
+    FormControlRect(Canvas, X1, Y1, X1+Width, Y1+Height, False, MasterList.PrintMonoBlack, False, Color)
+  else FillRectWhite(Canvas, X1, Y1, X1+Width, Y1+Height, Color);
   SetTextAlign(Canvas.handle, TA_Left);
   SetBkMode(Canvas.Handle, Windows.Transparent);
   Canvas.Brush.Style := bsClear;
@@ -3867,7 +3901,7 @@ for I := 0 to Count-1 do
   end;
 end;
 
-{procedure TCellBasic.FormTree(Indent: string; var Tree: string);
+procedure TCellBasic.FormTree(Indent: string; var Tree: string);
 var
   I: integer;
   Item: TSectionBase;
@@ -3882,7 +3916,7 @@ for I := 0 to Count-1 do
   else
     Tree := Tree + Indent + '----'^M+^J;
   end;
-end;           }
+end;
 
 {----------------TCellBasic.FindDocPos}
 function TCellBasic.FindDocPos(SourcePos: integer; Prev: boolean): integer;
@@ -4654,15 +4688,15 @@ var
   BlockHeight: integer;
   IB, Xin: Integer;
 
-  function GetClearSpace: integer;
+  function GetClearSpace(CA: ClearAttrType): integer;   
   var
     CL, CR: integer;
   begin
   Result := 0;
-  if (ClearAttr <> clrNone) then
+  if (CA <> clrNone) then
     begin  {may need to move down past floating image}
     IMgr.GetClearY(CL, CR);
-    case ClearAttr of
+    case CA of
       clLeft:  Result := IntMax(0, CL-Y-1);
       clRight:  Result := IntMax(0, CR-Y-1);
       clAll: Result := IntMax(CL-Y-1, IntMax(0, CR-Y-1));
@@ -4683,7 +4717,7 @@ if DisplayNone then
   end;
 YDraw := Y;
 Xin := X;
-ClearAddOn := GetClearSpace;
+ClearAddOn := GetClearSpace(ClearAttr);    
 StartCurs := Curs;
 MaxWidth := AWidth;
 
@@ -4779,7 +4813,7 @@ Len := Curs-StartCurs;
 
 if Positioning in [posAbsolute, posRelative] then
   MaxWidth := ScrollWidth+MiscWidths-MargArray[MarginRight]+LeftP-Xin
-else MaxWidth := ScrollWidth+MiscWidths;
+else MaxWidth := ScrollWidth+MargArray[MarginRight]+MargArray[PaddingRight]+MargArray[BorderRightWidth]+Indent;  
 
 if Positioning = posRelative then
   ClientContentBot := IntMax(ContentTop, MyCell.tcContentBot-TopP)
@@ -4820,7 +4854,6 @@ if Assigned(BGImage) and ParentSectionList.ShowImages then
 SectionHeight := Result;
 IMgr.FreeLeftIndentRec(LIndex);   
 IMgr.FreeRightIndentRec(RIndex);
-IMgr.CurrentID := SaveID;
 if (FloatLR in [ALeft, ARight]) or (Positioning = posAbsolute) then
   begin
   if Positioning = posAbsolute then
@@ -4840,6 +4873,7 @@ else
   if DrawHeight < SectionHeight then
     DrawHeight := SectionHeight;
   end;
+IMgr.CurrentID := SaveID;
 if DrawList.Count = 0 then  
   DrawSort;
 end;
@@ -4907,6 +4941,12 @@ Y := YDraw;
 YO := Y - ParentSectionList.YOff;
 Result := Y+SectionHeight;
 
+if ParentSectionList.SkipDraw then
+  begin
+  ParentSectionList.SkipDraw := False;
+  Exit;
+  end;
+
 with ParentSectionList do
   if Printing and (Positioning <> posAbsolute) then
     if BreakBefore and not FirstPageItem then
@@ -4915,6 +4955,7 @@ with ParentSectionList do
         begin
         if YDraw+MargArray[MarginTop] < PageBottom then
           PageBottom := YDraw+MargArray[MarginTop];
+        SkipDraw := True;    {prevents next block from drawing a line}
         Exit;
         end;
       end
@@ -5085,12 +5126,12 @@ if (BT <= ARect.Bottom) and (BB >= ARect.Top) then
     if HasBackgroundColor and
         (not ParentSectionList.Printing or ParentSectionList.PrintTableBackground) then
       begin   {color the Padding Region}
-      Canvas.Brush.Color := MargArray[BackgroundColor] or $2000000;
+      Canvas.Brush.Color := MargArray[BackgroundColor] or PalRelative;
       Canvas.Brush.Style := bsSolid;
       if ParentSectionList.IsCopy and ImgOK then
         begin
         InitFullBG(PR-PL, IH);
-        FullBG.Canvas.Brush.Color := MargArray[BackgroundColor] or $2000000;
+        FullBG.Canvas.Brush.Color := MargArray[BackgroundColor] or PalRelative;
         FullBG.Canvas.Brush.Style := bsSolid;
         FullBG.Canvas.FillRect(Rect(0, 0, PR-PL, IH));
         end
@@ -5211,7 +5252,7 @@ with DrawList do
     end;
 end;
 
-{procedure TBlock.FormTree(Indent: string; var Tree: string);
+procedure TBlock.FormTree(Indent: string; var Tree: string);
 var
   MyIndent: string;
   TM, BM: string;
@@ -5221,7 +5262,7 @@ TM := IntToStr(MargArray[MarginTop]);
 BM := IntToStr(MargArray[MarginBottom]);
 Tree := Tree+Indent+TagClass+'  '+TM+'  '+BM+^M+^J;
 MyCell.FormTree(MyIndent, Tree);
-end;}
+end;
 
 {----------------TTableAndCaptionBlock.Create}
 constructor TTableAndCaptionBlock.Create(Master: TSectionList; Prop: TProperties;
@@ -5898,7 +5939,7 @@ Prop.GetBackgroundPos(0, 0, PRec);
     Master.SetBackgroundBitmap(Image, PRec);
 Val := Prop.GetBackgroundColor;
 if Val <> clNone then
-  Master.SetBackGround(Val or $2000000);
+  Master.SetBackGround(Val or PalRelative);
 end;
 
 {----------------TBodyBlock.GetURL}
@@ -6336,7 +6377,7 @@ for I := 0 to AGifList.Count-1 do
     end;
 if not IsCopy and not Assigned(Timer) then
   begin
-  Timer := TTimer.Create(TheOwner as ThtmlViewer);
+  Timer := TTimer.Create(TheOwner as TComponent);
   Timer.Interval := 50;
   Timer.OnTimer := CheckGIFList;
   end;
@@ -6416,6 +6457,7 @@ PageBottom := ARect.Bottom + YOff;
 PageShortened := False;
 FirstPageItem := True;     
 TableNestLevel := 0;    
+SkipDraw := False;    
 
 if Assigned(Timer) then Timer.Enabled := False;
 for I := 0 to AGifList.Count-1 do
@@ -6680,7 +6722,7 @@ if BMName <> '' then
       if Stream = WaitStream then
         Delay := True
       else if not Assigned(Stream) then
-        Result := LoadImageFromFile(ThtmlViewer(TheOwner).HTMLExpandFilename(BMName), AMask, Transparent)
+        Result := LoadImageFromFile((TheOwner as ThtmlViewer).HTMLExpandFilename(BMName), AMask, Transparent)
       else if Assigned(Stream) and (Stream.Memory <> Nil) and (Stream.Size >= 1) then
         begin
         NonAnimated := True;
@@ -7213,12 +7255,12 @@ try
 
   if Cell.BkGnd then
     begin
-    Canvas.Brush.Color := Cell.BkColor or $2000000;
+    Canvas.Brush.Color := Cell.BkColor or PalRelative;
     Canvas.Brush.Style := bsSolid;
     if Cell.MasterList.IsCopy and ImgOK then
       begin
       InitFullBG(PR-PL, IH);
-      FullBG.Canvas.Brush.Color := Cell.BkColor or $2000000;
+      FullBG.Canvas.Brush.Color := Cell.BkColor or PalRelative;
       FullBG.Canvas.Brush.Style := bsSolid;
       FullBG.Canvas.FillRect(Rect(0, 0, PR-PL, IH));
       end
@@ -7775,6 +7817,7 @@ destructor ThtmlTable.Destroy;
 begin
 Rows.Free;
 TablePartRec.Free;  
+FreeAndNil(ColInfo);    
 inherited Destroy;
 end;
 
@@ -8929,7 +8972,7 @@ case TablePartRec.TablePart of
         TablePartRec.TablePart := DoFoot;
         TablePartRec.PartStart := Y + FootOffset;
         TablePartRec.PartHeight := FootHeight + IntMax(2*Cellspacing, Cellspacing+1) + BottomBorder;
-        ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+        (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
         end
       else if HeaderHeight > 0 then
         begin   {will do header next}
@@ -8937,9 +8980,9 @@ case TablePartRec.TablePart of
         TablePartRec.TablePart := DoHead;
         TablePartRec.PartStart := DrawY-TopBorder;
         TablePartRec.PartHeight := HeaderHeight+TopBorder;  
-        ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+        (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
         end;
-      ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+      (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
       end;
     end;
   {.$EndRegion}
@@ -8952,7 +8995,7 @@ case TablePartRec.TablePart of
         YY := TCellList(Rows.Items[I]).Draw(Canvas, ParentSectionList, ARect, Widths,
                 XX, YY, YOffset, CellSpacing, Border > 0, BorderColorLight,
                 BorderColorDark, I);
-      ThtmlViewer(ParentSectionList.TheOwner).TablePartRec.TablePart := Normal;
+      (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec.TablePart := Normal;
       end
     else
       begin  {will do part of the table now}
@@ -8969,16 +9012,16 @@ case TablePartRec.TablePart of
         TablePartRec.TablePart := DoFoot;
         TablePartRec.PartStart := Y + FootOffset;
         TablePartRec.PartHeight := FootHeight + IntMax(2*Cellspacing, Cellspacing+1) + BottomBorder;//FootHeight+IntMax(CellSpacing, 1);
-        ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+        (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
         end
       else if HeaderHeight > 0 then
         begin
         TablePartRec.TablePart := DoHead;
         TablePartRec.PartStart := DrawY-TopBorder;
         TablePartRec.PartHeight := HeaderHeight+TopBorder;
-        ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+        (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
         end;
-      ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+      (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
       end;
     end;
   {.$EndRegion}
@@ -8991,7 +9034,7 @@ case TablePartRec.TablePart of
         YY := TCellList(Rows.Items[I]).Draw(Canvas, ParentSectionList, ARect, Widths,
                 XX, YY, YOffset, CellSpacing, Border > 0, BorderColorLight,
                 BorderColorDark, I);
-      ThtmlViewer(ParentSectionList.TheOwner).TablePartRec.TablePart := Normal;
+      (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec.TablePart := Normal;
         ParentSectionList.PrintingTable := Nil;
       end
     else
@@ -9007,7 +9050,7 @@ case TablePartRec.TablePart of
         TablePartRec.TablePart := DoFoot;
         TablePartRec.PartStart := Y + FootOffset;
         TablePartRec.PartHeight := FootHeight + IntMax(2*Cellspacing, Cellspacing+1) + BottomBorder;//FootHeight+IntMax(CellSpacing, 1);
-        ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+        (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
         end
       else if HeaderHeight > 0 then
         begin
@@ -9015,9 +9058,9 @@ case TablePartRec.TablePart of
         TablePartRec.TablePart := DoHead;
         TablePartRec.PartStart := DrawY-TopBorder;
         TablePartRec.PartHeight := HeaderHeight+TopBorder;  
-        ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+        (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
         end;
-      ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+      (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
       end;
     end;
   {.$EndRegion}
@@ -9042,7 +9085,7 @@ case TablePartRec.TablePart of
       TablePartRec.PartStart := BodyBreak-1;     
       TablePartRec.FootHeight := FootHeight+IntMax(Cellspacing, 1);
       end;
-    ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+    (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
     end;
   {.$EndRegion}
   {.$Region 'DoHead'}
@@ -9055,7 +9098,7 @@ case TablePartRec.TablePart of
       TablePartRec.TablePart := DoBody1;
       TablePartRec.PartStart := BodyBreak-1;     
       TablePartRec.FootHeight := FootHeight+IntMax(Cellspacing, 1)+BottomBorder;
-      ThtmlViewer(ParentSectionList.TheOwner).TablePartRec := TablePartRec;
+      (ParentSectionList.TheOwner as ThtmlViewer).TablePartRec := TablePartRec;
     end;
   {.$$EndRegion}
   end;
@@ -10832,7 +10875,8 @@ var
     ARect: TRect;
     Inverted, ImageAtStart, NewCP: boolean;
     Color: TColor;
-    CP, CP1: TPoint;
+    CP1: TPoint;
+    CPx, CPy, CP1x: integer;      
     SaveColor: TColor;
     BR: BorderRec;
     LR:LineRec;      
@@ -10880,9 +10924,10 @@ var
 
   NewCP := True;
   ImageAtStart := True;
-  CP.x := X + LR.LineIndent;
+  CPx := X + LR.LineIndent;
+  CP1x := CPx;     
   LR.DrawY := Y-LR.LineHt;
-  LR.DrawXX := CP.x;
+  LR.DrawXX := CPx;
   while Cnt > 0 do
     begin
     I := 1;
@@ -10899,11 +10944,11 @@ var
         if (Start-Buff = BR.BStart) then     
           begin   {this is it's start}
           BR.bRect.Top := Y-FO.GetHeight(Desc)-Descent+Desc+1;
-          BR.bRect.Left := CP.x;
+          BR.bRect.Left := CPx;
           BR.bRect.Bottom := Y-Descent+Desc;
           end
         else if (Start-Buff = BR.BEnd) and (BR.bRect.Right = 0) then
-          BR.bRect.Right := CP.x  {this is it's end}
+          BR.bRect.Right := CPx  {this is it's end}
         else if (Start-Buff > BR.BStart) and (Start-Buff < BR.BEnd) then
           begin {this is position within boundary, it's top or bottom may enlarge}
           BR.bRect.Top := IntMin(BR.bRect.Top, Y-FO.GetHeight(Desc)-Descent+Desc+1);
@@ -10946,7 +10991,7 @@ var
           if Assigned(MyBlock) then
             TImageObj(Obj).Positioning := MyBlock.Positioning
           else TImageObj(Obj).Positioning := posStatic;
-          TImageObj(Obj).Draw(Canvas, CP.x+Obj.HSpaceL, Y-LR.LineHt, Y-Descent, FO);
+          TImageObj(Obj).Draw(Canvas, CPx+Obj.HSpaceL, Y-LR.LineHt, Y-Descent, FO);
           {see if there's an inline border for the image}
           if LR.FirstDraw and Assigned(LR.BorderList) then
             for K := 0 to LR.BorderList.Count-1 do
@@ -10980,7 +11025,7 @@ var
                 if (Start-Buff = BR.BStart) then     
                   begin  {border starts at image}
                   BR.bRect.Top := ToPP;
-                  BR.bRect.Left := CP.x + TImageObj(Obj).HSpaceL;
+                  BR.bRect.Left := CPx + TImageObj(Obj).HSpaceL;
                   if BR.BEnd = BR.BStart+1 then {border ends with image also, rt side set by image width}
                     BR.bRect.Right := BR.bRect.Left+TImageObj(Obj).ImageWidth;
                   BR.bRect.Bottom := BottomP;
@@ -10993,7 +11038,7 @@ var
                   end;
                 end;
               end;
-          CP.x := CP.x + Obj.ImageWidth + Obj.HSpaceL + Obj.HSpaceR;
+          CPx := CPx + Obj.ImageWidth + Obj.HSpaceL + Obj.HSpaceR;
           NewCP := True;
           ImageAtStart := False;
           end;
@@ -11024,7 +11069,7 @@ var
             end
           else
             begin
-            LeftT := CP.x+Obj.HSpaceL;
+            LeftT := CPx+Obj.HSpaceL;
             case Obj.ObjAlign of
               ATop: TopP := Y-YOffset-LR.LineHt+Obj.VSpaceT;   
               AMiddle:  TopP := Y-YOffset - FO.tmHeight div 2 - (ImageHeight-Obj.VSpaceT+Obj.VSpaceB) div 2;
@@ -11041,7 +11086,7 @@ var
                   if (Start-Buff = BR.BStart) then
                     begin {border starts on panel}
                     BR.bRect.Top := ToPP+YOffSet;
-                    BR.bRect.Left := CP.x + HSpaceL;
+                    BR.bRect.Left := CPx + HSpaceL;
                     if BR.BEnd = BR.BStart+1 then  {border also ends with panel}
                       BR.bRect.Right := BR.bRect.Left+ImageWidth;
                     BR.bRect.Bottom := TopP+YOffSet+ImageHeight;
@@ -11054,7 +11099,7 @@ var
                     end;
                   end;
                 end;
-            Inc(CP.x, ImageWidth+Obj.HSpaceL+Obj.HSpaceR);
+            Inc(CPx, ImageWidth+Obj.HSpaceL+Obj.HSpaceR);
             NewCP := True;
             ImageAtStart := False;
             end;
@@ -11104,7 +11149,7 @@ var
                 if (Start-Buff = BR.BStart) then
                   begin {border starts with Form control}
                   BR.bRect.Top := ToPP+YOffSet;
-                  BR.bRect.Left := CP.x + HSpaceL;
+                  BR.bRect.Left := CPx + HSpaceL;
                   if BR.BEnd = BR.BStart+1 then  {border is confined to form control}
                     BR.bRect.Right := BR.bRect.Left+Width;
                   BR.bRect.Bottom := TopP+YOffSet+Height;
@@ -11118,12 +11163,12 @@ var
                 end;
               end;
           if ParentSectionList.IsCopy then
-            Ctrl.Draw(Canvas, CP.x+Ctrl.HSpaceL, TopP)
+            Ctrl.Draw(Canvas, CPx+Ctrl.HSpaceL, TopP)
           else
             begin
             Show;
             Top := TopP;  
-            Left := CP.x+Ctrl.HSpaceL;
+            Left := CPx+Ctrl.HSpaceL;
             if Ctrl is TRadioButtonFormControlObj then
               with  TRadioButtonFormControlObj(Ctrl) do
                 begin
@@ -11149,7 +11194,7 @@ var
                 SetTextColor(Handle, SaveColor);
                 end;
             end;
-          Inc(CP.x, Width+Ctrl.HSpaceL+Ctrl.HSpaceR);
+          Inc(CPx, Width+Ctrl.HSpaceL+Ctrl.HSpaceR);
           NewCP := True;
           end;
       ImageAtStart := False;
@@ -11177,10 +11222,14 @@ var
         else Canvas.Font.Color := FO.TheFont.bgColor;
         end
       else if FO.TheFont.BGColor = clNone then
-        SetBkMode(Canvas.Handle, Transparent)
+        begin
+        SetBkMode(Canvas.Handle, Transparent);
+        Canvas.Brush.Style := bsClear;    
+        end
       else
         begin
         SetBkMode(Canvas.Handle, Opaque);
+        Canvas.Brush.Style := bsClear;       
         Canvas.Brush.Color := FO.TheFont.BGColor;
         end;
 
@@ -11205,7 +11254,7 @@ var
           end;
         end;
 
-      SetTextAlign(Canvas.Handle, TA_BaseLine or TA_UpdateCP);
+      SetTextAlign(Canvas.Handle, TA_BaseLine);       
       {figure any offset for subscript or superscript}
       with FO do
         if SScript = ANone then Addon := 0
@@ -11215,7 +11264,7 @@ var
       {calc a new CP if required}
       if NewCP then
         begin
-        MoveToEx(Canvas.Handle, CP.x, Y - Descent + Addon - YOffset, Nil);
+        CPy := Y - Descent + Addon - YOffset;
         NewCP := Addon <> 0;
         end;
 
@@ -11227,7 +11276,8 @@ var
         if (Self is TPreformated) and not MyBlock.HideOverflow then
           begin   {so will clip in Table cells}
           ARect := Rect(IMgr.LfEdge, Y-LR.LineHt-LR.SpaceBefore-YOffset, X+IMgr.ClipWidth, Y-YOffset+1);
-          ExtTextOutW(Canvas.Handle, 0, 0, ETO_CLIPPED, @ARect, Start, Tmp, nil); 
+          ExtTextOutW(Canvas.Handle, CPx, CPy, ETO_CLIPPED, @ARect, Start, Tmp, nil);   
+          CP1x := CPx+GetXExtent(Canvas.Handle, Start, Tmp);
           end
         else
           begin
@@ -11240,16 +11290,22 @@ var
             if (Cnt - I <= 0) and LR.Shy then
               begin
               St := AddHyphen(Start, Tmp);
-              TextOutW(Canvas.Handle, 0, 0, PWideChar(St), Length(St));
+              TextOutW(Canvas.Handle, CPx, CPy, PWideChar(St), Length(St));  
+              CP1x := CPx+GetXExtent(Canvas.Handle, PWideChar(St), Length(St));
               end
-            else TextOutW(Canvas.Handle, 0, 0, Start, Tmp);
+            else
+              begin
+              TextOutW(Canvas.Handle, CPx, CPy, Start, Tmp);  
+              CP1x := CPx+GetXExtent(Canvas.Handle, Start, Tmp); 
+              end
             end
           else
             begin  {Win95}
             {Win95 has bug which extends text underline for proportional font in TextOutW.
              Use clipping to clip the extra underline.}
-            ARect := Rect(CP.x, Y-LR.LineHt-LR.SpaceBefore-YOffset, CP.x+GetXExtent(Canvas.Handle, Start, Tmp), Y-YOffset+1);
-            ExtTextOutW(Canvas.Handle, 0, 0, ETO_CLIPPED, @ARect, Start, Tmp, nil)
+            CP1x := CPx+GetXExtent(Canvas.Handle, Start, Tmp);
+            ARect := Rect(CPx, Y-LR.LineHt-LR.SpaceBefore-YOffset, CP1x, Y-YOffset+1);
+            ExtTextOutW(Canvas.Handle, CPx, CPy, ETO_CLIPPED, @ARect, Start, Tmp, nil)   
             end;
           end;
         {Put in a dummy caret to show character position}
@@ -11259,32 +11315,26 @@ var
           Canvas.Pen.Color := Canvas.Font.Color;
           Tmp := Y - Descent+ FO.Descent + Addon - YOffset;
           Canvas.Brush.Color := clWhite;
-          Canvas.Rectangle(CP.x, Tmp, CP.x+1, Tmp-FO.FontHeight);
+          Canvas.Rectangle(CPx, Tmp, CPx+1, Tmp-FO.FontHeight);  
           end;
       end;  
-
-      {the following is needed to make the DrawFocusRect work correctly for some
-       reason.  It must be located before the GetCurrentPositionEx call}
-      if FO.Active then
-         Canvas.Font.Color := clBlack;
-
-      GetCurrentPositionEx(Canvas.Handle, @CP1);
 
       if FO.Active or ParentSectionList.IsCopy and Assigned(ParentSectionList.LinkDrawnEvent)
                              and (FO.UrlTarget.Url <> '') then
         begin
         Tmp := Y - Descent+ FO.Descent + Addon - YOffset;
-        ARect := Rect(CP.x, Tmp-FO.FontHeight, CP1.x+1, Tmp);
+        ARect := Rect(CPx, Tmp-FO.FontHeight, CP1x+1, Tmp);
         if FO.Active then
           begin
-          Canvas.Brush.Color := clWhite;
+          Canvas.Font.Color := clBlack;  {black font needed for DrawFocusRect}
+          DC := Canvas.Handle;    {Dummy call needed to make Delphi add font color change to handle}
           Canvas.DrawFocusRect(ARect);
           end;
         if Assigned(ParentSectionList.LinkDrawnEvent) then
           ParentSectionList.LinkDrawnEvent(ParentSectionList.TheOwner, ParentSectionList.LinkPage,
                FO.UrlTarget.Url, FO.UrlTarget.Target, ARect);
         end;
-      CP := CP1;
+      CPx := CP1x;
 
       {the following puts a dummy caret at the very end of text if it should be there}
       if ParentSectionList.ShowDummyCaret and not Inverted
@@ -11294,7 +11344,7 @@ var
         Canvas.Pen.Color := Canvas.Font.Color;
         Tmp := Y - Descent+ FO.Descent + Addon - YOffset;
         Canvas.Brush.Color := clWhite;
-        Canvas.Rectangle(CP.x, Tmp, CP.x+1, Tmp-FO.FontHeight);
+        Canvas.Rectangle(CPx, Tmp, CPx+1, Tmp-FO.FontHeight);
         end;
 
       ImageAtStart := False;
@@ -11309,7 +11359,7 @@ var
       begin
       BR := BorderRec(LR.BorderList.Items[K]);
       if BR.OpenEnd or (BR.BRect.Right = 0) then
-        BR.BRect.Right := CP.x;
+        BR.BRect.Right := CPx;
       end;
   end;
 
@@ -11569,6 +11619,8 @@ with LR do
   begin
   if X > LR.DrawXX + LR.DrawWidth then
     Exit;
+  if X < LR.DrawXX-10 then
+    Exit;   
   InText := True;   
   CaretHt := LineHt;
   YR := H + SpaceBefore;
@@ -11594,7 +11646,7 @@ with LR do
       Inc(XR, Delta);
       end;
     end
-  else begin InText := False; {L:=Ln-1;} end;
+  else InText := False;
   Result := L+L1+StartCurs;
   if Justify = FullJustify then
     SetTextJustification(Canvas.Handle, 0, 0);
@@ -11828,6 +11880,7 @@ Panel.Left := -4000;
 Panel.Parent := PntPanel;
 with ThvPanel(Panel) do
   begin
+  FMyPanelObj := Self;
   Top := -4000;
   Height := 20;
   Width := 30;
@@ -11843,7 +11896,8 @@ with ThvPanel(Panel) do
   for I := 0 to L.Count-1 do
     with TAttribute(L[I]) do
       case Which of
-        HeightSy:if System.Pos('%', Name) = 0 then
+        HeightSy:
+          if System.Pos('%', Name) = 0 then
                    begin
                    SpecHeight := Intmax(1, Value); {spec ht of 0 becomes 1}
                    Height := SpecHeight;   {so panels ht will be set for OnPanelCreate}
@@ -12341,13 +12395,13 @@ Dec(IRect.Bottom, YOffSet);
 Inc(IRect.Left, XOffset);   
 Inc(IRect.Right, XOffset);
 if OpenStart then
-  MargArray[BorderLeftWidth] := 0;
+  MargArray[BorderLeftStyle] := ord(bssNone);
 if OpenEnd then
-  MargArray[BorderRightWidth] := 0;
+  MargArray[BorderRightStyle] := ord(bssNone);
 
 if MargArray[BackgroundColor] <> clNone then
   begin
-  Canvas.Brush.Color := MargArray[BackgroundColor] or $2000000;
+  Canvas.Brush.Color := MargArray[BackgroundColor] or PalRelative;
   Canvas.Brush.Style := bsSolid;
   Canvas.FillRect(IRect);
   end;

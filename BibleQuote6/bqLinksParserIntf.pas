@@ -16,6 +16,8 @@ type
   TBibleLink=object
     book, chapter, vstart, vend,tokenStartOffset, tokenEndOffset:integer;
     function AsString():WideString;
+    procedure Reset();
+    procedure Build(aBook, aChapter, aVStart, aVEnd:integer);
     function GetHref(idNum:cardinal=0;bloOptions: TBibleLinkProcessingOptions=[]):WideString;
     function ToCommand(const path: WideString; bloOptions: TBibleLinkProcessingOptions=[]):WideString;
     function FromBqStringLocation(loc:WideString; out path:WideString):boolean;
@@ -23,7 +25,7 @@ type
     procedure AssignTo(out dest:TBibleLink);
   end;
   PBibleLink=^TBibleLink;
-
+  TBibleLinkArray=array of TBibleLink;
   TBibleLinkExLikeNessTraits=(bllTag, bllModName,bllBook, bllChapter, bllVerse1, bllVerse2);
   TBibleLinkExLikeness=set of TBibleLinkExLikeNessTraits;
   TBibleLinkEx=object(TBibleLink)
@@ -40,7 +42,7 @@ type
   PBibleLinkEx=^TBibleLinkEx;
 
 implementation
-uses WideStrings,SysUtils, BibleQuoteConfig,Windows;
+uses WideStringsMod,SysUtils, BibleQuoteConfig,Windows;
 
 const
   gRussianShortNames: array[1..66] of WideString =
@@ -168,6 +170,11 @@ dest.tokenStartOffset:=tokenStartOffset; dest.tokenEndOffset:=tokenEndOffset;
 end;
 
 
+procedure TBibleLink.Reset();
+begin
+book:=0;chapter:=0; vstart:=0; vend:=0;tokenStartOffset:=0; tokenEndOffset:=0;
+end;
+
 function TBibleLink.FromBqStringLocation( loc: WideString; out path:WideString): boolean;
 var value:WideString;
 begin
@@ -175,7 +182,8 @@ try
 
    path := ExtractFirstTkn(loc);
    book:=1; chapter:=1; vstart:=0; vend:=0;
-   if path='go' then path := ExtractFirstTkn(loc);
+   if path='go' then  path := ExtractFirstTkn(loc)
+   else if path='file' then begin result:=false; exit; end;
   //читаем номер книги
     result:=true;
     value := ExtractFirstTkn(loc);
@@ -250,6 +258,12 @@ begin
    else
     Result:=WideFormat('go %s %d %d %d 0',[path,book,
     chapter, vstart ] );
+end;
+
+procedure TBibleLink.Build(aBook, aChapter, aVStart, aVEnd:integer);
+begin
+Reset();
+book:=aBook; chapter:=aChapter; vstart:=avstart; vend:=avend;
 end;
 {TBibleLinkEx}
 function TBibleLinkEx.FromBqStringLocation(loc:WideString):boolean;

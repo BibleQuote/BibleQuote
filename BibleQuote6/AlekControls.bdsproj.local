@@ -1,2 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject/>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2011.04.01 04:02:04.796.pas,H:\devsoft\myprojects\bqnet\BibleQuote6\Unit1.pas=H:\devsoft\myprojects\bqnet\BibleQuote6\AlekCombo.pas</Transaction>
+    <Transaction>2011.04.02 15:31:01.437.pas,H:\devsoft\myprojects\bqnet\BibleQuote6\AlekCombo.pas=</Transaction>
+  </Transactions>
+</BorlandProject>

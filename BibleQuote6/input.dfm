@@ -9,7 +9,7 @@ object InputForm: TInputForm
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -12
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
@@ -17,7 +17,7 @@ object InputForm: TInputForm
   Position = poMainFormCenter
   OnKeyPress = TntFormKeyPress
   OnShow = TntFormShow
-  PixelsPerInch = 96
+  PixelsPerInch = 105
   TextHeight = 13
   object Edit1: TTntEdit
     Left = 8

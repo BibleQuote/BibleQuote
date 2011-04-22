@@ -27,6 +27,7 @@ object ConfigForm: TConfigForm
     Align = alTop
     TabOrder = 0
     HideTabsHints = False
+    ExplicitTop = 1
     object CopyOptionsTabSheet: TTntTabSheet
       Caption = 'CopyOptionsTabSheet'
       object CopyVerseNumbers: TTntCheckBox
@@ -332,6 +333,14 @@ object ConfigForm: TConfigForm
         Height = 17
         Caption = 'Full context on restricted links'
         TabOrder = 5
+      end
+      object cbUseVerseHL: TTntCheckBox
+        Left = 8
+        Top = 238
+        Width = 210
+        Height = 17
+        Caption = 'Highlight verse hits'
+        TabOrder = 6
       end
     end
   end

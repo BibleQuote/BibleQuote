@@ -302,6 +302,7 @@ begin
     ts := TTntTabSheet(Pages[i]);
     _caption := ts.Caption;
     textlength := length(TrimRight(_caption));
+    if textlength=0 then textlength:=Length(_caption);
     savelength := textlength;
     pCaption := PWideChar(integer(_caption));
     Canvas.TextFlags := 0;
@@ -310,11 +311,12 @@ begin
     delta := (r2.Right - textRect.Right - image_width - 7);
     oldright := textRect.Right;
     while delta + textRect.Right - oldright <= 0 do begin
-      _caption := _caption + '  ';
+      _caption := _caption + ' ';
       pCaption := PWideChar(integer(_caption));
       textlength := length(_caption);
       DrawTextW(Canvas.Handle, pCaption, textlength, textRect, DT_CALCRECT or
         DT_CENTER or DT_VCENTER);
+
     end;
     if length(ts.Caption) <> length(_caption) then ts.Caption := _caption;
 //    SetBkMode(Canvas.Handle, TRANSPARENT);

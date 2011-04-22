@@ -1,4 +1,6 @@
-{Version 9.43}
+{Version 9.45}
+
+{$i htmlcons.inc}
 
 unit GDIPL2A;
 
@@ -53,6 +55,9 @@ type
     procedure ScaleTransform(sx, sy: Single);
  end;
 
+procedure CheckInitGDIPlus; 
+procedure CheckExitGDIPlus;
+
 implementation
 
 const
@@ -86,11 +91,16 @@ type
   PImageCodecInfo = ^TImageCodecInfo;
 
 var
+{$ifndef NoGDIPlus}
   GdiplusStartup: function(var Token: DWord; const Input, Output: Pointer): Integer; stdcall;
   GdiplusShutdown: procedure(Token: DWord); stdcall;
+  GdipDrawImageI: function(Graphics, Image, X, Y: Integer): Integer; stdcall;
+  GdipCreateHBITMAPFromBitmap: function(bitmap: integer; out hbmReturn: HBITMAP;
+    background: DWord): integer; stdcall;
+  GdipGetInterpolationMode: function(graphics: integer; var interpolationMode: integer): integer; stdcall;
+{$endif$}
   GdipDeleteGraphics: function(Graphics: Integer): Integer; stdcall;
   GdipCreateFromHDC: function(hdc: HDC; var Graphics: Integer): Integer; stdcall;
-  GdipDrawImageI: function(Graphics, Image, X, Y: Integer): Integer; stdcall;
   GdipDrawImageRectI: function (Graphics, Image, X, Y, Width, Height: Integer): Integer; stdcall;
   GdipLoadImageFromFile: function (const FileName: PWideChar; var Image: Integer): Integer; stdcall;
   GdipLoadImageFromStream: function(stream: ISTREAM;
@@ -117,11 +127,8 @@ var
     dstx, dsty, dstwidth, dstheight, srcx, srcy, srcwidth, srcheight,
     srcUnit, imageAttributes: integer;
     callback: Pointer; callbackData: integer): integer; stdcall;
-  GdipCreateHBITMAPFromBitmap: function(bitmap: integer; out hbmReturn: HBITMAP;
-    background: DWord): integer; stdcall;
     
   GdipSetInterpolationMode: function(graphics, interpolationMode: integer): integer; stdcall;
-  GdipGetInterpolationMode: function(graphics: integer; var interpolationMode: integer): integer; stdcall;
   GdipBitmapSetPixel: function(bitmap, x, y: Integer; color: DWord): Integer;  stdcall;
 
 type
@@ -134,8 +141,6 @@ type
 
 var
   Err: Integer;
-  InitToken: DWord;
-  Startup: TGDIStartup;
 
 { TGpGraphics }
 
@@ -365,13 +370,20 @@ begin
 GdipBitmapSetPixel(fHandle, X, Y, Color);
 end;
 
+{$ifndef NoGDIPlus}
 var
+  InitToken: DWord;
+  Startup: TGDIStartup;
   LibHandle: THandle;
+  GDIPlusCount: integer;  
+{$endif}
 
-initialization
-GDIPlusActive := False;
+procedure CheckInitGDIPlus;   
+begin
 {$ifndef NoGDIPlus}      
-LibHandle := LoadLibrary('GDIPlus.dll');
+if GDIPlusCount = 0 then
+  begin
+  LibHandle := LoadLibrary(GdiPlusLib);
 if LibHandle <> 0 then
   begin
   @GdiplusStartup := GetProcAddress(LibHandle, 'GdiplusStartup');
@@ -407,14 +419,24 @@ if LibHandle <> 0 then
   if not GDIPlusActive then
     FreeLibrary(LibHandle);
   end;
+  end;
+Inc(GDIPlusCount);
 {$endif}
+end;
 
-finalization
+procedure CheckExitGDIPlus;   
+begin
 {$ifndef NoGDIPlus}      
+Dec(GDIPlusCount);
+if GDIPlusCount = 0 then
 if GDIPlusActive then
   begin
   GdiplusShutdown (InitToken);
   FreeLibrary(LibHandle);
+    GDIPlusActive := False;
   end;
 {$endif}
+end;
+
 end.
+

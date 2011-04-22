@@ -1,0 +1,22 @@
+  PNG_ERROR_INVALID_HEADER = 'Image PNG Invalide, l''entête du fichier est invalide.';
+  PNG_ERROR_INVALID_CHUNK_INDEX = 'L''index du chunk spécifié est hors limites';
+  PNG_ERROR_INVALID_CHUNK_CLASS_INDEX = 'L''index de la classe du chunk spécifié est hors limites';
+  PNG_ERROR_CHUNK_INVALID_CRC = 'Impossible de lire l''image PNG, les données sont corrompues';
+  PNG_ERROR_IHDR_NOT_FIRST = 'Image PNG invalide, le chunk IHDR n''est pas présent ou n''est pas le premier.';
+  PNG_ERROR_NO_IDAT = 'Impossible de charger cette image qui en contient pas de données';
+  PNG_ERROR_INVALID_PLTE = 'Impossible de lire l''image, la palette de couleurs est invalide !';
+  PNG_ERROR_INVALID_COLOR_TYPE = 'Impossible de lire l''image, type de couleurs inconnu.';
+  PNG_ERROR_INVALID_FILTER_TYPE = 'Impossible de lire l''image, type de filter inconnu.';
+  PNG_ERROR_INVALID_INTERLACE = 'L''image utilise une méthode d''entrelacement inconnue.';
+  PNG_ERROR_UNKOWN_CRITICAL_CHUNK = 'L''image contient des chunks critiques non reconnnus.';
+  PNG_ERROR_NO_PALETTE = 'L''image nécessite une palette qui n''est pas disponible';
+  PNG_INVALID_COLOR_TYPE = 'Impossible de déterminer les informations de transparence car ce n''est pas une image RGB (valeur 3)';
+  CHUNK_NOT_CHILD = 'The especified chunk is not inside the chunk list containing the method being used. The funcion could not be completed.';
+  TIME_CORRUPTED = 'Le chunk tIME est corrompu.';
+  PNG_SHARE = 'What you are testing now uses TPNGImage, a Portable Graphics ' +
+    'network format handler made by Guba (gubah@sti.com.br). It is actually ' +
+    'not totally ready yet (07/01/2000), but its nice, isn''t it ?'#13#10 +
+    #13#10 + 'Anyway, for more information about it send mails to:'#13#10 +
+    'gubah@sti.com.br';
+  PNG_SHARE_TITLE = 'TPNGImage beta test version (gubah@sti.com.br)';
+

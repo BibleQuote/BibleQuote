@@ -63,10 +63,10 @@ begin
      the OK button's position and form height is set according to chosen option
   }
 
-  with InputForm do begin
-    Left := (Screen.Width-Width) div 2;
-    Top := (Screen.Height-Height) div 2;
-  end;
+//  with InputForm do begin
+//    Left := (Screen.Width-Width) div 2;
+//    Top := (Screen.Height-Height) div 2;
+//  end;
 
   if InputForm.Tag = 0 then // TEdit
   begin

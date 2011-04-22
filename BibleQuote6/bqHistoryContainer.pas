@@ -27,7 +27,7 @@ procedure toFile(path:WideString);
 procedure fromFile(path:WideString);
 end;
 implementation
-uses SysUtils,Windows,JCLWin32, BQExceptionTracker,JclWideStrings, WideStrUtils;
+uses SysUtils,Windows,JCLWin32, BQExceptionTracker,JclWideStrings;
 { TBQHistoryContainer }
 
 function TBQIntfHistoryContainer.ArrLen(): integer;

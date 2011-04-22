@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, TntForms, ExtCtrls, StdCtrls, TntStdCtrls, PngImage1, jpeg;
+  Dialogs, TntForms, ExtCtrls, StdCtrls, TntStdCtrls, PngImage1, jpeg ;
 
 type
   TfrmAbout = class(TTntForm)
@@ -20,6 +20,7 @@ type
     procedure Panel2MouseLeave(Sender: TObject);
 
     procedure TntFormShow(Sender: TObject);
+    procedure TntFormCreate(Sender: TObject);
 
   private
   cnt:integer;
@@ -32,7 +33,7 @@ var
   frmAbout: TfrmAbout;
 
 implementation
-  uses main;
+  uses main,BibleQuoteUtils;
 {$R *.DFM}
 
 procedure TfrmAbout.Panel2MouseEnter(Sender: TObject);
@@ -49,6 +50,15 @@ end;
 
 
 
+
+procedure TfrmAbout.TntFormCreate(Sender: TObject);
+begin
+//DrawIconEx(Image1.Picture.Bitmap.Canvas.Handle, 0,0, Application.Icon.Handle,
+//32,32,0,0,DI_NORMAL);
+//.Draw(0,0, Application.Icon);
+memDevs.Lines.Add('OS:'+WinInfoString());
+
+end;
 
 procedure TfrmAbout.TntFormShow(Sender: TObject);
 begin

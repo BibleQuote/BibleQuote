@@ -1,7 +1,7 @@
 unit BibleLinkParser;
 
 interface
-uses JclUnicode, Classes, WideStrings, bqLinksParserIntf, bqContainers;
+uses JclUnicode, Classes, WideStringsMod, bqLinksParserIntf, bqContainers;
 type
   TLinkMatchType = (lmtNone, lmtFirst, lmtConCat, lmtSecond, lmtBoth);
   TLinkParserFlag = (lpsBookEntered, lpsChapterEntered, lpsFirstVerseEntered);
@@ -17,7 +17,7 @@ type
     function BestValidBookFor(chapter, key: integer): TBibleBookNameEntry;
   end;
 
-  TLinkParserOption = (lpoIgnoreOneNumberValues, lpoTextRecognition);
+  TLinkParserOption = (lpoIgnoreOneNumberValues, lpoTextRecognition, lpoExtractLnks);
   TLinkParserOptions = set of TLinkParserOption;
 
   TLinkParserFlags = set of TLinkParserFlag;
@@ -40,6 +40,8 @@ type
     mWeakChapterSign: boolean;
     mbookUsed: TBQBooksHistory;
     mTokenCnter: integer;
+    mBlArray:TBibleLinkArray;
+    mBlArrayCnt:integer;
   class var SessionNum: integer;
 //    procedure PrepareBookNames();
 procedure Init();
@@ -67,6 +69,8 @@ function ValidateChapterAndBook(book, chapter: integer; explicitSet: boolean;
   out sugBook: integer; out sugChapter: integer): TChapterValidationResult;
 function ValidateChater(allowBookChange: boolean = true): TBibleBookNameEntry;
 procedure DeleteLastLink();
+procedure ClearLinks();
+procedure AddLink(const bl:TBibleLink);
 function ParseBuffer(const wsBuffer: WideString; lnks: TWideStrings): boolean;
 procedure ProcessLines(lns: TWideStrings);
 constructor Create();
@@ -75,12 +79,14 @@ property ParserFlags: TLinkParserFlags read mFlags;
 property BookExplicitSet: boolean read mBookExpicitSet;
 property Options: TLinkParserOptions read mLinkParserOptions
   write mLinkParserOptions;
-    end;
+end;
 
     function Prepare(fn: WideString; var df: Text): boolean;
     function ResolveLnks(const txt: WideString): WideString;
+
+    function extractLnks(const txt:WideString;var la:TBibleLinkArray):boolean;
 implementation
-uses BibleQuoteConfig, bqPlainUtils, JCLDebug, Dialogs,
+uses bqPlainUtils, BibleQuoteUtils, JCLDebug, Dialogs,BQExceptionTracker,
   SysUtils, {string_procs,} windows {$IFDEF DEBUG} , TypInfo{$ENDIF};
 
 var bookNamesObj: TBibleBookNames;
@@ -103,6 +109,8 @@ var
   chk: boolean;
   save, vl: integer;
   tst: boolean;
+  suggestedBook,suggestedChapter:integer;
+  chapterValidation:TChapterValidationResult;
 label tail;
 begin
   pBibleLnk := nil;
@@ -111,7 +119,7 @@ begin
   if chk and (lpsBookEntered in mFlags) and ExprEndHardDelimiter(mLastDelim) then begin
     result := lmtFirst;
         // inc(mBibleLink.tokenEndOffset);
-    tst := SetupLink(mBook, mChapter, mV1, mV2, mBibleLink.tokenEndOffset, true);
+    tst := SetupLink(mBook, mChapter, mV1, mV2, mBibleLink.tokenEndOffset, false);
     writeln('Hard delimiter', tkn1, ' setting link');
     Inc(mBibleLink.tokenStartOffset);
     mFlags := [lpsBookEntered];
@@ -124,7 +132,7 @@ begin
         and (integer(tkn1[1]) < $2015)) then begin
         // Ge 1:3-5;
         result := VerseTo(tkn2);
-        exit;
+        goto tail;
       end;
       if chk and IsHardChapterDelim(WideChar(mLastDelim)) then begin
         //Ge 3:3,4:Some_txt or  Ge 6:4,5-3:6  or ErrNum, 3:14
@@ -160,6 +168,19 @@ begin
             end
             else begin
         //5:4 ,3:1
+              chapterValidation:=ValidateChapterAndBook(mBook, mLastVerse,
+               mBookExpicitSet,suggestedBook,suggestedChapter);
+              if chapterValidation=cvrIsNotChapter then begin
+              //5:4,200:3
+                mFlags:=[lpsBookEntered];
+                mBookExpicitSet:=false;
+                result:=lmtNone;
+                goto tail;
+              end
+              else if chapterValidation=cvrContextChange then begin
+                mBook:=suggestedBook;
+                mBookExpicitSet:=false;
+              end;
               mChapter := mLastVerse;
               mFlags := [lpsBookEntered, lpsChapterEntered];
               result := lmtFirst;
@@ -193,7 +214,8 @@ begin
     //here "kor ."
       mV1 := 0; mV2 := 0;
       mLinkReady := false;
-//      Inc(mBibleLink.tokenStartOffset);
+      if not mInCurrentChapterVerseAdded then
+        Inc(mBibleLink.tokenStartOffset);//need to skip first of - 10 1 Ôåñ
       goto tail;
     end;
 
@@ -307,19 +329,19 @@ begin
   curProbIndex := -1; curProbBookIx := -1;
   booksHisCount := mbookUsed.EffectiveDepth() - 1;
 
-  chapterInv := false;
+  chapterInv := true;
   longdistance := false;
   for i := 0 to booksHisCount do begin
     bne := TBibleBookNameEntry(mBookUsed.items[i]);
     if bne.key <> self.SessionNum then continue;
 
     if (chapter > bne.chapterCnt) then begin
-      chapterInv := (bne.nameBookIx = book);
+      chapterInv := true;
       continue;
     end;
 
     if explicitSet and (bne.nameBookIx = book) then begin
-      break; curProbIndex := $FFFF; curProbBookIx := book;
+       curProbIndex := $FFFF; curProbBookIx := book; break;
     end;
     distance := mTokenCnter - bne.lastHitPos;
 
@@ -332,7 +354,7 @@ begin
     end;
   end;
 
-  if (chapterInv or longdistance) and (curProbIndex > 0) then begin
+  if  (curProbIndex > 0) then begin
     if (book = curProbBookIx) then begin result := cvrAccept; end
     else begin
       result := cvrContextChange;
@@ -437,6 +459,25 @@ end;
 procedure TBibleLinkParser.DeleteLastLink;
 begin
 
+end;
+
+procedure TBibleLinkParser.ClearLinks();
+begin
+SetLength(mBlArray,0);
+mBlArrayCnt:=0;
+end;
+procedure TBibleLinkParser.AddLink(const bl:TBibleLink);
+var l:integer;
+begin
+l:=length(mBlArray);
+if l<=mBlArrayCnt then begin
+  if l=0 then l:=2
+  else l:=mBlArrayCnt shl 1;
+SetLength(mBlArray, l);
+
+end;
+bl.AssignTo( mBlArray[mBlArrayCnt] );
+inc(mBlArrayCnt);
 end;
 
 function TBibleLinkParser.ExprEndHardDelimiter(dl: AnsiChar): boolean;
@@ -551,9 +592,10 @@ begin
       end;
 
     end;
-
-    if ((lpsBookEntered in mFlags) and
-      (mBookExpicitSet)) then SetupLink(mBook, mChapter, mV1, mV2, 0, false);
+    {Say 1Kor 16:24,12:11 2 Kor 3:12}
+    if ((lpsBookEntered in mFlags) {and
+      (mBookExpicitSet)}) then
+       SetupLink(mBook, mChapter, mV1, mV2, 0, false);
 
     if (lowercased) then mOldBook := mBook else mOldBook := -1;
 
@@ -721,6 +763,14 @@ begin
   if (vl < 0) or (vl > 300) then begin result := lmtNone; exit end;
 
 //
+  if (lpsFirstVerseEntered in mFlags) and (vl<=mV2) then begin
+    result:=lmtFirst;
+    mLinkReady:=SetupLink(mBook, mChapter, mV1, mV1,0,true);
+    if mLinkReady then begin
+    mFlags:= mFlags * [lpsBookEntered];
+    end;
+    exit;
+  end;
   mLastVerse := vl;
   mV2 := vl;
   mLastTokenWasDelim := false;
@@ -808,7 +858,10 @@ begin
     lparser.Options :=
       lparser.Options + [lpoTextRecognition];
 
-  except end;
+  except
+  g_ExceptionContext.Add('Prepare.fn='+fn);
+  raise;
+  end;
 
 end;
 
@@ -842,6 +895,17 @@ begin
   end;                                  //case
 end;
 
+function extractLnks(const txt:WideString;var la:TBibleLinkArray):boolean;
+begin
+lparser.mBlArray:=la;
+Include(lparser.mLinkParserOptions,lpoExtractLnks);
+try
+ResolveLnks(txt);
+finally
+exclude(lparser.mLinkParserOptions,lpoExtractLnks);
+end;
+end;
+
 function ResolveLnks(const txt: WideString): WideString;
 var
   pCurrent, pLastTag, pFirstToken, pSavedFirstToken, pSecondToken, pLinkStart, pNewLinkStart,
@@ -851,7 +915,7 @@ var
   firstToken, secondToken: WideString;
   state, writeCnt, sourceLen, ix, tknCounter, vl, patchDelta, dbg_tki: integer;
   saveChar: WideChar;
-  firstTokenFound: boolean;
+  extractLnks, firstTokenFound: boolean;
   lmt: TLinkMatchType;
   pBibleLnk: PBibleLink;
   wsLinkCode: WideString;
@@ -874,6 +938,48 @@ var
   end;
 
   procedure subWriteBuffer(pStart, pLinkEnd: PWideChar);
+
+  begin
+    //if pLinkStart = nil then ls := pLastLink else ls := pLinkStart;
+
+    writeCnt := PAnsiChar(pStart) - PAnsiChar(pLastWrittenFrom);
+    if not extractLnks then begin
+    ValidateBuffer(PAnsiChar(pWriteBuf) + writeCnt);
+    move(pLastWrittenFrom^, pWriteBuf^, writeCnt);
+    end;
+    Inc(PAnsiChar(pLastWrittenFrom), writeCnt);
+    Inc(PAnsiChar(pWriteBuf), writeCnt);
+
+    wsLinkCode := pBibleLnk^.GetHref(lparser.mLinkCounter);
+    writeCnt := length(wsLinkCode) * 2;
+    if not extractLnks then begin
+    ValidateBuffer(PAnsiChar(pWriteBuf) + writeCnt);
+    move(Pointer(wsLinkCode)^, pWriteBuf^, writeCnt);
+    end
+    else begin
+      lparser.AddLink(pBibleLnk^);
+    end;
+
+    Inc(PAnsiChar(pWriteBuf), writeCnt);
+
+    writecnt := PAnsiChar(pLinkEnd) - PAnsiChar(pStart);
+    pLastWrittenFrom := pLinkEnd;
+   if not extractLnks then begin
+    ValidateBuffer(PAnsiChar(pWriteBuf) + writeCnt);
+    move(Pointer(pStart)^, pWriteBuf^, writeCnt);
+    end;
+    Inc(PAnsiChar(pWriteBuf), writeCnt);
+
+    wsLinkCode := '</a></a>';
+    writeCnt := length(wsLinkCode) * 2;
+    if not extractLnks then begin
+    ValidateBuffer(PAnsiChar(pWriteBuf) + writeCnt);
+    move(Pointer(wsLinkCode)^, pWriteBuf^, writeCnt) ;
+    end;
+    Inc(PAnsiChar(pWriteBuf), writeCnt);
+  end;
+
+ procedure subRecordLnk(pStart, pLinkEnd: PWideChar);
 
   begin
     //if pLinkStart = nil then ls := pLastLink else ls := pLinkStart;
@@ -927,7 +1033,8 @@ var
     if shrintToFirst then lmt := lmtFirst;
 
     if (lmt = lmtFirst) or (lmt = lmtConCat) or (lmt = lmtBoth) then
-      pLinkStart := pSavedFirstToken else if lmt = lmtSecond then pLinkStart := pSecondToken;
+      pLinkStart := pSavedFirstToken
+    else if lmt = lmtSecond then pLinkStart := pSecondToken;
     {$IFDEF DEBUG}
       write(WideFormat('pushed lnkstart:%.20s',[pLinkStart] ),#13#10);
     {$ENDIF}
@@ -979,7 +1086,7 @@ var
   end;
 
 begin
-
+  extractLnks:=lpoExtractLnks in lparser.mLinkParserOptions;
   tc := GetTickCount();
   dbg_tki := 0;
 
@@ -1038,8 +1145,10 @@ begin
 //          InsertPatch(pCurrent,0,'');
 
             pMoveOrg := pLastWrittenFrom;
+
             move(pMoveOrg^, (pMoveOrg + patchDelta)^,
               (pCurrent - pMoveOrg) * 2);
+
             Inc(pLastWrittenFrom, patchDelta);
             ctrLastTokensParsed.OffsetTokens((patchDelta) * 2);
             ctrLinkStarts.OffsetTokens((patchDelta) * 2);
@@ -1062,7 +1171,7 @@ begin
               secondToken := pSecondToken; pCurrent^ := savechar;
 
               lmt := lparser.AddTokens(firstToken, secondToken, pBibleLnk);
-              Inc(dbg_tki);
+               Inc(dbg_tki);
 {$IFDEF DEBUG}
               if lmt > lmtNone then
               write(WideFormat('tokens: %s & %s rslt: %s, dbg_tki: %d',[firstToken, secondToken,  WideString(GetEnumName(TypeInfo(TLinkMatchType), ord(lmt))),dbg_tki]),#13#10);
@@ -1190,13 +1299,17 @@ begin
       inc(pCurrent);
     until (pCurrent^ = #0) or (pCurrent >= psFence);
     writeCnt := PAnsiChar(psFence)  - PAnsiChar(pLastWrittenFrom);
+    if not extractLnks then begin
     ValidateBuffer(PAnsiChar(pWriteBuf) + writecnt+2);
     Move(pLastWrittenFrom^, pWriteBuf^, writeCnt);
     PWideChar( PChar(pWriteBuf)+writeCnt )^:=#0;
 
     result := mLinkedTxtBuffer;
+    end;
   except on e: Exception do begin
-      result := txt;                    // BqShowException(e,bqParseContextStr());
+      if not extractLnks then
+      result := txt;
+      BqShowException(e,bqParseContextStr());
     end;
   end;
   ctrLastTokensParsed.Done();
@@ -1276,7 +1389,12 @@ begin
       Sorted := true;
     finally sl.Free(); end;
     result := true;
-  except end;
+  except
+on e:exception do begin
+  g_ExceptionContext.Add('TBibleBookNames.FromFile.fn='+fn);
+  BqShowException(E);
+  end;
+  end;
 end;
 
 function TBibleBookNames.ItemIndexFromBookIx(): integer;

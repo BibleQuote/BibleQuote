@@ -44,6 +44,7 @@ protected:
 	virtual void __fastcall Paint(void);
 	
 public:
+	static HWND hintHandle;
 	virtual void __fastcall ActivateHint(const Types::TRect &Rect, const AnsiString AHint);
 	virtual void __fastcall ActivateHintData(const Types::TRect &Rect, const AnsiString AHint, void * AData);
 	virtual Types::TRect __fastcall CalcHintRect(int MaxWidth, const AnsiString AHint, void * AData);

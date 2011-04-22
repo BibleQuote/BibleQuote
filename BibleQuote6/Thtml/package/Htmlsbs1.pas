@@ -1,10 +1,30 @@
-{Version 9.43}
+{Version 9.45}
 {*********************************************************}
 {*                     HTMLSBS1.PAS                      *}
-{*              Copyright (c) 1995-2007 by               *}
-{*                   L. David Baldwin                    *}
-{*                 All rights reserved.                  *}
 {*********************************************************}
+{
+Copyright (c) 1995-2008 by L. David Baldwin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Note that the source modules, HTMLGIF1.PAS, PNGZLIB1.PAS, DITHERUNIT.PAS, and
+URLCON.PAS are covered by separate copyright notices located in those modules.
+}
 
 {$i htmlcons.inc}       
 
@@ -430,7 +450,7 @@ constructor TListBoxFormControlObj.Create(AMasterList: TSectionList;
 var
   T: TAttribute;
   Multiple: boolean;
-  PntPanel: TPaintPanel;
+  PntPanel: TWinControl;
   Tmp: TMyFont;
 begin
 inherited Create(AMasterList, Position, L);
@@ -441,7 +461,7 @@ if L.Find(SizeSy, T) then
   LBSize := T.Value
 else LBSize := -1;
 Longest := 3;   {the minimum size}
-PntPanel := TPaintPanel(AMasterList.PPanel);
+PntPanel := (AMasterList.PPanel as TWinControl);
 FControl := ThtListbox.Create(PntPanel);
 with ThtListbox(FControl) do
   begin
@@ -691,12 +711,12 @@ end;
 constructor TComboFormControlObj.Create(AMasterList: TSectionList;
             Position: integer; L: TAttributeList; Prop: TProperties);  
 var
-  PntPanel: TPaintPanel;
+  PntPanel: TWinControl;
   Tmp: TMyFont;
 begin
 inherited Create(AMasterList, Position, L, Prop);
 CodePage := Prop.CodePage;   
-PntPanel := TPaintPanel(AMasterList.PPanel);
+PntPanel := AMasterList.PPanel as TWinControl;
 PntPanel.RemoveControl(FControl);
 FControl.Free;   {don't want the inherited one}
 FControl := ThtCombobox.Create(PntPanel);
@@ -848,7 +868,7 @@ end;
 constructor TTextAreaFormControlObj.Create(AMasterList: TSectionList;
             Position: integer; L: TAttributeList; Prop: TProperties);
 var
-  PntPanel: TPaintPanel;
+  PntPanel: TWinControl;
   I: integer;
   SB: TScrollStyle;
   Tmp: TMyFont;
@@ -877,7 +897,7 @@ for I := 0 to L.Count-1 do
           end;
       end;
 
-PntPanel := TPaintPanel(AMasterList.PPanel);
+PntPanel := (AMasterList.PPanel as TWinControl);
 FControl := ThtMemo.Create(PntPanel);
 with ThtMemo(FControl) do
   begin

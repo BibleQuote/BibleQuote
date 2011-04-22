@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, ActiveX,
+  Graphics, Controls, 
   Forms, TntForms,
   StdCtrls, TntStdCtrls,
   ComCtrls, TntComCtrls,
@@ -39,6 +39,7 @@ type
     BitBtn3: TBitBtn;
     btnAddHotModule: TBitBtn;
     cbFullContextOnRestrictedLinks: TTntCheckBox;
+    cbUseVerseHL: TTntCheckBox;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure OKButtonClick(Sender: TObject);
     procedure CancelButtonClick(Sender: TObject);
@@ -57,7 +58,7 @@ var
 
 implementation
 
-uses WideStrings;
+uses WideStringsMod;
 
 {$R *.DFM}
 

@@ -1,10 +1,30 @@
-{Version 9.43}
+{Version 9.45}
 {*********************************************************}
 {*                     STYLEUN.PAS                       *}
-{*              Copyright (c) 2001 - 2007 by             *}
-{*                   L. David Baldwin                    *}
-{*                 All rights reserved.                  *}
 {*********************************************************}
+{
+Copyright (c) 1995-2008 by L. David Baldwin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Note that the source modules, HTMLGIF1.PAS, PNGZLIB1.PAS, DITHERUNIT.PAS, and
+URLCON.PAS are covered by separate copyright notices located in those modules.
+}
 
 {$i htmlcons.inc}
                                   
@@ -391,7 +411,7 @@ begin
 for I := Low(I) to High(I) do
   Props[I] := Source.Props[I];
 AssignCharSet(Source.CharSet);
-DefFontname := Source.DefFontname;    
+DefFontname := Source.DefFontname;
 PropTag := 'default';
 end;
 
@@ -726,6 +746,7 @@ if (VarType(Props[Clear]) = VarString) then
   else if S = 'both' then Clr := clAll
   else if S = 'none' then Clr := clrNone
   else Result := False;
+  Props[Clear] := Unassigned;   {allow only one read}
   end
 else Result := False;
 end;
@@ -2093,7 +2114,7 @@ Properties := AddDuplicate('th', Properties);
 Properties := TProperties.Create;
 with Properties do
   begin
-  Props[Color] := AHotSpot or $2000000;
+  Props[Color] := AHotSpot or PalRelative;
   if LinkUnderline then
     Props[TextDecoration] := 'underline'
   else
@@ -2103,12 +2124,12 @@ AddObject('::link', Properties);
 
 Properties := TProperties.Create;
 with Properties do
-  Props[Color] := AVisitedColor or $2000000;
+  Props[Color] := AVisitedColor or PalRelative;
 AddObject('::visited', Properties);    
 
 Properties := TProperties.Create;
 with Properties do
-  Props[Color] := AActiveColor or $2000000;
+  Props[Color] := AActiveColor or PalRelative;
 AddObject('::hover', Properties);    
 
 Properties := TProperties.Create;
@@ -2462,7 +2483,7 @@ var
         C[K] := StrToIntDef(A[K], 0);
       C[K] := IntMax(0, IntMin(255, C[K]));
       end;
-    Color := (C[Blue] shl 16) or (C[Green] shl 8) or C[Red] or $2000000;
+    Color := (C[Blue] shl 16) or (C[Green] shl 8) or C[Red];
     Result := True;
     end
   else Result := False;
@@ -2516,7 +2537,7 @@ else
     Color := StrToInt('$'+S);  {but bytes are backwards!}
     Rd := Color and $FF;
     Bl := Color and $FF0000;
-    Color := (Color and $00FF00) + (Rd shl 16) + (Bl shr 16) or $2000000;
+    Color := (Color and $00FF00) + (Rd shl 16) + (Bl shr 16) or PalRelative;
     Result := True;
   except
     Result := False;

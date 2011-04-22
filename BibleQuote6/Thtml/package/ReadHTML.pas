@@ -1,15 +1,35 @@
 
-{Version 9.43}
+{Version 9.45}
 {*********************************************************}
 {*                     READHTML.PAS                      *}
-{*              Copyright (c) 1995-2007 by               *}
-{*                   L. David Baldwin                    *}
-{*                 All rights reserved.                  *}
 {*                                                       *}
 {*           Thanks to Mike Lischke for his              *}
 {*        assistance with the Unicode conversion         *} 
 {*                                                       *}
 {*********************************************************}
+{
+Copyright (c) 1995-2008 by L. David Baldwin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Note that the source modules, HTMLGIF1.PAS, PNGZLIB1.PAS, DITHERUNIT.PAS, and
+URLCON.PAS are covered by separate copyright notices located in those modules.
+}
 
 {$i htmlcons.inc}
 
@@ -98,7 +118,6 @@ var
   PropStack: TPropStack;
   Title: string;
   Base: string;
-  CodePage: integer;   
   BaseTarget: string;
   NoBreak: boolean;       {set when in <NoBr>}
 
@@ -119,7 +138,7 @@ procedure PopAProp(Tag: string);
 implementation
 
 uses
-  htmlsubs, htmlsbs1, htmlview, StylePars, UrlSubs;   
+  htmlsubs, htmlsbs1, htmlview, StylePars, UrlSubs,{ALekId} IHTMLViewer{/AlekID};
 
 Const
   Tab = #9;
@@ -304,8 +323,8 @@ case LoadStyle of
   else Result := #0;       {to prevent warning msg}
   end;
 if (Integer(Buff) and $FFF = 0)    {about every 4000 chars}   
-      and not LinkSearch and Assigned(MasterList) and (DocS <> '') then
-  ThtmlViewer(CallingObject).htProgress(((Buff-PChar(DocS)) *MasterList.ProgressStart) div (BuffEnd-PChar(DocS)));
+      and not LinkSearch and Assigned(MasterList) and (DocS <> '') and (CallingObject is ThtmlViewer) then
+  THTMLViewer(CallingObject).htProgress(((Buff-PChar(DocS)) *MasterList.ProgressStart) div (BuffEnd-PChar(DocS)));
 end;
 
 {----------------GetchBasic; }
@@ -805,7 +824,7 @@ if ((Sy = HeadingSy) or (Sy = HeadingEndSy)) and (Ch in ['1'..'6']) then
 
 Attributes.Clear;
 while GetAttribute(Sym, SymStr, AttrStr, L) do
-    Attributes.Add(TAttribute.Create(Sym, L, SymStr, AttrStr, CodePage)); 
+    Attributes.Add(TAttribute.Create(Sym, L, SymStr, AttrStr, PropStack.Last.Codepage));  
 
 while (Ch <> '>') and (Ch <> EofChar) do
   GetCh;
@@ -1045,10 +1064,12 @@ procedure DoBody(const TermSet: SymbSet); forward;
 procedure DoLists(Sym: Symb; const TermSet: SymbSet); forward;
 
 procedure DoAEnd;  {do the </a>}
+ var iv:IbqHTMLViewer;
 begin
 if InHref then   {see if we're in an href}
   begin
-  CurrentUrlTarget.SetLast(ThtmlViewer(CallingObject).LinkList, SIndex);  
+  CallingObject.GetInterface(IbqHTMLViewer,iv);
+  CurrentUrlTarget.SetLast(iv.GetLinkList(), SIndex);
   CurrentUrlTarget.Clear;
   InHref := False;
   end;
@@ -1800,7 +1821,7 @@ begin
 Result := False;
 if Assigned(CallingObject) then
   begin
-  if Assigned(ThtmlViewer(CallingObject).OnObjectTag) then
+  if Assigned((CallingObject as ThtmlViewer).OnObjectTag) then
     begin
     SL := Attributes.CreateStringList;
     Result := True;
@@ -1829,7 +1850,7 @@ if Assigned(CallingObject) then
             end;
     until (Sy <> ParamSy);
     try
-      ThtmlViewer(CallingObject).OnObjectTag(CallingObject, PO.Panel, SL, Params, WantPanel);
+      (CallingObject as ThtmlViewer).OnObjectTag(CallingObject, PO.Panel, SL, Params, WantPanel);
     finally
       SL.Free;
       Params.Free;
@@ -1938,7 +1959,7 @@ var
    MasterList.ProcessInlines(SIndex, Prop, True);
   if Colr in FontResults then
     begin
-      PropStack.Last.Assign(NewColor or $2000000, StyleUn.Color);
+      PropStack.Last.Assign(NewColor or PalRelative, StyleUn.Color);
     end;
  if Siz in FontResults then
     begin
@@ -2877,6 +2898,7 @@ repeat
     OLSy, ULSy, DirSy, MenuSy, DLSy:
       begin
       DoLists(Sy, TermSet);
+      if not (Sy in TermSet) then  
       Next;
       end;
     PSy:  DoP(TermSet);
@@ -3142,7 +3164,8 @@ if not IsUTF8 and (Sender is ThtmlViewer) and (CompareText(HttpEq, 'content-type
     PropStack.Last.AssignCharset(Charset)
   else if Pos('utf-8', Lowercase(Content)) > 0 then
     PropStack.Last.AssignUTF8;
-  CodePage := PropStack.Last.CodePage;    
+  if CallingObject is ThtmlViewer then         
+    ThtmlViewer(CallingObject).CodePage := PropStack.Last.CodePage;
   end;
 if Assigned(MetaEvent) then
   MetaEvent(Sender, HttpEq, Name, Content);
@@ -3274,7 +3297,7 @@ var
   I: integer;
   Val: TColor;
   AMarginHeight, AMarginWidth: integer;
-
+  iface:IbqHTMLViewer;
 begin
 repeat
   if Sy in TermSet then
@@ -3303,18 +3326,19 @@ repeat
           Section.Free;   {Will start with a new section}
           end;
         PushNewProp('body', Attributes.TheClass, Attributes.TheID, '', Attributes.TheTitle, Attributes.TheStyle);
-        AMarginHeight := (CallingObject as ThtmlViewer).MarginHeight;
-        AMarginWidth := (CallingObject as ThtmlViewer).MarginWidth;
+        CallingObject.GetInterface(IbqhtmlViewer,iface);
+        AMarginHeight := iface.getMarginHeight;
+        AMarginWidth := iface.getMarginWidth;
         for I := 0 to Attributes.Count-1 do
           with TAttribute(Attributes[I]) do
             case Which of
               BackgroundSy: PropStack.Last.Assign('url('+Name+')', BackgroundImage);
               TextSy:
                 if ColorFromString(Name, False, Val) then
-                  PropStack.Last.Assign(Val or $2000000, Color);
+                  PropStack.Last.Assign(Val or PalRelative, Color);
               BGColorSy:
                 if ColorFromString(Name, False, Val) then
-                  PropStack.Last.Assign(Val or $2000000, BackgroundColor);
+                  PropStack.Last.Assign(Val or PalRelative, BackgroundColor);
               LinkSy:
                 if ColorFromString(Name, False, Val) then
                   MasterList.Styles.ModifyLinkColor('link', Val);
@@ -3465,7 +3489,6 @@ IncludeEvent := AIncludeEvent;
 PropStack.Clear;
 PropStack.Add(TProperties.Create);
 PropStack[0].CopyDefault(MasterList.Styles.DefProp);
-CodePage := PropStack[0].CodePage;
 SIndex := -1;     
 
 HaveTranslated := False;
@@ -3496,6 +3519,8 @@ else
     HaveTranslated := True;
     PropStack[0].AssignCharSet(ShiftJIS_CharSet);
     end;
+if CallingObject is ThtmlViewer then       
+  ThtmlViewer(CallingObject).CodePage := PropStack[0].CodePage;
 Buff := PChar(DocS);
 BuffEnd := Buff+Length(DocS);
 IBuff := Nil;
@@ -3972,7 +3997,7 @@ try
             end
           else
             begin
-            Buffer.Add('&', Entity.Indices[1] - 1);
+            Buffer.Add('&', SaveIndex);
             Buffer.Concat(Entity);
             end;
         finally

@@ -1,0 +1,196 @@
+unit bqGfxRenderers;
+
+interface
+uses VersesDB,Graphics,Windows, bqICommandProcessor,bqWinUIServices, Htmlsubs;
+type TbqTagVersesContent=(tvcTag, tvcPlainTxt, tvcLink);
+TbqTagsRenderer=class(TObject)
+private
+class var miCommandProcessor:IBibleQuoteCommandProcessor;
+class var miUIServices:IBibleWinUIServices;
+class var mCurrentRenderer:TSectionList;
+class function EffectiveGetVerseNodeText(var nd:TVersesNodeData;var usedFnt:WideString):UTF8String;static;
+class function RenderTagNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
+class function RenderVerseNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
+class function GetHTMLRenderer(id:int64; out match:boolean):TSectionList;static;
+class function BuildVerseHTML(const verseTxt:WideString;const verseCommand:WideString;
+                                   const verseSignature:WideString): UTF8String;static;
+
+public
+ class procedure Init(iCommandProcessor:IBibleQuoteCommandProcessor; iUIServices:IBibleWinUIServices);
+ class function RenderNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
+ class function CurrentRenderer():TSectionList;static;
+ class procedure InvalidateRenderers();static;
+ class function GetContentTypeAt(x,y:integer;canvas:TCanvas; var nodeData:TVersesNodeData; rect:TRect):TbqTagVersesContent; static;
+end;
+implementation
+ uses bqPlainUtils,Readhtml,SysUtils,bqCommandProcessor,HTMLUn2,JclDebug, HTMLEmbedInterfaces,bqHTMLViewerSite;
+ type TRendererPair=record
+  id:int64;
+  renderer:TSectionList;
+ end;
+
+{ TbqTagsRenderer }
+var _rendererPair:TRendererPair;
+class function TbqTagsRenderer.BuildVerseHTML(const verseTxt:WideString;
+const verseCommand:WideString; const verseSignature:WideString): UTF8String;
+var txt:WideString;
+begin
+txt:=WideFormat('<HTML><BODY><a href="%s">%s</a> %s</BODY></HTML>',
+  [verseCommand, verseSignature, verseTxt]);
+result:=WideStringToUtfBOMString(txt);
+end;
+
+class function TbqTagsRenderer.CurrentRenderer: TSectionList;
+begin
+result:=mCurrentRenderer
+end;
+
+class function TbqTagsRenderer.EffectiveGetVerseNodeText(
+  var nd: TVersesNodeData;var usedFnt:WideString): UTF8String;
+  var cmd, verseSig,  verseText:WideString;
+       commandType:TbqCommandType;
+       hr:HRESULT;
+
+begin
+ cmd:=nd.getText();
+
+ commandType:=GetCommandType(cmd);
+ if commandType=bqctInvalid then begin
+   hr:=nd.unpackCached(cmd, verseSig, usedFnt,versetext);
+ end
+ else hr:=0;
+ if (commandType<>bqctInvalid) or (hr<>0) then begin
+  if hr<>0 then begin
+
+     nd.cachedTxt:=''; //clear txt so that initialize to cmd
+     cmd:=nd.getText();//rebuild cmd from db values
+   end;
+ verseText:=miCommandProcessor.GetAutoTxt(cmd, 20,usedFnt,verseSig);
+ nd.packCached(verseSig,verseText, usedFnt);
+ end;
+ result:=BuildVerseHTML(verseText,cmd,verseSig);
+end;
+
+class function TbqTagsRenderer.GetContentTypeAt(x, y: integer; canvas:TCanvas;
+  var nodeData: TVersesNodeData; rect:TRect): TbqTagVersesContent;
+  var renderer:TSectionList;
+      match:boolean;
+      txt:UTF8String;
+      usedFnt:WideString;
+      sw,cur:integer;
+      UrlTarget : TUrlTarget;
+      formControl:TIDObject;
+      title:string;
+
+      gur:guResultType;
+begin
+
+if nodeData.nodeType=bqvntTag then begin result:=tvcTag; exit; end;
+renderer:=GetHTMLRenderer(nodeData.SelfId,match);
+try
+ mCurrentRenderer:=renderer;
+if not match then begin
+txt:=EffectiveGetVerseNodeText(nodeData,usedFnt);
+renderer.Clear();
+renderer.SetFonts('Segoe UI', 'Times New Roman', 10, $5F0333,  $5FFF63,  $121212,
+    $FF00FF,$00,true, false, 0, 10,10);
+ParseHTMLString(txt,renderer , nil, nil, nil, nil );
+renderer.DoLogic(canvas, rect.Top, rect.Right-rect.Left, 500,0,sw,cur);
+end;
+UrlTarget:=nil; formControl:=nil;
+gur:=renderer.GetURL(canvas, x, y+renderer.YOff,
+          UrlTarget, FormControl, title);
+if guUrl in gur then result:=tvcLink
+else result:=tvcPlainTxt;
+finally  mCurrentRenderer:=nil; end;
+end;
+
+class function TbqTagsRenderer.GetHTMLRenderer(id:int64; out match:boolean): TSectionList;
+var// iviewer:IViewerBase;
+    ihtmlViewer:IHtmlViewerBase;
+    isite:IHTMLViewerSite;
+    r:HRESULT;
+begin
+if not assigned(_rendererPair.renderer) then begin
+ihtmlViewer:=miUIServices.GetIViewerBase();
+ _rendererPair.renderer:=TSectionList.Create( ihtmlViewer,  miUIServices.GetMainWindow());
+r:=ihtmlViewer.QueryInterface(IHTMLViewerSite,isite);
+if r<>S_OK then raise Exception.Create('Wrong ihtmlviewersite passed');
+isite.Init(_rendererPair.renderer);
+  match:=false;
+end
+else begin
+  if _rendererPair.id<>id then begin _rendererPair.renderer.Clear(); match:=false; end
+  else match:=true;
+end;
+result:=_rendererPair.renderer;
+_rendererPair.id:=id;
+end;
+
+class procedure TbqTagsRenderer.Init(
+  iCommandProcessor: IBibleQuoteCommandProcessor; iUIServices:IBibleWinUIServices);
+begin
+miCommandProcessor:=iCommandProcessor;
+miUIServices:=iUIServices;
+end;
+
+class procedure TbqTagsRenderer.InvalidateRenderers;
+begin
+_rendererPair.id:=-1;
+if assigned(_rendererPair.renderer) then _rendererPair.renderer.Clear();
+end;
+
+class function TbqTagsRenderer.RenderNode(canvas: TCanvas;
+  var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
+begin
+case nodeData.nodeType of
+bqvntTag:result:=RenderTagNode(canvas,nodeData,calcOnly, rect);
+bqvntVerse:result:=RenderVerseNode(canvas,nodeData,calcOnly, rect);
+end;//case
+end;
+
+class function TbqTagsRenderer.RenderTagNode(canvas: TCanvas;
+  var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
+begin
+
+end;
+
+class function TbqTagsRenderer.RenderVerseNode(canvas: TCanvas;
+  var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
+var  cmd, usedFont:WideString;
+txt:UTF8String;
+    scrollWidth, scrollHeight, curs:integer;
+    renderer:TSectionList;
+    match:boolean;
+
+begin
+ txt:=EffectiveGetVerseNodeText(nodeData,usedFont);
+ renderer:=GetHTMLRenderer(nodeData.SelfId,match);
+ try
+ mCurrentRenderer:=renderer;
+  if nodeData.SelfId=4 then begin
+  TraceFmt('match %d, calcOnly:%d rect.l:%d rect.r:%d;scrollWidth:%d',[ord(match),ord(calcOnly),
+    rect.Left, rect.Right,scrollWidth ]);
+  end;
+
+ if calcOnly or (not match) then begin
+  if not match then  begin
+    renderer.Clear();
+    renderer.SetFonts('Segoe UI', 'Times New Roman', 10, $5F0333,  $5FFF63,  $121212,
+    $FF00FF,$00,true, false, 0, 10,10);
+    ParseHTMLString(txt,renderer , nil, nil, nil, nil );
+  end;
+  scrollHeight:= renderer.DoLogic(canvas,0,rect.Right-rect.Left, rect.Bottom,0,scrollWidth,curs);
+  result:=scrollHeight;
+  end;
+  if not calcOnly then begin
+   renderer.Draw(Canvas, rect, rect.Right-rect.Left,rect.Left,rect.Top,0,0);
+  end;
+
+
+ finally
+ mCurrentRenderer:=nil;
+ end;
+end;
+
+end.

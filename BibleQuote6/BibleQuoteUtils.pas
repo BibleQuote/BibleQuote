@@ -62,8 +62,8 @@ unit BibleQuoteUtils;
 
 interface
 uses SevenZipHelper,SevenZipVCL, MultiLanguage,
-  Contnrs, JCLWideStrings, WideStrings, Windows, SysUtils, Classes, JCLDebug,
-  bqContainers;
+  Contnrs, JCLWideStrings, WideStringsMod, Windows, SysUtils, Classes, JCLDebug, CWMIBase,
+  COperatingSystemInfo;
 type
   TBibleModuleSecurity = class
     path, folder: WideString;
@@ -116,22 +116,25 @@ type
 
   TMatchInfo=record
       ix:integer;
+      matchSt:integer;
       name:WideString;
       rct:TRect;
   end;
   TMatchInfoArray=array of TMatchInfo;
 //  TBooksRange=1..77;
 //  TbitBooks=packed array[TBooksRange] of boolean;
-
+   TbqItemStyle=(bqisExpanded);
+   TbqItemStyles=set of TbqItemStyle ;
   TModuleEntry = class
     wsFullName, wsShortName, wsShortPath, wsFullPath: Widestring;
     modType: TModuleType;
     modCats: WideString;
     modBookNames: AnsiString;
-    mExpanded: boolean;
+
     mRects: PRectArray;
     mCatsCnt: integer;
     mNode: Pointer;
+    mStyle:TbqItemStyles;
     mMatchInfo:TMatchInfoArray;
   //  mBookBits:TbitBooks;
     constructor Create(amodType: TModuleType; awsFullName, awsShortName,
@@ -154,6 +157,7 @@ type
      function BookNameByIx(ix:integer):WideString;
      function VisualSignature():WideString;
      function BibleBookPresent(ix:integer):boolean;
+
      function getIniPath():WideString;
   protected
 
@@ -186,6 +190,9 @@ type
     function LocateLastStartedWith(const subString: WideString; startFromIx:
       integer = 0; strict: boolean = false): integer;
   end;
+  TbqExceptionContext=class(TWideStringList)
+  end;
+var g_ExceptionContext:TbqExceptionContext;
 
 
 const
@@ -324,6 +331,8 @@ function StrMathTokens(const str: WideString; tkns: TWideStrings; fullMatch:
 function StrGetTokenByIx(tknString:AnsiString;tokenIx:integer):AnsiString;
 function MainFileExists(s: WideString): WideString;
 function ExePath():WideString;
+function OSinfo():TOperatingSystemInfo;
+function WinInfoString():WideString;
 type
   PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector;
     p4: LPDWORD): THandle; stdcall;
@@ -340,7 +349,7 @@ var
   MainCfgIni: TMultiLanguage;
   G_SecondPath:WideString;
 implementation
-uses WCharReader, main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, tntSysUtils;
+uses JclSysInfo,WCharReader, main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, tntSysUtils ;
 var __exe__path:WideString;
 
 function OmegaCompareTxt(const str1, str2: WideString; len: integer = -1;
@@ -472,7 +481,11 @@ begin
     wsArchive := GetArchiveFromSpecial(wsPath, wsFile);
     getSevenZ().SZFileName := wsArchive;
     if getSevenZ().GetIndexByFilename(wsFile, @Result) < 0 then Result := -1;
-  except end;
+  except
+  on e:exception do begin
+  g_ExceptionContext.Add('BibleQuoteUtils.ArchiveFileSize.wsPath'+ wsPath);
+  end;
+  end;
 
 end;
 
@@ -489,7 +502,10 @@ begin
   try
     getSevenZ().SZFileName := wsArchive;
     result := getSevenZ().GetIndexByFilename(wsFile);
-  except end;
+  except
+  g_ExceptionContext.Add('FileExistsEx.aPath='+aPath);
+  raise;
+  end;
 
 end;
 
@@ -730,7 +746,10 @@ begin
     count := mPasswordList.Count - 1;
     for i := 0 to count do mPasswordList.Objects[i] := TObject(1);
     result := true;
-  except end;
+  except
+  g_ExceptionContext.Add('TPasswordPolicy.LoadFromFile.fileName='+filename);
+  raise;
+  end;
 
 end; //func LoadFile
 
@@ -930,7 +949,7 @@ end;
 
 function IsDown(key: integer): boolean;
 begin
-  result := (GetKeyState(key) and $8000) <> 0;
+  result := (Windows.GetKeyState(key) and $8000) <> 0;
 end;
 
 procedure _cleanUpInstalledFonts();
@@ -1160,11 +1179,12 @@ end;
 
 function TModuleEntry.DefaultModCats(): WideString;
 begin
+
   case modType of
-    modtypeBible: result := 'Св. Писание, Библия';
-    modtypeBook: result := G_NoCategoryStr;
-    modtypeComment: result :=
-      'Комментарии на Св. Писание';
+    modtypeBible: result := Lang.SayDefault('HolySriptCat', 'Holy Scripture, Bible');
+    modtypeBook: result := Lang.SayDefault ('NoCat', 'No Category');
+    modtypeComment: result :=Lang.SayDefault ('CommentCat', 'BibleCommentaries');
+
   end; //case
 
 end;
@@ -1337,7 +1357,9 @@ begin
       SetLength(mi,arrSz);
       end;
         mi[book_cnt].ix:=fndIx;
+        mi[book_cnt].matchSt:=1;
         mi[book_cnt].name:=C_BulletChar+#32+BookNameByIx(fndIx);
+
         inc(book_cnt);
       end;
       inc(fndIx);
@@ -1363,6 +1385,7 @@ if not (modType in [modtypeBible,modtypeComment]) then exit;
 r:=StrGetTokenByIx(modBookNames, ix);
 result:=(r='1');
 end;
+
 
 function TModuleEntry.BookNameByIx(ix:integer): WideString;
 begin
@@ -1490,7 +1513,14 @@ try
  or (result.wsShortName<>modShortName);//until
 
   result:=TModuleEntry(Items[foundIx-1]);
-except end;
+except
+on e:Exception do begin
+g_ExceptionContext.Add(
+WideFormat('TCachedModules.ResolveModuleByNames: modName=%s | modShortName=%s ',
+  [modName, modShortName])
+  );
+end;
+end;
 end;
 
 procedure TCachedModules.SetItem(Index: Integer; AObject: TModuleEntry);
@@ -1598,6 +1628,79 @@ begin
 result:=__exe__path;
 end;
 
+function IsWindows64: Boolean;
+type
+  TIsWow64Process = function(AHandle:THandle; var AIsWow64: BOOL): BOOL; stdcall;
+var
+  vKernel32Handle: DWORD;
+  vIsWow64Process: TIsWow64Process;
+  vIsWow64       : BOOL;
+begin
+  // 1) assume that we are not running under Windows 64 bit
+  Result := False;
+
+  // 2) Load kernel32.dll library
+  vKernel32Handle := LoadLibrary('kernel32.dll');
+  if (vKernel32Handle = 0) then Exit; // Loading kernel32.dll was failed, just return
+
+  try
+
+    // 3) Load windows api IsWow64Process
+    @vIsWow64Process := GetProcAddress(vKernel32Handle, 'IsWow64Process');
+    if not Assigned(vIsWow64Process) then Exit; // Loading IsWow64Process was failed, just return
+
+    // 4) Execute IsWow64Process against our own process
+    vIsWow64 := False;
+    if (vIsWow64Process(GetCurrentProcess, vIsWow64)) then
+      Result := vIsWow64;   // use the returned value
+
+  finally
+    FreeLibrary(vKernel32Handle);  // unload the library
+  end;
+end;
+
+
+var _osInfo:TOperatingSystemInfo=nil;
+
+
+function OSinfo():TOperatingSystemInfo;
+begin
+if not assigned(_osInfo) then begin
+_osInfo:=TOperatingSystemInfo.Create(nil);
+_osInfo.Active:=true;
+end;
+result:= _osInfo;
+
+end;
+
+function WinInfoString():WideString;
+{$J+}
+const win_info:WideString='';
+var osprop:TOperatingSystemProperties;
+{$J-}
+begin
+if length(win_info)=0 then begin
+try
+osprop:=OSinfo().OperatingSystemProperties;
+
+win_info:=osprop.Caption;
+if length(osprop.CSDVersion)>0 then
+     win_info:=Format('%s (%s)',[win_info, osprop.CSDVersion]);
+if length(osprop.OSLanguageAsString)>0 then
+     win_info:=Format('%s (OSLang: %s[%d])',[win_info, osprop.OSLanguageAsString,osprop.OSLanguage]);
+win_info:=Format('%s (SP: %d.%d)',[win_info, osprop.ServicePackMajorVersion,osprop.ServicePackMinorVersion ]);
+except
+win_info:=GetWindowsProductString();
+end;
+
+if IsWindows64() then win_info:=win_info+' (64bit)'
+else win_info:=win_info+' (32bit)';
+
+end;
+
+result:=win_info;
+
+end;
 
 initialization
    // Enable raw mode (default mode uses stack frames which aren't always generated by the compiler)
@@ -1605,6 +1708,7 @@ initialization
   // Disable stack tracking in dynamically loaded modules (it makes stack tracking code a bit faster)
   Include(JclStackTrackingOptions, stStaticModuleList);
   // Initialize Exception tracking
+  g_ExceptionContext:=TbqExceptionContext.Create();
   JclStartExceptionTracking;
   __init_vars();
   G_InstalledFonts := TWideStringList.Create;
@@ -1616,5 +1720,8 @@ finalization
   _cleanUpInstalledFonts();
 //  S_SevenZip.Free();
   JclStopExceptionTracking();
+  FreeAndNil(g_ExceptionContext);
+  FreeAndNil(_osInfo);
+
 end.
 

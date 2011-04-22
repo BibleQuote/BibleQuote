@@ -28868,9 +28868,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TBaseVirtualTree.GetNext(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
-
 // Returns next node in tree while optionally considering toChildrenAbove. The Result will be initialized if needed.
-
 begin
   Result := Node;
   if Assigned(Result) then

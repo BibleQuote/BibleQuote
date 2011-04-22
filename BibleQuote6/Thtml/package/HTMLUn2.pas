@@ -1,10 +1,30 @@
-{Version 9.43}
+{Version 9.45}
 {*********************************************************}
 {*                     HTMLUN2.PAS                       *}
-{*              Copyright (c) 1995-2007 by               *}
-{*                   L. David Baldwin                    *}
-{*                 All rights reserved.                  *}
 {*********************************************************}
+{
+Copyright (c) 1995-2008 by L. David Baldwin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Note that the source modules, HTMLGIF1.PAS, PNGZLIB1.PAS, DITHERUNIT.PAS, and
+URLCON.PAS are covered by separate copyright notices located in those modules.
+}
 
 {$i htmlcons.inc}
 
@@ -16,7 +36,7 @@ uses
   Forms, Dialogs, StdCtrls, ExtCtrls, Clipbrd, StyleUn, GDIPL2A; 
 
 const
-  VersionNo = '9.43';
+  VersionNo = '9.45';
   MaxHScroll = 6000;  {max horizontal display in pixels}      
   HandCursor = {10101} crHandPoint;        
   OldThickIBeamCursor = 2;
@@ -89,8 +109,6 @@ type
     ReadonlySy, EolSy);   
 
   TAttribute = class(TObject)  {holds a tag attribute}
-  private
-    function GetNameW: WideString;
   public
     Which: Symb;     {symbol of attribute such as HrefSy}
     WhichName: string;
@@ -101,7 +119,6 @@ type
     constructor Create(ASym: Symb; AValue: integer;
            Const NameStr, ValueStr: string; ACodePage: integer);  
     destructor Destroy; override;
-    property NameW: WideString read GetNameW;  
   end;
 
   TAttributeList = class(TFreeList)  {a list of tag attributes,(TAttributes)}
@@ -368,6 +385,7 @@ type
 var
   ColorBits: Byte;
   ThePalette: HPalette;       {the rainbow palette for 256 colors}
+  PalRelative: integer;    
   DefBitMap, ErrorBitMap, ErrorBitmapMask: TBitMap;
   ABitmapList: TStringBitmapList; {the image cache}
   WaitStream: TMemoryStream;
@@ -594,12 +612,13 @@ var
   L, H, I: integer;
 
 begin
-if not IsWin32Platform then   
-  begin
   Extent := 0;
   Result := 0;
   if (Width <= 0) or (Max = 0) then
     Exit;
+
+if not IsWin32Platform then
+  begin
   GetMem(Ints, Sizeof(Integer)* Max);
   try
     {$ifdef ver120_plus}
@@ -1105,6 +1124,7 @@ constructor TStringBitmapList.Create;
 begin
 inherited Create;
 MaxCache := 4;
+CheckInitGDIPlus; 
 end;
 
 destructor TStringBitmapList.Destroy;
@@ -1113,6 +1133,7 @@ var
 begin
 for I := 0 to Count-1 do
   (Objects[I] as TBitmapItem).Free;
+CheckExitGDIPlus;  
 inherited Destroy;
 end;
 
@@ -1234,11 +1255,6 @@ end;
 destructor TAttribute.Destroy;
 begin
 inherited Destroy;
-end;
-
-function TAttribute.GetNameW: WideString;
-begin
-Result := MultibyteToWideString(CodePage, Name);   
 end;
 
 {----------------TAttributeList}
@@ -3891,7 +3907,7 @@ if (BGround <> clNone) and ([bssDouble, bssDotted, bssDashed] * StyleSet <> []) 
   CombineRgn(OuterRegion, OuterRegion, InnerRegion, RGN_DIFF);
   Brush := TBrush.Create;
   try
-    Brush.Color := BGround or $2000000;
+    Brush.Color := BGround or PalRelative;
     Brush.Style := bsSolid;
     FillRgn(Canvas.Handle, OuterRegion, Brush.Handle);
   finally
@@ -3914,27 +3930,27 @@ try
       Bnd[1] := PO[(I+1) Mod 4];
       Bnd[2] := PI[(I+1) Mod 4];
       Bnd[3] := PI[I];
-      Color := C[I] or $2000000;
+      Color := C[I] or PalRelative;
       case S[I] of
         bssSolid:
           DrawOnePolygon(Canvas, Bnd, Color, I, Print);
         bssInset:
           begin
           if I in [0,1] then
-            Color := Darker(C[I]) or $2000000;
+            Color := Darker(C[I]) or PalRelative;
           DrawOnePolygon(Canvas, Bnd, Color, I, Print);
           end;
         bssOutset:
           begin
           if (I in [2,3]) then
-            Color := Darker(C[I]) or $2000000;
+            Color := Darker(C[I]) or PalRelative;
           DrawOnePolygon(Canvas, Bnd, Color, I, Print);
           end;
         end;
       end
     else if S[I] in [bssRidge, bssGroove] then
       begin    {ridge or groove}
-      Color := C[I] or $2000000;
+      Color := C[I] or PalRelative;
       Bnd[0] := PO[I];
       Bnd[1] := PO[(I+1) Mod 4];
       Bnd[2] := PM[(I+1) Mod 4];
@@ -3943,17 +3959,17 @@ try
         bssGroove:
           begin
           if I in [0,1] then
-            Color := Darker(C[I]) or $2000000;
+            Color := Darker(C[I]) or PalRelative;
           DrawOnePolygon(Canvas, Bnd, Color, I, Print);
           end;
         bssRidge:
           begin
           if (I in [2,3]) then
-            Color := Darker(C[I]) or $2000000;
+            Color := Darker(C[I]) or PalRelative;
           DrawOnePolygon(Canvas, Bnd, Color, I, Print);
           end;
         end;
-      Color := C[I] or $2000000;  
+      Color := C[I] or PalRelative;  
       Bnd[0] := PM[I];
       Bnd[1] := PM[(I+1) Mod 4];
       Bnd[2] := PI[(I+1) Mod 4];
@@ -3962,20 +3978,20 @@ try
         bssRidge:
           begin
           if I in [0,1] then
-            Color := Darker(C[I]) or $2000000;
+            Color := Darker(C[I]) or PalRelative;
           DrawOnePolygon(Canvas, Bnd, Color, I, Print);
           end;
         bssGroove:
           begin
           if (I in [2,3]) then
-            Color := Darker(C[I]) or $2000000;
+            Color := Darker(C[I]) or PalRelative;
           DrawOnePolygon(Canvas, Bnd, Color, I, Print);
           end;
         end;
       end
     else if S[I] = bssDouble then
       begin
-      Color := C[I] or $2000000;
+      Color := C[I] or PalRelative;
       Bnd[0] := PO[I];
       Bnd[1] := PO[(I+1) Mod 4];
       Bnd[2] := P1[(I+1) Mod 4];
@@ -3992,7 +4008,7 @@ try
       if not InPath then
         begin
         lb.lbStyle := BS_SOLID;
-        lb.lbColor := C[I] or $2000000;
+        lb.lbColor := C[I] or PalRelative;
         lb.lbHatch := 0;
         if S[I] = bssDotted then
           PenType := PS_Dot or ps_EndCap_Round
@@ -4072,6 +4088,9 @@ try
   ThePalette := 0;
   if ColorBits = 8 then
     CalcPalette(DC);
+  if ColorBits <= 8 then     {use Palette Relative bit only when Palettes used}
+    PalRelative := $2000000
+  else PalRelative := 0;
 finally
   ReleaseDC(0, DC);
   end;

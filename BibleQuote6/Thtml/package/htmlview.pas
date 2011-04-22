@@ -1,10 +1,30 @@
-{Version 9.43}
+{Version 9.45}
 {*********************************************************}
 {*                     HTMLVIEW.PAS                      *}
-{*              Copyright (c) 1995-2007 by               *}
-{*                   L. David Baldwin                    *}
-{*                 All rights reserved.                  *}
 {*********************************************************}
+{
+Copyright (c) 1995-2008 by L. David Baldwin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Note that the source modules, HTMLGIF1.PAS, PNGZLIB1.PAS, DITHERUNIT.PAS, and
+URLCON.PAS are covered by separate copyright notices located in those modules.
+}
 
 {$i htmlcons.inc}
 
@@ -16,7 +36,7 @@ uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls, StdCtrls,
   vwPrint, MetafilePrinter, mmSystem,
   HTMLUn2, Forms, Dialogs, ExtCtrls, ReadHTML, HTMLSubs, StyleUn, Printers, Menus,
-  GDIPL2A;
+  GDIPL2A, IHTMLViewer;
 
 const
   wm_FormSubmit = wm_User+100;
@@ -55,7 +75,7 @@ type
 
   htOptionEnum = (htOverLinksActive,htNoLinkUnderline,htPrintTableBackground,
                   htPrintBackground, htPrintMonochromeBlack, htShowDummyCaret,
-                  htShowVScroll, htNoWheelMouse);  
+                  htShowVScroll, htNoWheelMouse, htNoLinkHilite);
   ThtmlViewerOptions = set of htOptionEnum;
   ThtProgressEvent = procedure(Sender: TObject; Stage: TProgressStage;
                    PercentDone: integer) of Object;  
@@ -69,7 +89,9 @@ type
     procedure WMLButtonDblClk(var Message: TWMMouse); message WM_LButtonDblClk;
     procedure DoBackground(ACanvas: TCanvas);
     constructor CreateIt(AOwner: TComponent; Viewer: ThtmlViewer);
+{AlekId}
     procedure CMHintShow(var Message: TMessage); message CM_HINTSHOW;
+{/AlekId}
     property OnPaint: TNotifyEvent read FOnPaint write FOnPaint;
   public
     procedure Paint; override;
@@ -92,10 +114,11 @@ type
 
   ThtmlFileType = (HTMLType, TextType, ImgType, OtherType);
 
-  THTMLViewer = class(TWinControl)
+  THTMLViewer = class(TWinControl{AlekId},IbqHTMLViewer{/AlekId})
   private
     vwP, OldPrinter: TvwPrinter;       
     fScaleX, fScaleY: single;
+    FCodePage: integer;
     function GetCursor: TCursor;   
     procedure SetCursor(Value: TCursor);      
   protected
@@ -313,7 +336,9 @@ type
     PaintPanel: TPaintPanel;
     BorderPanel: TPanel;
     Sel1: integer;
+{AlekId}
     SellNeedAdjust:boolean;
+{/AlekId}
     procedure DoLogic;
     procedure DoScrollBars;
     procedure SetupAndLogic;
@@ -382,7 +407,8 @@ type
     function NumPrinterPages: integer; overload;
     function NumPrinterPages(var WidthRatio: double): integer; overload;
     function PrintPreview(MFPrinter: TMetaFilePrinter; NoOutput: boolean = False): integer; 
-    function PositionTo(Dest: string; vcenter:boolean=false): boolean;
+
+    function PositionTo(Dest: string{AlekId}; vcenter:boolean=false{/AlekID}): boolean;
     function Find(const S: WideString; MatchCase: boolean): boolean;
     function FindEx(const S: WideString; MatchCase, Reverse: boolean): boolean;
     procedure Clear; virtual;
@@ -420,7 +446,10 @@ type
     procedure OpenPrint;     
     procedure ClosePrint;
     procedure AbortPrint;
-
+{alekid}
+    function getMarginHeight():integer;
+    function getMarginWidth():integer;
+{/Alekid}
     property DocumentTitle: string read GetTitle;
     property URL: string read FURL write FURL;
     property Base: string read GetBase write SetBase;
@@ -438,7 +467,7 @@ type
     // added by Timothy
     property RightMouseClickPos: Integer read FRightMouseClickPos;
     property LeftMouseClickPos:integer read FLeftMouseClickPos;
-	  property NoScollJump:boolean read NoJump write NoJump;
+property NoScollJump:boolean read NoJump write NoJump;
 	//
     property SelStart: integer read FCaretPos write SetSelStart;
     property SelLength: integer read GetSelLength write SetSelLength;
@@ -463,6 +492,7 @@ type
     property LinkAttributes: TStringList read FLinkAttributes;
     Property LinkText: WideString read FLinkText write FLinkText;
     Property LinkStart: TPoint read FLinkStart;
+    property CodePage: integer read FCodePage write FCodePage;    
 
     procedure AcceptClick(Sender: TObject; X, Y: Integer);
     
@@ -1563,6 +1593,9 @@ var
   XR, CaretHt: integer;
   YR: integer;
   InText: boolean;
+  Dummy : TUrlTarget;     
+  DummyFC: TImageFormControlObj;    
+  DummyTitle: string;   
 begin
 inherited MouseDown(Button, Shift, X, Y);
 
@@ -1583,6 +1616,8 @@ else if (Button = mbMiddle) and not (htNoWheelMouse in htOptions) then  {comment
 else if (Button = mbLeft) then
   begin
   LeftButtonDown := True;
+  if not (htNoLinkHilite in FOptions)
+       or not (guUrl in GetURL(X, Y, Dummy, DummyFC, DummyTitle)) then        
   HiLiting := True;
   with FSectionList do
     begin
@@ -1617,7 +1652,7 @@ else if (Button = mbLeft) then
     LButtonDown(True);   {signal to TSectionList}
     end;
   end
-// added
+// added AlekId
 else if (Button = mbRight) then
   begin
   with FSectionList do
@@ -2123,7 +2158,7 @@ if MiddleScrollOn then
   PaintPanel.Cursor := UpDownCursor;  
 end;
 
-function ThtmlViewer.PositionTo(Dest: string;vcenter:boolean=false): boolean;
+function ThtmlViewer.PositionTo(Dest: string;{AlekID}vcenter:boolean=false{/AlekID}): boolean;
 var
   I: integer;
   Obj: TObject;
@@ -2575,6 +2610,16 @@ begin
 Result := FSectionList.LinkList;
 end;
 
+function THTMLViewer.getMarginHeight: integer;
+begin
+result:=FMarginHeight;
+end;
+
+function THTMLViewer.getMarginWidth: integer;
+begin
+result:=FMarginWidth;
+end;
+
 procedure ThtmlViewer.SetHotSpotColor(Value: TColor);
 begin
 FHotSpotColor := Value;
@@ -2756,7 +2801,7 @@ if DC <> 0 then
   begin
   OldPal := SelectPalette(DC, ThePalette, False);
   RealizePalette(DC);
-  ACanvas.Brush.Color := BGColor or $2000000;
+  ACanvas.Brush.Color := BGColor or PalRelative;
   OldBrush := SelectObject(DC, ACanvas.Brush.Handle);
   OldBack := SetBkColor(DC, clWhite);     
   OldFore := SetTextColor(DC, clBlack);
@@ -2870,7 +2915,7 @@ if DC <> 0 then
   begin
   OldPal := SelectPalette(DC, ThePalette, False);
   RealizePalette(DC);
-  ACanvas.Brush.Color := BGColor or $2000000;
+  ACanvas.Brush.Color := BGColor or PalRelative;
   OldBrush := SelectObject(DC, ACanvas.Brush.Handle);
   OldBack := SetBkColor(DC, clWhite);     
   OldFore := SetTextColor(DC, clBlack);
@@ -3108,6 +3153,7 @@ if FProcessing or (SectionList.Count = 0) then
 CopyList := TSectionList.CreateCopy(SectionList);
 try
   CopyList.NoOutput := False;
+  CopyList.Printing := True;     
   CopyList.LinkDrawnEvent := FOnLinkDrawn;   
   Result := TList.Create;
   try
@@ -4152,7 +4198,7 @@ end;
 
 procedure ThtmlViewer.BackgroundChange(Sender: TObject);
 begin
-PaintPanel.Color := (Sender as TSectionList).Background or $2000000;  
+PaintPanel.Color := (Sender as TSectionList).Background or PalRelative;  
 end;
 
 procedure ThtmlViewer.SetOnBitmapRequest(Handler: TGetBitmapEvent);
@@ -4317,10 +4363,9 @@ if Sender is TFormControlObj then
     Invalidate;
     end;
   end
-else if (Sender is TFontObj) and (not NoJump) and
- ((GetKeyState(VK_TAB) and  $8000)<>0) then
+else if (Sender is TFontObj) and (not NoJump){AlekId} and
+ ((GetKeyState(VK_TAB) and  $8000)<>0){/AlekID} then
   begin
-
   Y := TFontObj(Sender).YValue;
   Pos := VScrollBarPosition;
   if (Y < Pos) then  
@@ -4418,7 +4463,6 @@ var
     clipboard.Open;
     try
       //an extra "1" for the null terminator
-
       gMem := globalalloc(GMEM_DDESHARE + GMEM_MOVEABLE, length(source)+1);
       lp := globallock(gMem);
       copymemory(lp, pchar(source), length(source)+1);
@@ -4523,14 +4567,14 @@ var
     Len, Len1: integer;
     WS: WideString;
   begin
-  if ReadHTML.CodePage = CP_UTF8 then
+  if CodePage = CP_UTF8 then   
     begin
     Result := S;
     Exit;
     End;
   Len := Length(S);
   SetLength(WS, Len);
-  Len := MultibyteToWideChar(ReadHTML.CodePage, 0, PChar(S), Len, PWideChar(WS), Len);
+  Len := MultibyteToWideChar(CodePage, 0, PChar(S), Len, PWideChar(WS), Len);
   Len1 := 4*Len;
   SetLength(Result, Len1);
   Len1 := WideCharToMultibyte(CP_UTF8, 0, PWideChar(WS), Len, PChar(Result), Len1, Nil, Nil);
@@ -4599,7 +4643,7 @@ FSectionList.CopyToClipboardA(Leng+1);
 HTML := DocumentSource;
 StSrc := FindSourcePos(FSectionList.SelB)+1;
 EnSrc := FindSourcePos(FSectionList.SelE);
-if EnSrc <= 0 then    {check to see if end selection is at end of document}
+if EnSrc <= 0 then    {check to see if end selection is at end of document}//AlekId: < -> <=
   begin
   EnSrc := Length(HTML);
   if HTML[EnSrc] = '>' then
@@ -5112,12 +5156,13 @@ if Assigned(FOnProgress) then
 end;
 
 {----------------TPaintPanel.CreateIt}
+{AlekID}
 procedure TPaintPanel.CMHintShow(var Message: TMessage);
 begin
 inherited;
 ProcessCMHintShowMsg(Message);
 end;
-
+{/AlekiD}
 constructor TPaintPanel.CreateIt(AOwner: TComponent; Viewer: ThtmlViewer);
 
 begin
