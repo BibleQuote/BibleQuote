@@ -1123,7 +1123,7 @@ begin
 try
   me := TModuleEntry((Sender.GetNodeData(Node))^);
   PPointer(Sender.GetNodeData(Node))^ := nil;
-  if assigned(me) and (me.modType = modtypeBookHighlighted) then me.Free();
+//  if assigned(me) and (me.modType = modtypeBookHighlighted) then me.Free();
 except on e:Exception do begin
 // BqShowException(e);
 end;

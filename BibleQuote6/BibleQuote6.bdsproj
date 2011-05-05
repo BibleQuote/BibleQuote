@@ -123,9 +123,9 @@
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;L:\devsoft\Components\jcl211\lib\d10\debug;h:\devsoft\myprojects\bqnet\BibleQuote6\jcl\lib\d10\debug;.\Delphi Unicode Controls\Source;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components</Directories>
+			<Directories Name="SearchPath">L:\devsoft\Components\jcl211\lib\d10\debug;h:\devsoft\myprojects\bqnet\BibleQuote6\jcl\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;.\Delphi Unicode Controls\Source;.\Tray\TrayIcon;.\HotKey;H:\devsoft\myprojects\bqnet\BibleQuote6\htmlviewsb;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common</Directories>
 			<Directories Name="Packages">vcl;rtl;vclx;vcldb;xmlrtl;vclactnband;inet;IntrawebDB_80_100;Intraweb_80_100;vclie;inetdbbde;inetdbxpress;dclOfficeXP;VclSmp;soaprtl;dsnap;bdertl;dsnapcon;websnap;webdsnap;TntUnicodeVcl;CoolTrayIcon_D6;Jcl;JvCoreD10R;TrayIcon;ssWebBrowser;AlekControls</Directories>
-			<Directories Name="Conditionals">SMARTFONTS</Directories>
+			<Directories Name="Conditionals">SMARTFONTS;UseUnicodeControls</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
@@ -150,7 +150,7 @@
 			<VersionInfo Name="MajorVer">6</VersionInfo>
 			<VersionInfo Name="MinorVer">0</VersionInfo>
 			<VersionInfo Name="Release">1</VersionInfo>
-			<VersionInfo Name="Build">1365</VersionInfo>
+			<VersionInfo Name="Build">1369</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -162,7 +162,7 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName">DevAlek</VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">BibleQuote 6 - Bible Research and Study Tool</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">6.0.1.1365</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">6.0.1.1369</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">GNU GPL v2</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>

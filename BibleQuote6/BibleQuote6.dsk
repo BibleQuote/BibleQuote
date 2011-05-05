@@ -1,30 +1,119 @@
 [Closed Files]
-File_0=TSourceModule,'e:\program files\borland\bds\4.0\source\Win32\rtl\sys\system.pas',0,1,14372,1,14387,0,0,,
-File_1=TSourceModule,'e:\program files\borland\bds\4.0\source\Win32\rtl\sys\sysutils.pas',0,1,4716,1,4730,0,0,,
-File_2=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\WideStrings.pas',0,1,412,1,426,0,0,,
-File_3=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\links_parser.pas',0,1,1,71,73,0,0,{{16,47}
-File_4=TSourceModule,'h:\devsoft\Components\jcl211\source\common\JclWideStrings.pas',0,1,27,73,39,0,0,,
-File_5=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\AboutForm.pas',0,1,1,1,1,0,0,,
-File_6=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\WCharWindows.pas',0,1,1,3,23,0,0,,
-File_7=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\copyright.pas',0,1,1,1,1,0,0,,
-File_8=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\Tabs.pas',0,1,803,3,818,0,0,,
-File_9=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\Delphi Unicode Controls\Source\TntForms.pas',0,1,844,39,859,0,0,,
+File_0=TSourceModule,'e:\program files\borland\bds\4.0\source\Win32\vcl\ExtCtrls.pas',0,1,2209,34,2227,0,0,,
+File_1=TSourceModule,'e:\program files\borland\bds\4.0\source\Win32\rtl\common\classes.pas',0,1,2976,1,2991,0,0,,
+File_2=TSourceModule,'e:\program files\borland\bds\4.0\source\Win32\rtl\sys\variants.pas',0,1,600,1,614,0,0,,
+File_3=TSourceModule,'e:\program files\borland\bds\4.0\source\Win32\rtl\common\Contnrs.pas',0,1,281,1,297,0,0,,
+File_4=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\WideStrings.pas',0,1,412,1,426,0,0,,
+File_5=TSourceModule,'H:\devsoft\myprojects\bqnet\BibleQuote6\links_parser.pas',0,1,1,71,73,0,0,{{16,47}
 
 [Modules]
-Module0=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas
-Module1=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleQuote6.bdsproj
-Module2=H:\devsoft\myprojects\bqnet\BibleQuote6\bqContainers.pas
-Module3=H:\devsoft\myprojects\bqnet\BibleQuote6\bqLinksParserIntf.pas
-Module4=H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas
-Module5=H:\devsoft\myprojects\bqnet\BibleQuote6\Bible.pas
-Module6=H:\devsoft\myprojects\bqnet\BibleQuote6\Thtml\package\htmlview.pas
-Module7=H:\devsoft\myprojects\bqnet\BibleQuote6\AlekPageControl.pas
-Module8=H:\devsoft\myprojects\bqnet\BibleQuote6\Thtml\package\HTMLUn2.pas
-Module9=e:\program files\codegear\rad studio\5.0\source\Win32\rtl\common\Classes.pas
-Count=10
+Module0=H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas
+Module1=e:\program files\borland\bds\4.0\source\Win32\vcl\StdCtrls.pas
+Module2=h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source\VirtualTrees.pas
+Module3=H:\devsoft\myprojects\bqnet\BibleQuote6\bqPlainUtils.pas
+Module4=e:\program files\borland\bds\4.0\source\Win32\vcl\Controls.pas
+Module5=H:\devsoft\myprojects\bqnet\BibleQuote6\VersesDB.pas
+Module6=e:\program files\borland\bds\4.0\source\Win32\rtl\sys\SysUtils.pas
+Module7=H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common\JclUnicode.pas
+Module8=H:\devsoft\myprojects\bqnet\BibleQuote6\htmlviewsb\HTMLUn2.pas
+Module9=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleQuoteUtils.pas
+Module10=H:\devsoft\myprojects\bqnet\BibleQuote6\qNavTest.pas
+Module11=H:\devsoft\myprojects\bqnet\BibleQuote6\bqVdtEditLink.pas
+Module12=e:\program files\borland\bds\4.0\source\Win32\rtl\sys\System.pas
+Module13=e:\program files\borland\bds\4.0\source\Win32\vcl\Graphics.pas
+Module14=e:\program files\borland\bds\4.0\source\Win32\vcl\Forms.pas
+Module15=e:\program files\codegear\rad studio\5.0\source\Win32\rtl\common\Classes.pas
+Module16=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleQuote6.bdsproj
+Module17=h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components\ASGSQLite3.pas
+Module18=e:\program files\borland\bds\4.0\source\Win32\db\DB.pas
+Module19=H:\devsoft\myprojects\bqnet\BibleQuote6\bqLinksParserIntf.pas
+Module20=H:\devsoft\myprojects\bqnet\BibleQuote6\bqICommandProcessor.pas
+Module21=H:\devsoft\myprojects\bqnet\BibleQuote6\bqGfxRenderers.pas
+Module22=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas
+Module23=H:\devsoft\myprojects\bqnet\BibleQuote6\bqContainers.pas
+Module24=H:\devsoft\myprojects\bqnet\BibleQuote6\Bible.pas
+Module25=H:\devsoft\myprojects\bqnet\BibleQuote6\Thtml\package\htmlview.pas
+Module26=H:\devsoft\myprojects\bqnet\BibleQuote6\AlekPageControl.pas
+Module27=H:\devsoft\myprojects\bqnet\BibleQuote6\Thtml\package\HTMLUn2.pas
+Count=28
 EditWindowCount=1
 
-[H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas]
+[H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas]
+ModuleType=TSourceModule
+FormState=1
+FormOnTop=0
+
+[e:\program files\borland\bds\4.0\source\Win32\vcl\StdCtrls.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source\VirtualTrees.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\bqPlainUtils.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[e:\program files\borland\bds\4.0\source\Win32\vcl\Controls.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\VersesDB.pas]
+ModuleType=TSourceModule
+FormState=1
+FormOnTop=0
+
+[e:\program files\borland\bds\4.0\source\Win32\rtl\sys\SysUtils.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common\JclUnicode.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\htmlviewsb\HTMLUn2.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\BibleQuoteUtils.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\qNavTest.pas]
+ModuleType=TSourceModule
+FormState=1
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\bqVdtEditLink.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[e:\program files\borland\bds\4.0\source\Win32\rtl\sys\System.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[e:\program files\borland\bds\4.0\source\Win32\vcl\Graphics.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[e:\program files\borland\bds\4.0\source\Win32\vcl\Forms.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[e:\program files\codegear\rad studio\5.0\source\Win32\rtl\common\Classes.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
@@ -32,7 +121,12 @@ FormOnTop=0
 [H:\devsoft\myprojects\bqnet\BibleQuote6\BibleQuote6.bdsproj]
 ModuleType=TBaseProject
 
-[H:\devsoft\myprojects\bqnet\BibleQuote6\bqContainers.pas]
+[h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components\ASGSQLite3.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[e:\program files\borland\bds\4.0\source\Win32\db\DB.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
@@ -42,9 +136,24 @@ ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
 
-[H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas]
+[H:\devsoft\myprojects\bqnet\BibleQuote6\bqICommandProcessor.pas]
 ModuleType=TSourceModule
-FormState=1
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\bqGfxRenderers.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[H:\devsoft\myprojects\bqnet\BibleQuote6\bqContainers.pas]
+ModuleType=TSourceModule
+FormState=0
 FormOnTop=0
 
 [H:\devsoft\myprojects\bqnet\BibleQuote6\Bible.pas]
@@ -67,14 +176,9 @@ ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
 
-[e:\program files\codegear\rad studio\5.0\source\Win32\rtl\common\Classes.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
 [EditWindow0]
-ViewCount=10
-CurrentEditView=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas
+ViewCount=29
+CurrentEditView=H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas
 View0=0
 View1=1
 View2=2
@@ -85,6 +189,25 @@ View6=6
 View7=7
 View8=8
 View9=9
+View10=10
+View11=11
+View12=12
+View13=13
+View14=14
+View15=15
+View16=16
+View17=17
+View18=18
+View19=19
+View20=20
+View21=21
+View22=22
+View23=23
+View24=24
+View25=25
+View26=26
+View27=27
+View28=28
 PercentageSizes=1
 Create=1
 Visible=1
@@ -92,12 +215,12 @@ Docked=1
 State=0
 Left=0
 Top=0
-Width=9922
-Height=9259
+Width=10000
+Height=9352
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=9922
-ClientHeight=9259
+ClientWidth=10000
+ClientHeight=9352
 DockedToMainForm=1
 MessageView=MessageView@EditWindow0
 BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
@@ -106,25 +229,230 @@ LeftPanelSize=0
 RightPanelSize=2908
 RightPanelClients=DockSite1
 RightPanelData=00000800010000000000000000000000000000000000000000000001000000000000000009000000446F636B5369746531FFFFFFFF
-BottomPanelSize=2361
-BottomPanelClients=ToDo List,DockSite3,DockSite2,DockSite0
-BottomPanelData=000008000102030000000E000000546F446F4C69737457696E646F7709000000446F636B536974653309000000446F636B5369746532AD330000000000000239090000000000000100000000AD33000009000000446F636B5369746530FFFFFFFF
+BottomPanelSize=2153
+BottomPanelClients=ToDo List,DockSite2,DockSite0
+BottomPanelData=0000080001020100000009000000446F636B5369746532153400000000000002690800000000000001000000000B1A000009000000446F636B53697465300100000000153400000E000000546F446F4C69737457696E646F77FFFFFFFF
 BottomMiddlePanelSize=0
-BottomMiddlePanelClients=DockSite4,DockSite5
-BottomMiddelPanelData=0000080001000200000009000000446F636B536974653409000000446F636B53697465350000000000000000000000000000000000FFFFFFFF
+BottomMiddlePanelClients=DockSite3
+BottomMiddelPanelData=0000080001000100000009000000446F636B53697465330000000000000000000000000000000000FFFFFFFF
 
 [View0]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas
-CursorX=1
-CursorY=3163
-TopLine=3138
+CursorX=36
+CursorY=8262
+TopLine=8260
 LeftCol=1
-Elisions=
-Bookmarks={1,1905,13}{2,7783,16}{3,8578,58}{4,7534,1}
+Elisions={{108,28},{133,6},{''}}
+Bookmarks={0,9511,29}{1,10068,21}{2,8265,1}{3,8689,5}{4,5196,43}{5,2495,1}
 EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas
 
 [View1]
+CustomEditViewType=TEditView
+Module=e:\program files\borland\bds\4.0\source\Win32\vcl\StdCtrls.pas
+CursorX=1
+CursorY=2881
+TopLine=2858
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=e:\program files\borland\bds\4.0\source\Win32\vcl\StdCtrls.pas
+
+[View2]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\bqPlainUtils.pas
+CursorX=71
+CursorY=12
+TopLine=1
+LeftCol=1
+Elisions={{16,66},{29,3},{''}}{{33,76},{66,3},{''}}{{68,123},{108,3},{''}}{{110,69},{140,3},{''}}
+Bookmarks=
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\bqPlainUtils.pas
+
+[View3]
+CustomEditViewType=TEditView
+Module=e:\program files\borland\bds\4.0\source\Win32\rtl\sys\SysUtils.pas
+CursorX=1
+CursorY=4220
+TopLine=4206
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=e:\program files\borland\bds\4.0\source\Win32\rtl\sys\SysUtils.pas
+
+[View4]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common\JclUnicode.pas
+CursorX=1
+CursorY=6447
+TopLine=6433
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common\JclUnicode.pas
+
+[View5]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\htmlviewsb\HTMLUn2.pas
+CursorX=17
+CursorY=807
+TopLine=787
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\htmlviewsb\HTMLUn2.pas
+
+[View6]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleQuoteUtils.pas
+CursorX=1
+CursorY=356
+TopLine=345
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleQuoteUtils.pas
+
+[View7]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\qNavTest.pas
+CursorX=69
+CursorY=715
+TopLine=697
+LeftCol=1
+Elisions=
+Bookmarks={1,989,1}
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\qNavTest.pas
+
+[View8]
+CustomEditViewType=TEditView
+Module=h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source\VirtualTrees.pas
+CursorX=3
+CursorY=29185
+TopLine=29171
+LeftCol=1
+Elisions={{33712,112},{33748,3},{''}}{{33752,64},{33756,3},{''}}{{33805,64},{33812,3},{''}}{{33817,38},{33850,3},{''}}{{33855,33},{33899,3},{''}}{{33902,59},{33911,3},{''}}{{33915,71},{33919,3},{''}}{{33923,99},{33933,3},{''}}{{33937,89},{33977,3},{''}}{{33982,23},{34063,3},{''}}
+Bookmarks={1,3461,23}
+EditViewName=h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source\VirtualTrees.pas
+
+[View9]
+CustomEditViewType=TEditView
+Module=e:\program files\borland\bds\4.0\source\Win32\vcl\Controls.pas
+CursorX=1
+CursorY=5144
+TopLine=5130
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=e:\program files\borland\bds\4.0\source\Win32\vcl\Controls.pas
+
+[View10]
+CustomEditViewType=TEditView
+Module=e:\program files\borland\bds\4.0\source\Win32\vcl\Graphics.pas
+CursorX=14
+CursorY=10
+TopLine=1
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=e:\program files\borland\bds\4.0\source\Win32\vcl\Graphics.pas
+
+[View11]
+CustomEditViewType=TEditView
+Module=e:\program files\borland\bds\4.0\source\Win32\vcl\Forms.pas
+CursorX=1
+CursorY=153
+TopLine=139
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=e:\program files\borland\bds\4.0\source\Win32\vcl\Forms.pas
+
+[View12]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\bqVdtEditLink.pas
+CursorX=119
+CursorY=9
+TopLine=1
+LeftCol=39
+Elisions=
+Bookmarks=
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\bqVdtEditLink.pas
+
+[View13]
+CustomEditViewType=TEditView
+Module=e:\program files\borland\bds\4.0\source\Win32\rtl\sys\System.pas
+CursorX=1
+CursorY=8844
+TopLine=8829
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=e:\program files\borland\bds\4.0\source\Win32\rtl\sys\System.pas
+
+[View14]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\VersesDB.pas
+CursorX=3
+CursorY=26
+TopLine=1
+LeftCol=1
+Elisions={{31,41},{35,9},{''}}
+Bookmarks={1,562,32}{2,825,1}{3,825,1}{4,825,1}
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\VersesDB.pas
+
+[View15]
+CustomEditViewType=TEditView
+Module=e:\program files\borland\bds\4.0\source\Win32\db\DB.pas
+CursorX=1
+CursorY=10467
+TopLine=10453
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=e:\program files\borland\bds\4.0\source\Win32\db\DB.pas
+
+[View16]
+CustomEditViewType=TDisassemblyEditView
+DumpPane=79
+DisassemblyPane=187
+RegisterPane=231
+FlagPane=64
+
+[View17]
+CustomEditViewType=TEditView
+Module=h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components\ASGSQLite3.pas
+CursorX=1
+CursorY=1574
+TopLine=1559
+LeftCol=1
+Elisions=
+Bookmarks={1,950,1}
+EditViewName=h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components\ASGSQLite3.pas
+
+[View18]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\bqGfxRenderers.pas
+CursorX=38
+CursorY=77
+TopLine=64
+LeftCol=1
+Elisions=
+Bookmarks={1,222,1}{3,186,1}
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\bqGfxRenderers.pas
+
+[View19]
+CustomEditViewType=TEditView
+Module=H:\devsoft\myprojects\bqnet\BibleQuote6\bqICommandProcessor.pas
+CursorX=12
+CursorY=6
+TopLine=1
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\bqICommandProcessor.pas
+
+[View20]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\bqLinksParserIntf.pas
 CursorX=1
@@ -135,7 +463,7 @@ Elisions=
 Bookmarks=
 EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\bqLinksParserIntf.pas
 
-[View2]
+[View21]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\AlekPageControl.pas
 CursorX=1
@@ -146,7 +474,7 @@ Elisions=
 Bookmarks=
 EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\AlekPageControl.pas
 
-[View3]
+[View22]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\Thtml\package\htmlview.pas
 CursorX=47
@@ -157,7 +485,7 @@ Elisions=
 Bookmarks=
 EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\Thtml\package\htmlview.pas
 
-[View4]
+[View23]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\Bible.pas
 CursorX=3
@@ -165,21 +493,21 @@ CursorY=1708
 TopLine=1694
 LeftCol=1
 Elisions=
-Bookmarks=
+Bookmarks={1,2067,1}
 EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\Bible.pas
 
-[View5]
+[View24]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas
 CursorX=1
 CursorY=742
 TopLine=728
 LeftCol=1
-Elisions={{888,41},{899,6},{''}}{{931,104},{945,6},{''}}{{987,43},{1005,6},{''}}
-Bookmarks={1,209,18}{2,178,38}{3,1098,25}{4,746,9}
+Elisions=
+Bookmarks={1,209,9}{2,178,27}{3,1098,25}{4,746,9}
 EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas
 
-[View6]
+[View25]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\bqContainers.pas
 CursorX=1
@@ -190,18 +518,18 @@ Elisions=
 Bookmarks=
 EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\bqContainers.pas
 
-[View7]
+[View26]
 CustomEditViewType=TEditView
 Module=e:\program files\codegear\rad studio\5.0\source\Win32\rtl\common\Classes.pas
-CursorX=20
-CursorY=584
-TopLine=570
+CursorX=1
+CursorY=76
+TopLine=62
 LeftCol=1
 Elisions=
 Bookmarks=
 EditViewName=e:\program files\codegear\rad studio\5.0\source\Win32\rtl\common\Classes.pas
 
-[View8]
+[View27]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\Thtml\package\HTMLUn2.pas
 CursorX=7
@@ -212,12 +540,12 @@ Elisions=
 Bookmarks=
 EditViewName=H:\devsoft\myprojects\bqnet\BibleQuote6\Thtml\package\HTMLUn2.pas
 
-[View9]
+[View28]
 CustomEditViewType=TEditView
 Module=H:\devsoft\myprojects\bqnet\BibleQuote6\BibleQuote6.dpr
 CursorX=43
-CursorY=44
-TopLine=30
+CursorY=41
+TopLine=21
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -242,7 +570,7 @@ Watch13='PWideChar(PChar(pWriteBuf)-194)^',8,11,18,1,0,'Watches'
 Watch14='Cardinal(mLinkedTxtBuffer)',64,0,18,1,0,'Watches'
 Watch15='mLinkedTxtBuffer^',1,22,18,1,0,'Watches'
 Watch16='mLinkedTxtBuffer',256,0,18,1,0,'Watches'
-Watch17='mBookExpicitSet',256,0,18,1,1,'Watches'
+Watch17='self',256,0,18,1,1,'Watches'
 
 [WatchWindow]
 WatchColumnWidth=120
@@ -255,38 +583,56 @@ State=0
 Left=0
 Top=0
 Width=3759
-Height=4618
+Height=1435
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=3759
-ClientHeight=4618
+ClientHeight=1435
 TBDockHeight=208
 LRDockWidth=13602
 Dockable=1
 StayOnTop=0
 
 [Breakpoints]
-Count=20
+Count=38
 Breakpoint0='L:\devsoft\myprojects\bqlinkparser\bqLinksParser\BibleLinkParser.pas',118,'',0,0,'',1,0,0,'',1,'','','',0
 Breakpoint1='L:\devsoft\myprojects\bqnet\BibleQuote6\Bible.pas',1270,'',0,1,'',0,1,0,'',1,'','','',0
 Breakpoint2='L:\devsoft\myprojects\bqnet\BibleQuote6\Bible.pas',1282,'',0,1,'',0,0,1,'',1,'','','',0
-Breakpoint3='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',7532,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint4='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',2991,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint5='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',8019,'',0,1,'',0,0,1,'apponhint fired',1,'','','',0
-Breakpoint6='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9476,'',0,1,'',0,0,1,'mouse move',1,'','','',0
-Breakpoint7='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',1085,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint3='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',7618,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint4='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',3042,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint5='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',8105,'',0,1,'',0,0,1,'apponhint fired',1,'','','',0
+Breakpoint6='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9664,'',0,1,'',0,0,1,'mouse move',1,'','','',0
+Breakpoint7='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',1113,'',0,1,'',1,0,0,'',1,'','','',0
 Breakpoint8='H:\devsoft\myprojects\bqnet\BibleQuote6\bqHintTools.pas',70,'',0,1,'',1,0,0,'',1,'','','',0
 Breakpoint9='H:\devsoft\myprojects\bqnet\BibleQuote6\bqHintTools.pas',26,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint10='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9509,'',0,1,'',0,0,0,'hint 1',1,'','','',0
-Breakpoint11='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9288,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint12='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9270,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint13='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9311,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint14='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',7086,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint15='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',7493,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint16='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',3776,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint17='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',2718,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint18='H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas',175,'',0,1,'',1,0,0,'',1,'','','',0
-Breakpoint19='H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas',1091,'dbg_tki=19',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint10='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9722,'',0,1,'',0,0,0,'hint 1',1,'','','',0
+Breakpoint11='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9416,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint12='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',7172,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint13='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',7579,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint14='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',3827,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint15='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',2769,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint16='H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas',175,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint17='H:\devsoft\myprojects\bqnet\BibleQuote6\BibleLinkParser.pas',1091,'dbg_tki=19',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint18='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9581,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint19='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',10295,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint20='H:\devsoft\myprojects\bqnet\BibleQuote6\VersesDB.pas',384,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint21='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9697,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint22='e:\program files\borland\bds\4.0\source\Win32\db\DB.pas',3701,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint23='h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components\ASGSQLite3.pas',2735,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint24='H:\devsoft\myprojects\bqnet\BibleQuote6\VersesDB.pas',543,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint25='H:\devsoft\myprojects\bqnet\BibleQuote6\VersesDB.pas',308,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint26='H:\devsoft\myprojects\bqnet\BibleQuote6\VersesDB.pas',319,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint27='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9207,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint28='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9702,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint29='h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source\VirtualTrees.pas',20529,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint30='h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source\VirtualTrees.pas',20554,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint31='h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source\VirtualTrees.pas',20547,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint32='h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source\VirtualTrees.pas',23800,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint33='H:\devsoft\myprojects\bqnet\BibleQuote6\bqVdtEditLink.pas',93,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint34='H:\devsoft\myprojects\bqnet\BibleQuote6\bqVdtEditLink.pas',131,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint35='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',9541,'',0,1,'',0,0,0,'',1,'searchtUpper','','',0
+Breakpoint36='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',10067,'',0,1,'',1,0,0,'',1,'','','',0
+Breakpoint37='H:\devsoft\myprojects\bqnet\BibleQuote6\main.pas',5180,'',0,1,'',1,0,0,'',1,'','','',0
 
 [AddressBreakpoints]
 Count=0
@@ -296,16 +642,18 @@ PercentageSizes=1
 Create=1
 Visible=1
 Docked=0
-State=0
+State=2
 Left=9
 Top=428
 Width=9991
 Height=10000
 MaxLeft=-9
 MaxTop=-12
-ClientWidth=9922
-ClientHeight=9572
-BottomPanelSize=9259
+MaxWidth=10069
+MaxHeight=10093
+ClientWidth=10000
+ClientHeight=9688
+BottomPanelSize=9352
 BottomPanelClients=EditWindow0
 BottomPanelData=0000080000000000000000000000000000000000000000000000000100000000000000000C0000004564697457696E646F775F30FFFFFFFF
 
@@ -318,11 +666,11 @@ State=0
 Left=0
 Top=0
 Width=2604
-Height=6458
+Height=6759
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2604
-ClientHeight=6458
+ClientHeight=6759
 TBDockHeight=5903
 LRDockWidth=3151
 Dockable=1
@@ -337,11 +685,11 @@ State=0
 Left=0
 Top=0
 Width=2604
-Height=6458
+Height=6759
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2604
-ClientHeight=6458
+ClientHeight=6759
 TBDockHeight=6528
 LRDockWidth=2257
 Dockable=1
@@ -356,11 +704,11 @@ State=0
 Left=0
 Top=0
 Width=3759
-Height=4618
+Height=1435
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=3759
-ClientHeight=4618
+ClientHeight=1435
 TBDockHeight=417
 LRDockWidth=4948
 Dockable=1
@@ -375,11 +723,11 @@ State=0
 Left=0
 Top=0
 Width=3759
-Height=4618
+Height=1435
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=3759
-ClientHeight=4618
+ClientHeight=1435
 TBDockHeight=208
 LRDockWidth=7413
 Dockable=1
@@ -398,11 +746,11 @@ State=0
 Left=0
 Top=0
 Width=3759
-Height=4618
+Height=1435
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=3759
-ClientHeight=4618
+ClientHeight=1435
 TBDockHeight=255
 LRDockWidth=3490
 Dockable=1
@@ -417,11 +765,11 @@ State=0
 Left=0
 Top=0
 Width=3759
-Height=4618
+Height=1435
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=3759
-ClientHeight=4618
+ClientHeight=1435
 TBDockHeight=2072
 LRDockWidth=3490
 Dockable=1
@@ -468,18 +816,18 @@ StayOnTop=0
 [ToDo List]
 PercentageSizes=1
 Create=1
-Visible=0
+Visible=1
 Docked=1
 State=0
-Left=-4
-Top=-656
-Width=3672
-Height=1157
+Left=576
+Top=25
+Width=5000
+Height=1863
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=3672
-ClientHeight=1157
-TBDockHeight=1157
+ClientWidth=5000
+ClientHeight=1863
+TBDockHeight=1863
 LRDockWidth=3672
 Dockable=1
 StayOnTop=0
@@ -498,8 +846,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=-826
-Top=-111
+Left=-821
+Top=-75
 Width=269
 Height=370
 MaxLeft=-1
@@ -520,8 +868,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=-826
-Top=-111
+Left=71
+Top=31
 Width=7144
 Height=4884
 MaxLeft=-1
@@ -542,11 +890,11 @@ State=0
 Left=0
 Top=0
 Width=2604
-Height=6458
+Height=6759
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2604
-ClientHeight=6458
+ClientHeight=6759
 TBDockHeight=417
 LRDockWidth=1901
 Dockable=1
@@ -562,11 +910,11 @@ State=0
 Left=0
 Top=0
 Width=3759
-Height=4618
+Height=1435
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=3759
-ClientHeight=4618
+ClientHeight=1435
 TBDockHeight=1551
 LRDockWidth=8741
 Dockable=1
@@ -587,11 +935,11 @@ State=0
 Left=0
 Top=0
 Width=2604
-Height=6458
+Height=6759
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2604
-ClientHeight=6458
+ClientHeight=6759
 TBDockHeight=3669
 LRDockWidth=1901
 Dockable=1
@@ -610,7 +958,7 @@ Height=7454
 MaxLeft=-9
 MaxTop=-12
 ClientWidth=5286
-ClientHeight=7130
+ClientHeight=7095
 TBDockHeight=7535
 LRDockWidth=5356
 Dockable=1
@@ -629,9 +977,28 @@ Height=5185
 MaxLeft=-9
 MaxTop=-12
 ClientWidth=3238
-ClientHeight=4861
+ClientHeight=4826
 TBDockHeight=5278
 LRDockWidth=3307
+Dockable=1
+StayOnTop=0
+
+[fmToDo]
+PercentageSizes=1
+Create=1
+Visible=0
+Docked=0
+State=0
+Left=2031
+Top=2963
+Width=5929
+Height=4062
+MaxLeft=-9
+MaxTop=-12
+ClientWidth=5859
+ClientHeight=3704
+TBDockHeight=4062
+LRDockWidth=5929
 Dockable=1
 StayOnTop=0
 
@@ -643,12 +1010,12 @@ Docked=1
 State=0
 Left=0
 Top=0
-Width=9852
-Height=1956
+Width=4896
+Height=1748
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=9852
-ClientHeight=1956
+ClientWidth=4896
+ClientHeight=1748
 TBDockHeight=2222
 LRDockWidth=4323
 Dockable=1
@@ -667,14 +1034,14 @@ Height=5845
 MaxLeft=-9
 MaxTop=-12
 ClientWidth=1753
-ClientHeight=5521
+ClientHeight=5486
 TBDockHeight=5938
 LRDockWidth=1823
 Dockable=1
 StayOnTop=0
 
 [DockHosts]
-DockHostCount=6
+DockHostCount=4
 
 [DockSite0]
 DockSiteType=1
@@ -685,13 +1052,13 @@ Docked=1
 State=0
 Left=0
 Top=25
-Width=9922
-Height=2072
+Width=4965
+Height=1863
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=9922
-ClientHeight=2072
-TBDockHeight=2072
+ClientWidth=4965
+ClientHeight=1863
+TBDockHeight=1863
 LRDockWidth=3507
 Dockable=1
 StayOnTop=0
@@ -709,18 +1076,18 @@ State=0
 Left=0
 Top=25
 Width=2908
-Height=6574
+Height=6875
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2908
-ClientHeight=6574
-TBDockHeight=6134
+ClientHeight=6875
+TBDockHeight=1620
 LRDockWidth=2908
 Dockable=1
 StayOnTop=0
 TabPosition=2
-ActiveTabID=DataExplorer
-TabDockClients=ProjectManager,DataExplorer,StructureView,ToolForm,TemplateView,PropertyInspector
+ActiveTabID=ProjectManager
+TabDockClients=ProjectManager,StructureView,PropertyInspector,DataExplorer,ToolForm,TemplateView
 
 [DockSite2]
 DockSiteType=1
@@ -729,37 +1096,31 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=-4
-Top=-656
+Left=0
+Top=0
 Width=3828
-Height=5046
+Height=1863
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=3828
-ClientHeight=5046
-TBDockHeight=5046
+ClientHeight=1863
+TBDockHeight=1863
 LRDockWidth=3828
 Dockable=1
 StayOnTop=0
 TabPosition=1
-ActiveTabID=DebugLogView
-TabDockClients=CallStackWindow,LocalVarsWindow,BreakpointWindow,WatchWindow,ThreadStatusWindow,DebugLogView
+ActiveTabID=LocalVarsWindow
+TabDockClients=BreakpointWindow,WatchWindow,ThreadStatusWindow,DebugLogView,CallStackWindow,LocalVarsWindow
 
 [DockSite3]
-DockSiteType=1
-
-[DockSite4]
-DockSiteType=1
-
-[DockSite5]
 DockSiteType=1
 PercentageSizes=1
 Create=1
 Visible=0
 Docked=1
 State=0
-Left=-4
-Top=-653
+Left=817
+Top=-611
 Width=2335
 Height=2315
 MaxLeft=-1

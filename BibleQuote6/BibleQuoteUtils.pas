@@ -817,11 +817,11 @@ var
   {$J+}const lastPrec:integer=0; {$J-}
 
 function EnumFontFamExProc(lpelfe: PENUMLOGFONTEXW; //logical-font data
-  lpntme: PNewTextMetricExW; // physical-font data
+  lpntme: PEnumTextMetricW; // physical-font data
   FontType: DWORD; // type of font
   lParam: LPARAM // application-defined data
   ): integer; stdcall;
-
+   var ws:WideString;
 begin
   result := 1;
   if (lpelfe^.elfLogFont.lfOutPrecision < OUT_STROKE_PRECIS) and
@@ -830,7 +830,8 @@ begin
   inc(__hitCount);
   if (lparam <> 0) and ( (PWideChar(lparam)^ = #0) or
   (lpelfe^.elfLogFont.lfOutPrecision>lastPrec)) then begin
-    Move(lpelfe^.elfLogFont.lfFaceName, PWideChar(lparam)^, 32);
+    ws:=lpelfe^.elfFullName;
+    Move(lpelfe^.elfFullName, PWideChar(lparam)^, 64);
     lastPrec:=lpelfe^.elfLogFont.lfOutPrecision;
   end;
 end;
@@ -840,7 +841,7 @@ function FontFromCharset(aHDC: HDC; charset: integer; wsDesiredFont: WideString 
 var
   logFont: tagLOGFONTW;
   fontNameLength: integer;
-  fontName: array[0..31] of WideChar;
+  fontName: array[0..64] of WideChar;
 begin
   __hitCount := 0;
   FillChar(logFont, sizeof(logFont), 0);

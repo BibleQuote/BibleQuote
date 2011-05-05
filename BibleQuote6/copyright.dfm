@@ -3,7 +3,7 @@ object CopyrightForm: TCopyrightForm
   Top = 122
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'CopyrightForm'
-  ClientHeight = 366
+  ClientHeight = 357
   ClientWidth = 663
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -19,8 +19,8 @@ object CopyrightForm: TCopyrightForm
   OnShow = TntFormShow
   DesignSize = (
     663
-    366)
-  PixelsPerInch = 108
+    357)
+  PixelsPerInch = 105
   TextHeight = 13
   object Shape1: TShape
     Left = 0
@@ -167,7 +167,7 @@ object CopyrightForm: TCopyrightForm
     Left = -1
     Top = 72
     Width = 666
-    Height = 234
+    Height = 225
     Anchors = [akLeft, akTop, akRight, akBottom]
     Brush.Color = 9885173
     ExplicitWidth = 668
@@ -175,7 +175,7 @@ object CopyrightForm: TCopyrightForm
   end
   object Shape3: TShape
     Left = -1
-    Top = 304
+    Top = 295
     Width = 665
     Height = 120
     Anchors = [akLeft, akRight, akBottom]
@@ -213,7 +213,7 @@ object CopyrightForm: TCopyrightForm
     Left = 7
     Top = 80
     Width = 649
-    Height = 280
+    Height = 271
     OnHotSpotClick = BrowserHotSpotClick
     TabOrder = 0
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -230,5 +230,6 @@ object CopyrightForm: TCopyrightForm
     PrintScale = 1.000000000000000000
     htOptions = []
     OnKeyUp = BrowserKeyUp
+    ExplicitHeight = 280
   end
 end

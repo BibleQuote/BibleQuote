@@ -55,7 +55,7 @@ procedure TfrmAbout.TntFormCreate(Sender: TObject);
 begin
 //DrawIconEx(Image1.Picture.Bitmap.Canvas.Handle, 0,0, Application.Icon.Handle,
 //32,32,0,0,DI_NORMAL);
-//.Draw(0,0, Application.Icon);
+//Image1.Picture.Icon.Assign(Application.Icon);
 memDevs.Lines.Add('OS:'+WinInfoString());
 
 end;

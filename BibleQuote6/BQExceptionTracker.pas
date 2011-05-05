@@ -15,6 +15,7 @@ type
     procedure btnHaltClick(Sender: TObject);
   private
     { Private declarations }
+    mNonContinuable:boolean;
   public
     { Public declarations }
   end;
@@ -33,9 +34,12 @@ var
 begin
   if not assigned(bqExceptionForm) then
     bqExceptionForm := TbqExceptionForm.Create(Application);
-  lns := bqExceptionForm.ErrMemo.Lines;
+
+  lns := TTntStringList.Create();
+  try
+  bqExceptionForm.mNonContinuable:=  bqExceptionForm.mNonContinuable or nonContinuable;
   lns.Clear;
-  JclLastExceptStackListToStrings(bqExceptionForm.ErrMemo.Lines.AnsiStrings,
+  JclLastExceptStackListToStrings(lns.AnsiStrings,
     False, True, True, False);
   lns.Insert(0, WideFormat('Exception:%s, msg:%s', [E.ClassName, E.Message]));
   if g_ExceptionContext.Count>0 then
@@ -44,10 +48,18 @@ begin
   iv:=Application.OnIdle; Application.OnIdle:=nil;
   bqExceptionForm.btnOK.Enabled:=not nonContinuable;
   lns.Add('OS info:'+WinInfoString());
-  bqExceptionForm.ShowModal();
-  if nonContinuable then halt(1);
+  bqExceptionForm.ErrMemo.Lines.AddStrings(lns);
+  if not bqExceptionForm.visible then begin
+    bqExceptionForm.ShowModal();
+    if nonContinuable then halt(1);
+  end;
+
+  finally
+  bqExceptionForm.mNonContinuable:=false;
+  lns.free();
   g_ExceptionContext.Clear();
   Application.OnIdle:=iv;
+  end;
 end;
 
 procedure TbqExceptionForm.btnHaltClick(Sender: TObject);

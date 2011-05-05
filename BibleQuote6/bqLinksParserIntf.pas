@@ -249,7 +249,7 @@ end;
 function TBibleLink.ToCommand(const path: WideString; bloOptions: TBibleLinkProcessingOptions=[]): WideString;
 begin
   if vstart <=0 then begin
-      Result:=WideFormat('go %s %d %d 1 0',[path,book, chapter] );
+      Result:=WideFormat('go %s %d %d 0 0',[path,book, chapter] );
       exit;
   end;
   if vend >0 then

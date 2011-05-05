@@ -248,9 +248,11 @@ begin
   if lpsChapterEntered in mFlags then begin //never verse entered
     if mBookExpicitSet and (tkn1 = '-') then begin //links links like Rom 1-3
       //Rom. 1-3
-      if VerseTokenValue(tkn2, [lvroAllowRomans]) >= 0 then begin
-        SetupLink(mBook, mChapter, 1, 0, 0, false);
+        vl:=VerseTokenValue(tkn2, [lvroAllowRomans]);
+        if vl>= 0 then begin
+        SetupLink(mBook, mChapter, 0, 0, 0, false);
         mFlags := [lpsBookEntered, lpsChapterEntered];
+        mChapter:=vl;
         result := lmtSecond;
         goto tail;
       end;

@@ -391,7 +391,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    procedure OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false);
+    function OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false):boolean;
 
     function OpenAddress(s: WideString; var book, chapter,
       fromverse, toverse: integer): boolean;
@@ -675,6 +675,8 @@ begin
 
   FStrongNumbers := false;
 
+  mUseChapterHead:=false;
+
   for i := 1 to MAX_BOOKQTY do ChapterQtys[i] := 0; // clear
 
   cur := -1;
@@ -899,7 +901,7 @@ begin
 except       g_ExceptionContext.Add('TBible.LoadIniFile.value='+value); raise; end;
 end;
 
-procedure TBible.OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false);
+function TBible.OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false):boolean;
 var
   j, k, ichapter: integer;
   foundchapter: boolean;
@@ -908,6 +910,11 @@ begin
 
   FLines.Clear;
   mChapterHead := '';
+  if (book<=0) or (book>BookQty) or (chapter<=0) or (chapter>ChapterQtys[book]) then begin
+  result:=false; exit;
+  end;
+  
+
   WChar_ReadHtmlFileTo(FPath + PathNames[book], BookLines, FDefaultEncoding);
 
   ichapter := 0;
@@ -960,6 +967,7 @@ begin
       + #13#10
       + #13#10 + 'IniFile = %s'
       + #13#10 + 'Book=%d Chapter=%d', [FIniFile, book, chapter]);
+  result:=true;
 end;
 
 function TBible.SearchOK(source: WideString; words: TWideStrings; params: byte):
@@ -1394,6 +1402,7 @@ end;
 function TBible.LinkValidnessStatus(path: wideString; bl: TBibleLink; internalAddr: boolean = true): integer;
 var effectiveLnk: TBibleLink;
   r: integer;
+  openchapter_res:boolean;
 begin
   result := 0;
   try
@@ -1402,8 +1411,10 @@ begin
       result := InternalToAddress(bl, effectiveLnk);
       if result < -1 then begin exit; end;
     end else bl.AssignTo(effectiveLnk);
-    OpenChapter(effectiveLnk.book, effectiveLnk.chapter);
-
+    openchapter_res:=OpenChapter(effectiveLnk.book, effectiveLnk.chapter);
+    if not openchapter_res then begin
+    result:=-2; exit;
+    end;
     if (effectiveLnk.vstart > VerseQty) or (effectiveLnk.vstart < 0) then begin result := -2; exit; end;
     if effectiveLnk.vend > effectiveLnk.vstart then Dec(result, ord(effectiveLnk.vend > VerseQty));
 

@@ -299,7 +299,7 @@ type
     FCharEnc: string;
     FSQL : string;
     FUtf8: boolean;
-    DBHandle: Pointer;
+
     FASQLitePragma: TASQLite3Pragma;
     FASQLiteLog: TASQLite3Log;
     FLastError: string;
@@ -308,7 +308,7 @@ type
     SQLite3_Exec: function(DB: Pointer; SQLStatement: PAnsiChar; Callback: TSQLite3_Callback;
                            UserDate: Pointer; var ErrMsg: PAnsiChar): Integer; cdecl;
     SQLite3_LibVersion: function(): PAnsiChar; cdecl;
-    SQLite3_ErrorString: function(db: pointer): PAnsiChar; cdecl;
+
     SQLite3_GetTable: function(db: Pointer; SQLStatement: PAnsiChar; var ResultPtr: Pointer;
       var RowCount: cardinal; var ColCount: cardinal; var ErrMsg: PAnsiChar): integer; cdecl;
     SQLite3_FreeTable: procedure(Table: PAnsiChar); cdecl;
@@ -353,11 +353,14 @@ type
     procedure SQLite3_CloseResult(TheStatement : pointer);
     procedure SetTimeOut(const Value: integer); // sean
   public
+      DBHandle: Pointer;
     DLLHandle: THandle;
+    SQLite3_ErrorString: function(db: pointer): PAnsiChar; cdecl;    
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function LoadLibs: boolean;
+
     procedure FSetDatabase(Database: string);
     function RowsAffected: integer;
     function  TableExists(const ATableName: AnsiString): Boolean;
@@ -1567,7 +1570,7 @@ procedure TASQLite3DB.ShowError;
 var msg             : PAnsiChar;
 begin
   msg := SQLite3_ErrorString(DBHandle);
-  raise EDatabaseError.Create(msg+'::>'+FSQL);
+  raise EDatabaseError.Create(msg+#13#10'::>'+FSQL);
 end;
 
 function TASQLite3DB.SQLite3_ExecSQL_Params(TheStatement: string; Params: TParams): integer;

@@ -9,6 +9,7 @@ function StrToTokens(const str: WideString; const delim: WideString;
 function StrLimitToWordCnt(const ws:widestring; maxWordCount:integer;out actualWc:integer;out limited:boolean):WideString;
 function NextWordIndex(const ws:WideString; startIx:integer):integer;
 function WideStringToUtfBOMString(const ws:WideString):UTF8String;inline;
+function bqWidePosCI(const substr:WideString; str:WideString):integer;
 implementation
 uses BibleQuoteConfig, SysUtils, JclUnicode;
 
@@ -79,7 +80,7 @@ if (pwc=nil) or (pwc^=#0) or limited then exit;
 wordStarted:=false;
 repeat
 //UnicodeIsPunctuation
-charIsSeparator:=CategoryLookup(Cardinal(pwc^),[ccSeparatorSpace, ccSpaceOther,
+charIsSeparator:=CategoryLookup(Cardinal(pwc^),[ccSeparatorSpace,
  ccPunctuationConnector, ccPunctuationDash, ccPunctuationOpen,ccPunctuationClose,
  ccPunctuationOther, ccPunctuationInitialQuote, ccPunctuationFinalQuote,
  ccSeparatorSpace, ccSeparatorLine, ccSeparatorParagraph]);
@@ -120,7 +121,7 @@ if (pwc=nil) or (pwc^=#0)  then exit;
 separatorfound:=false;
 repeat
 //UnicodeIsPunctuation
-charIsSeparator:=CategoryLookup(Cardinal(pwc^),[ccSeparatorSpace, ccSpaceOther,
+charIsSeparator:=CategoryLookup(Cardinal(pwc^),[ccSeparatorSpace, 
  ccPunctuationConnector, ccPunctuationDash, ccPunctuationOpen,ccPunctuationClose,
  ccPunctuationOther, ccPunctuationInitialQuote, ccPunctuationFinalQuote,
  ccSeparatorSpace, ccSeparatorLine, ccSeparatorParagraph]);
@@ -141,6 +142,16 @@ end;
 function WideStringToUtfBOMString(const ws:WideString):UTF8String;inline;
 begin
   result:=C__Utf8BOM+UTF8Encode(ws);
+end;
+
+function bqWidePosCI(const substr:WideString; str:WideString):integer;
+var strUpper, subStrUpper:WideString;
+begin
+subStrUpper:= Sysutils.WideUpperCase(substr);
+strUpper:=WideUpperCase(str);
+
+result:=WidePos(subStrUpper, strUpper);
+
 end;
 
 end.

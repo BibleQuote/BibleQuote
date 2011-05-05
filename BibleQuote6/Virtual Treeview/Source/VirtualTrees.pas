@@ -3452,9 +3452,9 @@ type
 
   TStringEditLink = class(TInterfacedObject, IVTEditLink)
   private
-    FEdit: TVTEdit;                  // A normal custom edit control.
     procedure SetEdit(const Value: TVTEdit);
   protected
+    FEdit: TVTEdit;                  // A normal custom edit control.
     FTree: TCustomVirtualStringTree; // A back reference to the tree calling.
     FNode: PVirtualNode;             // The node to be edited.
     FColumn: TColumnIndex;           // The column of the node.
@@ -24904,7 +24904,7 @@ var
   RTLOffset: Integer;
 
 begin
-  Options := [poBackground, poColumnColor, poDrawFocusRect, poDrawDropMark, poDrawSelection, poGridLines];
+  Options := [poBackground, poColumnColor, poDrawFocusRect, poDrawDropMark, poDrawSelection, poGridLines ];
   if UseRightToLeftAlignment and FHeader.UseColumns then
     RTLOffset := ComputeRTLOffset(True)
   else

@@ -120,6 +120,9 @@ type
     procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); MESSAGE WM_EraseBkgnd;
     procedure WMLButtonDblClk(var Message: TWMMouse); MESSAGE WM_LButtonDblClk;
     procedure DoBackground(ACanvas: TCanvas);
+    {AlekId}
+    procedure CMHintShow(var Message: TMessage); message CM_HINTSHOW;
+    {/AlekId}
     property OnPaint: TNotifyEvent READ FOnPaint WRITE FOnPaint;
   PUBLIC
     constructor CreateIt(AOwner: TComponent; Viewer: THtmlViewer);
@@ -405,8 +408,8 @@ type
     procedure SetCursor(Value: TCursor); {$ifdef LCL} OVERRIDE; {$endif LCL}
     procedure SetOnScript(Handler: TScriptEvent); OVERRIDE;
     {alekid}
-    function getMarginHeight():integer;
-    function getMarginWidth():integer;
+    function getMarginHeight():integer;override;
+    function getMarginWidth():integer;override;
     {/Alekid}
 
   PUBLIC
@@ -5632,6 +5635,16 @@ begin
 end;
 
 {----------------TPaintPanel.CreateIt}
+
+
+{AlekID}
+procedure TPaintPanel.CMHintShow(var Message: TMessage);
+begin
+inherited;
+ProcessCMHintShowMsg(Message);
+end;
+{/AlekiD}
+
 
 constructor TPaintPanel.CreateIt(AOwner: TComponent; Viewer: ThtmlViewer);
 begin

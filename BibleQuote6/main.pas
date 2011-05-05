@@ -29,7 +29,7 @@ uses
   links_parser, string_procs, MultiLanguage, Bible,
   Dict, SysHot, WCharWindows, WCharReader, AppEvnts, VirtualTrees, VersesDb,
   TntDBGrids, DB, SysUtils, BibleQuoteUtils, qNavTest,
-  bqLinksParserIntf, bqICommandProcessor,bqWinUIServices,IHTMLViewer, HTMLEmbedInterfaces, htmlsubs,bqHTMLViewerSite;
+  bqLinksParserIntf, bqICommandProcessor,bqWinUIServices,IHTMLViewer, HTMLEmbedInterfaces, htmlsubs,bqHTMLViewerSite,bqVdtEditLink;
 
 const
   ConstBuildCode: WideString = '2009.08.26';
@@ -142,7 +142,7 @@ type
   TbqNavigateResult = (nrSuccess, nrEndVerseErr, nrStartVerseErr, nrChapterErr, nrBookErr, nrModuleFail);
   (*AlekId:/ƒобавлено*)
 type
-  TMainForm = class(TTntForm,IBibleQuoteCommandProcessor,IBibleWinUIServices)
+  TMainForm = class(TTntForm,IBibleQuoteCommandProcessor,IBibleWinUIServices, IuiVerseOperations, IVDTInfo)
     OpenDialog1: TTntOpenDialog;
     SaveFileDialog: TTntSaveDialog;
     MainPanel: TTntPanel;
@@ -229,7 +229,6 @@ type
     N4: TTntMenuItem;
     miMemosToggle: TTntMenuItem;
     TrayIcon: TCoolTrayIcon;
-    HelperButton: TTntButton;
     Splitter2: TTntSplitter;
     DicEdit: TTntComboBox;
     theMainMenu: TTntMainMenu;
@@ -354,8 +353,10 @@ type
     miCloseAllOtherTabs: TTntMenuItem;
     tmrCommonTimer: TTimer;
     miVerseHLBkgndCl: TTntMenuItem;
-    TntToolButton1: TTntToolButton;
-    TntToolButton2: TTntToolButton;
+    btbtnHelperButton: TTntBitBtn;
+    il24: TImageList;
+    miMyLibrary: TTntMenuItem;
+    cbbTagsFilter: TTntComboBox;
 
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: Integer;
@@ -523,7 +524,7 @@ type
     procedure TrayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: Integer);
     procedure miMemosToggleClick(Sender: TObject);
-    procedure HelperButtonClick(Sender: TObject);
+    procedure btbtnHelperButtonClick(Sender: TObject);
     procedure JCRU_HomeClick(Sender: TObject);
     procedure MemoPrintClick(Sender: TObject);
     procedure Splitter2Moved(Sender: TObject);
@@ -621,6 +622,27 @@ type
       Y: Integer);
     procedure vdtTags_VersesShowScrollbar(Sender: TBaseVirtualTree;
       Bar: Integer; Show: Boolean);
+    procedure vdtTags_VersesDblClick(Sender: TObject);
+///procedure vdtTags_VersesInitChildren(Sender: TBaseVirtualTree;
+//      Node: PVirtualNode; var ChildCount: Cardinal);
+    procedure vdtTags_VersesInitNode(Sender: TBaseVirtualTree; ParentNode,
+      Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+    procedure vdtTags_VersesScroll(Sender: TBaseVirtualTree; DeltaX,
+      DeltaY: Integer);
+    procedure vdtTags_VersesStateChange(Sender: TBaseVirtualTree; Enter,
+      Leave: TVirtualTreeStates);
+    procedure vdtTags_VersesEditing(Sender: TBaseVirtualTree;
+      Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+    procedure vdtTags_VersesCreateEditor(Sender: TBaseVirtualTree;
+      Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
+    procedure vdtTags_VersesGetNodeWidth(Sender: TBaseVirtualTree;
+      HintCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+      var NodeWidth: Integer);
+    procedure vdtTags_VersesEdited(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex);
+    procedure vdtTags_VersesIncrementalSearch(Sender: TBaseVirtualTree;
+      Node: PVirtualNode; const SearchText: WideString; var Result: Integer);
+    procedure cbbTagsFilterChange(Sender: TObject);
 //    procedure tbAddBibleLinkClick(Sender: TObject);
     //    procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
     //      Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -640,8 +662,6 @@ type
     { Private declarations }
 
     Browser: THtmlViewer;
-    FInShutdown: Boolean;
-
     MainBook: TBible;
     SecondBook: TBible;
 
@@ -678,6 +698,7 @@ type
     mScrollAcc: integer;
     mscrollbarX:integer;
     mHTMLViewerSite:THTMLViewerSite;
+    mFilterTagsTimer:TTimer;
 //    mBibleTabsWideHelper:TWideControlHelper;
 //    mBookCategories: TObjectList;
     {AlekId: /добавлено}
@@ -827,16 +848,28 @@ function PreProcessAutoCommand(const cmd, prefModule: WideString): widestring;
 procedure DeferredReloadViewPages();
 procedure AppOnHintHandler(Sender: TObject);
 procedure HintShowHideEvent(state: integer);
-procedure TagAdded(id: int64; const txt: WideString);
+procedure TagAdded(tagId: int64; const txt: WideString; show:boolean);
+procedure TagRenamed(tagId:int64; const newTxt:WideString);
 procedure TagDeleted(id: int64; const txt: WideString);
-procedure VerseAdded(verseId, tagId:int64; const cmd:WideString);
-procedure VerseDeleted(verseId, tagId:int64; const cmd:WideString);
+procedure VerseAdded(verseId, tagId:int64; const cmd:WideString; show:boolean);
+procedure VerseDeleted(verseId, tagId:int64);
 function GetAutoTxt(const cmd:WideString;maxWords:integer; out fnt:WideString; out passageSignature:WideString ):WideString;
 function GetMainWindow(): TTntForm;//IbibleQuoteWinUIServices
   function GetIViewerBase():IHtmlViewerBase;//IbibleQuoteWinUIServices
+
 function getMarginHeight():integer;
 function getMarginWidth():integer;
 function GetLinkList(): TList;
+procedure GetTextInfo(tree:TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect;
+      var Text: UnicodeString);
+procedure SetNodeText(tree:TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString);      
+procedure InitializeTaggedBookMarks();
+procedure ReCalculateTagTree();
+procedure VerseNodesEraseCachedText();
+function  GetTagFilterTimer():TTimer;
+procedure TagFilterTimerProc(sender:TObject);
+procedure FilterTags(const FilterText:WideString);
+procedure InitHotkeysSupport();
 public
   mHandCur: TCursor;
 
@@ -860,7 +893,7 @@ var
 
 implementation
 
-uses copyright, input, config, PasswordDialog, BibleQuoteConfig,
+uses  copyright, input, config, PasswordDialog, BibleQuoteConfig,
   BQExceptionTracker, AboutForm,  JCLDebug,
   TntClasses, TntSysUtils, StrUtils, CommCtrl, TntControls, bqHintTools, sevenZipHelper,
   Types, BibleLinkParser, IniFiles, bqPlainUtils, bqGfxRenderers, bqCommandProcessor,HTMLUn2;
@@ -1833,6 +1866,8 @@ var
   i, j, pc, c: integer;
   nd, tn: TVersesNodeData;
 begin
+  if not verseListEngine.DbTags.Connected then exit;
+
   vdtTags_Verses.BeginUpdate();
   vdtTags_Verses.Clear();
   try
@@ -2144,10 +2179,12 @@ var
   mi: TTntMenuItem;
   i {, b, c, v1, v2}: integer;          //AlekId:not used anymore
   foundmenu: boolean;
+
 begin
 //  tbList.PageControl := nil;
 //  tbList.Parent := self;
 //  tbList.Visible := false;
+  MainFormInitialized := false;         // prohibit re-entry into FormShow
   InitTntEnvironment();
   MainPages.DoubleBuffered := true;
   HistoryBookmarkPages.DoubleBuffered := true;
@@ -2161,13 +2198,13 @@ begin
   theImageList.GetBitmap(4, btnQuickSearchBack.Glyph);
   theImageList.GetBitmap(6, btnQuickSearchFwd.Glyph);
 
-  TbqTagsRenderer.Init(self,self);
   InitBkScan();
-  FInShutdown := true;
-  Application.OnShowHint := ShowHintEventHandler;
+  InitializeTaggedBookMarks();
+
+//  Application.OnShowHint := ShowHintEventHandler;
   HintWindowClass := bqHintTools.TbqHintWindow;
   //  TrayIcon.Visible := true;
-  MainFormInitialized := false;         // prohibit re-entry into FormShow
+
 
   Browser := FirstBrowser;
   Browser.Align := alClient;
@@ -2181,24 +2218,7 @@ begin
   MainBook.OnChangeModule := MainBookChangeModule;
   MainBook.OnSearchComplete := MainBookSearchComplete;
 
-  SysHotKey := TSysHotKey.Create(Self);
-  SysHotKey.OnHotKey := SysHotKeyHotKey;
-  SysHotKey.AddHotKey(vkQ, [hkExt]);
-  SysHotKey.AddHotKey(vkB, [hkCtrl, hkAlt]);
-  SysHotKey.Active := true;
-  ConfigFormHotKeyChoiceItemIndex := 0;
-
-//  DefaultModule := 'rststrong';
-
-  //  if FileExists(ExePath + 'Strongs\grk.ttf') then
-  //  begin
-  //    AddFontResource(PChar(ExePath + 'Strongs\grk.ttf'));
-  //    AddFontResource(PChar(ExePath + 'Strongs\heb.ttf'));
-  //  end else begin
-  //    AddFontResource(PChar(ExePath + 'grk.ttf'));
-  //    AddFontResource(PChar(ExePath + 'heb.ttf'));
-  //  end;
-
+  InitHotkeysSupport();
   Bibles := TWideStringList.Create;
   Books := TWideStringList.Create;
   Bibles.Sorted := true;
@@ -2206,18 +2226,8 @@ begin
 
   Comments := TWideStringList.Create;
   CommentsPaths := TWideStringList.Create;
-
   S_cachedModules := TCachedModules.Create(true);
-  //MainStatusBar.SimpleText := '   Something useful should be written here... Maybe TIPS and TRICKS would be good';
-
-  // russian keyboard
-  //ActivateKeyboardLayout(LoadKeyboardLayout('419', 0), KLF_ACTIVATE);
-
-  //ActivateKeyboardLayout($419, 0);
-
   Lang := TMultiLanguage.Create(Self);
-
-//  Screen.Cursors[crHandPoint] := LoadCursor(hInstance, 'ZOOMCURSOR');
 
   LastAddress := '';
   LastLanguageFile := '';
@@ -2263,8 +2273,12 @@ begin
     if not assigned(VerseListEngine) then
       Application.CreateForm(TVerseListEngine, VerseListEngine);
     VerseListEngine.InitVerseListEngine(ExePath + 'TagsDb.bqd',
-         TagAdded, TagDeleted,VerseAdded, VerseDeleted);
-  except on e: Exception do BqShowException(e) end;
+         self);
+  except on e: Exception do begin
+
+  BqShowException(e)
+  end;
+  end;
 
   //////////////////////////////////////////////
   //
@@ -2286,11 +2300,11 @@ begin
   begin
     MainForm.WindowState := wsMaximized;
 
-    with MainForm do
-    begin
-      Left := (Screen.Width - Width) div 2;
-      Top := (Screen.Height - Height) div 2;
-    end;
+//    with MainForm do
+//    begin
+//      Left := (Screen.Width - Width) div 2;
+//      Top := (Screen.Height - Height) div 2;
+//    end;
   end
   else
   begin
@@ -2452,8 +2466,9 @@ begin
         if currentModule.isBible then prefBible := currentModule.ShortPath
         else prefBible := '';
         result := PreProcessAutoCommand(cmd, prefBible);
-      end;
-      status_GetModTxt := GetModuleText(result, fn, bl, txt, passageSignature,[gmtBulletDelimited, gmtEffectiveAddress, gmtLookupRefBibles],maxWords);
+      end
+      else result:=cmd;
+      status_GetModTxt := GetModuleText(result, fnt, bl, txt, passageSignature,[gmtBulletDelimited, gmtEffectiveAddress, gmtLookupRefBibles],maxWords);
 
 
       if status_GetModTxt >= 0 then begin
@@ -2565,6 +2580,7 @@ begin
 //    HintWindowClass := bqHintTools.TbqHintWindow;
     ibl.FromBqStringLocation(cmd, path);
 
+
     if path <> C__bqAutoBible then begin
   //формируем путь к ini модул€
       path := MainFileExists(path + '\bibleqt.ini');
@@ -2577,6 +2593,8 @@ begin
       if not (gmtEffectiveAddress in options) then begin
         if mRefenceBible.InternalToAddress(ibl, effectiveLnk) < -1 then goto lblErrNotFnd;
       end else effectiveLnk := ibl;
+
+
       status_valid := mRefenceBible.LinkValidnessStatus(mRefenceBible.IniFile, effectiveLnk, false);
       effectiveLnk.AssignTo(bl);
       if status_valid < -1 then goto lblErrNotFnd;
@@ -2585,6 +2603,7 @@ begin
       passageSignature:=mRefenceBible.ShortPassageSignature(effectiveLnk.book, effectiveLnk.chapter,
       effectiveLnk.vstart, effectiveLnk.vend);
       verseCount := mRefenceBible.Lines.Count;
+       if effectiveLnk.vstart=0 then effectiveLnk.vstart:=1;
       if effectiveLnk.vend <= 0 then c := verseCount
       else c := effectiveLnk.vend;
       if (effectiveLnk.vstart > verseCount) then exit;
@@ -2631,7 +2650,7 @@ begin
         else
           fontName := '';
         fontname := FontFromCharset(self.Canvas.Handle, mRefenceBible.DesiredCharset,
-          fontName);
+          Browser.DefFontName);
       end;
       if length(fontName) = 0 then fontName := mBrowserDefaultFontName;
       result := 0;
@@ -2655,6 +2674,29 @@ begin
     if bi > ix then begin break end;
   end;                                  //for
   if bi > ix then result := me else result := nil;
+end;
+
+function TMainForm.GetTagFilterTimer: TTimer;
+begin
+if not assigned(mFilterTagsTimer) then begin
+mFilterTagsTimer:=TTimer.Create(self);
+mFilterTagsTimer.OnTimer:=TagFilterTimerProc;
+mFilterTagsTimer.Interval:=1000;
+end;
+result:=mFilterTagsTimer;
+end;
+
+procedure TMainForm.GetTextInfo(tree: TVirtualDrawTree; Node: PVirtualNode;
+  Column: TColumnIndex; const AFont: TFont; var R: TRect;
+  var Text: UnicodeString);
+var vnd:TVersesNodeData;
+begin
+  if tree<>vdtTags_Verses then exit;
+  vnd:=TVersesNodeData(tree.GetNodeData(Node)^);
+  if vnd =nil then exit;
+  r:= tree.GetDisplayRect(node, Column, false);
+  InflateRect(r,0,-4);
+  text:=vnd.getText();
 end;
 
 (*AlekId:/ƒобавлено*)
@@ -2707,7 +2749,9 @@ begin
 
   // загружаем главу
   try
-    MainBook.OpenChapter(book, chapter);
+    opened:=MainBook.OpenChapter(book, chapter);
+    if not opened then raise Exception.CreateFmt('invaid chapter %d for book %d',[chapter, book]);
+
   except
     on e: EAbort do begin
       if result = nrSuccess then Result := nrChapterErr;
@@ -2932,8 +2976,8 @@ begin
           if (ib <> SecondBook.CurBook) or (ic <> SecondBook.CurChapter)
             or (not opened) then
           begin
-            SecondBook.OpenChapter(ib, ic);
-            opened := true;
+            opened:=SecondBook.OpenChapter(ib, ic);
+            Useparabible:=opened;
           end;
         except
           UseParaBible := false;
@@ -3333,7 +3377,7 @@ begin
 
   unicodeSRC := UTF8Decode(SRC);
   wstr := DeleteFirstWord(unicodeSRC);
-  if WideCompareText(wstr, 'go') <> 0 then exit;
+  if SysUtils.WideCompareText(wstr, 'go') <> 0 then exit;
 
   if length(wstr) <= 0 then exit;
   ti := GetActiveTabInfo();
@@ -3364,10 +3408,12 @@ begin
     else
       wstr := wstr + '--не найдено--';
   end;
-  HintWindowClass := bqHintTools.TbqHintWindow;
-  br.Hint := wstr;
+
+  br.Hint := '';
   TntControl_SetHint(br, wstr);
+  HintWindowClass := bqHintTools.TbqHintWindow;
   Application.CancelHint();
+  HintWindowClass := bqHintTools.TbqHintWindow;  
 end;
 
 procedure TMainForm.FirstBrowserImageRequest(Sender: TObject; const SRC: string;
@@ -4207,6 +4253,31 @@ begin
   UpdateUI();
 end;
 
+procedure TMainForm.SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode;
+  Column: TColumnIndex; const Text: UnicodeString);
+var vnd:TVersesNodeData;
+    rslt:HRESULT;
+
+begin
+vnd:=TVersesNodeData( tree.GetNodeData(node)^);
+if (vnd=nil) or (vnd.nodeType<>bqvntTag) then exit;
+
+rslt:=VerseListEngine.RenameTag(vnd.SelfId, text);
+if rslt<>0 then begin
+if rslt=-1  then MessageBoxW(
+  self.Handle, Pointer(Lang.SayDefault('bqVerseTagNotUnique', C_TagRenameError)),
+  Pointer(Lang.SayDefault('bqError', 'Error')) , MB_OK or MB_ICONERROR)
+
+else if rslt=-2  then MessageBoxW(
+  self.Handle, Pointer(Lang.SayDefault('bqErrorUnknown', 'Unknown Error')),
+  Pointer(Lang.SayDefault('bqError', 'Error')) , MB_OK or MB_ICONERROR);
+
+
+end;
+
+
+end;
+
 procedure TMainForm.SetVScrollTracker(aBrwsr: THTMLViewer);
 begin
   try
@@ -4432,7 +4503,10 @@ begin
 
     //формируем путь к ini модул€
       if bibleLink.IsAutoBible() then begin
-        dup := PreProcessAutoCommand(dup, SecondBook.ShortPath);
+        if MainBook.isBible then value:=MainBook.ShortPath
+        else if SecondBook.isBible then value:=SecondBook.ShortPath
+        else value:='';
+        dup := PreProcessAutoCommand(dup, value);
         bibleLink.FromBqStringLocation(dup);
       end;
 
@@ -5010,7 +5084,7 @@ begin
         FindButtonClick(Sender)
       else
       begin
-        Application.Minimize;
+        //Application.Minimize;
         { wrap to title bar like KDE/Linux
               if MainForm.Height > 100 then
               begin
@@ -5083,6 +5157,53 @@ begin
     inc(i);
   end;
   if i <= cnt then result := i;
+end;
+
+procedure TMainForm.FilterTags(const filterText: WideString);
+var pvn:PVirtualNode;
+    vnd:TVersesNodeData;
+    ix:integer;
+    tree:TBaseVirtualTree;
+    isNotEmptyFilterStr, filterNode, prevFiltered, expanded:boolean;
+
+    procedure filter_siblings(node:PVirtualNode; value:boolean);
+    begin
+      while node<>nil do begin
+        tree.IsFiltered[node]:=value;
+        node:=tree.GetNextSibling(node);
+      end;
+    end;
+
+begin
+ tree:=vdtTags_Verses;
+  tree.BeginUpdate();
+  isNotEmptyFilterStr:=length(FilterText)>0;
+  try
+    pvn:=tree.GetFirstChild(nil);
+
+    while pvn<>nil do begin
+      vnd:=TVersesNodeData(tree.GetNodeData(pvn)^);
+      if (vnd <> nil) and (vnd.nodeType=bqvntTag)  then begin
+      expanded:=tree.Expanded[pvn];
+      prevFiltered:=tree.IsFiltered[pvn];
+        if isNotEmptyFilterStr then begin
+          ix:= bqWidePosCI(filterText,  vnd.getText());
+          filterNode:= (ix<=0);
+          tree.IsFiltered[pvn]:=filterNode;
+        if  expanded then
+          if filternode then// now filtered out
+               filter_siblings(tree.GetFirstChild(pvn),true )
+          else if prevFiltered then{was filtered but not now}
+                     filter_siblings(tree.GetFirstChild(pvn),false );
+        end
+        else  begin  //empty filter str
+        tree.IsFiltered[pvn]:= false;
+        if prevFiltered then filter_siblings(tree.GetFirstChild(pvn),false );
+        end;
+      end;
+    pvn:=tree.GetNextSibling(pvn);
+    end;
+  finally tree.EndUpdate(); end;
 end;
 
 procedure TMainForm.FindButtonClick(Sender: TObject);
@@ -5205,7 +5326,7 @@ begin
       if not mblSearchBooksDDAltered then
         if (CBList.ItemIndex < 0) then
           for i := 0 to linksCnt do
-            if WideCompareText(CBList.Items[i], data) = 0 then begin
+            if SysUtils.WideCompareText(CBList.Items[i], data) = 0 then begin
               CBList.ItemIndex := i; break; end;
 
       if (CBList.ItemIndex < 0) or (mblSearchBooksDDAltered) then begin
@@ -5752,6 +5873,24 @@ begin
   mAllBkScanDone := false;
 end;
 
+procedure TMainForm.InitHotkeysSupport;
+begin
+  SysHotKey := TSysHotKey.Create(Self);
+  SysHotKey.OnHotKey := SysHotKeyHotKey;
+  SysHotKey.AddHotKey(vkQ, [hkExt]);
+  SysHotKey.AddHotKey(vkB, [hkCtrl, hkAlt]);
+  SysHotKey.Active := true;
+  ConfigFormHotKeyChoiceItemIndex := 0;
+end;
+
+procedure TMainForm.InitializeTaggedBookMarks;
+begin
+  TbqTagsRenderer.Init(self,self, self.Font, self.Font);
+  TbqTagsRenderer.VMargin:=5;
+  TbqTagsRenderer.hMargin:=0;
+
+end;
+
 procedure TMainForm.InitQNavList;
 begin
   if not assigned(frmQNav) then frmQNav := TfrmQNav.Create(self);
@@ -6075,6 +6214,7 @@ begin
     blValidAddressExtracted := true;
   end
   else hlVerses := hlTrue;
+
   if blValidAddressExtracted then begin
   //if valid address
     r := MainBook.AddressToInternal(bl, obl);
@@ -6163,7 +6303,8 @@ begin
     G_ControlKeyDown := false;
   end;
   if (shift = []) and (not (ActiveControl is TCustomEdit))
-    and (not (ActiveControl is TCustomCombo)) then
+    and (not (ActiveControl is TCustomCombo))
+     and (not (activeControl=vdtTags_Verses)) then
     case key of
       $47: showQNav();
       $48: miQuickNavClick(self);
@@ -7178,6 +7319,7 @@ begin
   UpdateBooksAndChaptersBoxes();
   StrongNumbersButton.Enabled := MainBook.StrongNumbers;
   SearchListInit;
+  ReCalculateTagTree();
   Caption := MainBook.Name + ' Ч BibleQuote';
 
 end;
@@ -7867,9 +8009,11 @@ begin
   end;
   try
     ActiveControl := Browser;
-  except
+  except on e:Exception do BqShowException(e);  end;
+  if not VerseListEngine.DbTags.Connected then begin
+    tblist.PageControl:=nil;
+    tbList.Hide();
   end;
-
 end;
 
 procedure TMainForm.LinksCBChange(Sender: TObject);
@@ -8077,13 +8221,8 @@ end;
 
 procedure TMainForm.WMQueryEndSession(var Message: TWMQueryEndSession);
 begin
-  FInShutdown := True;
-  try
     inherited;
     MainForm.Close();
-  finally
-    FInShutdown := False;
-  end;
 end;
 
 function TMainForm.TabInfoFromBrowser(browser: THTMLViewer): TViewTabInfo;
@@ -8106,14 +8245,19 @@ begin
 
 end;
 
-procedure TMainForm.TagAdded(id: int64; const txt: WideString);
+procedure TMainForm.TagAdded(tagId: int64; const txt: WideString; show:boolean);
 var vnd: TVersesNodeData;
   pvn: PVirtualNode;
 begin
-  vnd := TVersesNodeData.Create(id, UTF8Encode(txt), bqvntTag);
+  vnd := TVersesNodeData.Create(tagId, UTF8Encode(txt), bqvntTag);
   mTags_n_VersesList.Add(vnd);
   pvn := vdtTags_Verses.AddChild(nil, vnd);
   vnd.Parents := TObjectList(pvn);
+  if show  then begin
+  vdtTags_Verses.FullyVisible[pvn]:=true;
+  vdtTags_Verses.Selected[pvn]:=true;
+  vdtTags_Verses.ScrollIntoView(pvn,false);
+  end;
 end;
 
 procedure TMainForm.TagDeleted(id: int64; const txt: WideString);
@@ -8128,6 +8272,26 @@ begin
   pvn := PVirtualNode(vnd.Parents);
   vdtTags_Verses.DeleteNode(pvn);
 
+end;
+
+procedure TMainForm.TagFilterTimerProc(sender: TObject);
+begin
+GetTagFilterTimer().Enabled:=false;
+FilterTags(cbbTagsFilter.Text);
+
+end;
+
+procedure TMainForm.TagRenamed(tagId: int64; const newTxt: WideString);
+var vnd: TVersesNodeData;
+  pvn: PVirtualNode;
+  ix:integer;
+begin
+//  vnd := TVersesNodeData.Create(tagId, UTF8Encode(txt), bqvntTag);
+  ix:=TVersesNodeData.FindNodeById(mTags_n_VersesList, tagId, bqvntTag, vnd);
+  if ix<0 then exit;
+  vnd.cachedTxt:=newTxt;
+  pvn := PVirtualNode(vnd.Parents);
+  vdtTags_Verses.InvalidateNode(pvn);
 end;
 
 {function _escallback(dwCookie: Longint; pbBuff: PByte;
@@ -8192,6 +8356,7 @@ begin
 end;
 
 procedure TMainForm.tbtnAddTagClick(Sender: TObject);
+var dummyTag:int64;
 begin
   InputForm.Tag := 0;                   // use TTntEdit
   InputForm.Caption := '“ег';
@@ -8199,14 +8364,14 @@ begin
   InputForm.Font := MainForm.Font;
 
   if InputForm.ShowModal <> mrOk then exit;
-  VersesDb.VerseListEngine.AddTag(InputForm.Edit1.Text);
+  VersesDb.VerseListEngine.AddTag(InputForm.Edit1.Text, dummyTag);
 ///  LoadTaggedBookMarks();
 
 end;
 
 procedure TMainForm.tbtnDelNodeClick(Sender: TObject);
 var pvn: PVirtualNode;
-  vnd: TVersesNodeData;
+  vnd, vndParent: TVersesNodeData;
   del_ix: integer;
 begin
   pvn := vdtTags_Verses.GetFirstSelected();
@@ -8222,6 +8387,13 @@ begin
       mTags_n_VersesList.Delete(del_ix);
     end;
 
+  end
+  else if vnd.nodeType=bqvntVerse then begin
+  pvn:=vdtTags_Verses.NodeParent[pvn];
+  if not assigned(pvn) then exit;
+  vndParent := TVersesNodeData(vdtTags_Verses.GetNodeData(pvn)^);
+  if vndParent.nodeType<>bqvntTag then exit;
+  VersesDb.VerseListEngine.DeleteVerseFromTag(vnd.SelfId, vndParent.getText(), false);
   end;
 
 end;
@@ -9002,25 +9174,73 @@ begin
 //
 end;
 
-procedure TMainForm.VerseAdded(verseId, tagId: int64; const cmd: WideString);
+procedure TMainForm.VerseAdded(verseId, tagId: int64; const cmd: WideString; show:boolean);
 var ix:integer;
   vnd,  vnd_verse:TVersesNodeData;
-  pvn:PVirtualNode;
+  pvnTag,pvnVerse:PVirtualNode;
 
 begin
 ix:=TVersesNodeData.FindNodeById(mTags_n_VersesList, tagId,bqvntTag,vnd);
 if ix<0 then exit;
-pvn:=PVirtualNode( vnd.Parents);
-if not assigned(pvn) then exit;
+pvnTag:=PVirtualNode( vnd.Parents);
+if not assigned(pvnTag) then exit;
+if TVersesNodeData.FindNodeById(mTags_n_VersesList, verseId, bqvntVerse, vnd_verse)<0 then begin
 vnd_verse:=TVersesNodeData.Create(verseId, '', bqvntVerse);
 vnd_verse.Parents.Add(vnd);
 mTags_n_VersesList.Add(vnd_verse);
-vdtTags_Verses.AddChild(pvn, vnd_verse);
+end
+else begin
+if vnd_verse.Parents.IndexOf(vnd)<0 then
+vnd_verse.Parents.Add(vnd);
+end;
+pvnVerse:= vdtTags_Verses.AddChild(pvnTag, vnd_verse);
+if show then begin vdtTags_Verses.FullyVisible[pvnVerse]:=true;
+   vdtTags_Verses.Selected[pvnVerse]:=true;
+   vdtTags_Verses.ScrollIntoView(pvnVerse,false); end;
 end;
 
-procedure TMainForm.VerseDeleted(verseId, tagId: int64; const cmd: WideString);
+procedure TMainForm.VerseDeleted(verseId, tagId: int64);
+var ix,tagIx:integer;
+    vnd, tag_vnd, vnd2:TVersesNodeData;
+    pvnTag, pvnVerse:PVirtualNode;
+    fndNode:boolean;
 begin
+ix:= TVersesNodeData.FindNodeById(mTags_n_VersesList,verseId, bqvntVerse, vnd);
+if ix<0 then exit;
+//vnd:=TVersesNodeData( mTags_n_VersesList.Items[ix]);
+if vnd.nodeType<>bqvntVerse then raise Exception.Create('Invalid data(nodetype ) in VerseDeleted!');
+tagIx:=TVersesNodeData.FindNodeById(vnd.Parents, tagId, bqvntTag,tag_vnd);
+if tagIx>=0 then begin
+vnd.Parents.Remove(tag_vnd);
+end
+else raise Exception.Create('corrupt mTags_n_VersesList cache!');
+pvnVerse:=vdtTags_Verses.GetFirstChild(PVirtualNode( tag_vnd.Parents) );
+fndNode:=false;
+while pvnVerse<>nil do begin
+vnd2:=TVersesNodeData(vdtTags_Verses.GetNodeData(pvnVerse)^);
+if vnd2=vnd then begin fndNode:=true; break; end;
+pvnVerse:=vdtTags_Verses.GetNextSibling(pvnVerse);
+end;
+if fndNode  then begin
+vdtTags_Verses.DeleteNode(pvnVerse);
+if (vnd.Parents.Count<=0) then begin
+mTags_n_VersesList.Remove(vnd);
+end;
+end;
 
+end;
+
+procedure TMainForm.VerseNodesEraseCachedText;
+var i,c:integer;
+    vnd:TVersesNodeData;
+begin
+c:=mTags_n_VersesList.Count-1;
+for i := 0 to c do begin
+vnd:=TVersesNodeData(mTags_n_VersesList.Items[i]);
+if vnd.nodeType=bqvntVerse then begin
+vnd.cachedTxt:='';
+end;
+end;
 end;
 
 procedure TMainForm.VSCrollTracker(sender: TObject);
@@ -9160,13 +9380,48 @@ begin
 
 end;
 
+procedure TMainForm.vdtTags_VersesCreateEditor(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
+
+begin
+//
+EditLink:=TbqVDTEditLink.Create(self);
+end;
+
+procedure TMainForm.vdtTags_VersesDblClick(Sender: TObject);
+  var vdt:TVirtualDrawTree;
+      nodeTop,levelIndent:integer;
+      pvn:PVirtualNode;
+      nd:TVersesNodeData;
+      r:TbqTagVersesContent;
+      rct:TRect;
+      pt:TPoint;
+      ble:TBibleLinkEx;
+begin
+if not (sender is TVirtualDrawTree) then begin  exit;end;
+vdt:=TVirtualDrawTree(sender);
+pt:=vdt.ScreenToClient(Mouse.CursorPos);
+pvn:=vdt.GetNodeAt(pt.x,pt.y,true,nodeTop);
+if not assigned(pvn) or (pvn=vdt.RootNode) then begin exit; end;
+
+nd:=TVersesNodeData( vdt.GetNodeData(pvn)^);
+if nd.nodeType<>bqvntVerse then exit;
+levelIndent:=(vdt.Indent*vdt.GetNodeLevel(pvn));
+rct:=Rect(0,0,vdt.ClientWidth-levelIndent- vdt.Margin-vdt.TextMargin, 500);
+vdt.Canvas.Font:=vdt.Font;
+r:=bqGfxRenderers.TbqTagsRenderer.GetContentTypeAt(pt.x-vdt.Margin -levelIndent,pt.y-nodeTop,vdt.Canvas,nd,rct);
+if r<>tvcPlainTxt then exit;
+ble:=nd.getBibleLinkEx();
+ProcessCommand(ble.ToCommand(), hlTrue );
+end;
+
 procedure TMainForm.vdtTags_VersesDrawNode(Sender: TBaseVirtualTree;
   const PaintInfo: TVTPaintInfo);
 var nd: TVersesNodeData;
   rct: TRect;
   h, dlt, flgs: integer;
   ws,fn,psgSig : WideString;
-  cl1, cl2: TColor;
+  cl1, cl2,save_brushColor, savePenColor: TColor;
   vdt:TVirtualDrawTree;
 begin
 
@@ -9176,20 +9431,30 @@ begin
   nd := TVersesNodeData((Sender.GetNodeData(PaintInfo.Node))^);
 
 
-  rct := PaintInfo.ContentRect;
+
 
   PaintInfo.Canvas.Font := Sender.Font;
+  save_brushColor:=PaintInfo.Canvas.Brush.Color;
+  savePenColor:=PaintInfo.Canvas.Pen.Color;
   if (nd.nodeType = bqvntVerse) then begin
+    rct := PaintInfo.ContentRect;
 //    Inc(rct.Left,vdt.TextMargin );
     Dec(rct.Right, vdt.TextMargin );
     //rct:=Rect(0,0,vdtTags_Verses.Width - GetSystemMetrics(SM_CXVSCROLL) -
     //vdtTags_Verses.TextMargin * 2 - 5,500);
     PaintInfo.Canvas.Font:=vdt.Font;
     TbqTagsRenderer.RenderNode(PaintInfo.Canvas, nd, false, rct);
+    PaintInfo.Canvas.Brush.Color:=save_brushColor;
+    PaintInfo.Canvas.Pen.Color:=savePenColor;
     exit;
   end;
-
-
+  rct := PaintInfo.CellRect;
+  if not(bqvnsInitialized in nd.nodeState) then begin
+  sender.BeginUpdate();
+  try
+  VersesDb.VerseListEngine.InitNodeChildren(nd, mTags_n_VersesList);
+  finally sender.EndUpdate(); end;
+  end;
   dlt := Sender.Font.Height;
   if dlt < 0 then dlt := -dlt;
   dlt := dlt div 4;
@@ -9197,36 +9462,35 @@ begin
   if nd.nodeType = bqvntTag then begin
     flgs := DT_WORDBREAK or DT_VCENTER;
 
-    InflateRect(rct, -2, -2);
-    if Sender.FocusedNode = PaintInfo.Node then cl1 := vdtTags_Verses.Colors.FocusedSelectionColor
-    else cl1 := $00F2D6BD;
+//    InflateRect(rct, -2, -2);
+    if Sender.FocusedNode = PaintInfo.Node then begin
+     cl1 := vdtTags_Verses.Colors.FocusedSelectionColor;
+
+     end
+    else begin  cl1 := $00F2D6BD;  PaintInfo.Canvas.Pen.Color:=clBlack;    InflateRect(rct, -1, -1);end;
 
     PaintInfo.Canvas.Brush.Color := cl1;
     PaintInfo.Canvas.RoundRect(rct.Left, rct.Top, rct.Right, rct.Bottom, 10, 10);
     Inc(rct.Left, 12);
     Dec(rct.Right, 2);
   end else flgs := DT_WORDBREAK;
-  ws := nd.getText();
+    ws := WideFormat('%s (%d)',[ nd.getText(), vdtTags_Verses.ChildCount[PaintInfo.Node]]);
 
-  if (nd.nodeType = bqvntVerse) then begin
-    if GetCommandType(ws)=bqctGoCommand  then begin
-    ws:=GetAutoTxt(ws, 20, fn,psgSig );
-    end;
-  end;
+
+
   Inc(rct.Top, dlt);
   if length(fn) > 0 then begin
     PaintInfo.Canvas.Font.Name := fn;
   end;
 
   PaintInfo.Canvas.Font.Color := clWindowText;
-  if (not (nd.nodeType = bqvntTag)) and (vsSelected in PaintInfo.Node^.States) then begin
-    if vdtTags_Verses.Focused then
-      PaintInfo.Canvas.Brush.Color := vdtTags_Verses.Colors.FocusedSelectionColor;
-  end;
 
   h := Windows.DrawTextW(PaintInfo.Canvas.Handle,
     PWideChar(Pointer(ws)), -1, rct, flgs);
+    PaintInfo.Canvas.Brush.Color:=save_brushColor;
+    PaintInfo.Canvas.Pen.Color:=savePenColor;
 
+  exit;
   if (nd.nodeType = bqvntTag) or (not assigned(nd.Parents)) then exit;
 //Inc(rct.Top,h+dlt);
 
@@ -9234,6 +9498,109 @@ begin
   PaintInfo.Canvas.Font.Height := PaintInfo.Canvas.Font.Height * 4 div 5;
   PaintInfo.Canvas.Font.Style := [fsUnderline];
   PaintTokens(PaintInfo.Canvas, rct, nd.Parents, false);
+end;
+
+procedure TMainForm.vdtTags_VersesEdited(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex);
+begin
+//
+end;
+
+procedure TMainForm.vdtTags_VersesEditing(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+begin
+allowed:= sender.NodeParent[node]=nil;
+
+//
+end;
+
+procedure TMainForm.vdtTags_VersesGetNodeWidth(Sender: TBaseVirtualTree;
+  HintCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  var NodeWidth: Integer);
+var ws:WideString;
+    nd:TVersesNodeData;
+    rct:TRect;
+begin
+//
+nd := TVersesNodeData((sender.GetNodeData(Node))^);
+    HintCanvas.Font := sender.Font;
+ws := WideFormat('%s (%d)',[ nd.getText(), vdtTags_Verses.ChildCount[Node]]);
+rct:=Rect(0,0, sender.ClientWidth - mscrollbarX -
+      vdtTags_Verses.TextMargin * 2 - 5, 40);
+Windows.DrawTextW(HintCanvas.Handle,
+      PWideChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
+NodeWidth:=rct.Right;
+end;
+
+//procedure TMainForm.vdtTags_VersesInitChildren(Sender: TBaseVirtualTree;
+//  Node: PVirtualNode; var ChildCount: Cardinal);
+//var vnd:TVersesNodeData;
+//    firstChildCacheIx:integer;
+//begin
+//  if (Node=nil) or (Node=Sender.RootNode) then
+//          exit;
+//if childCount>0 then exit; 
+//
+//vnd:=TVersesNodeData(sender.GetNodeData(Node)^);
+//childcount:=VersesDb.VerseListEngine.InitNode(vnd,mTags_n_VersesList,firstChildCacheIx );
+//
+//end;
+
+procedure TMainForm.vdtTags_VersesIncrementalSearch(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; const SearchText: WideString; var Result: Integer);
+var vnd:TVersesNodeData;
+   searchTUpper, nodeTxtUpper:WideString;
+   posIx:integer;
+begin
+result:=-1;
+if Sender.NodeParent[node]<>nil then exit;
+vnd:=TVersesNodeData( sender.GetNodeData(node)^);
+if (vnd=nil) or (vnd.nodeType<>bqvntTag) then exit;
+posIx:=bqWidePosCI(SearchText, vnd.getText());
+if posIx>0 then result:=0;
+
+end;
+
+procedure TMainForm.vdtTags_VersesInitNode(Sender: TBaseVirtualTree; ParentNode,
+  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+var vnd:TVersesNodeData;
+    pnd:Pointer;
+    searchIx,foundCnt:integer;
+begin
+  if (Node=nil) or (Node=Sender.RootNode) then
+          exit;
+pnd:=sender.GetNodeData(Node);
+
+if pnd=nil then begin
+ exit;
+end;
+vnd:=TVersesNodeData(pnd^);
+if not assigned(vnd) then   begin
+//here come not initialized children =verse nodes
+
+//if parentnode=nil then exit; //alredy checked in next call
+pnd:=sender.GetNodeData(parentnode);
+if pnd=nil then
+ exit;
+vnd:=TVersesNodeData(pnd^);
+if not assigned(vnd) then exit;
+ foundCnt:=0;
+searchIx:=mTags_n_VersesList.FindItemByTagPointer(vnd,0);
+if searchIx>=0 then
+repeat
+
+if foundCnt=Node^.Index then  begin
+TVersesNodeData(sender.GetNodeData(Node)^):=TVersesNodeData(mTags_n_VersesList[searchIx]);
+exit;//break;
+end;
+inc(searchIx);
+inc(foundCnt);
+searchIx:=mTags_n_VersesList.FindItemByTagPointer(vnd,searchIx);
+until (searchIx<0);
+exit;
+end;
+//if (vnd.nodeType=bqvntTag) and (not (vsHasChildren in node.States) ) then include(InitialStates,ivsHasChildren);
+
 end;
 
 procedure TMainForm.vdtTags_VersesMeasureItem(Sender: TBaseVirtualTree;
@@ -9259,12 +9626,14 @@ begin
       NodeHeight:=TbqTagsRenderer.RenderNode(TargetCanvas, nd, true, rct);
       exit;
     end;
+
+
     if dlt < 0 then dlt := -dlt;
     dlt := dlt div 2;
     if dlt = 0 then dlt := 2;
 
 
-    ws := nd.getText();
+    ws := WideFormat('%s (%d)',[ nd.getText(), vdtTags_Verses.ChildCount[Node]]);
   if (nd.nodeType = bqvntVerse) then begin
     if GetCommandType(ws)=bqctGoCommand then begin
     ws:=GetAutoTxt(ws,20, fn,psgSig);
@@ -9344,6 +9713,31 @@ vdtTags_Verses.ReinitChildren(nil, true);
 bqGfxRenderers.TbqTagsRenderer.InvalidateRenderers();
 end;
 
+procedure TMainForm.vdtTags_VersesScroll(Sender: TBaseVirtualTree; DeltaX,
+  DeltaY: Integer);
+  var node:PVirtualNode;
+      vnd:TVersesNodeData;
+begin
+    node:=sender.GetFirstVisible();
+    if node <> nil then begin
+    vdtTags_Verses.BeginUpdate();
+   try
+    repeat
+      if sender.NodeParent[node]=nil  then begin
+        vnd:=TVersesNodeData( sender.GetNodeData(node)^);
+        if vnd.nodeType=bqvntTag then begin
+          if not (bqvnsInitialized in vnd.nodeState) then begin
+//          VersesDb.VerseListEngine.InitNodeChildren(vnd, mTags_n_VersesList);
+
+          end;
+        end;
+      end;
+   node:=sender.GetNextVisible(node);
+   until node=nil;
+  finally vdtTags_Verses.EndUpdate(); end;
+  end;
+end;
+
 procedure TMainForm.vdtTags_VersesShowScrollbar(Sender: TBaseVirtualTree;
   Bar: Integer; Show: Boolean);
   var old:integer;
@@ -9352,11 +9746,16 @@ if bar=SB_VERT then begin
   old:=mscrollbarX;
   mscrollbarX:=ord(show)*GetSystemMetrics(SM_CXVSCROLL);
   if old<>mscrollbarX then begin
-  bqGfxRenderers.TbqTagsRenderer.InvalidateRenderers();
-  vdtTags_Verses.ReinitChildren(nil,true);
+  ReCalculateTagTree();
   end;
 
 end;
+end;
+
+procedure TMainForm.vdtTags_VersesStateChange(Sender: TBaseVirtualTree; Enter,
+  Leave: TVirtualTreeStates);
+begin
+     //
 end;
 
 {procedure TMainForm.vstBooksGetText(Sender: TBaseVirtualTree;
@@ -9681,6 +10080,13 @@ begin
     end;
 end;
 
+procedure TMainForm.cbbTagsFilterChange(Sender: TObject);
+var timer:TTimer;
+begin
+timer:=GetTagFilterTimer();
+timer.Enabled:=true;
+end;
+
 procedure TMainForm.CBExactPhraseClick(Sender: TObject);
 begin
   if CBExactPhrase.Checked then
@@ -9933,6 +10339,9 @@ begin
       end; end;
     Screen.Cursor := saveCursor;
   end;
+  if (mainpages.ActivePage=tbList) then begin
+//  vdtTags_VersesScroll(vdtTags_Verses,0,0);
+  end;
   //if (MainPages.ActivePage = CommentsTab) and (CommentsBrowserSource.Count = 0)
   //then ShowComments;
 
@@ -9944,6 +10353,7 @@ begin
     4: MemoPopupMenu.PopupComponent := CommentsBrowser;
     5: MemoPopupMenu.PopupComponent := XRefBrowser;
     6: MemoPopupMenu.PopupComponent := TREMemo;
+
   end;
 end;
 
@@ -11095,7 +11505,8 @@ begin
   if (nd.nodeType <> bqvntTag) then exit;
   if CurSelStart < CurSelEnd then begin f := CurSelStart; t := CurSelEnd; end
   else begin f := CurVerseNumber; t := CurVerseNumber; end;
-  VerseListEngine.AddVerseTagged(nd.getText(), MainBook.CurBook, MainBook.CurChapter, f, t);
+  VerseListEngine.AddVerseTagged(nd.getText(), MainBook.CurBook, MainBook.CurChapter, f, t, MainBook.ShortPath, true);
+
 end;
 
 procedure TMainForm.BookmarksLBDblClick(Sender: TObject);
@@ -11631,7 +12042,7 @@ begin
 //  ProcessCommand(History[HistoryLB.ItemIndex]);
 end;
 
-procedure TMainForm.HelperButtonClick(Sender: TObject);
+procedure TMainForm.btbtnHelperButtonClick(Sender: TObject);
 var
   Lines: WideString;
   i, cc: integer;
@@ -11910,6 +12321,20 @@ begin
   Names.Free();
   Paths.Free();
   inherited;
+end;
+
+procedure TMainForm.ReCalculateTagTree;
+begin
+  if (not tbList.Visible) or (not VerseListEngine.DbTags.Connected)  then exit;
+
+  VerseNodesEraseCachedText();
+  bqGfxRenderers.TbqTagsRenderer.InvalidateRenderers();
+  vdtTags_Verses.ReinitChildren(nil,true);
+  vdtTags_Verses.Invalidate();
+  if MainPages.ActivePage=tbList then begin
+//  vdtTags_Verses.Repaint();
+  end;
+  
 end;
 
 function TMainForm.RefBiblesCount: integer;

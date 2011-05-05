@@ -295,7 +295,7 @@ type
 
 implementation
 
-uses Consts, SysUtils, Themes, Math, Types, GraphUtil;
+uses Consts, SysUtils, Themes, Math, Types, GraphUtil, tntControls;
 
 {$R Tabs.res}
 
@@ -2041,7 +2041,7 @@ var
   S: string;
 begin
   Message.Result := 0; { Don't show the hint }
-  if FShrinkToFit and (Message.HintInfo.HintControl = Self) then
+  if FShrinkToFit and (Message.HintInfo.HintControl = Self) then begin
     with Message.HintInfo^ do
     begin
       I := ItemAtPos(CursorPos);
@@ -2061,6 +2061,9 @@ begin
           HintStr := FWideTabs[I];
         end;
       end;
+    end;
+    end else begin
+      ProcessCMHintShowMsg(TMessage(Message) );
     end;
 end;
 

@@ -1355,7 +1355,7 @@ procedure LoadDecompositionData;
 procedure LoadCombiningClassData;
 procedure LoadNumberData;
 procedure LoadCompositionData;
-
+function CategoryLookup(Code: Cardinal; Cats: TCharacterCategories): Boolean; overload;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (

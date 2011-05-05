@@ -48,7 +48,8 @@ uses
   bqICommandProcessor in 'bqICommandProcessor.pas',
   bqWinUIServices in 'bqWinUIServices.pas',
   bqCommandProcessor in 'bqCommandProcessor.pas',
-  bqHTMLViewerSite in 'bqHTMLViewerSite.pas';
+  bqHTMLViewerSite in 'bqHTMLViewerSite.pas',
+  bqVdtEditLink in 'bqVdtEditLink.pas';
 
 {$R *.res}
 var
@@ -79,7 +80,6 @@ begin
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
   Application.CreateForm(TbqExceptionForm, bqExceptionForm);
-  Application.CreateForm(TbqCollectionsEditor, bqCollectionsEditor);
   Application.Run;
   try
     Close(Output);
