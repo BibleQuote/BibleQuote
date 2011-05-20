@@ -98,8 +98,9 @@ var
           defBook:=true;
         end else begin
           inc(ci);
+          {$HINTS OFF}
           Val(list[ci], ival, code);
-
+          {$HINTS ON}
           if (code = 0) or (list[ci] = ':') or (list[ci] = '.') or ((list[ci] =
             ',')) then begin //second token also digit
             dec(ci, 1);

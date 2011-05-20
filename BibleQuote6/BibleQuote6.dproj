@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{de580c84-ab95-45ae-b45f-e05fe9fde940}</ProjectGuid>
+    <MainSource>BibleQuote6.dpr</MainSource>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+    <DCC_DependencyCheckOutputName>h:\BibleQuote 5 Bibliologia Edition\BibleQuote6.exe</DCC_DependencyCheckOutputName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_DebugInformation>False</DCC_DebugInformation>
+    <DCC_WriteableConstants>True</DCC_WriteableConstants>
+    <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+    <DCC_Optimize>False</DCC_Optimize>
+    <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
+    <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+    <DCC_MapFile>3</DCC_MapFile>
+    <DCC_ExeOutput>h:\BibleQuote 5 Bibliologia Edition</DCC_ExeOutput>
+    <DCC_UnitSearchPath>L:\devsoft\Components\jcl211\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\windows;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\include</DCC_UnitSearchPath>
+    <DCC_ResourcePath>L:\devsoft\Components\jcl211\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\windows;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\include</DCC_ResourcePath>
+    <DCC_ObjPath>L:\devsoft\Components\jcl211\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\windows;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\include</DCC_ObjPath>
+    <DCC_IncludePath>L:\devsoft\Components\jcl211\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\windows;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\include</DCC_IncludePath>
+    <DCC_Define>SMARTFONTS;RELEASE</DCC_Define>
+    <DCC_CodePage>1251</DCC_CodePage>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_WriteableConstants>True</DCC_WriteableConstants>
+    <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
+    <DCC_MapFile>3</DCC_MapFile>
+    <DCC_ExeOutput>h:\BibleQuote 5 Bibliologia Edition</DCC_ExeOutput>
+    <DCC_UnitSearchPath>$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\windows;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\include;H:\devsoft\Components\Faster TCP</DCC_UnitSearchPath>
+    <DCC_ResourcePath>$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\windows;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\include;H:\devsoft\Components\Faster TCP</DCC_ResourcePath>
+    <DCC_ObjPath>$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\windows;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\include;H:\devsoft\Components\Faster TCP</DCC_ObjPath>
+    <DCC_IncludePath>$(BDS)\Lib\Debug\Indy9;.\Delphi Unicode Controls\Source;.\Thtml\package;.\Tray\TrayIcon;.\HotKey;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\Components\jcl211\source\common\;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\windows;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\include;H:\devsoft\Components\Faster TCP</DCC_IncludePath>
+    <DCC_Define>SMARTFONTS;DEBUG</DCC_Define>
+    <DCC_CodePage>1251</DCC_CodePage>
+    <DCC_Optimize>False</DCC_Optimize>
+    <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Delphi.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="RunParams">/DEBUG /MemCheck</Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">True</VersionInfo><VersionInfo Name="AutoIncBuild">True</VersionInfo><VersionInfo Name="MajorVer">6</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">1</VersionInfo><VersionInfo Name="Build">1347</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">True</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1049</VersionInfo><VersionInfo Name="CodePage">1251</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName">DevAlek</VersionInfoKeys><VersionInfoKeys Name="FileDescription">BibleQuote 6 - Bible Research and Study Tool</VersionInfoKeys><VersionInfoKeys Name="FileVersion">6.0.1.1347</VersionInfoKeys><VersionInfoKeys Name="InternalName">BibleQuote</VersionInfoKeys><VersionInfoKeys Name="LegalCopyright">GNU GPL v2</VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename">BibleQuote</VersionInfoKeys><VersionInfoKeys Name="ProductName">BibleQuote 6</VersionInfoKeys><VersionInfoKeys Name="ProductVersion">6.0.1b9e</VersionInfoKeys><VersionInfoKeys Name="Comments">Bible Research and Study Tool</VersionInfoKeys><VersionInfoKeys Name="PrivateBuild">Yes</VersionInfoKeys></VersionInfoKeys><Excluded_Packages>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <Excluded_Packages Name="E:\Program Files\Borland\BDS\4.0\Bin\JclVersionControlExpert100.bpl">JCL Integration of version control systems in the IDE</Excluded_Packages>
+    </Excluded_Packages><Source><Source Name="MainSource">BibleQuote6.dpr</Source></Source></Delphi.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
+  <ItemGroup>
+    <DelphiCompile Include="BibleQuote6.dpr">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <DCCReference Include="AboutForm.pas">
+      <Form>frmAbout</Form>
+      <DesignClass>TTntForm</DesignClass>
+    </DCCReference>
+    <DCCReference Include="AlekPageControl.pas" />
+    <DCCReference Include="Bible.pas" />
+    <DCCReference Include="BibleLinkParser.pas" />
+    <DCCReference Include="BibleQuoteConfig.pas" />
+    <DCCReference Include="BibleQuoteUtils.pas" />
+    <DCCReference Include="bqContainers.pas" />
+    <DCCReference Include="BQExceptionTracker.pas">
+      <Form>bqExceptionForm</Form>
+    </DCCReference>
+    <DCCReference Include="bqHintTools.pas" />
+    <DCCReference Include="bqHistoryContainer.pas" />
+    <DCCReference Include="bqLinksParserIntf.pas" />
+    <DCCReference Include="bqPlainUtils.pas" />
+    <DCCReference Include="bqServices.pas" />
+    <DCCReference Include="config.pas">
+      <Form>ConfigForm</Form>
+    </DCCReference>
+    <DCCReference Include="copyright.pas">
+      <Form>CopyrightForm</Form>
+    </DCCReference>
+    <DCCReference Include="Dict.pas" />
+    <DCCReference Include="hotkeys.pas">
+      <Form>HotKeyForm</Form>
+    </DCCReference>
+    <DCCReference Include="input.pas">
+      <Form>InputForm</Form>
+    </DCCReference>
+    <DCCReference Include="links_parser.pas" />
+    <DCCReference Include="main.pas">
+      <Form>MainForm</Form>
+      <DesignClass>TTntForm</DesignClass>
+    </DCCReference>
+    <DCCReference Include="MultiLanguage.pas" />
+    <DCCReference Include="qNavTest.pas">
+      <Form>frmQNav</Form>
+    </DCCReference>
+    <DCCReference Include="sevenZipHelper.pas" />
+    <DCCReference Include="string_procs.pas" />
+    <DCCReference Include="Tabs.pas" />
+    <DCCReference Include="VersesDB.pas">
+      <Form>VerseListEngine</Form>
+      <DesignClass>TDataModule</DesignClass>
+    </DCCReference>
+    <DCCReference Include="WCharReader.pas" />
+    <DCCReference Include="WCharWindows.pas" />
+    <DCCReference Include="XPTheme.pas" />
+    <None Include="ModelSupport_BibleQuote6\default.txaPackage" />
+  </ItemGroup>
+</Project>

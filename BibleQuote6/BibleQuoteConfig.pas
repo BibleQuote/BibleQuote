@@ -1,6 +1,8 @@
 unit BibleQuoteConfig;
 
 interface
+
+
 const C_CompressedModulesSubPath='compressed\modules';
       C_CommentariesSubPath='compressed\commentaries';
       C_DictionariesSubPath='compressed\dictionaries';

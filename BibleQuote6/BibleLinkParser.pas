@@ -17,7 +17,7 @@ type
     function BestValidBookFor(chapter, key: integer): TBibleBookNameEntry;
   end;
 
-  TLinkParserOption = (lpoIgnoreOneNumberValues, lpoTextRecognition, lpoExtractLnks);
+  TLinkParserOption = (lpoIgnoreOneNumberValues, lpoTextRecognition, lpoExtractLnks, lpoFuzzyLogic);
   TLinkParserOptions = set of TLinkParserOption;
 
   TLinkParserFlags = set of TLinkParserFlag;
@@ -67,7 +67,7 @@ function ChapterSet(const tkn: WideString; const tkn2: WideString): TLinkMatchTy
 type TChapterValidationResult = (cvrAccept, cvrIsNotChapter, cvrContextChange);
 function ValidateChapterAndBook(book, chapter: integer; explicitSet: boolean;
   out sugBook: integer; out sugChapter: integer): TChapterValidationResult;
-function ValidateChater(allowBookChange: boolean = true): TBibleBookNameEntry;
+function ValidateChapter(allowBookChange: boolean = true): TBibleBookNameEntry;
 procedure DeleteLastLink();
 procedure ClearLinks();
 procedure AddLink(const bl:TBibleLink);
@@ -82,9 +82,9 @@ property Options: TLinkParserOptions read mLinkParserOptions
 end;
 
     function Prepare(fn: WideString; var df: Text): boolean;
-    function ResolveLnks(const txt: WideString): WideString;
+    function ResolveLnks(const txt: WideString;fuzzyLogic:boolean): WideString;
 
-    function extractLnks(const txt:WideString;var la:TBibleLinkArray):boolean;
+    function extractLnks(const txt:WideString;fuzzyLogic:boolean; var la:TBibleLinkArray):boolean;
 implementation
 uses bqPlainUtils, BibleQuoteUtils, JCLDebug, Dialogs,BQExceptionTracker,
   SysUtils, {string_procs,} windows {$IFDEF DEBUG} , TypInfo{$ENDIF};
@@ -312,8 +312,9 @@ begin
   result := mBook > 0;
 end;
 
-function TBibleLinkParser.ValidateChater(allowBookChange: boolean = true): TBibleBookNameEntry;
+function TBibleLinkParser.ValidateChapter(allowBookChange: boolean = true): TBibleBookNameEntry;
 begin
+//result:=
 end;
 
 function TBibleLinkParser.ValidateChapterAndBook(book, chapter: integer; explicitSet: boolean;
@@ -897,18 +898,18 @@ begin
   end;                                  //case
 end;
 
-function extractLnks(const txt:WideString;var la:TBibleLinkArray):boolean;
+function extractLnks(const txt:WideString;fuzzyLogic:boolean; var la:TBibleLinkArray):boolean;
 begin
 lparser.mBlArray:=la;
 Include(lparser.mLinkParserOptions,lpoExtractLnks);
 try
-ResolveLnks(txt);
+ResolveLnks(txt,fuzzyLogic);
 finally
 exclude(lparser.mLinkParserOptions,lpoExtractLnks);
 end;
 end;
 
-function ResolveLnks(const txt: WideString): WideString;
+function ResolveLnks(const txt: WideString;fuzzyLogic:boolean): WideString;
 var
   pCurrent, pLastTag, pFirstToken, pSavedFirstToken, pSecondToken, pLinkStart, pNewLinkStart,
     pWriteBuf, pWriteFence, pLastWrittenFrom, pLastTokenParsed,

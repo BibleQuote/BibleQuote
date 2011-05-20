@@ -123,7 +123,7 @@
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">L:\devsoft\Components\jcl211\lib\d10\debug;h:\devsoft\myprojects\bqnet\BibleQuote6\jcl\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;.\Delphi Unicode Controls\Source;.\Tray\TrayIcon;.\HotKey;H:\devsoft\myprojects\bqnet\BibleQuote6\htmlviewsb;.\SevenZip;h:\devsoft\myprojects\bqnet\BibleQuote6\Virtual Treeview\Source;h:\devsoft\myprojects\bqnet\BibleQuote6\ASqlite3Components;H:\devsoft\myprojects\bqnet\BibleQuote6\jcl\source\common</Directories>
+			<Directories Name="SearchPath">L:\devsoft\Components\jcl211\lib\d10\debug;h:\devsoft\myprojects\bqnet\BibleQuote6\jcl\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;.\Delphi Unicode Controls\Source;.\Tray\TrayIcon;.\HotKey;htmlviewsb;.\SevenZip;ASqlite3Components;jcl\source\common;Virtual Treeview\Source;jcl\source\include\;jcl\source\windows\;GLibWMI\sources\</Directories>
 			<Directories Name="Packages">vcl;rtl;vclx;vcldb;xmlrtl;vclactnband;inet;IntrawebDB_80_100;Intraweb_80_100;vclie;inetdbbde;inetdbxpress;dclOfficeXP;VclSmp;soaprtl;dsnap;bdertl;dsnapcon;websnap;webdsnap;TntUnicodeVcl;CoolTrayIcon_D6;Jcl;JvCoreD10R;TrayIcon;ssWebBrowser;AlekControls</Directories>
 			<Directories Name="Conditionals">SMARTFONTS;UseUnicodeControls</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
@@ -149,8 +149,8 @@
 			<VersionInfo Name="AutoIncBuild">True</VersionInfo>
 			<VersionInfo Name="MajorVer">6</VersionInfo>
 			<VersionInfo Name="MinorVer">0</VersionInfo>
-			<VersionInfo Name="Release">1</VersionInfo>
-			<VersionInfo Name="Build">1369</VersionInfo>
+			<VersionInfo Name="Release">2</VersionInfo>
+			<VersionInfo Name="Build">1386</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -162,16 +162,17 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName">DevAlek</VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">BibleQuote 6 - Bible Research and Study Tool</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">6.0.1.1369</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">6.0.2.1386</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">GNU GPL v2</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
 			<VersionInfoKeys Name="OriginalFilename">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">BibleQuote 6</VersionInfoKeys>
-			<VersionInfoKeys Name="ProductVersion">6.0.1b9f2</VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">6.0.2a0</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Bible Research and Study Tool</VersionInfoKeys>
 			<VersionInfoKeys Name="PrivateBuild">Yes</VersionInfoKeys>
-		</VersionInfoKeys>  <Excluded_Packages>
+		</VersionInfoKeys>  
+    <Excluded_Packages>
       <Excluded_Packages Name="E:\Program Files\Borland\BDS\4.0\Bin\JclVersionControlExpert100.bpl">JCL Integration of version control systems in the IDE</Excluded_Packages>
     </Excluded_Packages>
   </Delphi.Personality>

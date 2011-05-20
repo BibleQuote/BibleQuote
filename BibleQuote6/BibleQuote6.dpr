@@ -1,5 +1,5 @@
 // JCL_DEBUG_EXPERT_GENERATEJDBG ON
-// JCL_DEBUG_EXPERT_INSERTJDBG ON
+// JCL_DEBUG_EXPERT_INSERTJDBG OFF
 program BibleQuote6;
 
 
@@ -23,7 +23,6 @@ uses
   input in 'input.pas' {InputForm},
   copyright in 'copyright.pas' {CopyrightForm},
   config in 'config.pas' {ConfigForm},
-  hotkeys in 'hotkeys.pas' {HotKeyForm},
   Dict in 'Dict.pas',
   Bible in 'Bible.pas',
   AlekPageControl in 'AlekPageControl.pas',
@@ -49,7 +48,12 @@ uses
   bqWinUIServices in 'bqWinUIServices.pas',
   bqCommandProcessor in 'bqCommandProcessor.pas',
   bqHTMLViewerSite in 'bqHTMLViewerSite.pas',
-  bqVdtEditLink in 'bqVdtEditLink.pas';
+  bqVdtEditLink in 'bqVdtEditLink.pas',
+  bqSettings in 'bqSettings.pas',
+  bqCollections in 'bqCollections.pas' {DataModule1: TDataModule},
+  bqBackgroundServices in 'bqBackgroundServices.pas',
+  bqEngine in 'bqEngine.pas',
+  bqEngineInterfaces in 'bqEngineInterfaces.pas';
 
 {$R *.res}
 var

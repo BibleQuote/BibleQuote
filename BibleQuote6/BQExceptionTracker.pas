@@ -21,6 +21,7 @@ type
   end;
 
 procedure BqShowException(e: Exception;addInfo:WideString=''; nonContinuable:boolean=false);
+function StackLst(codePtr,stackTop:Pointer):WideString;
 var
   bqExceptionForm: TbqExceptionForm;
 
@@ -32,20 +33,20 @@ var
   lns: TTntStrings;
   iv:TIdleEvent;
 begin
-  if not assigned(bqExceptionForm) then
-    bqExceptionForm := TbqExceptionForm.Create(Application);
 
+  if not assigned(bqExceptionForm) then
+  bqExceptionForm := TbqExceptionForm.Create(Application);
   lns := TTntStringList.Create();
+  iv:=Application.OnIdle; Application.OnIdle:=nil;
   try
   bqExceptionForm.mNonContinuable:=  bqExceptionForm.mNonContinuable or nonContinuable;
   lns.Clear;
   JclLastExceptStackListToStrings(lns.AnsiStrings,
-    False, True, True, False);
+    true, True, True, False);
   lns.Insert(0, WideFormat('Exception:%s, msg:%s', [E.ClassName, E.Message]));
   if g_ExceptionContext.Count>0 then
   lns.Insert(1, 'Context:'#13#10+g_ExceptionContext.Text);
   if length(addInfo)>0 then  lns.Insert(0,addInfo);
-  iv:=Application.OnIdle; Application.OnIdle:=nil;
   bqExceptionForm.btnOK.Enabled:=not nonContinuable;
   lns.Add('OS info:'+WinInfoString());
   bqExceptionForm.ErrMemo.Lines.AddStrings(lns);
@@ -60,6 +61,24 @@ begin
   g_ExceptionContext.Clear();
   Application.OnIdle:=iv;
   end;
+end;
+
+function StackLst(codePtr,stackTop:Pointer):WideString;
+var stackInfo:TJclStackInfoList;
+    sl:TStringList;
+begin
+sl:=nil;
+result:='';
+stackInfo:=JclDebug.TJclStackInfoList.Create(True,3,codePtr,False,nil, stackTop);
+
+if assigned (stackInfo) then begin try
+sl:=TStringList.Create();
+stackInfo.AddToStrings(sl,true,true,true);
+result:=sl.text;
+finally stackInfo.Free(); sl.Free(); end;
+end;
+
+
 end;
 
 procedure TbqExceptionForm.btnHaltClick(Sender: TObject);

@@ -2,6 +2,7 @@ package AlekControls;
 
 {$R *.res}
 {$R 'SevenZip\SevenZipVCL.dcr'}
+{$R 'rkSmartTabs.dcr'}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
@@ -33,6 +34,8 @@ requires
 
 contains
   AlekPageControl in 'AlekPageControl.pas',
-  SevenZipVCL in 'SevenZip\SevenZipVCL.pas';
+  SevenZipVCL in 'SevenZip\SevenZipVCL.pas',
+  rkGlassButton in 'rkGlassButton.pas',
+  rkSmartTabs in 'rkSmartTabs.pas';
 
 end.

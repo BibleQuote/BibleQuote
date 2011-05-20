@@ -37,6 +37,7 @@ type
   function IsAutoBible():boolean;
   function GetIniFileShortPath():WideString;
   function VisualSig():WideString;
+  destructor Destroy();
   end;
 
   PBibleLinkEx=^TBibleLinkEx;
@@ -119,7 +120,7 @@ const
 type TfnResolveLnks=function(const txt: WideString): WideString;
      TfnPrepare=function(fn:WideString;var df:Text):boolean;
 
-var _sparser:HModule;
+//var _sparser:HModule;
 //    fnResolveLnks:TfnResolveLnks=nil;
 //    fnPrepare:TfnPrepare=nil;
     //parserAvail:boolean;
@@ -183,7 +184,7 @@ try
    path := ExtractFirstTkn(loc);
    book:=1; chapter:=1; vstart:=0; vend:=0;
    if path='go' then  path := ExtractFirstTkn(loc)
-   else if path='file' then begin result:=false; exit; end;
+   else {if path='file' then} begin result:=false; exit; end;
   //читаем номер книги
     result:=true;
     value := ExtractFirstTkn(loc);
@@ -210,7 +211,7 @@ except result:=false; end;
 end;
 
 function TBibleLink.GetHref(idNum:cardinal=0;bloOptions: TBibleLinkProcessingOptions=[]): WideString;
-var id:widestring;
+//var id:widestring;
 begin
 //result:='<a href="'+AsString() + '">';
 //  if vstart <=0 then begin
@@ -270,7 +271,9 @@ function TBibleLinkEx.FromBqStringLocation(loc:WideString):boolean;
 begin
 result:=inherited FromBqStringLocation(loc,modName);
 end;
-
+destructor TBibleLinkEx.Destroy();
+begin
+end;
 
 function TBibleLinkEx.GetLikeNess(const bl:TBibleLinkEx):TBibleLinkExLikeness;
 begin

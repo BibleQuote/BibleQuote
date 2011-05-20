@@ -3278,7 +3278,7 @@ begin
     ARect := Rect(X1 + Addon, Y1, X1 + Width - (Addon div 2), Y1 + Height);
 {$IFDEF UseUnicodeControls}
       ExtTextOutW(Canvas.Handle, X1 + Addon, Y1 + (Height - H2) div 2, ETO_CLIPPED, @ARect,
-      PWideChar(Text), Length(Text), nil);
+      Pointer(Text), Length(Text), nil);
 {$ELSE}
       Canvas.TextRect(ARect, X1 + Addon, Y1 + (Height - H2) div 2 - 1, Text);
 {$ENDIF}

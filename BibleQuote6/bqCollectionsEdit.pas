@@ -8,7 +8,8 @@ uses
 
 type
   TbqCollectionsEditor = class(TtntForm)
-    vdtCollectionBookList: TVirtualDrawTree;
+    vstCollections: TVirtualStringTree;
+    lbl1: TTntLabel;
   private
     { Private declarations }
   public

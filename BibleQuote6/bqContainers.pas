@@ -41,13 +41,13 @@ end;
 
 function TBQHistoryContainer.EffectiveDepth: integer;
 begin
-if mCurrentDepth<mLength then result:=mCurrentDepth else result:=mLength;
+if mCurrentDepth<Integer(mLength) then result:=mCurrentDepth else result:=mLength;
 end;
 
 function TBQHistoryContainer.GetValue(Index: Integer): PAnsiChar;
 var delta:integer;
 begin
-if (Index<0) or (Index>=mLength) or (Index>=mCurrentDepth) then
+if (Index<0) or (Index>=Integer(mLength)) or (Index>=mCurrentDepth) then
  raise ERangeError.CreateFmt(
  'TBQHistoryContainer overflow: ix=%d from %d, %d valid values',[Index,mLength,mCurrentDepth]);
 delta:= mCurrentPtr-Index;
@@ -78,7 +78,7 @@ end;
 function TBQHistoryContainer.Push(val: PAnsiChar):Cardinal;
 begin
 Inc(mCurrentPtr);
-if mCurrentPtr>=mLength then Dec(mCurrentPtr,mLength);
+if mCurrentPtr>=Integer(mLength) then Dec(mCurrentPtr,mLength);
 Inc(mCurrentDepth);
 mContainer[mCurrentPtr]:=val;
 result:=mCurrentPtr;
@@ -87,7 +87,7 @@ end;
 procedure TBQHistoryContainer.SetValue(Index: Integer; Value: PAnsiChar);
 var delta:integer;
 begin
-if (Index<0) or (Index>=mLength) then
+if (Index<0) or (Index>=Integer(mLength)) then
  raise ERangeError.CreateFmt('TBQHistoryContainer overflow: ix %d from %d',[Index,mLength]);
 delta:= mCurrentPtr-Index;
 if delta<0 then Inc(delta,mLength);

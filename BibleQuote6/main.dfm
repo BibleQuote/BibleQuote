@@ -2,8 +2,8 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 819
-  ClientWidth = 1017
+  ClientHeight = 630
+  ClientWidth = 997
   Color = clBtnFace
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -29,7 +29,7 @@ object MainForm: TMainForm
   PixelsPerInch = 105
   TextHeight = 16
   object Label4: TTntLabel
-    Left = 356
+    Left = 355
     Top = 51
     Width = 33
     Height = 16
@@ -37,14 +37,13 @@ object MainForm: TMainForm
     Caption = 'Ctrl+1'
   end
   object Splitter1: TTntSplitter
-    Left = 310
+    Left = 309
     Top = 29
-    Width = 8
-    Height = 790
+    Width = 9
+    Height = 579
     AutoSnap = False
     MinSize = 100
     OnMoved = Splitter1Moved
-    ExplicitHeight = 797
   end
   object TTntToolButton
     Left = 0
@@ -55,10 +54,10 @@ object MainForm: TMainForm
     Top = 0
   end
   object MainPanel: TTntPanel
-    Left = 437
+    Left = 415
     Top = 29
-    Width = 580
-    Height = 790
+    Width = 582
+    Height = 579
     Align = alRight
     Caption = 'MainPanel'
     TabOrder = 0
@@ -66,8 +65,8 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 4
       Top = 1
-      Width = 575
-      Height = 766
+      Width = 577
+      Height = 577
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -89,11 +88,15 @@ object MainForm: TMainForm
       object mInitialViewPage: TTntTabSheet
         PopupMenu = mViewTabsPopup
         OnContextPopup = mInitialViewPageContextPopup
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object FirstBrowser: THTMLViewer
           Left = -4
           Top = -228
-          Width = 569
-          Height = 545
+          Width = 568
+          Height = 669
           OnHotSpotCovered = FirstBrowserHotSpotCovered
           OnHotSpotClick = FirstBrowserHotSpotClick
           OnImageRequest = FirstBrowserImageRequest
@@ -117,71 +120,15 @@ object MainForm: TMainForm
           OnKeyDown = FirstBrowserKeyDown
           OnKeyUp = FirstBrowserKeyUp
           OnKeyPress = FirstBrowserKeyPress
-          OnFileBrowse = FirstBrowserFileBrowse
           OnMouseDouble = FirstBrowserMouseDouble
         end
-      end
-    end
-    object btmPaint: TPanel
-      Left = 1
-      Top = 767
-      Width = 578
-      Height = 22
-      Align = alBottom
-      BevelOuter = bvNone
-      TabOrder = 1
-      object imgLoadProgress: TTntImage
-        Tag = 1
-        AlignWithMargins = True
-        Left = 557
-        Top = 0
-        Width = 21
-        Height = 22
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Margins.Bottom = 0
-        Align = alRight
-        Center = True
-        Proportional = True
-        Transparent = True
-        Visible = False
-        ExplicitLeft = 556
-        ExplicitHeight = 21
-      end
-      object mBibleTabsEx: TDockTabSet
-        Tag = -1
-        Left = 0
-        Top = 0
-        Width = 557
-        Height = 22
-        Cursor = crHandPoint
-        Hint = 'rtet'
-        Align = alClient
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        StartMargin = 0
-        SoftTop = True
-        Style = tsSoftTabs
-        TabHeight = 18
-        OnClick = mBibleTabsExClick
-        OnChange = mBibleTabsExChange
-        OnDragDrop = BibleTabsDragDrop
-        OnDragOver = BibleTabsDragOver
-        OnMouseDown = mBibleTabsExMouseDown
-        OnMouseMove = mBibleTabsExMouseMove
-        OnMouseUp = mBibleTabsExMouseUp
-        DockSite = False
       end
     end
   end
   object PreviewBox: TTntScrollBox
     Left = 319
-    Top = 233
-    Width = 106
+    Top = 234
+    Width = 107
     Height = 192
     HorzScrollBar.Tracking = True
     VertScrollBar.Tracking = True
@@ -194,14 +141,14 @@ object MainForm: TMainForm
       Left = 0
       Top = 0
       Width = 99
-      Height = 170
+      Height = 171
       BevelOuter = bvNone
       Color = clBtnShadow
       TabOrder = 0
       object PagePanel: TTntPanel
-        Left = 11
+        Left = 12
         Top = 4
-        Width = 74
+        Width = 72
         Height = 156
         BevelOuter = bvNone
         Color = clWindow
@@ -209,13 +156,13 @@ object MainForm: TMainForm
         object PB1: TTntPaintBox
           Left = 0
           Top = 0
-          Width = 74
+          Width = 72
           Height = 156
           Cursor = crArrow
           Align = alClient
           OnMouseDown = PB1MouseDown
           OnPaint = PB1Paint
-          ExplicitWidth = 75
+          ExplicitWidth = 73
         end
       end
     end
@@ -223,9 +170,8 @@ object MainForm: TMainForm
   object MainPages: TTntPageControl
     Left = 0
     Top = 29
-    Width = 310
-    Height = 790
-    Hint = 'Commentaries'
+    Width = 309
+    Height = 579
     ActivePage = tbList
     Align = alLeft
     Images = theImageList
@@ -237,10 +183,14 @@ object MainForm: TMainForm
     object GoTab: TTntTabSheet
       ImageIndex = 5
       TabHint = 'Navigate'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter2: TTntSplitter
         Left = 0
-        Top = 267
-        Width = 302
+        Top = 268
+        Width = 301
         Height = 14
         Cursor = crVSplit
         Align = alTop
@@ -252,17 +202,17 @@ object MainForm: TMainForm
       object Panel2: TTntPanel
         Left = 0
         Top = 0
-        Width = 302
-        Height = 267
+        Width = 301
+        Height = 268
         Align = alTop
         BevelOuter = bvNone
-        Constraints.MinHeight = 267
+        Constraints.MinHeight = 268
         TabOrder = 0
         DesignSize = (
-          302
-          267)
+          301
+          268)
         object BooksCB: TTntComboBox
-          Left = 9
+          Left = 10
           Top = 36
           Width = 291
           Height = 24
@@ -270,7 +220,7 @@ object MainForm: TMainForm
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 25
-          ItemHeight = 16
+          ItemHeight = 0
           PopupMenu = EmptyPopupMenu
           TabOrder = 1
           OnChange = BooksCBChange
@@ -278,10 +228,10 @@ object MainForm: TMainForm
           OnKeyPress = BooksCBKeyPress
         end
         object BookLB: TTntListBox
-          Left = 9
+          Left = 10
           Top = 66
-          Width = 235
-          Height = 196
+          Width = 234
+          Height = 195
           Hint = 'Select book to view'
           Style = lbOwnerDrawVariable
           Anchors = [akLeft, akTop, akRight, akBottom]
@@ -291,22 +241,22 @@ object MainForm: TMainForm
           OnMouseMove = BookLBMouseMove
         end
         object ChapterLB: TTntListBox
-          Left = 249
+          Left = 250
           Top = 66
           Width = 49
-          Height = 196
+          Height = 195
           Hint = 'Select chapter to view'
           Anchors = [akTop, akRight, akBottom]
-          ItemHeight = 16
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 3
           OnClick = ChapterLBClick
         end
         object AddressOKButton: TTntButton
-          Left = 245
-          Top = 5
-          Width = 55
-          Height = 22
+          Left = 244
+          Top = 4
+          Width = 57
+          Height = 24
           Hint = 'Go to link'
           Anchors = [akTop, akRight]
           Caption = 'OK'
@@ -314,10 +264,10 @@ object MainForm: TMainForm
           OnClick = AddressOKButtonClick
         end
         object GoEdit: TTntEdit
-          Left = 6
-          Top = 4
-          Width = 213
-          Height = 24
+          Left = 4
+          Top = 3
+          Width = 214
+          Height = 23
           Hint = 'Enter or paste verse link like Mk 10:30'
           Anchors = [akLeft, akTop, akRight]
           PopupMenu = MemoPopupMenu
@@ -329,9 +279,9 @@ object MainForm: TMainForm
         end
         object btbtnHelperButton: TTntBitBtn
           Left = 221
-          Top = 5
+          Top = 4
           Width = 22
-          Height = 22
+          Height = 24
           Hint = 'Module info and book signature hints'
           Anchors = [akTop, akRight]
           TabOrder = 4
@@ -367,20 +317,24 @@ object MainForm: TMainForm
       end
       object HistoryBookmarkPages: TTntPageControl
         Left = 0
-        Top = 281
-        Width = 302
-        Height = 478
+        Top = 282
+        Width = 301
+        Height = 266
         ActivePage = HistoryTab
         Align = alClient
         TabOrder = 1
         HideTabsHints = False
         object HistoryTab: TTntTabSheet
           Caption = 'HistoryTab'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object HistoryLB: TTntListBox
             Left = 0
             Top = 0
-            Width = 294
-            Height = 447
+            Width = 293
+            Height = 235
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -396,11 +350,15 @@ object MainForm: TMainForm
         object BookmarksTab: TTntTabSheet
           Caption = 'BookmarksTab'
           ImageIndex = 1
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object BookmarksLB: TTntListBox
             Left = 0
             Top = 0
-            Width = 294
-            Height = 330
+            Width = 293
+            Height = 118
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -412,15 +370,15 @@ object MainForm: TMainForm
           end
           object BookmarkPanel: TTntPanel
             Left = 0
-            Top = 330
-            Width = 294
+            Top = 118
+            Width = 293
             Height = 117
             Align = alBottom
             BevelOuter = bvNone
             BorderWidth = 10
             TabOrder = 1
-            ExplicitTop = 335
-            ExplicitWidth = 293
+            ExplicitTop = 117
+            ExplicitWidth = 292
             object BookmarkLabel: TTntLabel
               Left = 11
               Top = 11
@@ -434,57 +392,60 @@ object MainForm: TMainForm
         end
         object tbQuickSearch: TTntTabSheet
           Caption = #1041#1099#1089#1090#1088#1099#1081' '#1087#1086#1080#1089#1082
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object SearchInWindowLabel: TTntLabel
             Left = 0
             Top = 0
-            Width = 294
+            Width = 104
             Height = 16
             Align = alTop
             Caption = #1053#1072#1081#1090#1080' '#1074' '#1101#1090#1086#1084' '#1086#1082#1085#1077
             Layout = tlCenter
-            ExplicitWidth = 104
           end
           object QuickSearchPanel: TTntPanel
             Left = 0
             Top = 16
-            Width = 294
+            Width = 293
             Height = 113
             Align = alTop
             BevelOuter = bvNone
             TabOrder = 0
             DesignSize = (
-              294
+              293
               113)
             object btnQuickSearchBack: TTntBitBtn
               Left = 4
               Top = 17
               Width = 28
-              Height = 27
+              Height = 28
               TabOrder = 0
               OnClick = SearchBackwardClick
               Style = bsNew
             end
             object SearchEdit: TTntEdit
-              Left = 41
+              Left = 42
               Top = 18
-              Width = 207
+              Width = 206
               Height = 23
               Hint = ' '
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 1
               OnKeyUp = SearchEditKeyUp
-              ExplicitWidth = 206
+              ExplicitWidth = 205
             end
             object btnQuickSearchFwd: TTntBitBtn
-              Left = 256
+              Left = 257
               Top = 17
-              Width = 29
-              Height = 27
+              Width = 30
+              Height = 28
               Anchors = [akTop, akRight]
               TabOrder = 2
               OnClick = btnQuickSearchFwdClick
               Style = bsNew
-              ExplicitLeft = 255
+              ExplicitLeft = 256
             end
           end
         end
@@ -495,11 +456,15 @@ object MainForm: TMainForm
       ParentShowHint = False
       ShowHint = True
       TabHint = 'Search'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 552
       object SearchBrowser: THTMLViewer
         Left = 0
         Top = 191
-        Width = 302
-        Height = 568
+        Width = 301
+        Height = 357
         OnHotSpotClick = SearchBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -518,22 +483,22 @@ object MainForm: TMainForm
         htOptions = []
         OnKeyDown = SearchBrowserKeyDown
         OnKeyUp = SearchBrowserKeyUp
-        ExplicitHeight = 573
+        ExplicitHeight = 355
       end
       object SearchBoxPanel: TTntPanel
         Left = 0
         Top = 0
-        Width = 302
+        Width = 301
         Height = 191
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
         DesignSize = (
-          302
+          301
           191)
         object SearchLabel: TTntLabel
           Left = 4
-          Top = 169
+          Top = 170
           Width = 70
           Height = 16
           Caption = 'SearchLabel'
@@ -547,14 +512,14 @@ object MainForm: TMainForm
           AutoCloseUp = True
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 10
-          ItemHeight = 16
+          ItemHeight = 0
           TabOrder = 0
           OnKeyUp = SearchCBKeyUp
         end
         object CBList: TTntComboBox
-          Left = 28
+          Left = 29
           Top = 30
-          Width = 210
+          Width = 209
           Height = 24
           Hint = 'Search scope'
           Anchors = [akLeft, akTop, akRight]
@@ -570,8 +535,8 @@ object MainForm: TMainForm
           AlignWithMargins = True
           Left = 243
           Top = 30
-          Width = 57
-          Height = 24
+          Width = 58
+          Height = 23
           Anchors = [akTop, akRight]
           Caption = #1053#1072#1081#1090#1080
           Default = True
@@ -580,9 +545,9 @@ object MainForm: TMainForm
         end
         object CBAll: TTntCheckBox
           Left = 3
-          Top = 60
-          Width = 297
-          Height = 18
+          Top = 61
+          Width = 298
+          Height = 17
           Anchors = [akLeft, akTop, akRight]
           Caption = #1083#1102#1073#1086#1077' '#1080#1079' '#1089#1083#1086#1074
           TabOrder = 3
@@ -590,7 +555,7 @@ object MainForm: TMainForm
         object CBPhrase: TTntCheckBox
           Left = 4
           Top = 81
-          Width = 296
+          Width = 297
           Height = 18
           Anchors = [akLeft, akTop, akRight]
           Caption = #1089#1086#1073#1083#1102#1076#1072#1090#1100' '#1087#1086#1088#1103#1076#1086#1082' '#1089#1083#1086#1074
@@ -598,9 +563,9 @@ object MainForm: TMainForm
         end
         object CBParts: TTntCheckBox
           Left = 4
-          Top = 124
-          Width = 296
-          Height = 18
+          Top = 125
+          Width = 297
+          Height = 17
           Anchors = [akLeft, akTop, akRight]
           Caption = #1080#1097#1077#1084' '#1089#1083#1086#1074#1072' '#1094#1077#1083#1080#1082#1086#1084
           TabOrder = 6
@@ -608,7 +573,7 @@ object MainForm: TMainForm
         object CBCase: TTntCheckBox
           Left = 4
           Top = 145
-          Width = 296
+          Width = 297
           Height = 18
           Anchors = [akLeft, akTop, akRight]
           Caption = #1088#1072#1079#1083#1080#1095#1072#1090#1100' '#1088#1077#1075#1080#1089#1090#1088#1099
@@ -616,18 +581,18 @@ object MainForm: TMainForm
         end
         object CBExactPhrase: TTntCheckBox
           Left = 4
-          Top = 101
-          Width = 296
-          Height = 20
+          Top = 100
+          Width = 297
+          Height = 22
           Anchors = [akLeft, akTop, akRight]
           Caption = #1080#1097#1077#1084' '#1090#1086#1095#1085#1091#1102' '#1092#1088#1072#1079#1091
           TabOrder = 5
           OnClick = CBExactPhraseClick
         end
         object CBQty: TTntComboBox
-          Left = 249
+          Left = 250
           Top = 2
-          Width = 52
+          Width = 51
           Height = 24
           Hint = 'Number of result to display per view'
           Style = csDropDownList
@@ -645,8 +610,8 @@ object MainForm: TMainForm
         object SearchOptionsButton: TTntButton
           Left = 4
           Top = 31
-          Width = 21
-          Height = 22
+          Width = 22
+          Height = 21
           Caption = '<'
           TabOrder = 9
           OnClick = SearchOptionsButtonClick
@@ -656,11 +621,15 @@ object MainForm: TMainForm
     object DicTab: TTntTabSheet
       ImageIndex = 17
       TabHint = 'Dictionaries'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object DicBrowser: THTMLViewer
         Left = 0
-        Top = 249
-        Width = 302
-        Height = 510
+        Top = 250
+        Width = 301
+        Height = 298
         OnHotSpotCovered = FirstBrowserHotSpotCovered
         OnHotSpotClick = DicBrowserHotSpotClick
         TabOrder = 0
@@ -680,12 +649,11 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         htOptions = []
         OnMouseDouble = DicBrowserMouseDouble
-        ExplicitHeight = 516
       end
       object DicPanel: TTntPanel
         Left = 0
         Top = 0
-        Width = 302
+        Width = 301
         Height = 190
         Align = alTop
         Anchors = []
@@ -693,17 +661,17 @@ object MainForm: TMainForm
         BevelOuter = bvNone
         TabOrder = 1
         DesignSize = (
-          302
+          301
           190)
         object DicFilterCB: TTntComboBox
           Left = 4
-          Top = 6
+          Top = 5
           Width = 293
           Height = 24
           Hint = 'Select dictionary to search within'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 16
+          ItemHeight = 0
           PopupMenu = EmptyPopupMenu
           TabOrder = 0
           OnChange = DicFilterCBChange
@@ -715,7 +683,7 @@ object MainForm: TMainForm
           Height = 24
           Hint = 'ent word to search here'
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 16
+          ItemHeight = 0
           TabOrder = 1
           OnChange = DicEditChange
           OnKeyPress = DicEditKeyPress
@@ -725,7 +693,7 @@ object MainForm: TMainForm
           Left = 4
           Top = 63
           Width = 293
-          Height = 122
+          Height = 123
           Anchors = [akLeft, akTop, akRight]
           DefaultNodeHeight = 16
           Header.AutoSizeIndex = 0
@@ -752,32 +720,32 @@ object MainForm: TMainForm
       object DicCBPanel: TTntPanel
         Left = 0
         Top = 190
-        Width = 302
-        Height = 59
+        Width = 301
+        Height = 60
         Align = alTop
         Anchors = []
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 2
         DesignSize = (
-          302
-          59)
+          301
+          60)
         object DicFoundSeveral: TTntLabel
-          Left = 9
-          Top = 5
+          Left = 10
+          Top = 4
           Width = 183
           Height = 16
           Caption = #1085#1072#1081#1076#1077#1085#1086' '#1074' '#1085#1077#1089#1082#1086#1083#1100#1082#1080#1093' '#1089#1083#1086#1074#1072#1088#1103#1093':'
         end
         object DicCB: TTntComboBox
           Left = 3
-          Top = 27
+          Top = 28
           Width = 294
           Height = 24
           Hint = 'Select dictionary to show entry from'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 16
+          ItemHeight = 0
           PopupMenu = EmptyPopupMenu
           TabOrder = 0
           OnChange = DicCBChange
@@ -787,12 +755,16 @@ object MainForm: TMainForm
     object StrongTab: TTntTabSheet
       ImageIndex = 18
       TabHint = 'Strong'#39's Dictionary'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object StrongBrowser: THTMLViewer
         AlignWithMargins = True
         Left = 3
-        Top = 223
-        Width = 296
-        Height = 533
+        Top = 224
+        Width = 295
+        Height = 321
         OnHotSpotClick = StrongBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -811,23 +783,23 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         htOptions = [htNoLinkUnderline]
         OnMouseDouble = StrongBrowserMouseDouble
-        ExplicitHeight = 539
+        ExplicitHeight = 320
       end
       object StrongPanel: TTntPanel
         Left = 0
         Top = 0
-        Width = 302
+        Width = 301
         Height = 193
         Align = alTop
         Anchors = []
         BevelOuter = bvNone
         TabOrder = 1
         DesignSize = (
-          302
+          301
           193)
         object StrongEdit: TTntEdit
           Left = 4
-          Top = 5
+          Top = 4
           Width = 293
           Height = 23
           Hint = 'Strong number to show'
@@ -840,7 +812,7 @@ object MainForm: TMainForm
           Left = 4
           Top = 34
           Width = 293
-          Height = 153
+          Height = 154
           Anchors = [akLeft, akTop, akRight]
           ItemHeight = 16
           PopupMenu = EmptyPopupMenu
@@ -851,8 +823,8 @@ object MainForm: TMainForm
       object FindStrongNumberPanel: TTntPanel
         Left = 0
         Top = 193
-        Width = 302
-        Height = 27
+        Width = 301
+        Height = 28
         Cursor = crHandPoint
         Align = alTop
         Anchors = []
@@ -861,7 +833,7 @@ object MainForm: TMainForm
         Caption = '# search'
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
-        Font.Height = -16
+        Font.Height = -18
         Font.Name = 'Arial Unicode MS'
         Font.Style = [fsUnderline]
         ParentFont = False
@@ -873,11 +845,15 @@ object MainForm: TMainForm
     end
     object CommentsTab: TTntTabSheet
       TabHint = 'Commentaries'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object CommentsBrowser: THTMLViewer
         Left = 0
         Top = 32
-        Width = 302
-        Height = 727
+        Width = 301
+        Height = 516
         OnHotSpotCovered = FirstBrowserHotSpotCovered
         OnHotSpotClick = CommentsBrowserHotSpotClick
         TabOrder = 0
@@ -895,43 +871,76 @@ object MainForm: TMainForm
         PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
         htOptions = []
-        ExplicitHeight = 733
       end
       object Panel4: TTntPanel
         Left = 0
         Top = 0
-        Width = 302
+        Width = 301
         Height = 32
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
         DesignSize = (
-          302
+          301
           32)
         object CommentsCB: TTntComboBox
           Left = 1
           Top = 3
-          Width = 298
+          Width = 271
           Height = 24
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 25
-          ItemHeight = 16
+          ItemHeight = 0
           PopupMenu = EmptyPopupMenu
           TabOrder = 0
           OnChange = CommentsCBChange
           OnCloseUp = CommentsCBCloseUp
+          OnDropDown = CommentsCBDropDown
+        end
+        object btnOnlyMeaningful: TrkGlassButton
+          Left = 275
+          Top = 4
+          Width = 23
+          Height = 22
+          AltFocus = True
+          AltRender = False
+          Anchors = [akTop, akRight]
+          Color = clWhite
+          ColorDown = 15182972
+          ColorFocused = clActiveBorder
+          ColorFrame = clBlack
+          ColorShadow = 15648678
+          Down = True
+          DropDownAlignment = paLeft
+          Flat = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWhite
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          GlossyLevel = 36
+          ImageIdx = 40
+          Images = theImageList
+          LightHeight = 27
+          TabOrder = 1
+          TextAlign = taLeft
+          OnClick = btnOnlyMeaningfulClick
         end
       end
     end
     object MemoTab: TTntTabSheet
       ImageIndex = 2
       TabHint = 'Memos'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object TREMemo: TTntRichEdit
         Left = 0
         Top = 25
-        Width = 302
-        Height = 704
+        Width = 301
+        Height = 492
         Align = alClient
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
@@ -946,15 +955,15 @@ object MainForm: TMainForm
       end
       object Panel3: TTntPanel
         Left = 0
-        Top = 729
-        Width = 302
-        Height = 30
+        Top = 517
+        Width = 301
+        Height = 31
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 735
+        ExplicitTop = 516
         object MemoLabel: TTntLabel
-          Left = 5
+          Left = 4
           Top = 4
           Width = 12
           Height = 16
@@ -965,7 +974,7 @@ object MainForm: TMainForm
         AlignWithMargins = True
         Left = 2
         Top = 2
-        Width = 297
+        Width = 296
         Height = 23
         Margins.Left = 2
         Margins.Top = 2
@@ -973,7 +982,7 @@ object MainForm: TMainForm
         GradientEndColor = 11517638
         Images = theImageList
         TabOrder = 2
-        ExplicitWidth = 278
+        ExplicitWidth = 277
         object MemoOpen: TTntToolButton
           Left = 0
           Top = 0
@@ -1056,12 +1065,12 @@ object MainForm: TMainForm
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 695
+      ExplicitHeight = 0
       object XRefBrowser: THTMLViewer
         Left = 0
         Top = 0
-        Width = 302
-        Height = 765
+        Width = 301
+        Height = 709
         OnHotSpotClick = XRefBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -1082,10 +1091,14 @@ object MainForm: TMainForm
     end
     object tbList: TTntTabSheet
       ImageIndex = 39
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object TntToolBar2: TTntToolBar
         Left = 0
         Top = 0
-        Width = 302
+        Width = 301
         Height = 30
         ButtonHeight = 30
         ButtonWidth = 31
@@ -1111,8 +1124,8 @@ object MainForm: TMainForm
       object vdtTags_Verses: TVirtualDrawTree
         Left = 0
         Top = 54
-        Width = 302
-        Height = 705
+        Width = 301
+        Height = 494
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1157,6 +1170,7 @@ object MainForm: TMainForm
         TreeOptions.PaintOptions = [toHideFocusRect, toThemeAware]
         TreeOptions.SelectionOptions = [toFullRowSelect]
         OnCollapsed = vdtTags_VersesCollapsed
+        OnCompareNodes = vdtTags_VersesCompareNodes
         OnCreateEditor = vdtTags_VersesCreateEditor
         OnDblClick = vdtTags_VersesDblClick
         OnDrawNode = vdtTags_VersesDrawNode
@@ -1174,12 +1188,12 @@ object MainForm: TMainForm
       object cbbTagsFilter: TTntComboBox
         Left = 0
         Top = 30
-        Width = 302
+        Width = 301
         Height = 24
         Align = alTop
         BevelInner = bvSpace
         BevelOuter = bvSpace
-        ItemHeight = 16
+        ItemHeight = 0
         TabOrder = 2
         OnChange = cbbTagsFilterChange
       end
@@ -1188,7 +1202,7 @@ object MainForm: TMainForm
   object ToolbarPanel: TAlekPanel
     Left = 0
     Top = 0
-    Width = 1017
+    Width = 997
     Height = 29
     Align = alTop
     AutoSize = True
@@ -1199,9 +1213,9 @@ object MainForm: TMainForm
     GradientStartColor = clWindow
     GradientEndColor = clBtnFace
     object lbTitleLabel: TTntLabel
-      Left = 616
+      Left = 631
       Top = 1
-      Width = 332
+      Width = 297
       Height = 27
       Margins.Right = 7
       Align = alClient
@@ -1210,33 +1224,32 @@ object MainForm: TMainForm
       Caption = 'lbTitleLabel'
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 657
-      ExplicitWidth = 287
+      ExplicitLeft = 673
+      ExplicitWidth = 252
     end
     object lbCopyRightNotice: TTntLabel
       AlignWithMargins = True
-      Left = 951
+      Left = 931
       Top = 4
       Width = 58
-      Height = 21
+      Height = 16
       Margins.Right = 7
       Align = alRight
       Alignment = taRightJustify
       Caption = 'CopyRight'
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 16
     end
     object MainToolbar: TTntToolBar
       Left = 1
       Top = 1
-      Width = 456
+      Width = 471
       Height = 27
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
       AutoSize = True
-      ButtonWidth = 24
+      ButtonWidth = 43
       DrawingStyle = dsGradient
       EdgeInner = esNone
       EdgeOuter = esNone
@@ -1398,17 +1411,19 @@ object MainForm: TMainForm
         ImageIndex = 3
         Style = tbsCheck
         OnClick = SatelliteButtonClick
+        OnMouseEnter = SatelliteButtonMouseEnter
       end
       object tbtnResolveLinks: TTntToolButton
         Left = 420
         Top = 0
         Caption = 'Recognize Bible Links'
-        ImageIndex = 37
-        Style = tbsCheck
+        DropdownMenu = popupRecLinksOptions
+        ImageIndex = 43
+        Style = tbsDropDown
         OnClick = tbtnResolveLinksClick
       end
       object tbbMainPanelLastSeparator: TTntToolButton
-        Left = 444
+        Left = 459
         Top = 0
         Width = 12
         Caption = 'tbbMainPanelLastSeparator'
@@ -1417,15 +1432,15 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TTntToolBar
-      Left = 457
+      Left = 472
       Top = 1
       Width = 159
       Height = 27
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
-      ButtonHeight = 24
-      ButtonWidth = 24
+      ButtonHeight = 7
+      ButtonWidth = 13
       Caption = '44444'
       DrawingStyle = dsGradient
       GradientEndColor = clBtnFace
@@ -1445,7 +1460,7 @@ object MainForm: TMainForm
         BevelInner = bvNone
         BevelOuter = bvNone
         Style = csDropDownList
-        ItemHeight = 16
+        ItemHeight = 0
         TabOrder = 0
         OnChange = LinksCBChange
       end
@@ -1453,13 +1468,67 @@ object MainForm: TMainForm
   end
   object TRE: TTntRichEdit
     Left = 324
-    Top = 74
-    Width = 101
-    Height = 139
+    Top = 75
+    Width = 102
+    Height = 137
     Lines.Strings = (
       'TRE')
     TabOrder = 4
     Visible = False
+  end
+  object btmPaint: TPanel
+    Left = 0
+    Top = 608
+    Width = 997
+    Height = 22
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 5
+    object imgLoadProgress: TTntImage
+      Tag = 1
+      AlignWithMargins = True
+      Left = 976
+      Top = 0
+      Width = 21
+      Height = 22
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alRight
+      Center = True
+      Proportional = True
+      Transparent = True
+      Visible = False
+      OnClick = imgLoadProgressClick
+    end
+    object mBibleTabsEx: TDockTabSet
+      Tag = -1
+      Left = 0
+      Top = 0
+      Width = 976
+      Height = 22
+      Cursor = crHandPoint
+      Hint = 'rtet'
+      Align = alClient
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -18
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      StartMargin = 0
+      SoftTop = True
+      Style = tsSoftTabs
+      TabHeight = 18
+      OnClick = mBibleTabsExClick
+      OnChange = mBibleTabsExChange
+      OnDragDrop = BibleTabsDragDrop
+      OnDragOver = BibleTabsDragOver
+      OnMouseDown = mBibleTabsExMouseDown
+      OnMouseMove = mBibleTabsExMouseMove
+      OnMouseUp = mBibleTabsExMouseUp
+      DockSite = False
+    end
   end
   object OpenDialog1: TTntOpenDialog
     Left = 633
@@ -1512,7 +1581,7 @@ object MainForm: TMainForm
       OnClick = miAddBookmarkClick
     end
     object miAddBookmarkTagged: TTntMenuItem
-      Caption = 'miAddBookmarkTagged'
+      Caption = 'Add Themed Bookmark'
       OnClick = miAddBookmarkTaggedClick
     end
     object miAddMemo: TTntMenuItem
@@ -1553,7 +1622,7 @@ object MainForm: TMainForm
   object RefPopupMenu: TTntPopupMenu
     AutoHotkeys = maManual
     OnPopup = RefPopupMenuPopup
-    Left = 405
+    Left = 406
     Top = 269
     object miRefCopy: TTntMenuItem
       Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
@@ -1896,8 +1965,8 @@ object MainForm: TMainForm
     Left = 360
     Top = 432
     Bitmap = {
-      494C010128002900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
-      000000000000360000002800000040000000B0000000010020000000000000B0
+      494C01012C002D00040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      000000000000360000002800000040000000C0000000010020000000000000C0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2027,6 +2096,134 @@ object MainForm: TMainForm
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000FFFEFEFDFFE6CAA1FFCB88
+      2CFFCE913EFFEDD9BBFFFEFFFEFF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FFFDFDFDFFC0C0C0FF7373
+      73FF7F7F7FFFD2D2D2FFFEFEFEFF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FFFBFBFAFF94B1B8FF2785
+      B7FF3889B3FFB0C3C2FFFCFEFDFF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FEFEFDFFD9A861FFC26900FFD484
+      01FFD07F00FFC16800FFE3C593FFFEFFFFFF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FFFDFDFDFF979797FF535353FF6565
+      65FF616161FF525252FFB9B9B9FFFEFEFEFF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FFFBFBFBFF599AB7FF0084C2FF007F
+      D4FF007DD1FF0084C2FF88ADB9FFFDFEFEFF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF0000000000000000505050005050
+      5000505050000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000E6C690FFC56C00FFDFA644FFFAF6
+      ECFFF8F0DDFFD7921DFFC56D00FFE7CB99FFFEFEFFFF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FFB8B8B8FF555555FF8E8E8EFFF3F3
+      F3FFEBEBEBFF767676FF555555FFBEBEBEFFFEFEFEFF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF85ABBAFF0083C4FF3F92C7FFE5E6
+      E2FFD6DDD5FF1A85CEFF0083C4FF8FB1BAFFFDFCFEFF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF00000000727272006D6D6D006D6D
+      6D006A6A6A005050500000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000CB810CFFD28815FFFDFBF8FF0000
+      00FF000000FFFCF9F3FFDD9B29FFC87100FFEBCF9FFFFEFFFFFF000000FF0000
+      00FF000000FF000000FF000000FF000000FF656565FF6D6D6DFFFAFAFAFF0000
+      00FF000000FFF7F7F7FF808080FF585858FFC3C3C3FFFEFEFEFF000000FF0000
+      00FF000000FF000000FF000000FF000000FF0979BFFF1583CCFFF5F6F4FF0000
+      00FF000000FFEFF0EDFF268ACCFF0081C7FF97B6C0FFFDFFFFFF000000FF0000
+      00FF000000FF000000FF000000FF000000FF0000000078787800555555000000
+      0000000000006D6D6D0050505000000000000000000000000000000000000000
+      000000000000000000000000000000000000D38B0BFFD08B16FFFDFCF8FF0000
+      00FFFEFEFEFFF8F2E5FFF6EBD3FFE0A02AFFD18200FFFCF9F3FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF6C6C6CFF6F6F6FFFFBFBFBFF0000
+      00FF000000FF000000FFE5E5E5FF838383FF636363FFF8F8F8FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF097AC7FF167FC9FFF5F6F2FF0000
+      00FFFDFDFDFFE0E7E7FFCCD7D4FF298AD0FF007DD1FFEFEFECFF000000FF0000
+      00FF000000FF000000FF000000FF000000FF00000000818181005A5A5A000000
+      0000727272005555550072727200555555000000000000000000000000000000
+      000000000000000000000000000000000000EDCE8CFFD38200FFDCA848FFFEFE
+      FCFFF7EEDAFFBF6800FFD49C4EFFF4E7C6FFDEA228FFFAF2E1FF000000FF0000
+      00FF000000FF000000FF000000FF000000FFBDBDBDFF636363FF909090FFFDFD
+      FDFF000000FF000000FF000000FFDEDEDEFF848484FFEEEEEEFF000000FF0000
+      00FF000000FF000000FF000000FF000000FF85AEC3FF007FD4FF4490C4FFFAFB
+      F9FFD5E0E1FF0080BFFF4894BAFFC0CFD1FF2685CFFFDBE0D7FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF0000000000000000858585006161
+      610000000000777777005A5A5A00777777005A5A5A0000000000000000000000
+      000000000000000000000000000000000000FEFDFCFFE8BE58FFD78700FFDFB3
+      57FFF6EBD1FFDC961BFFCB7600FFD8A144FFF5E9CBFFF9F0DAFFF5E6BFFFFAF5
+      E7FFFEFFFFFF000000FF000000FF000000FFFDFDFDFFA3A3A3FF676767FF9C9C
+      9CFFE4E4E4FF000000FF000000FF000000FFE2E2E2FFEAEAEAFFDBDBDBFFF1F1
+      F1FFFEFEFEFF000000FF000000FF000000FFF9FAF9FF5497CDFF007DD6FF5194
+      C0FFCBD8D8FF1488DBFF0081CCFF3F8FC3FFC5D4D8FFD5DDDBFFB8C9CAFFE3E7
+      E1FFFDFEFEFF000000FF000000FF000000FF0000000000000000000000008A8A
+      8A0065656500000000007E7E7E00616161008181810065656500000000000000
+      000000000000000000000000000000000000000000FFFEFDFBFFECC460FFDA8E
+      00FFE3B250FFF5E5BDFFE1A51BFFD38600FFDEA83FFFF4E4BCFFE1A311FFD98E
+      00FFEED396FFFEFFFFFF000000FF000000FF000000FFFDFDFDFFAAAAAAFF6B6B
+      6BFF9A9A9AFFDBDBDBFF000000FF000000FF000000FFD9D9D9FF7D7D7DFF6B6B
+      6BFFC3C3C3FFFEFEFEFF000000FF000000FF000000FFF9FAF8FF5C99CBFF007B
+      D9FF4C97CAFFB8CDD6FF147EE0FF007BD4FF2C8FDBFFB6CCD7FF127CDDFF007B
+      D9FF8FB3C5FFFDFEFEFF000000FF000000FF0000000000000000A3A3A3007575
+      7500969696006D6D6D00000000008D8D8D006A6A6A008D8D8D006D6D6D000000
+      000000000000000000000000000000000000000000FF000000FFFEFEFCFFEFCC
+      70FFE2A100FFEBBC4CFFF6E9C3FFE9B127FFDC9300FFE4B43FFFF6E8C1FFE7AF
+      23FFDB9100FFF1D699FFFEFFFFFF000000FF000000FF000000FFFDFDFDFFB4B4
+      B4FF777777FF9F9F9FFFDFDFDFFF000000FF000000FF000000FFDDDDDDFF8B8B
+      8BFF6D6D6DFFC7C7C7FFFEFEFEFF000000FF000000FF000000FFFAFBF9FF6CA0
+      C9FF0071E3FF4B99DBFFBFD1D6FF2685DFFF0079DBFF2B87E3FFBDD1DAFF2180
+      DBFF0079DBFF93B5C6FFFDFEFEFF000000FF000000000000000000000000ACAC
+      AC007E7E7E00A3A3A30077777700000000009898980075757500989898007575
+      750000000000000000000000000000000000000000FF000000FF000000FFFEFE
+      FEFFFBF2DDFFF6E5B7FFFAF1DBFFF7E9C2FFEFC248FFE8A609FFEDC459FFFAF5
+      E1FFEAB52CFFDE9800FFF2D897FFFEFEFEFF000000FF000000FF000000FFFEFE
+      FEFFECECECFFD8D8D8FFECECECFFDFDFDFFF000000FF000000FF000000FFF0F0
+      F0FF919191FF727272FFC7C7C7FFFEFEFEFF000000FF000000FF000000FFFDFD
+      FDFFD8DDD4FFAEBDB4FFD7DFDEFFBED1DBFF4696E7FF097CE8FF599EDEFFDEE4
+      E1FF2A85DCFF0076DEFF92B5C6FFFCFCFCFF0000000000000000000000000000
+      0000B3B3B3008A8A8A00ACACAC0081818100A3A3A3007E7E7E00000000009F9F
+      9F007E7E7E00000000000000000000000000000000FF000000FF000000FF0000
+      00FF000000FF000000FFF4E5B7FFEABB44FFFBF0D6FFF7DD97FFF4CD67FFFEFE
+      FDFFFDFAF0FFEBB833FFE19E00FFF9EBC9FF000000FF000000FF000000FF0000
+      00FF000000FF000000FFD9D9D9FF9C9C9CFFE9E9E9FF000000FF000000FFFEFE
+      FEFFF7F7F7FF959595FF757575FFE2E2E2FF000000FF000000FF000000FF0000
+      00FF000000FF000000FFB0C4C8FF428FD7FFD3DED9FF94BBD6FF66A7DCFFFBFB
+      FAFFEEF0EBFF3389E1FF0074E0FFC5D3D4FF0000000000000000000000000000
+      000000000000BABABA0091919100B3B3B300ACACAC000000000000000000A5A5
+      A50081818100000000000000000000000000000000FF000000FF000000FF0000
+      00FF000000FF000000FFFAF1D9FFE8A705FFEDC357FFFBF5E3FFFDFCF5FF0000
+      00FF000000FFFAF3DFFFE6A501FFF0CE71FF000000FF000000FF000000FF0000
+      00FF000000FF000000FFEBEBEBFF7D7D7DFFA7A7A7FFF0F0F0FFFAFAFAFF0000
+      00FF000000FFEEEEEEFF7A7A7AFFB5B5B5FF000000FF000000FF000000FF0000
+      00FF000000FF000000FFD6DEDCFF0576E8FF5599D2FFE0E9EBFFF3F4F1FF0000
+      00FF000000FFDBE2DFFF0073E6FF6DA3CCFF0000000000000000000000000000
+      00000000000000000000BFBFBF009A9A9A00000000000000000000000000ACAC
+      AC0085858500000000000000000000000000000000FF000000FF000000FF0000
+      00FF000000FF000000FFFEFEFEFFF5D588FFECB118FFEFC75DFFFEFEFCFF0000
+      00FF000000FFF9F1D4FFEAAC09FFF5D68AFF000000FF000000FF000000FF0000
+      00FF000000FF000000FFFEFEFEFFC1C1C1FF898989FFABABABFFFDFDFDFF0000
+      00FF000000FFE9E9E9FF818181FFC2C2C2FF000000FF000000FF000000FF0000
+      00FF000000FF000000FFFCFCFCFF86B9E0FF1882EDFF5C9FDBFFFAFBFAFF0000
+      00FF000000FFCFDADAFF097AEBFF87B6D5FF0000000000000000000000000000
+      0000000000000000000000000000C1C1C1009F9F9F009A9A9A00B6B6B6009191
+      910000000000000000000000000000000000000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FFFEFEFDFFF7D88AFFF1B92BFFF3CA5FFFFDF8
+      EFFFFBF1D6FFF0B92FFFF2BD3BFFFAF4DFFF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FFFEFEFEFFC3C3C3FF949494FFADADADFFF6F6
+      F6FFEAEAEAFF959595FF9B9B9BFFEEEEEEFF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FFFBFBFAFF87B6DBFF2C8FF2FF5EA4E4FFECEE
+      EBFFD3DDDCFF3090EFFF3A96F2FFDBE2E0FF0000000000000000000000000000
+      000000000000000000000000000000000000C4C4C400C1C1C1009F9F9F000000
+      000000000000000000000000000000000000000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FFFEFCF6FFF8D581FFF4C33FFFF2C0
+      3DFFF3BE38FFF5C64FFFFBE9B9FFFEFEFEFF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FFFAFAFAFFBFBFBFFFA0A0A0FF9E9E
+      9EFF9B9B9BFFA7A7A7FFDDDDDDFFFEFEFEFF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FFF4F3EDFF7FB2D8FF4097F5FF3D97
+      F2FF3895F2FF4EA2F5FFB7CFDBFFFCFCFCFF0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FFFEFBF4FFFBE7B4FFF8D9
+      86FFF7DA8AFFFBF0CBFF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FFF9F9F9FFDADADAFFC3C3
+      C3FFC4C4C4FFE6E6E6FF000000FF000000FF000000FF000000FF000000FF0000
+      00FF000000FF000000FF000000FF000000FF000000FFF2F2EBFFB3CFDEFF84BC
+      EDFF89BCEDFFC8D3CCFF000000FF000000FF0000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000E6C3AA00CD896000C676
       4600BF6D36004D4D4D004D4D4D004D4D4D004D4D4D00BD6B31004D4D4D004D4D
@@ -3307,12 +3504,16 @@ object MainForm: TMainForm
       7300D6A57300E7BDA50000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000424D3E000000000000003E000000
-      2800000040000000B00000000100010000000000800500000000000000000000
+      2800000040000000C00000000100010000000000000600000000000000000000
       000000000000000000000000FFFFFF0000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000FFFF8003FFFF8001F00F8001F81FBFFD
+      00000000000000000000000000000000FFFF81FF81FF81FFFFFF00FF00FF00FF
+      C7FF007F007F007F83FF183F183F183F99FF103F1C3F103F90FF003F0E3F003F
+      C87F000707070007E43F800383838003C21FC001C1C1C001E10FE000E0E0E000
+      F027FC00FC60FC00F867FC18FC18FC18FCE7FC18FC18FC18FE0FFE00FE00FE00
+      FF1FFF00FF00FF00FFFFFF83FF83FF83FFFF8003FFFF8001F00F8001F81FBFFD
       F00F8000F007A005F00F8000E203A00580018000C013A00580018001C091A005
       80018003D199A0058001800391F9A0058001800391F9A00580018003C091A001
       80018003C813A00080018003C403A000F00F8003E187A000F00F8003F00FA000
@@ -3693,5 +3894,28 @@ object MainForm: TMainForm
       EC0101FFF81F000000000000E00001FFFC3F000000000000F80303FFFFFF0000
       00000000FFFFFFFFFFFF00000000000000000000000000000000000000000000
       000000000000}
+  end
+  object popupRecLinksOptions: TTntPopupMenu
+    Images = theImageList
+    OnChange = popupRecLinksOptionsChange
+    Left = 440
+    Top = 32
+    object miStrictLogic: TTntMenuItem
+      AutoCheck = True
+      Caption = 'Use only strict logic'
+      GroupIndex = 1
+      ImageIndex = 41
+      RadioItem = True
+      OnClick = miChooseLogicClick
+    end
+    object miFuzzyLogic: TTntMenuItem
+      AutoCheck = True
+      Caption = 'Use Fuzzy Logic'
+      Checked = True
+      GroupIndex = 1
+      ImageIndex = 43
+      RadioItem = True
+      OnClick = miChooseLogicClick
+    end
   end
 end

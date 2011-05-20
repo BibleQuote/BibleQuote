@@ -316,6 +316,7 @@ type
 {TNT-WARN TToolButton}
   TTntToolButton = class(TToolButton{TNT-ALLOW TToolButton})
   private
+    mEmbedDropDownStyle:Boolean;
     procedure CMVisibleChanged(var Message: TMessage); message CM_VISIBLECHANGED;
     function GetCaption: TWideCaption;
     procedure SetCaption(const Value: TWideCaption);
@@ -331,6 +332,7 @@ type
     procedure ActionChange(Sender: TObject; CheckDefaults: Boolean); override;
     function GetActionLinkClass: TControlActionLinkClass; override;
   published
+    property EmbedDropDownStyle:boolean read mEmbedDropDownStyle write mEmbedDropDownStyle;
     property Caption: TWideCaption read GetCaption write SetCaption stored IsCaptionStored;
     property Hint: WideString read GetHint write SetHint stored IsHintStored;
     property MenuItem: TMenuItem{TNT-ALLOW TMenuItem} read GetMenuItem write SetMenuItem;

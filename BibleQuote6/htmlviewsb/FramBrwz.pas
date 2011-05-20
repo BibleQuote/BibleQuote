@@ -31,7 +31,7 @@ interface
 
 uses
   SysUtils, Windows, Classes, Messages, Controls, ExtCtrls,
-  HtmlGlobals, HtmlSubs, HtmlView, Htmlun2, ReadHTML, UrlSubs, FramView;
+  HtmlGlobals, HtmlSubs, HtmlView, Htmlun2, ReadHTML, UrlSubs, FramView, HTMLEmbedInterfaces;
 
 type
   TGetPostRequestEvent = procedure(Sender: TObject; IsGet: boolean; const URL, Query: string;
@@ -65,7 +65,7 @@ type
     procedure RefreshEvent(Sender: TObject; Delay: integer; const URL: string); override;
     procedure RefreshTimerTimer(Sender: TObject); override;
     procedure ReLoadFiles(APosition: LongInt); override;
-    procedure URLExpandName(Sender: TObject; const SRC: string; var Rslt: string);
+    procedure URLExpandName(Sender: IHtmlViewerBase; const SRC: string; var Rslt: string);
   end;
 
   TbrSubFrameSet = class(TSubFrameSetBase) {can contain one or more TbrFrames and/or TSubFrameSets}
@@ -114,7 +114,7 @@ type
     function GetSubFrameSetClass: TSubFrameSetClass; override;
     procedure HotSpotCovered(Sender: TObject; const SRC: string); override;
     procedure CheckVisitedLinks; override;
-    procedure DoFormSubmitEvent(Sender: TObject; const Action, Target, EncType, Method: string; Results: ThtStringList); override;
+    procedure DoFormSubmitEvent(Sender: IHtmlViewerBase; const Action, Target, EncType, Method: string; Results: ThtStringList); override;
     procedure DoURLRequest(Sender: TObject; const SRC: string; var Stream: TMemoryStream); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -575,7 +575,7 @@ end;
 
 {----------------TbrFrame.URLExpandName}
 
-procedure TbrFrame.URLExpandName(Sender: TObject; const SRC: string; var Rslt: string);
+procedure TbrFrame.URLExpandName(Sender: IHtmlViewerBase; const SRC: string; var Rslt: string);
 var
   S: string;
   Viewer: ThtmlViewer;
@@ -583,7 +583,7 @@ begin
   S := ConvDosToHTML(SRC);
   if not IsFullUrl(S) then
   begin
-    Viewer := Sender as ThtmlViewer;
+    Viewer := Sender.GetControl()  as ThtmlViewer;
     if Viewer.Base <> '' then
       Rslt := CombineURL(ConvDosToHTML(Viewer.Base), S)
     else
@@ -1017,7 +1017,7 @@ end;
 
 {----------------TFrameBrowser.DoFormSubmitEvent}
 
-procedure TFrameBrowser.DoFormSubmitEvent(Sender: TObject; const Action, Target, EncType,
+procedure TFrameBrowser.DoFormSubmitEvent(Sender: IHtmlViewerBase; const Action, Target, EncType,
   Method: string; Results: ThtStringList);
 var
   S, Dest, Query: string;
@@ -1079,7 +1079,7 @@ begin
   try
   {see if the application wants to handle this event}
     UserHandled := false;
-    Viewer := (Sender as ThtmlViewer);
+    Viewer := (Sender.GetControl() as ThtmlViewer);
     if Assigned(FOnFormSubmit) then
       FOnFormSubmit(Self, Viewer, Action, Target, EncType, Method, Results, UserHandled);
     if not UserHandled then

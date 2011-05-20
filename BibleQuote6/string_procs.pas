@@ -471,7 +471,7 @@ end;
 function ParseHTML(s, HTML: WideString): WideString;
 var
   Tokens: TWideStrings;
-  i, minCharCode, s_length, tmp_max, tmp_ix, tc: integer;
+  i, minCharCode, s_length, tmp_max, tmp_ix{, tc}: integer;
   charArrayAccumullator: array of WideChar;
   useDefaultFilter: boolean;
   wstr:WideString;
@@ -502,7 +502,7 @@ begin
 //  FillChar(Pointer(tmp)^, tmp_max*2, 0);
   minCharCode := 65535;
   s_length:=Length(s);
-  tc:=GetTickCount();
+  //tc:=GetTickCount();
   repeat
     Inc(i);
 
@@ -550,9 +550,9 @@ begin
   charArrayAccumullator[tmp_ix]:=#0; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
   wstr:=PWideChar(@charArrayAccumullator[0]);
   Tokens.AddObject(wstr, Pointer(0));
-  tc:=GetTickCount()-tc;
+//  tc:=Integer(GetTickCount())-tc;
   Result := '';
-   tc:=GetTickCount();
+//   tc:=GetTickCount();
 
   for i := 0 to Tokens.Count-1 do
   begin
@@ -565,7 +565,7 @@ begin
     or (Pos(wstr,HTML) <> 0)
     then Result := Result + Tokens[i];
   end;
-  tc:=GetTickCount()-tc;
+//  tc:=Integer(GetTickCount())-tc;
   finally  SetLength(charArrayAccumullator,0); Tokens.Free; end;
 end;
 

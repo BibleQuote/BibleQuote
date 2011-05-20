@@ -924,10 +924,9 @@ var
   Tab: Integer;
   Leading: TEdgeType;
   Trailing: TEdgeType;
-  isFirst, isLast, isSelected, isPrevSelected, isHl: Boolean;
+  isFirst, isLast, isSelected, isPrevSelected: Boolean;
   R: TRect;
   MinRect: Integer;
-  S: string;
   sz: tagSIZE;
   ws:WideString;
   ImageIndex: Integer;
@@ -945,13 +944,13 @@ var
 var
   Format: Integer;
   F: TTextFormats;
-  r:integer;
+//  r:integer;
 begin
   Format := 0;
   for F := Low(TTextFormats) to High(TTextFormats) do
     if F in TextFormat then
       Format := Format or cTextFormats[F];
-  r:=DrawTextExW(Handle, PWideChar(Pointer(Text)), Length(Text), Rect, Format, nil);
+  DrawTextExW(Handle, PWideChar(Pointer(Text)), Length(Text), Rect, Format, nil);
 end;
 
 
@@ -1017,7 +1016,7 @@ begin
     isFirst := Tab = 0;
     isLast := Tab = VisibleTabs - 1;
     isSelected := Tab + FirstIndex = TabIndex;
-    isHl:=TUnicodeTabList(FWideTabs).tbStyles[tab]=1;
+//    isHl:=TUnicodeTabList(FWideTabs).tbStyles[tab]=1;
     isPrevSelected := (Tab + FirstIndex) - 1 = TabIndex;
 
     { Rule: every tab paints its leading edge, only the last tab paints a

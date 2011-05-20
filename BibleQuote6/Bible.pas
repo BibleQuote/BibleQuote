@@ -68,7 +68,7 @@ uses
   Windows, Messages, SysUtils, Classes, JclUnicode,
   WideStringsMod,
   Graphics, Controls, Forms, Dialogs,
-  string_procs, WCharReader, BibleQuoteUtils, bqLinksParserIntf;
+  string_procs, WCharReader, BibleQuoteUtils, bqLinksParserIntf,bqWinUIServices;
 
 const
   RusToEngTable: array[1..27] of integer =
@@ -246,7 +246,8 @@ type
   TModuleLocation = record
     bookIx, ChapterIx, VerseStartIx, VerseEndIx: integer;
   end;
-
+  TbqModuleStateEntries=(bqmsFontsInstallPending);
+  TbqModuleState=set of TbqModuleStateEntries;
   TBible = class(TComponent)
   private
     { Private declarations }
@@ -313,18 +314,21 @@ type
     FOnPasswordRequired: TBiblePasswordRequired;
 
     AlphabetArray: array[0..2047] of Cardinal;
+    mModuleState:TbqModuleState;
     mCategories: TWideStringList;
     mChapterHead: WideString;
     mUseChapterHead: boolean;
     mLoadedPath: WideString;
-
+    mInstallFontNames:WideString;
+    mUIServices:IBibleWinUIServices;
     procedure ClearAlphabetBits();
     procedure SetAlphabetBit(aCode: Integer; aValue: Boolean);
     function GetAlphabetBit(aCode: Integer): Boolean;
 
   protected
     mRecognizeBibleLinks: boolean;
-
+    mFuzzyResolveLnks:Boolean;
+    mShortNamesVars:WideStringsMod.TWideStringList;
     { Protected declarations }
     procedure LoadIniFile(value: WideString);
 
@@ -333,19 +337,25 @@ type
     procedure SearchBook(words: TWideStrings; params: byte; book: integer);
     procedure SetHTMLFilter(value: WideString);
     function toInternal(const bl: TBibleLink; out obl: TBibleLink; englishbible: Boolean = False; EnglishPsalms: Boolean = false): boolean;
+    function GetShortNameVars(bookIx:integer):WideString;
+    procedure SetShortNameVars(bookIx:integer; const Name:WideString);
+    procedure InstallFonts();
+    function GetVerse(i:Cardinal):WideString;
+
   public
     { Public declarations }
     ChapterQtys: array[1..MAX_BOOKQTY] of integer;
     FullNames: array[1..MAX_BOOKQTY] of WideString;
-    VarShortNames: array[1..MAX_BOOKQTY] of WideString;
+  //    VarShortNames: array[1..MAX_BOOKQTY] of WideString;
       // варианты сокращения названия книги
     ShortNames: array[1..MAX_BOOKQTY] of WideString;
+
       // стандартное сокращение
     PathNames: array[1..MAX_BOOKQTY] of WideString;
     function GetStucture(): AnsiString;
     function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
-    function LinkValidnessStatus(path: wideString; bl: TBibleLink; internalAddr: boolean = true): integer;
-    function InternalToAddressBookAdjusted(internalBook, internalChapter, internalVerse, ChapterCount: integer; var book, chapter, verse: integer): boolean;
+    function LinkValidnessStatus(path: wideString; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
+    function SyncToBible(const refBible:TBible;const bl:TBibleLink; out outBibleLink):integer;
     function IsCommentary(): boolean;
     property IniFile: WideString read FIniFile write LoadIniFile;
     property Path: WideString read FPath;
@@ -354,6 +364,7 @@ type
     property ShortName: WideString read FShortName;
     property Categories: TWideStringList read mCategories;
 
+    property ShortNamesVars[ix:integer]:Widestring read GetShortNameVars;
     property Copyright: WideString read FCopyright;
 
     property isBible: boolean read FBible;
@@ -383,12 +394,13 @@ type
 
     property RememberPlace: boolean read FRememberPlace write FRememberPlace;
 
-    property Lines: TWideStrings read FLines;
+    //property Lines: TWideStrings read FLines;
+    property Verses[i:Cardinal]:WideString read GetVerse;default;
 
     property SoundDirectory: WideString read FSoundDir;
     property StrongsDirectory: WideString read FStrongsDir;
 
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; uiServices:IBibleWinUIServices);reintroduce;
     destructor Destroy; override;
 
     function OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false):boolean;
@@ -406,10 +418,10 @@ type
     procedure ClearBuffers;
 
     function AddressToInternal(book, chapter, verse: integer;
-      var ibook, ichapter, iverse: integer): boolean; overload;
-    function AddressToInternal(moduleRelatedAddr: TBibleLink; out independent: TBibleLink): integer; overload;
+      var ibook, ichapter, iverse: integer; checkShortNames:boolean=true): boolean; overload;
+    function AddressToInternal(const moduleRelatedAddr: TBibleLink; out independent: TBibleLink): integer; overload;
     function InternalToAddress(ibook, ichapter, iverse: integer;
-      var book, chapter, verse: integer): boolean; overload;
+      var book, chapter, verse: integer; checkShortNames:boolean=true): boolean; overload;
     function InternalToAddress(inputLnk: TBibleLink; out outLink: TBibleLink): integer; overload;
     function ShortPassageSignature(book, chapter, fromverse, toverse: integer):
       WideString;
@@ -426,12 +438,13 @@ type
       everse: integer);
 
     function AddressToEnglish(book, chapter, verse: integer;
-      var ebook, echapter, everse: integer): boolean;
+      var ebook, echapter, everse: integer; checkShortNames:boolean=true): boolean;
     function EnglishToAddress(ebook, echapter, everse: integer;
       var book, chapter, verse: integer): boolean;
 (*AlekId:Добавлено*)
     procedure _InternalSetContext(book, chapter: integer);
     procedure SetHTMLFilterX(value: WideString; forceUserFilter: boolean);
+    function VerseCount():integer;
 (*AlekId:/Добавлено*)
   published
     { Published declarations }
@@ -450,6 +463,7 @@ type
       write FOnPasswordRequired;
     property RecognizeBibleLinks: boolean read mRecognizeBibleLinks write
       mRecognizeBibleLinks;
+    property FuzzyResolve:Boolean read mFuzzyResolveLnks write mFuzzyResolveLnks;
   end;
 
 procedure Register;
@@ -467,12 +481,14 @@ begin
   RegisterComponents('Samples', [TBible]);
 end;
 
-constructor TBible.Create(AOwner: TComponent);
+constructor TBible.Create(AOwner: TComponent; uiServices:IBibleWinUIServices);
 begin
   inherited Create(AOwner);
   FLines := TWideStringList.Create;
   BookLines := TWideStringList.Create;
   mCategories := TWideStringList.Create();
+  mShortNamesVars:=TWideStringList.Create();
+  mUIServices:=uiServices;
 end;
 
 destructor TBible.Destroy;
@@ -480,10 +496,11 @@ begin
   BookLines.Free;
   FLines.Free;
   mCategories.Free();
+  mShortNamesVars.Free();
   inherited Destroy;
 end;
 
-function TBible.AddressToInternal(moduleRelatedAddr: TBibleLink;
+function TBible.AddressToInternal(const moduleRelatedAddr: TBibleLink;
   out independent: TBibleLink): integer;
 begin
   result := -2;
@@ -494,6 +511,8 @@ begin
   Inc(result, ord(AddressToInternal(moduleRelatedAddr.book, moduleRelatedAddr.chapter,
     moduleRelatedAddr.vend, independent.book, independent.chapter, independent.vend)) - 1);
 end;
+
+
 
 function TBible.ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
 var obk, och, ovs, ove: integer;
@@ -555,6 +574,16 @@ var
   bookNames: TStringList = nil;
 {$J-}
 
+function TBible.GetShortNameVars(bookIx: integer): WideString;
+begin
+dec(bookIx);
+if (bookIx<0) or (bookIx>=mShortNamesVars.Count)  then raise ERangeError.CreateFmt(
+        'Invalid request of shortNames property, invalid index=%d not in [1 - %d]',
+        [bookIx+1,0,mShortNamesVars.Count]);
+result:=mShortNamesVars[bookIx];
+
+end;
+
 function TBible.GetStucture: AnsiString;
 var
   bookIx, bookCnt: integer;
@@ -581,6 +610,18 @@ begin
   result := StringReplace(bookNames.Text, #$D#$A, '|', [rfReplaceAll]);
 end;
 
+function TBible.GetVerse(i: Cardinal): WideString;
+begin
+if (i<0) or (i>=FLines.Count) then begin
+g_ExceptionContext.Add(WideFormat('i=%d', [i]));
+raise ERangeError.Create('Invalid verse Number');
+end;
+result:=FLines[i];
+end;
+
+
+
+
 procedure TBible.SetHTMLFilter(value: WideString);
 begin
   FHTML := DefaultHTMLFilter + value;
@@ -594,6 +635,23 @@ begin
   FDefaultFilter := false;
 end;
 
+procedure TBible.SetShortNameVars(bookIx: integer; const Name: WideString);
+var i, countDiff:integer;
+begin
+dec(bookIx);
+countDiff:=bookIx- mShortNamesVars.Count-1;
+if (bookIx<0) or (countDiff>255) then raise ERangeError.CreateFmt(
+  'invalid attempt to set ShortNames property, index =%d',[bookIx+1]);
+for i := 0 to countDiff do mShortNamesVars.Add('');//fill not used
+if countDiff=-1 then mShortNamesVars.Add(name)
+else mShortNamesVars[bookIx]:=name;
+
+
+
+
+
+end;
+
 procedure TBible.LoadIniFile(value: WideString);
 var
   s: TWideStrings;
@@ -601,6 +659,7 @@ var
   dFirstPart: WideString;
   dSecondPart: WideString;
   isCompressed: boolean;
+  chapterCountDelta:integer;
 
   function ToBoolean(aValue: WideString): Boolean;
   begin
@@ -630,6 +689,7 @@ begin
 
   end;
   isCompressed := value[1] = '?';
+  mModuleState:=[];
   FBookQty := 0;
   FBook := 1;
   FChapter := 1;
@@ -764,6 +824,11 @@ begin
       FAlphabet := dSecondPart;
 
     end else
+      if dFirstPart = 'InstallFonts' then
+    begin
+      mInstallFontNames := dSecondPart;
+      Include(mModuleState,bqmsFontsInstallPending);
+    end else
       if dFirstPart = 'DesiredFontName' then
     begin
       FFontName := dSecondPart;
@@ -845,12 +910,13 @@ begin
     end else
       if dFirstPart = 'ShortName' then
     begin
-      VarShortNames[i] := dSecondPart;
+      SetShortNameVars(i, dSecondPart);
+      //VarShortNames[i] := dSecondPart;
 
     end else
     begin
       if i <= 0 then continue;          //alekid:!!!
-      ShortNames[i] := FirstWord(VarShortNames[i]);
+      ShortNames[i] := FirstWord(ShortNamesVars[i]);
       if dFirstPart = 'ChapterQty' then
       begin
         ChapterQtys[i] := StrToInt(dSecondPart);
@@ -901,7 +967,7 @@ begin
 except       g_ExceptionContext.Add('TBible.LoadIniFile.value='+value); raise; end;
 end;
 
-function TBible.OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false):boolean;
+function TBible.OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false ):boolean;
 var
   j, k, ichapter: integer;
   foundchapter: boolean;
@@ -909,12 +975,12 @@ var
 begin
 
   FLines.Clear;
+  if bqmsFontsInstallPending in mModuleState then InstallFonts();
+
   mChapterHead := '';
   if (book<=0) or (book>BookQty) or (chapter<=0) or (chapter>ChapterQtys[book]) then begin
   result:=false; exit;
   end;
-  
-
   WChar_ReadHtmlFileTo(FPath + PathNames[book], BookLines, FDefaultEncoding);
 
   ichapter := 0;
@@ -954,8 +1020,8 @@ begin
   if FFiltered and (FLines.Count <> 0) then
     FLines.Text := ParseHTML(FLines.Text, FHTML);
   recLnks := (not FBible) or (IsCommentary());
-  if (forceResolveLinks or recLnks) and mRecognizeBibleLinks then begin
-    FLines.Text := ResolveLnks(FLines.Text);
+  if forceResolveLinks or (recLnks and mRecognizeBibleLinks) then begin
+    FLines.Text := ResolveLnks(FLines.Text,mFuzzyResolveLnks);
   end;
 
   if FFiltered and mUseChapterHead then
@@ -1265,6 +1331,24 @@ begin
   FStopSearching := true;
 end;
 
+function TBible.SyncToBible(const refBible: TBible; const bl: TBibleLink;
+  out outBibleLink): integer;
+  var independentLink:TBibleLink;
+      rslt:integer;
+begin
+result:=-1;
+//check if both modules are bibles
+if not (refBible.isBible and IsBible) then   exit;//if not then fail
+//get indendent address
+rslt:= refBible.AddressToInternal(bl,independentLink);
+if rslt<=-2 then exit;
+
+
+
+
+
+end;
+
 function TBible.toInternal(const bl: TBibleLink; out obl: TBibleLink; englishbible: Boolean = False; EnglishPsalms: Boolean = false): boolean;
 begin
   Result := true;
@@ -1279,6 +1363,11 @@ begin
     obl.chapter := bl.chapter;
     obl.vstart := bl.vstart;
   end;
+end;
+
+function TBible.VerseCount: integer;
+begin
+result:=FLines.Count;
 end;
 
 procedure TBible._InternalSetContext(book, chapter: integer);
@@ -1371,7 +1460,7 @@ begin
   name := ' ' + WideLowerCase(name) + ' ';
 
   for ibook := 1 to FBookQty do
-    if Pos(name, ' ' + WideLowerCase(VarShortNames[ibook]) + ' ') <> 0 then
+    if Pos(name, ' ' + WideLowerCase(ShortNamesVars[ibook]) + ' ') <> 0 then
     begin
       book := ibook;
       chapter := ichapter;
@@ -1399,7 +1488,7 @@ begin
     or (ChapterQtys[45] = 16);
 end;
 
-function TBible.LinkValidnessStatus(path: wideString; bl: TBibleLink; internalAddr: boolean = true): integer;
+function TBible.LinkValidnessStatus(path: wideString; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
 var effectiveLnk: TBibleLink;
   r: integer;
   openchapter_res:boolean;
@@ -1411,12 +1500,18 @@ begin
       result := InternalToAddress(bl, effectiveLnk);
       if result < -1 then begin exit; end;
     end else bl.AssignTo(effectiveLnk);
+    if checkverse then begin
     openchapter_res:=OpenChapter(effectiveLnk.book, effectiveLnk.chapter);
+    if (effectiveLnk.vstart > VerseQty) or (effectiveLnk.vstart < 0) then begin result := -2; exit; end;
+    if effectiveLnk.vend > effectiveLnk.vstart then Dec(result, ord(effectiveLnk.vend > VerseQty));
+    end
+    else openchapter_res:=effectiveLnk.chapter<=ChapterQtys[effectiveLnk.book]-ord(FChapterZero);
+
     if not openchapter_res then begin
     result:=-2; exit;
     end;
-    if (effectiveLnk.vstart > VerseQty) or (effectiveLnk.vstart < 0) then begin result := -2; exit; end;
-    if effectiveLnk.vend > effectiveLnk.vstart then Dec(result, ord(effectiveLnk.vend > VerseQty));
+
+
 
   except
    result := -2;
@@ -1778,12 +1873,23 @@ end;
    procedures to convert a Russian Bible address (which is stored in xref.dat)
    to equivalent in current module
 }
+function BookShortNamesToRussianBible(const shortNames:WideString; out book:integer):integer;
+var maxMatchValue, maxMatchIx, currentMatchValue,i:integer;
+begin
+maxMatchValue:=-1;currentMatchValue:=-1;  maxMatchIx:=-1;
+for i:=1 to 66 do begin
+ currentMatchValue:= CompareTokenStrings( RussianShortNames[i],shortnames,' ');
+ if currentMatchValue>maxMatchValue then
+ begin maxMatchValue:=currentMatchValue; maxMatchIx:=i;end;
+end;
+result:=maxMatchValue; book:=maxMatchIx;
+end;
 
 function TBible.AddressToInternal(book, chapter, verse: integer;
-  var ibook, ichapter, iverse: integer): boolean;
+  var ibook, ichapter, iverse: integer; checkShortNames:boolean=true): boolean;
 var
-  newtestament, englishbible: boolean;
-  offset: integer;
+  newTestamentOnly, englishbible: boolean;
+  offset, checkNamesResult,savebook: integer;
 begin
   Result := true;
 
@@ -1803,12 +1909,24 @@ begin
     Exit;
   end;
 
-  newtestament := (not FHasOT) and FHasNT;
-  englishbible := (newtestament and (ChapterQtys[6] = 16))
+  newTestamentOnly := (not FHasOT) and FHasNT;
+  englishbible := (newTestamentOnly and (ChapterQtys[6] = 16))
     or (ChapterQtys[45] = 16);
+  savebook:=book;
+  if newTestamentOnly then Inc(book,39);
+
+  if checkShortNames then begin
+    checkNamesResult:=BookShortNamesToRussianBible(ShortNamesVars[savebook], ibook);
+    if checkNamesResult>30 then begin
+       book:=ibook;
+       if englishbible then begin RUS2ENG(book, 1,1,ibook,ichapter,iverse);
+          book:=ibook;
+       end;
+    end;
+  end;
     // in English Bible ROMANS follows ACTS instead of JAMES
 
-  if not newtestament then
+  if not newTestamentOnly then
   begin
     if englishbible or (FEnglishPsalms and (book = 19)) then
       ENG2RUS(book, chapter - offset, verse, ibook, ichapter, iverse)
@@ -1819,13 +1937,40 @@ begin
     end;
   end else begin
     if englishbible then
-      ENG2RUS(book + 39, chapter - offset, verse, ibook, ichapter, iverse)
+      ENG2RUS(book, chapter - offset, verse, ibook, ichapter, iverse)
     else begin
-      ibook := book + 39;
+      ibook := book;
       ichapter := chapter - offset;
       iverse := verse;
     end;
   end;
+
+end;
+
+procedure TBible.InstallFonts;
+var pc:PWideChar;
+    saveChar:WideChar;
+    l:integer;
+    token:WideString;
+
+begin
+pc:=Pointer(mInstallFontNames);
+if (pc=nil) then Exit;
+
+pc:=GetTokenFromString(pc, ',',l);
+if pc<>nil then
+repeat
+savechar:=(pc+l)^;
+(pc+l)^:=#0;
+token:=pc;
+(pc+l)^:=saveChar;
+mUIServices.InstallFont(FPath+WideTrim(token) );
+
+Inc(pc,l);
+
+pc:=GetTokenFromString(pc, ',',l);
+until (pc=nil) ;
+
 end;
 
 function TBible.InternalToAddress(inputLnk: TBibleLink;
@@ -1841,20 +1986,6 @@ begin
     outLink.book, outLink.chapter, outLink.vend)) - 1);
 end;
 
-function TBible.InternalToAddressBookAdjusted(internalBook, internalChapter, internalVerse,
-  ChapterCount: integer; var book, chapter, verse: integer): boolean;
-var chapterCountEq: boolean;
-  delta: integer;
-begin
-  delta := 0;
-  repeat
-    result := InternalToAddress(internalBook + delta, internalChapter, internalVerse, book, chapter, verse);
-    if result then chapterCountEq := ChapterQtys[book] = chapterCount else chapterCountEq := false;
-    if chapterCountEq then break;
-    if delta = 0 then delta := -1 else if delta < 0 then delta := -delta else delta := -delta - 1;
-  until delta > 10;
-  result := chapterCountEq;
-end;
 
 function TBible.IsCommentary: boolean;
 var ws: WideString;
@@ -1868,14 +1999,29 @@ begin
   result := WideUpperCase(ws) = 'COMMENTARIES';
 end;
 
+function RussianBibleBookToModuleBook(bookIx:integer; bibleModule:TBible;out  book:integer):integer;
+var maxMatchValue, maxMatchIx, currentMatchValue,i,modBookCount:integer;
+begin
+maxMatchValue:=-1;currentMatchValue:=-1;  maxMatchIx:=-1;
+modBookCount:=bibleModule.FBookQty;
+for i:=1 to modBookCount do begin
+ currentMatchValue:= CompareTokenStrings( RussianShortNames[bookIx],bibleModule.ShortNamesVars[i] ,' ');
+ if currentMatchValue>maxMatchValue then
+ begin maxMatchValue:=currentMatchValue; maxMatchIx:=i;end;
+end;
+result:=maxMatchValue; book:=maxMatchIx;
+end;
+
 function TBible.InternalToAddress(ibook, ichapter, iverse: integer;
-  var book, chapter, verse: integer): boolean;
+  var book, chapter, verse: integer; checkShortNames:boolean=true): boolean;
 var
   newtestament, englishbible: boolean;
+  checkNamesResult,savebook:integer;
 begin
   Result := true;
 
   book := ibook;
+  savebook:=ibook;
   chapter := ichapter;
   verse := iverse;
 
@@ -1894,6 +2040,7 @@ begin
   newtestament := (not FHasOT) and FHasNT;
   englishbible := (newtestament and (ChapterQtys[6] = 16))
     or (ChapterQtys[45] = 16);
+
     // in English Bible ROMANS (16 chaps) follows ACTS instead of JAMES (5 chaps)
 
   if not newtestament then              //если не НЗ
@@ -1934,19 +2081,26 @@ begin
         Exit;
       end;
     end;
+
+  end;
+  if ChapterZero then chapter := chapter + 1;
+  if checkShortNames then begin
+     checkNamesResult:=RussianBibleBookToModuleBook (savebook, self, ibook);
+    if checkNamesResult>30 then begin
+       book:=ibook;
+    end;
   end;
 
-  if ChapterZero then chapter := chapter + 1;
   if (chapter = 0) and (not ChapterZero) then chapter := 1;
 end;
 
 /// AddressToEnglish + EnglishToAddress is for TSK....s
 
 function TBible.AddressToEnglish(book, chapter, verse: integer;
-  var ebook, echapter, everse: integer): boolean;
+  var ebook, echapter, everse: integer; checkShortNames:boolean=true): boolean;
 var
-  newtestament, englishbible: boolean;
-  offset: integer;
+  newTestamentOnly, englishbible: boolean;
+  offset,  savebook,checkNamesResult: integer;
 begin
   Result := true;
 
@@ -1966,12 +2120,22 @@ begin
     Exit;
   end;
 
-  newtestament := (not FHasOT) and FHasNT;
-  englishbible := (newtestament and (ChapterQtys[6] = 16))
+  newTestamentOnly := (not FHasOT) and FHasNT;
+  englishbible := (newTestamentOnly and (ChapterQtys[6] = 16))
     or (ChapterQtys[45] = 16);
     // in English Bible ROMANS follows ACTS instead of JAMES
-
-  if not newtestament then
+  savebook:=book;
+  if newTestamentOnly then Inc(book,39);
+  if checkShortNames then begin
+    checkNamesResult:=BookShortNamesToRussianBible(ShortNamesVars[savebook], ebook);
+    if checkNamesResult>30 then begin
+       book:=ebook;
+       if englishbible then begin RUS2ENG(book, 1,1,ebook,echapter,everse);
+          book:=ebook;
+       end;
+    end;
+  end;
+  if not newTestamentOnly then
   begin
     if englishbible then begin
       ebook := book;
@@ -1983,12 +2147,12 @@ begin
     end;
   end else begin
     if englishbible then begin
-      ebook := book + 39;
+      ebook := book;
       echapter := chapter - offset;
       everse := verse;
     end
     else begin
-      RUS2ENG(book + 39, chapter - offset, verse, ebook, echapter, everse)
+      RUS2ENG(book , chapter - offset, verse, ebook, echapter, everse)
     end;
   end;
 end;

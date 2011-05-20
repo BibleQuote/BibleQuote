@@ -35,6 +35,7 @@ type
      end;
 
     IuiVerseOperations=interface
+       ['{14ED0EC0-45FE-1FD6-F1F0-54DF5DE47A78}']
       procedure VerseAdded(verse_id, tagId: int64;const cmd: WideString; show:boolean);
       procedure VerseDeleted(verse_id, tagId: int64);
       procedure TagAdded(tagId: int64; const txt: WideString; show:boolean);

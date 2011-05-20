@@ -29,7 +29,7 @@ object bqExceptionForm: TbqExceptionForm
     Height = 265
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -12
+    Font.Height = -13
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False

@@ -56,7 +56,11 @@ function TDict.Initialize(IndexFile, DictFile: WideString; background:boolean=fa
 
 begin
 try
-if not assigned(FiLines) then begin
+if IndexFile=FIndex then begin
+result:=true; exit
+end;
+
+//if not assigned(FiLines) then begin
   if (FileExistsEx(IndexFile)<0) or (FileExistsEx(DictFile)<0) then
   begin
     Result := false;
@@ -77,7 +81,7 @@ if not assigned(FiLines) then begin
   FWords.Capacity:=Filinecount;
   FIi:=0;
   if background then exit;
-  end;
+  //end;
 
   if (not background) or (Fii<=Filinecount) then
   repeat

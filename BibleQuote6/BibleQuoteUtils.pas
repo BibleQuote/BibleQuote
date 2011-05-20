@@ -144,7 +144,7 @@ type
       awsShortPath, awsFullPath: Widestring; awsBookNames: AnsiString;
        modCats:         WideString); overload;
     constructor Create(me: TModuleEntry); overload;
-    destructor destroy; override;
+    destructor Destroy; override;
     procedure Init(amodType: TModuleType; awsFullName, awsShortName,
       awsShortPath, awsFullPath: Widestring; awsBookNames: AnsiString;
         modCatsLst: TWideStrings); overload;
@@ -167,18 +167,27 @@ type
   TCachedModules = class(TObjectList)
   protected
     mSorted: boolean;
+    mModTypedAsPointers:array[TModuleType] of Integer;
     function GetItem(Index: Integer): TModuleEntry;
     procedure SetItem(Index: Integer; AObject: TModuleEntry);
+    function GetArchivedCount():integer;
   public
     procedure Assign(source: TCachedModules);
     function FindByName(const name: WideString; fromix: integer = 0): integer;
     function ResolveModuleByNames(const modName,modShortName:WideString):TModuleEntry;
     function IndexOf(const name: WideString; fromix: integer = 0): integer;overload;
     function FindByFolder(const name:WideString):integer;
+    function FindByFullPath(const wsFullPath:WideString):integer;
+    function GetModTypedAsCount(modType:TModuleType):integer;
+    function ModTypedAsFirst(modType:TModuleType):TModuleEntry;
+    function ModTypedAsNext(modType:TModuleType):TModuleEntry;
     procedure _Sort();
 
 
     property Items[Index: Integer]: TModuleEntry read GetItem write SetItem; default;
+
+    property ArchivedModulesCount:integer read GetArchivedCount;
+    property ModTypedAsCount[modType:TModuleType]:integer read GetModTypedAsCount;
 
   end;
 
@@ -328,11 +337,17 @@ function TokensToStr(Lst: TWideStrings; delim: WideString; addlastDelim: boolean
   = true): WideString;
 function StrMathTokens(const str: WideString; tkns: TWideStrings; fullMatch:
   boolean): boolean;
+function CompareTokenStrings(const tokensCompare:WideString; const tokenCompareAgainst:WideString; delim:WideChar):integer;
 function StrGetTokenByIx(tknString:AnsiString;tokenIx:integer):AnsiString;
+function GetTokenFromString(pStr:PWidechar;delim:WideChar; out len:integer):PWideChar;
+function PeekToken(pC:PWideChar; delim:WideChar):WideString;
+
 function MainFileExists(s: WideString): WideString;
 function ExePath():WideString;
 function OSinfo():TOperatingSystemInfo;
 function WinInfoString():WideString;
+function GetCallerEIP():Pointer;
+function GetCallerEbP():Pointer;
 type
   PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector;
     p4: LPDWORD): THandle; stdcall;
@@ -364,7 +379,7 @@ begin
   if str1len > str2len then minLen := str2len else minLen := str1len;
   if len > minLen then len := minlen;
 
-  result := CompareStringW(LOCALE_USER_DEFAULT, NORM_IGNORECASE,
+  result := CompareStringW($0007f, NORM_IGNORECASE,
     PWIDECHAR(Pointer(str1)), len,
     PWIDECHAR(Pointer(str2)), len) - 2;
   if (result = 0) and strict then result := str1len - str2len;
@@ -1440,7 +1455,7 @@ begin
   repeat
     r := OmegaCompareTxt(name, TModuleEntry(Items[i]).wsFullName);
     if r = 0 then break;
-    if r < 0 then fin := i else fromIx := i;
+    if r < 0 then fin := i else fromIx := i+1;
     newi := (fromix + fin) div 2; if i = newi then break;
     i := newi;
   until false;
@@ -1452,9 +1467,28 @@ begin
   result := i;
 end;
 
+function TCachedModules.GetArchivedCount: integer;
+var i,c:integer;
+begin
+c:=Count-1;
+result:=0;
+for i:=c downto 0 do begin
+if items[i].wsFullPath[1]='?' then inc(result);
+end;
+end;
+
 function TCachedModules.GetItem(Index: Integer): TModuleEntry;
 begin
 result:=TModuleEntry(inherited GetItem(index));
+end;
+
+function TCachedModules.GetModTypedAsCount(modType: TModuleType): integer;
+var i,c:integer;
+begin
+c:=Count-1; result:=0;
+for i:=c downto 0 do begin
+  if Items[i].modType=modType then Inc(result);
+end
 end;
 
 function TCachedModules.IndexOf(const name: WideString;
@@ -1473,6 +1507,42 @@ begin
   result := -1;
 end;
 
+function TCachedModules.ModTypedAsFirst(modType: TModuleType): TModuleEntry;
+var i,c,f:integer;
+begin
+mModTypedAsPointers[modType]:=-1;
+f:=-1;
+c:=count-1;
+result:=nil;
+for i:=0 to c do begin
+if Items[i].modType=modType then begin f:=i; break; end;
+end;
+if f>=0 then begin
+mModTypedAsPointers[modType]:=f+1;
+result:=Items[f];
+end;
+
+end;
+
+function TCachedModules.ModTypedAsNext(modType: TModuleType): TModuleEntry;
+var i,c,f:integer;
+begin
+c:=count-1;
+result:=nil;
+f:=-1;
+i:=mModTypedAsPointers[modType];
+if i<=c then
+repeat
+if Items[i].modType=modType then begin f:=i; break; end;
+inc(i);
+until i>c;
+if f>=0 then begin
+result:=Items[f];
+end;
+mModTypedAsPointers[modType]:=i+1;
+
+end;
+
 function TCachedModules.FindByFolder(const name:WideString):integer;
 var
   cnt, i, newi, fin, r: integer;
@@ -1481,12 +1551,27 @@ begin
   result := -1;
   if cnt < 0 then exit;
   for i := 0 to cnt do begin
-    result := WideCompareStr(name, TModuleEntry(Items[i]).wsShortPath);
+    result := WideCompareText(name, TModuleEntry(Items[i]).wsShortPath);
     if result = 0 then begin result := i; exit end;
   end;
   result := -1;
 end;
 
+
+function TCachedModules.FindByFullPath(const wsFullPath: WideString): integer;
+var
+  cnt, i, newi, fin, r: integer;
+begin
+  cnt := self.Count - 1;
+  result := -1;
+  if cnt < 0 then exit;
+  for i := 0 to cnt do begin
+    result := WideCompareText(wsFullPath, Items[i].wsFullPath);
+    if result = 0 then begin result := i; exit end;
+  end;
+  result := -1;
+
+end;
 
 procedure TCachedModules._Sort;
 begin
@@ -1581,6 +1666,83 @@ begin
   result := fullMatch;
 end;
 
+function GetTokenFromString(pStr:PWidechar;delim:WideChar; out len:integer):PWideChar;
+var currentCmpCh:WideChar;
+label endfail;
+begin
+
+currentCmpCh:=pStr^;
+if currentCmpCh=#0 then goto endfail;
+//skip to first symb
+if currentCmpCh=delim then  repeat
+ inc(pStr); currentCmpCh:=pStr^;
+ if (currentCmpCh=#0) then goto endfail;
+ until  (currentCmpCh<>delim);
+result:=pStr;
+inc (pStr);currentCmpCh:=pStr^;
+//inc to delim or end
+while (currentCmpCh<>#0) and (currentCmpCh<>delim) do begin
+inc(pStr); currentCmpCh:=pStr^; end;
+len:=pStr-result;
+
+exit;
+//here first token is found
+
+endfail:len:=0; result:=nil;
+end;
+
+
+function PeekToken(pC:PWideChar; delim:WideChar):WideString;
+var saveChar:WideChar;
+    l:integer;
+label fail;
+begin
+
+if pc=nil then goto fail;
+pc:=GetTokenFromString(pc, delim, l);
+if pC<>nil then begin
+   saveChar:=(pc+l)^;
+   (pc+l)^:=#0;
+   result:=pC;
+   (pc+l)^:=saveChar;
+   exit
+end;
+fail:
+ result:=''; 
+end;
+function CompareTokenStrings(const tokensCompare:WideString; const tokenCompareAgainst:WideString; delim:WideChar):integer;
+var pTokenCmp, pTokenCmpAg :PWideChar;
+    currentCmpCh,currentCmpChA:WideChar;
+    cmpTokeLen,cmpTokeLenAdj, cmpAgTokeLen,cmpAgTokeLenAdj, matchCnt, compareCnt:integer;
+    equal:boolean;
+
+begin
+result:=-1;
+pTokenCmp:=Pointer(tokensCompare);
+matchCnt:=0;compareCnt:=0;
+pTokenCmp:=GetTokenFromString(pTokenCmp, delim,cmpTokeLen);
+while (pTokenCmp<>nil) do begin
+  cmpTokeLenAdj:=cmpTokeLen;
+  if (pTokenCmp+cmpTokeLen-1)^='.' then dec( cmpTokeLenAdj);
+  pTokenCmpAg:=Pointer(tokenCompareAgainst);
+  pTokenCmpAg:=GetTokenFromString(pTokenCmpAg, delim,cmpAgTokeLen);
+  equal:=false;
+  while (  pTokenCmpAg<>nil) and (not equal) do begin
+    cmpAgTokeLenAdj:=cmpAgTokeLen;
+    if (pTokenCmpAg+cmpAgTokeLen-1)^='.' then dec( cmpAgTokeLenAdj);
+    equal:=CompareStringW($0007f,NORM_IGNORECASE,pTokenCmp,cmpTokeLenAdj,
+    pTokenCmpAg,cmpAgTokeLenAdj)=CSTR_EQUAL;
+    pTokenCmpAg:=GetTokenFromString(pTokenCmpAg+cmpAgTokeLen, delim,cmpAgTokeLen);
+  end;
+  inc ( matchCnt,ord(equal) ); inc(compareCnt);
+  pTokenCmp:=GetTokenFromString(pTokenCmp+cmpTokeLen, delim,cmpTokeLen);
+end;
+if compareCnt=0 then result:=-1
+else result:= matchCnt*100 div compareCnt;
+
+end;
+
+
 function MainFileExists(s: WideString): WideString;
 var
   filePath, fullPath, modfolder: WideString;
@@ -1614,6 +1776,7 @@ begin
     end;
   end;
 end;
+
 procedure __init_vars();
 var buff:PWideChar;
     wrtn:integer;
@@ -1703,11 +1866,21 @@ result:=win_info;
 
 end;
 
+function GetCallerEIP():Pointer;assembler;
+asm
+mov eax,dword ptr [esp]
+end;
+function GetCallerEbP():Pointer;assembler;
+asm
+mov eax, ebp
+end;
+
 initialization
    // Enable raw mode (default mode uses stack frames which aren't always generated by the compiler)
   Include(JclStackTrackingOptions, stRawMode);
+  Include(JclStackTrackingOptions, stStack);
   // Disable stack tracking in dynamically loaded modules (it makes stack tracking code a bit faster)
-  Include(JclStackTrackingOptions, stStaticModuleList);
+//  Include(JclStackTrackingOptions, stStaticModuleList);
   // Initialize Exception tracking
   g_ExceptionContext:=TbqExceptionContext.Create();
   JclStartExceptionTracking;

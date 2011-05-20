@@ -274,7 +274,7 @@ type
 
 
     procedure CMHintShow(var Message: TMessage); MESSAGE CM_HINTSHOW;
-    procedure AcceptClick(Sender: TObject; X, Y: Integer);
+//    procedure AcceptClick(Sender: TObject; X, Y: Integer);//AlekId:hint
     {AlekId}
     function CreateHeaderFooter: ThtmlViewer;
     function GetBase: string;
@@ -289,7 +289,7 @@ type
     function GetHScrollPos: Integer;
     function GetIDControl(const ID: string): TObject;
     function GetIDDisplay(const ID: string): TPropDisplay;
-    function GetLinkList: TList;override;
+
     function GetNameList: TStringList;
     function GetOnBitmapRequest: TGetBitmapEvent;
     function GetOnExpandName: TExpandNameEvent;
@@ -407,19 +407,21 @@ type
     procedure PaintWindow(DC: HDC); OVERRIDE;
     procedure SetCursor(Value: TCursor); {$ifdef LCL} OVERRIDE; {$endif LCL}
     procedure SetOnScript(Handler: TScriptEvent); OVERRIDE;
-    {alekid}
-    function getMarginHeight():integer;override;
-    function getMarginWidth():integer;override;
-    {/Alekid}
+
 
   PUBLIC
     FrameOwner: TObject;
     HScrollBar: TScrollBar;
     Visited: TStringList;     {visited URLs}
     VScrollBar: TScrollBar;
+    {alekid}
+    function getMarginHeight():integer;override;
+    function getMarginWidth():integer;override;
+    {/Alekid}
 
     constructor Create(AOwner: TComponent); OVERRIDE;
     destructor Destroy; OVERRIDE;
+    function GetLinkList: TList;override;
     function DisplayPosToXy(DisplayPos: Integer; var X, Y: Integer): Boolean;
     function Find(const S: WideString; MatchCase: boolean): boolean;
     function FindDisplayPos(SourcePos: Integer; Prev: Boolean): Integer;
@@ -635,7 +637,7 @@ function getFileType(const S: string): THtmlFileType;
 implementation
 
 uses
-  SysUtils, Math, Clipbrd, Forms, Printers,TntControls, {$IFDEF UNICODE}AnsiStrings, {$ENDIF}
+  SysUtils, Math, Clipbrd, Forms, Printers, TntControls, {$IFDEF UNICODE}AnsiStrings, {$ENDIF}
   htmlgif2 {$IFNDEF NoGDIPlus}, GDIPL2A{$ENDIF};
 const
   ScrollGap = 20;
@@ -1704,11 +1706,11 @@ begin
   end;
 end;
 
-procedure ThtmlViewer.AcceptClick(Sender: TObject; X, Y: Integer);
+{procedure ThtmlViewer.AcceptClick(Sender: TObject; X, Y: Integer);
 begin
   HTMLMouseDown(Sender, mbLeft, [], X, Y);
   HTMLMouseUp(Sender, mbLeft, [], X, Y);
-end;
+end;}//AlekId:Hint
 
 {----------------ThtmlViewer.HTMLMouseDown}
 

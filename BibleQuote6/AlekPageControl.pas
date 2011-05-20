@@ -180,7 +180,7 @@ end;
 procedure TAlekPageControl.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
-  _tabIndex, saveTabIndex: integer;
+  _tabIndex{, saveTabIndex}: integer;
   tabRect: TRect;
   point: TPoint;
   image_width, image_height: integer;
@@ -192,7 +192,7 @@ begin
   if _tabIndex < 0 then goto default_processing;
   TabCtrl_GetItemRect(Handle, tabIndex, tabRect);
   point.X := X; point.Y := Y;
-  saveTabIndex := TabIndex;
+  //saveTabIndex := TabIndex;//AlekId:Hint
   image_width := 13; image_height :=13;
   if (image_width < 3) or (image_height < 3) then goto default_processing;
   tabRect.Left := tabRect.Right - image_width - 4; Inc(tabRect.Top, 3);
@@ -248,28 +248,23 @@ end;
 procedure TAlekPageControl.WMPaint(var Message: TWMPaint);
 var
   i, cnt, aix: integer;
-  r2, bitmapRect, destBtnRect: TRect;
-  themesEnabled: boolean;
-  themeServices: TThemeServices;
-  themedElemId: TThemedTab;
-  themedElementDetails: TThemedElementDetails;
-  saveDC: HDC;
+  r2: TRect;
   active: boolean;
-  image_width, image_height, textlength, fontheight: integer;
+  image_width, {image_height,} textlength, fontheight: integer;
   textRect, saveRect: TRect;
   _caption: WideString;
   pCaption: PWideChar;
   ts: TTntTabSheet;
-  delta, oldright, savelength: integer;
+  delta, oldright{, savelength}: integer;
 begin
   inherited;
   if csDesigning in ComponentState then exit;
 
-  themeServices := Themes.ThemeServices();
+//  themeServices := Themes.ThemeServices();   //AlekId:Hint
   aix := ActivePageIndex;
   cnt := PageCount - 1;
   if cnt<=0 then exit;
-  image_width := 13; image_height := 13;
+  image_width := 13;// image_height := 13;
 //  if (image_width < 3) or (image_height < 3) then exit;
   for i := 0 to cnt do begin
     active := i = aix;
@@ -300,11 +295,20 @@ begin
     end;
     saveRect := textRect;
     ts := TTntTabSheet(Pages[i]);
+
     _caption := ts.Caption;
+
+
     textlength := length(TrimRight(_caption));
-    if textlength=0 then textlength:=Length(_caption);
-    savelength := textlength;
-    pCaption := PWideChar(integer(_caption));
+
+
+    if textlength=0 then begin
+       if length(_caption)=0  then _caption:=' ';
+       textlength:=1;
+      end;
+
+//    savelength := textlength;
+    pCaption := PWideChar(Pointer(_caption));
     Canvas.TextFlags := 0;
     DrawTextW(Canvas.Handle, pCaption, textlength, textRect, DT_CALCRECT or
       DT_CENTER or DT_VCENTER);
@@ -312,7 +316,7 @@ begin
     oldright := textRect.Right;
     while delta + textRect.Right - oldright <= 0 do begin
       _caption := _caption + ' ';
-      pCaption := PWideChar(integer(_caption));
+      pCaption := PWideChar(Pointer(_caption));
       textlength := length(_caption);
       DrawTextW(Canvas.Handle, pCaption, textlength, textRect, DT_CALCRECT or
         DT_CENTER or DT_VCENTER);

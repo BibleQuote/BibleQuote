@@ -1,7 +1,7 @@
 unit bqPlainUtils;
 
 interface
-uses JCLWideStrings,WideStringsMod;
+uses JCLWideStrings,WideStringsMod,SysUtils,Windows;
 
 function PWideChar2Int(pwc:PWideChar; out val:integer):PWideChar;
 function StrToTokens(const str: WideString; const delim: WideString;
@@ -10,14 +10,21 @@ function StrLimitToWordCnt(const ws:widestring; maxWordCount:integer;out actualW
 function NextWordIndex(const ws:WideString; startIx:integer):integer;
 function WideStringToUtfBOMString(const ws:WideString):UTF8String;inline;
 function bqWidePosCI(const substr:WideString; str:WideString):integer;
+function FindFirstFileExW(lpFileName: PWideChar; fInfoLevelId: _FINDEX_INFO_LEVELS;
+  lpFindFileData: Pointer; fSearchOp: _FINDEX_SEARCH_OPS; lpSearchFilter: Pointer;
+  dwAdditionalFlags: DWORD): THANDLE; stdcall;
+function FindNextFileW(hFindFile: THANDLE; var lpFindFileData: _WIN32_FIND_DATAW): BOOL; stdcall;
+
 implementation
-uses BibleQuoteConfig, SysUtils, JclUnicode;
+uses BibleQuoteConfig,  JclUnicode;
+function FindFirstFileExW; external kernel32 name 'FindFirstFileExW';
+function FindNextFileW; external kernel32 name 'FindNextFileW';
 
 function PWideChar2Int(pwc:PWideChar;  out val:integer):PWideChar;
-var sv:PWideChar;
+var
     vl:integer;
 begin
-  sv:=pwc;
+
   val:=0;
   vl:=Integer(pwc^) -ord('0');
   while (vl>=0) and (vl<=9) do begin

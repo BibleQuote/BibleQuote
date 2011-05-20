@@ -2118,7 +2118,7 @@ function GetImageAndMaskFromStream(Stream: TMemoryStream;
 var
   Filename: string;
   F: TFileStream;
-  I: Integer;
+//  I: Integer;
 {$ENDIF !NoGDIPlus}
 begin
   Result := nil;
@@ -4576,7 +4576,8 @@ initialization
   ErrorBitMap.Handle := LoadBitmap(HInstance, MakeIntResource(ErrBitmap));
   ErrorBitMapMask := TBitmap.Create;
   ErrorBitMapMask.Handle := LoadBitmap(HInstance, MakeIntResource(ErrBitmapMask));
-  Screen.Cursors[HandCursor] := LoadCursor(HInstance, MakeIntResource(Hand_Cursor));
+//  Screen.Cursors[HandCursor] := LoadCursor(HInstance, MakeIntResource(Hand_Cursor));
+  Screen.Cursors[HandCursor] := LoadCursor(0,IDC_HAND);
   Screen.Cursors[UpDownCursor] := LoadCursor(HInstance, 'UPDOWNCURSOR');
   Screen.Cursors[UpOnlyCursor] := LoadCursor(HInstance, 'UPONLYCURSOR');
   Screen.Cursors[DownOnlyCursor] := LoadCursor(HInstance, 'DOWNONLYCURSOR');

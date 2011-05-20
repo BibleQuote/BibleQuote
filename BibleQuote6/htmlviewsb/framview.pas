@@ -31,7 +31,7 @@ interface
 
 uses
   SysUtils, Windows, Messages, Classes, Graphics, Controls, StdCtrls, ExtCtrls, Math,
-  UrlSubs, HtmlGlobals, Htmlsubs, Htmlview, HTMLUn2, ReadHTML;
+  UrlSubs, HtmlGlobals, Htmlsubs, Htmlview, HTMLUn2, ReadHTML,HTMLEmbedInterfaces;
 
 type
   {common to TFrameViewer and TFrameBrowser}
@@ -163,7 +163,7 @@ type
     procedure CheckProcessing(Sender: TObject; ProcessingOn: boolean);
     procedure CheckVisitedLinks; virtual; abstract;
     procedure ChkFree(Obj: TObject);
-    procedure DoFormSubmitEvent(Sender: TObject; const Action, Target, EncType, Method: string; Results: ThtStringList); virtual; abstract;
+    procedure DoFormSubmitEvent(Sender: IHTMLViewerBase; const Action, Target, EncType, Method: string; Results: ThtStringList); virtual; abstract;
     procedure DoURLRequest(Sender: TObject; const SRC: string; var RStream: TMemoryStream); virtual; abstract;
     procedure EndProcessing;
     procedure fvDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -574,7 +574,7 @@ type
     function GetFrameSetClass: TFrameSetClass; override;
     function GetSubFrameSetClass: TSubFrameSetClass; override;
     procedure CheckVisitedLinks; override;
-    procedure DoFormSubmitEvent(Sender: TObject; const Action, Target, EncType, Method: string; Results: ThtStringList); override;
+    procedure DoFormSubmitEvent(Sender: IHtmlViewerBase; const Action, Target, EncType, Method: string; Results: ThtStringList); override;
     procedure DoURLRequest(Sender: TObject; const SRC: string; var RStream: TMemoryStream); override;
     procedure HotSpotCovered(Sender: TObject; const SRC: string); override;
     procedure LoadFromFileInternal(const S, Dest: string);
@@ -3672,7 +3672,7 @@ begin
 end;
 
 //-- BG ---------------------------------------------------------- 03.01.2010 --
-procedure TFrameViewer.DoFormSubmitEvent(Sender: TObject; const Action, Target, EncType,
+procedure TFrameViewer.DoFormSubmitEvent(Sender: IHtmlViewerBase; const Action, Target, EncType,
   Method: string; Results: ThtStringList);
 begin
   if Assigned(FOnFormSubmit) then

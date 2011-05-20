@@ -160,15 +160,15 @@ end;
 
 function TMultiLanguage.ReadString(section,s,def: WideString): WideString;
 var
-  cnt,i,j: integer;
+  cnt,i,j, lineCount: integer;
   tmp: WideString;
 begin
   Result := def;
-
+  lineCount:=FLines.Count;
   // find section
   cnt := 0;
-  while Trim(FLines[cnt]) <> ('[' + section + ']') do Inc(cnt);
-
+  while (cnt<lineCount) and (Trim(FLines[cnt]) <> ('[' + section + ']')) do Inc(cnt);
+  if cnt=lineCount then exit;
   for i:=cnt+1 to FLines.Count-1 do
   begin
     if IniStringFirstPart(FLines[i]) = s then

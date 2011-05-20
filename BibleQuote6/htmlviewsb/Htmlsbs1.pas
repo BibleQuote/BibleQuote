@@ -274,7 +274,7 @@ begin
   for I := LB.TopIndex to Min(LB.Items.Count - 1, LB.TopIndex + LBSize - 1) do
 {$ifdef UseUnicodeControls}
     ExtTextOutW(Canvas.Handle, X1 + Addon, Y1 + Addon + (I - LB.TopIndex) * H2, ETO_CLIPPED, @ARect,
-      PWideChar(LB.Items[I]), Length(LB.Items[I]), nil)
+      Pointer(LB.Items[I]), Length(LB.Items[I]), nil)
 {$else}
     Canvas.TextRect(ARect, X1 + Addon, Y1 + Addon + (I - LB.TopIndex) * H2, LB.Items[I]);
 {$endif}
@@ -318,7 +318,7 @@ begin
   try
     OldFont := SelectObject(DC, TheFont.Handle);
 {$ifdef UseUnicodeControls}
-    GetTextExtentPoint32W(DC, PWideChar(S1), Length(S1), ExtS);
+    GetTextExtentPoint32W(DC, Pointer(S1), Length(S1), ExtS);
 {$else}
     GetTextExtentPoint32(DC, PChar(S1), Length(S1), ExtS);
 {$endif}
@@ -543,7 +543,7 @@ begin
   ARect := Rect(X1 + 4, Y1 + 4, X1 + CB.Width - 8, Y1 + CB.Height - 3);
 {$ifdef UseUnicodeControls}
   ExtTextOutW(Canvas.Handle, X1 + 4, Y1 + 4, ETO_CLIPPED, @ARect,
-    PWideChar(CB.Items[CB.ItemIndex]), Length(CB.Items[CB.ItemIndex]), nil)
+    Pointer(CB.Items[CB.ItemIndex]), Length(CB.Items[CB.ItemIndex]), nil)
 {$else}
   Canvas.TextRect(ARect, X1 + 4, Y1 + 4, CB.Items[CB.ItemIndex]);
 {$endif}
@@ -712,7 +712,7 @@ begin
     for I := 0 to Min(Lines.Count - 1, Rows - 1) do
 {$ifdef UseUnicodeControls}
       ExtTextOutW(Canvas.Handle, X1 + Addon, Y1 + Addon + I * H2, ETO_CLIPPED, @ARect,
-        PWideChar(Lines[I]), Length(Lines[I]), nil)
+        Pointer(Lines[I]), Length(Lines[I]), nil)
 {$else}
       Canvas.TextRect(ARect, X1 + Addon, Y1 + Addon + I * H2, Lines[I]);
 {$endif}
