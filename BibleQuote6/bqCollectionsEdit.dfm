@@ -2,36 +2,23 @@ object bqCollectionsEditor: TbqCollectionsEditor
   Left = 0
   Top = 0
   Caption = 'bqCollectionsEditor'
-  ClientHeight = 354
-  ClientWidth = 339
+  ClientHeight = 381
+  ClientWidth = 365
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -12
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
   Visible = True
-  PixelsPerInch = 96
-  TextHeight = 13
-  object lbl1: TTntLabel
-    Left = 128
-    Top = 8
-    Width = 41
-    Height = 15
-    Caption = 'biblo"'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'NetBibleGreek'
-    Font.Style = []
-    ParentFont = False
-  end
+  PixelsPerInch = 105
+  TextHeight = 14
   object vstCollections: TVirtualStringTree
     Left = 7
-    Top = 29
-    Width = 328
-    Height = 323
+    Top = 4
+    Width = 353
+    Height = 374
     Header.AutoSizeIndex = 0
     Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET

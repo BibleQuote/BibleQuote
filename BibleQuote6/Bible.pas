@@ -248,6 +248,9 @@ type
   end;
   TbqModuleStateEntries=(bqmsFontsInstallPending);
   TbqModuleState=set of TbqModuleStateEntries;
+  TbqModuleType=( bqmBible, bqmCommentary, bqmBook);
+  TbqModuleTrait=(bqmtOldCovenant, bqmtNewCovenant,bqmtApocrypha, bqmtEnglishPsalms,bqmtStrongs, bqmtIncludeChapterHead, bqmtZeroChapter,bqmtNoForcedLineBreaks);
+  TbqModuleTraits=set of TbqModuleTrait;
   TBible = class(TComponent)
   private
     { Private declarations }
@@ -260,21 +263,21 @@ type
     FCopyright: WideString;
       // short copyright notice; full page should be in copyright.html
     FBible: boolean;                    // is this a Bible translation?
-    FHasOT: boolean;                    // does it have Old Testament?
-    FHasNT: boolean;                    // ... New Testament
-    FHasAP: boolean;                    // ... Apocrypha books
+//    FHasOT: boolean;                    // does it have Old Testament?
+//    FHasNT: boolean;                    // ... New Testament
+//    FHasAP: boolean;                    // ... Apocrypha books
 
-    FEnglishPsalms: boolean;
+//    FEnglishPsalms: boolean;
       // Psalms have "English" order (some module contains only OT)
     mEngPsalmsSet: boolean;
 //    FEnglishNT: boolean; // some Russian modules have "English" order in NT
 
-    FStrongNumbers: boolean;            // Strong numbers?
+//    FStrongNumbers: boolean;            // Strong numbers?
     FBookQty: integer;                  // quantity of books in module (default = 66)
     FChapterSign: WideString;           // the beginning of a chapter
     FVerseSign: WideString;             // the beginning of a verse
 
-    FChapterZero: boolean;              // has chapter zero ?
+    //FChapterZero: boolean;              // has chapter zero ?
 
     FDefaultEncoding: Integer;
       // Default 8-bit encoding for all book files of TBible.
@@ -293,7 +296,7 @@ type
 
     FLines: TWideStrings;               // these are verses when you open a chapter
 
-    FNoForcedLineBreaks: boolean;
+    //FNoForcedLineBreaks: boolean;
 
     BookLines: TWideStrings;            // just a buffer
 
@@ -315,9 +318,10 @@ type
 
     AlphabetArray: array[0..2047] of Cardinal;
     mModuleState:TbqModuleState;
+    mTraits:TbqModuleTraits;
     mCategories: TWideStringList;
     mChapterHead: WideString;
-    mUseChapterHead: boolean;
+//    mUseChapterHead: boolean;
     mLoadedPath: WideString;
     mInstallFontNames:WideString;
     mUIServices:IBibleWinUIServices;
@@ -341,7 +345,8 @@ type
     procedure SetShortNameVars(bookIx:integer; const Name:WideString);
     procedure InstallFonts();
     function GetVerse(i:Cardinal):WideString;
-
+    function getTraitState(trait:TbqModuleTrait):boolean;inline;
+    procedure setTraitState(trait:TbqModuleTrait; state:boolean);    
   public
     { Public declarations }
     ChapterQtys: array[1..MAX_BOOKQTY] of integer;
@@ -368,13 +373,13 @@ type
     property Copyright: WideString read FCopyright;
 
     property isBible: boolean read FBible;
-    property HasOldTestament: boolean read FHasOT;
-    property HasNewTestament: boolean read FHasNT;
-    property HasApocrypha: boolean read FHasAP;
+//    property HasOldTestament: boolean read FHasOT;
+//    property HasNewTestament: boolean read FHasNT;
+//    property HasApocrypha: boolean read FHasAP;
 
-    property StrongNumbers: boolean read FStrongNumbers;
+//    property StrongNumbers: boolean read FStrongNumbers;
 
-    property NoForcedLineBreaks: boolean read FNoForcedLineBreaks;
+//    property NoForcedLineBreaks: boolean read FNoForcedLineBreaks;
 
     property BookQty: integer read FBookQty;
     property ChapterSign: WideString read FChapterSign;
@@ -445,10 +450,12 @@ type
     procedure _InternalSetContext(book, chapter: integer);
     procedure SetHTMLFilterX(value: WideString; forceUserFilter: boolean);
     function VerseCount():integer;
+    property Traits:TbqModuleTraits read mTraits;
+    property Trait[index:TbqModuleTrait]:boolean read getTraitState;
 (*AlekId:/Добавлено*)
   published
     { Published declarations }
-    property ChapterZero: boolean read FChapterZero;
+//    property ChapterZero: boolean read FChapterZero;
     property Filtered: boolean read FFiltered write FFiltered;
     property HTMLFilter: WideString read FHTML write SetHTMLFilter;
     property VersesFound: integer read FVersesFound;
@@ -464,6 +471,7 @@ type
     property RecognizeBibleLinks: boolean read mRecognizeBibleLinks write
       mRecognizeBibleLinks;
     property FuzzyResolve:Boolean read mFuzzyResolveLnks write mFuzzyResolveLnks;
+
   end;
 
 procedure Register;
@@ -595,7 +603,7 @@ begin
   bookCnt := FBookQty;
   if not assigned(bookNames) then bookNames := TStringList.Create()
   else bookNames.Clear();
-  if FBible and not (FHasOT) then begin
+  if FBible and not (bqmtOldCovenant in mTraits) then begin
     for bookIx := 1 to 66 do bookNames.Add('0');
   end;
 
@@ -608,6 +616,11 @@ begin
         inttoStr(Ord(Copy(FullNames[bookIx], 1, 5) <> '-----')));
   end;
   result := StringReplace(bookNames.Text, #$D#$A, '|', [rfReplaceAll]);
+end;
+
+function TBible.getTraitState(trait: TbqModuleTrait): boolean;
+begin
+result:=trait in mTraits;
 end;
 
 function TBible.GetVerse(i: Cardinal): WideString;
@@ -650,6 +663,12 @@ else mShortNamesVars[bookIx]:=name;
 
 
 
+end;
+
+procedure TBible.setTraitState(trait: TbqModuleTrait; state: boolean);
+begin
+if state then Include(mTraits, trait)
+else Exclude(mTraits,trait);
 end;
 
 procedure TBible.LoadIniFile(value: WideString);
@@ -697,11 +716,11 @@ begin
   FName := '';
   FShortName := '';
 
-  FChapterZero := false;
+//  FChapterZero := false;
 
   FCopyright := '';
 
-  FNoForcedLineBreaks := false;
+  //FNoForcedLineBreaks := false;
   mCategories.Clear();
   mEngPsalmsSet := false;
   FFiltered := true;
@@ -727,15 +746,16 @@ begin
   FStrongsDir := '';
 
   FBible := true;
-  FHasOT := true;
-  FHasNT := true;
-  FHasAP := false;
+  mTraits:=[bqmtOldCovenant,bqmtNewCovenant];
+//  FHasOT := true;
+//  FHasNT := true;
+//  FHasAP := false;
 
-  FEnglishPsalms := false;
+//  FEnglishPsalms := false;
+//
+//  FStrongNumbers := false;
 
-  FStrongNumbers := false;
-
-  mUseChapterHead:=false;
+//  mUseChapterHead:=false;
 
   for i := 1 to MAX_BOOKQTY do ChapterQtys[i] := 0; // clear
 
@@ -780,39 +800,32 @@ begin
 }
       if dFirstPart = 'OldTestament' then
     begin
-      FHasOT := ToBoolean(dSecondPart);
-
+      setTraitState(bqmtOldCovenant,ToBoolean(dSecondPart) );
     end else
       if dFirstPart = 'NewTestament' then
     begin
-      FHasNT := ToBoolean(dSecondPart);
-
+      setTraitState(bqmtNewCovenant,ToBoolean(dSecondPart) );
     end else
       if dFirstPart = 'Apocrypha' then
     begin
-      FHasAP := ToBoolean(dSecondPart);
-
+      setTraitState(bqmtApocrypha,ToBoolean(dSecondPart) );
     end else
       if dFirstPart = 'ChapterZero' then
     begin
-      FChapterZero := ToBoolean(dSecondPart);
-
+      setTraitState(bqmtZeroChapter,ToBoolean(dSecondPart) );
     end else
       if dFirstPart = 'EnglishPsalms' then
     begin
       mEngPsalmsSet := true;
-      FEnglishPsalms := ToBoolean(dSecondPart);
-
+      setTraitState(bqmtEnglishPsalms,ToBoolean(dSecondPart));
     end else
       if dFirstPart = 'StrongNumbers' then
     begin
-      FStrongNumbers := ToBoolean(dSecondPart);
-
-    end else
+      setTraitState(bqmtStrongs, ToBoolean(dSecondPart));
+   end else
       if dFirstPart = 'NoForcedLineBreaks' then
     begin
-      FNoForcedLineBreaks := ToBoolean(dSecondPart);
-
+      setTraitState(bqmtNoForcedLineBreaks,ToBoolean(dSecondPart));
     end else
       if dFirstPart = 'HTMLFilter' then
     begin
@@ -862,7 +875,7 @@ begin
       FUseRightAlignment := ToBoolean(dSecondPart)
     end else
       if dFirstPart = 'UseChapterHead' then begin
-      mUseChapterHead := ToBoolean(dSecondPart)
+        setTraitState(bqmtIncludeChapterHead,ToBoolean(dSecondPart));
     end else
 
 {
@@ -959,9 +972,9 @@ begin
 
   s.Free;
   if Self.FBible then begin
-    if self.FHasOT then mCategories.Add(Lang.SayDefault('catOT', 'Old Covenant'));
-    if self.FHasNT then mCategories.Add(Lang.SayDefault('catNT', 'New Covenant'));
-    if self.FHasAP then mCategories.Add(Lang.SayDefault('catApocrypha', 'Apocrypha'));
+    if Trait[bqmtOldCovenant] then mCategories.Add(Lang.SayDefault('catOT', 'Old Covenant'));
+    if Trait[bqmtNewCovenant] then mCategories.Add(Lang.SayDefault('catNT', 'New Covenant'));
+    if Trait[bqmtApocrypha] then mCategories.Add(Lang.SayDefault('catApocrypha', 'Apocrypha'));
   end;
   if Assigned(FOnChangeModule) then FOnChangeModule(Self);
 except       g_ExceptionContext.Add('TBible.LoadIniFile.value='+value); raise; end;
@@ -1009,7 +1022,7 @@ begin
         FLines.Add(BookLines[j]);       // add newly found verse of this chapter
       end else if FLines.Count > 0 then
         FLines[FLines.Count - 1] := FLines[FLines.Count - 1] + ' ' + BookLines[j]
-      else if mUseChapterHead then mChapterHead := mChapterHead + BookLines[j];
+      else if Trait[bqmtIncludeChapterHead] then mChapterHead := mChapterHead + BookLines[j];
         // add to current verse (paragraph)
     end;
 
@@ -1024,7 +1037,7 @@ begin
     FLines.Text := ResolveLnks(FLines.Text,mFuzzyResolveLnks);
   end;
 
-  if FFiltered and mUseChapterHead then
+  if FFiltered and Trait[bqmtIncludeChapterHead] then
     mChapterHead := ParseHTML(mChapterHead, FHTML);
   FVerseQty := FLines.Count;
 
@@ -1154,7 +1167,7 @@ begin
         they will be used later on a verse basis
   }
 
-  if (params and spExactPhrase = spExactPhrase) and FStrongNumbers then
+  if (params and spExactPhrase = spExactPhrase) and Trait[bqmtStrongs] then
   begin
     newparams := params - spExactPhrase + spWordParts;
     // we're filter results for exact phrases later...
@@ -1228,7 +1241,7 @@ begin
         //FLines.Add(WideFormat('%d %d %d $$$%s', [book,chapter,verse,BookLines[i]]));
         //FLines.Add(WideFormat('%d %d %d', [book,chapter,verse]));
 
-        if ((params and spExactPhrase = spExactPhrase) and FStrongNumbers)
+        if ((params and spExactPhrase = spExactPhrase) and Trait[bqmtStrongs])
           and (not SearchOK(DeleteStrongNumbers(BookLines[i]), words, params)) then continue; // filter for exact phrases
 
         if (spExactPhrase and params = 0) and (spContainAll and params > 0) then begin
@@ -1484,7 +1497,7 @@ end;
 function TBible.isEnglish: boolean;
 begin
   //newtestament := (not FHasOT) and FHasNT;
-  Result := (((not FHasOT) and FHasNT) and (ChapterQtys[6] = 16))
+  Result := ((not Trait[bqmtOldCovenant] and Trait[bqmtNewCovenant]) and (ChapterQtys[6] = 16))
     or (ChapterQtys[45] = 16);
 end;
 
@@ -1505,7 +1518,7 @@ begin
     if (effectiveLnk.vstart > VerseQty) or (effectiveLnk.vstart < 0) then begin result := -2; exit; end;
     if effectiveLnk.vend > effectiveLnk.vstart then Dec(result, ord(effectiveLnk.vend > VerseQty));
     end
-    else openchapter_res:=effectiveLnk.chapter<=ChapterQtys[effectiveLnk.book]-ord(FChapterZero);
+    else openchapter_res:=effectiveLnk.chapter<=ChapterQtys[effectiveLnk.book]-ord(Trait[bqmtZeroChapter]);
 
     if not openchapter_res then begin
     result:=-2; exit;
@@ -1526,7 +1539,7 @@ function TBible.ShortPassageSignature(book, chapter, fromverse, toverse:
 var
   offset: integer;
 begin
-  if FChapterZero then offset := 1 else offset := 0;
+  if Trait[bqmtZeroChapter] then offset := 1 else offset := 0;
 
   if (fromverse <= 1) and (toverse = 0) then
     Result := WideFormat('%s%d', [ShortNames[book], chapter - offset])
@@ -1549,7 +1562,7 @@ function TBible.FullPassageSignature(book, chapter, fromverse, toverse:
 var
   offset: integer;
 begin
-  if FChapterZero then offset := 1 else offset := 0;
+  if Trait[bqmtZeroChapter] then offset := 1 else offset := 0;
 
   if (fromverse <= 1) and (toverse = 0) then
     Result := WideFormat('%s %d', [FullNames[book], chapter - offset])
@@ -1894,7 +1907,7 @@ begin
   Result := true;
 
   offset := 0;
-  if ChapterZero then offset := 1;
+  if Trait[bqmtZeroChapter] then offset := 1;
 
   ibook := book;
   ichapter := chapter - offset;
@@ -1909,7 +1922,7 @@ begin
     Exit;
   end;
 
-  newTestamentOnly := (not FHasOT) and FHasNT;
+  newTestamentOnly := not Trait[bqmtOldCovenant] and Trait[bqmtNewCovenant];
   englishbible := (newTestamentOnly and (ChapterQtys[6] = 16))
     or (ChapterQtys[45] = 16);
   savebook:=book;
@@ -1928,7 +1941,7 @@ begin
 
   if not newTestamentOnly then
   begin
-    if englishbible or (FEnglishPsalms and (book = 19)) then
+    if englishbible or (Trait[bqmtEnglishPsalms] and (book = 19)) then
       ENG2RUS(book, chapter - offset, verse, ibook, ichapter, iverse)
     else begin
       ibook := book;
@@ -2015,7 +2028,7 @@ end;
 function TBible.InternalToAddress(ibook, ichapter, iverse: integer;
   var book, chapter, verse: integer; checkShortNames:boolean=true): boolean;
 var
-  newtestament, englishbible: boolean;
+  newCovenantOnly, oldCovenantOnly,englishbible: boolean;
   checkNamesResult,savebook:integer;
 begin
   Result := true;
@@ -2037,15 +2050,25 @@ begin
   end;
   if (ibook > 66) then begin result := true; exit; end;
 
-  newtestament := (not FHasOT) and FHasNT;
-  englishbible := (newtestament and (ChapterQtys[6] = 16))
+  newCovenantOnly := not Trait[bqmtOldCovenant] and Trait[bqmtNewCovenant];//(not FHasOT) and FHasNT;
+
+  englishbible := (newCovenantOnly and (ChapterQtys[6] = 16))
     or (ChapterQtys[45] = 16);
 
     // in English Bible ROMANS (16 chaps) follows ACTS instead of JAMES (5 chaps)
 
-  if not newtestament then              //если не НЗ
+
+  if not newCovenantOnly then              //если не НЗ
   begin
-    if englishbible or (FEnglishPsalms and (book = 19)) then
+      oldCovenantOnly:=not Trait[bqmtNewCovenant] and Trait[bqmtOldCovenant];
+      if oldCovenantOnly and (book>=40) then begin
+        book := 1;
+        chapter := 1;
+        verse := 1;
+        Result := false;
+        Exit;
+      end;
+      if englishbible or (Trait[bqmtEnglishPsalms] and (book = 19)) then
       RUS2ENG(ibook, ichapter, iverse, book, chapter, verse)
     else begin
       book := ibook;
@@ -2053,7 +2076,7 @@ begin
       verse := iverse;
     end;
   end
-  else begin                            // если нз
+  else begin                            // если только нз
     if englishbible then
     begin
       RUS2ENG(ibook, ichapter, iverse, book, chapter, verse);
@@ -2066,7 +2089,8 @@ begin
         Result := false;
         Exit;
       end;
-    end else begin
+    end
+    else begin// не английская библия
       if ibook > 39 then
       begin
         book := ibook - 39;
@@ -2083,7 +2107,7 @@ begin
     end;
 
   end;
-  if ChapterZero then chapter := chapter + 1;
+  if Trait[bqmtZeroChapter] then chapter := chapter + 1;
   if checkShortNames then begin
      checkNamesResult:=RussianBibleBookToModuleBook (savebook, self, ibook);
     if checkNamesResult>30 then begin
@@ -2091,7 +2115,7 @@ begin
     end;
   end;
 
-  if (chapter = 0) and (not ChapterZero) then chapter := 1;
+  if (chapter = 0) and (not Trait[bqmtZeroChapter]) then chapter := 1;
 end;
 
 /// AddressToEnglish + EnglishToAddress is for TSK....s
@@ -2105,7 +2129,7 @@ begin
   Result := true;
 
   offset := 0;
-  if ChapterZero then offset := 1;
+  if Trait[bqmtZeroChapter] then offset := 1;
 
   ebook := book;
   echapter := chapter - offset;
@@ -2120,7 +2144,7 @@ begin
     Exit;
   end;
 
-  newTestamentOnly := (not FHasOT) and FHasNT;
+  newTestamentOnly := not Trait[bqmtOldCovenant] or Trait[bqmtNewCovenant]; //(not FHasOT) and FHasNT;
   englishbible := (newTestamentOnly and (ChapterQtys[6] = 16))
     or (ChapterQtys[45] = 16);
     // in English Bible ROMANS follows ACTS instead of JAMES
@@ -2179,7 +2203,7 @@ begin
     Exit;
   end;
 
-  newtestament := (not FHasOT) and FHasNT;
+  newtestament := not Trait[bqmtOldCovenant] and Trait[bqmtNewCovenant];//(not FHasOT) and FHasNT;
   englishbible := (newtestament and (ChapterQtys[6] = 16))
     or (ChapterQtys[45] = 16);
     // in English Bible ROMANS (16 chaps) follows ACTS instead of JAMES (5 chaps)
@@ -2207,7 +2231,7 @@ begin
     end;
   end;
 
-  if ChapterZero then chapter := chapter + 1;
+  if trait[bqmtZeroChapter] then chapter := chapter + 1;
 end;
 
 {

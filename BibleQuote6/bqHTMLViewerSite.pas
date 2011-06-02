@@ -23,7 +23,7 @@ type
     function GetComponent():TComponent;override;
     function GetControl():TControl;override;
     procedure Init(sectionList:TSectionList);
-    constructor Create(aOwner:TComponent;site:TWinControl);
+    constructor Create(aOwner:TComponent;site:TWinControl);reintroduce;
   end;
 
 implementation

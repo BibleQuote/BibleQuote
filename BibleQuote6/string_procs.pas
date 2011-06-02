@@ -444,20 +444,30 @@ end;
 
 function Char2Hex(c: WideChar): integer;
 begin
-  if c <= '9'
-  then Result := Integer (c) - Integer ('0')
-  else Result := Integer (c) - Integer ('A') + 10;
+  result:=0;
+  if (c <= '9') and (c>='0') then Result := Integer (c) - Integer ('0')
+  else if (c>='A') and  (c<='F') then Result := Integer (c) - Integer ('A') + 10;
 end;
 
 function Hex2Color(s: WideString): TColor; // #xxyyzz -> TColor
 var
   snew: WideString;
+  l:integer;
 begin
-  snew := WideUpperCase(s);
+  result:=0;
+
+  snew := WideUpperCase(Trim(s));
+  l:=length(snew);
+  if l>=7 then begin
   Result := Char2Hex(snew[6]) * 16 + Char2Hex(snew[7]);
   Result := Result * 256;
+  end;
+  if l>=5 then begin
+
   Result := Result + Char2Hex(snew[4]) * 16 + Char2Hex(snew[5]);
   Result := Result * 256;
+  end;
+  if l>3 then
   Result := Result + Char2Hex(snew[2]) * 16 + Char2Hex(snew[3]);
 end;
 

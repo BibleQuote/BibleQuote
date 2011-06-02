@@ -42,9 +42,10 @@ type
     mTokenCnter: integer;
     mBlArray:TBibleLinkArray;
     mBlArrayCnt:integer;
+    mFuzzyLogic:boolean;
   class var SessionNum: integer;
 //    procedure PrepareBookNames();
-procedure Init();
+procedure Init(fuzzyLogic:boolean);
 type TLinkValueRecognitionOption = (lvroAllowPartialVerses, lvroAllowRomans);
       TLinkValueRecognitionOptions = set of TLinkValueRecognitionOption;
 class function VerseTokenValue(const tkn: WideString;
@@ -454,7 +455,7 @@ end;
 
 constructor TBibleLinkParser.Create;
 begin
-  Init();
+  Init(false);
   mSigList := bookNamesObj;
   mLinkParserOptions := [lpoIgnoreOneNumberValues];
 end;
@@ -523,9 +524,10 @@ begin
   Exclude(mFlags, lpsFirstVerseEntered);
 end;
 
-procedure TBibleLinkParser.Init;
+procedure TBibleLinkParser.Init(fuzzyLogic:boolean);
 begin
   mFlags := [];
+  mFuzzyLogic:=  fuzzyLogic;
   Inc(SessionNum);
   mWeakChapterSign := true;
   mLastTokenWasDelim := false;
@@ -629,7 +631,7 @@ begin
   sl.Add('');
   if c < 2 then exit;
   first := sl[0]; second := sl[1];
-  Init();
+  Init(false);
   repeat
     r := AddTokens(first, second, pbl);
     if assigned(pbl) then lnks.Add(pbl^.AsString);
@@ -677,7 +679,9 @@ function TBibleLinkParser.SetupLink(book, chapter, vstart, vend: integer;
   tokenOffset: integer; preserveStartOffset: boolean): boolean;
 label tail;
 begin
-  result := false;
+  result := mFuzzyLogic or mBookExpicitSet;
+  if not result then exit;
+  result:=false;
   mLinkReady := false;
   if not (lpsChapterEntered in mFlags) then goto tail;
   mOutputBibleLink.tokenEndOffset := tokenOffset;
@@ -856,7 +860,7 @@ begin
     bookNamesObj.FromFile(fn);
 
     lparser := TBibleLinkParser.Create();
-    lparser.Init();
+    lparser.Init(false);
 //lparser.PrepareBookNames();
     lparser.Options :=
       lparser.Options + [lpoTextRecognition];
@@ -893,7 +897,7 @@ end;
 function IsTerminator(ch: WideChar): boolean; inline;
 begin
   case ch of
-    #$D, ')', '(': result := true;
+    #$D, ')', '(','<',#0: result := true;
   else result := false;
   end;                                  //case
 end;
@@ -1112,7 +1116,7 @@ begin
     pWriteFence := mLinkedTxtBuffer + (mLinkedTxtBufferLen div 2);
     pCurrent := PWideChar(Pointer(txt));
     psFence := pCurrent + sourceLen;
-    lparser.Init();
+    lparser.Init(fuzzyLogic);
     pLastWrittenFrom := pCurrent;
     pTerm := nil;
     if pCurrent^ <> '<' then pFirstToken := pCurrent else pFirstToken := nil;

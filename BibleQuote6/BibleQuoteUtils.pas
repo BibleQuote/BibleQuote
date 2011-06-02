@@ -62,7 +62,7 @@ unit BibleQuoteUtils;
 
 interface
 uses SevenZipHelper,SevenZipVCL, MultiLanguage,
-  Contnrs, JCLWideStrings, WideStringsMod, Windows, SysUtils, Classes, JCLDebug, CWMIBase,
+  Contnrs, JCLWideStrings, WideStringsMod, Windows, SysUtils, Classes, JCLDebug, 
   COperatingSystemInfo;
 type
   TBibleModuleSecurity = class
@@ -631,7 +631,8 @@ begin
   LoadFromFile(wsString);
   mUserHash := GetUserHash();
   writeln('TPasswordPolicy.Create õýø: ', mUserHash);
-  getSevenZ().OnGetPassword := GetPassword;
+//  getSevenZ().OnGetPassword := GetPassword;
+  _S_SevenZipGetPasswordProc:=GetPassword;
 end;
 
 destructor TPasswordPolicy.Destroy;
@@ -878,7 +879,10 @@ begin
   FillChar(fontName, 64, 0);
   logFont.lfCharSet := charset;
   EnumFontFamiliesExW(aHDC, logFont, @EnumFontFamExProc, integer(@fontName), 0);
-  if (__hitCount > 0) and (fontName[0] <> #0) then result := PWideChar(@fontName)
+  if (__hitCount > 0) and (fontName[0] <> #0) then begin
+   result := PWideChar(@fontName);
+   G_InstalledFonts.Add(result);//long font names workaround
+   end
   else result := EmptyWideStr;
 end;
 
@@ -897,6 +901,7 @@ begin
   EnumFontFamiliesExW(aHDC, logFont, @EnumFontFamExProc, 0, 0);
   result := __hitCount > 0;}
   result := Screen.Fonts.IndexOf(wsFontName) >= 0;
+
 end;
 
 function ExctractName(const wsFile: WideString): WideString;
@@ -983,6 +988,8 @@ begin
   for i := 0 to cnt do begin
     try
       ifi := G_InstalledFonts.Objects[i] as TBQInstalledFontInfo;
+      if not assigned(ifi) then continue;// for fake installed font - long font names workaround
+      
       if (ifi.mHandle <> 0) and assigned(G_RemoveFontMemResourceEx) then
         test := G_RemoveFontMemResourceEx(ifi.mHandle)
       else begin

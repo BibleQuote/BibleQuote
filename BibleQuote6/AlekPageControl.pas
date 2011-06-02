@@ -57,7 +57,7 @@ type
 procedure Register();
 implementation
 
-uses SysUtils, ComCtrls, CommCtrl, Types, Themes;
+uses SysUtils, ComCtrls, CommCtrl, Types;
 
 procedure Register();
 begin

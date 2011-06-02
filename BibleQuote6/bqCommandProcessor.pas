@@ -5,7 +5,7 @@ type TbqCommandType=(bqctInvalid, bqctGoCommand);
 function GetCommandType(const cmd:WideString):TbqCommandType;  overload;
 function GetCommandType( cmd:UTF8String):TbqCommandType;  overload;
 implementation
-uses StrUtils,WideStringsMod,JclWideStrings,sysutils;
+uses WideStringsMod,JclWideStrings,sysutils;
 
 function GetCommandType(cmd:UTF8String):TbqCommandType;
 begin

@@ -9,6 +9,8 @@ type
     procedure SetNodeText(tree:TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString);
   end;
   TbqVTEdit=class(TVTEdit)
+  protected
+    procedure WMDestroy(var Message: TWMDestroy); message WM_DESTROY;
   end;
   TbqVDTEditLink = class(TStringEditLink, IVTEditLink)
   private
@@ -22,6 +24,7 @@ type
 //    FAlignment: TAlignment;
 //    FTextBounds: TRect;              // Smallest rectangle around the text.
 //    FStopping: Boolean;              // Set to True when the edit link requests stopping the edit action.
+
   public
     constructor Create(vdtInfo:IVDTInfo);
     destructor Destroy; override;
@@ -36,15 +39,18 @@ type
     procedure SetBounds(R: TRect); override; stdcall;
   end;
 
+
 implementation
-uses Forms,Controls;
+uses Forms,Controls,StdCtrls;
 //----------------- TbqVDTEditLink ------------------------------------------------------------------------------------
 
 constructor TbqVDTEditLink.Create(vdtInfo:IVDTInfo);
-
+ type PClass=^TClass;
 begin
  inherited Create();
+ PClass(FEdit)^:=TbqVTEdit;
   mVDTInfo:=vdtInfo;
+
 
 end;
 
@@ -84,6 +90,7 @@ begin
     FEdit.Free;
   FEdit := Value;
 end;
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -223,4 +230,20 @@ begin
     end;
   end;
 end;
+{ TbqVTEdit }
+
+procedure TbqVTEdit.WMDestroy(var Message: TWMDestroy);
+var oldClass:TClass;
+type PClass=^TClass;
+begin
+//
+try
+  oldClass := PClass(Self)^;
+  PClass(Self)^ := TCustomEdit;
+  Self.Dispatch(Message);
+finally
+  PClass(Self)^ := oldClass;
+end;
+end;
+
 end.

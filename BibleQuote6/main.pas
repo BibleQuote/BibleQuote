@@ -12,7 +12,7 @@ unit main;
 interface
 
 uses
-  Windows, Messages, Classes, WideStrUtils, Widestrings, WideStringsMod,
+  Windows, Messages, Classes, Widestrings, WideStringsMod,
   ShlObj, contnrs,
   Graphics, Controls,
   Forms, TntForms,
@@ -28,8 +28,8 @@ uses
   ToolWin, StdCtrls, Htmlview, Tabs, DockTabSet,
   links_parser, string_procs, MultiLanguage, Bible,
   Dict, SysHot, WCharWindows, WCharReader, AppEvnts, VirtualTrees, VersesDb,
-  TntDBGrids, DB, SysUtils, BibleQuoteUtils, qNavTest,
-  bqLinksParserIntf, bqICommandProcessor,bqWinUIServices,IHTMLViewer, HTMLEmbedInterfaces, htmlsubs,bqHTMLViewerSite,bqVdtEditLink,
+   DB, SysUtils, BibleQuoteUtils, qNavTest,
+  bqLinksParserIntf, bqICommandProcessor,bqWinUIServices,HTMLEmbedInterfaces, htmlsubs,bqHTMLViewerSite,bqVdtEditLink,
   rkGlassButton, bqEngine;
 
 const
@@ -1173,7 +1173,7 @@ begin
     Items.Clear;
 
     offset := 0;
-    if MainBook.ChapterZero then
+    if MainBook.Trait[bqmtZeroChapter] then
       offset := 1;
 
     for i := 1 to MainBook.ChapterQtys[BookLB.ItemIndex + 1] do
@@ -2224,7 +2224,7 @@ begin
 result:=Ord(viewTabInfo[vtisShowNotes]);
 Inc(Result, 10*ord(viewTabInfo[vtisShowStrongs]));
 Inc(Result, 100*ord(viewTabInfo[vtisResolveLinks]));
-Inc(Result, 100*ord(viewTabInfo[vtisFuzzyResolveLinks]));
+Inc(Result, 1000*ord(viewTabInfo[vtisFuzzyResolveLinks]));
 end;
 
 procedure TMainForm.SaveTabsToFile(path: WideString);
@@ -2801,7 +2801,7 @@ var
   locVerseStart, locVerseEnd, bverse, everse: integer;
   i, ipos, b, c, v, ib, ic, iv, chapterCount: integer;
   UseParaBible, opened, multiHl,isCommentary,showStrongs: boolean;
-  dBrowserSource: WideString;
+  dBrowserSource, wsMemoTxt: WideString;
   activeInfo: TViewTabInfo;             //AlekId:добавлено
   fontName: WideString;
   fistBookCell, SecondbookCell: WideString;
@@ -2874,7 +2874,7 @@ begin
     showStrongs:=GetActiveTabInfo()[vtisShowStrongs];
     activeInfo := GetActiveTabInfo();
     s := activeInfo.mSatelliteName;
-    if s = '------' then UseParaBible := false
+    if (s = '------') or isCommentary then UseParaBible := false
     else begin
       //поиск в списке модулей
       try
@@ -2897,11 +2897,11 @@ begin
         end;                            //try
         secondbook_right_aligned := SecondBook.UseRightAlignment;
         // если первичный модуль показыввает ВЗ, а второй не содержит ВЗ
-        if ((MainBook.CurBook < 40) and (MainBook.HasOldTestament) and (not
-          SecondBook.HasOldTestament))
+        if ((MainBook.CurBook < 40) and (MainBook.Trait[bqmtOldCovenant]) and (not
+          SecondBook.Trait[bqmtOldCovenant]))
           or                            //или если в первичном модуль НЗ а второй не содержит НЗ
-          ((MainBook.CurBook > 39) and (MainBook.HasNewTestament) and (not
-          SecondBook.HasNewTestament)) then
+          ((MainBook.CurBook > 39) or (MainBook.Trait[bqmtNewCovenant]) and
+           (not SecondBook.Trait[bqmtNewCovenant])) then
           UseParaBible := false;        // отменить отображение
       end;                              // if UseParaBible- если найден в списке  модулей
     end;                                //если выбрана вторичная Библия
@@ -2931,7 +2931,7 @@ begin
 
   if hlVerses = hlFalse then highlight_verse := Point(-1, -1);
 
-  if MainBook.NoForcedLineBreaks then
+  if MainBook.Trait[bqmtNoForcedLineBreaks] then
     paragraph := ''
   else
   begin
@@ -2979,7 +2979,7 @@ begin
 
   if UseParaBible then
   begin
-    if MainBook.ChapterZero and (chapter = 1) then
+    if MainBook.Trait[bqmtZeroChapter] and (chapter = 1) then
       {если нулевая глава в первичном виде}
       UseParaBible := false;
   end;
@@ -3010,7 +3010,7 @@ begin
     else begin hlCurrent := false; hlVerseStyle := 0; end;
     if hlCurrent then begin
       hlstyle := 'background-color:' + g_VerseBkHlColor + ';';
-      if MainBook.NoForcedLineBreaks then begin
+      if MainBook.Trait[bqmtNoForcedLineBreaks] then begin
         hlParaStart := '<span style="';
         hlParaEnd := '</span>';
       end
@@ -3031,15 +3031,15 @@ begin
       strVerseNumber := '<a href="verse ' + strVerseNumber
         + '" CLASS=OmegaVerseNumber>' + //style="font-family:' + 'Helvetica">' +
         strVerseNumber + '</a>';
-      if MainBook.NoForcedLineBreaks then
+      if MainBook.Trait[bqmtNoForcedLineBreaks] then
         strVerseNumber := '<sup>' + strVerseNumber + '</sup>';
-      if MainBook.StrongNumbers then
+      if MainBook.Trait[bqmtStrongs] then
       begin
         if (not showStrongs) then
           s := DeleteStrongNumbers(s)
         else
           s := FormatStrongNumbers(s, (MainBook.CurBook < 40) and
-            (MainBook.HasOldTestament), true);
+            (MainBook.Trait[bqmtOldCovenant]), true);
       end;
     end;
     //если модуль НЕбиблейский или нет вторичной Библии
@@ -3047,10 +3047,10 @@ begin
     begin                               // no satellite text
       if mainbook_right_aligned then
         text := text +
-          WideFormat(#13#10'%s<F>%s</F><a name="%d">%s</a>%s',
+          WideFormat(#13#10'%s<F>%s</F><a name="bqverse%d">%s</a>%s',
           [hlParaStart, s, verse, strVerseNumber, hlParaEnd])
       else begin
-        if (MainBook.isBible) and (not MainBook.NoForcedLineBreaks) then
+        if (MainBook.isBible) and (not MainBook.Trait[bqmtNoForcedLineBreaks]) then
           text := text + WideFormat(#13#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s',
             [hlParaStart, verse,
             strVerseNumber, s, hlParaEnd])
@@ -3098,7 +3098,7 @@ begin
         begin
           ss := SecondBook.Verses[iv - 1];
           StrDeleteFirstNumber(ss);
-          if SecondBook.StrongNumbers then
+          if SecondBook.Trait[bqmtStrongs] then
               if showStrongs then ss:=FormatStrongNumbers(ss,b<40,true)
               else ss := DeleteStrongNumbers(ss);
           if secondbook_right_aligned then
@@ -3126,9 +3126,13 @@ begin
         i := FindString(Memos, ShortName + ' ' + ShortPassageSignature(CurBook,
           CurChapter, verse, verse) + ' $$$');
 
-      if i > -1 then                    // found memo
-        text := text + '<font color=' + SelTextColor + '>' + Comment(Memos[i]) +
-          '</font>' + paragraph;
+      if i > -1 then  begin                  // found memo
+        wsMemoTxt:='<font color=' + SelTextColor + '>'+Comment(Memos[i])+'</font>'+ paragraph;
+        if activeInfo[vtisResolveLinks] then
+        wsMemoTxt:=ResolveLnks(wsMemoTxt , activeInfo[vtisFuzzyResolveLinks]);
+
+        text := text +   wsMemoTxt  ;
+          end;
     end;                                // если включены заметки
   end;                                  // цикл итерации по стихам
   if not UseParaBible then begin
@@ -3451,7 +3455,7 @@ begin
     Val(scode, num, code);
     if code = 0 then
       DisplayStrongs(num, (MainBook.CurBook < 40) and
-        (MainBook.HasOldTestament));
+        (MainBook.Trait[bqmtOldCovenant]));
   end
   else begin
     cb := sender as THTMLViewer;
@@ -4706,7 +4710,7 @@ begin
                 ti[vtisHighLightVerses] := hlVerses = hlTrue
               else ti[vtisHighLightVerses] := false;
               ti.mwsTitle:=WideFormat('%.6s-%.6s:%d',
-              [ShortName, ShortNames[CurBook], CurChapter - ord(ChapterZero)]);;
+              [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);;
             (ActivePage as TTntTabSheet).Caption :=ti.mwsTitle;
 
 
@@ -4875,7 +4879,7 @@ begin
           Items.Clear;
 
           offset := 0;
-          if MainBook.ChapterZero then
+          if MainBook.Trait[bqmtZeroChapter] then
             offset := 1;
 
           for i := 1 to MainBook.ChapterQtys[BookLB.ItemIndex + 1] do
@@ -5397,64 +5401,64 @@ var
     wl := WideLowerCase(str);
     if (Pos('нз', wl) = 1) or (Pos('nt', wl) = 1) then begin
 
-      if MainBook.HasNewTestament and MainBook.InternalToAddress(40, 1, 1, book, chapter, v1) then begin
+      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToAddress(40, 1, 1, book, chapter, v1) then begin
         s := s + [39..65];
       end;
       goto success;
     end
     else if (Pos('вз', wl) = 1) or (Pos('ot', wl) = 1) then begin
-      if MainBook.HasOldTestament and MainBook.InternalToAddress(1, 1, 1, book, chapter, v1) then begin
+      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToAddress(1, 1, 1, book, chapter, v1) then begin
         s := s + [0..38];
       end;
       goto success;
     end
     else if (Pos('пят', wl) = 1) or (Pos('pent', wl) = 1) or (Pos('тор', wl) = 1) or (Pos('tor', wl) = 1) then begin
-      if MainBook.HasOldTestament and MainBook.InternalToAddress(1, 1, 1, book, chapter, v1) then begin
+      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToAddress(1, 1, 1, book, chapter, v1) then begin
         s := s + [0..4];
       end;
       goto success;
     end
     else if (Pos('ист', wl) = 1) or (Pos('hist', wl) = 1) then begin
-      if MainBook.HasOldTestament then begin
+      if MainBook.Trait[bqmtOldCovenant] then begin
         s := s + [0..15];
       end;
       goto success;
     end
     else if (Pos('уч', wl) = 1) or (Pos('teach', wl) = 1) then begin
-      if MainBook.HasOldTestament then begin
+      if MainBook.Trait[bqmtOldCovenant] then begin
         s := s + [16..21];
       end;
       goto success;
     end
     else if (Pos('бпрор', wl) = 1) or (Pos('bproph', wl) = 1) then begin
-      if MainBook.HasOldTestament then begin
+      if MainBook.Trait[bqmtOldCovenant] then begin
         s := s + [22..26];
       end;
       goto success;
     end
     else if (Pos('мпрор', wl) = 1) or (Pos('mproph', wl) = 1) then begin
-      if MainBook.HasOldTestament then begin
+      if MainBook.Trait[bqmtOldCovenant] then begin
         s := s + [27..38];
       end;
       goto success;
     end
     else if (Pos('прор', wl) = 1) or (Pos('proph', wl) = 1) then begin
-      if MainBook.HasOldTestament then begin
+      if MainBook.Trait[bqmtOldCovenant] then begin
         s := s + [22..38];
-        if MainBook.HasNewTestament and MainBook.InternalToAddress(66, 1, 1, book, chapter, v1) then begin
+        if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToAddress(66, 1, 1, book, chapter, v1) then begin
           Include(s, 65);
         end;
         goto success;
       end
     end
     else if (Pos('ева', wl) = 1) or (Pos('gos', wl) = 1) then begin
-      if MainBook.HasNewTestament then begin
+      if MainBook.Trait[bqmtNewCovenant] then begin
         s := s + [39..42];
       end;
       goto success;
     end
     else if (Pos('пав', wl) = 1) or (Pos('paul', wl) = 1) then begin
-      if MainBook.HasNewTestament and MainBook.InternalToAddress(52, 1, 1, book, chapter, v1) then begin
+      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToAddress(52, 1, 1, book, chapter, v1) then begin
         s := s + [book - 1..book + 12];
       end;
       goto success;
@@ -5486,7 +5490,7 @@ begin
     s := [];
 
     if (not MainBook.isBible) { or
-      (not MainBook.HasOldTestament) or (not MainBook.HasNewTestament)}then
+      (not MainBook.Trait[bqmtOldCovenant]) or (not MainBook.Trait[bqmtNewCovenant])}then
     begin
       if (CBList.ItemIndex <= 0) then
         s := [0..MainBook.BookQty - 1]
@@ -5547,13 +5551,13 @@ begin
           -7: s := [44..65];
           -8:
             begin
-              if MainBook.HasApocrypha then
+              if MainBook.Trait[bqmtApocrypha] then
                 s := [66..MainBook.BookQty - 1]
               else
                 s := [0];
             end;
         else
-          s := [CBList.ItemIndex - 8 - Ord(MainBook.HasApocrypha)];
+          s := [CBList.ItemIndex - 8 - Ord(MainBook.Trait[bqmtApocrypha])];
       // search in single book
         end;
     end;
@@ -5805,22 +5809,22 @@ begin
     Items.Clear;
 
     Items.AddObject(Lang.Say('SearchWholeBible'), TObject(0));
-    if MainBook.HasOldTestament and MainBook.HasNewTestament then
+    if MainBook.Trait[bqmtOldCovenant] and MainBook.Trait[bqmtNewCovenant] then
       Items.AddObject(Lang.Say('SearchOT'), TObject(-1)); // Old Testament
-    if MainBook.HasNewTestament and MainBook.HasNewTestament then
+    if MainBook.Trait[bqmtNewCovenant] and MainBook.Trait[bqmtNewCovenant] then
       Items.AddObject(Lang.Say('SearchNT'), TObject(-2)); // New Testament
-    if MainBook.HasOldTestament then
+    if MainBook.Trait[bqmtOldCovenant] then
       Items.AddObject(Lang.Say('SearchPT'), TObject(-3)); // Pentateuch
-    if MainBook.HasOldTestament then
+    if MainBook.Trait[bqmtOldCovenant] then
       Items.AddObject(Lang.Say('SearchHP'), TObject(-4)); // Historical and Poetical
-    if MainBook.HasOldTestament then
+    if MainBook.Trait[bqmtOldCovenant] then
       Items.AddObject(Lang.Say('SearchPR'), TObject(-5)); // Prophets
-    if MainBook.HasNewTestament then
+    if MainBook.Trait[bqmtNewCovenant] then
       Items.AddObject(Lang.Say('SearchGA'), TObject(-6)); // Gospels and Acts
-    if MainBook.HasNewTestament then
+    if MainBook.Trait[bqmtNewCovenant] then
       Items.AddObject(Lang.Say('SearchER'), TObject(-7)); // Epistles and Revelation
 
-    if MainBook.HasApocrypha then
+    if MainBook.Trait[bqmtApocrypha] then
       Items.AddObject(Lang.Say('SearchAP'), TObject(-8)); // Apocrypha
 
     for i := 1 to MainBook.BookQty do
@@ -6393,7 +6397,7 @@ end;
 procedure TMainForm.GoModuleName(s: WideString);
 var
   i, j: integer;
-  book, chapter, fromverse, toverse, tb, tc: integer;
+  book, chapter, fromverse, toverse, tb, tc, firstVisibleVerse: integer;
   wasBible: boolean;
   commentpath: WideString;
   me: TModuleEntry;
@@ -6450,7 +6454,13 @@ begin
     r:=__tmpBook.InternalToAddress(obl, bl);
     if r<=-2 then hlVerses:=hlFalse;
     try
+      if (ti.mFirstVisiblePara>0) and (ti.mFirstVisiblePara<MainBook.VerseCount()) then
+      firstVisibleVerse:=ti.mFirstVisiblePara
+      else firstVisibleVerse:=-1;
       ProcessCommand(bl.ToCommand(commentpath + __tmpBook.ShortPath), hlVerses);
+      if firstVisibleVerse>0 then begin
+        ti.mHtmlViewer.PositionTo('bqverse'+inttostr(firstVisibleVerse),false );
+      end;
     except
     end;
   end                                   //both previuous and current are bibles
@@ -6495,8 +6505,12 @@ begin
     UpdateWindow (Browser.Handle);  
     exit
     end;
-   end; 
-
+   end;
+    if key=$43{THE C KEY} then begin
+  BrowserPopupMenuPopup(self);
+  if miCopyPassage.Visible then begin miCopyPassageClick(self); end;
+  
+  end;
 
   
 
@@ -6701,7 +6715,7 @@ begin
     s := MainBook.Verses[i - 1];
     StrDeleteFirstNumber(s);
 
-    if MainBook.StrongNumbers and (not StrongNumbersOn) then
+    if MainBook.Trait[bqmtStrongs] and (not StrongNumbersOn) then
       s := DeleteStrongNumbers(s);
 
     if (CopyOptionsCopyVerseNumbersChecked xor (IsDown(VK_CONTROL)))
@@ -7467,7 +7481,7 @@ begin
   if s <> '' then
   begin
     s := ParseHTML(s, '');
-    if MainBook.StrongNumbers and (not StrongNumbersOn) then
+    if MainBook.Trait[bqmtStrongs] and (not StrongNumbersOn) then
       s := DeleteStrongNumbers(s);
     StrDeleteFirstNumber(s);
 
@@ -7492,7 +7506,7 @@ procedure TMainForm.MainBookChangeModule(Sender: TObject);
 begin
   BooksCB.ItemIndex := BooksCB.Items.IndexOf(MainBook.Name);
   UpdateBooksAndChaptersBoxes();
-  StrongNumbersButton.Enabled := MainBook.StrongNumbers;
+  StrongNumbersButton.Enabled := MainBook.Trait[bqmtStrongs];
   SearchListInit;
   ReCalculateTagTree();
   if MainPages.ActivePage=CommentsTab then begin
@@ -7525,7 +7539,7 @@ begin
   Val(Trim(Browser.SelText), num, code);
   if code = 0 then
   begin
-    DisplayStrongs(num, (MainBook.CurBook < 40) and (MainBook.HasOldTestament));
+    DisplayStrongs(num, (MainBook.CurBook < 40) and (MainBook.Trait[bqmtOldCovenant]));
   end
   else
   begin
@@ -7785,7 +7799,9 @@ begin
   if key=VK_END then begin  Browser.PositionTo('endofchapterNMFHJAHSTDGF123'); end;
 
 
-  if key = $4C then begin miRecognizeBibleLinks.Click(); exit end;
+  if key = $4C{THE L KEY} then begin miRecognizeBibleLinks.Click(); exit end;
+
+  
 
   if ssAlt in Shift then begin
     if Key = VK_LEFT then begin
@@ -7850,7 +7866,7 @@ begin
   vti := GetActiveTabInfo();
   vti[vtisShowStrongs] := StrongNumbersOn;
 
-  if not MainBook.StrongNumbers then begin
+  if not MainBook.Trait[bqmtStrongs] then begin
     StrongNumbersButton.Enabled := false;
     Exit;
   end;
@@ -8083,11 +8099,11 @@ begin
 
       // don't display New Testament mixed with Old Testament...
 
-      if (MainBook.CurBook < 40) and (MainBook.HasOldTestament) and (not
-        SecondBook.HasOldTestament) then goto LoopTail;
+      if (MainBook.CurBook < 40) and (MainBook.Trait[bqmtOldCovenant]) and (not
+        SecondBook.Trait[bqmtOldCovenant]) then goto LoopTail;
 
-      if (MainBook.CurBook > 39) and (MainBook.HasNewTestament) and (not
-        SecondBook.HasNewTestament) then    goto LoopTail;
+      if (MainBook.CurBook > 39) and (MainBook.Trait[bqmtNewCovenant]) and (not
+        SecondBook.Trait[bqmtNewCovenant]) then    goto LoopTail;
 
       with MainBook do
         AddressToInternal(CurBook, CurChapter, CurVerseNumber, book, chapter,
@@ -9042,21 +9058,33 @@ procedure TMainForm.miRecognizeBibleLinksClick(Sender: TObject);
 var nV: boolean;
   vti: TViewTabInfo;
   r:LRESULT;
-  browserPos:Integer;
+  imageIx,browserPos:Integer;
 begin
   nV := miRecognizeBibleLinks.Checked;
   vti := GetActiveTabInfo();
-  vti[vtisFuzzyResolveLinks] := nv;
-  tbtnResolveLinks.Down:=nV;
+  vti[vtisResolveLinks] := nv;
+//  tbtnResolveLinks.Down:=nV;
 
-  if nV then  tbtnResolveLinks.ImageIndex:=42;
+  if nV then begin
+   if vti[vtisFuzzyResolveLinks] then
+   imageIx:=43
+   else
+   imageIx:=42;
+   end
+   else
+   imageIx:=41;
+
+  tbtnResolveLinks.ImageIndex:=imageIx;
 
 
-  if MainBook.RecognizeBibleLinks <> nV then begin
+
+  if (MainBook.RecognizeBibleLinks <> nV) or (vti[vtisPendingReload]) then begin
     browserPos:=vti.mHtmlViewer.Position;
+    MainBook.FuzzyResolve:=vti[vtisFuzzyResolveLinks];
     MainBook.RecognizeBibleLinks := nV;
     SafeProcessCommand(vti.mwsLocation,
       TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
+    vti[vtisPendingReload]:=false;  
     vti.mHtmlViewer.Position:=browserPos;
   end;
 
@@ -9325,9 +9353,16 @@ begin
     miStrong.Checked := tabInfo[vtisShowStrongs];
     StrongNumbersButton.Down := tabInfo[vtisShowStrongs];
     SatelliteButton.Down := (length(tabInfo.mSatelliteName) > 0) and (tabInfo.mSatelliteName<>'------');
-    StrongNumbersButton.Enabled := MainBook.StrongNumbers;
+    StrongNumbersButton.Enabled := MainBook.Trait[bqmtStrongs];
     MemosOn := tabInfo[vtisShowNotes];
     miMemosToggle.Checked := MemosOn;
+    if tabInfo[vtisResolveLinks] then begin
+      if tabInfo[vtisFuzzyResolveLinks] then i:=43
+      else i:=42;
+    end
+    else i:=41;
+    tbtnResolveLinks.ImageIndex:=i;
+    
     miRecognizeBibleLinks.Checked := tabInfo[vtisResolveLinks];
 //    tbtnResolveLinks.Down:=          tabInfo.mResolvelinks;
 //    SendMessage (MainToolbar.Handle, TB_CHECKBUTTON, tbtnResolveLinks.Index, MakeLong(Ord(tabInfo.mResolvelinks), 0) );
@@ -9367,7 +9402,7 @@ begin
       TUnicodeTabList(mBibleTabsEx.WideTabs).tbStyles[i] := ord(
         (MainBook.isBible) and
         (TModuleEntry(mBibleTabsEx.WideTabs.Objects[i]).BibleBookPresent(MainBook.CurBook
-        + Ord(not MainBook.HasOldTestament) * 66))
+        + Ord(not MainBook.Trait[bqmtOldCovenant]) * 66))
         );
     end;
     if c + 1 > 0 then
@@ -9383,6 +9418,8 @@ begin
       SafeProcessCommand(tabInfo.mwsLocation,
         TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
     end;
+    if (tabInfo.mLocationType=vtlModule) and assigned(tabInfo.mBible) and (tabInfo.mBible.isBible)  then
+    
     Caption := tabInfo.mBible.Name + ' — BibleQuote';
   finally
     mInterfaceLock := false;
@@ -10168,7 +10205,7 @@ begin
     if resolveLinks then SecondBook.FuzzyResolve:=tabInfo[vtisFuzzyResolveLinks];
   end;
 
-  if SecondBook.ChapterZero and (c = 2) then
+  if SecondBook.Trait[bqmtZeroChapter] and (c = 2) then
   begin
   blFailed:=true;
    try
@@ -10192,7 +10229,7 @@ begin
       if not iscomm then
         begin
           StrDeleteFirstNumber(s);
-          if SecondBook.StrongNumbers then
+          if SecondBook.Trait[bqmtStrongs] then
             s := DeleteStrongNumbers(s);
 
           AddLine(Lines, WideFormat(
@@ -10243,7 +10280,7 @@ begin
     if not iscomm then
     begin
       StrDeleteFirstNumber(s);
-      if SecondBook.StrongNumbers then
+      if SecondBook.Trait[bqmtStrongs] then
         s := DeleteStrongNumbers(s);
 
       AddLine(Lines, WideFormat(
@@ -11228,22 +11265,30 @@ procedure TMainForm.miChooseLogicClick(Sender: TObject);
 var mi:TTntMenuItem;
     ti:TViewTabInfo;
     reload:boolean;
+    imageIx:integer;
 begin
   //
   mi:= Sender as TTntMenuItem;
-  if mi=miStrictLogic then begin
-  tbtnResolveLinks.ImageIndex:=41
-  end
-  else if mi=miFuzzyLogic then begin
-  tbtnResolveLinks.ImageIndex:=43
-  end;
   ti:=GetActiveTabInfo();
-  if (assigned(ti)) then  begin
-    reload:= ( ti[vtisFuzzyResolveLinks] xor (Sender=miFuzzyLogic) ) ;
-    if reload  then miRecognizeBibleLinks.Checked:=false;//force reload
+  reload:= ( ti[vtisFuzzyResolveLinks] xor (Sender=miFuzzyLogic) ) ;
+ if (assigned(ti)) then  begin
+   if not ti[vtisResolveLinks] then ti[vtisResolveLinks]:=true;
+   ti[vtisFuzzyResolveLinks]:=mi=miFuzzyLogic;
+    if mi=miStrictLogic then begin
+    imageIx:=42;
+    end
+    else if mi=miFuzzyLogic then begin
+    imageIx:=43;
+    end;
+    if reload  then begin
+         miRecognizeBibleLinks.Checked:=true;
+         ti[vtisPendingReload]:=true;
+         miRecognizeBibleLinksClick(self);
+    end;
+
+
   end;
-  if not miRecognizeBibleLinks.Checked then
-  miRecognizeBibleLinks.Click();
+
 end;
 
 procedure TMainForm.miChooseSatelliteBibleClick(Sender: TObject);
@@ -11332,6 +11377,8 @@ begin
     end;
     tabIx := tab.TabIndex;
     tabinfo := TObject(tab.Tag) as TViewTabInfo;
+    FreeAndNil( tabInfo.mBible);
+    FreeAndNil(tabInfo.mHtmlViewer);
     tab.Free();
     if tabIx = mViewTabs.PageCount then
       mViewTabs.ActivePageIndex := tabIx - 1;
@@ -11366,7 +11413,7 @@ begin
     Items.Clear;
 
     offset := 0;
-    if MainBook.ChapterZero then
+    if MainBook.Trait[bqmtZeroChapter] then
       offset := 1;
 
     for i := 1 to MainBook.ChapterQtys[BookLB.ItemIndex + 1] do
@@ -11380,7 +11427,7 @@ begin
 end;
 
 procedure TMainForm.BookLBMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
+  Y: Integer);                                        
 var p: TPoint;
   it: integer;
 begin
@@ -11814,7 +11861,7 @@ begin
   InputForm.Font := MainForm.Font;
   if MainBook.VerseCount() = 0 then
     MainBook.OpenChapter(MainBook.CurBook, MainBook.CurChapter);
-  if MainBook.StrongNumbers then
+  if MainBook.Trait[bqmtStrongs] then
     newstring := Trim(DeleteStrongNumbers(MainBook.Verses[CurVerseNumber -
       CurFromVerse]))
   else
@@ -12564,6 +12611,7 @@ procedure TMainForm.SelectSatelliteBibleByName(const bibleName: WideString);
 var
   tabInfo: TViewTabInfo;
   ix: integer;
+  broserPos:integer;
 begin
   {  num := -1;//AlekId:исправлено было 0
     for i := 0 to SatelliteMenu.Items.Count - 1 do begin
@@ -12577,7 +12625,9 @@ begin
     tabInfo := GetActiveTabInfo();
     tabInfo.mSatelliteName := bibleName;
     if tabInfo.mBible.isBible then begin
+      broserPos:=tabInfo.mHtmlViewer.Position;
       ProcessCommand(tabInfo.mwsLocation, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])) {History[HistoryLB.ItemIndex]});
+      tabInfo.mHtmlViewer.Position:=broserPos;
     end
     else begin try
         LoadSecondBookByName(bibleName);

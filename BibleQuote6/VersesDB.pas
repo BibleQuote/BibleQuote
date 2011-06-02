@@ -104,7 +104,7 @@ type
     VerseListEngine: TVerseListEngine;
   const RELATION_NORMAL = 20;
 implementation
-uses BQExceptionTracker, bqPlainUtils, WideStringsMod, BibleQuoteConfig, Windows, TntSysUtils;
+uses BQExceptionTracker, bqPlainUtils, WideStringsMod, Windows, TntSysUtils;
 {$R *.dfm}
 
 function is_not_unique_msg(const msg: string): boolean; forward;

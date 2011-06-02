@@ -3,13 +3,12 @@ unit bqCollectionsEdit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants,  TntStdCtrls, ExtCtrls, TntForms, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, VirtualTrees;
+  Windows, Messages, SysUtils, Variants,  ExtCtrls, TntForms, Classes, Graphics, Controls, Forms,
+  Dialogs, VirtualTrees;
 
 type
   TbqCollectionsEditor = class(TtntForm)
     vstCollections: TVirtualStringTree;
-    lbl1: TTntLabel;
   private
     { Private declarations }
   public
