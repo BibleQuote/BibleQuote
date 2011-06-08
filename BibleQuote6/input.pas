@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, TntForms, Dialogs,
-  StdCtrls, TntStdCtrls;
+  TntStdCtrls, StdCtrls;
 
 type
   TInputForm = class(TTntForm)

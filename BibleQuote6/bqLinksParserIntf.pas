@@ -43,7 +43,7 @@ type
   PBibleLinkEx=^TBibleLinkEx;
 
 implementation
-uses WideStringsMod,SysUtils, BibleQuoteConfig,Windows;
+uses SysUtils, BibleQuoteConfig,Windows;
 
 const
   gRussianShortNames: array[1..66] of WideString =

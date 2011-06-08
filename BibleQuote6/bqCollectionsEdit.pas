@@ -3,7 +3,7 @@ unit bqCollectionsEdit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants,  ExtCtrls, TntForms, Classes, Graphics, Controls, Forms,
+  Windows, Messages, SysUtils, Variants,  TntForms, Classes, Graphics, Controls, Forms,
   Dialogs, VirtualTrees;
 
 type

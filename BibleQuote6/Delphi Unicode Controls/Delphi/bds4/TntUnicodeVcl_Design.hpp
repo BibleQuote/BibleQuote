@@ -93,7 +93,6 @@
 #include <Dblogdlg.hpp>	// Pascal unit
 #include <Dbpwdlg.hpp>	// Pascal unit
 #include <Dbctrls.hpp>	// Pascal unit
-#include <Tntdb.hpp>	// Pascal unit
 #include <Tntdbgrids.hpp>	// Pascal unit
 #include <Checklst.hpp>	// Pascal unit
 #include <Customizedlg.hpp>	// Pascal unit

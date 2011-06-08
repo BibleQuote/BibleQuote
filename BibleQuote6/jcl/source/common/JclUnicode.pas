@@ -177,7 +177,7 @@ uses
   {$ENDIF MSWINDOWS}
   SysUtils,
   Classes,
-  JclBase;
+  JclBase, JCLWideStrings;
 
 {$IFNDEF FPC}
  {$IFDEF MSWINDOWS}
@@ -676,7 +676,7 @@ const
     (Range:(RangeStart: $100000; RangeEnd: $10FFFF); Name: 'Supplementary Private Use Area-B'));
 
 type
-  TWideStrings = class;
+  TJCLUWideStrings = class;
 
   TSearchFlag = (
     sfCaseSensitive,    // match letter case
@@ -693,11 +693,11 @@ type
   TSearchEngine = class(TObject)
   private
     FResults: TList;      // 2 entries for each result (start and stop position)
-    FOwner: TWideStrings; // at the moment unused, perhaps later to access strings faster
+    FOwner: TJCLUWideStrings; // at the moment unused, perhaps later to access strings faster
   protected
     function GetCount: SizeInt; virtual;
   public
-    constructor Create(AOwner: TWideStrings); virtual;
+    constructor Create(AOwner: TJCLUWideStrings); virtual;
     destructor Destroy; override;
 
     procedure AddResult(Start, Stop: SizeInt); virtual;
@@ -994,13 +994,13 @@ type
   end;
 
   // Event used to give the application a chance to switch the way of how to save
-  // the text in TWideStrings if the text contains characters not only from the
+  // the text in TJCLUWideStrings if the text contains characters not only from the
   // ANSI block but the save type is ANSI. On triggering the event the application
   // can change the property SaveUnicode as needed. This property is again checked
   // after the callback returns.
-  TConfirmConversionEvent = procedure (Sender: TWideStrings; var Allowed: Boolean) of object;
+  TConfirmConversionEvent = procedure (Sender: TJCLUWideStrings; var Allowed: Boolean) of object;
 
-  TWideStrings = class(TPersistent)
+  TJCLUWideStrings = class(TPersistent)
   private
     FUpdateCount: Integer;
     FLanguage: LCID;        // language can usually left alone, the system's default is used
@@ -1040,14 +1040,14 @@ type
     function AddObject(const S: WideString; AObject: TObject): Integer; virtual;
     procedure Append(const S: WideString);
     procedure AddStrings(Strings: TStrings); overload; virtual;
-    procedure AddStrings(Strings: TWideStrings); overload; virtual;
+    procedure AddStrings(Strings: TJCLUWideStrings); overload; virtual;
     procedure Assign(Source: TPersistent); override;
     procedure AssignTo(Dest: TPersistent); override;
     procedure BeginUpdate;
     procedure Clear; virtual; abstract;
     procedure Delete(Index: Integer); virtual; abstract;
     procedure EndUpdate;
-    function Equals(Strings: TWideStrings): Boolean; {$IFDEF RTL200_UP} reintroduce; {$ENDIF RTL200_UP}
+    function Equals(Strings: TJCLUWideStrings): Boolean; {$IFDEF RTL200_UP} reintroduce; {$ENDIF RTL200_UP}
     procedure Exchange(Index1, Index2: Integer); virtual;
     function GetSeparatedText(Separators: WideString): WideString; virtual;
     function GetText: PWideChar; virtual;
@@ -1092,7 +1092,7 @@ type
 
   TWideStringItemList = array of TWideStringItem;
 
-  TWideStringList = class(TWideStrings)
+  TJCLWideStringList = class(TJCLUWideStrings)
   private
     FList: TWideStringItemList;
     FCount: Integer;
@@ -1401,7 +1401,7 @@ uses
   {$IFNDEF UNICODE_RAW_DATA}
   JclCompression,
   {$ENDIF ~UNICODE_RAW_DATA}
-  JclResources, JclSynch, JclSysUtils, JclSysInfo, JclStringConversions, JclWideStrings;
+  JclResources, JclSynch, JclSysUtils, JclSysInfo, JclStringConversions ;
 
 const
   {$IFDEF FPC} // declarations from unit [Rtl]Consts
@@ -2226,7 +2226,7 @@ end;
 
 //=== { TSearchEngine } ======================================================
 
-constructor TSearchEngine.Create(AOwner: TWideStrings);
+constructor TSearchEngine.Create(AOwner: TJCLUWideStrings);
 begin
   inherited Create;
   FOwner := AOwner;
@@ -4761,9 +4761,9 @@ begin
   CompileURE(PWideChar(Pattern), Length(Pattern), not (sfCaseSensitive in Options));
 end;
 
-//=== { TWideStrings } =======================================================
+//=== { TJCLUWideStrings } =======================================================
 
-constructor TWideStrings.Create;
+constructor TJCLUWideStrings.Create;
 begin
   inherited Create;
   FLanguage := GetUserDefaultLCID;
@@ -4771,17 +4771,17 @@ begin
   FSaveFormat := sfUnicodeLSB;
 end;
 
-procedure TWideStrings.SetLanguage(Value: LCID);
+procedure TJCLUWideStrings.SetLanguage(Value: LCID);
 begin
   FLanguage := Value;
 end;
 
-function TWideStrings.GetSaveUnicode: Boolean;
+function TJCLUWideStrings.GetSaveUnicode: Boolean;
 begin
   Result := SaveFormat = sfUnicodeLSB;
 end;
 
-procedure TWideStrings.SetSaveUnicode(const Value: Boolean);
+procedure TJCLUWideStrings.SetSaveUnicode(const Value: Boolean);
 begin
   if Value then
     SaveFormat := sfUnicodeLSB
@@ -4789,24 +4789,24 @@ begin
     SaveFormat := sfAnsi;
 end;
 
-function TWideStrings.Add(const S: WideString): Integer;
+function TJCLUWideStrings.Add(const S: WideString): Integer;
 begin
   Result := GetCount;
   Insert(Result, S);
 end;
 
-function TWideStrings.AddObject(const S: WideString; AObject: TObject): Integer;
+function TJCLUWideStrings.AddObject(const S: WideString; AObject: TObject): Integer;
 begin
   Result := Add(S);
   PutObject(Result, AObject);
 end;
 
-procedure TWideStrings.Append(const S: WideString);
+procedure TJCLUWideStrings.Append(const S: WideString);
 begin
   Add(S);
 end;
 
-procedure TWideStrings.AddStrings(Strings: TStrings);
+procedure TJCLUWideStrings.AddStrings(Strings: TStrings);
 var
   I: Integer;
   {$IFNDEF SUPPORTS_UNICODE}
@@ -4831,7 +4831,7 @@ begin
   end;
 end;
 
-procedure TWideStrings.AddStrings(Strings: TWideStrings);
+procedure TJCLUWideStrings.AddStrings(Strings: TJCLUWideStrings);
 var
   I: Integer;
 begin
@@ -4846,15 +4846,15 @@ begin
   end;
 end;
 
-procedure TWideStrings.Assign(Source: TPersistent);
+procedure TJCLUWideStrings.Assign(Source: TPersistent);
 // usual assignment routine, but able to assign wide and small strings
 begin
-  if Source is TWideStrings then
+  if Source is TJCLUWideStrings then
   begin
     BeginUpdate;
     try
       Clear;
-      AddStrings(TWideStrings(Source));
+      AddStrings(TJCLUWideStrings(Source));
     finally
       EndUpdate;
     end;
@@ -4876,9 +4876,9 @@ begin
   end;
 end;
 
-procedure TWideStrings.AssignTo(Dest: TPersistent);
+procedure TJCLUWideStrings.AssignTo(Dest: TPersistent);
 // need to do also assignment to old style TStrings, but this class doesn't know
-// TWideStrings, so we need to do it from here
+// TJCLUWideStrings, so we need to do it from here
 var
   I: Integer;
   {$IFNDEF SUPPORTS_UNICODE}
@@ -4910,9 +4910,9 @@ begin
   end
   else
   begin
-    if Dest is TWideStrings then
+    if Dest is TJCLUWideStrings then
     begin
-      with Dest as TWideStrings do
+      with Dest as TJCLUWideStrings do
       begin
         BeginUpdate;
         try
@@ -4928,14 +4928,14 @@ begin
   end;
 end;
 
-procedure TWideStrings.BeginUpdate;
+procedure TJCLUWideStrings.BeginUpdate;
 begin
   if FUpdateCount = 0 then
     SetUpdateState(True);
   Inc(FUpdateCount);
 end;
 
-procedure TWideStrings.DefineProperties(Filer: TFiler);
+procedure TJCLUWideStrings.DefineProperties(Filer: TFiler);
 
 // Defines a private property for the content of the list.
 // There's a bug in the handling of text DFMs in Classes.pas which prevents
@@ -4950,8 +4950,8 @@ procedure TWideStrings.DefineProperties(Filer: TFiler);
     if Filer.Ancestor <> nil then
     begin
       Result := True;
-      if Filer.Ancestor is TWideStrings then
-        Result := not Equals(TWideStrings(Filer.Ancestor))
+      if Filer.Ancestor is TJCLUWideStrings then
+        Result := not Equals(TJCLUWideStrings(Filer.Ancestor))
     end
     else
       Result := Count > 0;
@@ -4963,20 +4963,20 @@ begin
   Filer.DefineProperty('WideStrings', ReadData, WriteData, DoWrite);
 end;
 
-procedure TWideStrings.DoConfirmConversion(var Allowed: Boolean);
+procedure TJCLUWideStrings.DoConfirmConversion(var Allowed: Boolean);
 begin
   if Assigned(FOnConfirmConversion) then
     FOnConfirmConversion(Self, Allowed);
 end;
 
-procedure TWideStrings.EndUpdate;
+procedure TJCLUWideStrings.EndUpdate;
 begin
   Dec(FUpdateCount);
   if FUpdateCount = 0 then
     SetUpdateState(False);
 end;
 
-function TWideStrings.Equals(Strings: TWideStrings): Boolean;
+function TJCLUWideStrings.Equals(Strings: TJCLUWideStrings): Boolean;
 var
   I, Count: Integer;
 begin
@@ -4993,7 +4993,7 @@ begin
   Result := True;
 end;
 
-procedure TWideStrings.Error(const Msg: string; Data: Integer);
+procedure TJCLUWideStrings.Error(const Msg: string; Data: Integer);
 
   function ReturnAddr: Pointer;
   asm
@@ -5011,7 +5011,7 @@ begin
   raise EStringListError.CreateFmt(Msg, [Data]) at ReturnAddr;
 end;
 
-procedure TWideStrings.Exchange(Index1, Index2: Integer);
+procedure TJCLUWideStrings.Exchange(Index1, Index2: Integer);
 var
   TempObject: TObject;
   TempString: WideString;
@@ -5029,13 +5029,13 @@ begin
   end;
 end;
 
-function TWideStrings.GetCapacity: Integer;
+function TJCLUWideStrings.GetCapacity: Integer;
 // Descendants may optionally override/replace this default implementation.
 begin
   Result := Count;
 end;
 
-function TWideStrings.GetCommaText: WideString;
+function TJCLUWideStrings.GetCommaText: WideString;
 var
   S: WideString;
   P: PWideChar;
@@ -5061,7 +5061,7 @@ begin
   end;
 end;
 
-function TWideStrings.GetName(Index: Integer): WideString;
+function TJCLUWideStrings.GetName(Index: Integer): WideString;
 var
   P: Integer;
 begin
@@ -5073,12 +5073,12 @@ begin
     Result := '';
 end;
 
-function TWideStrings.GetObject(Index: Integer): TObject;
+function TJCLUWideStrings.GetObject(Index: Integer): TObject;
 begin
   Result := nil;
 end;
 
-function TWideStrings.GetSeparatedText(Separators: WideString): WideString;
+function TJCLUWideStrings.GetSeparatedText(Separators: WideString): WideString;
 // Same as GetText but with customizable separator characters.
 var
   I, L,
@@ -5121,17 +5121,17 @@ begin
   end;
 end;
 
-function TWideStrings.GetTextStr: WideString;
+function TJCLUWideStrings.GetTextStr: WideString;
 begin
   Result := GetSeparatedText(WideCRLF);
 end;
 
-function TWideStrings.GetText: PWideChar;
+function TJCLUWideStrings.GetText: PWideChar;
 begin
   Result := StrNewW(GetTextStr);
 end;
 
-function TWideStrings.GetValue(const Name: WideString): WideString;
+function TJCLUWideStrings.GetValue(const Name: WideString): WideString;
 var
   I: Integer;
 begin
@@ -5142,7 +5142,7 @@ begin
     Result := '';
 end;
 
-function TWideStrings.IndexOf(const S: WideString): Integer;
+function TJCLUWideStrings.IndexOf(const S: WideString): Integer;
 var
   NormString: WideString;
 begin
@@ -5154,7 +5154,7 @@ begin
   Result := -1;
 end;
 
-function TWideStrings.IndexOfName(const Name: WideString): Integer;
+function TJCLUWideStrings.IndexOfName(const Name: WideString): Integer;
 var
   P: Integer;
   S: WideString;
@@ -5172,7 +5172,7 @@ begin
   Result := -1;
 end;
 
-function TWideStrings.IndexOfObject(AObject: TObject): Integer;
+function TJCLUWideStrings.IndexOfObject(AObject: TObject): Integer;
 begin
   for Result := 0 to GetCount - 1 do
     if GetObject(Result) = AObject then
@@ -5180,13 +5180,13 @@ begin
   Result := -1;
 end;
 
-procedure TWideStrings.InsertObject(Index: Integer; const S: WideString; AObject: TObject);
+procedure TJCLUWideStrings.InsertObject(Index: Integer; const S: WideString; AObject: TObject);
 begin
   Insert(Index, S);
   PutObject(Index, AObject);
 end;
 
-procedure TWideStrings.LoadFromFile(const FileName: TFileName);
+procedure TJCLUWideStrings.LoadFromFile(const FileName: TFileName);
 var
   Stream: TStream;
 begin
@@ -5202,7 +5202,7 @@ begin
   end;
 end;
 
-procedure TWideStrings.LoadFromStream(Stream: TStream);
+procedure TJCLUWideStrings.LoadFromStream(Stream: TStream);
 // usual loader routine, but enhanced to handle byte order marks in stream
 var
   Size,
@@ -5294,7 +5294,7 @@ begin
   end;
 end;
 
-procedure TWideStrings.Move(CurIndex, NewIndex: Integer);
+procedure TJCLUWideStrings.Move(CurIndex, NewIndex: Integer);
 var
   TempObject: TObject;
   TempString: WideString;
@@ -5313,7 +5313,7 @@ begin
   end;
 end;
 
-procedure TWideStrings.ReadData(Reader: TReader);
+procedure TJCLUWideStrings.ReadData(Reader: TReader);
 begin
   case Reader.NextValue of
     vaLString, vaString:
@@ -5323,7 +5323,7 @@ begin
   end;
 end;
 
-procedure TWideStrings.SaveToFile(const FileName: TFileName);
+procedure TJCLUWideStrings.SaveToFile(const FileName: TFileName);
 var
   Stream: TStream;
 begin
@@ -5335,7 +5335,7 @@ begin
   end;
 end;
 
-procedure TWideStrings.SaveToStream(Stream: TStream; WithBOM: Boolean = True);
+procedure TJCLUWideStrings.SaveToStream(Stream: TStream; WithBOM: Boolean = True);
 // Saves the currently loaded text into the given stream. WithBOM determines whether to write a
 // byte order mark or not. Note: when saved as ANSI text there will never be a BOM.
 var
@@ -5415,12 +5415,12 @@ begin
   end;
 end;
 
-procedure TWideStrings.SetCapacity(NewCapacity: Integer);
+procedure TJCLUWideStrings.SetCapacity(NewCapacity: Integer);
 begin
   // do nothing - descendants may optionally implement this method
 end;
 
-procedure TWideStrings.SetCommaText(const Value: WideString);
+procedure TJCLUWideStrings.SetCommaText(const Value: WideString);
 var
   P, P1: PWideChar;
   S: WideString;
@@ -5458,7 +5458,7 @@ begin
   end;
 end;
 
-procedure TWideStrings.SetText(const Value: WideString);
+procedure TJCLUWideStrings.SetText(const Value: WideString);
 var
   Head,
   Tail: PWideChar;
@@ -5490,11 +5490,11 @@ begin
   end;
 end;
 
-procedure TWideStrings.SetUpdateState(Updating: Boolean);
+procedure TJCLUWideStrings.SetUpdateState(Updating: Boolean);
 begin
 end;
 
-procedure TWideStrings.SetNormalizationForm(const Value: TNormalizationForm);
+procedure TJCLUWideStrings.SetNormalizationForm(const Value: TNormalizationForm);
 var
   I: Integer;
 begin
@@ -5510,7 +5510,7 @@ begin
   end;
 end;
 
-procedure TWideStrings.SetValue(const Name, Value: WideString);
+procedure TJCLUWideStrings.SetValue(const Name, Value: WideString);
 var
   I : Integer;
 begin
@@ -5528,14 +5528,14 @@ begin
   end;
 end;
 
-procedure TWideStrings.WriteData(Writer: TWriter);
+procedure TJCLUWideStrings.WriteData(Writer: TWriter);
 begin
   Writer.WriteWideString(GetTextStr);
 end;
 
-//=== { TWideStringList } ====================================================
+//=== { TJCLWideStringList } ====================================================
 
-destructor TWideStringList.Destroy;
+destructor TJCLWideStringList.Destroy;
 begin
   FOnChange := nil;
   FOnChanging := nil;
@@ -5543,7 +5543,7 @@ begin
   inherited Destroy;
 end;
 
-function TWideStringList.Add(const S: WideString): Integer;
+function TJCLWideStringList.Add(const S: WideString): Integer;
 begin
   if not Sorted then
     Result := FCount
@@ -5562,19 +5562,19 @@ begin
   InsertItem(Result, S);
 end;
 
-procedure TWideStringList.Changed;
+procedure TJCLWideStringList.Changed;
 begin
   if (FUpdateCount = 0) and Assigned(FOnChange) then
     FOnChange(Self);
 end;
 
-procedure TWideStringList.Changing;
+procedure TJCLWideStringList.Changing;
 begin
   if (FUpdateCount = 0) and Assigned(FOnChanging) then
     FOnChanging(Self);
 end;
 
-procedure TWideStringList.Clear;
+procedure TJCLWideStringList.Clear;
 {$IFDEF OWN_WIDESTRING_MEMMGR}
 var
   I: Integer;
@@ -5597,7 +5597,7 @@ begin
   end;
 end;
 
-procedure TWideStringList.Delete(Index: Integer);
+procedure TJCLWideStringList.Delete(Index: Integer);
 begin
   if Cardinal(Index) >= Cardinal(FCount) then
     Error(SListIndexError, Index);
@@ -5617,7 +5617,7 @@ begin
   Changed;
 end;
 
-procedure TWideStringList.Exchange(Index1, Index2: Integer);
+procedure TJCLWideStringList.Exchange(Index1, Index2: Integer);
 begin
   if Cardinal(Index1) >= Cardinal(FCount) then
     Error(SListIndexError, Index1);
@@ -5628,7 +5628,7 @@ begin
   Changed;
 end;
 
-procedure TWideStringList.ExchangeItems(Index1, Index2: Integer);
+procedure TJCLWideStringList.ExchangeItems(Index1, Index2: Integer);
 var
   Temp: TWideStringItem;
 begin
@@ -5637,7 +5637,7 @@ begin
   FList[Index2] := Temp;
 end;
 
-function TWideStringList.Find(const S: WideString; var Index: Integer): Boolean;
+function TJCLWideStringList.Find(const S: WideString; var Index: Integer): Boolean;
 var
   L, H, I, C: Integer;
   NormString: WideString;
@@ -5666,7 +5666,7 @@ begin
   Index := L;
 end;
 
-function TWideStringList.Get(Index: Integer): WideString;
+function TJCLWideStringList.Get(Index: Integer): WideString;
 {$IFDEF OWN_WIDESTRING_MEMMGR}
 var
   Len: Integer;
@@ -5692,24 +5692,24 @@ begin
   {$ENDIF ~OWN_WIDESTRING_MEMMGR}
 end;
 
-function TWideStringList.GetCapacity: Integer;
+function TJCLWideStringList.GetCapacity: Integer;
 begin
   Result := Length(FList);
 end;
 
-function TWideStringList.GetCount: Integer;
+function TJCLWideStringList.GetCount: Integer;
 begin
   Result := FCount;
 end;
 
-function TWideStringList.GetObject(Index: Integer): TObject;
+function TJCLWideStringList.GetObject(Index: Integer): TObject;
 begin
   if Cardinal(Index) >= Cardinal(FCount) then
     Error(SListIndexError, Index);
   Result := FList[Index].FObject;
 end;
 
-procedure TWideStringList.Grow;
+procedure TJCLWideStringList.Grow;
 var
   Delta,
   Len: Integer;
@@ -5727,7 +5727,7 @@ begin
   SetCapacity(Len + Delta);
 end;
 
-function TWideStringList.IndexOf(const S: WideString): Integer;
+function TJCLWideStringList.IndexOf(const S: WideString): Integer;
 begin
   if not Sorted then
     Result := inherited IndexOf(S)
@@ -5736,7 +5736,7 @@ begin
       Result := -1;
 end;
 
-procedure TWideStringList.Insert(Index: Integer; const S: WideString);
+procedure TJCLWideStringList.Insert(Index: Integer; const S: WideString);
 begin
   if Sorted then
     Error(SSortedListError, 0);
@@ -5746,7 +5746,7 @@ begin
 end;
 
 {$IFDEF OWN_WIDESTRING_MEMMGR}
-procedure TWideStringList.SetListString(Index: Integer; const S: WideString);
+procedure TJCLWideStringList.SetListString(Index: Integer; const S: WideString);
 var
   Len: Integer;
   A: TDynWideCharArray;
@@ -5771,7 +5771,7 @@ begin
 end;
 {$ENDIF OWN_WIDESTRING_MEMMGR}
 
-procedure TWideStringList.InsertItem(Index: Integer; const S: WideString);
+procedure TJCLWideStringList.InsertItem(Index: Integer; const S: WideString);
 begin
   Changing;
   if FCount = Length(FList) then
@@ -5797,7 +5797,7 @@ begin
   Changed;
 end;
 
-procedure TWideStringList.Put(Index: Integer; const S: WideString);
+procedure TJCLWideStringList.Put(Index: Integer; const S: WideString);
 begin
   if Sorted then
     Error(SSortedListError, 0);
@@ -5818,7 +5818,7 @@ begin
   Changed;
 end;
 
-procedure TWideStringList.PutObject(Index: Integer; AObject: TObject);
+procedure TJCLWideStringList.PutObject(Index: Integer; AObject: TObject);
 begin
   if Cardinal(Index) >= Cardinal(FCount) then
     Error(SListIndexError, Index);
@@ -5827,7 +5827,7 @@ begin
   Changed;
 end;
 
-procedure TWideStringList.QuickSort(L, R: Integer);
+procedure TJCLWideStringList.QuickSort(L, R: Integer);
 var
   I, J: Integer;
   P: WideString;
@@ -5854,14 +5854,14 @@ begin
   until I >= R;
 end;
 
-procedure TWideStringList.SetCapacity(NewCapacity: Integer);
+procedure TJCLWideStringList.SetCapacity(NewCapacity: Integer);
 begin
   SetLength(FList, NewCapacity);
   if NewCapacity < FCount then
     FCount := NewCapacity;
 end;
 
-procedure TWideStringList.SetSorted(Value: Boolean);
+procedure TJCLWideStringList.SetSorted(Value: Boolean);
 begin
   if FSorted <> Value then
   begin
@@ -5871,7 +5871,7 @@ begin
   end;
 end;
 
-procedure TWideStringList.SetUpdateState(Updating: Boolean);
+procedure TJCLWideStringList.SetUpdateState(Updating: Boolean);
 begin
   if Updating then
     Changing
@@ -5879,7 +5879,7 @@ begin
     Changed;
 end;
 
-procedure TWideStringList.Sort;
+procedure TJCLWideStringList.Sort;
 begin
   if not Sorted and (FCount > 1) then
   begin
@@ -5889,7 +5889,7 @@ begin
   end;
 end;
 
-procedure TWideStringList.SetLanguage(Value: LCID);
+procedure TJCLWideStringList.SetLanguage(Value: LCID);
 begin
   inherited SetLanguage(Value);
   if Sorted then
@@ -7152,7 +7152,7 @@ end;
 
 function CompareTextWinNT(const W1, W2: WideString; Locale: LCID): SizeInt;
 // Wrapper function for WinNT since there's no system defined comparation function
-// in Win9x and we need a central comparation function for TWideStringList.
+// in Win9x and we need a central comparation function for TJCLWideStringList.
 // Returns -1 if W1 < W2, 0 if W1 = W2 or 1 if W1 > W2
 begin
   Result := CompareStringW(Locale, NORM_IGNORECASE, PWideChar(W1), Length(W1),

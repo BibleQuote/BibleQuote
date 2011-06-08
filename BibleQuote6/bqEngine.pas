@@ -38,7 +38,7 @@ type
  property DictionaryTokens:TBQStringList read mDicList;
 end;
 implementation
-uses WideStrings,SysUtils;
+uses SysUtils;
 { TBibleQuoteEngine }
 
 function TBibleQuoteEngine.AddDictionary(aDictionary: TDict): Cardinal;

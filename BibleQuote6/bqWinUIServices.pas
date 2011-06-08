@@ -1,7 +1,7 @@
 unit bqWinUIServices;
 
 interface
-uses TntControls,TntForms, HTMLEmbedInterfaces;
+uses TntForms, HTMLEmbedInterfaces;
 type
  IBibleWinUIServices=interface
    ['{14ED0EC0-45FE-1FD6-F1F0-54CC12E47A77}']

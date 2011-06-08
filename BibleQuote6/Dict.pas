@@ -3,7 +3,7 @@ unit Dict;
 interface
 
 uses
-  Windows, Classes, SysUtils, WideStringsMod,
+  Windows, Classes, SysUtils, WideStrings,
   WCharReader, WCharWindows;
 
 type TDict = class(TObject)

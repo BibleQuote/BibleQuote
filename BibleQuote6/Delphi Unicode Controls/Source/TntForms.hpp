@@ -122,8 +122,11 @@ __published:
 	__property Color ;
 	__property Ctl3D ;
 	__property Font ;
-	__property Padding ;
-	__property ParentBackground  = {default=1};
+	__property BevelEdges  = {default=15};
+	__property BevelInner  = {index=0, default=2};
+	__property BevelOuter  = {index=1, default=1};
+	__property BevelKind  = {default=0};
+	__property BevelWidth  = {default=1};
 	__property ParentBiDiMode  = {default=1};
 	__property ParentColor  = {default=1};
 	__property ParentCtl3D  = {default=1};

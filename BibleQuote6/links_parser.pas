@@ -2,7 +2,7 @@ unit links_parser;
 
 interface
 
-uses SysUtils, Classes, WideStringsMod;
+uses SysUtils, Classes, WideStrings;
 
 procedure StrToLinks(s: WideString; Links: TWideStrings);
 procedure Tokenize(sourcestr: WideString; var Tokens: TWideStrings);
@@ -71,7 +71,7 @@ begin
   if wrd <> '' then Tokens.Add(wrd);
 end;
 
-procedure StrToLinks(s: WideString; Links: TWideStrings);
+procedure StrToLinks(s: WideString; Links: WideStrings.TWideStrings);
 var
   i, ci: integer;
   list: TWideStrings;

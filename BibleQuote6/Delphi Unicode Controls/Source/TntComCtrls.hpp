@@ -422,6 +422,7 @@ class PASCALIMPLEMENTATION TTntToolButton : public Comctrls::TToolButton
 	typedef Comctrls::TToolButton inherited;
 	
 private:
+	bool mEmbedDropDownStyle;
 	HIDESBASE MESSAGE void __fastcall CMVisibleChanged(Messages::TMessage &Message);
 	WideString __fastcall GetCaption();
 	void __fastcall SetCaption(const WideString Value);
@@ -439,6 +440,7 @@ protected:
 	DYNAMIC TMetaClass* __fastcall GetActionLinkClass(void);
 	
 __published:
+	__property bool EmbedDropDownStyle = {read=mEmbedDropDownStyle, write=mEmbedDropDownStyle, nodefault};
 	__property WideString Caption = {read=GetCaption, write=SetCaption, stored=IsCaptionStored};
 	__property WideString Hint = {read=GetHint, write=SetHint, stored=IsHintStored};
 	__property Menus::TMenuItem* MenuItem = {read=GetMenuItem, write=SetMenuItem};

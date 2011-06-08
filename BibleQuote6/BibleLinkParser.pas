@@ -1,7 +1,7 @@
 unit BibleLinkParser;
 
 interface
-uses JclUnicode, Classes, WideStringsMod, bqLinksParserIntf, bqContainers;
+uses JclUnicode, Classes, WideStrings, bqLinksParserIntf, bqContainers;
 type
   TLinkMatchType = (lmtNone, lmtFirst, lmtConCat, lmtSecond, lmtBoth);
   TLinkParserFlag = (lpsBookEntered, lpsChapterEntered, lpsFirstVerseEntered);

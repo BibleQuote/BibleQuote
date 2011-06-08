@@ -7,7 +7,7 @@ interface
 uses
   SysUtils,
   Classes,
-  WideStringsMod,
+  WideStrings,
   Windows,
   Graphics;
 

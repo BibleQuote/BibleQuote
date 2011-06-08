@@ -19,18 +19,18 @@
 			<Compiler Name="A">4</Compiler>
 			<Compiler Name="B">0</Compiler>
 			<Compiler Name="C">1</Compiler>
-			<Compiler Name="D">1</Compiler>
+			<Compiler Name="D">0</Compiler>
 			<Compiler Name="E">0</Compiler>
 			<Compiler Name="F">0</Compiler>
 			<Compiler Name="G">1</Compiler>
 			<Compiler Name="H">1</Compiler>
 			<Compiler Name="I">1</Compiler>
-			<Compiler Name="J">1</Compiler>
+			<Compiler Name="J">0</Compiler>
 			<Compiler Name="K">0</Compiler>
-			<Compiler Name="L">1</Compiler>
+			<Compiler Name="L">0</Compiler>
 			<Compiler Name="M">0</Compiler>
 			<Compiler Name="N">1</Compiler>
-			<Compiler Name="O">0</Compiler>
+			<Compiler Name="O">1</Compiler>
 			<Compiler Name="P">1</Compiler>
 			<Compiler Name="Q">0</Compiler>
 			<Compiler Name="R">0</Compiler>
@@ -38,9 +38,9 @@
 			<Compiler Name="T">0</Compiler>
 			<Compiler Name="U">0</Compiler>
 			<Compiler Name="V">1</Compiler>
-			<Compiler Name="W">1</Compiler>
+			<Compiler Name="W">0</Compiler>
 			<Compiler Name="X">1</Compiler>
-			<Compiler Name="Y">2</Compiler>
+			<Compiler Name="Y">0</Compiler>
 			<Compiler Name="Z">1</Compiler>
 			<Compiler Name="ShowHints">True</Compiler>
 			<Compiler Name="ShowWarnings">True</Compiler>
@@ -123,9 +123,9 @@
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">L:\devsoft\Components\jcl211\lib\d10\debug;h:\devsoft\myprojects\bqnet\BibleQuote6\jcl\lib\d10\debug;$(BDS)\lib\Debug;$(BDS)\Lib\Debug\Indy10;.\Delphi Unicode Controls\Source;.\Tray\TrayIcon;.\HotKey;htmlviewsb;.\SevenZip;ASqlite3Components;jcl\source\common;Virtual Treeview\Source;jcl\source\include\;jcl\source\windows\;GLibWMI\sources\</Directories>
+			<Directories Name="SearchPath">.\Delphi Unicode Controls\Source;.\Tray\TrayIcon;.\HotKey;htmlviewsb;.\SevenZip;ASqlite3Components;jcl\source\common;Virtual Treeview\Source;jcl\source\include\;jcl\source\windows\;GLibWMI\sources\</Directories>
 			<Directories Name="Packages">vcl;rtl;vclx;vcldb;xmlrtl;vclactnband;inet;IntrawebDB_80_100;Intraweb_80_100;vclie;inetdbbde;inetdbxpress;dclOfficeXP;VclSmp;soaprtl;dsnap;bdertl;dsnapcon;websnap;webdsnap;TntUnicodeVcl;CoolTrayIcon_D6;Jcl;JvCoreD10R;TrayIcon;ssWebBrowser;AlekControls</Directories>
-			<Directories Name="Conditionals">SMARTFONTS;UseUnicodeControls</Directories>
+			<Directories Name="Conditionals">SMARTFONTS;UseUnicodeControls;</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
@@ -150,7 +150,7 @@
 			<VersionInfo Name="MajorVer">6</VersionInfo>
 			<VersionInfo Name="MinorVer">0</VersionInfo>
 			<VersionInfo Name="Release">2</VersionInfo>
-			<VersionInfo Name="Build">1388</VersionInfo>
+			<VersionInfo Name="Build">1412</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -162,13 +162,13 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName">DevAlek</VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">BibleQuote 6 - Bible Research and Study Tool</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">6.0.2.1388</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">6.0.2.1412</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">GNU GPL v2</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
 			<VersionInfoKeys Name="OriginalFilename">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">BibleQuote 6</VersionInfoKeys>
-			<VersionInfoKeys Name="ProductVersion">6.0.2a0</VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">6.0.2a1c</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Bible Research and Study Tool</VersionInfoKeys>
 			<VersionInfoKeys Name="PrivateBuild">Yes</VersionInfoKeys>
 		</VersionInfoKeys>  <Excluded_Packages>

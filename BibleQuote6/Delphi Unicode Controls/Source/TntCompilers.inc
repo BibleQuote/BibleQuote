@@ -67,6 +67,7 @@
 
   {$ifdef VER180}
     {$define COMPILER_10}
+    {$define COMPILER_10_UP}
     {$define DELPHI}
     {$define DELPHI_10}
   {$endif}

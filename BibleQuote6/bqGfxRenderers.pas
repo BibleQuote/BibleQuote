@@ -32,7 +32,7 @@ public
  class property  DefaultVerseFont:TFont read mDefaultVerseFont write mDefaultVerseFont;
 end;
 implementation
- uses bqPlainUtils,Readhtml,SysUtils,bqCommandProcessor,HTMLUn2,JclDebug, HTMLEmbedInterfaces,bqHTMLViewerSite;
+ uses bqPlainUtils,Readhtml,SysUtils,bqCommandProcessor,HTMLUn2,HTMLEmbedInterfaces,bqHTMLViewerSite;
  type TRendererPair=record
   id:int64;
   renderer:TSectionList;

@@ -1,7 +1,7 @@
 unit bqHintTools;
 
 interface
-uses Controls,tntControls,tntForms,Classes,Windows,Forms, tntSysUtils;
+uses Controls,tntControls,Classes,Windows,Forms, tntSysUtils;
 type
 TbqHintWindow=class(TTntCustomHintWindow)
 procedure ActivateHint(Rect: TRect; const AHint: AnsiString); override;

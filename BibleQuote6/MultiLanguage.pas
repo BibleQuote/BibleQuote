@@ -6,10 +6,10 @@ uses
   Windows, Messages, SysUtils, Classes, 
   Graphics, Controls,
   Forms, TntForms, Dialogs, 
-  Menus, TntMenus,
+  
   
   TypInfo,
-  string_procs, WCharReader,WideStringsMod;
+  string_procs, WCharReader,WideStrings;
 
 type
   TMultiLanguage = class (TComponent)

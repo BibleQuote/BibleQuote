@@ -62,7 +62,7 @@ unit BibleQuoteUtils;
 
 interface
 uses SevenZipHelper,SevenZipVCL, MultiLanguage,
-  Contnrs, JCLWideStrings, WideStringsMod, Windows, SysUtils, Classes, JCLDebug, 
+  Contnrs, JCLWideStrings, WideStrings, Windows, SysUtils, Classes, JCLDebug, 
   COperatingSystemInfo;
 type
   TBibleModuleSecurity = class
@@ -364,7 +364,7 @@ var
   MainCfgIni: TMultiLanguage;
   G_SecondPath:WideString;
 implementation
-uses JclSysInfo,WCharReader, main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, tntSysUtils ;
+uses JclSysInfo,main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, tntSysUtils ;
 var __exe__path:WideString;
 
 function OmegaCompareTxt(const str1, str2: WideString; len: integer = -1;

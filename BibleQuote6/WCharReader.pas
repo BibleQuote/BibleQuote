@@ -3,7 +3,7 @@ unit WCharReader;
 interface
 
 uses
-  Windows, Classes, SysUtils, StrUtils, {WideStringsMod,} string_procs, WideStringsMod;
+  Windows, Classes, SysUtils, StrUtils, {WideStrings,} string_procs, WideStrings;
 
 const
   cRussianCodePage = 1251;

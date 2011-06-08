@@ -54,7 +54,7 @@ uses
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
   Windows, Classes,
-  JclBase, JclStrings;
+  JclBase, JclStrings,JCLWideStrings;
 
 type
   DelphiHKEY = Longword;
@@ -165,14 +165,14 @@ procedure RegReadAnsiMultiSzDef(const RootKey: DelphiHKEY; const Key, Name: stri
 function RegReadAnsiMultiSzDef(const RootKey: DelphiHKEY; const Key, Name: string;
   Def: PAnsiMultiSz): PAnsiMultiSz; overload;
 
-function RegReadWideMultiSzEx(const RootKey: DelphiHKEY; const Key, Name: string; Value: TWideStrings;
+function RegReadWideMultiSzEx(const RootKey: DelphiHKEY; const Key, Name: string; Value:  TJCLWideStrings;
   RaiseException: Boolean = False): Boolean; overload;
 function RegReadWideMultiSzEx(const RootKey: DelphiHKEY; const Key, Name: string; out RetValue: PWideMultiSz;
   RaiseException: Boolean = False): Boolean; overload;
-procedure RegReadWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; Value: TWideStrings); overload;
+procedure RegReadWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; Value: TJCLWideStrings); overload;
 function RegReadWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string): PWideMultiSz; overload;
 procedure RegReadWideMultiSzDef(const RootKey: DelphiHKEY; const Key, Name: string;
-  Value, Def: TWideStrings); overload;
+  Value, Def: TJCLWideStrings); overload;
 function RegReadWideMultiSzDef(const RootKey: DelphiHKEY; const Key, Name: string;
   Def: PWideMultiSz): PWideMultiSz; overload;
 
@@ -238,11 +238,11 @@ procedure RegWriteAnsiMultiSz(const RootKey: DelphiHKEY; const Key, Name: string
 
 procedure RegWriteWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; Value: PWideMultiSz); overload;
 procedure RegWriteWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string;
-  const Value: TWideStrings); overload;
+  const Value: TJCLWideStrings); overload;
 procedure RegWriteWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; DataType: Cardinal;
   Value: PWideMultiSz); overload;
 procedure RegWriteWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; DataType: Cardinal;
-  const Value: TWideStrings); overload;
+  const Value: TJCLWideStrings); overload;
 
 procedure RegWriteBinary(const RootKey: DelphiHKEY; const Key, Name: string; const Value; const ValueSize: Cardinal);
 
@@ -375,7 +375,7 @@ uses
   JclSysUtils,
   {$ENDIF ~FPC}
   JclResources, JclWin32, JclSysInfo,
-  JclAnsiStrings, JclWideStrings;
+  JclAnsiStrings ;
 
 type
   TRegKind = REG_NONE..REG_QWORD;
@@ -1418,7 +1418,7 @@ begin
   end;
 end;
 
-function RegReadWideMultiSzEx(const RootKey: DelphiHKEY; const Key, Name: string; Value: TWideStrings;
+function RegReadWideMultiSzEx(const RootKey: DelphiHKEY; const Key, Name: string; Value: TJCLWideStrings;
   RaiseException: Boolean): Boolean;
 var
   S: WideString;
@@ -1428,12 +1428,12 @@ begin
     JclWideStrings.MultiSzToStrings(Value, PWideMultiSz(S));
 end;
 
-procedure RegReadWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; Value: TWideStrings);
+procedure RegReadWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; Value: TJCLWideStrings);
 begin
   RegReadWideMultiSzEx(RootKey, Key, Name, Value, True);
 end;
 
-procedure RegReadWideMultiSzDef(const RootKey: DelphiHKEY; const Key, Name: string; Value, Def: TWideStrings);
+procedure RegReadWideMultiSzDef(const RootKey: DelphiHKEY; const Key, Name: string; Value, Def: TJCLWideStrings);
 begin
   try
     if not RegReadWideMultiSzEx(RootKey, Key, Name, Value, False) then
@@ -1798,13 +1798,13 @@ begin
     DataError(RootKey, Key, Name);
 end;
 
-procedure RegWriteWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; const Value: TWideStrings);
+procedure RegWriteWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; const Value: TJCLWideStrings);
 begin
   RegWriteWideMultiSz(RootKey, Key, Name, REG_MULTI_SZ, Value);
 end;
 
 procedure RegWriteWideMultiSz(const RootKey: DelphiHKEY; const Key, Name: string; DataType: Cardinal;
-  const Value: TWideStrings);
+  const Value: TJCLWideStrings);
 var
   Dest: PWideMultiSz;
 begin

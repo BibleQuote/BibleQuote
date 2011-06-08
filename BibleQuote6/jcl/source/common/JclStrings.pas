@@ -320,7 +320,7 @@ type
   PWideMultiSz = JclWideStrings.PWideMultiSz;
 
   TAnsiStrings = JclAnsiStrings.TJclAnsiStrings;
-  TWideStrings = JclWideStrings.TJclWideStrings;
+//  TWideStrings = JclWideStrings.TJclWideStrings;
   TAnsiStringList = JclAnsiStrings.TJclAnsiStringList;
   TWideStringList = JclWideStrings.TJclWideStringList;
 
@@ -339,9 +339,9 @@ procedure AllocateAnsiMultiSz(var Dest: PAnsiMultiSz; Len: SizeInt); {$IFDEF SUP
 procedure FreeAnsiMultiSz(var Dest: PAnsiMultiSz); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function AnsiMultiSzDup(const Source: PAnsiMultiSz): PAnsiMultiSz; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 
-function WideStringsToWideMultiSz(var Dest: PWideMultiSz; const Source: TWideStrings): PWideMultiSz;
+function WideStringsToWideMultiSz(var Dest: PWideMultiSz; const Source: TJCLWideStrings): PWideMultiSz;
  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-procedure WideMultiSzToWideStrings(const Dest: TWideStrings; const Source: PWideMultiSz); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+procedure WideMultiSzToWideStrings(const Dest: TJCLWideStrings; const Source: PWideMultiSz); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function WideMultiSzLength(const Source: PWideMultiSz): SizeInt; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 procedure AllocateWideMultiSz(var Dest: PWideMultiSz; Len: SizeInt); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 procedure FreeWideMultiSz(var Dest: PWideMultiSz); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
@@ -3064,12 +3064,12 @@ begin
   Result := JclAnsiStrings.MultiSzDup(Source);
 end;
 
-function WideStringsToWideMultiSz(var Dest: PWideMultiSz; const Source: TWideStrings): PWideMultiSz;
+function WideStringsToWideMultiSz(var Dest: PWideMultiSz; const Source: TJCLWideStrings): PWideMultiSz;
 begin
   Result := JclWideStrings.StringsToMultiSz(Dest, Source);
 end;
 
-procedure WideMultiSzToWideStrings(const Dest: TWideStrings; const Source: PWideMultiSz);
+procedure WideMultiSzToWideStrings(const Dest: TJCLWideStrings; const Source: PWideMultiSz);
 begin
   JclWideStrings.MultiSzToStrings(Dest, Source);
 end;

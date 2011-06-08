@@ -1,5 +1,5 @@
 // JCL_DEBUG_EXPERT_GENERATEJDBG ON
-// JCL_DEBUG_EXPERT_INSERTJDBG OFF
+// JCL_DEBUG_EXPERT_INSERTJDBG ON
 program BibleQuote6;
 
 
@@ -16,7 +16,7 @@ uses
   WCharWindows in 'WCharWindows.pas',
   WCharReader in 'WCharReader.pas',
   Classes,
-  WideStringsMod,
+  WideStrings,
   SysUtils,
   TntSysUtils,
   MultiLanguage in 'MultiLanguage.pas',
@@ -53,7 +53,8 @@ uses
   bqCollections in 'bqCollections.pas' {DataModule1: TDataModule},
   bqBackgroundServices in 'bqBackgroundServices.pas',
   bqEngine in 'bqEngine.pas',
-  bqEngineInterfaces in 'bqEngineInterfaces.pas';
+  bqEngineInterfaces in 'bqEngineInterfaces.pas',
+  bqHTMLGen in 'bqHTMLGen.pas';
 
 {$R *.res}
 var

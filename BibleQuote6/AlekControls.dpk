@@ -35,7 +35,8 @@ requires
 contains
   AlekPageControl in 'AlekPageControl.pas',
   SevenZipVCL in 'SevenZip\SevenZipVCL.pas',
-  rkGlassButton in 'rkGlassButton.pas',
-  rkSmartTabs in 'rkSmartTabs.pas';
+  PngImage in 'htmlviewsb\PngImage.pas',
+  rkGlassButton in 'rkcontrols\rkGlassButton.pas',
+  rkSmartTabs in 'rkcontrols\rkSmartTabs.pas';
 
 end.

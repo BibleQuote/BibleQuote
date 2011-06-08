@@ -8,7 +8,41 @@
   resources were bound to the produced executable.
 */
 
+#define PNGImage_PNG_SHARE_TITLE 65504
+#define PNGImage_PNG_ERROR_INVALID_HEADER 65520
+#define PNGImage_PNG_ERROR_INVALID_CHUNK_INDEX 65521
+#define PNGImage_PNG_ERROR_INVALID_CHUNK_CLASS_INDEX 65522
+#define PNGImage_PNG_ERROR_CHUNK_INVALID_CRC 65523
+#define PNGImage_PNG_ERROR_IHDR_NOT_FIRST 65524
+#define PNGImage_PNG_ERROR_NO_IDAT 65525
+#define PNGImage_PNG_ERROR_INVALID_PLTE 65526
+#define PNGImage_PNG_ERROR_INVALID_COLOR_TYPE 65527
+#define PNGImage_PNG_ERROR_INVALID_FILTER_TYPE 65528
+#define PNGImage_PNG_ERROR_INVALID_INTERLACE 65529
+#define PNGImage_PNG_ERROR_UNKOWN_CRITICAL_CHUNK 65530
+#define PNGImage_PNG_ERROR_NO_PALETTE 65531
+#define PNGImage_PNG_INVALID_COLOR_TYPE 65532
+#define PNGImage_CHUNK_NOT_CHILD 65533
+#define PNGImage_TIME_CORRUPTED 65534
+#define PNGImage_PNG_SHARE 65535
 STRINGTABLE
 BEGIN
+	PNGImage_PNG_SHARE_TITLE,	"TPNGImage beta test version (gubah@sti.com.br)"
+	PNGImage_PNG_ERROR_INVALID_HEADER,	"Invalid Portable Graphics Network image, it has an invalid file header."
+	PNGImage_PNG_ERROR_INVALID_CHUNK_INDEX,	"The chunk index especified is out of the range."
+	PNGImage_PNG_ERROR_INVALID_CHUNK_CLASS_INDEX,	"The chunk class index especified is  out of range."
+	PNGImage_PNG_ERROR_CHUNK_INVALID_CRC,	"Can't read the PNG image, it has corrupted data. "
+	PNGImage_PNG_ERROR_IHDR_NOT_FIRST,	"This PNG image is invalid, the IHDR chunk is either not present or it isn't the first chunk."
+	PNGImage_PNG_ERROR_NO_IDAT,	"The current image being loaded has no data and could not be loaded."
+	PNGImage_PNG_ERROR_INVALID_PLTE,	"The current image being loaded has an invalid palette!"
+	PNGImage_PNG_ERROR_INVALID_COLOR_TYPE,	"Could not read the image because it has an unknown color type."
+	PNGImage_PNG_ERROR_INVALID_FILTER_TYPE,	"The image could not be loaded because it uses an unknown set of filter types."
+	PNGImage_PNG_ERROR_INVALID_INTERLACE,	"The image has an unknown interlace method."
+	PNGImage_PNG_ERROR_UNKOWN_CRITICAL_CHUNK,	"The currently being loaded image contains critical(s) chunk(s) not reconized by the decoder."
+	PNGImage_PNG_ERROR_NO_PALETTE,	"The current image requeries a palette but it is not avaliable."
+	PNGImage_PNG_INVALID_COLOR_TYPE,	"Can not get transparency information because the current image color type is not RGB (value 3)"
+	PNGImage_CHUNK_NOT_CHILD,	"The especified chunk is not inside the chunk list containing the method being used. The funcion could not be completed."
+	PNGImage_TIME_CORRUPTED,	"Could not get informations on the tIME chunk because it is corrupted."
+	PNGImage_PNG_SHARE,	"What you are testing now uses TPNGImage, a Portable Graphics network format handler made by Guba (gubah@sti.com.br). It is actually not totally ready yet (07/01/2000), but its nice, isn't it ?\r\n\r\nAnyway, for more information about it send mails to:\r\ngubah@sti.com.br"
 END
 

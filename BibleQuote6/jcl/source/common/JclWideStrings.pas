@@ -254,7 +254,7 @@ type
   {$ENDIF ~SUPPORTS_UNICODE}
 
   TWideStringList = TJclWideStringList;
-  TWideStrings = TJclWideStrings;
+//  TWideStrings = TJclWideStrings;
 
   TJclUnicodeStringList = TJclWideStringList;
   TJclUnicodeStrings = TJclWideStrings;

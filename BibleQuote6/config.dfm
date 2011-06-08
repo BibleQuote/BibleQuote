@@ -16,18 +16,17 @@ object ConfigForm: TConfigForm
   Position = poScreenCenter
   ShowHint = True
   OnKeyPress = FormKeyPress
-  PixelsPerInch = 108
+  PixelsPerInch = 105
   TextHeight = 13
   object PageControl1: TTntPageControl
     Left = 0
     Top = 0
     Width = 475
     Height = 305
-    ActivePage = OtherOptionsTabSheet
+    ActivePage = CopyOptionsTabSheet
     Align = alTop
     TabOrder = 0
     HideTabsHints = False
-    ExplicitTop = 1
     object CopyOptionsTabSheet: TTntTabSheet
       Caption = 'CopyOptionsTabSheet'
       object CopyVerseNumbers: TTntCheckBox

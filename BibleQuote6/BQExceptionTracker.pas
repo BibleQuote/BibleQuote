@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, TntStdCtrls,WideStringsMod;
+  Dialogs, TntStdCtrls,WideStrings, StdCtrls;
 
 type
   TbqExceptionForm = class(TForm)
@@ -26,7 +26,7 @@ var
   bqExceptionForm: TbqExceptionForm;
 
 implementation
-uses TntClasses, JclDebug, TntControls,BibleQuoteUtils, JclSysInfo;
+uses TntClasses, JclDebug, BibleQuoteUtils;
 {$R *.dfm}
 procedure BqShowException(e: Exception;addInfo:WideString=''; nonContinuable:boolean=false);
 var
@@ -36,6 +36,7 @@ begin
 
   if not assigned(bqExceptionForm) then
   bqExceptionForm := TbqExceptionForm.Create(Application);
+    bqExceptionForm.ErrMemo.Lines.clear();
   lns := TTntStringList.Create();
   iv:=Application.OnIdle; Application.OnIdle:=nil;
   try

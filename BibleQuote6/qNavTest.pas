@@ -5,8 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, VirtualTrees, Contnrs, StdCtrls, TntStdCtrls, ExtCtrls, TntForms,
-  WideStringsMod,
-  Menus, BibleQuoteUtils, Tabs, DockTabSet;
+  WideStrings,
+  BibleQuoteUtils, DockTabSet, Tabs;
 
 type
   TBQUseDisposition = (udMyLibrary, udParabibles);

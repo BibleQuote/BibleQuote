@@ -68,12 +68,12 @@ type
     property Color nodefault;
     property Ctl3D;
     property Font;
-    {$IFDEF COMPILER_10_UP}
-    property Padding;
-    {$ENDIF}
-    {$IFDEF COMPILER_7_UP}
-    property ParentBackground default True;
-    {$ENDIF}
+    property BevelEdges;
+   property BevelInner;
+    property BevelOuter;
+    property BevelKind;
+   property BevelWidth;
+
     property ParentBiDiMode;
     property ParentColor;
     property ParentCtl3D;

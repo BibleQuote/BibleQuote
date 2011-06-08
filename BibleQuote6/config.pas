@@ -6,9 +6,9 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, 
   Forms, TntForms,
-  StdCtrls, TntStdCtrls,
-  ComCtrls, TntComCtrls,
-  TntFileCtrl, TntExtCtrls, Buttons;
+  TntStdCtrls,
+  TntComCtrls,
+  TntFileCtrl, TntExtCtrls, Buttons, StdCtrls, ComCtrls;
 
 type
   TConfigForm = class(TTntForm)
@@ -58,7 +58,7 @@ var
 
 implementation
 
-uses WideStringsMod;
+
 
 {$R *.DFM}
 

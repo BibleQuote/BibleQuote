@@ -12,7 +12,7 @@ unit main;
 interface
 
 uses
-  Windows, Messages, Classes, Widestrings, WideStringsMod,
+  Windows, Messages, Classes,WideStrings,
   ShlObj, contnrs,
   Graphics, Controls,
   Forms, TntForms,
@@ -21,16 +21,16 @@ uses
   Menus, TntMenus,
   ExtCtrls, TntExtCtrls,
 
-  Clipbrd, TntClipbrd,
+  TntClipbrd,
   Buttons, TntButtons,
   MetaFilePrinter,
   ImgList, ShellAPI, CoolTrayIcon, Dialogs, TntDialogs, AlekPageControl,
-  ToolWin, StdCtrls, Htmlview, Tabs, DockTabSet,
+  StdCtrls, Htmlview, Tabs, DockTabSet,
   links_parser, string_procs, MultiLanguage, Bible,
   Dict, SysHot, WCharWindows, WCharReader, AppEvnts, VirtualTrees, VersesDb,
-   DB, SysUtils, BibleQuoteUtils, qNavTest,
+   SysUtils, BibleQuoteUtils, qNavTest,
   bqLinksParserIntf, bqICommandProcessor,bqWinUIServices,HTMLEmbedInterfaces, htmlsubs,bqHTMLViewerSite,bqVdtEditLink,
-  rkGlassButton, bqEngine;
+  rkGlassButton, bqEngine, ToolWin;
 
 const
   ConstBuildCode: WideString = '2009.08.26';
@@ -77,6 +77,7 @@ type
 
   (*AlekId:Добавлено*)
 type
+  TWideStrings=WideStrings.TWideStrings;
   TViewTabLocType=(vtlUnspecified,vtlModule, vtlFile);
   TViewtabInfoStateEntries=(vtisShowStrongs, vtisShowNotes, vtisHighLightVerses, vtisResolveLinks, vtisFuzzyResolveLinks, vtisPendingReload);
   TViewtabInfoState=set of TViewtabInfoStateEntries;
@@ -120,7 +121,7 @@ type
   TBQFavoriteModules = class
     mModuleEntries: TCachedModules;
     mExpectedCnt: integer;
-    mLst: TWideStringList;
+    mLst: WideStrings.TWideStringList;
     mfnAddtoIface: TfnFavouriveAdd;
     mfnDelFromIface: TfnFavouriveDelete;
     mfnReplaceInIFace: TfnFavouriveReplace;
@@ -128,9 +129,9 @@ type
     mfnForceLoadMods: TfnForceLoadModules;
     procedure SaveModules(const savePath: WideString);
     procedure LoadModules(modEntries: TCachedModules; const modulePath: WideString);
-    procedure v2Load(modEntries: TCachedModules; const lst: TWideStringList);
-    procedure v1Load(modEntries: TCachedModules; const lst: TWideStringList);
-    function ReadPrefix(const lst: TWideStringList): integer;
+    procedure v2Load(modEntries: TCachedModules; const lst: WideStrings.TWideStringList);
+    procedure v1Load(modEntries: TCachedModules; const lst: WideStrings.TWideStringList);
+    function ReadPrefix(const lst: WideStrings.TWideStringList): integer;
     constructor Create(fnAddToIface: TfnFavouriveAdd; fnDelFromIFace: TfnFavouriveDelete;
       fnReplaceInIface: TfnFavouriveReplace; fnInsertIface: TfnFavouriteInsert;
       forceLoadModules: TfnForceLoadModules);
@@ -717,7 +718,7 @@ type
   //mFirstVisibleVerse: integer;
     hint_expanded: integer;             //0 -not set, 1-short , 2-expanded
     mblSearchBooksDDAltered: boolean;
-    mslSearchBooksCache: Widestrings.TWideStringList;
+    mslSearchBooksCache: WideStrings.TWideStringList;
     msbPosition: integer;
     mScrollAcc: integer;
     mscrollbarX:integer;
@@ -924,8 +925,8 @@ var
 
 implementation
 
-uses  copyright, input, config, PasswordDialog, BibleQuoteConfig,
-  BQExceptionTracker, AboutForm,  JCLDebug,
+uses   jclUnicode,copyright, input, config, PasswordDialog, BibleQuoteConfig,
+  BQExceptionTracker, AboutForm,
   TntClasses, TntSysUtils, StrUtils, CommCtrl, TntControls, bqHintTools, sevenZipHelper,
   Types, BibleLinkParser, IniFiles, bqPlainUtils, bqGfxRenderers, bqCommandProcessor,bqEngineInterfaces, HTMLUn2;
 type
@@ -954,7 +955,7 @@ var
 //    Comments, CommentsPaths {,
 //  CacheModPaths, CacheDicPaths,
 //  CacheModTitles, CacheDicTitles // new for 24.07.2002 - cache for module and dictionary titles}
-//  : TWideStringList;                    // global module names
+//  : WideStrings.TWideStringList;                    // global module names
   mModules: TCachedModules;
 
 
@@ -1009,8 +1010,8 @@ var
 
   MemosOn: boolean;
 
-  Memos: WideStringsMod.TWideStringList;
-  Bookmarks: TWideStringList;
+  Memos: WideStrings.TWideStringList;
+  Bookmarks: WideStrings.TWideStringList;
 
   LastAddress: WideString;
 
@@ -1424,7 +1425,7 @@ begin
         Bookmarks.LoadFromFile(fname);
     except on e: Exception do BqShowException(e) end;
     LoadUserMemos();
-    mslSearchBooksCache := Widestrings.TWideStringList.Create();
+    mslSearchBooksCache := WideStrings.TWideStringList.Create();
     LoadMru();
 {  fname := UserDir + 'bibleqt_memos.ini';
   if FileExists(fname) then
@@ -1676,7 +1677,7 @@ end;
 
 function TMainForm.LoadHotModulesConfig(): boolean;
 var
-  hotList: TWideStringList;
+  hotList: WideStrings.TWideStringList;
   hotCount, i, hotIndex: integer;
   favouriteMenuItem, hotMenuItem: TTntMenuItem;
   hotMUITag, menuText: WideString;
@@ -1711,10 +1712,10 @@ function TMainForm.SaveHotModulesConfig(aMUIEngine: TMultiLanguage): boolean;
 var
   favoriteMenuItem, currentMenuItem: TTntMenuItem;
   menuItemCount, i: integer;
-  hotList: TWideStringList;
+  hotList: WideStrings.TWideStringList;
 begin
   Result := false;
-//  hotList := TWideStringList.Create();
+//  hotList := WideStrings.TWideStringList.Create();
 //  try
 //    try //for except
 //      favoriteMenuItem := FindTaggedTopMenuItem(3333);
@@ -1741,13 +1742,16 @@ end;
 procedure TMainForm.SaveMru;
 var mi: TMemIniFile;
 
-  procedure WriteLst(lst: Widestrings.TWideStrings; const section: widestring);
+  procedure WriteLst(lst: TWideStrings; const section: widestring);
   var i, c: integer;
     sc: utf8string;
+
   begin
     try
       c := lst.Count - 1;
       sc := UTF8Encode(section);
+
+
 
       for i := 0 to c do begin
         mi.WriteString(sc, Format('Item%.3d', [i]), Utf8Encode(lst[i]));
@@ -2281,6 +2285,8 @@ begin
   MainFormInitialized := false;         // prohibit re-entry into FormShow
   InitTntEnvironment();
   CheckModuleInstall();
+
+
   MainPages.DoubleBuffered := true;
   HistoryBookmarkPages.DoubleBuffered := true;
   mViewTabs.DoubleBuffered := true;
@@ -2340,7 +2346,7 @@ begin
 //  S_ArchivedModuleList := TArchivedModules.Create();
   StrongNumbersOn := false;
 
-  Memos := WideStringsMod.TWideStringList.Create;
+  Memos := WideStrings.TWideStringList.Create;
   Memos.Sorted := true;
 
   MemosOn := false;
@@ -2897,11 +2903,17 @@ begin
         end;                            //try
         secondbook_right_aligned := SecondBook.UseRightAlignment;
         // если первичный модуль показыввает ВЗ, а второй не содержит ВЗ
-        if ((MainBook.CurBook < 40) and (MainBook.Trait[bqmtOldCovenant]) and (not
-          SecondBook.Trait[bqmtOldCovenant]))
+        if(
+            ( (MainBook.CurBook < 40) and (MainBook.Trait[bqmtOldCovenant]) )
+             and (not SecondBook.Trait[bqmtOldCovenant])
+          )
           or                            //или если в первичном модуль НЗ а второй не содержит НЗ
-          ((MainBook.CurBook > 39) or (MainBook.Trait[bqmtNewCovenant]) and
-           (not SecondBook.Trait[bqmtNewCovenant])) then
+          (
+           ( (MainBook.CurBook > 39) or
+             (MainBook.Trait[bqmtNewCovenant] and (not MainBook.Trait[bqmtOldCovenant]))
+           )
+             and (not SecondBook.Trait[bqmtNewCovenant])
+          ) then
           UseParaBible := false;        // отменить отображение
       end;                              // if UseParaBible- если найден в списке  модулей
     end;                                //если выбрана вторичная Библия
@@ -3462,10 +3474,10 @@ begin
     if Pos('BQNote', cb.LinkAttributes.Text) > 0 then begin
       Handled := true;
       XRefBrowser.CharSet:=MainBook.DesiredCharset;
-      lr := LoadAnchor(XRefBrowser, unicodeSRC, cb.CurrentFile, cb.HTMLExpandFilename(src));
+      lr := LoadAnchor(CommentsBrowser, unicodeSRC, cb.CurrentFile, cb.HTMLExpandFilename(src));
       if lr then begin
         if not MainPages.Visible then ToggleButton.Click;
-        MainPages.ActivePage := XrefTab;
+        MainPages.ActivePage := CommentsTab;
       end;
 
     end;
@@ -5390,7 +5402,7 @@ var
   s: set of 0..255;
   data, wrd, wrdnew, books: WideString;
   params: byte;
-  lnks: TWideStringList;
+  lnks: WideStrings.TWideStringList;
   book, chapter, v1, v2, linksCnt, i: integer;
 
   function metabook(const str: WideString): boolean;
@@ -5509,7 +5521,7 @@ begin
               CBList.ItemIndex := i; break; end;
 
       if (CBList.ItemIndex < 0) or (mblSearchBooksDDAltered) then begin
-        lnks := TWideStringList.Create;
+        lnks := WideStrings.TWideStringList.Create;
         try
           books := '';
           StrToLinks(data, lnks);
@@ -5838,7 +5850,7 @@ end;
 procedure TMainForm.GoEditDblClick(Sender: TObject);
 var
   book, chapter, fromverse, toverse: integer;
-  Links: TWideStrings;
+  Links: WideStrings.TWideStrings;
   i, ix, fc, pp: integer;
   openSuccess: boolean;
   modName, modPath: WideString;
@@ -5847,7 +5859,7 @@ begin
   if Trim(GoEdit.Text) = '' then
     Exit;
 
-  Links := TWideStringList.Create;
+  Links := WideStrings.TWideStringList.Create;
 
   StrToLinks(GoEdit.Text, Links);
 //  mBibleLinkParser.LazyLinks:=true;
@@ -6207,12 +6219,16 @@ end;}
 function TMainForm.LoadAnchor(wb: THTMLViewer; src, current, loc: WideString): boolean;
 var i: integer;
   dest: WideString;
-  ext: string;
+  ext: WideString;
+  wstrings:WideStrings.TWideStrings;
+  wsResolvedTxt:WideString;
+  ti:TViewTabInfo;
 begin
   result := false;
 
   try
     I := Pos('#', src);
+    ti:=GetActiveTabInfo();
     if I = 1 then loc := current + src;
     if I >= 1 then
     begin                               //found anchor
@@ -6222,11 +6238,24 @@ begin
     end                                 //found anchor
     else                                //no achor
       dest := '';                       {no local destination}
-    if wb.CurrentFile = src then wb.PositionTo(dest)
+    if (wb.CurrentFile=src) and (assigned(ti) and not ti[vtisPendingReload]) then wb.PositionTo(dest)
     else begin
-      Ext := Uppercase(WideExtractFileExt(Src));
+      Ext := WideUpperCase(WideExtractFileExt(Src));
       if (Ext = '.HTM') or (Ext = '.HTML') then begin {an html file}
-        wb.LoadFromFile(src + Dest); end
+          if assigned(ti) and ti[vtisResolveLinks] then begin
+            try
+              wstrings:=WChar_ReadHtmlFile(src,0);
+
+              wsResolvedTxt:=ResolveLnks(wstrings.Text,ti[vtisFuzzyResolveLinks]);
+              wb.LoadFromString(wsResolvedTxt);
+              wb.PositionTo(Dest);
+              wb.__SetFileName(src);
+//              wb.DefVisitedLinkColor
+            finally FreeAndNil(wstrings); wsResolvedTxt:=''; end;
+          end
+          else  wb.LoadFromFile(src + Dest);
+
+       end
 //        wb.AddVisitedLink(S+Dest);
       else if (Ext = '.BMP') or (Ext = '.GIF') or (Ext = '.JPG') or (Ext = '.JPEG')
         or (Ext = '.PNG') then
@@ -6278,6 +6307,7 @@ begin
   //result := false;
   try
     cachedModulesList := TWideStringList.Create();
+    try
     cachedModulesList.LoadFromFile(GetCachedModulesListDir() +
       C_CachedModsFileName);
     S_cachedModules.Clear();
@@ -6308,12 +6338,14 @@ begin
 
     until (i + 7) > linecount;
     result := true;
+    S_cachedModules._Sort();
+    finally cachedModulesList.Free(); end;
+
   except
     S_cachedModules.Clear();
     result := false;
   end;
-  cachedModulesList.Free();
-  S_cachedModules._Sort();
+
 end;
 
 {procedure TMainForm.InitHotModulesConfigPage(refreshModuleList: boolean);
@@ -6736,8 +6768,11 @@ begin
 
     if CopyOptionsAddLineBreaksChecked then
     begin
-      if (CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
-        s := s + '<br>'
+      if (CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then begin
+        if UnicodeIsSpace(Ord(s[Length(s)-1])) then
+            s := s + '<br>';
+//        else              s := s + ' <br>' ;
+      end
       else
         s := s + #13#10;
       Result := Result + s;
@@ -7029,7 +7064,7 @@ var
   i, j: integer;
   RefLines: WideString;
   RefText: WideString;
-  Links: TWideStrings;
+  Links: WideStrings.TWideStrings;
   slink: WideString;
   //  was0: boolean;
   diff: integer;
@@ -7047,7 +7082,7 @@ begin
     XrefTab.Tag := 1;
 
   RefLines := '';
-  Links := TWideStringList.Create;
+  Links := WideStrings.TWideStringList.Create;
 
   //  with MainBook do
   //    RefLines.Add('<font size=-1>');
@@ -8175,12 +8210,20 @@ end;
 procedure TMainForm.FormShow(Sender: TObject);
 var
   i: integer;
+    menuItemInfo:tagMENUITEMINFOW;
+    rslt:LongBool;
 begin
 //Application.ActivateHint(Mouse.CursorPos);
   if MainFormInitialized then
     Exit;                               // run only once...
   MainFormInitialized := true;
-
+  menuItemInfo.cbSize:=sizeof(menuItemInfo);
+  rslt:=getMenuItemInfoW(theMainMenu.Handle,miLanguage.Command, FALSE,menuItemInfo);
+  FillChar(menuItemInfo,sizeof(menuItemInfo),0);
+  menuItemInfo.cbSize:=sizeof(menuItemInfo);
+  menuItemInfo.fMask:=MIIM_FTYPE;
+  menuItemInfo.fType:=MFT_RIGHTJUSTIFY OR menuItemInfo.fType;
+  rslt:=SetMenuItemInfoW(theMainMenu.Handle,miLanguage.Command, FALSE,menuItemInfo);
 //  tbtnResolveLinks.Style:=tbsCheck;
   theImageList.GetBitmap(4, btnQuickSearchBack.Glyph);
   //SearchBoxPanel.Height := CBAll.Top; // hide search options
@@ -12890,7 +12933,7 @@ var
   doload: boolean;
 begin
   if not Assigned(mLst) then begin
-    mLst := TWideStringList.Create(); doload := true end
+    mLst := WideStrings.TWideStringList.Create(); doload := true end
   else doload := false;
   try
     Clear();
@@ -12925,7 +12968,7 @@ begin
   except on e: Exception do BqShowException(e); end;
 end;
 
-function TBQFavoriteModules.ReadPrefix(const lst: TWideStringList): integer;
+function TBQFavoriteModules.ReadPrefix(const lst: WideStrings.TWideStringList): integer;
 var ws: WideString;
 begin
   ws := lst[0];
@@ -12972,7 +13015,7 @@ begin
 end;
 
 procedure TBQFavoriteModules.v1Load(modEntries: TCachedModules;
-  const lst: TWideStringList);
+  const lst: WideStrings.TWideStringList);
 var i, c: integer;
   wsModName, wsModShortName: WideString;
   fin: boolean;

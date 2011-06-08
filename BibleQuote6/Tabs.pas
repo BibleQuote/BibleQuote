@@ -25,7 +25,7 @@ unit Tabs;
 
 interface
 
-uses Windows, WideStringsMod, Classes, Graphics, Forms, Controls, Messages, ImgList,
+uses Windows, WideStrings, Classes, Graphics, Forms, Controls, Messages, ImgList,
   ComCtrls, ExtCtrls;
 
 type

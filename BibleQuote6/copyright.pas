@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics,
   Controls, Forms, TntForms, Dialogs,
-  Htmlview, ShellAPI, StdCtrls, TntStdCtrls, ExtCtrls;
+  Htmlview, ShellAPI, TntStdCtrls, ExtCtrls, StdCtrls;
 
 type
   TCopyrightForm = class(TTntForm)

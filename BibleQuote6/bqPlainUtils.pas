@@ -1,7 +1,7 @@
 unit bqPlainUtils;
 
 interface
-uses JCLWideStrings,WideStringsMod,SysUtils,Windows;
+uses JCLWideStrings,WideStrings,SysUtils,Windows;
 
 function PWideChar2Int(pwc:PWideChar; out val:integer):PWideChar;
 function StrToTokens(const str: WideString; const delim: WideString;
@@ -37,7 +37,7 @@ end;
 
 
 function StrToTokens(const str: WideString; const delim: WideString;
-  strLst: WideStringsMod.TWideStrings; useQuotes: boolean = false): integer;
+  strLst: WideStrings.TWideStrings; useQuotes: boolean = false): integer;
 var
   dl: integer;
 
