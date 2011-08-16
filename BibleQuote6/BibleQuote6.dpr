@@ -9,6 +9,7 @@ program BibleQuote6;
 {%TogetherDiagram 'ModelSupport_BibleQuote6\default.txaPackage'}
 
 uses
+  FastMM4,
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
   tntForms,
   forms,
@@ -26,9 +27,7 @@ uses
   Dict in 'Dict.pas',
   Bible in 'Bible.pas',
   AlekPageControl in 'AlekPageControl.pas',
-  Tabs in 'Tabs.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
-  main in 'main.pas' {MainForm: TTntForm},
   AboutForm in 'AboutForm.pas' {frmAbout: TTntForm},
   XPTheme in 'XPTheme.pas',
   BQExceptionTracker in 'BQExceptionTracker.pas' {bqExceptionForm},
@@ -54,14 +53,16 @@ uses
   bqBackgroundServices in 'bqBackgroundServices.pas',
   bqEngine in 'bqEngine.pas',
   bqEngineInterfaces in 'bqEngineInterfaces.pas',
-  bqHTMLGen in 'bqHTMLGen.pas';
+  bqHTMLGen in 'bqHTMLGen.pas',
+  main in 'main.pas' {MainForm: TTntForm};
 
 {$R *.res}
 var
   fn: string;
+  param:WideString;
 begin
   try
-    if AnsiUpperCase(ParamStr(1)) = '/DEBUG' then begin
+    if ParamStartedWith('/debug',param) then begin
       fn := WideExtractFilePath(tntApplication.Exename) + 'dbg.log';
       G_DebugEx:=1;
       end
@@ -70,21 +71,24 @@ begin
       G_DebugEx:=0;
      end;
     Assign(Output, fn);
-//    if FileExists(fn) then
-//      Append(Output)
-//    else
-      Rewrite(Output);
-    writeln('BibleQuote dbg log started' );
+    Rewrite(Output);
+    writeln(bqNowDateTimeString(), 'BibleQuote dbg log started' );
     Flush(Output);
+    if ParamStartedWith('/memcheck',param) then begin
+      ReportMemoryLeaksOnShutdown:=true;
+    end
+    else   ReportMemoryLeaksOnShutdown:=false;
   except
   end;
 
+
   Application.Initialize;
-//  Application.HintPause :=100;
   Application.CreateForm(TMainForm, MainForm);
+  //  Application.HintPause :=100;
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
   Application.CreateForm(TbqExceptionForm, bqExceptionForm);
+
   Application.Run;
   try
     Close(Output);

@@ -3,7 +3,11 @@ unit BibleQuoteConfig;
 interface
 
 
-const C_CompressedModulesSubPath='compressed\modules';
+const
+      C_bqVersion='6.02a1d2b';
+      C_bqDate='16.06.2011';
+      
+      C_CompressedModulesSubPath='compressed\modules';
       C_CommentariesSubPath='compressed\commentaries';
       C_DictionariesSubPath='compressed\dictionaries';
       C_ModuleIniName='bibleqt.ini';
@@ -15,6 +19,7 @@ const C_CompressedModulesSubPath='compressed\modules';
       C_BQQuickLoad='http://AlekMBox.narod.ru';
       C_NumOfModulesToScan= 5;
       C_BulletChar=#9679;
+
 const
   C_crlf: packed array[0..2] of WideChar = (#13, #10,#0);
   C_plus: WideChar = '+';

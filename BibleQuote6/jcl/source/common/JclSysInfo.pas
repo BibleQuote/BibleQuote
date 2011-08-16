@@ -3397,7 +3397,7 @@ begin
     wvWinServer2008R2:
       Result := LoadResString(@RsOSVersionWinServer2008R2);
   else
-    Result := '';
+    Result := Format('Unknown: %d:%d build %d',[Win32MinorVersion,Win32MinorVersion, Win32BuildNumber]);
   end;
 end;
 

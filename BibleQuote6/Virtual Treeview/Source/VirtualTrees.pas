@@ -24,6 +24,23 @@ unit VirtualTrees;
 // (C) 1999-2001 digital publishing AG. All Rights Reserved.
 //----------------------------------------------------------------------------------------------------------------------
 //
+//  April 2011
+//   - Bug fix: Reverted change of November 2010 (Creating the WorkerThread will no longer change System.IsMultiThread)
+//              it caused sporadic AVs during app start which disappeared after revering the change. This code can lead to a wrong value 
+//              of System.IsMultiThread which causes the memory manager to assume a single threaded application.
+//   - Bug fix: When advancing to the next item while in edit mode, we are now also calling CanEdit().
+//  February 2011
+//   - Bug fix: In case the LastStructureChangeNode is deleted before the StructureChange event is fired,
+//              the reference to the LastStructureChangeNode is cleared to avoid providing an invalid node
+//  January 2011
+//   - Improvement: RTF export now uses landscape paper format and smaller margins, so that more of the contents
+//                  fits on the page
+//   - Improvement: New Option hoHeaderClickAutoSort for TVTHeader.Options: Clicks on the header will make the
+//                    clicked column the SortColumn or toggle sort direction if it already was the sort column
+//   - Improvement: Pressing the tab key in edit mode advances to the next node in edit node, just like the
+//                  Windows 7 Explorer does it.
+//   - Bug fix: No longer auto-scrolling horizontally when the focused node changes if toFullRowSelect is turned on.
+//   - Bug fix: Fixed a clipping issue when drawing unbuffered
 //  December 2010
 //   - Improvement: TBaseVirtualTree.HandleMouseUp now checks CanEdit just in case toEditOnClick
 //   - Bug fix: TotalNodeHeights are now correctly adjusted when toggling toShowHiddenNodes
@@ -1326,6 +1343,11 @@ type
     blGlyphBottom
   );
 
+  TSortDirection = (
+    sdAscending,
+    sdDescending
+  );
+
   TVirtualTreeColumn = class(TCollectionItem)
   private
     FText,
@@ -1355,6 +1377,7 @@ type
     FCheckState: TCheckState;
     FImageRect: TRect;
     FHasImage: Boolean;
+    fDefaultSortDirection: TSortDirection;
     function GetCaptionAlignment: TAlignment;
     function GetLeft: Integer;
     function IsBiDiModeStored: Boolean;
@@ -1420,6 +1443,7 @@ type
     property CheckState: TCheckState read FCheckState write SetCheckState default csUncheckedNormal;
     property CheckBox: Boolean read FCheckBox write SetCheckBox default False;
     property Color: TColor read FColor write SetColor stored IsColorStored;
+    property DefaultSortDirection: TSortDirection read fDefaultSortDirection write fDefaultSortDirection default sdAscending;
     property Hint: UnicodeString read FHint write FHint stored False;
     property ImageIndex: TImageIndex read FImageIndex write SetImageIndex default -1;
     property Layout: TVTHeaderColumnLayout read FLayout write SetLayout default blGlyphLeft;
@@ -1583,7 +1607,9 @@ type
     hoFullRepaintOnResize,   // Fully invalidate the header (instead of subsequent columns only) when a column is resized.
     hoDisableAnimatedResize, // Disable animated resize for all columns.
     hoHeightResize,          // Allow resizing header height via mouse.
-    hoHeightDblClickResize   // Allow the header to resize itself to its default height.
+    hoHeightDblClickResize,  // Allow the header to resize itself to its default height.
+    hoHeaderClickAutoSort    // Clicks on the header will make the clicked column the SortColumn or toggle sort direction if
+                             // it already was the sort column
   );
   TVTHeaderOptions = set of TVTHeaderOption;
 
@@ -1601,11 +1627,6 @@ type
     hsNeedScaling              // the header needs to be scaled
   );
   THeaderStates = set of THeaderState;
-
-  TSortDirection = (
-    sdAscending,
-    sdDescending
-  );
 
   // describes the used column resize behaviour for AutoFitColumns
   TSmartAutoFitType = (
@@ -3452,9 +3473,10 @@ type
 
   TStringEditLink = class(TInterfacedObject, IVTEditLink)
   private
+                // A normal custom edit control.
     procedure SetEdit(const Value: TVTEdit);
   protected
-    FEdit: TVTEdit;                  // A normal custom edit control.
+    FEdit: TVTEdit;  
     FTree: TCustomVirtualStringTree; // A back reference to the tree calling.
     FNode: PVirtualNode;             // The node to be edited.
     FColumn: TColumnIndex;           // The column of the node.
@@ -6173,10 +6195,6 @@ end;
 //----------------- TWorkerThread --------------------------------------------------------------------------------------
 
 procedure AddThreadReference;
-
-var
-  OldIsMultiThread: Boolean;
-
 begin
   if not Assigned(WorkerThread) then
   begin
@@ -6186,9 +6204,7 @@ begin
       RaiseLastOSError;
 
     // Create worker thread, initialize it and send it to its wait loop.
-    OldIsMultiThread := System.IsMultiThread;
     WorkerThread := TWorkerThread.Create(False);
-    System.IsMultiThread := OldIsMultiThread;
   end;
   Inc(WorkerThread.FRefCount);
 end;
@@ -6351,7 +6367,7 @@ begin
   try
     Remove(Tree);
   finally
-    FWaiterList.UnlockList;
+    FWaiterList.UnlockList; // Seen several AVs in this line, was called from TWorkerThrea.Destroy. Joachim Marder.
   end;
   CancelValidation(Tree);
 end;
@@ -7752,7 +7768,7 @@ var
   StopLastAnimation: Boolean;
 
 begin
-  if IsRectEmpty(Rect) then
+  if IsRectEmpty(Rect) or not Assigned(FHintData.Tree) then
     Application.CancelHint
   else
   begin
@@ -8552,6 +8568,7 @@ begin
   FCheckState := csUncheckedNormal;
   FCheckBox := False;
   FHasImage := False;
+  fDefaultSortDirection := sdAscending;
 
   inherited Create(Collection);
 
@@ -10272,6 +10289,22 @@ begin
     HitInfo.HitPosition := [hhiNoWhere];
   end;
 
+  if (hoHeaderClickAutoSort in Header.Options) and (HitInfo.Button = mbLeft) and not DblClick and (HitInfo.Column >= 0) then begin
+    // handle automatic setting of SortColumn and toggling of the sort order
+    if HitInfo.Column<>Header.SortColumn then begin
+      // set sort column
+      Header.SortColumn := HitInfo.Column;
+      Header.SortDirection := Self[Header.SortColumn].DefaultSortDirection
+    end//if
+    else begin
+      // toggle sort direction
+      if Header.SortDirection = sdDescending then
+        Header.SortDirection := sdAscending
+      else
+        Header.SortDirection := sdDescending
+    end;//else
+  end;//if
+
   if DblClick then
     FHeader.Treeview.DoHeaderDblClick(HitInfo)
   else
@@ -10308,7 +10341,7 @@ begin
       begin
         // Index found. Move all higher entries one step down and remove the last entry.
         if I < Upper then
-          Move(FPositionToIndex[I + 1], FPositionToIndex[I], (Upper - I) * SizeOf(Integer));
+          Move(FPositionToIndex[I + 1], FPositionToIndex[I], (Upper - I) * SizeOf(TColumnIndex));
       end;
       // Decrease all indices, which are greater than the index to be deleted.
       if FPositionToIndex[I] > OldIndex then
@@ -13333,7 +13366,7 @@ begin
     Height := Dummy;
     ReadBuffer(Dummy, SizeOf(Dummy));
     FOptions := OldOptions;
-    Options := TVTHeaderOptions(Word(Dummy));
+    Options := TVTHeaderOptions(Dummy);
     // PopupMenu is neither saved nor restored
     ReadBuffer(Dummy, SizeOf(Dummy));
     Style := TVTHeaderStyle(Dummy);
@@ -13617,7 +13650,7 @@ begin
     WriteBuffer(Dummy, SizeOf(Dummy));
     Dummy := FHeight;
     WriteBuffer(Dummy, SizeOf(Dummy));
-    Dummy := Word(FOptions);
+    Dummy := Integer(FOptions);
     WriteBuffer(Dummy, SizeOf(Dummy));
     // PopupMenu is neither saved nor restored
     Dummy := Ord(FStyle);
@@ -21320,7 +21353,7 @@ begin
       InvalidateNode(FFocusedNode);
       if (FUpdateCount = 0) and not (toDisableAutoscrollOnFocus in FOptions.FAutoOptions) then
         ScrollIntoView(FFocusedNode, (toCenterScrollIntoView in FOptions.SelectionOptions) and
-          (MouseButtonDown * FStates = []), True);
+          (MouseButtonDown * FStates = []), not (toFullRowSelect in FOptions.SelectionOptions) );
     end;
 
     // Reset range anchor if necessary.
@@ -21340,6 +21373,8 @@ begin
     FCurrentHotNode := nil;
   if Node = FDropTargetNode then
     FDropTargetNode := nil;
+  if Node = FLastStructureChangeNode then
+    FLastStructureChangeNode := nil;
   if Assigned(FOnFreeNode) and ([vsInitialized, vsInitialUserData] * Node.States <> []) then
     FOnFreeNode(Self, Node);
   FreeMem(Node);
@@ -22838,7 +22873,7 @@ var
 
 begin
   // seek back to the second entry in the chunk header
-  Stream.Position := StartPos + SizeOf(Integer);
+  Stream.Position := StartPos + SizeOf(Size);
   // determine size of chunk without the chunk header
   Size := EndPos - StartPos - SizeOf(TChunkHeader);
   // write the size...
@@ -23846,7 +23881,7 @@ begin
       if NewNode or NewColumn then
       begin
         ScrollIntoView(FFocusedNode, toCenterScrollIntoView in FOptions.SelectionOptions,
-                       not (toDisableAutoscrollOnFocus in FOptions.FAutoOptions));
+                       not (toDisableAutoscrollOnFocus in FOptions.FAutoOptions) and not (toFullRowSelect in FOptions.SelectionOptions));
         DoFocusChange(FFocusedNode, FFocusedColumn);
       end;
     end;
@@ -24904,7 +24939,7 @@ var
   RTLOffset: Integer;
 
 begin
-  Options := [poBackground, poColumnColor, poDrawFocusRect, poDrawDropMark, poDrawSelection, poGridLines ];
+  Options := [poBackground, poColumnColor, poDrawFocusRect, poDrawDropMark, poDrawSelection, poGridLines];
   if UseRightToLeftAlignment and FHeader.UseColumns then
     RTLOffset := ComputeRTLOffset(True)
   else
@@ -27744,7 +27779,7 @@ begin
         repeat
           if [vsHasChildren, vsExpanded] * Node.States = [vsHasChildren, vsExpanded] then
             ToggleNode(Node);
-          Node := GetPreviousNoInit(Node);
+          Node := GetPreviousNoInit(Node, True);
         until Node = Stop;
 
         // Collapse the start node too.
@@ -28868,7 +28903,9 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TBaseVirtualTree.GetNext(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+
 // Returns next node in tree while optionally considering toChildrenAbove. The Result will be initialized if needed.
+
 begin
   Result := Node;
   if Assigned(Result) then
@@ -31133,7 +31170,8 @@ begin
               else
               begin
                 SetCanvasOrigin(PaintInfo.Canvas, -TargetRect.Left + Window.Left, -TargetRect.Top);
-                ClipCanvas(PaintInfo.Canvas, TargetRect);
+                ClipCanvas(PaintInfo.Canvas, Rect(TargetRect.Left, TargetRect.Top, TargetRect.Right,
+                                                  Min(TargetRect.Bottom, MaximumBottom)))
               end;
 
               // Set the origin of the canvas' brush. This depends on the node heights.
@@ -31261,6 +31299,7 @@ begin
                               ClipRect.Left := Max(ClipRect.Left, Window.Left);
                               ClipRect.Right := Min(ClipRect.Right, Window.Right);
                               ClipRect.Top := Max(ClipRect.Top, Window.Top - (BaseOffset - CurrentNodeHeight));
+                              ClipRect.Bottom := ClipRect.Bottom - Max(TargetRect.Bottom - MaximumBottom, 0);
                             end;
                             ClipCanvas(Canvas, ClipRect);
                           end;
@@ -32805,11 +32844,11 @@ begin
             // Iterate through the child nodes without initializing them. We have to determine the entire height.
             Child := Node.FirstChild;
             repeat
-              if IsEffectivelyVisible[Child] then
+              if vsVisible in Child.States then
               begin
                 // Ensure the item height is measured
                 MeasureItemHeight(Canvas, Child);
-                
+
                 Inc(HeightDelta, Child.TotalHeight);
               end;
               Child := Child.NextSibling;
@@ -33486,13 +33525,13 @@ var
   Shift: TShiftState;
   EndEdit: Boolean;
   Tree: TBaseVirtualTree;
-
+  NextNode: PVirtualNode;
 begin
+  Tree := FLink.FTree;
   case Message.CharCode of
     VK_ESCAPE:
       begin
-        Tree := FLink.FTree;
-        FLink.FTree.DoCancelEdit;
+        Tree.DoCancelEdit;
         Tree.SetFocus;
       end;
     VK_RETURN:
@@ -33524,6 +33563,17 @@ begin
         if not (vsMultiline in FLink.FNode.States) then
           Message.CharCode := VK_RIGHT;
         inherited;
+      end;
+    VK_TAB:
+      begin
+        if Tree.IsEditing then begin
+          Tree.InvalidateNode(FLink.FNode);
+          NextNode := Tree.GetNextVisible(FLink.FNode, True);
+          Tree.EndEditNode;
+          Tree.FocusedNode := NextNode;
+          if Tree.CanEdit(Tree.FocusedNode, Tree.FocusedColumn) then
+            Tree.DoEdit;
+        end;
       end;
   else
     inherited;
@@ -35552,6 +35602,7 @@ var
   Index: Integer;
   Alignment: TAlignment;
   BidiMode: TBidiMode;
+  LocaleBuffer: Array [0..1] of Char;
 
 begin
   Buffer := TBufferedAnsiString.Create;
@@ -35732,7 +35783,12 @@ begin
       S := S + Format('\red%d\green%d\blue%d;', [J and $FF, (J shr 8) and $FF, (J shr 16) and $FF]);
     end;
     S := S + '}';
-
+    if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, @LocaleBuffer, Length(LocaleBuffer)) <> 0) and (LocaleBuffer[0] = '0'{metric}) then
+      S := S + '\paperw16840\paperh11907'// This sets A4 landscape format
+    else
+      S := S + '\paperw15840\paperh12240';//[JAM:marder]  This sets US Letter landscape format
+    // Make sure a small margin is used so that a lot of the table fits on a paper. This defines a margin of 0.5"
+    S := S + '\margl720\margr720\margt720\margb720';
     Result := S + Buffer.AsString + '}';
     Fonts.Free;
     Colors.Free;

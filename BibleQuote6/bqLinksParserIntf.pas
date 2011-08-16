@@ -2,10 +2,12 @@ unit bqLinksParserIntf;
 interface
 type
   TBibleBookNameEntry=class
+  public
     nameBookIx:integer;
     chapterCnt:integer;
     key,usgCnt, lastHitPos:integer;
     modSigIx:integer;
+    destructor Destroy;override;
   end;
 
   TBibleLinkProcessingOption=(blpLimitChapterTxt);
@@ -307,6 +309,11 @@ end;
 function TBibleLinkEx.GetIniFileShortPath():WideString;
 begin
 result:=modName + '\'+C_ModuleIniName;
+end;
+
+destructor TBibleBookNameEntry.Destroy;
+begin
+inherited;
 end;
 
 end.

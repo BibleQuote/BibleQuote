@@ -19,6 +19,7 @@ type
     FOnDeleteTab: TAlekPageControlDeleteTab;
     FOnDblClk:TAlekPageControlDblClck;
     mWheelAcc:integer;
+    mDelLocked:integer;
 {    FFontHandle: HFont;}
     //procedure DrawTab(TabIndex: Integer; const Rect: TRect; Active: Boolean);
 //      override;
@@ -212,7 +213,8 @@ var
   image_width, image_height: integer;
 begin
   inherited;
-  if Button <> mbLeft then exit;
+
+  if  (Button <> mbLeft) then exit;
   _tabIndex := IndexOfTabAt(X, Y);
   if _tabIndex < 0 then exit;
   TabCtrl_GetItemRect(Handle, tabIndex, tabRect);
@@ -222,8 +224,9 @@ begin
   if (image_width < 3) or (image_height < 3) then exit;
   tabRect.Left := tabRect.Right - image_width - 4; Inc(tabRect.Top, 3);
     tabRect.Bottom := tabRect.Top + image_height + 3;
-  if not PtInRect(TabRect, point) then exit;
+  if (not PtInRect(TabRect, point))  then exit;
 //Tabs.Delete(tabIndex);
+  if (mDelLocked>0) then exit;
   if not assigned(FOnDeleteTab) then exit;
   FOnDeleteTab(self, _tabIndex);
   if (saveTabIndex >= Tabs.Count) then saveTabIndex := Tabs.Count;
@@ -259,6 +262,8 @@ var
 begin
   inherited;
   if csDesigning in ComponentState then exit;
+  Inc(mDelLocked);
+  try
 
 //  themeServices := Themes.ThemeServices();   //AlekId:Hint
   aix := ActivePageIndex;
@@ -329,7 +334,7 @@ begin
 //  themedElementDetails:=themeServices.GetElementDetails(tt;
 //  themeServices.DrawElement(Canvas.Handle, themedElementDetails, Rect);
   end; //for
-
+  finally Dec(mDelLocked); end;
 end;
 
 { TAlekPanel }

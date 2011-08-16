@@ -2,10 +2,10 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 721
-  ClientWidth = 997
+  ClientHeight = 575
+  ClientWidth = 764
   Color = clBtnFace
-  Constraints.MinHeight = 440
+  Constraints.MinHeight = 441
   Constraints.MinWidth = 620
   Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
@@ -40,13 +40,12 @@ object MainForm: TMainForm
   end
   object Splitter1: TTntSplitter
     Left = 309
-    Top = 29
+    Top = 26
     Width = 9
-    Height = 670
+    Height = 549
     AutoSnap = False
     MinSize = 100
     OnMoved = Splitter1Moved
-    ExplicitHeight = 626
   end
   object TTntToolButton
     Left = 0
@@ -59,19 +58,19 @@ object MainForm: TMainForm
     EmbedDropDownStyle = False
   end
   object MainPanel: TTntPanel
-    Left = 415
-    Top = 29
-    Width = 582
-    Height = 670
-    Align = alRight
+    Left = 318
+    Top = 26
+    Width = 446
+    Height = 549
+    Align = alClient
     Caption = 'MainPanel'
     TabOrder = 0
     object mViewTabs: TAlekPageControl
       AlignWithMargins = True
       Left = 4
       Top = 1
-      Width = 577
-      Height = 668
+      Width = 441
+      Height = 525
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -93,11 +92,15 @@ object MainForm: TMainForm
       object mInitialViewPage: TTntTabSheet
         PopupMenu = mViewTabsPopup
         OnContextPopup = mInitialViewPageContextPopup
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object FirstBrowser: THTMLViewer
-          Left = -4
-          Top = -228
-          Width = 568
-          Height = 669
+          Left = 122
+          Top = 11
+          Width = 383
+          Height = 265
           OnHotSpotCovered = FirstBrowserHotSpotCovered
           OnHotSpotClick = FirstBrowserHotSpotClick
           OnImageRequest = FirstBrowserImageRequest
@@ -123,6 +126,60 @@ object MainForm: TMainForm
           OnKeyPress = FirstBrowserKeyPress
           OnMouseDouble = FirstBrowserMouseDouble
         end
+      end
+    end
+    object btmPaint: TPanel
+      Left = 1
+      Top = 526
+      Width = 444
+      Height = 22
+      Align = alBottom
+      BevelOuter = bvNone
+      TabOrder = 1
+      object imgLoadProgress: TTntImage
+        Tag = 1
+        AlignWithMargins = True
+        Left = 423
+        Top = 0
+        Width = 21
+        Height = 22
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alRight
+        Center = True
+        Proportional = True
+        Transparent = True
+        Visible = False
+        OnClick = imgLoadProgressClick
+      end
+      object mBibleTabsEx: TDockTabSet
+        Tag = -1
+        Left = 0
+        Top = 0
+        Width = 423
+        Height = 22
+        Cursor = crHandPoint
+        Hint = 'rtet'
+        Align = alClient
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -19
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        StartMargin = 0
+        SoftTop = True
+        Style = tsSoftTabs
+        TabHeight = 18
+        OnClick = mBibleTabsExClick
+        OnChange = mBibleTabsExChange
+        OnDragDrop = BibleTabsDragDrop
+        OnDragOver = BibleTabsDragOver
+        OnMouseDown = mBibleTabsExMouseDown
+        OnMouseMove = mBibleTabsExMouseMove
+        OnMouseUp = mBibleTabsExMouseUp
+        DockSite = False
       end
     end
   end
@@ -157,24 +214,23 @@ object MainForm: TMainForm
         object PB1: TTntPaintBox
           Left = 0
           Top = 0
-          Width = 72
+          Width = 73
           Height = 156
           Cursor = crArrow
           Align = alClient
           OnMouseDown = PB1MouseDown
           OnPaint = PB1Paint
-          ExplicitWidth = 73
         end
       end
     end
   end
   object MainPages: TTntPageControl
     Left = 0
-    Top = 29
+    Top = 26
     Width = 309
-    Height = 670
-    Hint = 'Strong'#39's Dictionary'
-    ActivePage = SearchTab
+    Height = 549
+    Hint = 'Navigate'
+    ActivePage = GoTab
     Align = alLeft
     Images = theImageList
     TabOrder = 2
@@ -185,9 +241,13 @@ object MainForm: TMainForm
     object GoTab: TTntTabSheet
       ImageIndex = 5
       TabHint = 'Navigate'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter2: TTntSplitter
         Left = 0
-        Top = 268
+        Top = 258
         Width = 301
         Height = 14
         Cursor = crVSplit
@@ -201,35 +261,34 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 301
-        Height = 268
+        Height = 258
         Align = alTop
         BevelOuter = bvNone
-        Constraints.MinHeight = 268
+        Constraints.MinHeight = 160
         TabOrder = 0
         DesignSize = (
           301
-          268)
-        object BooksCB: TTntComboBox
-          Left = 10
+          258)
+        object cbModules: TTntComboBox
+          Left = 4
           Top = 36
-          Width = 291
-          Height = 24
+          Width = 296
+          Height = 23
           Hint = 'Select module to view'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 25
           ItemHeight = 0
-          PopupMenu = EmptyPopupMenu
           TabOrder = 1
-          OnChange = BooksCBChange
-          OnCloseUp = BooksCBCloseUp
-          OnKeyPress = BooksCBKeyPress
+          OnChange = cbModulesChange
+          OnCloseUp = cbModulesCloseUp
+          OnKeyPress = cbModulesKeyPress
         end
         object BookLB: TTntListBox
-          Left = 10
-          Top = 66
+          Left = 4
+          Top = 65
           Width = 234
-          Height = 195
+          Height = 185
           Hint = 'Select book to view'
           Style = lbOwnerDrawVariable
           Anchors = [akLeft, akTop, akRight, akBottom]
@@ -242,18 +301,18 @@ object MainForm: TMainForm
           Left = 250
           Top = 66
           Width = 49
-          Height = 195
+          Height = 185
           Hint = 'Select chapter to view'
           Anchors = [akTop, akRight, akBottom]
-          ItemHeight = 16
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 3
           OnClick = ChapterLBClick
         end
         object AddressOKButton: TTntButton
-          Left = 244
+          Left = 246
           Top = 4
-          Width = 57
+          Width = 53
           Height = 24
           Hint = 'Go to link'
           Anchors = [akTop, akRight]
@@ -315,24 +374,25 @@ object MainForm: TMainForm
       end
       object HistoryBookmarkPages: TTntPageControl
         Left = 0
-        Top = 282
+        Top = 272
         Width = 301
-        Height = 357
-        ActivePage = HistoryTab
+        Height = 246
+        ActivePage = BookmarksTab
         Align = alClient
         TabOrder = 1
         HideTabsHints = False
+        ExplicitHeight = 244
         object HistoryTab: TTntTabSheet
           Caption = 'HistoryTab'
           ExplicitLeft = 0
           ExplicitTop = 0
           ExplicitWidth = 0
-          ExplicitHeight = 304
+          ExplicitHeight = 193
           object HistoryLB: TTntListBox
             Left = 0
             Top = 0
             Width = 293
-            Height = 326
+            Height = 215
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -351,12 +411,12 @@ object MainForm: TMainForm
           ExplicitLeft = 0
           ExplicitTop = 0
           ExplicitWidth = 0
-          ExplicitHeight = 304
+          ExplicitHeight = 0
           object BookmarksLB: TTntListBox
             Left = 0
             Top = 0
-            Width = 293
-            Height = 209
+            Width = 292
+            Height = 96
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -368,14 +428,14 @@ object MainForm: TMainForm
           end
           object BookmarkPanel: TTntPanel
             Left = 0
-            Top = 209
+            Top = 98
             Width = 293
             Height = 117
             Align = alBottom
             BevelOuter = bvNone
             BorderWidth = 10
             TabOrder = 1
-            ExplicitTop = 164
+            ExplicitTop = 96
             ExplicitWidth = 292
             object BookmarkLabel: TTntLabel
               Left = 11
@@ -393,7 +453,7 @@ object MainForm: TMainForm
           ExplicitLeft = 0
           ExplicitTop = 0
           ExplicitWidth = 0
-          ExplicitHeight = 304
+          ExplicitHeight = 193
           object SearchInWindowLabel: TTntLabel
             Left = 0
             Top = 0
@@ -426,16 +486,15 @@ object MainForm: TMainForm
             object SearchEdit: TTntEdit
               Left = 42
               Top = 18
-              Width = 210
-              Height = 23
+              Width = 207
+              Height = 24
               Hint = ' '
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 1
               OnKeyUp = SearchEditKeyUp
-              ExplicitWidth = 207
             end
             object btnQuickSearchFwd: TTntBitBtn
-              Left = 261
+              Left = 258
               Top = 17
               Width = 30
               Height = 28
@@ -443,7 +502,6 @@ object MainForm: TMainForm
               TabOrder = 2
               OnClick = btnQuickSearchFwdClick
               Style = bsNew
-              ExplicitLeft = 258
             end
           end
         end
@@ -454,11 +512,15 @@ object MainForm: TMainForm
       ParentShowHint = False
       ShowHint = True
       TabHint = 'Search'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 496
       object SearchBrowser: THTMLViewer
         Left = 0
         Top = 191
         Width = 301
-        Height = 448
+        Height = 327
         OnHotSpotClick = SearchBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -477,6 +539,7 @@ object MainForm: TMainForm
         htOptions = []
         OnKeyDown = SearchBrowserKeyDown
         OnKeyUp = SearchBrowserKeyUp
+        ExplicitHeight = 325
       end
       object SearchBoxPanel: TTntPanel
         Left = 0
@@ -505,7 +568,7 @@ object MainForm: TMainForm
           AutoCloseUp = True
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 10
-          ItemHeight = 16
+          ItemHeight = 0
           TabOrder = 0
           OnKeyUp = SearchCBKeyUp
         end
@@ -537,7 +600,7 @@ object MainForm: TMainForm
           OnClick = FindButtonClick
         end
         object CBAll: TTntCheckBox
-          Left = 3
+          Left = 4
           Top = 61
           Width = 298
           Height = 17
@@ -546,7 +609,7 @@ object MainForm: TMainForm
           TabOrder = 3
         end
         object CBPhrase: TTntCheckBox
-          Left = 3
+          Left = 4
           Top = 81
           Width = 297
           Height = 18
@@ -555,7 +618,7 @@ object MainForm: TMainForm
           TabOrder = 4
         end
         object CBParts: TTntCheckBox
-          Left = 3
+          Left = 4
           Top = 125
           Width = 297
           Height = 17
@@ -564,7 +627,7 @@ object MainForm: TMainForm
           TabOrder = 6
         end
         object CBCase: TTntCheckBox
-          Left = 3
+          Left = 4
           Top = 145
           Width = 297
           Height = 18
@@ -573,7 +636,7 @@ object MainForm: TMainForm
           TabOrder = 7
         end
         object CBExactPhrase: TTntCheckBox
-          Left = 3
+          Left = 4
           Top = 100
           Width = 297
           Height = 22
@@ -617,12 +680,12 @@ object MainForm: TMainForm
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 617
+      ExplicitHeight = 496
       object DicBrowser: THTMLViewer
         Left = 0
         Top = 250
         Width = 301
-        Height = 389
+        Height = 268
         OnHotSpotCovered = FirstBrowserHotSpotCovered
         OnHotSpotClick = DicBrowserHotSpotClick
         TabOrder = 0
@@ -642,7 +705,6 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         htOptions = []
         OnMouseDouble = DicBrowserMouseDouble
-        ExplicitHeight = 344
       end
       object DicPanel: TTntPanel
         Left = 0
@@ -685,7 +747,7 @@ object MainForm: TMainForm
         end
         object vstDicList: TVirtualStringTree
           Left = 4
-          Top = 63
+          Top = 64
           Width = 293
           Height = 123
           Anchors = [akLeft, akTop, akRight]
@@ -705,6 +767,8 @@ object MainForm: TMainForm
           TabOrder = 2
           TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toUseExplorerTheme]
           TreeOptions.SelectionOptions = [toFullRowSelect]
+          OnAddToSelection = vstDicListAddToSelection
+          OnClick = DicLBDblClick
           OnDblClick = DicLBDblClick
           OnGetText = vstDicListGetText
           OnKeyPress = DicLBKeyPress
@@ -752,13 +816,13 @@ object MainForm: TMainForm
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 617
+      ExplicitHeight = 496
       object StrongBrowser: THTMLViewer
         AlignWithMargins = True
         Left = 3
         Top = 224
         Width = 295
-        Height = 412
+        Height = 291
         OnHotSpotClick = StrongBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -777,7 +841,6 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         htOptions = [htNoLinkUnderline]
         OnMouseDouble = StrongBrowserMouseDouble
-        ExplicitHeight = 367
       end
       object StrongPanel: TTntPanel
         Left = 0
@@ -795,7 +858,7 @@ object MainForm: TMainForm
           Left = 4
           Top = 4
           Width = 293
-          Height = 23
+          Height = 24
           Hint = 'Strong number to show'
           Anchors = [akLeft, akTop, akRight]
           PopupMenu = MemoPopupMenu
@@ -827,7 +890,7 @@ object MainForm: TMainForm
         Caption = '# search'
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
-        Font.Height = -18
+        Font.Height = -19
         Font.Name = 'Arial Unicode MS'
         Font.Style = [fsUnderline]
         ParentFont = False
@@ -842,12 +905,12 @@ object MainForm: TMainForm
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 617
+      ExplicitHeight = 496
       object CommentsBrowser: THTMLViewer
         Left = 0
         Top = 32
         Width = 301
-        Height = 607
+        Height = 486
         OnHotSpotCovered = FirstBrowserHotSpotCovered
         OnHotSpotClick = CommentsBrowserHotSpotClick
         TabOrder = 0
@@ -865,7 +928,6 @@ object MainForm: TMainForm
         PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
         htOptions = []
-        ExplicitHeight = 562
       end
       object Panel4: TTntPanel
         Left = 0
@@ -930,12 +992,12 @@ object MainForm: TMainForm
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 617
+      ExplicitHeight = 496
       object TREMemo: TTntRichEdit
         Left = 0
         Top = 25
         Width = 301
-        Height = 583
+        Height = 462
         Align = alClient
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
@@ -950,13 +1012,13 @@ object MainForm: TMainForm
       end
       object Panel3: TTntPanel
         Left = 0
-        Top = 608
+        Top = 487
         Width = 301
         Height = 31
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 563
+        ExplicitTop = 486
         object MemoLabel: TTntLabel
           Left = 4
           Top = 4
@@ -1076,7 +1138,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 301
-        Height = 709
+        Height = 430
         OnHotSpotClick = XRefBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -1100,7 +1162,7 @@ object MainForm: TMainForm
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
-      ExplicitHeight = 617
+      ExplicitHeight = 496
       object TntToolBar2: TTntToolBar
         Left = 0
         Top = 0
@@ -1133,7 +1195,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 54
         Width = 301
-        Height = 585
+        Height = 464
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1147,12 +1209,12 @@ object MainForm: TMainForm
         Color = clWhite
         Colors.BorderColor = clWindow
         Colors.DisabledColor = clWindow
-        Colors.FocusedSelectionColor = 12245496
-        Colors.FocusedSelectionBorderColor = 12615935
+        Colors.FocusedSelectionColor = 14675956
+        Colors.FocusedSelectionBorderColor = 4628174
         Colors.HotColor = clBtnHighlight
         Colors.SelectionRectangleBlendColor = clCaptionText
-        Colors.UnfocusedSelectionColor = 14272953
-        Colors.UnfocusedSelectionBorderColor = 16711808
+        Colors.UnfocusedSelectionColor = 14675956
+        Colors.UnfocusedSelectionBorderColor = 8634078
         Header.AutoSizeIndex = -1
         Header.DefaultHeight = 17
         Header.Font.Charset = DEFAULT_CHARSET
@@ -1166,14 +1228,13 @@ object MainForm: TMainForm
         HintAnimation = hatFade
         HintMode = hmHint
         IncrementalSearch = isAll
-        Indent = 3
+        Indent = 2
         NodeDataSize = 4
         ParentShowHint = False
         SelectionCurveRadius = 7
         ShowHint = True
         TabOrder = 1
-        TextMargin = 9
-        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScroll, toAutoTristateTracking, toAutoDeleteMovedNodes, toDisableAutoscrollOnEdit]
+        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScroll, toAutoTristateTracking, toDisableAutoscrollOnEdit]
         TreeOptions.MiscOptions = [toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight, toEditOnClick]
         TreeOptions.PaintOptions = [toHideFocusRect, toThemeAware]
         TreeOptions.SelectionOptions = [toFullRowSelect]
@@ -1191,7 +1252,6 @@ object MainForm: TMainForm
         OnResize = vdtTags_VersesResize
         OnShowScrollbar = vdtTags_VersesShowScrollbar
         OnStateChange = vdtTags_VersesStateChange
-        ExplicitHeight = 563
         Columns = <>
       end
       object cbbTagsFilter: TTntComboBox
@@ -1211,10 +1271,9 @@ object MainForm: TMainForm
   object ToolbarPanel: TAlekPanel
     Left = 0
     Top = 0
-    Width = 997
-    Height = 29
+    Width = 764
+    Height = 26
     Align = alTop
-    AutoSize = True
     BevelEdges = [beBottom]
     ParentBackground = False
     TabOrder = 3
@@ -1222,52 +1281,49 @@ object MainForm: TMainForm
     GradientStartColor = clWindow
     GradientEndColor = clBtnFace
     object lbTitleLabel: TTntLabel
-      Left = 631
-      Top = 1
-      Width = 297
-      Height = 27
+      AlignWithMargins = True
+      Left = 646
+      Top = 4
+      Width = 64
+      Height = 16
       Margins.Right = 7
-      Align = alClient
-      Alignment = taRightJustify
-      AutoSize = False
+      Align = alLeft
+      Anchors = []
       Caption = 'lbTitleLabel'
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 673
-      ExplicitWidth = 252
     end
     object lbCopyRightNotice: TTntLabel
       AlignWithMargins = True
-      Left = 931
+      Left = 715
       Top = 4
-      Width = 58
-      Height = 21
+      Width = 40
+      Height = 17
       Margins.Right = 7
-      Align = alRight
-      Alignment = taRightJustify
+      Align = alClient
+      Anchors = []
+      AutoSize = False
       Caption = 'CopyRight'
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 16
     end
     object MainToolbar: TTntToolBar
       Left = 1
       Top = 1
-      Width = 471
-      Height = 27
+      Width = 416
+      Height = 22
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
       AutoSize = True
-      ButtonWidth = 43
+      ButtonHeight = 23
       DrawingStyle = dsGradient
       EdgeInner = esNone
       EdgeOuter = esNone
       GradientEndColor = clBtnFace
       Images = theImageList
       List = True
-      AllowTextButtons = True
-      TabOrder = 0
+      TabOrder = 2
       object ToggleButton: TTntToolButton
         Left = 0
         Top = 0
@@ -1277,14 +1333,14 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object Sep01: TTntToolButton
-        Left = 24
+        Left = 23
         Top = 0
         Width = 6
         Style = tbsSeparator
         EmbedDropDownStyle = False
       end
       object NewTabButton: TTntToolButton
-        Left = 30
+        Left = 29
         Top = 0
         Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
         Caption = 'NewTabButton'
@@ -1293,7 +1349,7 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object CloseTabButton: TTntToolButton
-        Left = 54
+        Left = 52
         Top = 0
         Hint = #1059#1076#1072#1083#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
         Caption = 'CloseTabButton'
@@ -1302,14 +1358,14 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object Sep06: TTntToolButton
-        Left = 78
+        Left = 75
         Top = 0
         Width = 6
         Style = tbsSeparator
         EmbedDropDownStyle = False
       end
       object BackButton: TTntToolButton
-        Left = 84
+        Left = 81
         Top = 0
         Caption = 'Back'
         ImageIndex = 4
@@ -1317,7 +1373,7 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object ForwardButton: TTntToolButton
-        Left = 108
+        Left = 104
         Top = 0
         Caption = 'Forward'
         ImageIndex = 6
@@ -1325,14 +1381,14 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object Sep02: TTntToolButton
-        Left = 132
+        Left = 127
         Top = 0
         Width = 6
         Style = tbsSeparator
         EmbedDropDownStyle = False
       end
       object PrevChapterButton: TTntToolButton
-        Left = 138
+        Left = 133
         Top = 0
         Caption = 'Minus'
         ImageIndex = 25
@@ -1340,7 +1396,7 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object NextChapterButton: TTntToolButton
-        Left = 162
+        Left = 156
         Top = 0
         Caption = 'Plus'
         ImageIndex = 26
@@ -1348,22 +1404,22 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object Sep03: TTntToolButton
-        Left = 186
+        Left = 179
         Top = 0
         Width = 6
         Style = tbsSeparator
         EmbedDropDownStyle = False
       end
       object CopyButton: TTntToolButton
-        Left = 192
+        Left = 185
         Top = 0
         Caption = 'Copy'
         ImageIndex = 15
-        OnClick = CopyButtonClick
+        OnClick = CopySelectionClick
         EmbedDropDownStyle = False
       end
       object StrongNumbersButton: TTntToolButton
-        Left = 216
+        Left = 208
         Top = 0
         Caption = 'Strong'
         ImageIndex = 18
@@ -1372,7 +1428,7 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object MemosButton: TTntToolButton
-        Left = 240
+        Left = 231
         Top = 0
         Caption = 'Memos'
         ImageIndex = 29
@@ -1381,7 +1437,7 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object tbtnLib: TTntToolButton
-        Left = 264
+        Left = 254
         Top = 0
         Hint = 'Browse Library'
         Caption = 'btnQNav'
@@ -1390,14 +1446,14 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object Sep04: TTntToolButton
-        Left = 288
+        Left = 277
         Top = 0
         Width = 6
         Style = tbsSeparator
         EmbedDropDownStyle = False
       end
       object PreviewButton: TTntToolButton
-        Left = 294
+        Left = 283
         Top = 0
         Caption = 'Preview'
         ImageIndex = 12
@@ -1405,7 +1461,7 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object PrintButton: TTntToolButton
-        Left = 318
+        Left = 306
         Top = 0
         Caption = 'Print'
         ImageIndex = 11
@@ -1413,14 +1469,14 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object Sep05: TTntToolButton
-        Left = 342
+        Left = 329
         Top = 0
         Width = 6
         Style = tbsSeparator
         EmbedDropDownStyle = False
       end
       object SoundButton: TTntToolButton
-        Left = 348
+        Left = 335
         Top = 0
         Caption = 'Sound'
         ImageIndex = 14
@@ -1428,7 +1484,7 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object CopyrightButton: TTntToolButton
-        Left = 372
+        Left = 358
         Top = 0
         Caption = 'Copyright'
         ImageIndex = 32
@@ -1436,7 +1492,7 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
       object SatelliteButton: TTntToolButton
-        Left = 396
+        Left = 381
         Top = 0
         Caption = 'Satellite'
         ImageIndex = 3
@@ -1445,18 +1501,8 @@ object MainForm: TMainForm
         OnMouseEnter = SatelliteButtonMouseEnter
         EmbedDropDownStyle = False
       end
-      object tbtnResolveLinks: TTntToolButton
-        Left = 420
-        Top = 0
-        Caption = 'Recognize Bible Links'
-        DropdownMenu = popupRecLinksOptions
-        ImageIndex = 42
-        Style = tbsDropDown
-        OnClick = tbtnResolveLinksClick
-        EmbedDropDownStyle = False
-      end
       object tbbMainPanelLastSeparator: TTntToolButton
-        Left = 459
+        Left = 404
         Top = 0
         Width = 12
         Caption = 'tbbMainPanelLastSeparator'
@@ -1465,15 +1511,46 @@ object MainForm: TMainForm
         EmbedDropDownStyle = False
       end
     end
-    object tbLinksToolBar: TTntToolBar
-      Left = 472
+    object tlbResolveLnks: TTntToolBar
+      Left = 417
       Top = 1
-      Width = 159
-      Height = 27
+      Width = 50
+      Height = 22
+      Margins.Top = 0
+      Margins.Bottom = 0
+      Align = alLeft
+      ButtonHeight = 23
+      ButtonWidth = 40
+      DrawingStyle = dsGradient
+      EdgeInner = esNone
+      EdgeOuter = esNone
+      GradientEndColor = clBtnFace
+      Images = theImageList
+      List = True
+      TabOrder = 0
+      object tbtnResolveLinks: TTntToolButton
+        AlignWithMargins = True
+        Left = 0
+        Top = 0
+        AutoSize = True
+        Caption = 'Recognize Bible Links'
+        DropdownMenu = popupRecLinksOptions
+        ImageIndex = 42
+        Style = tbsDropDown
+        OnClick = tbtnResolveLinksClick
+        EmbedDropDownStyle = False
+      end
+    end
+    object tbLinksToolBar: TTntToolBar
+      Left = 467
+      Top = 1
+      Width = 136
+      Height = 22
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
-      ButtonHeight = 7
+      AutoSize = True
+      ButtonHeight = 24
       ButtonWidth = 13
       Caption = '44444'
       DrawingStyle = dsGradient
@@ -1485,16 +1562,16 @@ object MainForm: TMainForm
       object LinksCB: TTntComboBox
         Left = 0
         Top = 0
-        Width = 159
-        Height = 24
+        Width = 136
+        Height = 23
         Margins.Top = 0
         Margins.Bottom = 0
-        Align = alLeft
+        Align = alClient
         BevelEdges = []
         BevelInner = bvNone
         BevelOuter = bvNone
         Style = csDropDownList
-        ItemHeight = 16
+        ItemHeight = 0
         TabOrder = 0
         OnChange = LinksCBChange
       end
@@ -1509,60 +1586,6 @@ object MainForm: TMainForm
       'TRE')
     TabOrder = 4
     Visible = False
-  end
-  object btmPaint: TPanel
-    Left = 0
-    Top = 699
-    Width = 997
-    Height = 22
-    Align = alBottom
-    BevelOuter = bvNone
-    TabOrder = 5
-    object imgLoadProgress: TTntImage
-      Tag = 1
-      AlignWithMargins = True
-      Left = 976
-      Top = 0
-      Width = 21
-      Height = 22
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 0
-      Margins.Bottom = 0
-      Align = alRight
-      Center = True
-      Proportional = True
-      Transparent = True
-      Visible = False
-      OnClick = imgLoadProgressClick
-    end
-    object mBibleTabsEx: TDockTabSet
-      Tag = -1
-      Left = 0
-      Top = 0
-      Width = 976
-      Height = 22
-      Cursor = crHandPoint
-      Hint = 'rtet'
-      Align = alClient
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -18
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      StartMargin = 0
-      SoftTop = True
-      Style = tsSoftTabs
-      TabHeight = 18
-      OnClick = mBibleTabsExClick
-      OnChange = mBibleTabsExChange
-      OnDragDrop = BibleTabsDragDrop
-      OnDragOver = BibleTabsDragOver
-      OnMouseDown = mBibleTabsExMouseDown
-      OnMouseMove = mBibleTabsExMouseMove
-      OnMouseUp = mBibleTabsExMouseUp
-      DockSite = False
-    end
   end
   object OpenDialog1: TTntOpenDialog
     Left = 633
@@ -1597,7 +1620,7 @@ object MainForm: TMainForm
     object miCopySelection: TTntMenuItem
       Caption = 'miCopySelection'
       ShortCut = 16451
-      OnClick = CopyButtonClick
+      OnClick = CopySelectionClick
     end
     object miCopyPassage: TTntMenuItem
       Caption = 'miCopyPassage'
@@ -1758,8 +1781,8 @@ object MainForm: TMainForm
   object theMainMenu: TTntMainMenu
     AutoHotkeys = maManual
     Images = theImageList
-    Left = 409
-    Top = 32
+    Left = 405
+    Top = 86
     object miFile: TTntMenuItem
       Caption = #1060#1072#1081#1083
       object miPrint: TTntMenuItem
@@ -1935,7 +1958,7 @@ object MainForm: TMainForm
         Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1090#1077#1082#1089#1090
         ImageIndex = 15
         ShortCut = 16500
-        OnClick = CopyButtonClick
+        OnClick = CopySelectionClick
       end
       object miCopyOptions: TTntMenuItem
         Caption = #1054#1087#1094#1080#1080' '#1082#1086#1087#1080#1088#1086#1074#1072#1085#1080#1103
@@ -1992,7 +2015,7 @@ object MainForm: TMainForm
       end
     end
     object miLanguage: TTntMenuItem
-      Caption = 'Do you speak...'
+      Caption = '&UI Language'
     end
   end
   object theImageList: TImageList
@@ -3611,8 +3634,8 @@ object MainForm: TMainForm
   end
   object BQAppEvents: TApplicationEvents
     OnException = BQAppEventsException
-    Left = 368
-    Top = 48
+    Left = 371
+    Top = 99
   end
   object tmrCommonTimer: TTimer
     OnTimer = tmrCommonTimerTimer
@@ -3933,7 +3956,7 @@ object MainForm: TMainForm
     Images = theImageList
     OnChange = popupRecLinksOptionsChange
     Left = 440
-    Top = 32
+    Top = 86
     object miStrictLogic: TTntMenuItem
       AutoCheck = True
       Caption = 'Use only strict logic'

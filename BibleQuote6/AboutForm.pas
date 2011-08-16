@@ -33,7 +33,7 @@ var
   frmAbout: TfrmAbout;
 
 implementation
-  uses main,BibleQuoteUtils;
+  uses main,BibleQuoteUtils,BibleQuoteConfig;
 {$R *.DFM}
 
 procedure TfrmAbout.Panel2MouseEnter(Sender: TObject);
@@ -56,6 +56,8 @@ begin
 //DrawIconEx(Image1.Picture.Bitmap.Canvas.Handle, 0,0, Application.Icon.Handle,
 //32,32,0,0,DI_NORMAL);
 //Image1.Picture.Icon.Assign(Application.Icon);
+memDevs.Lines.Insert(0,
+       WideFormat('Версия %s (%s) ALPHA', [C_bqVersion,C_bqDate])   );
 memDevs.Lines.Add('OS:'+WinInfoString());
 
 end;

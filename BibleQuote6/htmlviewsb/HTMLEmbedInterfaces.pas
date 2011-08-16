@@ -52,15 +52,13 @@ uses Controls,Classes, messages;
     property TablePartRec:TTablePartRec read get_TablePartRec write set_TablePartRec;
   end;
 
-  TViewerBase = class(TWinControl,IViewerBase,IInterface)
+  TViewerBase = class(TWinControl,IViewerBase)
   private
     FOnInclude: TIncludeType;
     FOnLink: TLinkType;
     FOnScript: TScriptEvent;
     FOnSoundRequest: TSoundType;
   protected
-    function _AddRef: Integer; stdcall;
-    function _Release: Integer; stdcall;
 
     procedure SetOnInclude(Handler: TIncludeType); virtual;
     function  GetOnInclude():TIncludeType;
@@ -145,15 +143,6 @@ begin
   FOnSoundRequest := Handler;
 end;
 
-function TViewerBase._AddRef: Integer;
-begin
-inherited _AddRef;
-end;
-
-function TViewerBase._Release: Integer;
-begin
-    inherited _Release;
-end;
 
 //THtmlViewerBase = class(TViewerBase)
 //public

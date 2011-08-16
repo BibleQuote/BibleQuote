@@ -9,18 +9,21 @@ function StrToTokens(const str: WideString; const delim: WideString;
 function StrLimitToWordCnt(const ws:widestring; maxWordCount:integer;out actualWc:integer;out limited:boolean):WideString;
 function NextWordIndex(const ws:WideString; startIx:integer):integer;
 function WideStringToUtfBOMString(const ws:WideString):UTF8String;inline;
+function WideIsSpaceEndedString(const ws:WideString):boolean;
 function bqWidePosCI(const substr:WideString; str:WideString):integer;
 function FindFirstFileExW(lpFileName: PWideChar; fInfoLevelId: _FINDEX_INFO_LEVELS;
   lpFindFileData: Pointer; fSearchOp: _FINDEX_SEARCH_OPS; lpSearchFilter: Pointer;
   dwAdditionalFlags: DWORD): THANDLE; stdcall;
 function FindNextFileW(hFindFile: THANDLE; var lpFindFileData: _WIN32_FIND_DATAW): BOOL; stdcall;
-
+function bqNowDateTimeString():WideString;
+function ParamStartedWith(const token:WideString; out param:WideString):boolean;
 implementation
-uses BibleQuoteConfig,  JclUnicode;
+uses BibleQuoteConfig,  JclUnicode, tntSystem;
 function FindFirstFileExW; external kernel32 name 'FindFirstFileExW';
 function FindNextFileW; external kernel32 name 'FindNextFileW';
 
 function PWideChar2Int(pwc:PWideChar;  out val:integer):PWideChar;
+
 var
     vl:integer;
 begin
@@ -150,6 +153,10 @@ function WideStringToUtfBOMString(const ws:WideString):UTF8String;inline;
 begin
   result:=C__Utf8BOM+UTF8Encode(ws);
 end;
+function WideIsSpaceEndedString(const ws:WideString):boolean;
+begin
+result:=UnicodeIsSpace(Cardinal( ws[length(ws)-1]));
+end;
 
 function bqWidePosCI(const substr:WideString; str:WideString):integer;
 var strUpper, subStrUpper:WideString;
@@ -161,4 +168,33 @@ result:=WidePos(subStrUpper, strUpper);
 
 end;
 
+function bqNowDateTimeString():WideString;
+var strDate:string;
+fs:TFormatSettings;
+begin
+  try
+  GetLocaleFormatSettings(GetSystemDefaultLCID(),fs);
+
+  fs.DateSeparator:='/';
+  fs.TimeSeparator:=':';
+  DateTimeToString(strDate,'dd/mmm/yy hh:mm:ss ',Now(),fs);
+  result:=strDate;
+  except
+  on e:exception do result:=e.message;
+  end;
+
+end;
+function ParamStartedWith(const token:WideString; out param:WideString):boolean;
+var paramCount, paramIndex:integer;
+
+begin
+  paramCount:=WideParamCount()-1;
+  result:=false;
+  for paramIndex:=0 to paramCount do begin
+   param:=WideParamStr(paramIndex);
+  result:=WideStartsText(token,param);
+  if result then break;
+  end;
+  if not result then begin param:=''; exit end;
+end;
 end.

@@ -56,6 +56,7 @@ function TDict.Initialize(IndexFile, DictFile: WideString; background:boolean=fa
 
 begin
 try
+
 if IndexFile=FIndex then begin
 result:=true; exit
 end;
@@ -103,6 +104,7 @@ end;
   Fii:=0;
 except
 on e:Exception do begin
+
 BqShowException(e);
 end;
 end;

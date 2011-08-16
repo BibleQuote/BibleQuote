@@ -76,15 +76,15 @@ unit Readhtml;
 interface
 uses
   Messages, Classes, Graphics, Controls,
-  HtmlGlobals, HtmlUn2, StyleUn,HTMLEmbedInterfaces;
+  HtmlGlobals, HtmlUn2, StyleUn,HTMLEmbedInterfaces, HTMLSubs;
 
 type
   LoadStyleType = (lsFile, lsString, lsInclude);
 
-procedure ParseHTMLString(const S: string; ASectionList: TList;
+procedure ParseHTMLString(const S: string; ASectionList: TSectionList;
                    AIncludeEvent: TIncludeType;
                    ASoundEvent: TSoundType; AMetaEvent: TMetaType; ALinkEvent: TLinkType);
-procedure ParseTextString(const S: string; ASectionList: TList);  
+procedure ParseTextString(const S: string; ASectionList: TSectionList);
 
 procedure FrameParseString(FrameViewer: TFrameViewerBase; FrameSet: TObject;
               ALoadStyle: LoadStyleType; const FName, S: string; AMetaEvent: TMetaType);
@@ -98,7 +98,7 @@ implementation
 
 uses
   Windows, SysUtils, Math, {$IFDEF Delphi6_Plus}Variants, {$ENDIF}
-  HtmlSubs, HtmlSbs1, HtmlView, StylePars, UrlSubs,{ALekId} IHTMLViewer{/AlekID};
+   HtmlSbs1, HtmlView, StylePars, UrlSubs,{ALekId} IHTMLViewer,bibleQuoteUtils{/AlekID};
 
 Const
   Tab = #9;
@@ -3346,8 +3346,8 @@ if not IsUTF8 and (sender is ThtmlViewer) and (CompareText(HttpEq, 'content-type
     end;
   if CallingObject.GetControl() is ThtmlViewer then         
     begin
-      ThtmlViewer(CallingObject).Charset := PropStack.Last.Charset;
-    ThtmlViewer(CallingObject).CodePage := PropStack.Last.CodePage;
+      ThtmlViewer(CallingObject.GetControl()).Charset := PropStack.Last.Charset;
+    ThtmlViewer(CallingObject.GetControl()).CodePage := PropStack.Last.CodePage;
   end;
   end;
 if Assigned(MetaEvent) then
@@ -3397,7 +3397,7 @@ var
   Style: String;
   C: char;
   I: integer;
-  Url, Rel, Rev: string;  
+  Url, Rel, Rev: string;
   OK: boolean;
   Request: TGetStreamEvent;
   RStream: TMemoryStream;
@@ -3674,16 +3674,27 @@ end;
 
 {----------------ParseInit}
 
-procedure ParseInit(ASectionList: TList;  AIncludeEvent: TIncludeType);
+procedure ParseInit(ASectionList: TSectionList;  AIncludeEvent: TIncludeType);
 const
-  NullsAllowed = 100;   
+  NullsAllowed = 100;
 var
   I, Num: integer;
 begin
 LoadStyle := lsString;
-SectionList := TSectionList(ASectionList);
-  PropStack.MasterList := TSectionList(SectionList);
-CallingObject := TSectionList(ASectionList).TheOwner;
+SectionList := ASectionList;
+PropStack.MasterList := ASectionList;
+try
+if assigned(CallingObject) then
+i:=g_ExceptionContext.Add('CallingObject.classname:'+ CallingObject.GetComponent().ClassName)
+else i:=-1;
+CallingObject := ASectionList.TheOwner;
+if i>=0 then g_ExceptionContext.Delete(i);
+except
+  g_ExceptionContext.Add('ASectionList.classname:'+ ASectionList.ClassName);
+  g_ExceptionContext.Add('ASectionList:'+IntToHex(Integer(ASectionList),8) );
+  raise;
+end;
+
 IncludeEvent := AIncludeEvent;
 PropStack.Clear;
 PropStack.Add(TProperties.Create);
@@ -3743,23 +3754,24 @@ NoBreak := False;
 InComment := False;
 ListLevel := 0;
 TableLevel := 0;
-LinkSearch := False;  
+LinkSearch := False;
+
 end;
 
 {----------------ParseHTMLString}
 
-procedure ParseHTMLString(const S: string; ASectionList: TList;
+procedure ParseHTMLString(const S: string; ASectionList: TSectionList;
                    AIncludeEvent: TIncludeType;
                    ASoundEvent: TSoundType; AMetaEvent: TMetaType; ALinkEvent: TLinkType);
 {$ifndef NoTabLink}
 const
   MaxTab = 400;    {maximum number of links before tabbing of links aborted}
 var
-  TabCount, SaveSIndex: integer;   
+  TabCount, SaveSIndex: integer;
   T: TAttribute;
 {$endif}
 begin
-DocS := S;       
+DocS := S;
 ParseInit(ASectionList, Nil);
 
 try
@@ -3811,6 +3823,7 @@ finally
     SectionList.Add(Section, TagIndex);
   PropStack.Clear;
   CurrentURLTarget.Free;
+  CallingObject:=nil;
   DocS := '';      
  end;   {finally}
 end;
@@ -3871,7 +3884,7 @@ end;
 
 {----------------ParseTextString}
 
-procedure ParseTextString(const S: string; ASectionList: TList);
+procedure ParseTextString(const S: string; ASectionList: TSectionList);
 begin
 DocS := S;
 ParseInit(ASectionList, Nil);

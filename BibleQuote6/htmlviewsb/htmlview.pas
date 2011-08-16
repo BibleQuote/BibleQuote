@@ -318,7 +318,7 @@ type
     procedure BackgroundChange(Sender: TObject);
     procedure DoHilite(X, Y: Integer); VIRTUAL;
     procedure DoImage(Sender: TObject; const SRC: string; var Stream: TMemoryStream);
-    procedure DoLogic;
+
     procedure DoScrollBars;
     procedure Draw(Canvas: TCanvas; YTop, FormatWidth, Width, Height: Integer);
     procedure DrawBorder;
@@ -415,6 +415,7 @@ type
     Visited: TStringList;     {visited URLs}
     VScrollBar: TScrollBar;
     {alekid}
+    procedure DoLogic;
     function getMarginHeight():integer;override;
     function getMarginWidth():integer;override;
     procedure __SetFileName(const fn:Utf8String);
@@ -515,7 +516,7 @@ type
     //property Processing: Boolean index vsProcessing read GetViewerStateBit;
     property SectionList: TSectionList READ FSectionList;
     // added by Timothy
-    property RightMouseClickPos: Integer READ FRightMouseClickPos;
+    property RightMouseClickPos: Integer READ FRightMouseClickPos write FRightMouseClickPos;
     property LeftMouseClickPos: Integer READ FLeftMouseClickPos;
     property NoScollJump: boolean READ NoJump WRITE NoJump;
 	//
@@ -828,6 +829,7 @@ begin
   FSectionList.ControlEnterEvent := FormControlEnterEvent;
   FSectionList.OnBackgroundChange := BackgroundChange;
   FSectionList.ShowImages := TRUE;
+  FSectionList.TheOwner:=self;
   FNameList := FSectionList.IDNameList;
 
   DefBackground := clBtnFace;

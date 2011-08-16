@@ -8,12 +8,10 @@ private
 class var miCommandProcessor:IBibleQuoteCommandProcessor;
 class var miUIServices:IBibleWinUIServices;
 class var mCurrentRenderer:TSectionList;
-class var mVmargin,mHmargin:integer;
+class var mVmargin,mHmargin, mCurveRadius:integer;
 class var mSaveBrush:TBrush;
 class var mTagFont,mDefaultVerseFont:TFont;
 class function EffectiveGetVerseNodeText(var nd:TVersesNodeData;var usedFnt:WideString):UTF8String;static;
-class function RenderTagNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
-class function RenderVerseNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
 class function GetHTMLRenderer(id:int64; out match:boolean):TSectionList;static;
 class procedure ResetRendererStyles(renderer:TSectionList; prefFnt:Widestring);
 class function BuildVerseHTML(const verseTxt:WideString;const verseCommand:WideString;
@@ -22,12 +20,17 @@ class procedure SetVMargin( value:integer); static;
 class procedure SetHMargin( value:integer); static;
 public
  class procedure Init(iCommandProcessor:IBibleQuoteCommandProcessor; iUIServices:IBibleWinUIServices; tagFont, verseFont:TFont);
- class function RenderNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
+ class procedure Done();
+// class function RenderNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
+class function RenderTagNode(canvas:TCanvas;nodeData: TVersesNodeData;const title:WideString;selected, calcOnly:boolean; var rect:TRect):Integer; static;
+class function RenderVerseNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
+
  class function CurrentRenderer():TSectionList;static;
  class procedure InvalidateRenderers();static;
  class function GetContentTypeAt(x,y:integer;canvas:TCanvas; var nodeData:TVersesNodeData; rect:TRect):TbqTagVersesContent; static;
  class property VMargin:integer read mVmargin write SetVMargin;
  class property HMargin:integer read mHmargin write SetHMargin;
+ class property CurveRadius:integer read mCurveRadius write mCurveRadius;
  class property  TagFont:TFont read mTagFont write mTagFont;
  class property  DefaultVerseFont:TFont read mDefaultVerseFont write mDefaultVerseFont;
 end;
@@ -52,6 +55,14 @@ end;
 class function TbqTagsRenderer.CurrentRenderer: TSectionList;
 begin
 result:=mCurrentRenderer
+end;
+
+class procedure TbqTagsRenderer.Done;
+begin
+miCommandProcessor:=nil;
+miUIServices:=nil;
+FreeAndNil(mSaveBrush);
+mCurrentRenderer:=nil;
 end;
 
 class function TbqTagsRenderer.EffectiveGetVerseNodeText(
@@ -149,19 +160,62 @@ _rendererPair.id:=-1;
 if assigned(_rendererPair.renderer) then _rendererPair.renderer.Clear();
 end;
 
-class function TbqTagsRenderer.RenderNode(canvas: TCanvas;
-  var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
-begin
-case nodeData.nodeType of
-bqvntTag:result:=RenderTagNode(canvas,nodeData,calcOnly, rect);
-bqvntVerse:result:=RenderVerseNode(canvas,nodeData,calcOnly, rect);
-end;//case
-end;
+//class function TbqTagsRenderer.RenderNode(canvas: TCanvas;
+//  var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
+//begin
+//case nodeData.nodeType of
+//bqvntTag:result:=RenderTagNode(canvas,nodeData,calcOnly, rect);
+//bqvntVerse:result:=RenderVerseNode(canvas,nodeData,calcOnly, rect);
+//end;//case
+//end;
 
 class function TbqTagsRenderer.RenderTagNode(canvas: TCanvas;
-  var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
+   nodeData: TVersesNodeData;const title:WideString; selected,calcOnly: boolean; var rect: TRect): Integer;
+var wsTitle:WideString;
+var h,hRectMargin, rectInflateValue:integer;
+    flgs:Cardinal;
+    tagNodeBorder,tagNodecolor,saveFontColor, savePenColor, saveBrushColor:TColor;
+const smallMarg=2;
 begin
+  result:=rect.Top;
+  if  selected and (not calcOnly) then begin
+       rectInflateValue:=0;
+       hRectMargin:=0;
+    end
+  else begin rectInflateValue:=-1; dec(rect.Bottom,1); dec(result); hRectMargin:=smallMarg; end;
+  InflateRect(rect,-hRectMargin, rectInflateValue);
 
+  if not calcOnly then begin
+    saveFontColor:=canvas.Font.Color;
+    savePenColor:=canvas.Pen.Color;
+    saveBrushColor:=canvas.Brush.Color;
+    canvas.Font.Color := clBlack;
+    if selected then begin
+       TagNodeBorder:=$0096C7F3  ;
+       TagNodeColor:=$acd5ff;
+    end
+    else begin
+      TagNodeColor:=$0D9EAFB;
+      TagNodeBorder:= $000A98ED;
+    end;
+    canvas.Brush.Color:=tagNodecolor;
+    canvas.Pen.Color:=tagNodeBorder;
+    Canvas.RoundRect(rect.Left, rect.Top, rect.Right, rect.Bottom, mCurveRadius, mCurveRadius);
+  end;
+
+  InflateRect(rect, -mHmargin, -mVmargin);
+  if selected and (not calcOnly) then begin
+   inc(rect.top); inc(rect.left, hRectMargin);end;
+  result:=rect.Top- result;
+  flgs := DT_WORDBREAK or DT_VCENTER or ( ord(calcOnly)*DT_CALCRECT);
+  h := Windows.DrawTextW(canvas.Handle,
+    PWideChar(Pointer(title)), -1, rect, flgs);
+  result := h+result+result;
+  if not calcOnly then begin
+    canvas.Brush.Color:=saveBrushColor;
+    canvas.Pen.Color:=savePenColor;
+    canvas.Font.Color:=saveFontColor;
+   end;
 end;
 
 class function TbqTagsRenderer.RenderVerseNode(canvas: TCanvas;
@@ -183,12 +237,14 @@ begin
 
  if calcOnly or (not match) then begin
   if not match then  begin
+   renderer.Clear();
    ResetRendererStyles(renderer, usedFont);
 
     ParseHTMLString(txt,renderer , nil, nil, nil, nil );
   end;
+
   scrollHeight:= renderer.DoLogic(canvas,vMargin,rect.Right-rect.Left-hMargin-hMargin, rect.Bottom,0,scrollWidth,curs);
-  result:=scrollHeight+vMargin+vMargin;
+  result:=scrollHeight+vMargin;
   end;                                         
   if not calcOnly then begin
 

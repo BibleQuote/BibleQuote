@@ -575,11 +575,15 @@ var cVid, cTid: integer;
   ni, nt: TVersesNodeData;
 begin
   NodeLst.Clear();
-  cdTagNames.First;
+  result:=0;
+  cdTagNames.SQL.Text:='Select * from  TagNames';
+  cdTagNames.Open();
+
   TVersesNodeData.cdTags := cdTagNames;
   TVersesNodeData.cdVerses := cdVerses;
   TVersesNodeData.cdLocations := cdLocations;
-  if cdTagNames.Eof then exit;
+  if cdTagNames.Eof then exit;  
+  cdTagNames.First;
   repeat
     cTid := cdTagNamesTagId.AsInteger;
     ni := TVersesNodeData.Create(cTid, '' {cdTagNamesTagName.AsString}, bqvntTag);
@@ -587,6 +591,7 @@ begin
     NodeLst.Add(ni);
     cdTagNames.Next;
   until cdTagNames.Eof;
+
 //  cdRelations.First;
 //  if cdRelations.Eof then exit;
 //  repeat

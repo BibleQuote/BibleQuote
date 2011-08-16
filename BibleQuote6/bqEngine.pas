@@ -18,6 +18,7 @@ type
  mWorker:TbqWorker;
  mDicList: TBQStringList;
  mBackOpsActive:boolean;
+ mTags_n_VersesList: TbqVerseTagsList;
  function GetState(stateEntryName:TBibleQuoteStateEntries):boolean;inline;
  procedure AsyncStateCompleted(state:TBibleQuoteStateEntries; res:HRESULT);
  function GetDictionary(aIndex:Cardinal):TDict;
@@ -25,17 +26,19 @@ type
 
  public
  mLastUsedComment:WideString;
+ function Finalize():HRESULT;
  function Initilize(const fromPath:WideString):HRESULT;
  function LoadDictionaries(const Path:WideString;foreground:boolean):HRESULT;
  function InitDictionaryItemsList(foreground:boolean):HRESULT;
  function InitVerseListEngine(ui:IuiVerseOperations;foreground:boolean):HRESULT;
  function DictionariesCount():Cardinal;
-
+ function CacheTagNames():HRESULT;
  constructor Create(const basePath:WideString);
  destructor Destroy;override;
  property State[TBibleQuoteStateEntries:TBibleQuoteStateEntries]:boolean read GetState;default;
  property Dictionaries[i:Cardinal]:TDict read GetDictionary;
  property DictionaryTokens:TBQStringList read mDicList;
+ property VersesTagsList:TbqVerseTagsList read mTags_n_VersesList;
 end;
 implementation
 uses SysUtils;
@@ -54,6 +57,16 @@ Exclude(mState,state);
 mBackOpsActive:=false;
 end;
 
+function TBibleQuoteEngine.CacheTagNames: HRESULT;
+begin
+result:=S_OK;
+if State[bqsTaggedBookmarksCached] then begin result:=S_OK; exit; end;
+if not Assigned(mTags_n_VersesList) then mTags_n_VersesList:=TbqVerseTagsList.Create(true);
+
+VerseListEngine.SeedNodes(mTags_n_VersesList);
+Include(mState,bqsTaggedBookmarksCached);
+end;
+
 constructor TBibleQuoteEngine.Create(const basePath: WideString);
 begin
 inherited Create();
@@ -65,8 +78,11 @@ end;
 destructor TBibleQuoteEngine.Destroy;
 begin
 inherited;
+Finalize();
 FreeAndNil(mDics);
 FreeAndNil(mDicList);
+FreeAndNil(mTags_n_VersesList);
+FreeAndNil(mWorker);
 end;
 
 function TBibleQuoteEngine.DictionariesCount: Cardinal;
@@ -122,6 +138,12 @@ function TBibleQuoteEngine.Initilize(const fromPath: WideString): HRESULT;
 begin
 mBackOpsActive:=false;
 //LoadDictionaries('');
+end;
+function TBibleQuoteEngine.Finalize():HRESULT;
+begin
+  result:=S_OK;
+   if assigned(mWorker) then
+   mWorker.Finalize();
 end;
 
 function TBibleQuoteEngine.InitVerseListEngine(ui:IuiVerseOperations;foreground:boolean): HRESULT;

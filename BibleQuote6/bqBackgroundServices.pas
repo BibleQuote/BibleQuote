@@ -8,7 +8,7 @@ uses
 type
 
 
-  TbqWorkerRequiredOperation=(wroSleep,wroLoadDictionaries, wroInitDicTokens, wroInitVerseListEngine);
+  TbqWorkerRequiredOperation=(wroSleep,wroTerminated,wroLoadDictionaries, wroInitDicTokens, wroInitVerseListEngine);
   TbqWorker = class(TThread)
   private
     procedure SetName;
@@ -38,6 +38,7 @@ type
     function InitVerseListEngine(ui:IuiVerseOperations;foreground:boolean):HRESULT;
     function WaitUntilDone(dwTime:DWORD):TWaitResult;
     constructor Create(iEngine:IInterface);
+    procedure Finalize();
     destructor Destroy; override;
     procedure Resume();
     procedure Suspend();
@@ -196,17 +197,21 @@ constructor TbqWorker.Create(iEngine:IInterface);
 begin
 mEngine:=iEngine;
 mSection:=TCriticalSection.Create;
-mEvent:=TSimpleEvent.Create(nil, false, false,'bqWorkerSignal');
-mDoneOperationEvent:=TSimpleEvent.Create(nil, false, false,'bqWorkerDone');
+mEvent:=TSimpleEvent.Create(nil, false, false,'');
+mDoneOperationEvent:=TSimpleEvent.Create(nil, false, false,'');
 inherited  Create(false);
 end;
 
 destructor TbqWorker.Destroy;
 begin
+  Finalize();
   FreeAndNil(mSection);
   FreeAndNil(mEvent);
   FreeAndNil(mDoneOperationEvent);
-  mEngine:=nil;
+  FreeAndNil(mDictionaryTokens);
+  FreeAndNil(mSection);
+
+
   inherited;
 end;
 
@@ -253,19 +258,33 @@ repeat
   mOperation:=wroSleep;
   Busy:=false;
   mDoneOperationEvent.SetEvent();
+  if not Terminated then
   repeat
-  wr:=mEvent.WaitFor(INFINITE);
-  until (wr<>wrTimeout) and (mOperation<>wroSleep);
+  wr:=mEvent.WaitFor(3000);
+  until (wr<>wrTimeout) and (mOperation<>wroSleep) or (Terminated);
 
 until (Terminated) or (wr<>wrSignaled);
-  { Place thread code here }
+
+mOperation:=wroTerminated;
+
+end;
+
+procedure TbqWorker.Finalize;
+begin
+Terminate ();
+if mOperation=wroSleep then begin mOperation:=wroTerminated; mEvent.SetEvent(); end;
+WaitFor();
+mUI:=nil;
+mEngine:=nil;
 end;
 
 function TbqWorker.getAsynInface(): IbqEngineAsyncTraits;
 var
     hr:HRESULT;
 begin
-hr:=mEngine.QueryInterface(IbqEngineAsyncTraits,result);
+if assigned(mEngine) then
+hr:=mEngine.QueryInterface(IbqEngineAsyncTraits,result)
+else hr:=S_FALSE;
   if hr<>S_OK then result:=nil;
 end;
 

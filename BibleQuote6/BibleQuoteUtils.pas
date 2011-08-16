@@ -1,68 +1,8 @@
-{$A8,B-,C+,D+,E-,F-,G+,H+,I+,J+,K-,L+,M-,N+,O-,P+,Q-,R-,S-,T-,U-,V+,W+,X+,Y+,Z1}
-{$MINSTACKSIZE $00004000}
-{$MAXSTACKSIZE $00100000}
-{$IMAGEBASE $00400000}
-{$APPTYPE GUI}
-{$WARN SYMBOL_DEPRECATED ON}
-{$WARN SYMBOL_LIBRARY ON}
-{$WARN SYMBOL_PLATFORM ON}
-{$WARN SYMBOL_EXPERIMENTAL ON}
-{$WARN UNIT_LIBRARY ON}
-{$WARN UNIT_PLATFORM ON}
-{$WARN UNIT_DEPRECATED ON}
-{$WARN UNIT_EXPERIMENTAL ON}
-{$WARN HRESULT_COMPAT ON}
-{$WARN HIDING_MEMBER ON}
-{$WARN HIDDEN_VIRTUAL ON}
-{$WARN GARBAGE ON}
-{$WARN BOUNDS_ERROR ON}
-{$WARN ZERO_NIL_COMPAT ON}
-{$WARN STRING_CONST_TRUNCED ON}
-{$WARN FOR_LOOP_VAR_VARPAR ON}
-{$WARN TYPED_CONST_VARPAR ON}
-{$WARN ASG_TO_TYPED_CONST ON}
-{$WARN CASE_LABEL_RANGE ON}
-{$WARN FOR_VARIABLE ON}
-{$WARN CONSTRUCTING_ABSTRACT ON}
-{$WARN COMPARISON_FALSE ON}
-{$WARN COMPARISON_TRUE ON}
-{$WARN COMPARING_SIGNED_UNSIGNED ON}
-{$WARN COMBINING_SIGNED_UNSIGNED ON}
-{$WARN UNSUPPORTED_CONSTRUCT ON}
-{$WARN FILE_OPEN ON}
-{$WARN FILE_OPEN_UNITSRC ON}
-{$WARN BAD_GLOBAL_SYMBOL ON}
-{$WARN DUPLICATE_CTOR_DTOR ON}
-{$WARN INVALID_DIRECTIVE ON}
-{$WARN PACKAGE_NO_LINK ON}
-{$WARN PACKAGED_THREADVAR ON}
-{$WARN IMPLICIT_IMPORT ON}
-{$WARN HPPEMIT_IGNORED ON}
-{$WARN NO_RETVAL ON}
-{$WARN USE_BEFORE_DEF ON}
-{$WARN FOR_LOOP_VAR_UNDEF ON}
-{$WARN UNIT_NAME_MISMATCH ON}
-{$WARN NO_CFG_FILE_FOUND ON}
-{$WARN IMPLICIT_VARIANTS ON}
-{$WARN UNICODE_TO_LOCALE ON}
-{$WARN LOCALE_TO_UNICODE ON}
-{$WARN IMAGEBASE_MULTIPLE ON}
-{$WARN SUSPICIOUS_TYPECAST ON}
-{$WARN PRIVATE_PROPACCESSOR ON}
-{$WARN UNSAFE_TYPE OFF}
-{$WARN UNSAFE_CODE OFF}
-{$WARN UNSAFE_CAST OFF}
-{$WARN OPTION_TRUNCATED ON}
-{$WARN WIDECHAR_REDUCED ON}
-{$WARN DUPLICATES_IGNORED ON}
-{$WARN UNIT_INIT_SEQ ON}
-{$WARN LOCAL_PINVOKE ON}
-{$WARN MESSAGE_DIRECTIVE ON}
 unit BibleQuoteUtils;
 
 interface
 uses SevenZipHelper,SevenZipVCL, MultiLanguage,
-  Contnrs, JCLWideStrings, WideStrings, Windows, SysUtils, Classes, JCLDebug, 
+  Contnrs, JCLWideStrings, WideStrings, Windows, SysUtils, Classes, JCLDebug,
   COperatingSystemInfo;
 type
   TBibleModuleSecurity = class
@@ -105,6 +45,7 @@ type
     mHandle: HFont;
     constructor Create(const aPath: WideString; afileNeedsCleanUp: boolean;
       aHandle: HFont);
+
   end;
 
   TModuleType = (modtypeBible, modtypeBook, modtypeComment, modtypeTag, modtypeBookHighlighted);
@@ -129,7 +70,7 @@ type
     wsFullName, wsShortName, wsShortPath, wsFullPath: Widestring;
     modType: TModuleType;
     modCats: WideString;
-    modBookNames: AnsiString;
+    modBookNames: UTF8String;
 
     mRects: PRectArray;
     mCatsCnt: integer;
@@ -138,18 +79,18 @@ type
     mMatchInfo:TMatchInfoArray;
   //  mBookBits:TbitBooks;
     constructor Create(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: Widestring; awsBookNames: AnsiString;
+      awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
        modCats:    TWideStrings); overload;
     constructor Create(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: Widestring; awsBookNames: AnsiString;
+      awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
        modCats:         WideString); overload;
     constructor Create(me: TModuleEntry); overload;
     destructor Destroy; override;
     procedure Init(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: Widestring; awsBookNames: AnsiString;
+      awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
         modCatsLst: TWideStrings); overload;
     procedure Init(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: Widestring; awsBookNames: AnsiString;
+      awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
         amodCats:  WideString); overload;
     procedure Assign(source: TModuleEntry);
     function Match(matchLst: TWideStringList;var  mi:TMatchInfoArray; allMath: boolean
@@ -191,7 +132,9 @@ type
 
   end;
 
-
+  TbqOldObjectList=class(TList)
+   procedure Notify(Ptr: Pointer; Action: TListNotification); virtual;
+  end;
   TBQStringList = class(TWideStringList)
   protected
     function CompareStrings(const S1, S2: WideString): Integer; override;
@@ -201,6 +144,16 @@ type
   end;
   TbqExceptionContext=class(TWideStringList)
   end;
+  TbqTextFileWriter=class(TObject)
+  protected
+  mHandle:THandle;
+  public
+    constructor Create(const aFileName:WideString);
+    function WriteUnicodeLine(const line:WideString):HRESULT;
+    function Close():HRESULT;
+    destructor destroy();override;
+  end;
+
 var g_ExceptionContext:TbqExceptionContext;
 
 
@@ -348,6 +301,8 @@ function OSinfo():TOperatingSystemInfo;
 function WinInfoString():WideString;
 function GetCallerEIP():Pointer;
 function GetCallerEbP():Pointer;
+procedure cleanUpInstalledFonts();
+function CreateAndGetConfigFolder: WideString;
 type
   PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector;
     p4: LPDWORD): THandle; stdcall;
@@ -364,7 +319,7 @@ var
   MainCfgIni: TMultiLanguage;
   G_SecondPath:WideString;
 implementation
-uses JclSysInfo,main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, tntSysUtils ;
+uses JclSysInfo,main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, tntSysUtils,WCharWindows ,string_procs,JclBase;
 var __exe__path:WideString;
 
 function OmegaCompareTxt(const str1, str2: WideString; len: integer = -1;
@@ -973,7 +928,7 @@ begin
   result := (Windows.GetKeyState(key) and $8000) <> 0;
 end;
 
-procedure _cleanUpInstalledFonts();
+procedure cleanUpInstalledFonts();
 var
   cnt, i: integer;
   ifi: TBQInstalledFontInfo;
@@ -981,6 +936,7 @@ var
   tf: array[0..1023] of WideChar;
   tempPathLen: integer;
 begin
+  if not (assigned(G_InstalledFonts) ) then exit;
   cnt := G_InstalledFonts.Count - 1;
   if cnt > 0 then begin
   tempPathLen := GetTempPathW(1023, tf);
@@ -1000,6 +956,7 @@ begin
         end;
       end;
     except end;
+    ifi.Free();
   end; //for
   end;
  try G_InstalledFonts.Free(); except end;
@@ -1182,7 +1139,7 @@ end;
 
 constructor TModuleEntry.Create(amodType: TModuleType; awsFullName,
   awsShortName,
-  awsShortPath, awsFullPath: Widestring; awsBookNames: AnsiString;
+  awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
    modCats: TWideStrings);
 begin
   inherited Create;
@@ -1225,7 +1182,7 @@ result:=MainFileExists(wsShortPath+'\'+C_ModuleIniName);
 end;
 
 constructor TModuleEntry.Create(amodType: TModuleType; awsFullName,
-  awsShortName, awsShortPath, awsFullPath: WideString; awsBookNames: AnsiString;
+  awsShortName, awsShortPath, awsFullPath: WideString; awsBookNames: UTF8String;
     modCats: WideString);
 begin
   Init(amodType, awsFullName, awsShortName, awsShortPath,
@@ -1233,7 +1190,7 @@ begin
 end;
 
 procedure TModuleEntry.Init(amodType: TModuleType; awsFullName, awsShortName,
-  awsShortPath, awsFullPath: WideString; awsBookNames: AnsiString; amodCats:
+  awsShortPath, awsFullPath: WideString; awsBookNames: UTF8String; amodCats:
     WideString);
 begin
   modType := amodType;
@@ -1417,7 +1374,7 @@ Result:=UTF8Decode(StrGetTokenByIx(modBookNames, Ix));
 end;
 
 procedure TModuleEntry.Init(amodType: TModuleType; awsFullName, awsShortName,
-  awsShortPath, awsFullPath: Widestring; awsBookNames: AnsiString; modCatsLst:
+  awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String; modCatsLst:
     TWideStrings);
 begin
   modType := amodType;
@@ -1459,13 +1416,14 @@ begin
 
   i := fromix + ((cnt - fromix) div 2);
   fin := cnt - 1;
+  newi:=i;
   repeat
+    i := newi;
     r := OmegaCompareTxt(name, TModuleEntry(Items[i]).wsFullName);
     if r = 0 then break;
     if r < 0 then fin := i else fromIx := i+1;
-    newi := (fromix + fin) div 2; if i = newi then break;
-    i := newi;
-  until false;
+    newi := (fromix + fin) div 2;
+  until i=newi;
   if r <> 0 then begin result := -1; exit; end;
   dec(i);
   while  (i>=fromix) and
@@ -1507,7 +1465,7 @@ begin
   result := -1;
   if cnt < 0 then exit;
   for i := 0 to cnt do begin
-    result := OmegaCompareTxt(name, TModuleEntry(Items[i]).wsFullName);
+    result := OmegaCompareTxt(name, TModuleEntry(Items[i]).wsFullName,-1,true);
     if result = 0 then begin result := i; exit end;
   end;
 
@@ -1631,28 +1589,58 @@ end;
 function TBQStringList.LocateLastStartedWith(const subString: WideString;
   startFromIx: integer = 0; strict: boolean = false): integer;
 var
-  l, fin, i, newi, cnt: integer;
+  l, fin, i, newi, cnt, bestMatchLen, matchLen,bestMatchLenIx,currentCompareLen,
+    startIx,lenDifferenceMin, lenDifference: integer;
 begin
   cnt := Count;
   l := length(subString);
   i := startfromix + ((cnt - startFromIx) div 2);
+  newi:=i;
   fin := cnt - 1;
+  startIx:=startFromIx;
   repeat
-    result := OmegaCompareTxt(subString, Strings[i], l);
+   i := newi;
+    result := OmegaCompareTxt(subString, Strings[i], l,true);
     if result = 0 then break;
-    if result < 0 then fin := i else startFromIx := i;
-    newi := (startFromIx + fin) div 2; if i = newi then break;
-    i := newi;
-  until false;
-  if result <> 0 then result := -1
-  else begin
-    dec(i);
-    while (i >= 0) and (OmegaCompareTxt(subString, strings[i], l) = 0) do
-      dec(i);
-    inc(i);
-    result := i;
-    if strict and (length(strings[i]) <> l) then result := -1;
-  end;
+    if result < 0 then fin := i else startIx := i+1;
+    newi := (startIx + fin) div 2;
+  until i=newi;
+  if (result=0) then begin result:=i; exit;end;
+  if  (strict) then begin result:=-1; exit;end;
+
+  fin := cnt - 1;
+  startIx:=startFromIx;
+
+  bestMatchLen:=-1;
+  lenDifferenceMin:=$FFFF;
+  repeat
+   i := newi;
+    result := OmegaCompareTxt(subString, Strings[i], l,false);
+    if result = 0 then begin
+      matchLen:=length(Strings[i]);
+      lenDifference:=matchLen-l; if lenDifference<0 then lenDifference:=-lenDifference;
+      if ((matchLen>bestMatchLen) and ((matchLen<=l)or (lenDifference<=lenDifferenceMin )) ) or
+         ((matchLen<bestMatchLen) and ((bestMatchLen>l) or (lenDifference<lenDifferenceMin)) )or
+          (bestMatchLen<0)  then begin
+       bestMatchLen:=matchLen; bestMatchLenIx:=i; lenDifferenceMin:=lenDifference;
+      end;
+    result:=l-matchLen;
+    end;
+    if result < 0 then fin := i else startIx := i+1;
+    newi := (startIx + fin) div 2;
+  until i=newi;
+  if bestMatchLen<0 then result:=-1
+  else Result:=bestMatchLenIx;
+
+//  if result <> 0 then result := -1
+//  else begin
+//    dec(i);
+//    while (i >= 0) and (OmegaCompareTxt(subString, strings[i], l) = 0) do
+//      dec(i);
+//    inc(i);
+//    result := i;
+//    if strict and (length(strings[i]) <> l) then result := -1;
+//  end;
 end;
 
 function StrMathTokens(const str: WideString; tkns: TWideStrings; fullMatch:
@@ -1799,6 +1787,38 @@ begin
 result:=__exe__path;
 end;
 
+function CreateAndGetConfigFolder: WideString;
+var
+  dUserName: WideString;
+  dPath: WideString;
+  wsPath: WideString;
+begin
+  wsPath := WideExtractFileName(WideExtractFileDir(ExePath()));
+
+  if Pos('Portable', wsPath) <> 0 then dUserName := 'CommonProfile'
+  else dUserName := WindowsUserName();
+
+  Result := ExePath + 'users\' + DumpFileName(dUserName) + '\';
+  if ForceDirectories(Result) then
+    Exit;
+//AlekId:Weird
+//  Result := WindowsDirectory + 'biblequote\' + DumpFileName(dUserName) + '\';
+//  if ForceDirectories(Result) then
+//    Exit;
+
+  dPath := GetAppDataFolder;
+  if dPath <> '' then
+  begin
+    Result := dPath + 'BibleQuoteUni\';
+    if ForceDirectories(Result) then
+      Exit;
+  end;
+  MessageBoxW(0, 'Cannot Found BibleQute data folder', 'BibleQute Error', MB_OK
+    or MB_ICONERROR);
+  Result := '';
+
+end;
+
 function IsWindows64: Boolean;
 type
   TIsWow64Process = function(AHandle:THandle; var AIsWow64: BOOL): BOOL; stdcall;
@@ -1861,7 +1881,7 @@ if length(osprop.OSLanguageAsString)>0 then
      win_info:=Format('%s (OSLang: %s[%d])',[win_info, osprop.OSLanguageAsString,osprop.OSLanguage]);
 win_info:=Format('%s (SP: %d.%d)',[win_info, osprop.ServicePackMajorVersion,osprop.ServicePackMinorVersion ]);
 except
-win_info:=GetWindowsProductString();
+win_info:=GetWindowsProductString()+' '+ GetWindowsServicePackVersionString();
 end;
 
 if IsWindows64() then win_info:=win_info+' (64bit)'
@@ -1882,6 +1902,57 @@ asm
 mov eax, ebp
 end;
 
+
+{$REGION  TbqOldObjectList }
+/// <summary>Конвертирует дату-время из отчёта в TDateTime.</summary>
+/// <param name="AValue">Строка, представляющая дату из отчёта. Имеет формат вида 'Sun, 25 Jan 2009 12:48:15 +0300'.<param>
+/// <returns>Значение TDateTime (по местному времени), которое соответствует параметру AValue, или 0, если AValue не содержит корректного представления даты.</returns>
+/// <seealso cref="GetDate">GetDate</seealso>
+procedure TbqOldObjectList.Notify(Ptr: Pointer; Action: TListNotification);
+begin
+  if Action = lnDeleted then
+
+end;
+{$ENDREGION}
+{ TbqTextFileWriter }
+
+function TbqTextFileWriter.CLose: HRESULT;
+begin
+if CloseHandle(mHandle) then result:=S_FALSE else result:=S_OK;
+mHandle:=0;
+end;
+
+constructor TbqTextFileWriter.Create(const aFileName: WideString);
+var writePos:integer;
+begin
+mHandle:=CreateFileW(Pointer(aFileName),GENERIC_WRITE,FILE_SHARE_READ,nil,OPEN_ALWAYS,
+      FILE_ATTRIBUTE_NORMAL,0);
+if mHandle=INVALID_HANDLE_VALUE then RaiseLastOSError();
+writePos:=FileSeek(mHandle,0,soFromEnd);
+if writePos=0 then FileWrite(mHandle,BOM_UTF16_LSB,2);
+end;
+
+destructor TbqTextFileWriter.destroy;
+begin
+  Close();
+  inherited;
+end;
+
+function TbqTextFileWriter.WriteUnicodeLine(const line: WideString): HRESULT;
+var bytesWritten:Cardinal;
+    boolWrite:BOOL;
+    leng:integer;
+begin
+leng:=Length(line)*2;
+if leng>0 then begin
+   boolWrite:=WriteFile(mHandle,pointer(line)^, leng,bytesWritten,nil)
+ end
+else boolWrite:=false;
+
+WriteFile(mHandle, C_crlf,4,bytesWritten,nil) ;
+if boolWrite then result:=S_OK else result:=S_FALSE;
+end;
+
 initialization
    // Enable raw mode (default mode uses stack frames which aren't always generated by the compiler)
   Include(JclStackTrackingOptions, stRawMode);
@@ -1898,7 +1969,6 @@ initialization
   load_proc();
 
 finalization
-  _cleanUpInstalledFonts();
 //  S_SevenZip.Free();
   JclStopExceptionTracking();
   FreeAndNil(g_ExceptionContext);

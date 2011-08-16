@@ -85,8 +85,8 @@ object frmQNav: TfrmQNav
     DockSite = False
   end
   object vstBookList: TVirtualDrawTree
-    Left = 8
-    Top = 76
+    Left = 7
+    Top = 74
     Width = 768
     Height = 291
     Cursor = crHandPoint

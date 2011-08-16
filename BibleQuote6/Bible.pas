@@ -264,6 +264,7 @@ type
 //    mUseChapterHead: boolean;
     mLoadedPath: WideString;
     mInstallFontNames:WideString;
+    mDesiredUIFont:WideString;
     mUIServices:IBibleWinUIServices;
     procedure ClearAlphabetBits();
     procedure SetAlphabetBit(aCode: Integer; aValue: Boolean);
@@ -273,6 +274,7 @@ type
     mRecognizeBibleLinks: boolean;
     mFuzzyResolveLnks:Boolean;
     mShortNamesVars:WideStrings.TWideStringList;
+    mModuleType:TbqModuleType;
     { Protected declarations }
     procedure LoadIniFile(value: WideString);
 
@@ -313,6 +315,7 @@ type
     property Copyright: WideString read FCopyright;
 
     property isBible: boolean read FBible;
+    property ModuleType:TbqModuleType read mModuleType;
 //    property HasOldTestament: boolean read FHasOT;
 //    property HasNewTestament: boolean read FHasNT;
 //    property HasApocrypha: boolean read FHasAP;
@@ -327,6 +330,7 @@ type
 
     property DefaultEncoding: Integer read FDefaultEncoding;
     property DesiredCharset: integer read FDesiredFontCharset;
+    property DesiredUIFont:WideString read mDesiredUIFont;
     property UseRightAlignment: boolean read FUseRightAlignment;
 
     property Alphabet: WideString read FAlphabet;
@@ -648,6 +652,7 @@ begin
 
   end;
   isCompressed := value[1] = '?';
+  mModuleType:=bqmBook;
   mModuleState:=[];
   FBookQty := 0;
   FBook := 1;
@@ -687,6 +692,9 @@ begin
 
   FBible := true;
   mTraits:=[bqmtOldCovenant,bqmtNewCovenant];
+  mDesiredUIFont:='';
+  mInstallFontNames:='';
+
 //  FHasOT := true;
 //  FHasNT := true;
 //  FHasAP := false;
@@ -781,6 +789,10 @@ begin
     begin
       mInstallFontNames := dSecondPart;
       Include(mModuleState,bqmsFontsInstallPending);
+    end else
+   if dFirstPart = 'DesiredUIFont' then
+    begin
+      mDesiredUIFont := dSecondPart;
     end else
       if dFirstPart = 'DesiredFontName' then
     begin
@@ -884,6 +896,7 @@ begin
   if not mEngPsalmsSet then begin
 //    if FHasOT and (ChapterQtys[19]=150) then FEnglishPsalms:=true;
   end;
+
   if isCompressed then begin
     FPath := GetArchiveFromSpecial(value) + '??';
     FShortPath := GetArchiveFromSpecial(WideExtractFileName(value));
@@ -912,9 +925,16 @@ begin
 
   s.Free;
   if Self.FBible then begin
+    if IsCommentary() then mModuleType:=bqmCommentary else mModuleType:=bqmBible;
+
     if Trait[bqmtOldCovenant] then mCategories.Add(Lang.SayDefault('catOT', 'Old Covenant'));
     if Trait[bqmtNewCovenant] then mCategories.Add(Lang.SayDefault('catNT', 'New Covenant'));
     if Trait[bqmtApocrypha] then mCategories.Add(Lang.SayDefault('catApocrypha', 'Apocrypha'));
+  end
+  else begin//not bible
+  Exclude(mTraits, bqmtOldCovenant);
+  Exclude(mTraits, bqmtNewCovenant);
+  Exclude(mTraits, bqmtApocrypha);
   end;
   if Assigned(FOnChangeModule) then FOnChangeModule(Self);
 except       g_ExceptionContext.Add('TBible.LoadIniFile.value='+value); raise; end;

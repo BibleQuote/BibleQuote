@@ -8,7 +8,7 @@ object ConfigForm: TConfigForm
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
@@ -16,14 +16,14 @@ object ConfigForm: TConfigForm
   Position = poScreenCenter
   ShowHint = True
   OnKeyPress = FormKeyPress
-  PixelsPerInch = 105
+  PixelsPerInch = 96
   TextHeight = 13
   object PageControl1: TTntPageControl
     Left = 0
     Top = 0
     Width = 475
     Height = 305
-    ActivePage = CopyOptionsTabSheet
+    ActivePage = FavouriteExTabSheet
     Align = alTop
     TabOrder = 0
     HideTabsHints = False

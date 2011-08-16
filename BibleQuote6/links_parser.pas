@@ -163,8 +163,10 @@ var
     except end;
   end;
 
+  
 begin
   list := TWideStringList.Create;
+  try
   Links.Clear;
 
   Tokenize(s, list);
@@ -179,7 +181,8 @@ begin
           toverse]));
 
   until (ci >= list.Count) or (not pl);
-  list.free();
+
+  finally  list.free(); end;
   exit;
 
   if list.Count = 2 then

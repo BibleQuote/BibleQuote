@@ -9,6 +9,9 @@ type
   TBibleBookNames = class(TWideStringList)
     mModSigs: TWideStringList;
     constructor Create();
+    destructor Destroy();override;
+    procedure Delete(Index: Integer); override;
+    procedure Clear(); override;
     function FromFile(const fn: WideString): boolean;
     function ItemIndexFromBookIx(): integer;
   end;
@@ -75,6 +78,7 @@ procedure AddLink(const bl:TBibleLink);
 function ParseBuffer(const wsBuffer: WideString; lnks: TWideStrings): boolean;
 procedure ProcessLines(lns: TWideStrings);
 constructor Create();
+destructor Destroy();override;
 property LazyLinks: boolean read mLazyLink write mLazyLink;
 property ParserFlags: TLinkParserFlags read mFlags;
 property BookExplicitSet: boolean read mBookExpicitSet;
@@ -86,6 +90,7 @@ end;
     function ResolveLnks(const txt: WideString;fuzzyLogic:boolean): WideString;
 
     function extractLnks(const txt:WideString;fuzzyLogic:boolean; var la:TBibleLinkArray):boolean;
+    function FinalizeParser():HRESULT;
 implementation
 uses bqPlainUtils, BibleQuoteUtils, JCLDebug, Dialogs,BQExceptionTracker,
   SysUtils, {string_procs,} windows {$IFDEF DEBUG} , TypInfo{$ENDIF};
@@ -460,6 +465,11 @@ begin
   mLinkParserOptions := [lpoIgnoreOneNumberValues];
 end;
 
+destructor TBibleLinkParser.Destroy;
+begin
+mbookUsed.Done();
+inherited;
+end;
 procedure TBibleLinkParser.DeleteLastLink;
 begin
 
@@ -858,8 +868,7 @@ begin
     if not assigned(bookNamesObj) then bookNamesObj := TBibleBookNames.Create();
     bookNamesObj.CaseSensitive := false;
     bookNamesObj.FromFile(fn);
-
-    lparser := TBibleLinkParser.Create();
+    if not assigned(lparser) then lparser := TBibleLinkParser.Create();
     lparser.Init(false);
 //lparser.PrepareBookNames();
     lparser.Options :=
@@ -872,10 +881,17 @@ begin
 
 end;
 
+
 var                                     // Note fields must be declared as class fields
   mLinkedTxtBuffer: PWideChar;
   mLinkedTxtBufferLen: integer;
 
+function FinalizeParser():HRESULT;
+begin
+if assigned(lparser) then FreeAndNil(lparser);
+if assigned(bookNamesObj) then FreeAndNil(bookNamesObj);
+if assigned(mLinkedTxtBuffer) then begin ReallocMem(mLinkedTxtBuffer, 0); mLinkedTxtBufferLen:=0; mLinkedTxtBuffer:=nil end;
+end;
 function bqIsDelimiter(wc: WideChar; var Ignore: boolean): boolean;
 
 begin
@@ -1320,6 +1336,7 @@ begin
     end;
   end;
   ctrLastTokensParsed.Done();
+  ctrLinkStarts.Done();
   tc := GetTickCount() - tc;
   if tc = 0 then tc := 1;
   writeln('length:', sourceLen, ' wchars in ', tc, ' ticks, avr ', sourceLen div tc, ' wchar/tick');
@@ -1334,6 +1351,24 @@ begin
   inherited;
   mModSigs := TWideStringList.Create();
 
+end;
+destructor TBibleBookNames.Destroy();
+begin
+Clear();
+inherited;
+if assigned(mModSigs) then FreeAndNil(mModSigs);
+end;
+procedure TBibleBookNames.Clear(); 
+var itemIx, itemCnt:integer;
+    objToFree:TObject;
+begin
+itemCnt:=Count-1;
+for itemIx:=itemCnt downto 0 do begin
+  objToFree:=Objects[itemIx];
+  Objects[itemIx]:=nil;
+  objToFree.Free;
+end;
+inherited;
 end;
 
 function TBibleBookNames.FromFile(const fn: WideString): boolean;
@@ -1404,6 +1439,15 @@ on e:exception do begin
   end;
 end;
 
+procedure TBibleBookNames.Delete(Index: Integer);
+var obj:TObject;
+begin
+obj:=Objects[index];
+inherited;
+if assigned(obj)then obj.Free();
+
+
+end;
 function TBibleBookNames.ItemIndexFromBookIx(): integer;
 begin
 
@@ -1423,6 +1467,6 @@ initialization
   Include(JclStackTrackingOptions, stStaticModuleList);
   // Initialize Exception tracking
   JclStartExceptionTracking;
-
+finalization
 end.
 
