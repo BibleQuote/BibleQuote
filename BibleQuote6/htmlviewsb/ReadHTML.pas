@@ -98,7 +98,7 @@ implementation
 
 uses
   Windows, SysUtils, Math, {$IFDEF Delphi6_Plus}Variants, {$ENDIF}
-   HtmlSbs1, HtmlView, StylePars, UrlSubs,{ALekId} IHTMLViewer,bibleQuoteUtils{/AlekID};
+   HtmlSbs1, HtmlView, StylePars, UrlSubs{ALekId} {$IFDEF SMARTFONTS}, bibleQuoteUtils{$ENDIF}{/AlekID};
 
 Const
   Tab = #9;
@@ -3683,17 +3683,10 @@ begin
 LoadStyle := lsString;
 SectionList := ASectionList;
 PropStack.MasterList := ASectionList;
-try
-if assigned(CallingObject) then
-i:=g_ExceptionContext.Add('CallingObject.classname:'+ CallingObject.GetComponent().ClassName)
-else i:=-1;
+
+
 CallingObject := ASectionList.TheOwner;
-if i>=0 then g_ExceptionContext.Delete(i);
-except
-  g_ExceptionContext.Add('ASectionList.classname:'+ ASectionList.ClassName);
-  g_ExceptionContext.Add('ASectionList:'+IntToHex(Integer(ASectionList),8) );
-  raise;
-end;
+
 
 IncludeEvent := AIncludeEvent;
 PropStack.Clear;

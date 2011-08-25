@@ -2,7 +2,7 @@ package AlekControls;
 
 {$R *.res}
 {$R 'SevenZip\SevenZipVCL.dcr'}
-{$R 'rkSmartTabs.dcr'}
+
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
@@ -36,7 +36,6 @@ contains
   AlekPageControl in 'AlekPageControl.pas',
   SevenZipVCL in 'SevenZip\SevenZipVCL.pas',
   PngImage in 'htmlviewsb\PngImage.pas',
-  rkGlassButton in 'rkcontrols\rkGlassButton.pas',
-  rkSmartTabs in 'rkcontrols\rkSmartTabs.pas';
+  rkGlassButton in 'rkcontrols\rkGlassButton.pas';
 
 end.

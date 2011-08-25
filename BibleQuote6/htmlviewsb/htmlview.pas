@@ -72,7 +72,7 @@ uses
   HTMLUn2,
   ReadHTML,
   HTMLSubs,
-  StyleUn,IHTMLViewer,HTMLEmbedInterfaces;
+  StyleUn,HTMLEmbedInterfaces;
 const
   wm_FormSubmit = wm_User + 100;
   wm_MouseScroll = wm_User + 102;
