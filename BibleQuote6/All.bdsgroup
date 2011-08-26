@@ -10,9 +10,8 @@
 	</PersonalityInfo>
 	<Default.Personality>  <Projects>
       <Projects Name="BibleQuote6.exe">BibleQuote6.bdsproj</Projects>
-      <Projects Name="FrameViewer2006.bpl">Thtml\package\FrameViewer2006.bdsproj</Projects>
       <Projects Name="AlekControls.bpl">AlekControls.bdsproj</Projects>
-      <Projects Name="Targets">BibleQuote6.exe FrameViewer2006.bpl AlekControls.bpl</Projects>
+      <Projects Name="Targets">BibleQuote6.exe AlekControls.bpl</Projects>
     </Projects>
     <Dependencies/>
   </Default.Personality>

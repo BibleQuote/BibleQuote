@@ -2,7 +2,6 @@ package AlekControls;
 
 {$R *.res}
 {$R 'SevenZip\SevenZipVCL.dcr'}
-
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}

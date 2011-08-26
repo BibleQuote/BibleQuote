@@ -9,7 +9,7 @@ program BibleQuote6;
 {%TogetherDiagram 'ModelSupport_BibleQuote6\default.txaPackage'}
 
 uses
-  FastMM4,
+  //FastMM4,
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
   tntForms,
   forms,
@@ -53,7 +53,7 @@ uses
   bqBackgroundServices in 'bqBackgroundServices.pas',
   bqEngine in 'bqEngine.pas',
   bqEngineInterfaces in 'bqEngineInterfaces.pas',
-  bqHTMLGen in 'bqHTMLGen.pas',
+  //bqHTMLGen in 'bqHTMLGen.pas',
   main in 'main.pas' {MainForm: TTntForm};
 
 {$R *.res}
