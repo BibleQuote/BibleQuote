@@ -150,7 +150,7 @@
 			<VersionInfo Name="MajorVer">6</VersionInfo>
 			<VersionInfo Name="MinorVer">0</VersionInfo>
 			<VersionInfo Name="Release">2</VersionInfo>
-			<VersionInfo Name="Build">1458</VersionInfo>
+			<VersionInfo Name="Build">1459</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -162,7 +162,7 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName">DevAlek</VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">BibleQuote 6 - Bible Research and Study Tool</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">6.0.2.1458</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">6.0.2.1459</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">GNU GPL v2</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
@@ -171,8 +171,7 @@
 			<VersionInfoKeys Name="ProductVersion">6.0.2a1d2b</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Bible Research and Study Tool</VersionInfoKeys>
 			<VersionInfoKeys Name="PrivateBuild">Yes</VersionInfoKeys>
-		</VersionInfoKeys>  
-    <Excluded_Packages>
+		</VersionInfoKeys>  <Excluded_Packages>
       <Excluded_Packages Name="E:\Documents and Settings\Usr\Мои документы\Borland Studio Projects\Bpl\OverbyteIcsD2006Design.bpl">Overbyte ICS Design-Time Package Delphi 2006</Excluded_Packages>
     </Excluded_Packages>
   </Delphi.Personality>

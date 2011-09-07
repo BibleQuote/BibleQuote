@@ -27,9 +27,9 @@ uses
   MetaFilePrinter,Dict;
 
 const
-  ConstBuildCode: WideString = '2009.08.26';
+  ConstBuildCode: WideString = '2011.09.08';
   //  ConstBuildCode: WideString = '2005.03.25';
-  ConstBuildTitle: WideString = 'BibleQuote 6.0.1b4';
+  ConstBuildTitle: WideString = 'BibleQuote 6.0.20110908';
   //  ConstBuildTitle: WideString = 'BibleQuote 5.5';
   //  ConstBuildTitle: WideString = 'BibleQuote 4.5 A Bible Research Software ';
 
@@ -7841,9 +7841,11 @@ begin
   begin
    if not (StrongGreek.Initialize(ExePath + StrongsDir + '\greek.idx',
       ExePath + StrongsDir + '\greek.htm')) then
-      WideShowMessage('Error in' + ExePath + StrongsDir + '\greek.*');
+      WideShowMessage('Error in' + ExePath + StrongsDir + '\greek.*')
+   else begin
       res := StrongGreek.Lookup(s);
      copyright := StrongGreek.Name;
+   end;
   end;
 
 //  end;

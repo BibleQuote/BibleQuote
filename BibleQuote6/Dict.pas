@@ -3,7 +3,7 @@ unit Dict;
 interface
 
 uses
-  Windows, Classes, SysUtils, WideStrings,
+  WideStrings, Windows, Classes, SysUtils, 
   WCharReader, WCharWindows;
 
 type TDict = class(TObject)
@@ -39,6 +39,8 @@ begin
   inherited Create;
 
   FName := '';
+  FIndex := '';
+  FDict := '';
 
   FWords := TWideStringList.Create;
 end;
@@ -57,9 +59,9 @@ function TDict.Initialize(IndexFile, DictFile: WideString; background:boolean=fa
 begin
 try
 
-if IndexFile=FIndex then begin
-result:=true; exit
-end;
+  if IndexFile=FIndex then begin
+  result:=true; exit
+  end;
 
 //if not assigned(FiLines) then begin
   if (FileExistsEx(IndexFile)<0) or (FileExistsEx(DictFile)<0) then
