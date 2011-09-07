@@ -1487,7 +1487,7 @@ begin
   try
     r := FindFirst(awsFolder + '*.ttf', faArchive or faReadOnly or faHidden,
       sr);
-    if r <> 0 then abort;
+    if r <> 0 then exit;//abort;
     repeat
       PrepareFont(FileRemoveExtension(sr.Name), awsFolder);
       r := FindNext(sr);

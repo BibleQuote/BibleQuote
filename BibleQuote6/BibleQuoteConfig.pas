@@ -4,9 +4,9 @@ interface
 
 
 const
-      C_bqVersion='6.02a1d2b';
-      C_bqDate='16.06.2011';
-      
+      C_bqVersion='6.0.20110908';
+      C_bqDate='08.09.2011';
+
       C_CompressedModulesSubPath='compressed\modules';
       C_CommentariesSubPath='compressed\commentaries';
       C_DictionariesSubPath='compressed\dictionaries';
@@ -15,8 +15,8 @@ const
       C_CachedModsFileName='cached.lst';
       C_HotModulessFileName='hotmodules.lst';
       C_CategoriesFile='cats.cfg';
-      C_BQTechnoForumAddr='http://jesuschrist.ru/forum/686798.php';
-      C_BQQuickLoad='http://AlekMBox.narod.ru';
+      C_BQTechnoForumAddr='http://jesuschrist.ru/forum/B_biblequote.php';
+      C_BQQuickLoad='http://jesuschrist.ru/forum/B_biblequote.php';
       C_NumOfModulesToScan= 5;
       C_BulletChar=#9679;
 
