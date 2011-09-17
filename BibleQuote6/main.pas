@@ -3048,8 +3048,9 @@ begin
     //  s0 := '<font color=' + SelTextColor + '>&gt;&gt;&gt;' + s0 + '</font>';
 
     if (MainBook.isBible) and (not isCommentary) then begin      // if bible display verse numbers
-      strVerseNumber := '<a href="verse ' + strVerseNumber + '">'
-//        + '" CLASS=OmegaVerseNumber>'
+      strVerseNumber := '<a href="verse ' + strVerseNumber
+        //+ '">'
+        + '" CLASS=OmegaVerseNumber>'
         + //style="font-family:' + 'Helvetica">' +
         strVerseNumber + '</a>';
       if MainBook.Trait[bqmtNoForcedLineBreaks] then
@@ -5283,6 +5284,11 @@ begin
         FindButtonClick(Sender)
       else
       begin
+        // exit from GoEdit (F2) or SearchCB (F3) to Browser
+        if (ActiveControl = GoEdit)
+        or (ActiveControl = SearchCB) then
+          ActiveControl := Browser;
+
         //Application.Minimize;
         { wrap to title bar like KDE/Linux
               if MainForm.Height > 100 then
@@ -5911,6 +5917,7 @@ end;
 procedure TMainForm.GoEditDblClick(Sender: TObject);
 var
   book, chapter, fromverse, toverse: integer;
+  linktxt: WideString;
   Links: WideStrings.TWideStrings;
   i, ix, fc, pp: integer;
   openSuccess: boolean;
@@ -5921,9 +5928,16 @@ begin
   if Trim(GoEdit.Text) = '' then
     Exit;
 
+  linktxt := GoEdit.Text;
+  StrReplace(linktxt, '(', '', true);
+  StrReplace(linktxt, ')', '', true);
+  StrReplace(linktxt, '[', '', true);
+  StrReplace(linktxt, ']', '', true);
+  StrReplace(linktxt, '!', '', true);
+
   Links := WideStrings.TWideStringList.Create;
   try
-  StrToLinks(GoEdit.Text, Links);
+  StrToLinks(linktxt, Links);
 //  mBibleLinkParser.LazyLinks:=true;
 //  mBibleLinkParser.ParseBuffer(GoEdit.Text, Links)   ;
   if Links.Count<=0 then begin
