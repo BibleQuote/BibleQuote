@@ -474,7 +474,9 @@ end;
 function Color2Hex(col: TColor): WideString;
 begin
   Result := Format('#%.2x%.2x%.2x',
-    [col and $FF, (col and $FF00) shr 8, (col and $FF0000) shr 16]);
+    [ColorToRGB(col) and $FF,
+    (ColorToRGB(col) and $FF00) shr 8,
+    (ColorToRGB(col) and $FF0000) shr 16]);
 end;
 
 //!!! К оптимизации: последовательное наращивание длинной строки.

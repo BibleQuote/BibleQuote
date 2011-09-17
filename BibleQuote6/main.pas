@@ -369,6 +369,8 @@ type
     mBibleTabsEx: TDockTabSet;
     imgLoadProgress: TTntImage;
     tlbResolveLnks: TTntToolBar;
+    TntToolButton1: TTntToolButton;
+    TntToolButton2: TTntToolButton;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -1306,25 +1308,36 @@ begin
       DefFontName := MainCfgIni.SayDefault('DefFontName', 'Times New Roman');
       mBrowserDefaultFontName := DefFontName;
       DefFontSize := StrToInt(MainCfgIni.SayDefault('DefFontSize', '12'));
-      DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor', '#000000'));
+      DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor'
+        , Color2Hex(clWindowText))); //'#000000'
+
+//      ShowMessage(IntToStr(ColorToRGB(clWindow)));
+//      ShowMessage(IntToStr(ColorToRGB(clWhite)));
+//      ShowMessage('clWindowText = ' + Color2Hex(clWindowText));
+//      ShowMessage('clWindow = ' + Color2Hex(clWindow));
+//      ShowMessage('clWhite = ' + Color2Hex(clWhite));
+//      ShowMessage('clBlack = ' + Color2Hex(clBlack));
 
     //DefaultCharset := 1251;
     //DefaultCharset := StrToInt(ini.SayDefault('Charset', '204'));
 
-      DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', '#EBE8E2'));
-      DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor',
-        '#0000FF'));
-      try
-        g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor', '#F5F5DC')));
-      except g_VerseBkHlColor := '#F5F5DC';
-      end;
+      DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground'
+        , Color2Hex(clWindow))); // '#EBE8E2'
+      DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor'
+        , Color2Hex(clHotLight))); // '#0000FF'
+//      try
+        g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor'
+          , Color2Hex(clHighlight)))); // '#F5F5DC'
+//      except g_VerseBkHlColor := '#F5F5DC';
+//      end;
     end;
 
     with SearchBrowser do
     begin
       DefFontName := MainCfgIni.SayDefault('RefFontName', 'Times New Roman');
       DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
-      DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor', '#000000'));
+      DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor'
+        , Color2Hex(clWindowText)));
 
       DefBackGround := Browser.DefBackGround;
       DefHotSpotColor := Browser.DefHotSpotColor;
@@ -1382,7 +1395,7 @@ begin
       ReplaceHotModule, InsertHotModule, ForceForegroundLoad);
 
     SaveFileDialog.InitialDir := MainCfgIni.SayDefault('SaveDirectory', 'c:\');
-    SelTextColor := MainCfgIni.SayDefault('SelTextColor', DefaultSelTextColor);
+    SelTextColor := MainCfgIni.SayDefault('SelTextColor', Color2Hex(clRed));
     PrintFootNote := MainCfgIni.SayDefault('PrintFootNote', '1') = '1';
 
   // by default, these are checked
@@ -2088,16 +2101,26 @@ begin
 
     ini.Learn('DefFontName', mBrowserDefaultFontName);
     ini.Learn('DefFontSize', IntToStr(Browser.DefFontSize));
+
+    if (Color2Hex(Browser.DefFontColor) <> Color2Hex(clWindowText)) then
     ini.Learn('DefFontColor', Color2Hex(Browser.DefFontColor));
+
+    if (g_VerseBkHlColor <> Color2Hex(clHighlight)) then
     ini.Learn('VerseBkHLColor', g_VerseBkHlColor);
   //  ini.Learn('Charset', IntToStr(DefaultCharset));
 
     ini.Learn('RefFontName', SearchBrowser.DefFontName);
     ini.Learn('RefFontSize', IntToStr(SearchBrowser.DefFontSize));
+
+    if (Color2Hex(SearchBrowser.DefFontColor) <> Color2Hex(clWindowText)) then
     ini.Learn('RefFontColor', Color2Hex(SearchBrowser.DefFontColor));
 
+    if (Color2Hex(Browser.DefBackground) <> Color2Hex(clWindow)) then
     ini.Learn('DefBackground', Color2Hex(Browser.DefBackground));
+    if (Color2Hex(Browser.DefHotSpotColor) <> Color2Hex(clHotLight)) then
     ini.Learn('DefHotSpotColor', Color2Hex(Browser.DefHotSpotColor));
+
+    if (SelTextColor <> Color2Hex(clRed)) then
     ini.Learn('SelTextColor', SelTextColor);
 
   {  ini.Learn('HotAddress1', miHot1.Caption);
@@ -3025,8 +3048,9 @@ begin
     //  s0 := '<font color=' + SelTextColor + '>&gt;&gt;&gt;' + s0 + '</font>';
 
     if (MainBook.isBible) and (not isCommentary) then begin      // if bible display verse numbers
-      strVerseNumber := '<a href="verse ' + strVerseNumber
-        + '" CLASS=OmegaVerseNumber>' + //style="font-family:' + 'Helvetica">' +
+      strVerseNumber := '<a href="verse ' + strVerseNumber + '">'
+//        + '" CLASS=OmegaVerseNumber>'
+        + //style="font-family:' + 'Helvetica">' +
         strVerseNumber + '</a>';
       if MainBook.Trait[bqmtNoForcedLineBreaks] then
         strVerseNumber := '<sup>' + strVerseNumber + '</sup>';
@@ -9195,7 +9219,7 @@ begin
     MainBook.RecognizeBibleLinks := nV;
     SafeProcessCommand(vti.mwsLocation,
       TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
-    vti[vtisPendingReload]:=false;  
+    vti[vtisPendingReload]:=false;
     vti.mHtmlViewer.Position:=browserPos;
   end;
 

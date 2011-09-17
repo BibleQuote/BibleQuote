@@ -242,20 +242,22 @@ resourcestring
   'text-indent:40px;'#13#10 +
     '}'#13#10 +
 
-    'A.OmegaVerseNumber {color: brown;'#13#10 +
+    'A.OmegaVerseNumber {'#13#10 +
+//    color: brown;'#13#10 +
     'font-family:Helvetica;'#13#10 +
     '}'#13#10 +
-    'A.OmegaStrongNumber {color: green}'#13#10 +
-    'A.BQNote {color: green}'#13#10 +
+//use    'A.OmegaStrongNumber {color: green}'#13#10 +
+//use    'A.BQNote {color: green}'#13#10 +
 //    'sup{font-size:70%%;}'#13#10+
 //    'A:visited {color: brown}'#13#10 +
   '-->'#13#10 +
-  'A.bqResolvedLink {color: Sienna;'#13#10 +
+  'A.bqResolvedLink {'#13#10 +
+//  color: Sienna;'#13#10 +
     'font-family:''Times New Roman'';'#13#10 +
     'font-style:italic;'#13#10 +
     'font-weight:lighter;'#13#10 +
     '}'#13#10 +
-    'A.OmegaStrongNumber {color: green}'#13#10 +
+//use    'A.OmegaStrongNumber {color: green}'#13#10 +
 //    'sup{font-size:70%%;}'#13#10+
 //    'A:visited {color: brown}'#13#10 +
   '-->'#13#10 +
