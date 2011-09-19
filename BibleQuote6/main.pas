@@ -357,7 +357,7 @@ type
     tbtnResolveLinks: TTntToolButton;
     miCloseAllOtherTabs: TTntMenuItem;
     tmrCommonTimer: TTimer;
-    miVerseHLBkgndCl: TTntMenuItem;
+    miVerseHighlightBG: TTntMenuItem;
     btbtnHelperButton: TTntBitBtn;
     il24: TImageList;
     miMyLibrary: TTntMenuItem;
@@ -621,7 +621,7 @@ type
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure miCloseAllOtherTabsClick(Sender: TObject);
     procedure tmrCommonTimerTimer(Sender: TObject);
-    procedure miVerseHLBkgndClClick(Sender: TObject);
+    procedure miVerseHighlightBGClick(Sender: TObject);
     procedure CBListDropDown(Sender: TObject);
     procedure GoEditEnter(Sender: TObject);
     procedure tbtnDelNodeClick(Sender: TObject);
@@ -1301,6 +1301,7 @@ begin
     mBibleTabsEx.Height := h + 13;
     MainForm.Update;
     fnt.Free;
+
     Prepare(WideExtractFilePath(tntApplication.ExeName) + 'biblebooks.cfg', Output);
 
     with Browser do
@@ -1327,7 +1328,7 @@ begin
         , Color2Hex(clHotLight))); // '#0000FF'
 //      try
         g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor'
-          , Color2Hex(clHighlight)))); // '#F5F5DC'
+          , Color2Hex(clInfoBk)))); // '#F5F5DC'
 //      except g_VerseBkHlColor := '#F5F5DC';
 //      end;
     end;
@@ -8014,7 +8015,7 @@ begin
 //    MainPages.ActivePage := StrongTab;
 end;
 
-procedure TMainForm.miVerseHLBkgndClClick(Sender: TObject);
+procedure TMainForm.miVerseHighlightBGClick(Sender: TObject);
 var cl, newcl: TColor;
 begin
   try cl := Hex2Color(g_VerseBkHlColor); except cl := $F5F5DC; end;
@@ -8377,6 +8378,9 @@ begin
   try
     ActiveControl := Browser;
   except on e:Exception do BqShowException(e);  end;
+
+// russian keyboard activation  
+//  ActivateKeyboardLayout(LoadKeyboardLayout('419', KLF_ACTIVATE), KLF_ACTIVATE);
 
 end;
 

@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 706
+  ClientHeight = 731
   ClientWidth = 905
   Color = clBtnFace
   Constraints.MinHeight = 524
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 367
     Top = 31
     Width = 11
-    Height = 675
+    Height = 700
     AutoSnap = False
     MinSize = 100
     OnMoved = Splitter1Moved
@@ -62,16 +62,17 @@ object MainForm: TMainForm
     Left = 378
     Top = 31
     Width = 527
-    Height = 675
+    Height = 700
     Align = alClient
     Caption = 'MainPanel'
     TabOrder = 0
+    ExplicitHeight = 675
     object mViewTabs: TAlekPageControl
       AlignWithMargins = True
       Left = 4
       Top = 1
       Width = 522
-      Height = 647
+      Height = 672
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -90,9 +91,11 @@ object MainForm: TMainForm
       HideTabsHints = False
       OnDeleteTab = mViewTabsDeleteTab
       OnDblClick = mViewTabsDblClick
+      ExplicitHeight = 647
       object mInitialViewPage: TTntTabSheet
         PopupMenu = mViewTabsPopup
         OnContextPopup = mInitialViewPageContextPopup
+        ExplicitHeight = 613
         object FirstBrowser: THTMLViewer
           Left = 145
           Top = 13
@@ -127,12 +130,13 @@ object MainForm: TMainForm
     end
     object btmPaint: TPanel
       Left = 1
-      Top = 648
+      Top = 673
       Width = 525
       Height = 26
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitTop = 648
       object imgLoadProgress: TTntImage
         Tag = 1
         AlignWithMargins = True
@@ -227,9 +231,9 @@ object MainForm: TMainForm
     Left = 0
     Top = 31
     Width = 367
-    Height = 675
+    Height = 700
     Hint = 'Navigate'
-    ActivePage = SearchTab
+    ActivePage = DicTab
     Align = alLeft
     Images = theImageList
     TabOrder = 2
@@ -237,9 +241,11 @@ object MainForm: TMainForm
     OnChange = MainPagesChange
     OnMouseLeave = MainPagesMouseLeave
     HideTabsHints = False
+    ExplicitHeight = 675
     object GoTab: TTntTabSheet
       ImageIndex = 5
       TabHint = 'Navigate'
+      ExplicitHeight = 641
       object Splitter2: TTntSplitter
         Left = 0
         Top = 306
@@ -372,18 +378,20 @@ object MainForm: TMainForm
         Left = 0
         Top = 323
         Width = 359
-        Height = 318
+        Height = 343
         ActivePage = BookmarksTab
         Align = alClient
         TabOrder = 1
         HideTabsHints = False
+        ExplicitHeight = 318
         object HistoryTab: TTntTabSheet
           Caption = 'HistoryTab'
+          ExplicitHeight = 284
           object HistoryLB: TTntListBox
             Left = 0
             Top = 0
             Width = 351
-            Height = 284
+            Height = 309
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -394,16 +402,18 @@ object MainForm: TMainForm
             OnClick = HistoryLBClick
             OnDblClick = HistoryLBDblClick
             OnKeyUp = HistoryLBKeyUp
+            ExplicitHeight = 284
           end
         end
         object BookmarksTab: TTntTabSheet
           Caption = 'BookmarksTab'
           ImageIndex = 1
+          ExplicitHeight = 284
           object BookmarksLB: TTntListBox
             Left = 0
             Top = 0
             Width = 351
-            Height = 145
+            Height = 170
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -412,16 +422,18 @@ object MainForm: TMainForm
             OnClick = BookmarksLBClick
             OnDblClick = BookmarksLBDblClick
             OnKeyUp = BookmarksLBKeyUp
+            ExplicitHeight = 145
           end
           object BookmarkPanel: TTntPanel
             Left = 0
-            Top = 145
+            Top = 170
             Width = 351
             Height = 139
             Align = alBottom
             BevelOuter = bvNone
             BorderWidth = 10
             TabOrder = 1
+            ExplicitTop = 145
             object BookmarkLabel: TTntLabel
               Left = 10
               Top = 10
@@ -437,6 +449,7 @@ object MainForm: TMainForm
         end
         object tbQuickSearch: TTntTabSheet
           Caption = #1041#1099#1089#1090#1088#1099#1081' '#1087#1086#1080#1089#1082
+          ExplicitHeight = 284
           object SearchInWindowLabel: TTntLabel
             Left = 0
             Top = 0
@@ -496,11 +509,12 @@ object MainForm: TMainForm
       ParentShowHint = False
       ShowHint = True
       TabHint = 'Search'
+      ExplicitHeight = 641
       object SearchBrowser: THTMLViewer
         Left = 0
         Top = 227
         Width = 359
-        Height = 414
+        Height = 439
         OnHotSpotClick = SearchBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -519,6 +533,7 @@ object MainForm: TMainForm
         htOptions = []
         OnKeyDown = SearchBrowserKeyDown
         OnKeyUp = SearchBrowserKeyUp
+        ExplicitHeight = 414
       end
       object SearchBoxPanel: TTntPanel
         Left = 0
@@ -539,7 +554,7 @@ object MainForm: TMainForm
           Caption = 'SearchLabel'
         end
         object SearchCB: TTntComboBox
-          Left = 4
+          Left = 5
           Top = 4
           Width = 286
           Height = 27
@@ -656,11 +671,12 @@ object MainForm: TMainForm
     object DicTab: TTntTabSheet
       ImageIndex = 17
       TabHint = 'Dictionaries'
+      ExplicitHeight = 641
       object DicBrowser: THTMLViewer
         Left = 0
         Top = 297
         Width = 359
-        Height = 344
+        Height = 369
         OnHotSpotCovered = FirstBrowserHotSpotCovered
         OnHotSpotClick = DicBrowserHotSpotClick
         TabOrder = 0
@@ -680,6 +696,7 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         htOptions = []
         OnMouseDouble = DicBrowserMouseDouble
+        ExplicitHeight = 344
       end
       object DicPanel: TTntPanel
         Left = 0
@@ -788,12 +805,13 @@ object MainForm: TMainForm
     object StrongTab: TTntTabSheet
       ImageIndex = 18
       TabHint = 'Strong'#39's Dictionary'
+      ExplicitHeight = 641
       object StrongBrowser: THTMLViewer
         AlignWithMargins = True
         Left = 3
         Top = 265
         Width = 353
-        Height = 373
+        Height = 398
         OnHotSpotClick = StrongBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -812,6 +830,7 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         htOptions = [htNoLinkUnderline]
         OnMouseDouble = StrongBrowserMouseDouble
+        ExplicitHeight = 373
       end
       object StrongPanel: TTntPanel
         Left = 0
@@ -873,11 +892,12 @@ object MainForm: TMainForm
     end
     object CommentsTab: TTntTabSheet
       TabHint = 'Commentaries'
+      ExplicitHeight = 641
       object CommentsBrowser: THTMLViewer
         Left = 0
         Top = 38
         Width = 359
-        Height = 603
+        Height = 628
         OnHotSpotCovered = FirstBrowserHotSpotCovered
         OnHotSpotClick = CommentsBrowserHotSpotClick
         TabOrder = 0
@@ -895,6 +915,7 @@ object MainForm: TMainForm
         PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
         htOptions = []
+        ExplicitHeight = 603
       end
       object Panel4: TTntPanel
         Left = 0
@@ -956,11 +977,12 @@ object MainForm: TMainForm
     object MemoTab: TTntTabSheet
       ImageIndex = 2
       TabHint = 'Memos'
+      ExplicitHeight = 641
       object TREMemo: TTntRichEdit
         Left = 0
         Top = 25
         Width = 359
-        Height = 579
+        Height = 604
         Align = alClient
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
@@ -972,15 +994,17 @@ object MainForm: TMainForm
         ScrollBars = ssVertical
         TabOrder = 0
         OnChange = TREMemoChange
+        ExplicitHeight = 579
       end
       object Panel3: TTntPanel
         Left = 0
-        Top = 604
+        Top = 629
         Width = 359
         Height = 37
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitTop = 604
         object MemoLabel: TTntLabel
           Left = 5
           Top = 5
@@ -1091,11 +1115,12 @@ object MainForm: TMainForm
     object XRefTab: TTntTabSheet
       ImageIndex = 19
       TabHint = 'TSK'
+      ExplicitHeight = 641
       object XRefBrowser: THTMLViewer
         Left = 0
         Top = 0
         Width = 359
-        Height = 641
+        Height = 666
         OnHotSpotClick = XRefBrowserHotSpotClick
         TabOrder = 0
         Align = alClient
@@ -1112,10 +1137,12 @@ object MainForm: TMainForm
         PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
         htOptions = []
+        ExplicitHeight = 641
       end
     end
     object tbList: TTntTabSheet
       ImageIndex = 39
+      ExplicitHeight = 641
       object TntToolBar2: TTntToolBar
         Left = 0
         Top = 0
@@ -1148,7 +1175,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 57
         Width = 359
-        Height = 584
+        Height = 609
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1205,6 +1232,7 @@ object MainForm: TMainForm
         OnResize = vdtTags_VersesResize
         OnShowScrollbar = vdtTags_VersesShowScrollbar
         OnStateChange = vdtTags_VersesStateChange
+        ExplicitHeight = 584
         Columns = <>
       end
       object cbbTagsFilter: TTntComboBox
@@ -1816,9 +1844,9 @@ object MainForm: TMainForm
           Caption = #1062#1074#1077#1090' '#1085#1072#1081#1076#1077#1085#1085#1086#1075#1086' '#1090#1077#1082#1089#1090#1072' '#1080' '#1079#1072#1084#1077#1090#1086#1082
           OnClick = miFoundTextConfigClick
         end
-        object miVerseHLBkgndCl: TTntMenuItem
-          Caption = 'Verse Highlight Background'
-          OnClick = miVerseHLBkgndClClick
+        object miVerseHighlightBG: TTntMenuItem
+          Caption = #1062#1074#1077#1090' '#1092#1086#1085#1072' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1093' '#1089#1090#1080#1093#1086#1074
+          OnClick = miVerseHighlightBGClick
         end
       end
       object N1: TTntMenuItem

@@ -106,11 +106,11 @@
 			<Compiler Name="CodePage">1251</Compiler>
 		</Compiler>
 		<Linker>
-			<Linker Name="MapFile">3</Linker>
+			<Linker Name="MapFile">0</Linker>
 			<Linker Name="OutputObjs">0</Linker>
 			<Linker Name="GenerateHpps">False</Linker>
 			<Linker Name="ConsoleApp">1</Linker>
-			<Linker Name="DebugInfo">True</Linker>
+			<Linker Name="DebugInfo">False</Linker>
 			<Linker Name="RemoteSymbols">False</Linker>
 			<Linker Name="GenerateDRC">False</Linker>
 			<Linker Name="MinStackSize">16384</Linker>
@@ -150,7 +150,7 @@
 			<VersionInfo Name="MajorVer">6</VersionInfo>
 			<VersionInfo Name="MinorVer">0</VersionInfo>
 			<VersionInfo Name="Release">2</VersionInfo>
-			<VersionInfo Name="Build">1460</VersionInfo>
+			<VersionInfo Name="Build">1462</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -162,7 +162,7 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName">DevAlek</VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">BibleQuote 6 - Bible Research and Study Tool</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">6.0.2.1460</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">6.0.2.1462</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName">BibleQuote</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">GNU GPL v2</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
@@ -171,7 +171,10 @@
 			<VersionInfoKeys Name="ProductVersion">6.0.2a1d2b</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Bible Research and Study Tool</VersionInfoKeys>
 			<VersionInfoKeys Name="PrivateBuild">Yes</VersionInfoKeys>
-		</VersionInfoKeys>  <Excluded_Packages>
+		</VersionInfoKeys>  
+    
+    
+    <Excluded_Packages>
       <Excluded_Packages Name="E:\Documents and Settings\Usr\Мои документы\Borland Studio Projects\Bpl\OverbyteIcsD2006Design.bpl">Overbyte ICS Design-Time Package Delphi 2006</Excluded_Packages>
     </Excluded_Packages>
   </Delphi.Personality>

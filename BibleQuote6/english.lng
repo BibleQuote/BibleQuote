@@ -128,6 +128,8 @@ MainForm.miColors.Caption = Select colors
 MainForm.miBGConfig.Caption = Select background color
 MainForm.miHrefConfig.Caption = Select color for hyperlinks
 MainForm.miFoundTextConfig.Caption = Select color for found text and memos
+MainForm.miVerseHighlightBG.Caption = Select color for highlighting verses
+
 
 MainForm.miFonts.Caption = Select fonts
 MainForm.miFontConfig.Caption = Main window text

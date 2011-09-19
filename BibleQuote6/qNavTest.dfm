@@ -3,16 +3,16 @@ object frmQNav: TfrmQNav
   Top = 0
   BorderStyle = bsSizeToolWin
   Caption = 'frmQNav'
-  ClientHeight = 378
-  ClientWidth = 784
+  ClientHeight = 454
+  ClientWidth = 952
   Color = clBtnFace
-  Constraints.MaxHeight = 768
-  Constraints.MaxWidth = 1024
-  Constraints.MinHeight = 300
-  Constraints.MinWidth = 600
+  Constraints.MaxHeight = 933
+  Constraints.MaxWidth = 1243
+  Constraints.MinHeight = 364
+  Constraints.MinWidth = 729
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -14
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
@@ -26,34 +26,15 @@ object frmQNav: TfrmQNav
   OnResize = TntFormResize
   OnShow = FormShow
   DesignSize = (
-    784
-    378)
-  PixelsPerInch = 105
-  TextHeight = 14
-  object Shape2: TShape
-    Left = -8
-    Top = 68
-    Width = 795
-    Height = 293
-    Anchors = [akLeft, akTop, akRight, akBottom]
-    Brush.Color = 10081785
-    Pen.Width = 0
-  end
-  object Shape1: TShape
-    Left = -12
-    Top = 312
-    Width = 824
-    Height = 265
-    Anchors = [akLeft, akRight, akBottom]
-    Brush.Color = 15648678
-    DragCursor = crHandPoint
-    Pen.Width = 0
-  end
+    952
+    454)
+  PixelsPerInch = 120
+  TextHeight = 17
   object lbBQName: TTntLabel
     Left = 2
-    Top = 9
-    Width = 58
-    Height = 22
+    Top = 11
+    Width = 71
+    Height = 27
     Alignment = taRightJustify
     AutoSize = False
     Caption = #1055#1077#1088#1077#1081#1090#1080
@@ -63,15 +44,15 @@ object frmQNav: TfrmQNav
   object mTagTabsEx: TDockTabSet
     Tag = -1
     Left = -1
-    Top = 44
-    Width = 787
-    Height = 25
+    Top = 53
+    Width = 955
+    Height = 31
     Anchors = [akLeft, akTop, akRight]
     DitherBackground = False
     EndMargin = 1
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -17
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentBackground = True
@@ -85,10 +66,10 @@ object frmQNav: TfrmQNav
     DockSite = False
   end
   object vstBookList: TVirtualDrawTree
-    Left = 7
-    Top = 74
-    Width = 768
-    Height = 291
+    Left = 9
+    Top = 90
+    Width = 932
+    Height = 352
     Cursor = crHandPoint
     Margins.Left = 0
     Margins.Top = 0
@@ -143,10 +124,10 @@ object frmQNav: TfrmQNav
     Columns = <>
   end
   object edFilter: TTntEdit
-    Left = 72
-    Top = 9
-    Width = 548
-    Height = 22
+    Left = 87
+    Top = 11
+    Width = 666
+    Height = 25
     Anchors = [akLeft, akTop, akRight]
     BevelInner = bvNone
     TabOrder = 0
@@ -154,16 +135,16 @@ object frmQNav: TfrmQNav
     OnKeyUp = edFilterKeyUp
   end
   object btnOK: TButton
-    Left = 704
-    Top = 8
-    Width = 72
-    Height = 25
+    Left = 855
+    Top = 10
+    Width = 87
+    Height = 30
     Anchors = [akTop, akRight]
     Caption = 'OK'
     Default = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -17
     Font.Name = 'Tahoma'
     Font.Style = []
     ModalResult = 1
@@ -172,15 +153,15 @@ object frmQNav: TfrmQNav
     OnClick = vstBookListDblClick
   end
   object btnCollapse: TButton
-    Left = 664
-    Top = 39
-    Width = 112
-    Height = 25
+    Left = 806
+    Top = 47
+    Width = 136
+    Height = 31
     Anchors = [akTop, akRight]
     Caption = #1057#1074#1077#1088#1085#1091#1090#1100' '#1074#1089#1077
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -17
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
@@ -189,15 +170,15 @@ object frmQNav: TfrmQNav
     OnClick = btnCollapseClick
   end
   object btnClear: TButton
-    Left = 626
-    Top = 8
-    Width = 72
-    Height = 25
+    Left = 760
+    Top = 10
+    Width = 88
+    Height = 30
     Anchors = [akTop, akRight]
     Caption = #1054#1095#1080#1089#1090#1080#1090#1100
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -17
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
@@ -206,17 +187,17 @@ object frmQNav: TfrmQNav
     OnClick = btnClearClick
   end
   object stCount: TTntStaticText
-    Left = 606
-    Top = 41
-    Width = 54
-    Height = 23
+    Left = 736
+    Top = 50
+    Width = 65
+    Height = 28
     Alignment = taRightJustify
     Anchors = [akTop, akRight]
     AutoSize = False
     BevelKind = bkFlat
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -17
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False

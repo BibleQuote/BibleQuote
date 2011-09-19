@@ -14,8 +14,6 @@ type
   TfrmQNav = class(TTntForm)
     vstBookList: TVirtualDrawTree;
     edFilter: TTntEdit;
-    Shape2: TShape;
-    Shape1: TShape;
     lbBQName: TTntLabel;
     btnOK: TButton;
     mTagTabsEx: TDockTabSet;

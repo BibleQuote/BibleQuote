@@ -13,6 +13,7 @@ type
     procedure Delete(Index: Integer); override;
     procedure Clear(); override;
     function FromFile(const fn: WideString): boolean;
+    function FromStrings(const sl: TWideStringList): boolean;
     function ItemIndexFromBookIx(): integer;
   end;
 
@@ -92,7 +93,7 @@ end;
     function extractLnks(const txt:WideString;fuzzyLogic:boolean; var la:TBibleLinkArray):boolean;
     function FinalizeParser():HRESULT;
 implementation
-uses bqPlainUtils, BibleQuoteUtils, JCLDebug, Dialogs,BQExceptionTracker,
+uses bqPlainUtils, BibleQuoteUtils, BibleQuoteConfig, JCLDebug, Dialogs,BQExceptionTracker,
   SysUtils, {string_procs,} windows {$IFDEF DEBUG} , TypInfo{$ENDIF};
 
 var bookNamesObj: TBibleBookNames;
@@ -861,13 +862,22 @@ begin
 end;
 
 function Prepare(fn: WideString; var df: Text): boolean;
+var
+  sl: TWideStringList;
 begin
   result := false;
   try
     TTextRec(Output) := TTextRec(df);
     if not assigned(bookNamesObj) then bookNamesObj := TBibleBookNames.Create();
     bookNamesObj.CaseSensitive := false;
-    bookNamesObj.FromFile(fn);
+
+    if FileExists(fn) then
+      bookNamesObj.FromFile(fn)
+    else begin
+      sl := TWideStringList.Create();
+      sl.Text := c_BibleBooks;
+      bookNamesObj.FromStrings(sl);
+    end;
     if not assigned(lparser) then lparser := TBibleLinkParser.Create();
     lparser.Init(false);
 //lparser.PrepareBookNames();
@@ -1371,20 +1381,18 @@ end;
 inherited;
 end;
 
-function TBibleBookNames.FromFile(const fn: WideString): boolean;
+function TBibleBookNames.FromStrings(const sl: TWideStringList): boolean;
 var i, sli, slc, searchSlen, val, tokenIx, tokenCnt: integer;
   notFnd: boolean;
   ws, ws2, ss: wideString;
-  sl, tokens: TWideStringList;
+  tokens: TWideStringList;
   pItem: TBibleBookNameEntry;
 label fnd1, fnd2;
 begin
   try
     result := false;
-    sl := TWideStringList.Create;
     try
       Clear();
-      sl.LoadFromFile(fn);
       tokens := TWideStringList.Create;
       i := 1; sli := 0; slc := sl.Count;
       sorted := true; Duplicates := dupIgnore;
@@ -1429,6 +1437,28 @@ begin
         inc(sli);
       until (sli >= slc);
       Sorted := true;
+    finally
+    result := true;
+    end;
+  except
+on e:exception do begin
+  g_ExceptionContext.Add('TBibleBookNames.FromStrings');
+  BqShowException(E);
+  end;
+  end;
+end;
+
+function TBibleBookNames.FromFile(const fn: WideString): boolean;
+var
+  sl: TWideStringList;
+begin
+  try
+    result := false;
+    sl := TWideStringList.Create;
+    try
+      Clear();
+      sl.LoadFromFile(fn);
+      result := FromStrings(sl);
     finally sl.Free(); end;
     result := true;
   except

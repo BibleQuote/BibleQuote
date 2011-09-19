@@ -157,6 +157,8 @@ MainForm.miColors.Caption = Выбрать цвета
 MainForm.miBGConfig.Caption = Цвет фона главного окна
 MainForm.miHrefConfig.Caption = Цвет для гиперссылок
 MainForm.miFoundTextConfig.Caption = Цвет найденного текста и заметок
+MainForm.miVerseHighlightBG.Caption = Цвет фона выделенных стихов
+
 
 MainForm.miFonts.Caption = Выбрать шрифты
 MainForm.miFontConfig.Caption = Шрифт главного окна
