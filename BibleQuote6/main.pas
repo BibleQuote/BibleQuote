@@ -4,6 +4,8 @@
 
 ***********************************************}
 
+// test
+
 unit main;
 
 {$WARN UNIT_PLATFORM OFF}
