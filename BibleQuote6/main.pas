@@ -3384,7 +3384,6 @@ var
   viewTabState:TViewtabInfoState;
   bl:TBibleLink;
 begin
-
   unicodeSRC := UTF8Decode(SRC);
   iscontrolDown := IsDown(VK_CONTROL);
   if GetCommandType(src)=bqctGoCommand then
@@ -8509,8 +8508,7 @@ begin
     if status<=-2 then Exit;
   end;
 
-
-  if IsDown(VK_MENU) then begin
+  if not IsDown(VK_CONTROL) then begin
     if autocmd then G_XRefVerseCmd := UTF8Encode(concreteCmd)
     else G_XRefVerseCmd := SRC;
     miOpenNewViewClick(sender);
@@ -8541,7 +8539,7 @@ begin
     status := PreProcessAutoCommand(cmd, prefBible,concreteCmd);
     if status<=-2 then Exit;
   end;
-  if IsDown(VK_MENU) then begin
+  if not IsDown(VK_CONTROL) then begin
     if autocmd then G_XRefVerseCmd := UTF8Encode(concreteCmd)
     else G_XRefVerseCmd := SRC;
     miOpenNewViewClick(sender);
