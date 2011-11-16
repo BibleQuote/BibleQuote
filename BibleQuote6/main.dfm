@@ -228,8 +228,8 @@ object MainForm: TMainForm
     Top = 31
     Width = 367
     Height = 700
-    Hint = 'Dictionaries'
-    ActivePage = tbList
+    Hint = 'Commentaries'
+    ActivePage = StrongTab
     Align = alLeft
     Images = theImageList
     TabOrder = 2

@@ -124,24 +124,31 @@ begin
         link := link + s[i]
       else begin
         isNum := true;
-        link := s[i];
+        link := s[i]; // start the number link
       end;
-    end
-    else begin
-      if isNum then // если шла ссылка
+    end else begin // not digit now
+      if isNum then // if there was link
       begin
-        isNum := false;
-        //if link <> '0' then
-        //begin
-          //if hebrew and (link <> '0') then link := '0' + link;
-          if supercase then
-            Result := Result + '<SUP><font size=0><a href=s' + link + '>' + link + '</a></font></SUP>'
-          else
-            Result := Result + '<a href=s' + link + '>' + link + '</a>'
-        //end;
-      end;
-      // finish the link, draw the symbol
-      Result := Result + s[i];
+        if (link = 'H') or (link = 'G') then begin // stop
+          Result := Result + link;
+        end else begin
+          isNum := false;
+          //if link <> '0' then
+          //begin
+            //if hebrew and (link <> '0') then link := '0' + link;
+            if supercase then
+              Result := Result + '<SUP><font size=0><a href=s' + link + '>' + link + '</a></font></SUP>'
+            else
+              Result := Result + '<a href=s' + link + '>' + link + '</a>'
+          //end;
+        end;
+        Result := Result + s[i];
+      end else if (integer(s[i]) = integer('H')) or (integer(s[i]) = integer('G')) then begin
+        isNum := true;
+        link := s[i];
+      end else
+        // finish the link, draw the symbol
+        Result := Result + s[i];
     end;
   end;
 

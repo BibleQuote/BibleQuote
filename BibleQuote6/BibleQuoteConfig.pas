@@ -4,8 +4,8 @@ interface
 
 
 const
-      C_bqVersion='6.0.20110908';
-      C_bqDate='08.09.2011';
+      C_bqVersion='6.0.20111116';
+      C_bqDate='16.11.2011';
 
       C_CompressedModulesSubPath='compressed\modules';
       C_CommentariesSubPath='compressed\commentaries';

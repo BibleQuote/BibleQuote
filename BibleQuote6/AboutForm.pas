@@ -57,7 +57,8 @@ begin
 //32,32,0,0,DI_NORMAL);
 //Image1.Picture.Icon.Assign(Application.Icon);
 memDevs.Lines.Insert(0,
-       WideFormat('Версия %s (%s) ALPHA', [C_bqVersion,C_bqDate])   );
+       WideFormat('Версия %s (%s) BETA', [C_bqVersion,C_bqDate])   );
+memDevs.Lines.Add('');
 memDevs.Lines.Add('OS:'+WinInfoString());
 
 end;

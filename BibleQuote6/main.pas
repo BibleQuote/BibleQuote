@@ -3383,6 +3383,7 @@ var
   tabInfo:TViewTabInfo;
   viewTabState:TViewtabInfoState;
   bl:TBibleLink;
+  key:char;
 begin
   unicodeSRC := UTF8Decode(SRC);
   iscontrolDown := IsDown(VK_CONTROL);
@@ -3480,10 +3481,14 @@ begin
   else if Pos('s', unicodeSRC) = 1 then
   begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
+    (**
     Val(scode, num, code);
     if code = 0 then
       DisplayStrongs(num, (MainBook.CurBook < 40) and
         (MainBook.Trait[bqmtOldCovenant]));
+    **)
+    StrongEdit.Text := scode; key := #13;
+    StrongEditKeyPress(Sender, key);
   end
   else begin
     cb := sender as THTMLViewer;
@@ -7865,10 +7870,6 @@ begin
     if StrongsDir = '' then
       StrongsDir := 'Strongs';
 
-
-
-
-
   if hebrew or (num = 0) then
   begin
    if not (StrongHebrew.Initialize(ExePath + StrongsDir + '\hebrew.idx',
@@ -7901,7 +7902,9 @@ begin
 
     s := IntToStr(num);
     if hebrew then
-      s := '0' + s;
+      s := 'H' + s
+    else
+      s := 'G' + s;
 
     i := StrongLB.Items.IndexOf(s);
     if i = -1 then
@@ -8597,15 +8600,34 @@ end;
 procedure TMainForm.StrongEditKeyPress(Sender: TObject; var Key: Char);
 var
   num, code: integer;
+  hebrew: boolean;
+  stext: string;
 begin
   if Key = #13 then
   begin
     Key := #0;
 
-    Val(Trim(StrongEdit.Text), num, code);
+    stext := Trim(StrongEdit.Text);
+
+    if Copy(stext, 1, 1) = '0' then
+      hebrew := true
+    else if Copy(stext, 1, 1) = 'H' then begin
+      hebrew := true;
+      stext := Copy(stext, 2, Length(stext)-1);
+    end else if Copy(stext, 1, 1) = 'G' then begin
+      hebrew := false;
+      stext := Copy(stext, 2, Length(stext)-1);
+    end else
+      hebrew := false;
+
+    try
+      Val(Trim(stext), num, code);
+    finally
+
+    end;
 
     if code = 0 then
-      DisplayStrongs(num, Copy(Trim(StrongEdit.Text), 1, 1) = '0')
+      DisplayStrongs(num, hebrew)
   end;
 end;
 
@@ -8894,10 +8916,37 @@ begin
 end;
 
 procedure TMainForm.StrongLBDblClick(Sender: TObject);
+var
+  num, code: integer;
+  hebrew: boolean;
+  stext: string;
 begin
+
   if StrongLB.ItemIndex <> -1 then
-    DisplayStrongs(StrToInt(StrongLB.Items[StrongLB.ItemIndex]),
-      Copy(StrongLB.Items[StrongLB.ItemIndex], 1, 1) = '0');
+  begin
+
+    stext := Trim(StrongLB.Items[StrongLB.ItemIndex]);
+
+    if Copy(stext, 1, 1) = '0' then
+      hebrew := true
+    else if Copy(stext, 1, 1) = 'H' then begin
+      hebrew := true;
+      stext := Copy(stext, 2, Length(stext)-1);
+    end else if Copy(stext, 1, 1) = 'G' then begin
+      hebrew := false;
+      stext := Copy(stext, 2, Length(stext)-1);
+    end else
+      hebrew := false;
+
+    try
+      Val(Trim(stext), num, code);
+    finally
+    end;
+
+    if code = 0 then
+      DisplayStrongs(num, hebrew);
+
+  end;
 end;
 
 function TMainForm.SuggestFont(const desiredFontName,
