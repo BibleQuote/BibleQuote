@@ -130,6 +130,7 @@ begin
       if isNum then // if there was link
       begin
         if (link = 'H') or (link = 'G') then begin // stop
+          isNum := false;
           Result := Result + link;
         end else begin
           isNum := false;
@@ -177,6 +178,18 @@ begin
       or (
       (i < len) and
       (s[i] = ' ') and
+      ((Integer (s[i+1]) >= Integer ('0')) and
+      (Integer (s[i+1]) <= Integer ('9')))
+    )
+    then continue;
+
+    if (
+        (Integer (s[i]) = Integer ('G')) or
+        (Integer (s[i]) = Integer ('H'))
+      )
+      and (
+      (i < len) and
+      //(s[i] = ' ') and
       ((Integer (s[i+1]) >= Integer ('0')) and
       (Integer (s[i+1]) <= Integer ('9')))
     )
