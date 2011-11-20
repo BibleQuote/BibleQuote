@@ -1075,8 +1075,9 @@ begin
       dReadedCount := dFile.Read(dRes[1], dResLength * 2);
       SetLength(dRes, dReadedCount div 2);
 
-      if dEncoding = cEncUnicode_BigEndian then
-        ChangeByteOrderInWideString(dRes);
+      //timh - 2011-11-20
+      //if dEncoding = cEncUnicode_BigEndian then
+        //ChangeByteOrderInWideString(dRes);
 
     end else begin
       SetLength(dABuffer, aCount);
