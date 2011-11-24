@@ -229,6 +229,7 @@ type
 
     FSoundDir: WideString;
     FStrongsDir: WideString;
+    FStrongsPrefixed: boolean; // Gxxxx and Hxxx numbers or not?
 
     FHTML: WideString;                  // allowed HTML codes
     FFiltered: boolean;
@@ -288,7 +289,7 @@ type
     procedure InstallFonts();
     function GetVerse(i:Cardinal):WideString;
     function getTraitState(trait:TbqModuleTrait):boolean;
-    procedure setTraitState(trait:TbqModuleTrait; state:boolean);    
+    procedure setTraitState(trait:TbqModuleTrait; state:boolean);
   public
     { Public declarations }
     ChapterQtys: array[1..MAX_BOOKQTY] of integer;
@@ -348,6 +349,7 @@ type
 
     property SoundDirectory: WideString read FSoundDir;
     property StrongsDirectory: WideString read FStrongsDir;
+    property StrongsPrefixed: boolean read FStrongsPrefixed;
 
     constructor Create(AOwner: TComponent; uiServices:IBibleWinUIServices);reintroduce;
     destructor Destroy; override;
@@ -689,6 +691,7 @@ begin
 
   FSoundDir := '';
   FStrongsDir := '';
+  FStrongsPrefixed:=false;
 
   FBible := true;
   mTraits:=[bqmtOldCovenant,bqmtNewCovenant];
@@ -860,6 +863,11 @@ begin
       if dFirstPart = 'StrongsDirectory' then
     begin
       FStrongsDir := dSecondPart;
+
+    end else
+      if dFirstPart = 'StrongsPrefixed' then
+    begin
+      FStrongsPrefixed := ToBoolean(dSecondPart);
 
     end else
       if dFirstPart = 'PathName' then

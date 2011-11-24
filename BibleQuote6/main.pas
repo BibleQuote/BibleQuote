@@ -7876,6 +7876,7 @@ begin
       ExePath + StrongsDir + '\hebrew.htm')) then
       WideShowMessage('Error in' + ExePath + StrongsDir + '\hebrew.*');
     res := StrongHebrew.Lookup(s);
+    StrReplace(res, '<h4>', '<h4>H', false);
     copyright := StrongHebrew.Name;
   end
   else
@@ -7885,6 +7886,7 @@ begin
       WideShowMessage('Error in' + ExePath + StrongsDir + '\greek.*')
    else begin
       res := StrongGreek.Lookup(s);
+      StrReplace(res, '<h4>', '<h4>G', false);
      copyright := StrongGreek.Name;
    end;
   end;
@@ -12368,17 +12370,27 @@ begin
     Exit;
 
   MainPages.ActivePage := SearchTab;
-
   SearchCB.Text := StrongLB.Items[StrongLB.ItemIndex];
+
+  if MainBook.StrongsPrefixed then
+    CBList.ItemIndex := 0 // full book
+
+  else begin
+
+    if Copy(StrongLB.Items[StrongLB.ItemIndex],1,1)='H' then
+      SearchCB.Text := '0' + Copy(StrongLB.Items[StrongLB.ItemIndex],2,100)
+    else if Copy(StrongLB.Items[StrongLB.ItemIndex],1,1)='G' then
+      SearchCB.Text := Copy(StrongLB.Items[StrongLB.ItemIndex],2,100)
+    else
+      SearchCB.Text := StrongLB.Items[StrongLB.ItemIndex];
+
+    if Copy(SearchCB.Text, 1, 1) = '0' then
+      CBList.ItemIndex := 1               // old testament
+    else
+      CBList.ItemIndex := 2;              // new testament
+
+  end;
   CBParts.Checked := true;
-
-  if Copy(SearchCB.Text, 1, 1) = '0' then begin
-//    SearchCB.Text:=Copy(SearchCB.Text,2,$FFF);
-    CBList.ItemIndex := 1               // old testament
-  end
-  else
-    CBList.ItemIndex := 2;              // new testament
-
   FindButton.Click;
 end;
 
