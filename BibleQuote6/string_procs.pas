@@ -5,11 +5,14 @@ unit string_procs;
 interface
 
 uses
+  ShlObj,
   SysUtils,
   Classes,
   WideStrings,
   Windows,
   Graphics;
+
+   function GetMyDocuments: string;
 
 function UpperCaseFirstLetter(s: WideString): WideString;
 
@@ -765,5 +768,17 @@ begin
   if dPos > 0 then
     SetLength (aString, dPos - 1);  
 end;
+
+ function GetMyDocuments: string;
+ var
+    r: Bool;
+    path: array[0..Max_Path] of Char;
+ begin
+    r := ShGetSpecialFolderPath(0, path, CSIDL_Personal, False) ;
+    if not r then
+      Result :='C:\TEMP'
+    else
+    Result := Path;
+ end;
 
 end.

@@ -4,8 +4,8 @@ interface
 
 
 const
-      C_bqVersion='6.0.20111117';
-      C_bqDate='17.11.2011';
+      C_bqVersion='6.0.20120312';
+      C_bqDate='12.03.2012';
 
       C_CompressedModulesSubPath='compressed\modules';
       C_CommentariesSubPath='compressed\commentaries';
@@ -16,7 +16,7 @@ const
       C_HotModulessFileName='hotmodules.lst';
       C_CategoriesFile='cats.cfg';
       C_BQTechnoForumAddr='http://jesuschrist.ru/forum/B_biblequote.php';
-      C_BQQuickLoad='http://jesuschrist.ru/forum/B_biblequote.php';
+      C_BQQuickLoad='http://code.google.com/p/biblequote/downloads/';
       C_NumOfModulesToScan= 5;
       C_BulletChar=#9679;
 

@@ -1285,7 +1285,7 @@ begin
       div MAXHEIGHT;
 
     fnt := TFont.Create;
-    fnt.Name := MainCfgIni.SayDefault('MainFormFontName', 'Arial');
+    fnt.Name := MainCfgIni.SayDefault('MainFormFontName', 'Microsoft Sans Serif');
   //fnt.Charset := StrToInt(ini.SayDefault('MainFormFontCharset', '204'));
     fnt.Size := StrToInt(MainCfgIni.SayDefault('MainFormFontSize', '9'));
 
@@ -1308,7 +1308,7 @@ begin
 
     with Browser do
     begin
-      DefFontName := MainCfgIni.SayDefault('DefFontName', 'Times New Roman');
+      DefFontName := MainCfgIni.SayDefault('DefFontName', 'Microsoft Sans Serif');
       mBrowserDefaultFontName := DefFontName;
       DefFontSize := StrToInt(MainCfgIni.SayDefault('DefFontSize', '12'));
       DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor'
@@ -1337,7 +1337,7 @@ begin
 
     with SearchBrowser do
     begin
-      DefFontName := MainCfgIni.SayDefault('RefFontName', 'Times New Roman');
+      DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
       DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
       DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor'
         , Color2Hex(clWindowText)));
@@ -1397,7 +1397,7 @@ begin
     mFavorites := TBQFavoriteModules.Create(AddHotModule, DeleteHotModule,
       ReplaceHotModule, InsertHotModule, ForceForegroundLoad);
 
-    SaveFileDialog.InitialDir := MainCfgIni.SayDefault('SaveDirectory', 'c:\');
+    SaveFileDialog.InitialDir := MainCfgIni.SayDefault('SaveDirectory', GetMyDocuments);
     SelTextColor := MainCfgIni.SayDefault('SelTextColor', Color2Hex(clRed));
     PrintFootNote := MainCfgIni.SayDefault('PrintFootNote', '1') = '1';
 
@@ -6176,10 +6176,11 @@ procedure TMainForm.InitHotkeysSupport;
 begin
   SysHotKey := TSysHotKey.Create(Self);
   SysHotKey.OnHotKey := SysHotKeyHotKey;
-  SysHotKey.AddHotKey(vkQ, [hkExt]);
-  SysHotKey.AddHotKey(vkB, [hkCtrl, hkAlt]);
+  if ConfigFormHotKeyChoiceItemIndex = 0 then
+    SysHotKey.AddHotKey(vkQ, [hkExt])
+  else
+    SysHotKey.AddHotKey(vkB, [hkCtrl, hkAlt]);
   SysHotKey.Active := true;
-  ConfigFormHotKeyChoiceItemIndex := 0;
 end;
 
 procedure TMainForm.InitializeTaggedBookMarks;
@@ -12709,8 +12710,8 @@ end;
 
 procedure TMainForm.SysHotKeyHotKey(Sender: TObject; Index: Integer);
 begin
-  if Index <> ConfigFormHotKeyChoiceItemIndex then
-    Exit;
+ // if Index <> ConfigFormHotKeyChoiceItemIndex then
+  //  Exit;
 
   if TrayIcon.MinimizeToTray then
   begin
