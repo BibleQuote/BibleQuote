@@ -327,7 +327,7 @@ object ConfigForm: TConfigForm
       end
       object cbFullContextOnRestrictedLinks: TTntCheckBox
         Left = 8
-        Top = 206
+        Top = 193
         Width = 210
         Height = 17
         Caption = 'Full context on restricted links'
@@ -335,7 +335,7 @@ object ConfigForm: TConfigForm
       end
       object cbUseVerseHL: TTntCheckBox
         Left = 8
-        Top = 238
+        Top = 218
         Width = 210
         Height = 17
         Caption = 'Highlight verse hits'

@@ -23,10 +23,10 @@ uses
   Menus, TntMenus,
   ExtCtrls, TntExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
   TntDialogs, AlekPageControl, VirtualTrees, ToolWin, StdCtrls, rkGlassButton,
-  Buttons, TntButtons, Tabs, DockTabSet, Htmlview, SysUtils,  SysHot,bqHTMLViewerSite,
+  Buttons, TntButtons, DockTabSet, Htmlview, SysUtils,  SysHot,bqHTMLViewerSite,
   Bible,BibleQuoteUtils,bqICommandProcessor,bqWinUIServices,versesDB,bqVdtEditlink,
   bqEngine,MultiLanguage,bqLinksParserIntf,qNavTest,HTMLEmbedInterfaces,
-  MetaFilePrinter,Dict;
+  MetaFilePrinter,Dict, Tabs;
 
 const
   ConstBuildCode: WideString = '2011.09.08';
@@ -373,6 +373,7 @@ type
     tlbResolveLnks: TTntToolBar;
     TntToolButton1: TTntToolButton;
     TntToolButton2: TTntToolButton;
+    miShowSignatures: TTntMenuItem;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -668,6 +669,7 @@ type
       Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     procedure vstDicListAddToSelection(Sender: TBaseVirtualTree;
       Node: PVirtualNode);
+    procedure miShowSignaturesClick(Sender: TObject);
 //    procedure tbAddBibleLinkClick(Sender: TObject);
     //    procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
     //      Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -2160,6 +2162,7 @@ begin
     ini.Learn('ConfigFormHotKeyChoiceItemIndex',
       IntToStr(ConfigFormHotKeyChoiceItemIndex));
 
+
     ini.Learn('MinimizeToTray', IntToStr(Ord(TrayIcon.MinimizeToTray)));
 
 //  for i := 0 to SatelliteMenu.Items.Count - 1 do
@@ -3051,11 +3054,17 @@ begin
     //  s0 := '<font color=' + SelTextColor + '>&gt;&gt;&gt;' + s0 + '</font>';
 
     if (MainBook.isBible) and (not isCommentary) then begin      // if bible display verse numbers
+
+      if MainForm.miShowSignatures.Checked then
+        ss := MainBook.ShortNames[MainBook.CurBook] + IntToStr(MainBook.CurChapter) + ':'
+      else
+        ss := '';
+
       strVerseNumber := '<a href="verse ' + strVerseNumber
         //+ '">'
         + '" CLASS=OmegaVerseNumber>'
         + //style="font-family:' + 'Helvetica">' +
-        strVerseNumber + '</a>';
+        ss + strVerseNumber + '</a>';
       if MainBook.Trait[bqmtNoForcedLineBreaks] then
         strVerseNumber := '<sup>' + strVerseNumber + '</sup>';
       if MainBook.Trait[bqmtStrongs] then
@@ -8177,6 +8186,20 @@ begin
   SearchCB.Text := Trim(Browser.SelText);
   miSearch.Click;
   FindButtonClick(Sender);
+end;
+
+procedure TMainForm.miShowSignaturesClick(Sender: TObject);
+var
+  vti: TViewTabInfo;
+  savePosition:integer;
+begin
+  miShowSignatures.Checked := not miShowSignatures.Checked;
+
+  vti := GetActiveTabInfo();
+  vti[vtisShowStrongs] := StrongNumbersOn;
+  savePosition:=vti.mHtmlViewer.Position;
+  ProcessCommand(vti.mwsLocation, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
+  vti.mHtmlViewer.Position:=savePosition;
 end;
 
 procedure TMainForm.miCompareClick(Sender: TObject);

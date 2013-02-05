@@ -3,10 +3,10 @@ unit qNavTest;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Tabs, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, VirtualTrees, Contnrs, StdCtrls, TntStdCtrls, ExtCtrls, TntForms,
   WideStrings,
-  BibleQuoteUtils, DockTabSet, Tabs;
+  BibleQuoteUtils, DockTabSet;
 
 type
   TBQUseDisposition = (udMyLibrary, udParabibles);

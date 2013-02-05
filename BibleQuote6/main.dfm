@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 577
+  ClientHeight = 597
   ClientWidth = 714
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -42,10 +42,11 @@ object MainForm: TMainForm
     Left = 290
     Top = 24
     Width = 8
-    Height = 553
+    Height = 573
     AutoSnap = False
     MinSize = 100
     OnMoved = Splitter1Moved
+    ExplicitHeight = 553
   end
   object TTntToolButton
     Left = 0
@@ -61,16 +62,17 @@ object MainForm: TMainForm
     Left = 298
     Top = 24
     Width = 416
-    Height = 553
+    Height = 573
     Align = alClient
     Caption = 'MainPanel'
     TabOrder = 0
+    ExplicitHeight = 553
     object mViewTabs: TAlekPageControl
       AlignWithMargins = True
       Left = 4
       Top = 1
       Width = 411
-      Height = 530
+      Height = 550
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -89,49 +91,52 @@ object MainForm: TMainForm
       HideTabsHints = False
       OnDeleteTab = mViewTabsDeleteTab
       OnDblClick = mViewTabsDblClick
+      ExplicitHeight = 530
       object mInitialViewPage: TTntTabSheet
         PopupMenu = mViewTabsPopup
         OnContextPopup = mInitialViewPageContextPopup
+        ExplicitHeight = 500
         object FirstBrowser: THTMLViewer
           Left = 114
           Top = 10
           Width = 360
           Height = 249
-          OnHotSpotCovered = FirstBrowserHotSpotCovered
-          OnHotSpotClick = FirstBrowserHotSpotClick
-          OnImageRequest = FirstBrowserImageRequest
           TabOrder = 0
           PopupMenu = BrowserPopupMenu
-          DefBackground = 14870763
           BorderStyle = htSingle
-          HistoryMaxCount = 0
+          CharSet = DEFAULT_CHARSET
+          DefBackground = 14870763
           DefFontName = 'Times New Roman'
           DefPreFontName = 'Courier New'
+          HistoryMaxCount = 0
+          HtOptions = []
           NoSelect = False
-          CharSet = DEFAULT_CHARSET
+          PrintMarginBottom = 2.000000000000000000
           PrintMarginLeft = 2.000000000000000000
           PrintMarginRight = 2.000000000000000000
           PrintMarginTop = 2.000000000000000000
-          PrintMarginBottom = 2.000000000000000000
           PrintScale = 1.000000000000000000
-          htOptions = []
+          OnKeyDown = FirstBrowserKeyDown
+          OnKeyPress = FirstBrowserKeyPress
+          OnKeyUp = FirstBrowserKeyUp
           OnMouseUp = FirstBrowserMouseUp
           OnMouseWheel = FirstBrowserMouseWheel
-          OnKeyDown = FirstBrowserKeyDown
-          OnKeyUp = FirstBrowserKeyUp
-          OnKeyPress = FirstBrowserKeyPress
+          OnHotSpotClick = FirstBrowserHotSpotClick
+          OnHotSpotCovered = FirstBrowserHotSpotCovered
+          OnImageRequest = FirstBrowserImageRequest
           OnMouseDouble = FirstBrowserMouseDouble
         end
       end
     end
     object btmPaint: TPanel
       Left = 1
-      Top = 531
+      Top = 551
       Width = 414
       Height = 21
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitTop = 531
       object imgLoadProgress: TTntImage
         Tag = 1
         AlignWithMargins = True
@@ -224,8 +229,8 @@ object MainForm: TMainForm
     Left = 0
     Top = 24
     Width = 290
-    Height = 553
-    Hint = 'Strong'#39's Dictionary'
+    Height = 573
+    Hint = 'Memos'
     ActivePage = StrongTab
     Align = alLeft
     Images = theImageList
@@ -234,9 +239,11 @@ object MainForm: TMainForm
     OnChange = MainPagesChange
     OnMouseLeave = MainPagesMouseLeave
     HideTabsHints = False
+    ExplicitHeight = 553
     object GoTab: TTntTabSheet
       ImageIndex = 5
       TabHint = 'Navigate'
+      ExplicitHeight = 523
       object Splitter2: TTntSplitter
         Left = 0
         Top = 242
@@ -259,7 +266,6 @@ object MainForm: TMainForm
         BevelOuter = bvNone
         Constraints.MinHeight = 150
         TabOrder = 0
-        ExplicitWidth = 283
         DesignSize = (
           282
           242)
@@ -267,12 +273,12 @@ object MainForm: TMainForm
           Left = 4
           Top = 34
           Width = 277
-          Height = 27
+          Height = 23
           Hint = 'Select module to view'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 25
-          ItemHeight = 0
+          ItemHeight = 15
           TabOrder = 1
           OnChange = cbModulesChange
           OnCloseUp = cbModulesCloseUp
@@ -298,7 +304,7 @@ object MainForm: TMainForm
           Height = 173
           Hint = 'Select chapter to view'
           Anchors = [akTop, akRight, akBottom]
-          ItemHeight = 19
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 3
           OnClick = ChapterLBClick
@@ -318,7 +324,7 @@ object MainForm: TMainForm
           Left = 4
           Top = 3
           Width = 200
-          Height = 27
+          Height = 23
           Hint = 'Enter or paste verse link like Mk 10:30'
           Anchors = [akLeft, akTop, akRight]
           PopupMenu = MemoPopupMenu
@@ -370,22 +376,20 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 268
+        Height = 288
         ActivePage = BookmarksTab
         Align = alClient
         TabOrder = 1
         HideTabsHints = False
+        ExplicitHeight = 268
         object HistoryTab: TTntTabSheet
           Caption = 'HistoryTab'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
+          ExplicitHeight = 238
           object HistoryLB: TTntListBox
             Left = 0
             Top = 0
-            Width = 277
-            Height = 244
+            Width = 274
+            Height = 258
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -396,20 +400,18 @@ object MainForm: TMainForm
             OnClick = HistoryLBClick
             OnDblClick = HistoryLBDblClick
             OnKeyUp = HistoryLBKeyUp
+            ExplicitHeight = 238
           end
         end
         object BookmarksTab: TTntTabSheet
           Caption = 'BookmarksTab'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
+          ExplicitHeight = 238
           object BookmarksLB: TTntListBox
             Left = 0
             Top = 0
-            Width = 277
-            Height = 134
+            Width = 274
+            Height = 148
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -418,48 +420,50 @@ object MainForm: TMainForm
             OnClick = BookmarksLBClick
             OnDblClick = BookmarksLBDblClick
             OnKeyUp = BookmarksLBKeyUp
+            ExplicitHeight = 128
           end
           object BookmarkPanel: TTntPanel
             Left = 0
-            Top = 128
+            Top = 148
             Width = 274
             Height = 110
             Align = alBottom
             BevelOuter = bvNone
             BorderWidth = 10
             TabOrder = 1
-            ExplicitTop = 134
-            ExplicitWidth = 277
+            ExplicitTop = 128
             object BookmarkLabel: TTntLabel
-              Left = 8
-              Top = 8
-              Width = 75
-              Height = 15
+              Left = 10
+              Top = 10
+              Width = 254
+              Height = 90
               Align = alClient
               Caption = 'BookmarkLabel'
               WordWrap = True
+              ExplicitLeft = 8
+              ExplicitTop = 8
+              ExplicitWidth = 75
+              ExplicitHeight = 15
             end
           end
         end
         object tbQuickSearch: TTntTabSheet
           Caption = #1041#1099#1089#1090#1088#1099#1081' '#1087#1086#1080#1089#1082
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
+          ExplicitHeight = 238
           object SearchInWindowLabel: TTntLabel
             Left = 0
             Top = 0
-            Width = 94
+            Width = 274
             Height = 15
             Align = alTop
             Caption = #1053#1072#1081#1090#1080' '#1074' '#1101#1090#1086#1084' '#1086#1082#1085#1077
             Layout = tlCenter
+            ExplicitWidth = 94
           end
           object QuickSearchPanel: TTntPanel
             Left = 0
             Top = 15
-            Width = 277
+            Width = 274
             Height = 106
             Align = alTop
             BevelOuter = bvNone
@@ -479,16 +483,15 @@ object MainForm: TMainForm
             object SearchEdit: TTntEdit
               Left = 39
               Top = 17
-              Width = 196
-              Height = 27
+              Width = 190
+              Height = 23
               Hint = ' '
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 1
               OnKeyUp = SearchEditKeyUp
-              ExplicitWidth = 199
             end
             object btnQuickSearchFwd: TTntBitBtn
-              Left = 243
+              Left = 237
               Top = 16
               Width = 29
               Height = 26
@@ -496,7 +499,6 @@ object MainForm: TMainForm
               TabOrder = 2
               OnClick = btnQuickSearchFwdClick
               Style = bsNew
-              ExplicitLeft = 246
             end
           end
         end
@@ -507,35 +509,31 @@ object MainForm: TMainForm
       ParentShowHint = False
       ShowHint = True
       TabHint = 'Search'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 523
       object SearchBrowser: THTMLViewer
         Left = 0
         Top = 179
         Width = 282
-        Height = 344
-        OnHotSpotClick = SearchBrowserHotSpotClick
+        Height = 364
         TabOrder = 0
         Align = alClient
         PopupMenu = RefPopupMenu
         BorderStyle = htSingle
-        HistoryMaxCount = 0
+        CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
         DefPreFontName = 'Courier New'
+        HistoryMaxCount = 0
+        HtOptions = []
         NoSelect = False
-        CharSet = RUSSIAN_CHARSET
+        PrintMarginBottom = 2.000000000000000000
         PrintMarginLeft = 2.000000000000000000
         PrintMarginRight = 2.000000000000000000
         PrintMarginTop = 2.000000000000000000
-        PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
-        htOptions = []
         OnKeyDown = SearchBrowserKeyDown
         OnKeyUp = SearchBrowserKeyUp
-        ExplicitWidth = 283
-        ExplicitHeight = 350
+        OnHotSpotClick = SearchBrowserHotSpotClick
+        ExplicitHeight = 344
       end
       object SearchBoxPanel: TTntPanel
         Left = 0
@@ -545,7 +543,6 @@ object MainForm: TMainForm
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitWidth = 283
         DesignSize = (
           282
           179)
@@ -560,12 +557,12 @@ object MainForm: TMainForm
           Left = 4
           Top = 3
           Width = 226
-          Height = 27
+          Height = 23
           Hint = 'enter word or expression to search'
           AutoCloseUp = True
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 10
-          ItemHeight = 0
+          ItemHeight = 15
           TabOrder = 0
           OnKeyUp = SearchCBKeyUp
         end
@@ -577,7 +574,7 @@ object MainForm: TMainForm
           Hint = 'Search scope'
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 15
-          ItemHeight = 0
+          ItemHeight = 15
           TabOrder = 1
           OnDropDown = CBListDropDown
           Items.Strings = (
@@ -650,7 +647,7 @@ object MainForm: TMainForm
           Hint = 'Number of result to display per view'
           Style = csDropDownList
           Anchors = [akTop, akRight]
-          ItemHeight = 0
+          ItemHeight = 15
           TabOrder = 8
           OnChange = CBQtyChange
           Items.Strings = (
@@ -674,39 +671,37 @@ object MainForm: TMainForm
     object DicTab: TTntTabSheet
       ImageIndex = 17
       TabHint = 'Dictionaries'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 523
       object DicBrowser: THTMLViewer
         Left = 0
         Top = 234
-        Width = 283
-        Height = 292
-        OnHotSpotCovered = FirstBrowserHotSpotCovered
-        OnHotSpotClick = DicBrowserHotSpotClick
+        Width = 282
+        Height = 309
         TabOrder = 0
         Align = alClient
         PopupMenu = RefPopupMenu
         BorderStyle = htSingle
-        HistoryMaxCount = 0
+        CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
         DefPreFontName = 'Courier New'
+        HistoryMaxCount = 0
+        HtOptions = []
         NoSelect = False
-        ScrollBars = ssVertical
-        CharSet = RUSSIAN_CHARSET
+        PrintMarginBottom = 2.000000000000000000
         PrintMarginLeft = 2.000000000000000000
         PrintMarginRight = 2.000000000000000000
         PrintMarginTop = 2.000000000000000000
-        PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
-        htOptions = []
+        ScrollBars = ssVertical
+        OnHotSpotClick = DicBrowserHotSpotClick
+        OnHotSpotCovered = FirstBrowserHotSpotCovered
         OnMouseDouble = DicBrowserMouseDouble
+        ExplicitHeight = 289
       end
       object DicPanel: TTntPanel
         Left = 0
         Top = 0
-        Width = 283
+        Width = 282
         Height = 178
         Align = alTop
         Anchors = []
@@ -719,12 +714,12 @@ object MainForm: TMainForm
         object DicFilterCB: TTntComboBox
           Left = 4
           Top = 5
-          Width = 277
-          Height = 27
+          Width = 275
+          Height = 23
           Hint = 'Select dictionary to search within'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 0
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 0
           OnChange = DicFilterCBChange
@@ -732,11 +727,11 @@ object MainForm: TMainForm
         object DicEdit: TTntComboBox
           Left = 4
           Top = 31
-          Width = 277
-          Height = 27
+          Width = 275
+          Height = 23
           Hint = 'ent word to search here'
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 0
+          ItemHeight = 15
           TabOrder = 1
           OnChange = DicEditChange
           OnKeyPress = DicEditKeyPress
@@ -745,7 +740,7 @@ object MainForm: TMainForm
         object vstDicList: TVirtualStringTree
           Left = 4
           Top = 60
-          Width = 277
+          Width = 275
           Height = 115
           Anchors = [akLeft, akTop, akRight]
           DefaultNodeHeight = 16
@@ -769,7 +764,6 @@ object MainForm: TMainForm
           OnDblClick = DicLBDblClick
           OnGetText = vstDicListGetText
           OnKeyPress = DicLBKeyPress
-          ExplicitWidth = 278
           Columns = <>
         end
       end
@@ -783,7 +777,6 @@ object MainForm: TMainForm
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitWidth = 283
         DesignSize = (
           282
           56)
@@ -798,11 +791,11 @@ object MainForm: TMainForm
           Left = 3
           Top = 26
           Width = 276
-          Height = 27
+          Height = 23
           Hint = 'Select dictionary to show entry from'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 0
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 0
           OnChange = DicCBChange
@@ -812,30 +805,32 @@ object MainForm: TMainForm
     object StrongTab: TTntTabSheet
       ImageIndex = 18
       TabHint = 'Strong'#39's Dictionary'
+      ExplicitHeight = 523
       object StrongBrowser: THTMLViewer
         AlignWithMargins = True
         Left = 3
         Top = 210
         Width = 276
-        Height = 310
-        OnHotSpotClick = StrongBrowserHotSpotClick
+        Height = 330
         TabOrder = 0
         Align = alClient
         PopupMenu = RefPopupMenu
         BorderStyle = htSingle
-        HistoryMaxCount = 0
+        CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
         DefPreFontName = 'Courier New'
+        HistoryMaxCount = 0
+        HtOptions = [htNoLinkUnderline]
         NoSelect = False
-        ScrollBars = ssVertical
-        CharSet = RUSSIAN_CHARSET
+        PrintMarginBottom = 2.000000000000000000
         PrintMarginLeft = 2.000000000000000000
         PrintMarginRight = 2.000000000000000000
         PrintMarginTop = 2.000000000000000000
-        PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
-        htOptions = [htNoLinkUnderline]
+        ScrollBars = ssVertical
+        OnHotSpotClick = StrongBrowserHotSpotClick
         OnMouseDouble = StrongBrowserMouseDouble
+        ExplicitHeight = 310
       end
       object StrongPanel: TTntPanel
         Left = 0
@@ -897,37 +892,35 @@ object MainForm: TMainForm
     end
     object CommentsTab: TTntTabSheet
       TabHint = 'Commentaries'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 523
       object CommentsBrowser: THTMLViewer
         Left = 0
         Top = 30
-        Width = 283
-        Height = 496
-        OnHotSpotCovered = FirstBrowserHotSpotCovered
-        OnHotSpotClick = CommentsBrowserHotSpotClick
+        Width = 282
+        Height = 513
         TabOrder = 0
         Align = alClient
         PopupMenu = RefPopupMenu
         BorderStyle = htSingle
-        HistoryMaxCount = 0
+        CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
         DefPreFontName = 'Courier New'
+        HistoryMaxCount = 0
+        HtOptions = []
         NoSelect = False
-        CharSet = RUSSIAN_CHARSET
+        PrintMarginBottom = 2.000000000000000000
         PrintMarginLeft = 2.000000000000000000
         PrintMarginRight = 2.000000000000000000
         PrintMarginTop = 2.000000000000000000
-        PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
-        htOptions = []
+        OnHotSpotClick = CommentsBrowserHotSpotClick
+        OnHotSpotCovered = FirstBrowserHotSpotCovered
+        ExplicitHeight = 493
       end
       object Panel4: TTntPanel
         Left = 0
         Top = 0
-        Width = 283
+        Width = 282
         Height = 30
         Align = alTop
         BevelOuter = bvNone
@@ -938,12 +931,12 @@ object MainForm: TMainForm
         object CommentsCB: TTntComboBox
           Left = 1
           Top = 3
-          Width = 256
-          Height = 27
+          Width = 254
+          Height = 23
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 25
-          ItemHeight = 0
+          ItemHeight = 15
           PopupMenu = EmptyPopupMenu
           TabOrder = 0
           OnChange = CommentsCBChange
@@ -951,7 +944,7 @@ object MainForm: TMainForm
           OnDropDown = CommentsCBDropDown
         end
         object btnOnlyMeaningful: TrkGlassButton
-          Left = 260
+          Left = 258
           Top = 4
           Width = 22
           Height = 20
@@ -978,22 +971,18 @@ object MainForm: TMainForm
           TabOrder = 1
           TextAlign = taLeft
           OnClick = btnOnlyMeaningfulClick
-          ExplicitLeft = 261
         end
       end
     end
     object MemoTab: TTntTabSheet
       ImageIndex = 2
       TabHint = 'Memos'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 523
       object TREMemo: TTntRichEdit
         Left = 0
-        Top = 20
-        Width = 283
-        Height = 477
+        Top = 25
+        Width = 282
+        Height = 489
         Align = alClient
         Font.Charset = RUSSIAN_CHARSET
         Font.Color = clWindowText
@@ -1005,17 +994,17 @@ object MainForm: TMainForm
         ScrollBars = ssVertical
         TabOrder = 0
         OnChange = TREMemoChange
+        ExplicitHeight = 469
       end
       object Panel3: TTntPanel
         Left = 0
-        Top = 494
+        Top = 514
         Width = 282
         Height = 29
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 497
-        ExplicitWidth = 283
+        ExplicitTop = 494
         object MemoLabel: TTntLabel
           Left = 4
           Top = 4
@@ -1036,7 +1025,6 @@ object MainForm: TMainForm
         GradientEndColor = 11517638
         Images = theImageList
         TabOrder = 2
-        ExplicitWidth = 354
         object MemoOpen: TTntToolButton
           Left = 0
           Top = 0
@@ -1127,43 +1115,38 @@ object MainForm: TMainForm
     object XRefTab: TTntTabSheet
       ImageIndex = 19
       TabHint = 'TSK'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 523
       object XRefBrowser: THTMLViewer
         Left = 0
         Top = 0
-        Width = 283
-        Height = 526
-        OnHotSpotClick = XRefBrowserHotSpotClick
+        Width = 282
+        Height = 543
         TabOrder = 0
         Align = alClient
         PopupMenu = RefPopupMenu
         BorderStyle = htSingle
-        HistoryMaxCount = 0
+        CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
         DefPreFontName = 'Courier New'
+        HistoryMaxCount = 0
+        HtOptions = []
         NoSelect = False
-        CharSet = RUSSIAN_CHARSET
+        PrintMarginBottom = 2.000000000000000000
         PrintMarginLeft = 2.000000000000000000
         PrintMarginRight = 2.000000000000000000
         PrintMarginTop = 2.000000000000000000
-        PrintMarginBottom = 2.000000000000000000
         PrintScale = 1.000000000000000000
-        htOptions = []
+        OnHotSpotClick = XRefBrowserHotSpotClick
+        ExplicitHeight = 523
       end
     end
     object tbList: TTntTabSheet
       ImageIndex = 39
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 523
       object TntToolBar2: TTntToolBar
         Left = 0
         Top = 0
-        Width = 359
+        Width = 282
         Height = 30
         ButtonHeight = 30
         ButtonWidth = 31
@@ -1190,9 +1173,9 @@ object MainForm: TMainForm
       end
       object vdtTags_Verses: TVirtualDrawTree
         Left = 0
-        Top = 45
-        Width = 283
-        Height = 481
+        Top = 53
+        Width = 282
+        Height = 490
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1249,17 +1232,18 @@ object MainForm: TMainForm
         OnResize = vdtTags_VersesResize
         OnShowScrollbar = vdtTags_VersesShowScrollbar
         OnStateChange = vdtTags_VersesStateChange
+        ExplicitHeight = 470
         Columns = <>
       end
       object cbbTagsFilter: TTntComboBox
         Left = 0
-        Top = 24
-        Width = 283
-        Height = 27
+        Top = 30
+        Width = 282
+        Height = 23
         Align = alTop
         BevelInner = bvSpace
         BevelOuter = bvSpace
-        ItemHeight = 0
+        ItemHeight = 15
         TabOrder = 2
         OnChange = cbbTagsFilterChange
       end
@@ -1289,8 +1273,6 @@ object MainForm: TMainForm
       Caption = 'lbTitleLabel'
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 478
-      ExplicitTop = 3
       ExplicitHeight = 15
     end
     object lbCopyRightNotice: TTntLabel
@@ -1587,7 +1569,7 @@ object MainForm: TMainForm
         BevelInner = bvNone
         BevelOuter = bvNone
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 15
         TabOrder = 0
         OnChange = LinksCBChange
       end
@@ -1966,6 +1948,10 @@ object MainForm: TMainForm
         AutoCheck = True
         Caption = 'Recognize Bible Links'
         OnClick = miRecognizeBibleLinksClick
+      end
+      object miShowSignatures: TTntMenuItem
+        Caption = 'Show signatures for every verse'
+        OnClick = miShowSignaturesClick
       end
       object N19: TTntMenuItem
         Caption = '-'

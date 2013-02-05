@@ -171,8 +171,7 @@
 			<VersionInfoKeys Name="ProductVersion">6.0.2a1d2b</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments">Bible Research and Study Tool</VersionInfoKeys>
 			<VersionInfoKeys Name="PrivateBuild">Yes</VersionInfoKeys>
-		</VersionInfoKeys>  
-    <Excluded_Packages>
+		</VersionInfoKeys>  <Excluded_Packages>
       <Excluded_Packages Name="E:\Documents and Settings\Usr\Мои документы\Borland Studio Projects\Bpl\OverbyteIcsD2006Design.bpl">Overbyte ICS Design-Time Package Delphi 2006</Excluded_Packages>
     </Excluded_Packages>
   </Delphi.Personality>
