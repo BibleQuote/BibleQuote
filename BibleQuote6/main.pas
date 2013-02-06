@@ -1041,7 +1041,7 @@ var
 
   HelpFileName: WideString;
 
-//  TempDir: WideString; // temporary file storage -- should be emptied on exit
+  TempDir: WideString; // temporary file storage -- should be emptied on exit
   TemplatePath: WideString;
   SelTextColor: WideString;             // color strings after search
   g_VerseBkHlColor: WideString;
@@ -2423,9 +2423,9 @@ begin
 
   TemplatePath := ExePath + 'templates\default\';
 
-//  TempDir := WindowsTempDirectory + 'BibleQuote\';
-//  if not FileExists(TempDir) then
-//    ForceDirectories(TempDir);
+  TempDir := WindowsTempDirectory + 'BibleQuote\';
+  if not FileExists(TempDir) then
+    ForceDirectories(TempDir);
 
   if FileExists(TemplatePath + 'text.htm') then
     TextTemplate := TextFromFile(TemplatePath + 'text.htm')
@@ -3815,10 +3815,74 @@ end;
 function TMainForm.AddFolderModules(path: WideString; tempBook: TBible;
   background: boolean; addAsCommentaries: boolean = false): boolean;
 var
-  count: integer;
+  count, i: integer;
   modEntry: TModuleEntry;
   mt: TModuleType;
+  inilist: TStringList;
+  cmd: WideString;
 begin
+  __searchInitialized := true;
+  DeleteFile(TempDir + 'listing.txt');
+  while not FileExists(TempDir + 'listing.txt') do
+  begin
+    cmd := 'dir /s /b "' + path + 'bibleqt.ini" > ' + TempDir + 'listing.txt';
+    ShellExecute(Application.Handle, nil,
+//  'dir /s /b "D:\Bibles\bibleqt.ini" > D:\temp\biblequote\listing.txt',
+//  'dir /s /b "' + s + 'bibleqt.ini" > ' + td + 'listing.txt',
+    PChar(cmd),
+    nil, nil, SW_HIDE);
+  end;
+  inilist := TStringList.Create;
+  inilist.LoadFromFile(TempDir + 'listing.txt');
+
+  for i:=0 to inilist.Count-1 do 
+  begin
+        try
+          tempBook.IniFile := inilist[i];
+          //ТИП МОДУЛЯ
+          if (addAsCommentaries) then
+            mt := modtypeComment
+          else
+          begin
+            if tempBook.isBible then
+              mt := modtypeBible
+            else
+              mt := modtypeBook;
+          end;
+
+          modEntry := TModuleEntry.Create(mt, tempBook.Name, tempBook.ShortName,
+            tempBook.ShortPath, EmptyWideStr, tempBook.GetStucture(), tempBook.Categories);
+          S_cachedModules.Add(modEntry);
+
+          {f}if not (background) then
+          begin
+//            {o}ModulesList.Add(tempBook.Name + ' $$$ ' + tempBook.ShortPath);
+//            {r}ModulesCodeList.Add(tempBook.ShortName);
+            {e}if addAsCommentaries then
+            begin
+//              {g}Comments.Add(tempBook.Name);
+//              {r}CommentsPaths.Add(tempBook.ShortPath);
+              {o}
+            end
+              {u}
+            else
+            begin
+//              {n}if tempBook.isBible then
+//                Bibles.Add(tempBook.Name)
+//                  {d}
+//              else
+//                Books.Add(tempBook.Name);
+              { }
+            end;
+          end;                          //if not background
+        except
+        end;
+	end;
+  
+  inilist.Clear;
+  __searchInitialized := false;
+  result := true;
+(***
   //count - либо несколько либо все
   count := C_NumOfModulesToScan + (ord(not background) shl 12);
   if not (__searchInitialized) then
@@ -3885,6 +3949,7 @@ begin
   end
   else
     result := false;                    // нужен повторный проход
+***)	
 end;
 (*AlekId:/Добавлено*)
 
@@ -5773,7 +5838,7 @@ begin
   if not mAllBkScanDone then
   begin
     repeat
-      LoadModules(true);
+      LoadModules(false);
     until mAllBkScanDone;
 
     Application.OnIdle := nil;
@@ -5814,14 +5879,15 @@ begin
     MainForm.Height := 420;
 
   // clearing temporary files directory
-//  if FindFirst(TempDir + '*.*', faAnyFile, F) = 0 then
-//    repeat
-//      if (F.Name <> '.') and (F.Name <> '..') then
-//        DeleteFile(TempDir + F.Name);
-//    until FindNext(F) <> 0;
-//
-//  TempDir := Copy(TempDir, 1, Length(TempDir) - 1);
-//  RemoveDir(TempDir);
+  if FindFirst(TempDir + '*.*', faAnyFile, F) = 0 then
+    repeat
+      if (F.Name <> '.') and (F.Name <> '..') then
+        DeleteFile(TempDir + F.Name);
+    until FindNext(F) <> 0;
+
+  TempDir := Copy(TempDir, 1, Length(TempDir) - 1);
+  RemoveDir(TempDir);
+  
   writeln(bqNowDateTimeString(), 'FormClose entered');
   SaveConfiguration;
   Flush(Output);
@@ -6118,7 +6184,7 @@ except end;
 //  end;
 {$ENDIF}
   if not mAllBkScanDone then begin
-    LoadModules(true);
+    LoadModules(false);
     if mAllBkScanDone then
     begin
       Self.UpdateFromCashed();
