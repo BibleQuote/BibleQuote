@@ -40,9 +40,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-05-13 02:22:59 +0200 (jeu., 13 mai 2010)                           $ }
-{ Revision:      $Rev:: 3250                                                                     $ }
-{ Author:        $Author:: ahuser                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -53,13 +53,15 @@ unit JclGraphics;
 interface
 
 uses
-  Windows,
-  Classes, SysUtils,
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.Classes, System.SysUtils, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  {$ELSE ~HAS_UNITSCOPE}
+  Windows, Classes, SysUtils, Graphics, Controls, Forms,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
-  Graphics, JclGraphUtils, Controls,
-  JclBase;
+  JclGraphUtils, JclBase;
 
 type
   EJclGraphicsError = class(EJclError);
@@ -210,6 +212,7 @@ type
   TJclThreadPersistent = class(TPersistent)
   private
     FLock: TRTLCriticalSection;
+
     FLockCount: Integer;
     FUpdateCount: Integer;
     FOnChanging: TNotifyEvent;
@@ -510,6 +513,7 @@ function CreateRegionFromBitmap(Bitmap: TBitmap; RegionColor: TColor;
   RegionBitmapMode: TJclRegionBitmapMode; UseAlphaChannel: Boolean = False): HRGN;
 procedure ScreenShot(bm: TBitmap; Left, Top, Width, Height: Integer; Window: THandle = HWND_DESKTOP); overload;
 procedure ScreenShot(bm: TBitmap; IncludeTaskBar: Boolean = True); overload;
+procedure ScreenShot(bm: TBitmap; FormToPrint: TCustomForm); overload;
 function MapWindowRect(hWndFrom, hWndTo: THandle; ARect: TRect):TRect;
 
 // PolyLines and Polygons
@@ -540,9 +544,9 @@ procedure SetGamma(Gamma: Single = 0.7);
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/vcl/JclGraphics.pas $';
-    Revision: '$Revision: 3250 $';
-    Date: '$Date: 2010-05-13 02:22:59 +0200 (jeu., 13 mai 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\vcl';
     Extra: '';
     Data: nil
@@ -552,6 +556,17 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.Math,
+  Winapi.CommCtrl, Winapi.ShellApi,
+  {$IFDEF HAS_UNIT_GIFIMG}
+  Vcl.Imaging.GifImg,
+  {$ENDIF HAS_UNIT_GIFIMG}
+  {$IFDEF HAS_UNIT_PNGIMAGE}
+  Vcl.Imaging.PngImage,
+  {$ENDIF HAS_UNIT_PNGIMAGE}
+  Vcl.ClipBrd, Vcl.Imaging.JPeg, System.TypInfo,
+  {$ELSE ~HAS_UNITSCOPE}
   Math,
   CommCtrl, ShellApi,
   {$IFDEF HAS_UNIT_GIFIMG}
@@ -561,15 +576,17 @@ uses
   PngImage,
   {$ENDIF HAS_UNIT_PNGIMAGE}
   ClipBrd, JPeg, TypInfo,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclVclResources,
   JclSysUtils,
   JclLogic;
 
 type
-  TRGBInt = record
+  TBGRAInt = record
     R: Integer;
     G: Integer;
     B: Integer;
+    A: Integer;
   end;
 
   PBGRA = ^TBGRA;
@@ -580,23 +597,20 @@ type
     A: Byte;
   end;
 
-  PPixelArray = ^TPixelArray;
-  TPixelArray = array [0..0] of TBGRA;
-
   TBitmapFilterFunction = function(Value: Single): Single;
 
   PContributor = ^TContributor;
   TContributor = record
-   Weight: Integer; // Pixel Weight
-   Pixel: Integer;  // Source Pixel
+    Weight: Integer; // Pixel Weight
+    Pixel: Integer;  // Source Pixel
   end;
 
   TContributors = array of TContributor;
 
   // list of source pixels contributing to a destination pixel
   TContributorEntry = record
-   N: Integer;
-   Contributors: TContributors;
+    N: Integer;
+    Contributors: TContributors;
   end;
 
   TContributorList = array of TContributorEntry;
@@ -616,12 +630,13 @@ threadvar
   CurrentLineR: array of Integer;
   CurrentLineG: array of Integer;
   CurrentLineB: array of Integer;
+  CurrentLineA: array of Integer;
 
 //=== Helper functions =======================================================
 
 function IntToByte(Value: Integer): Byte;
 begin
-  Result := Math.Max(0, Math.Min(255, Value));
+  Result := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Max(0, {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Min(255, Value));
 end;
 
 procedure CheckBitmaps(Dst, Src: TJclBitmap32);
@@ -841,16 +856,25 @@ const
    );
 
 procedure FillLineCache(N, Delta: Integer; Line: Pointer);
+type
+  PIntArray = ^TIntArray;
+  TIntArray = array[0..MaxInt div SizeOf(Integer) - 1] of Integer;
 var
   I: Integer;
   Run: PBGRA;
+  R, G, B, A: PIntegerArray;
 begin
   Run := Line;
+  R := @CurrentLineR[0];
+  G := @CurrentLineG[0];
+  B := @CurrentLineB[0];
+  A := @CurrentLineA[0];
   for I := 0 to N - 1 do
   begin
-    CurrentLineR[I] := Run.R;
-    CurrentLineG[I] := Run.G;
-    CurrentLineB[I] := Run.B;
+    R[I] := Run.R;
+    G[I] := Run.G;
+    B[I] := Run.B;
+    A[I] := Run.A;
     Inc(PByte(Run), Delta);
   end;
 end;
@@ -858,7 +882,7 @@ end;
 function ApplyContributors(N: Integer; Contributors: TContributors): TBGRA;
 var
   J: Integer;
-  RGB: TRGBInt;
+  RGB: TBGRAInt;
   Total,
   Weight: Integer;
   Pixel: Cardinal;
@@ -867,6 +891,7 @@ begin
   RGB.R := 0;
   RGB.G := 0;
   RGB.B := 0;
+  RGB.A := 0;
   Total := 0;
   Contr := @Contributors[0];
   for J := 0 to N - 1 do
@@ -877,6 +902,7 @@ begin
     Inc(RGB.R, CurrentLineR[Pixel] * Weight);
     Inc(RGB.G, CurrentLineG[Pixel] * Weight);
     Inc(RGB.B, CurrentLineB[Pixel] * Weight);
+    Inc(RGB.A, CurrentLineA[Pixel] * Weight);
     Inc(Contr);
   end;
 
@@ -885,12 +911,14 @@ begin
     Result.R := IntToByte(RGB.R shr 8);
     Result.G := IntToByte(RGB.G shr 8);
     Result.B := IntToByte(RGB.B shr 8);
+    Result.A := IntToByte(RGB.A shr 8);
   end
   else
   begin
     Result.R := IntToByte(RGB.R div Total);
     Result.G := IntToByte(RGB.G div Total);
     Result.B := IntToByte(RGB.B div Total);
+    Result.A := IntToByte(RGB.A div Total);
   end;
 end;
 
@@ -908,7 +936,7 @@ var
   Left, Right: Integer;   // Filter calculation variables
   Work: TBitmap;
   ContributorList: TContributorList;
-  SourceLine, DestLine: PPixelArray;
+  SourceLine, DestLine: PBGRA;
   DestPixel: PBGRA;
   Delta, DestDelta: Integer;
   SourceHeight, SourceWidth: Integer;
@@ -945,8 +973,8 @@ begin
       begin
         ContributorList[I].N := 0;
         Center := I / ScaleX;
-        Left := Math.Floor(Center - Width);
-        Right := Math.Ceil(Center + Width);
+        Left := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Floor(Center - Width);
+        Right := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Ceil(Center + Width);
         SetLength(ContributorList[I].Contributors, Right - Left + 1);
         for J := Left to Right do
         begin
@@ -976,8 +1004,8 @@ begin
       begin
         ContributorList[I].N := 0;
         Center := I / ScaleX;
-        Left := Math.Floor(Center - Radius);
-        Right := Math.Ceil(Center + Radius);
+        Left := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Floor(Center - Radius);
+        Right := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Ceil(Center + Radius);
         SetLength(ContributorList[I].Contributors, Right - Left + 1);
         for J := Left to Right do
         begin
@@ -1005,6 +1033,7 @@ begin
     SetLength(CurrentLineR, SourceWidth);
     SetLength(CurrentLineG, SourceWidth);
     SetLength(CurrentLineB, SourceWidth);
+    SetLength(CurrentLineA, SourceWidth);
     for K := 0 to SourceHeight - 1 do
     begin
       SourceLine := Source.ScanLine[K];
@@ -1036,8 +1065,8 @@ begin
       begin
         ContributorList[I].N := 0;
         Center := I / ScaleY;
-        Left := Math.Floor(Center - Width);
-        Right := Math.Ceil(Center + Width);
+        Left := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Floor(Center - Width);
+        Right := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Ceil(Center + Width);
         SetLength(ContributorList[I].Contributors, Right - Left + 1);
         for J := Left to Right do
         begin
@@ -1067,8 +1096,8 @@ begin
       begin
         ContributorList[I].N := 0;
         Center := I / ScaleY;
-        Left := Math.Floor(Center - Radius);
-        Right := Math.Ceil(Center + Radius);
+        Left := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Floor(Center - Radius);
+        Right := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}Math.Ceil(Center + Radius);
         SetLength(ContributorList[I].Contributors, Right - Left + 1);
         for J := Left to Right do
         begin
@@ -1095,11 +1124,12 @@ begin
     SetLength(CurrentLineR, SourceHeight);
     SetLength(CurrentLineG, SourceHeight);
     SetLength(CurrentLineB, SourceHeight);
+    SetLength(CurrentLineA, SourceHeight);
 
     SourceLine := Work.ScanLine[0];
-    Delta := Integer(Work.ScanLine[1]) - Integer(SourceLine);
+    Delta := PAnsiChar(Work.ScanLine[1]) - PAnsiChar(SourceLine); // don't use TJclAddr here because of IntOverflow
     DestLine := Target.ScanLine[0];
-    DestDelta := Integer(Target.ScanLine[1]) - Integer(DestLine);
+    DestDelta := PAnsiChar(Target.ScanLine[1]) - PAnsiChar(DestLine); // don't use TJclAddr here because of IntOverflow
     for K := 0 to TargetWidth - 1 do
     begin
       DestPixel := Pointer(DestLine);
@@ -1108,7 +1138,7 @@ begin
         with ContributorList[I] do
         begin
           DestPixel^ := ApplyContributors(N, ContributorList[I].Contributors);
-          Inc(Integer(DestPixel), DestDelta);
+          Inc(INT_PTR(DestPixel), DestDelta);
         end;
       Inc(SourceLine);
       Inc(DestLine);
@@ -1125,6 +1155,7 @@ begin
     CurrentLineR := nil;
     CurrentLineG := nil;
     CurrentLineB := nil;
+    CurrentLineA := nil;
     Target.Modified := True;
   end;
 end;
@@ -2099,23 +2130,24 @@ begin
   WinDC := GetDC(Window);
   if WinDC = 0 then
     raise EJclGraphicsError.CreateRes(@RsNoDeviceContextForWindow);
+  try
+    // Palette-device?
+    if (GetDeviceCaps(WinDC, RASTERCAPS) and RC_PALETTE) = RC_PALETTE then
+    begin
+      ResetMemory(Pal, SizeOf(TMaxLogPalette));  // fill the structure with zeros
+      Pal.palVersion := $300;                     // fill in the palette version
 
-  // Palette-device?
-  if (GetDeviceCaps(WinDC, RASTERCAPS) and RC_PALETTE) = RC_PALETTE then
-  begin
-    ResetMemory(Pal, SizeOf(TMaxLogPalette));  // fill the structure with zeros
-    Pal.palVersion := $300;                     // fill in the palette version
+      // grab the system palette entries...
+      Pal.palNumEntries := GetSystemPaletteEntries(WinDC, 0, 256, Pal.palPalEntry);
+      if Pal.PalNumEntries <> 0 then
+        bm.Palette := CreatePalette(PLogPalette(@Pal)^);
+    end;
 
-    // grab the system palette entries...
-    Pal.palNumEntries := GetSystemPaletteEntries(WinDC, 0, 256, Pal.palPalEntry);
-    if Pal.PalNumEntries <> 0 then
-      bm.Palette := CreatePalette(PLogPalette(@Pal)^);
+    // copy from the screen to our bitmap...
+    BitBlt(bm.Canvas.Handle, 0, 0, Width, Height, WinDC, Left, Top, SRCCOPY);
+  finally
+    ReleaseDC(Window, WinDC);        // finally, relase the DC of the window
   end;
-
-  // copy from the screen to our bitmap...
-  BitBlt(bm.Canvas.Handle, 0, 0, Width, Height, WinDC, Left, Top, SRCCOPY);
-
-  ReleaseDC(Window, WinDC);        // finally, relase the DC of the window
 end;
 
 procedure ScreenShot(bm: TBitmap; IncludeTaskBar: Boolean = True); overload;
@@ -2132,6 +2164,15 @@ begin
   else
     SystemParametersInfo(SPI_GETWORKAREA, 0, @R, 0);
   ScreenShot(bm, R.Left, R.Top, R.Right, R.Bottom, HWND_DESKTOP);
+end;
+
+procedure ScreenShot(bm: TBitmap; FormToPrint: TCustomForm); overload;
+begin
+  //Prints the entire forms area.
+  if FormToPrint <> nil then
+    ScreenShot(bm, FormToPrint.Left, FormToPrint.Top, FormToPrint.Width, FormToPrint.Height, FormToPrint.Handle)
+  else
+    raise EJclGraphicsError.CreateResFmt(@RSInvalidFormOrComponent, ['form'])
 end;
 
 function MapWindowRect(hWndFrom, hWndTo: THandle; ARect:TRect):TRect;
@@ -2237,11 +2278,12 @@ begin
 end;
 
 function TJclRegionInfo.GetRect(Index: Integer): TRect;
-var RectP: PRect;
+var
+  RectP: PRect;
 begin
   if (Index < 0) or (DWORD(Index) >= TRgnData(FData^).rdh.nCount) then
     raise EJclGraphicsError.CreateRes(@RsRegionDataOutOfBound);
-  RectP := PRect(PChar(@TRgnData(FData^).Buffer) + (SizeOf(TRect)*Index));
+  RectP := PRect(PAnsiChar(@TRgnData(FData^).Buffer) + (SizeOf(TRect)*Index));
   Result := RectAssign(RectP^.Left, RectP.Top, RectP^.Right, RectP^.Bottom);
 end;
 
@@ -2434,9 +2476,16 @@ end;
 
 procedure TJclRegion.FillGradient(Canvas: TCanvas; ColorCount: Integer;
   StartColor, EndColor: TColor; ADirection: TGradientDirection);
+var
+  DC: integer;
 begin
-  SelectClipRgn(Canvas.Handle,FHandle);
-  JclGraphics.FillGradient(Canvas.Handle, Box, ColorCount, StartColor, EndColor, ADirection);
+  DC := SaveDC(Canvas.Handle);
+  try
+    SelectClipRgn(Canvas.Handle,FHandle);
+    JclGraphics.FillGradient(Canvas.Handle, Box, ColorCount, StartColor, EndColor, ADirection);
+  finally
+    RestoreDC(Canvas.Handle, DC);
+  end;
 end;
 
 procedure TJclRegion.Frame(Canvas: TCanvas; FrameWidth, FrameHeight: Integer);
@@ -2531,11 +2580,13 @@ constructor TJclThreadPersistent.Create;
 begin
   inherited Create;
   InitializeCriticalSection(FLock);
+
 end;
 
 destructor TJclThreadPersistent.Destroy;
 begin
   DeleteCriticalSection(FLock);
+
   inherited Destroy;
 end;
 
@@ -2566,11 +2617,13 @@ procedure TJclThreadPersistent.Lock;
 begin
   InterlockedIncrement(FLockCount);
   EnterCriticalSection(FLock);
+
 end;
 
 procedure TJclThreadPersistent.Unlock;
 begin
   LeaveCriticalSection(FLock);
+
   InterlockedDecrement(FLockCount);
 end;
 
@@ -4267,7 +4320,7 @@ begin
   begin
     SelectObject(Handle, Font.Handle);
     SetTextColor(Handle, ColorToRGB(Font.Color));
-    SetBkMode(Handle, Windows.TRANSPARENT);
+    SetBkMode(Handle, {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.TRANSPARENT);
   end;
 end;
 
@@ -4306,7 +4359,7 @@ begin
   UpdateFont;
   Result.cX := 0;
   Result.cY := 0;
-  Windows.GetTextExtentPoint32(Handle, PChar(Text), Length(Text), Result);
+  {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.GetTextExtentPoint32(Handle, PChar(Text), Length(Text), Result);
 end;
 
 procedure TJclBitmap32.TextOut(X, Y: Integer; const Text: string);

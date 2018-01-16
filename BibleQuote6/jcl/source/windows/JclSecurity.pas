@@ -32,9 +32,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-12-21 23:14:47 +0100 (lun., 21 déc. 2009)                         $ }
-{ Revision:      $Rev:: 3097                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -51,7 +51,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase;
 
 type
@@ -111,9 +115,9 @@ function IsElevated: Boolean;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclSecurity.pas $';
-    Revision: '$Revision: 3097 $';
-    Date: '$Date: 2009-12-21 23:14:47 +0100 (lun., 21 déc. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -123,7 +127,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$IFDEF BORLAND}
   AccCtrl,
   {$ENDIF BORLAND}
@@ -786,7 +794,7 @@ end;
 
 function IsUACEnabled: Boolean;
 begin
-  Result := (IsWinVista or IsWinServer2008 or IsWin7 or IsWinServer2008R2) and
+  Result := JclCheckWinVersion(6, 0) and
     RegReadBoolDef(HKLM, '\Software\Microsoft\Windows\CurrentVersion\Policies\System', 'EnableLUA', False);
 end;
 
@@ -803,7 +811,7 @@ var
   ResultLength: Cardinal;
   ATokenElevation: TOKEN_ELEVATION;
 begin
-  if (IsWinVista or IsWinServer2008 or IsWin7 or IsWinServer2008R2) then
+  if JclCheckWinVersion(6, 0) then
   begin
     TokenHandle := 0;
     if OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, TokenHandle) then

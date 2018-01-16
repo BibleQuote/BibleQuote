@@ -30,15 +30,16 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-07-30 12:08:05 +0200 (jeu., 30 juil. 2009)                         $ }
-{ Revision:      $Rev:: 2892                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclMiscel;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 interface
 
@@ -47,7 +48,12 @@ uses
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
   {$IFDEF MSWINDOWS}
-  Windows, JclWin32,
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows,
+  {$ELSE ~HAS_UNITSCOPE}
+  Windows,
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclWin32,
   {$ENDIF MSWINDOWS}
   JclBase;
 
@@ -102,9 +108,9 @@ procedure CreateProcAsUserEx(const UserDomain, UserName, Password, CommandLine: 
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclMiscel.pas $';
-    Revision: '$Revision: 2892 $';
-    Date: '$Date: 2009-07-30 12:08:05 +0200 (jeu., 30 juil. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -114,7 +120,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclResources, JclSecurity, JclStrings, JclSysUtils, JclSysInfo;
 
 function SetDisplayResolution(const XRes, YRes: DWORD): Longint;
@@ -230,11 +240,11 @@ begin
   Result := 0;
   case KillLevel of
     klNoSignal:
-      if not (GetWindowsVersion in [wvUnknown, wvWin95, wvWin95OSR2, wvWin98,
+      if not (GetWindowsVersion in [wvWin95, wvWin95OSR2, wvWin98,
         wvWin98SE, wvWinME]) then
         Result := EWX_FORCE;
     klTimeOut:
-      if not (GetWindowsVersion in [wvUnknown, wvWin95, wvWin95OSR2, wvWin98,
+      if not (GetWindowsVersion in [wvWin95, wvWin95OSR2, wvWin98,
         wvWin98SE, wvWinME, wvWinNT31, wvWinNT35, wvWinNT351, wvWinNT4]) then
         Result := EWX_FORCEIFHUNG;
   end;

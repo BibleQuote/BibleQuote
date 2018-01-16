@@ -27,9 +27,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-01-25 13:19:13 +0100 (lun., 25 janv. 2010)                         $ }
-{ Revision:      $Rev:: 3139                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -49,15 +49,23 @@ unit JclDotNet;
 interface
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows, Winapi.ActiveX,
+  {$ENDIF MSWINDOWS}
+  System.Classes, System.SysUtils, System.Contnrs,
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   Windows, ActiveX,
   {$ENDIF MSWINDOWS}
   Classes, SysUtils, Contnrs,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclWideStrings,
   mscoree_TLB, mscorlib_TLB;
 
@@ -80,7 +88,7 @@ type
   TJclClrHostLoaderFlags = set of TJclClrHostLoaderFlag;
 
 type
-  EJclClrException = class(SysUtils.Exception);
+  EJclClrException = class(EJclError);
   
   TJclClrAppDomain = class;
   TJclClrAppDomainSetup = class;
@@ -321,9 +329,9 @@ type
   {$EXTERNALSYM CLSID_RESOLUTION_FLAGS}
 
 const
-  CLSID_RESOLUTION_DEFAULT	  = $0;
+  CLSID_RESOLUTION_DEFAULT    = $0;
   {$EXTERNALSYM CLSID_RESOLUTION_DEFAULT}
-	CLSID_RESOLUTION_REGISTERED	= $1;
+  CLSID_RESOLUTION_REGISTERED = $1;
   {$EXTERNALSYM CLSID_RESOLUTION_REGISTERED}
 
 function GetRequestedRuntimeVersionForCLSID(rclsid: TGuid; pVersion: PWideChar;
@@ -337,9 +345,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclDotNet.pas $';
-    Revision: '$Revision: 3139 $';
-    Date: '$Date: 2010-01-25 13:19:13 +0100 (lun., 25 janv. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -349,9 +357,17 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.Win.ComObj,
+  System.Variants,
+  System.Types, // inline of TList.Remove
+  {$ELSE ~HAS_UNITSCOPE}
   ComObj,
   Variants,
-  JclSysUtils, JclResources, JclStrings;
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclSysUtils,
+  JclResources,
+  JclStrings;
 
 function CompareCLRVersions(const LeftVersion, RightVersion: string): Integer;
 var
@@ -447,8 +463,6 @@ begin
       raise EJclError.CreateResFmt(@RsEFunctionNotFound, [ModuleName, ProcName]);
   end;
 end;
-
-{$WARNINGS OFF}
 
 type
   TGetCORSystemDirectory = function (pbuffer: PWideChar; const cchBuffer: DWORD;
@@ -729,8 +743,6 @@ begin
   Result := _GetRequestedRuntimeVersionForCLSID(rclsid, pVersion, cchBuffer, dwLength, dwResolutionFlags);
 end;
 
-{$WARNINGS ON}
-
 //=== { TJclClrHost } ========================================================
 
 constructor TJclClrHost.Create(const ClrVer: WideString; const Flavor: TJclClrHostFlavor;
@@ -908,7 +920,7 @@ begin
         end;
       until not FindNextFileW(SearchHandle, FindData);
     finally
-      Windows.FindClose(SearchHandle);
+      {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.FindClose(SearchHandle);
     end;
   end;
 end;

@@ -29,9 +29,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-07-30 12:08:05 +0200 (jeu., 30 juil. 2009)                         $ }
-{ Revision:      $Rev:: 2892                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -45,7 +45,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclMath, JclResources, JclStrings;
 
 const
@@ -245,9 +249,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclComplex.pas $';
-    Revision: '$Revision: 2892 $';
-    Date: '$Date: 2009-07-30 12:08:05 +0200 (jeu., 30 juil. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -316,21 +320,29 @@ begin
   case ComplexType of
     crPolar:
       begin
-        FCoord.X := FCoord.R * Cos(FCoord.Theta);
-        FCoord.Y := FCoord.R * Sin(FCoord.Theta);
+        FCoord.X := FCoord.R * JclMath.Cos(FCoord.Theta);
+        FCoord.Y := FCoord.R * JclMath.Sin(FCoord.Theta);
       end;
     crRectangular:
       if FCoord.X = 0.0 then
       begin
         FCoord.R := Abs(FCoord.Y);
-        FCoord.Theta := PiOn2 * Sgn(FCoord.Y);
+        if FCoord.Y <> 0 then
+          FCoord.Theta := PiOn2 * Sgn(FCoord.Y)
+        else
+          FCoord.Theta := PiOn2; // Fixes corner case where Sgn(0) = 0
       end
       else
       begin
         FCoord.R := AbsoluteValue;
         FCoord.Theta := System.ArcTan(FCoord.Y / FCoord.X);
         if FCoord.X < 0.0 then
-          FCoord.Theta := FCoord.Theta + Pi * Sgn(FCoord.Y);
+        begin
+          if FCoord.Y <> 0 then
+            FCoord.Theta := FCoord.Theta + Pi * Sgn(FCoord.Y)
+          else
+            FCoord.Theta := FCoord.Theta + Pi; // Fixes corner case where Sgn(0) = 0
+        end;
       end;
   end;
   MiscalcComplex;
@@ -742,9 +754,9 @@ function TJclComplex.CoreExp(const ExpValue: TRectCoord): TRectCoord;
 var
   ExpX: Float;
 begin
-  ExpX := Exp(ExpValue.X);
-  Result.X := ExpX * Cos(ExpValue.Y);
-  Result.Y := ExpX * Sin(ExpValue.Y);
+  ExpX := JclMath.Exp(ExpValue.X);
+  Result.X := ExpX * JclMath.Cos(ExpValue.Y);
+  Result.Y := ExpX * JclMath.Sin(ExpValue.Y);
 end;
 
 function TJclComplex.CExp: TJclComplex;
@@ -942,7 +954,7 @@ end;
 
 function TJclComplex.CoreCos(const Value: TRectCoord): TRectCoord;
 begin
-  Result := RectCoord(Cos(Value.X) * CosH(Value.Y), -Sin(Value.X) * SinH(Value.Y));
+  Result := RectCoord(JclMath.Cos(Value.X) * JclMath.CosH(Value.Y), -JclMath.Sin(Value.X) * JclMath.SinH(Value.Y));
 end;
 
 function TJclComplex.CCos: TJclComplex;
@@ -966,7 +978,7 @@ end;
 
 function TJclComplex.CoreSin(const Value: TRectCoord): TRectCoord;
 begin
-  Result := RectCoord(Sin(Value.X) * CosH(Value.Y), Cos(Value.X) * SinH(Value.Y));
+  Result := RectCoord(JclMath.Sin(Value.X) * JclMath.CosH(Value.Y), JclMath.Cos(Value.X) * JclMath.SinH(Value.Y));
 end;
 
 function TJclComplex.CSin: TJclComplex;
@@ -992,9 +1004,9 @@ function TJclComplex.CoreTan(const Value: TRectCoord): TRectCoord;
 var
   TempValue: Float;
 begin
-  TempValue := Cos(2.0 * Value.X) + CosH(2.0 * Value.Y);
+  TempValue := JclMath.Cos(2.0 * Value.X) + JclMath.CosH(2.0 * Value.Y);
   if MiscalcFloat(TempValue) <> 0.0 then
-    Result := RectCoord(Sin(2.0 * Value.X) / TempValue, SinH(2.0 * Value.Y) / TempValue)
+    Result := RectCoord(JclMath.Sin(2.0 * Value.X) / TempValue, JclMath.SinH(2.0 * Value.Y) / TempValue)
   else
     Result := RectInfinity;
 end;
@@ -1022,9 +1034,9 @@ function TJclComplex.CoreCot(const Value: TRectCoord): TRectCoord;
 var
   TempValue: Float;
 begin
-  TempValue := Cosh(2.0 * Value.Y) - Cos(2.0 * Value.X);
+  TempValue := JclMath.Cosh(2.0 * Value.Y) - JclMath.Cos(2.0 * Value.X);
   if MiscalcFloat(TempValue) <> 0.0 then
-    Result := RectCoord(Sin(2.0 * Value.X) / TempValue, -SinH(2.0 * Value.Y) / TempValue)
+    Result := RectCoord(JclMath.Sin(2.0 * Value.X) / TempValue, -JclMath.SinH(2.0 * Value.Y) / TempValue)
   else
     Result := RectInfinity;
 end;
@@ -1112,7 +1124,7 @@ end;
 
 function TJclComplex.CoreCosH(const Value: TRectCoord): TRectCoord;
 begin
-  Result := RectCoord(CosH(Value.X) * Cos(Value.Y), SinH(Value.X) * Sin(Value.Y));
+  Result := RectCoord(JclMath.CosH(Value.X) * JclMath.Cos(Value.Y), JclMath.SinH(Value.X) * JclMath.Sin(Value.Y));
 end;
 
 function TJclComplex.CCosH: TJclComplex;
@@ -1136,7 +1148,7 @@ end;
 
 function TJclComplex.CoreSinH(const Value: TRectCoord): TRectCoord;
 begin
-  Result := RectCoord(SinH(Value.X) * Cos(Value.Y), CosH(Value.X) * Sin(Value.Y));
+  Result := RectCoord(JclMath.SinH(Value.X) * JclMath.Cos(Value.Y), JclMath.CosH(Value.X) * JclMath.Sin(Value.Y));
 end;
 
 function TJclComplex.CSinH: TJclComplex;
@@ -1162,9 +1174,9 @@ function TJclComplex.CoreTanH(const Value: TRectCoord): TRectCoord;
 var
   TempValue: Float;
 begin
-  TempValue := CosH(2.0 * Value.X) + Cos(2.0 * Value.Y);
+  TempValue := JclMath.CosH(2.0 * Value.X) + JclMath.Cos(2.0 * Value.Y);
   if MiscalcFloat(TempValue) <> 0.0 then
-    Result := RectCoord(SinH(2.0 * Value.X) / TempValue, Sin(2.0 * Value.Y) / TempValue)
+    Result := RectCoord(JclMath.SinH(2.0 * Value.X) / TempValue, JclMath.Sin(2.0 * Value.Y) / TempValue)
   else
     Result := RectInfinity;
 end;
@@ -1192,9 +1204,9 @@ function TJclComplex.CoreCotH(const Value: TRectCoord): TRectCoord;
 var
   TempValue: Float;
 begin
-  TempValue := Cosh(2.0 * Value.X) - Cos(2.0 * Value.Y);
+  TempValue := JclMath.Cosh(2.0 * Value.X) - JclMath.Cos(2.0 * Value.Y);
   if MiscalcFloat(TempValue) <> 0.0 then
-    Result := RectCoord(SinH(2.0 * Value.X) / TempValue, -Sin(2.0 * Value.Y) / TempValue)
+    Result := RectCoord(JclMath.SinH(2.0 * Value.X) / TempValue, -JclMath.Sin(2.0 * Value.Y) / TempValue)
   else
     Result := RectInfinity;
 end;

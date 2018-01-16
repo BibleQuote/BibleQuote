@@ -24,9 +24,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-18 22:16:35 +0100 (jeu., 18 févr. 2010)                       $ }
-{ Revision:      $Rev:: 3192                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                        $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -44,7 +44,11 @@ uses
   {$IFDEF THREADSAFE}
   JclSynch,
   {$ENDIF THREADSAFE}
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes;
+  {$ELSE ~HAS_UNITSCOPE}
   Classes;
+  {$ENDIF ~HAS_UNITSCOPE}
 
   { The following interfaces provide a basic notifier/listener setup. Whenever code issues a notification through the
     IJclNotifier.Notify method, all listeners registered with the notifier will receive the message (through the
@@ -170,9 +174,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclNotify.pas $';
-    Revision: '$Revision: 3192 $';
-    Date: '$Date: 2010-02-18 22:16:35 +0100 (jeu., 18 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -182,7 +186,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils;
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 //=== { TJclBaseNotifier } ===================================================
 

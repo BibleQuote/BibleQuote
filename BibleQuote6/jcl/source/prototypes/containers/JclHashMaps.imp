@@ -1,41 +1,21 @@
-(*$JPPDEFINEMACRO JCLHASHMAPTYPESIMP(BUCKETTYPENAME, KEYDEFAULT, VALUEDEFAULT)
+(*$JPPDEFINEMACRO JCLHASHMAPTYPESIMP(ENTRYARRAYTYPENAME, BUCKETTYPENAME, KEYDEFAULT, VALUEDEFAULT)
 //=== { BUCKETTYPENAME } ==========================================
 
-procedure BUCKETTYPENAME.MoveArray(FromIndex, ToIndex, Count: Integer);
-begin
-  if Count > 0 then
-  begin
-    Move(Entries[FromIndex], Entries[ToIndex], Count * SizeOf(Entries[0]));
-    { Keep reference counting working }
-    if FromIndex < ToIndex then
-    begin
-      if (ToIndex - FromIndex) < Count then
-        FillChar(Entries[FromIndex], (ToIndex - FromIndex) * SizeOf(Entries[0]), 0)
-      else
-        FillChar(Entries[FromIndex], Count * SizeOf(Entries[0]), 0);
-    end
-    else
-    if FromIndex > ToIndex then
-    begin
-      if (FromIndex - ToIndex) < Count then
-        FillChar(Entries[ToIndex + Count], (FromIndex - ToIndex) * SizeOf(Entries[0]), 0)
-      else
-        FillChar(Entries[FromIndex], Count * SizeOf(Entries[0]), 0);
-    end;
-  end;
-end;*)
+{$JPPUNDEF GENERIC}{$JPPUNDEF REFCOUNTED}{$IFDEF KEYREFCOUNTED}{$JPPDEFINE REFCOUNTED}{$ENDIF}{$IFDEF VALUEREFCOUNTED}{$JPPDEFINE REFCOUNTED}{$ENDIF}{$IFDEF KEYZEROINIT}{$JPPDEFINE ZEROINIT}{$ENDIF}{$IFDEF VALUEZEROINIT}{$JPPDEFINE ZEROINIT}{$ENDIF}{$JPPEXPANDMACRO MOVEARRAYIMP(MoveArray,ENTRYARRAYTYPENAME,,BUCKETTYPENAME.,)}
+
+*)
 (*$JPPDEFINEMACRO JCLHASHMAPIMP(SELFCLASSNAME, BUCKETTYPENAME,
-  MAPINTERFACENAME, KEYSETINTERFACENAME, KEYITRINTERFACENAME, VALUECOLLECTIONINTERFACENAME,
+  MAPINTERFACENAME, KEYSETINTERFACENAME, KEYCOLLECTIONINTERFACENAME, KEYITRINTERFACENAME, VALUECOLLECTIONINTERFACENAME,
   KEYOWNERSHIPDECLARATION, VALUEOWNERSHIPDECLARATION, OWNERSHIPASSIGNMENTS,
   KEYCONSTKEYWORD, KEYTYPENAME, KEYDEFAULT, VALUECONSTKEYWORD, VALUETYPENAME, VALUEDEFAULT,
-  CREATEKEYSET,CREATEVALUECOLLECTION)
+  CREATEKEYSET,CREATEKEYCOLLECTION,CREATEVALUECOLLECTION)
 //=== { SELFCLASSNAME } ==========================================
 
 constructor SELFCLASSNAME.Create(ACapacity: IntegerVALUEOWNERSHIPDECLARATIONKEYOWNERSHIPDECLARATION);
 begin
   inherited Create;OWNERSHIPASSIGNMENTS
   SetCapacity(ACapacity);
-  FHashFunction := HashMul;
+  FHashToRangeFunction := JclSimpleHashToRange;
 end;
 
 destructor SELFCLASSNAME.Destroy;
@@ -88,7 +68,7 @@ procedure SELFCLASSNAME.AssignPropertiesTo(Dest: TJclAbstractContainerBase);
 begin
   inherited AssignPropertiesto(Dest);
   if Dest is SELFCLASSNAME then
-    SELFCLASSNAME(Dest).HashFunction := HashFunction;
+    SELFCLASSNAME(Dest).FHashToRangeFunction := FHashToRangeFunction;
 end;
 
 procedure SELFCLASSNAME.Clear;
@@ -121,7 +101,7 @@ var
 begin
   {$JPPUNDEF WRITE}{$JPPEXPANDMACRO LOCK}
     Result := False;
-    Bucket := FBuckets[FHashFunction(Hash(Key), FCapacity)];
+    Bucket := FBuckets[FHashToRangeFunction(Hash(Key), FCapacity)];
     if Bucket <> nil then
       for I := 0 to Bucket.Size - 1 do
         if KeysEqual(Bucket.Entries[I].Key, Key) then
@@ -160,7 +140,7 @@ var
 begin
   {$JPPDEFINE WRITE}{$JPPEXPANDMACRO LOCK}
     Result := VALUEDEFAULT;
-    Bucket := FBuckets[FHashFunction(Hash(Key), FCapacity)];
+    Bucket := FBuckets[FHashToRangeFunction(Hash(Key), FCapacity)];
     if Bucket <> nil then
     begin
       for I := 0 to Bucket.Size - 1 do
@@ -170,7 +150,7 @@ begin
           Bucket.Entries[I].Value := VALUEDEFAULT;
           FreeKey(Bucket.Entries[I].Key);
           if I < Length(Bucket.Entries) - 1 then
-            Bucket.MoveArray(I + 1, I, Bucket.Size - I - 1);
+            Bucket.MoveArray(Bucket.Entries, I + 1, I, Bucket.Size - I - 1);
           Dec(Bucket.Size);
           Dec(FSize);
           Break;
@@ -192,7 +172,7 @@ begin
   {$JPPUNDEF WRITE}{$JPPEXPANDMACRO LOCK}
     Found := False;
     Result := VALUEDEFAULT;
-    Bucket := FBuckets[FHashFunction(Hash(Key), FCapacity)];
+    Bucket := FBuckets[FHashToRangeFunction(Hash(Key), FCapacity)];
     if Bucket <> nil then
       for I := 0 to Bucket.Size - 1 do
         if KeysEqual(Bucket.Entries[I].Key, Key) then
@@ -244,6 +224,23 @@ var
 begin
   {$JPPUNDEF WRITE}{$JPPEXPANDMACRO LOCK}
     Result := CREATEKEYSET;
+    for I := 0 to FCapacity - 1 do
+    begin
+      Bucket := FBuckets[I];
+      if Bucket <> nil then
+        for J := 0 to Bucket.Size - 1 do
+          Result.Add(Bucket.Entries[J].Key);
+    end;
+  {$JPPEXPANDMACRO UNLOCK}
+end;
+
+function SELFCLASSNAME.Keys: KEYCOLLECTIONINTERFACENAME;
+var
+  I, J: Integer;
+  Bucket: BUCKETTYPENAME;
+begin
+  {$JPPUNDEF WRITE}{$JPPEXPANDMACRO LOCK}
+    Result := CREATEKEYCOLLECTION;
     for I := 0 to FCapacity - 1 do
     begin
       Bucket := FBuckets[I];
@@ -328,7 +325,7 @@ begin
   {$JPPDEFINE WRITE}{$JPPEXPANDMACRO LOCK}
     if FAllowDefaultElements or (not KeysEqual(Key, KEYDEFAULT) and not ValuesEqual(Value, VALUEDEFAULT)) then
     begin
-      Index := FHashFunction(Hash(Key), FCapacity);
+      Index := FHashToRangeFunction(Hash(Key), FCapacity);
       Bucket := FBuckets[Index];
       if Bucket <> nil then
       begin

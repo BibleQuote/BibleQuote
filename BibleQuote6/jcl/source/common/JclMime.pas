@@ -46,9 +46,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-08-09 15:08:29 +0200 (dim., 09 août 2009)                         $ }
-{ Revision:      $Rev:: 2921                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -62,7 +62,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils, System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils, Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase;
 
 function MimeEncodeString(const S: AnsiString): AnsiString;
@@ -125,9 +129,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclMime.pas $';
-    Revision: '$Revision: 2921 $';
-    Date: '$Date: 2009-08-09 15:08:29 +0200 (dim., 09 août 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -393,9 +397,10 @@ end;
 procedure MimeEncodeFullLines(const InputBuffer: TDynByteArray; InputOffset: SizeInt;
   const InputByteCount: SizeInt; out OutputBuffer: TDynByteArray; OutputOffset: SizeInt);
 var
-  B, InnerLimit, OuterLimit: SizeInt;
-  InIndex: SizeInt;
-  OutIndex: SizeInt;
+  B: SizeInt;
+  InnerLimit, OuterLimit: TJclAddr;
+  InIndex: TJclAddr;
+  OutIndex: TJclAddr;
 begin
   { Do we have enough input to encode a full line? }
   if InputByteCount < MIME_DECODED_LINE_BREAK then
@@ -495,9 +500,10 @@ end;
 procedure MimeEncodeNoCRLF(const InputBuffer: TDynByteArray; InputOffset: SizeInt;
   const InputByteCount: SizeInt; out OutputBuffer: TDynByteArray; OutputOffset: SizeInt);
 var
-  B, InnerLimit, OuterLimit: SizeInt;
-  InIndex: SizeInt;
-  OutIndex: SizeInt;
+  B: SizeInt;
+  InnerLimit, OuterLimit: TJclAddr;
+  InIndex: TJclAddr;
+  OutIndex: TJclAddr;
 begin
   if InputByteCount = 0 then
     Exit;
@@ -532,7 +538,7 @@ begin
   end;
 
   { End of data & padding. }
-  case InputByteCount - OuterLimit of
+  case TJclAddr(InputByteCount) - OuterLimit of
     1:
       begin
         B := InputBuffer[InIndex + 0];
@@ -562,7 +568,7 @@ end;
 procedure MimeEncodeNoCRLF(const InputBuffer; const InputByteCount: SizeInt; out OutputBuffer);
 var
   B: Cardinal;
-  InnerLimit, OuterLimit: SizeInt;
+  InnerLimit, OuterLimit: TJclAddr;
   InPtr: PByte3;
   OutPtr: PByte4;
 begin
@@ -599,7 +605,7 @@ begin
   end;
 
   { End of data & padding. }
-  case InputByteCount - OuterLimit of
+  case TJclAddr(InputByteCount) - OuterLimit of
     1:
       begin
         B := InPtr^.B1;
@@ -657,13 +663,13 @@ function MimeDecodePartial(const InputBuffer: TDynByteArray; InputOffset: SizeIn
   var ByteBuffer: Cardinal; var ByteBufferSpace: Cardinal): SizeInt;
 var
   LByteBuffer, LByteBufferSpace, C: Cardinal;
-  InIndex, OuterLimit: SizeInt;
-  OutIndex: SizeInt;
+  InIndex, OuterLimit: TJclAddr;
+  OutIndex: TJclAddr;
 begin
   if InputByteCount > 0 then
     begin
       InIndex := InputOffset;
-      OuterLimit := InIndex + InputByteCount;
+      OuterLimit := InIndex + TJclAddr(InputByteCount);
       OutIndex := OutputOffset;
       LByteBuffer := ByteBuffer;
       LByteBufferSpace := ByteBufferSpace;
@@ -693,7 +699,7 @@ begin
       end;
       ByteBuffer := LByteBuffer;
       ByteBufferSpace := LByteBufferSpace;
-      Result := OutIndex - OutputOffset;
+      Result := OutIndex - TJclAddr(OutputOffset);
     end
   else
     Result := 0;

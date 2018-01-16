@@ -20,20 +20,25 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-08-10 23:20:25 +0200 (lun., 10 août 2009)                         $ }
-{ Revision:      $Rev:: 2943                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclDebugSerialization;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 interface
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils, System.Classes, System.Contnrs,
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils, Classes, Contnrs,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
@@ -181,9 +186,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclDebugSerialization.pas $';
-    Revision: '$Revision: 2943 $';
-    Date: '$Date: 2009-08-10 23:20:25 +0200 (lun., 10 août 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil

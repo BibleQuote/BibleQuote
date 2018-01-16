@@ -33,9 +33,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-08-09 15:08:29 +0200 (dim., 09 août 2009)                         $ }
-{ Revision:      $Rev:: 2921                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -56,7 +56,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.SysUtils, System.Classes, Winapi.ActiveX,
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, SysUtils, Classes, ActiveX,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclWin32;
 
 // NTFS Exception
@@ -561,9 +565,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclNTFS.pas $';
-    Revision: '$Revision: 2921 $';
-    Date: '$Date: 2009-08-09 15:08:29 +0200 (dim., 09 août 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -573,7 +577,12 @@ const
 implementation
 
 uses
-  ComObj, Hardlinks,
+  {$IFDEF HAS_UNITSCOPE}
+  System.Win.ComObj,
+  {$ELSE ~HAS_UNITSCOPE}
+  ComObj,
+  {$ENDIF ~HAS_UNITSCOPE}
+  Hardlinks,
   JclSysUtils, JclFileUtils, JclSysInfo, JclResources;
 
 //=== NTFS - Compression =====================================================
@@ -679,7 +688,7 @@ begin
       until R <> 0;
       Result := (R = ERROR_NO_MORE_FILES);
     finally
-      SysUtils.FindClose(SearchRec);
+      {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.FindClose(SearchRec);
     end;
   end;
 end;
@@ -1201,6 +1210,8 @@ var
   Handle: THandle;
   ReparseData: TReparseDataBufferOverlay;
   BytesReturned: DWORD;
+  SubstituteName: WideString;
+  SubstituteNameAddr: PWideChar;
 begin
   Result := False;
   if NtfsFileHasReparsePoint(Source) then
@@ -1217,8 +1228,12 @@ begin
       begin
         if BytesReturned >= DWORD(ReparseData.Reparse.SubstituteNameLength + SizeOf(WideChar)) then
         begin
-          SetLength(Destination, (ReparseData.Reparse.SubstituteNameLength div SizeOf(WideChar)) + 1);
-          Move(ReparseData.Reparse.PathBuffer[0], Destination[1], ReparseData.Reparse.SubstituteNameLength);
+          SetLength(Destination, ReparseData.Reparse.SubstituteNameLength div SizeOf(WideChar));
+          SubstituteNameAddr := @ReparseData.Reparse.PathBuffer;
+          Inc(SubstituteNameAddr, ReparseData.Reparse.SubstituteNameOffset div SizeOf(WideChar));
+          SetString(SubstituteName, SubstituteNameAddr, Length(Destination));
+          Destination := string(SubstituteName);
+
           Result := True;
         end;
       end;
@@ -1254,7 +1269,7 @@ begin
     // Read stream header
     BytesToRead := DWORD(TJclAddr(@Header.cStreamName[0]) - TJclAddr(@Header.dwStreamId));
     BytesRead := 0;
-    if not Windows.BackupRead(Data.Internal.FileHandle, (@Header), BytesToRead, BytesRead,
+    if not {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.BackupRead(Data.Internal.FileHandle, (@Header), BytesToRead, BytesRead,
       False, True, Data.Internal.Context) then
     begin
       SetLastError(ERROR_READ_FAULT);
@@ -1274,7 +1289,7 @@ begin
         SetLastError(ERROR_OUTOFMEMORY);
         Exit;
       end;
-      if not Windows.BackupRead(Data.Internal.FileHandle, Pointer(StreamName),
+      if not {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.BackupRead(Data.Internal.FileHandle, Pointer(StreamName),
         Header.dwStreamNameSize, BytesRead, False, True, Data.Internal.Context) then
       begin
         HeapFree(GetProcessHeap, 0, StreamName);
@@ -1369,7 +1384,7 @@ begin
   begin
     // Call BackupRead one last time to signal that we're done with it
     BytesRead := 0;
-    Result := Windows.BackupRead(0, nil, 0, BytesRead, True, False, Data.Internal.Context);
+    Result := {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.BackupRead(0, nil, 0, BytesRead, True, False, Data.Internal.Context);
     if not Result then
       LastError := GetLastError;
     CloseHandle(Data.Internal.FileHandle);
@@ -1511,7 +1526,7 @@ begin
       end;
       Result := R = ERROR_NO_MORE_FILES;
     finally
-      SysUtils.FindClose(SearchRec);
+      {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.FindClose(SearchRec);
       List.EndUpdate;
     end;
   end;
@@ -1798,18 +1813,22 @@ function TJclFilePropertySet.GetAnsiStringProperty(
 var
   PropValue: TPropVariant;
 begin
+  Result := '';
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      Result := '';
-    VT_LPSTR:
-      Result := PropValue.pszVal;
-    VT_LPWSTR:
-      Result := AnsiString(WideString(PropValue.pwszVal));
-    VT_BSTR:
-      Result := AnsiString(WideString(PropValue.bstrVal));
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_LPSTR:
+        Result := PropValue.pszVal;
+      VT_LPWSTR:
+        Result := AnsiString(WideString(PropValue.pwszVal));
+      VT_BSTR:
+        Result := AnsiString(WideString(PropValue.bstrVal));
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -1817,14 +1836,18 @@ function TJclFilePropertySet.GetBooleanProperty(const ID: Integer): Boolean;
 var
   PropValue: TPropVariant;
 begin
+  Result := False;
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      Result := False;
-    VT_BOOL:
-      Result := PropValue.bool;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_BOOL:
+        Result := PropValue.bool;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -1832,18 +1855,22 @@ function TJclFilePropertySet.GetBSTRProperty(const ID: Integer): WideString;
 var
   PropValue: TPropVariant;
 begin
+  Result := '';
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      Result := '';
-    VT_LPSTR:
-      Result := WideString(AnsiString(PropValue.pszVal));
-    VT_LPWSTR:
-      Result := PropValue.pwszVal;
-    VT_BSTR:
-      Result := PropValue.bstrVal;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_LPSTR:
+        Result := WideString(AnsiString(PropValue.pszVal));
+      VT_LPWSTR:
+        Result := PropValue.pwszVal;
+      VT_BSTR:
+        Result := PropValue.bstrVal;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -1851,24 +1878,28 @@ function TJclFilePropertySet.GetCardinalProperty(const ID: Integer): Cardinal;
 var
   PropValue: TPropVariant;
 begin
+  Result := 0;
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      Result := 0;
-    VT_I2:
-      Result := PropValue.iVal;
-    VT_I4, VT_INT:
-      Result := PropValue.lVal;
-    VT_I1:
-      Result := PropValue.bVal; // no ShortInt? (cVal)
-    VT_UI1:
-      Result := PropValue.bVal;
-    VT_UI2:
-      Result := PropValue.uiVal;
-    VT_UI4, VT_UINT:
-      Result := PropValue.ulVal;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_I2:
+        Result := PropValue.iVal;
+      VT_I4, VT_INT:
+        Result := PropValue.lVal;
+      VT_I1:
+        Result := PropValue.bVal; // no ShortInt? (cVal)
+      VT_UI1:
+        Result := PropValue.bVal;
+      VT_UI2:
+        Result := PropValue.uiVal;
+      VT_UI4, VT_UINT:
+        Result := PropValue.ulVal;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -1876,14 +1907,18 @@ function TJclFilePropertySet.GetClipDataProperty(const ID: Integer): PClipData;
 var
   PropValue: TPropVariant;
 begin
+  Result := nil;
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      Result := nil;
-    VT_CF:
-      Result := PropValue.pclipdata
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_CF:
+        Result := PropValue.pclipdata
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -1891,14 +1926,18 @@ function TJclFilePropertySet.GetFileTimeProperty(const ID: Integer): TFileTime;
 var
   PropValue: TPropVariant;
 begin
+  ZeroMemory(@Result, SizeOf(Result));
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      ZeroMemory(@Result, SizeOf(Result));
-    VT_FILETIME:
-      Result := PropValue.filetime;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_FILETIME:
+        Result := PropValue.filetime;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -1911,24 +1950,28 @@ function TJclFilePropertySet.GetIntegerProperty(const ID: Integer): Integer;
 var
   PropValue: TPropVariant;
 begin
+  Result := 0;
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      Result := 0;
-    VT_I2:
-      Result := PropValue.iVal;
-    VT_I4, VT_INT:
-      Result := PropValue.lVal;
-    VT_I1:
-      Result := PropValue.bVal; // no ShortInt? (cVal)
-    VT_UI1:
-      Result := PropValue.bVal;
-    VT_UI2:
-      Result := PropValue.uiVal;
-    VT_UI4, VT_UINT:
-      Result := PropValue.ulVal;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_I2:
+        Result := PropValue.iVal;
+      VT_I4, VT_INT:
+        Result := PropValue.lVal;
+      VT_I1:
+        Result := PropValue.bVal; // no ShortInt? (cVal)
+      VT_UI1:
+        Result := PropValue.bVal;
+      VT_UI2:
+        Result := PropValue.uiVal;
+      VT_UI4, VT_UINT:
+        Result := PropValue.ulVal;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -1970,14 +2013,18 @@ function TJclFilePropertySet.GetTCALPSTRProperty(const ID: Integer): TCALPSTR;
 var
   PropValue: TPropVariant;
 begin
+  ZeroMemory(@Result, SizeOf(Result));
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      ZeroMemory(@Result, SizeOf(Result));
-    VT_LPSTR or VT_VECTOR:
-      Result := PropValue.calpstr;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_LPSTR or VT_VECTOR:
+        Result := PropValue.calpstr;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -1986,14 +2033,18 @@ function TJclFilePropertySet.GetTCAPROPVARIANTProperty(
 var
   PropValue: TPropVariant;
 begin
+  ZeroMemory(@Result, SizeOf(Result));
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      ZeroMemory(@Result, SizeOf(Result));
-    VT_VARIANT or VT_VECTOR:
-      Result := PropValue.capropvar;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_VARIANT or VT_VECTOR:
+        Result := PropValue.capropvar;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -2002,18 +2053,22 @@ function TJclFilePropertySet.GetWideStringProperty(
 var
   PropValue: TPropVariant;
 begin
+  Result := '';
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      Result := '';
-    VT_LPSTR:
-      Result := WideString(AnsiString(PropValue.pszVal));
-    VT_LPWSTR:
-      Result := PropValue.pwszVal;
-    VT_BSTR:
-      Result := PropValue.bstrVal;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_LPSTR:
+        Result := WideString(AnsiString(PropValue.pszVal));
+      VT_LPWSTR:
+        Result := PropValue.pwszVal;
+      VT_BSTR:
+        Result := PropValue.bstrVal;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -2021,20 +2076,24 @@ function TJclFilePropertySet.GetWordProperty(const ID: Integer): Word;
 var
   PropValue: TPropVariant;
 begin
+  Result := 0;
   PropValue := GetProperty(ID);
-  case PropValue.vt of
-    VT_EMPTY, VT_NULL:
-      Result := 0;
-    VT_I2:
-      Result := PropValue.iVal;
-    VT_I1:
-      Result := PropValue.bVal; // no ShortInt? (cVal)
-    VT_UI1:
-      Result := PropValue.bVal;
-    VT_UI2:
-      Result := PropValue.uiVal;
-  else
-    raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+  try
+    case PropValue.vt of
+      VT_EMPTY, VT_NULL: ;
+      VT_I2:
+        Result := PropValue.iVal;
+      VT_I1:
+        Result := PropValue.bVal; // no ShortInt? (cVal)
+      VT_UI1:
+        Result := PropValue.bVal;
+      VT_UI2:
+        Result := PropValue.uiVal;
+    else
+      raise EJclFileSummaryError.CreateRes(@RsEIncomatibleDataFormat);
+    end;
+  finally
+    PropVariantClear(PropValue);
   end;
 end;
 
@@ -2064,7 +2123,7 @@ var
   PropValue: TPropVariant;
 begin
   PropValue.vt := VT_BSTR;
-  PropValue.bstrVal := PWideChar(Value);
+  PropValue.bstrVal := SysAllocString(PWideChar(Value));
   SetProperty(ID, PropValue);
 end;
 

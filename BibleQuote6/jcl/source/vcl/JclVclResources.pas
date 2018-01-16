@@ -38,9 +38,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-23 00:01:46 +0200 (mer., 23 sept. 2009)                         $ }
-{ Revision:      $Rev:: 3020                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -72,6 +72,8 @@ resourcestring
   RsRegionCouldNotCreated     = 'Region could not be created';
   RsInvalidHandleForRegion    = 'Invalid handle for region';
   RsInvalidRegionInfo         = 'Invalid RegionInfo';
+  RsInvalidControlType        = '%s is not descended from TWinControl';
+  RsInvalidFormOrComponent    = 'A %s with a nil reference has been passed to the method';
 
   RsBitmapExtension           = '.bmp';
   RsJpegExtension             = '.jpg';
@@ -84,9 +86,11 @@ resourcestring
 
 //=== JclOpenDialogFavorites.pas =============================================
 resourcestring
-  RsOpenDialogAdd          = '<- Add';
-  RsOpenDialogDelete       = '&Delete';
-  RsOpenDialogFavorites    = '&Favorites';
+  RsOpenDialogList         = ' --> Favorites';
+  RsOpenDialogAdd          = ' --> Add to this list';
+  RsOpenDialogDelete       = ' --> Delete from this list';
+  RsOpenDialogVirtual      = ' --> Virtual directories cannot be added to the favorites';
+  RsOpenDialogFavorites    = '&Favorites:';
   RsOpenDialogConfirmation = 'Confirmation';
   RsOpenDialogDelConfirm   = 'Are you sure to delete "%s" from favorite folders?';
 
@@ -192,12 +196,17 @@ resourcestring
   RsVersionCtrlSVNName = 'subversion';
   RSENoTortoiseSVN = 'TortoiseSVN is not detected on the system';
 
+  //=== JclVersionCtrlGITImpl ==================================================
+resourcestring
+  RsVersionCtrlGITName = 'git';
+  RSENoTortoiseGIT = 'TortoiseGIT is not detected on the system';
+
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/vcl/JclVclResources.pas $';
-    Revision: '$Revision: 3020 $';
-    Date: '$Date: 2009-09-23 00:01:46 +0200 (mer., 23 sept. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\vcl';
     Extra: '';
     Data: nil

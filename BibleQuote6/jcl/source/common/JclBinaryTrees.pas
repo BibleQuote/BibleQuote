@@ -29,9 +29,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-02 21:09:40 +0200 (lun., 02 août 2010)                         $ }
-{ Revision:      $Rev:: 3273                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -45,14 +45,15 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   Classes,
-  {$IFDEF SUPPORTS_GENERICS}
-  {$ENDIF SUPPORTS_GENERICS}
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclAbstractContainers, JclAlgorithms, JclContainerIntf, JclSynch;
 
 type
   TItrStart = (isFirst, isLast, isRoot);
-
 
   TJclIntfBinaryNode = class
   public
@@ -63,7 +64,8 @@ type
   end;
 
   TJclIntfBinaryTree = class(TJclIntfAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclIntfEqualityComparer, IJclIntfComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclIntfEqualityComparer, IJclIntfComparer, IJclIntfContainer, IJclIntfFlatContainer,
     IJclIntfCollection, IJclIntfTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -195,7 +197,8 @@ type
   end;
 
   TJclAnsiStrBinaryTree = class(TJclAnsiStrAbstractCollection, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclStrContainer, IJclAnsiStrContainer, IJclAnsiStrFlatContainer, IJclAnsiStrEqualityComparer, IJclAnsiStrComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclAnsiStrEqualityComparer, IJclAnsiStrComparer, IJclAnsiStrContainer, IJclAnsiStrFlatContainer, IJclStrBaseContainer,
     IJclAnsiStrCollection, IJclAnsiStrTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -327,7 +330,8 @@ type
   end;
 
   TJclWideStrBinaryTree = class(TJclWideStrAbstractCollection, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclStrContainer, IJclWideStrContainer, IJclWideStrFlatContainer, IJclWideStrEqualityComparer, IJclWideStrComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclWideStrEqualityComparer, IJclWideStrComparer, IJclWideStrContainer, IJclWideStrFlatContainer, IJclStrBaseContainer,
     IJclWideStrCollection, IJclWideStrTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -462,7 +466,8 @@ type
 
   {$IFDEF SUPPORTS_UNICODE_STRING}
   TJclUnicodeStrBinaryTree = class(TJclUnicodeStrAbstractCollection, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclStrContainer, IJclUnicodeStrContainer, IJclUnicodeStrFlatContainer, IJclUnicodeStrEqualityComparer, IJclUnicodeStrComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclUnicodeStrEqualityComparer, IJclUnicodeStrComparer, IJclUnicodeStrContainer, IJclUnicodeStrFlatContainer, IJclStrBaseContainer,
     IJclUnicodeStrCollection, IJclUnicodeStrTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -636,7 +641,8 @@ type
   end;
 
   TJclSingleBinaryTree = class(TJclSingleAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclSingleContainer, IJclSingleEqualityComparer, IJclSingleComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclSingleEqualityComparer, IJclSingleComparer, IJclSingleContainer, IJclSingleFlatContainer,
     IJclSingleCollection, IJclSingleTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -768,7 +774,8 @@ type
   end;
 
   TJclDoubleBinaryTree = class(TJclDoubleAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclDoubleContainer, IJclDoubleEqualityComparer, IJclDoubleComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclDoubleEqualityComparer, IJclDoubleComparer, IJclDoubleContainer, IJclDoubleFlatContainer,
     IJclDoubleCollection, IJclDoubleTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -900,7 +907,8 @@ type
   end;
 
   TJclExtendedBinaryTree = class(TJclExtendedAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclExtendedContainer, IJclExtendedEqualityComparer, IJclExtendedComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclExtendedEqualityComparer, IJclExtendedComparer, IJclExtendedContainer, IJclExtendedFlatContainer,
     IJclExtendedCollection, IJclExtendedTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1071,7 +1079,8 @@ type
   end;
 
   TJclIntegerBinaryTree = class(TJclIntegerAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclIntegerEqualityComparer, IJclIntegerComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclIntegerEqualityComparer, IJclIntegerComparer, IJclIntegerContainer, IJclIntegerFlatContainer,
     IJclIntegerCollection, IJclIntegerTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1203,7 +1212,8 @@ type
   end;
 
   TJclCardinalBinaryTree = class(TJclCardinalAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclCardinalEqualityComparer, IJclCardinalComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclCardinalEqualityComparer, IJclCardinalComparer, IJclCardinalContainer, IJclCardinalFlatContainer,
     IJclCardinalCollection, IJclCardinalTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1335,7 +1345,8 @@ type
   end;
 
   TJclInt64BinaryTree = class(TJclInt64AbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclInt64EqualityComparer, IJclInt64Comparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclInt64EqualityComparer, IJclInt64Comparer, IJclInt64Container, IJclInt64FlatContainer,
     IJclInt64Collection, IJclInt64Tree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1467,7 +1478,8 @@ type
   end;
 
   TJclPtrBinaryTree = class(TJclPtrAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclPtrEqualityComparer, IJclPtrComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclPtrEqualityComparer, IJclPtrComparer, IJclPtrContainer, IJclPtrFlatContainer,
     IJclPtrCollection, IJclPtrTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1599,7 +1611,8 @@ type
   end;
 
   TJclBinaryTree = class(TJclAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclObjectOwner, IJclEqualityComparer, IJclComparer,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclEqualityComparer, IJclComparer, IJclContainer, IJclFlatContainer, IJclObjectOwner,
     IJclCollection, IJclTree)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1722,7 +1735,10 @@ type
     function GetPreviousCursor: TJclBinaryNode; override;
   end;
 
+
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
+
   TJclBinaryNode<T> = class
   public
     Value: T;
@@ -1737,7 +1753,8 @@ type
   TJclPostOrderBinaryTreeIterator<T> = class;
 
   TJclBinaryTree<T> = class(TJclAbstractContainer<T>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>,
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
+    IJclEqualityComparer<T>, IJclComparer<T>, IJclContainer<T>, IJclFlatContainer<T>,IJclItemOwner<T>,
     IJclCollection<T>, IJclTree<T>)
   protected
     type
@@ -1866,7 +1883,7 @@ type
 
   // E = External helper to compare items
   TJclBinaryTreeE<T> = class(TJclBinaryTree<T>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclContainer<T>, IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>,
     IJclCollection<T>, IJclTree<T>)
   private
     FComparer: IJclComparer<T>;
@@ -1884,7 +1901,7 @@ type
 
   // F = Function to compare items
   TJclBinaryTreeF<T> = class(TJclBinaryTree<T>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclContainer<T>, IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>,
     IJclCollection<T>, IJclTree<T>)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1894,7 +1911,7 @@ type
 
   // I = Items can compare themselves to an other
   TJclBinaryTreeI<T: IComparable<T>> = class(TJclBinaryTree<T>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclContainer<T>, IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>,
     IJclCollection<T>, IJclTree<T>)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1904,15 +1921,30 @@ type
     { IJclEqualityComparer<T> }
     function ItemsEqual(const A, B: T): Boolean; override;
   end;
+
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
+{$IFDEF BCB}
+{$IFDEF WIN64}
+  {$HPPEMIT '#ifdef MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT ' #undef MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT ' #define JclBinaryTrees_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT '#endif'}
+
+  {$HPPEMIT END '#ifdef JclBinaryTrees_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END ' #define MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END ' #undef JclBinaryTrees_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END '#endif'}
+{$ENDIF WIN64}
+{$ENDIF BCB}
 
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclBinaryTrees.pas $';
-    Revision: '$Revision: 3273 $';
-    Date: '$Date: 2010-08-02 21:09:40 +0200 (lun., 02 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -1922,8 +1954,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils;
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils;
-
+  {$ENDIF ~HAS_UNITSCOPE}
 
 //=== { TJclIntfBinaryTree } =================================================
 
@@ -19775,7 +19810,10 @@ begin
 end;
 
 
+
 {$IFDEF SUPPORTS_GENERICS}
+//DOM-IGNORE-BEGIN
+
 //=== { TJclBinaryTree<T> } =================================================
 
 constructor TJclBinaryTree<T>.Create(AOwnsItems: Boolean);
@@ -21334,6 +21372,7 @@ begin
     Result := A.CompareTo(B) = 0;
 end;
 
+//DOM-IGNORE-END
 {$ENDIF SUPPORTS_GENERICS}
 
 {$IFDEF UNITVERSIONING}

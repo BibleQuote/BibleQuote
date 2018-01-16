@@ -38,9 +38,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-07-25 13:44:27 +0200 (dim., 25 juil. 2010)                         $ }
-{ Revision:      $Rev:: 3266                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -967,6 +967,7 @@ resourcestring
   RsCompressionWriteNotSupported     = 'write is not an supported operation.';
   RsCompressionResetNotSupported     = 'reset is not an supported operation.';
   RsCompressionSeekNotSupported      = 'seek is not an supported operation.';
+  RsCompressionUserAbort             = 'User abort';
   RsCompressionZLibZErrNo            = 'zlib returned: ERRNO';
   RsCompressionZLibZStreamError      = 'zlib returned: Stream error';
   RsCompressionZLibZDataError        = 'zlib returned: data error';
@@ -1001,9 +1002,11 @@ resourcestring
   RsCompressionUnsupportedMethod     = 'Unsupported method';
   RsCompressionDataError             = 'Data error';
   RsCompressionCRCError              = 'CRC error';
+  RsCompressionNoNestedArchive       = 'Nested archive is not supported';
   RsCompressionUnknownError          = 'Unknown error';
   RsCompression7zLoadError           = 'Sevenzip: Failed to load 7z.dll';
   RsCompression7zReturnError         = 'Sevenzip: Error result (%.8x) "%s"';
+  RsCompression7zUnassignedStream    = 'Sevenzip: Stream object is not assigned';
   RsCompression7zOutArchiveError     = 'Sevenzip: Failed to get out archive interface for class %s';
   RsCompression7zInArchiveError      = 'Sevenzip: Failed to get in archive interface for class %s';
   RsCompression7zUnknownValueType    = 'Sevenzip: Unknown value type (%d) for property ID %d';
@@ -1011,21 +1014,39 @@ resourcestring
   RsCompression7zWindows             = 'Windows';
   RsCompression7zUnix                = 'Unix';
   RsCompressionZipName               = 'Zip archive';
-  RsCompressionZipExtensions         = '*.zip;*.jar;*.xpi';
+  RsCompressionZipExtensions         = '*.zip;' +   // Basic ZIP file
+                                       '*.jar;*.ear;*.war;' +  // JAVA files
+                                       '*.cbz;' + //Comic reader files - ZIP version
+                                       '*.apk;' + // Android application package
+                                       '*.wsz;*.wal;' + // Winamp Skins
+                                       '*.xpi;*.crx;' + // Firefox, Chrome extensions
+                                       '*.dfsz;' + // ???
+                                       '*.pcv;' + // MozBackup file
+                                       '*.bsz;' + // BSplayer skin
+                                       '*.mskin;' + // Maxthon skin
+                                       '*.wmz;' + // Windows Media Player skin
+                                       '*.ipa;' + // iPhone/iPad application
+                                       '*.docx;*.xlsx;*.pptx;' + // MsOffice
+                                       '*.sxw;*.sxi;*.sxt;*.sxd;*.sxc;*.sxm;*.sxg;*.stw;*.sti;*.std;*.stc;' + // OpenOffice.org 1.x documents and templates
+                                       '*.odh;*.odd;*.odt;*.odm;*.ods;*.ots;*.odg;*.otg;*.odp;*.otp;*.odf;*.odb'; // OpenOffice.org 2.x/3.x docs and templates
   RsCompressionBZip2Name             = 'BZip2 archive';
   RsCompressionBZip2Extensions       = '*.bz2;*.bzip2;*.tbz2;*.tbz';
+  RsCompressionBZip2SubExtensions    = '.tbz2=.tar;.tbz=.tar';
   RsCompressionRarName               = 'Rar archive';
-  RsCompressionRarExtensions         = '*.rar;*.r00';
+  RsCompressionRarExtensions         = '*.rar;*.r00;'+
+                                       '*.cbr'; // Comic reader file - RAR version
   RsCompressionArjName               = 'Arj archive';
   RsCompressionArjExtensions         = '*.arj';
   RsCompressionZName                 = 'Z archive';
   RsCompressionZExtensions           = '*.z;*.taz';
+  RsCompressionZSubExtensions        = '.taz=.tar';
   RsCompressionLzhName               = 'Lzh archive';
   RsCompressionLzhExtensions         = '*.lzh;*.lha';
   RsCompression7zName                = '7z archive';
   RsCompression7zExtensions          = '*.7z';
   RsCompressionCabName               = 'Cab archive';
-  RsCompressionCabExtensions         = '*.cab';
+  RsCompressionCabExtensions         = '*.cab;'+
+                                       '*.fwp'; // FrontPage Web Package
   RsCompressionNsisName              = 'Nsis archive';
   RsCompressionNsisExtensions        = '*.nsis';
   RsCompressionLzmaName              = 'Lzma archive';
@@ -1041,9 +1062,10 @@ resourcestring
   // TODO: extension might be *.*, but then TJclCompressionStreamFormats.FindDecompressFormat can fail
   RsCompressionMachoExtensions       = '*.';
   RsCompressionUdfName               = 'Udf archive';
-  RsCompressionUdfExtensions         = '*.iso';
+  RsCompressionUdfExtensions         = '*.iso;*.img';
   RsCompressionXarName               = 'Xar archive';
-  RsCompressionXarExtensions         = '*.xar';
+  RsCompressionXarExtensions         = '*.xar;'+
+                                       '*.safariextz'; // Safari extensions
   RsCompressionMubName               = 'Mub archive';
   // TODO: extension might be *.*, but then TJclCompressionStreamFormats.FindDecompressFormat can fail
   RsCompressionMubExtensions         = '*.';
@@ -1056,7 +1078,7 @@ resourcestring
   RsCompressionWimName               = 'Wim archive';
   RsCompressionWimExtensions         = '*.wim;*.swm';
   RsCompressionIsoName               = 'Iso archive';
-  RsCompressionIsoExtensions         = '*.iso';
+  RsCompressionIsoExtensions         = '*.iso;*.img';
   RsCompressionChmName               = 'Chm archive';
   RsCompressionChmExtensions         = '*.chm;*.chi;*.chq;*.chw;*.hxs;*.hxi;*.hxr;*.hxq;*.hxw;*.lit';
   RsCompressionSplitName             = 'Split archive';
@@ -1071,8 +1093,10 @@ resourcestring
   RsCompressionTarExtensions         = '*.tar';
   RsCompressionGZipName              = 'GZip archive';
   RsCompressionGZipExtensions        = '*.gz;*.gzip;*.tgz;*.tpz';
+  RsCompressionGZipSubExtensions     = '.tgz=.tar;.tpz=.tar';
   RsCompressionXzName                = 'Xz archive';
   RsCompressionXzExtensions          = '*.xz;*.txz';
+  RsCompressionXzSubExtensions       = '.txz=.tar';
   RsCompressionNtfsName              = 'Ntfs archive';
   RsCompressionNtfsExtensions        = '*.ntfs;*.img';
   RsCompressionFatName               = 'Fat archive';
@@ -1080,7 +1104,8 @@ resourcestring
   RsCompressionMbrName               = 'Mbr archive';
   RsCompressionMbrExtensions         = '*.mbr';
   RsCompressionVhdName               = 'Vhd archive';
-  RsCompressionVhdExtensions         = '*.vhd;*.mbr';
+  RsCompressionVhdExtensions         = '*.vhd';
+  RsCompressionVhdSubExtensions      = '.vhd=.mbr';
   RsCompressionFlvName               = 'Flv archive';
   RsCompressionFlvExtensions         = '*.flv';
   RsCompressionMsLZName              = 'MsLZ archive';
@@ -1094,8 +1119,34 @@ resourcestring
   RsCompressionApmExtensions         = '*.';
   RsCompressionPpmdName              = 'PPMD archive';
   RsCompressionPpmdExtensions        = '*.pmd';
+  RsCompressionTEName                = 'Terse Executable';
+  RsCompressionTEExtensions          = '*.te';
+  RsCompressionUEFIcName             = 'UEFIc archive';
+  RsCompressionUEFIcExtensions       = '*.scap';
+  RsCompressionUEFIsName             = 'UEFIs archive';
+  RsCompressionUEFIsExtensions       = '*.';
+  RsCompressionSquashFSName          = 'SquashFS archive';
+  RsCompressionSquashFSExtensions    = '*.squashfs';
+  RsCompressionCramFSName            = 'CramFS archive';
+  RsCompressionCramFSExtensions      = '*.cramfs';
+  RsCompressionExtName               = 'Ext filesystem archive';
+  RsCompressionExtExtensions         = '*.ext;*.ext2;*.ext3;*.ext4;*.img';
+  RsCompressionVMDKName              = 'Virtual Machine Disk archive';
+  RsCompressionVMDKExtensions        = '*.vmdk';
+  RsCompressionVDIName               = 'Virtual Disk Image archive';
+  RsCompressionVDIExtensions         = '*.vdi';
+  RsCompressionQcowName              = 'QEMU Copy On Write archive';
+  RsCompressionQcowExtensions        = '*.qcow;*.qcow2;*.qcow2c';
+  RsCompressionGPTName               = 'GUID Partition Table archive';
+  RsCompressionGPTExtensions         = '*.gpt;*.mbr';
+  RsCompressionRar5Name              = 'RAR v5 archive';
+  RsCompressionRar5Extensions        = '*.rar;*.r00';
+  RsCompressionIHexName              = 'IHex archive';
+  RsCompressionIHexExtensions        = '*.ihex';
+  RsCompressionHxsName               = 'Help 2.0 archive';
+  RsCompressionHxsExtensions         = '*.hxs;*.hxi;*.hxr;*.hxq;*.hxw;*.lit';
   RsCompressionDuplicate             = 'The file %s already exists in the archive';
-  RsCompressionReplaceError          = 'At least one compression volumes could not be replaced after an archive out-of-place update';
+  RsCompressionReplaceError          = 'At least one compression volume could not be replaced after an archive out-of-place update';
 
 //=== JclConsole =============================================================
 resourcestring
@@ -1128,6 +1179,10 @@ resourcestring
 //=== JclDebug ===============================================================
 resourcestring
   RsUnknownFunctionAt     = 'Unknown function at %s';
+
+//=== JclCppException ========================================================
+resourcestring
+  RsCppUnhandledExceptionMsg = 'Unhandled C++ exception of type ''%s'' occurred';
 
 //=== JclDotNet ==============================================================
 resourcestring
@@ -1414,7 +1469,9 @@ resourcestring
   RsErrMatchLimit    = 'Match limit';
   RsErrCallout       = 'Callout';
   RsErrBadUTF8       = 'Bad UTF-8';
+  RsErrBadUTF16      = 'Bad UTF-16';
   RsErrBadUTF8Offset = 'Bad UTF-8 offset';
+  RsErrBadUTF16Offset = 'Bad UTF-16 offset';
   RsErrPartial       = 'Partial';
   RsErrBadPartial    = 'Bad partial';
   RsErrInternal      = 'Internal';
@@ -1427,12 +1484,22 @@ resourcestring
   RsErrRecursionLimit = 'Recursion limit';
   RsErrNullWsLimit   = 'Null WS limit';
   RsErrBadNewLine    = 'Bad new line';
+  RsErrBadOffset     = 'Bad offset';
+  RsErrShortUTF8     = 'Short UTF-8';
+  RsErrShortUTF16    = 'Short UTF-16';
+  RsErrRecurseLoop   = 'Recurse loop';
+  RsErrJITStackLimit = 'JIT stack limit';
   RsErrLibNotLoaded  = 'PCRE library not loaded';
   RsErrMemFuncNotSet = 'PCRE memory management functions not set';
-  RsErrStudyFailed   = 'Study failed'; 
+  RsErrStudyFailed   = 'Study failed';
   RsErrCalloutError  = 'Unhandled exception in callout';
   RsErrUnknownError  = 'Unknown error';
-  RsErrNoUTF8Support = 'No UTF8 support in this version of PCRE';
+  RsErrNoUTF8Support = 'No UTF-8 support in this version of PCRE';
+  RsErrNoUTF16Support = 'No UTF-16 support in this version of PCRE';
+  RsErrNoJITSupport  = 'No JIT support in this version of PCRE';
+  RsErrBadMode       = 'Bad Mode';
+  RsErrBadEndianness = 'Bad endianness';
+  RsErrBadRestart    = 'Bad Restart';
 
 //=== JclPeImage =============================================================
 resourcestring
@@ -1600,9 +1667,11 @@ resourcestring
 
 //=== JclRTTI ================================================================
 resourcestring
-  RsRTTIValueOutOfRange   = 'Value out of range (%s).';
+  RsRTTISetValueOutOfRange  = 'Set value over %s does not fit into a 32-bit integer.';
+  RsRTTIValueOutOfRange   = 'Value %s out of range %s..%s.';
   RsRTTIUnknownIdentifier = 'Unknown identifier ''%s''.';
   RsRTTIInvalidBaseType   = 'Invalid base type (%s is of type %s).';
+  RsRTTINoStringValue     = 'The property %s of type %s has no string value'; 
 
   RsRTTIVar           = 'var ';
   RsRTTIConst         = 'const ';
@@ -1722,6 +1791,7 @@ resourcestring
   RsDotNetFormatNullFormat  = 'Format string is null';
   RsArgumentIsNull          = 'Argument %d is null';
   RsDotNetFormatArgumentNotSupported = 'Argument type of %d is not supported';
+  RsDotNetFormatObjectArgumentNotSupported = 'Argument type (%s) of %d is not supported';
   RsArgumentOutOfRange      = 'Argument out of range';
   RsTabs_DuplicatesNotAllowed = 'Duplicate tab stops are not allowed.';
   RsTabs_StopExpected = 'A tab stop was expected but not found.';
@@ -1820,6 +1890,7 @@ resourcestring
   RsIntelCacheDescr71 = 'Trace cache: 16 K-Ops, 8-way set associative';
   RsIntelCacheDescr72 = 'Trace cache: 32 K-Ops, 8-way set associative';
   RsIntelCacheDescr73 = 'Trace cache: 64 K-Ops, 8-way set associative';
+  RsIntelCacheDescr76 = 'Instruction TLB: 2M/4M pages, fully associative, 8 entries';
   RsIntelCacheDescr78 = '2nd-level cache: 1 MBytes, 4-way set associative, 64 bytes line size';
   RsIntelCacheDescr79 = '2nd-level cache: 128 KBytes, 8-way set associative, 64 bytes line size, 2 lines per sector';
   RsIntelCacheDescr7A = '2nd-level cache: 256 KBytes, 8-way set associative, 64 bytes line size, 2 lines per sector';
@@ -1879,6 +1950,14 @@ resourcestring
   RsOSVersionWinServer2008      = 'Windows Server 2008';
   RsOSVersionWin7               = 'Windows 7';
   RsOSVersionWinServer2008R2    = 'Windows Server 2008 R2';
+  RsOSVersionWin8               = 'Windows 8';
+  RsOSVersionWin8RT             = 'Windows RT';
+  RsOSVersionWinServer2012      = 'Windows Server 2012';
+  RsOSVersionWin81              = 'Windows 8.1';
+  RsOSVersionWin81RT            = 'Windows RT 8.1';
+  RsOSVersionWinServer2012R2    = 'Windows Server 2012 R2';
+  RsOSVersionWin10              = 'Windows 10';
+  RsOSVersionWinServer2016      = 'Windows Server 2016';
 
   RsEditionWinXPHome            = 'Home Edition';
   RsEditionWinXPPro             = 'Professional';
@@ -1905,6 +1984,16 @@ resourcestring
   RsEditionWin7Professional     = 'Professional';
   RsEditionWin7Enterprise       = 'Enterprise';
   RsEditionWin7Ultimate         = 'Ultimate';
+  RsEditionWin8Pro              = 'Pro';
+  RsEditionWin8Enterprise       = 'Enterprise';
+  RsEditionWin8RT               = 'RT';
+  RsEditionWin81Pro             = 'Pro';
+  RsEditionWin81Enterprise      = 'Enterprise';
+  RsEditionWin81RT              = 'RT';
+  RsEditionWin10Home            = 'Home';
+  RsEditionWin10Pro             = 'Pro';
+  RsEditionWin10Enterprise      = 'Enterprise';
+  RsEditionWin10Education       = 'Education';
 
   RsProductTypeWorkStation      = 'Workstation';
   RsProductTypeServer           = 'Server';
@@ -1916,6 +2005,7 @@ resourcestring
   RsProductTypeWebEdition       = 'Web Edition';
 
   RsEOpenGLInfo = 'GetOpenGLVersion: %s failed';
+  RsENetWkstaGetInfo = 'NetWkstaGetInfo failed';
 
   {$IFDEF MSWINDOWS}
   RsSPInfo = 'SP%u';
@@ -1990,9 +2080,9 @@ resourcestring
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclResources.pas $';
-    Revision: '$Revision: 3266 $';
-    Date: '$Date: 2010-07-25 13:44:27 +0200 (dim., 25 juil. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil

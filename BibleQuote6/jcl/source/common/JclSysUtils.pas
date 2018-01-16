@@ -22,6 +22,7 @@
 {   Bernhard Berger                                                                                }
 {   Heri Bender                                                                                    }
 {   Jean-Fabien Connault (cycocrew)                                                                }
+{   Jens Fudickar                                                                                  }
 {   Jeroen Speldekamp                                                                              }
 {   Marcel van Brakel                                                                              }
 {   Peter Friese                                                                                   }
@@ -40,9 +41,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010)                         $ }
-{ Revision:      $Rev:: 3321                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -56,11 +57,18 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  {$ENDIF MSWINDOWS}
+  System.SysUtils, System.Classes, System.TypInfo, System.SyncObjs,
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF MSWINDOWS}
   SysUtils, Classes, TypInfo, SyncObjs,
-  JclBase;
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclBase, JclSynch;
 
 // memory initialization
 // first parameter is "out" to make FPC happy with uninitialized values
@@ -99,7 +107,7 @@ type
     property Items[Index: Integer]: Pointer read GetItem;
   end;
 
-    TJclSafeGuard = class(TInterfacedObject, ISafeGuard)
+  TJclSafeGuard = class(TInterfacedObject, ISafeGuard)
   private
     FItem: Pointer;
   public
@@ -167,8 +175,8 @@ type
     function GetItem: T;
     procedure FreeItem;
 
-	constructor Create(Instance: T);
-	destructor Destroy; override;
+  constructor Create(Instance: T);
+  destructor Destroy; override;
   public
     class function New(Instance: T): ISafeGuard<T>; static;
   end;
@@ -235,7 +243,7 @@ type
 procedure SortDynArray(const ArrayPtr: Pointer; ElementSize: Cardinal; SortFunc: TDynArraySortCompare);
 // Usage: SortDynArray(Array, SizeOf(Array[0]), SortFunction);
 function SearchDynArray(const ArrayPtr: Pointer; ElementSize: Cardinal; SortFunc: TDynArraySortCompare;
-  ValuePtr: Pointer; Nearest: Boolean = False): Integer;
+  ValuePtr: Pointer; Nearest: Boolean = False): SizeInt;
 // Usage: SearchDynArray(Array, SizeOf(Array[0]), SortFunction, @SearchedValue);
 
 { Various compare functions for basic types }
@@ -404,14 +412,14 @@ function GetImplementorOfInterface(const I: IInterface): TObject;
 
 // interfaced persistent
 type
-  TJclInterfacedPersistent = class(TPersistent, IInterface)
+  TJclInterfacedPersistent = class(TInterfacedPersistent, IInterface)
   protected
     FOwnerInterface: IInterface;
     FRefCount: Integer;
   public
     procedure AfterConstruction; override;
     { IInterface }
-    function QueryInterface(const IID: TGUID; out Obj): HRESULT; virtual; stdcall;
+    // function QueryInterface(const IID: TGUID; out Obj): HRESULT; virtual; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
   end;
@@ -485,14 +493,94 @@ function IntToStrZeroPad(Value, Count: Integer): string;
 type
   // e.g. TStrings.Append
   TTextHandler = procedure(const Text: string) of object;
+  TJclProcessPriority = (ppIdle, ppNormal, ppHigh, ppRealTime, ppBelowNormal, ppAboveNormal);
 
 const
   ABORT_EXIT_CODE = {$IFDEF MSWINDOWS} ERROR_CANCELLED {$ELSE} 1223 {$ENDIF};
 
 function Execute(const CommandLine: string; OutputLineCallback: TTextHandler; RawOutput: Boolean = False;
-  AbortPtr: PBoolean = nil): Cardinal; overload;
+  AbortPtr: PBoolean = nil; ProcessPriority: TJclProcessPriority = ppNormal;
+  AutoConvertOem: Boolean = False): Cardinal; overload;
+function Execute(const CommandLine: string; AbortEvent: TJclEvent;
+  OutputLineCallback: TTextHandler; RawOutput: Boolean = False; ProcessPriority: TJclProcessPriority = ppNormal;
+  AutoConvertOem: Boolean = False): Cardinal; overload;
 function Execute(const CommandLine: string; var Output: string; RawOutput: Boolean = False;
-  AbortPtr: PBoolean = nil): Cardinal; overload;
+  AbortPtr: PBoolean = nil; ProcessPriority: TJclProcessPriority = ppNormal;
+  AutoConvertOem: Boolean = False): Cardinal; overload;
+function Execute(const CommandLine: string; AbortEvent: TJclEvent;
+  var Output: string; RawOutput: Boolean = False; ProcessPriority: TJclProcessPriority = ppNormal;
+  AutoConvertOem: Boolean = False): Cardinal; overload;
+
+function Execute(const CommandLine: string; OutputLineCallback, ErrorLineCallback: TTextHandler;
+  RawOutput: Boolean = False; RawError: Boolean = False; AbortPtr: PBoolean = nil;
+  ProcessPriority: TJclProcessPriority = ppNormal; AutoConvertOem: Boolean = False): Cardinal; overload;
+function Execute(const CommandLine: string; AbortEvent: TJclEvent;
+  OutputLineCallback, ErrorLineCallback: TTextHandler; RawOutput: Boolean = False; RawError: Boolean = False;
+  ProcessPriority: TJclProcessPriority = ppNormal; AutoConvertOem: Boolean = False): Cardinal; overload;
+function Execute(const CommandLine: string; var Output, Error: string;
+  RawOutput: Boolean = False; RawError: Boolean = False; AbortPtr: PBoolean = nil;
+  ProcessPriority: TJclProcessPriority = ppNormal; AutoConvertOem: Boolean = False): Cardinal; overload;
+function Execute(const CommandLine: string; AbortEvent: TJclEvent;
+  var Output, Error: string; RawOutput: Boolean = False; RawError: Boolean = False;
+  ProcessPriority: TJclProcessPriority = ppNormal; AutoConvertOem: Boolean = False): Cardinal; overload;
+
+type
+  {$IFDEF MSWINDOWS}
+  TJclExecuteCmdProcessOptionBeforeResumeEvent = procedure(const ProcessInfo: TProcessInformation) of object;
+  {$ENDIF MSWINDOWS}
+
+  TJclExecuteCmdProcessOptions = {record} class(TObject)
+  private
+    FCommandLine: string;
+    FAbortPtr: PBoolean;
+    FAbortEvent: TJclEvent;
+
+    FOutputLineCallback: TTextHandler;
+    FRawOutput: Boolean;
+    FMergeError: Boolean;
+    FErrorLineCallback: TTextHandler;
+    FRawError: Boolean;
+    FProcessPriority: TJclProcessPriority;
+
+    FAutoConvertOem: Boolean;
+    {$IFDEF MSWINDOWS}
+    FCreateProcessFlags: DWORD;
+    FBeforeResume: TJclExecuteCmdProcessOptionBeforeResumeEvent;
+    {$ENDIF MSWINDOWS}
+
+    FExitCode: Cardinal;
+    FOutput: string;
+    FError: string;
+  public
+    // in:
+    property CommandLine: string read FCommandLine write FCommandLine;
+    property AbortPtr: PBoolean read FAbortPtr write FAbortPtr;
+    property AbortEvent: TJclEvent read FAbortEvent write FAbortEvent;
+
+    property OutputLineCallback: TTextHandler read FOutputLineCallback write FOutputLineCallback;
+    property RawOutput: Boolean read FRawOutput write FRawOutput default False;
+    property MergeError: Boolean read FMergeError write FMergeError default False;
+    property ErrorLineCallback: TTextHandler read FErrorLineCallback write FErrorLineCallback;
+    property RawError: Boolean read FRawError write FRawError default False;
+    property ProcessPriority: TJclProcessPriority read FProcessPriority write FProcessPriority default ppNormal;
+
+    // AutoConvertOem assumes the process outputs OEM encoded strings and converts them to the
+    // default string encoding.
+    property AutoConvertOem: Boolean read FAutoConvertOem write FAutoConvertOem default True;
+    {$IFDEF MSWINDOWS}
+    property CreateProcessFlags: DWORD read FCreateProcessFlags write FCreateProcessFlags;
+    property BeforeResume: TJclExecuteCmdProcessOptionBeforeResumeEvent read FBeforeResume write FBeforeResume;
+    {$ENDIF MSWINDOWS}
+
+    // out:
+    property ExitCode: Cardinal read FExitCode;
+    property Output: string read FOutput;
+    property Error: string read FError;
+  public
+    constructor Create(const ACommandLine: string);
+  end;
+
+function ExecuteCmdProcess(Options: TJclExecuteCmdProcessOptions): Boolean;
 
 type
 {$HPPEMIT 'namespace Jclsysutils'}
@@ -575,6 +663,10 @@ function BooleanToStr(B: Boolean): string;
 function IntToBool(I: Integer): Boolean;
 function BoolToInt(B: Boolean): Integer;
 
+function TryStrToUInt(const Value: string; out Res: Cardinal): Boolean;
+function StrToUIntDef(const Value: string; const Default: Cardinal): Cardinal;
+function StrToUInt(const Value: string): Cardinal;
+
 const
   {$IFDEF MSWINDOWS}
   ListSeparator = ';';
@@ -611,27 +703,38 @@ function IsCompiledWithPackages: Boolean;
 // GUID
 function JclGUIDToString(const GUID: TGUID): string;
 function JclStringToGUID(const S: string): TGUID;
+function GUIDEquals(const GUID1, GUID2: TGUID): Boolean;
 
 // thread safe support
 
 type
-  TJclIntfCriticalSection = class(TObject, IInterface)
+  TJclIntfCriticalSection = class(TInterfacedObject, IInterface)
   private
     FCriticalSection: TCriticalSection;
   public
     constructor Create;
     destructor Destroy; override;
     { IInterface }
-    function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
+    // function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
   end;
 
 type
+  {$IFDEF BORLAND}
+  {$IFDEF COMPILER16_UP}
+  TFileHandle = THandle;
+  {$ELSE ~COMPILER16_UP}
+  TFileHandle = Integer;
+  {$ENDIF ~COMPILER16_UP}
+  {$ELSE ~BORLAND}
+  TFileHandle = THandle;
+  {$ENDIF ~BORLAND}
+
   TJclSimpleLog = class (TObject)
   private
     FDateTimeFormatStr: String;
-    FLogFileHandle: {$IFDEF BORLAND}Integer{$ELSE}THandle{$ENDIF};
+    FLogFileHandle: TFileHandle;
     FLogFileName: string;
     FLoggingActive: Boolean;
     FLogWasEmpty: Boolean;
@@ -658,6 +761,79 @@ type
     property LogOpen: Boolean read GetLogOpen;
   end;
 
+type
+  TJclFormatSettings = class
+  private
+    function GetCurrencyDecimals: Byte; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetCurrencyFormat: Byte; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetCurrencyString: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetDateSeparator: Char; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetDayNamesHighIndex: Integer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetDayNamesLowIndex: Integer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetDecimalSeparator: Char; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetListSeparator: Char; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetLongDateFormat: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetLongDayNames(AIndex: Integer): string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetLongMonthNames(AIndex: Integer): string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetLongTimeFormat: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetMonthNamesHighIndex: Integer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetMonthNamesLowIndex: Integer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetNegCurrFormat: Byte; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetShortDateFormat: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetShortDayNames(AIndex: Integer): string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetShortMonthNames(AIndex: Integer): string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetShortTimeFormat: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetThousandSeparator: Char; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetTimeAMString: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetTimePMString: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetTimeSeparator: Char; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetTwoDigitYearCenturyWindow: Word; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetCurrencyDecimals(AValue: Byte); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetCurrencyFormat(const AValue: Byte); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetCurrencyString(AValue: string); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetDateSeparator(const AValue: Char); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetDecimalSeparator(AValue: Char); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetListSeparator(const AValue: Char); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetLongDateFormat(const AValue: string); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetLongTimeFormat(const AValue: string); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetNegCurrFormat(const AValue: Byte); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetShortDateFormat(AValue: string); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetShortTimeFormat(const AValue: string); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetThousandSeparator(AValue: Char); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetTimeAMString(const AValue: string); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetTimePMString(const AValue: string); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetTimeSeparator(const AValue: Char); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure SetTwoDigitYearCenturyWindow(const AValue: Word); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+  public
+    property CurrencyDecimals: Byte read GetCurrencyDecimals write SetCurrencyDecimals;
+    property CurrencyFormat: Byte read GetCurrencyFormat write SetCurrencyFormat;
+    property CurrencyString: string read GetCurrencyString write SetCurrencyString;
+    property DateSeparator: Char read GetDateSeparator write SetDateSeparator;
+    property DayNamesHighIndex: Integer read GetDayNamesHighIndex;
+    property DayNamesLowIndex: Integer read GetDayNamesLowIndex;
+    property DecimalSeparator: Char read GetDecimalSeparator write SetDecimalSeparator;
+    property ListSeparator: Char read GetListSeparator write SetListSeparator;
+    property LongDateFormat: string read GetLongDateFormat write SetLongDateFormat;
+    property LongDayNames[AIndex: Integer]: string read GetLongDayNames;
+    property LongMonthNames[AIndex: Integer]: string read GetLongMonthNames;
+    property LongTimeFormat: string read GetLongTimeFormat write SetLongTimeFormat;
+    property MonthNamesHighIndex: Integer read GetMonthNamesHighIndex;
+    property MonthNamesLowIndex: Integer read GetMonthNamesLowIndex;
+    property NegCurrFormat: Byte read GetNegCurrFormat write SetNegCurrFormat;
+    property ShortDateFormat: string read GetShortDateFormat write SetShortDateFormat;
+    property ShortDayNames[AIndex: Integer]: string read GetShortDayNames;
+    property ShortMonthNames[AIndex: Integer]: string read GetShortMonthNames;
+    property ShortTimeFormat: string read GetShortTimeFormat write SetShortTimeFormat;
+    property ThousandSeparator: Char read GetThousandSeparator write SetThousandSeparator;
+    property TimeAMString: string read GetTimeAMString write SetTimeAMString;
+    property TimePMString: string read GetTimePMString write SetTimePMString;
+    property TimeSeparator: Char read GetTimeSeparator write SetTimeSeparator;
+    property TwoDigitYearCenturyWindow: Word read GetTwoDigitYearCenturyWindow write SetTwoDigitYearCenturyWindow;
+  end;
+
+var
+  JclFormatSettings: TJclFormatSettings;
+
 // Procedure to initialize the SimpleLog Variable
 procedure InitSimpleLog(const ALogFileName: string = ''; AOpenLog: Boolean = true);
 
@@ -666,12 +842,19 @@ procedure InitSimpleLog(const ALogFileName: string = ''; AOpenLog: Boolean = tru
 var
   SimpleLog : TJclSimpleLog;
 
+
+// Validates if then variant value is null or is empty
+function VarIsNullEmpty(const V: Variant): Boolean;
+// Validates if then variant value is null or is empty or VarToStr is a blank string
+function VarIsNullEmptyBlank(const V: Variant): Boolean;
+
+
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclSysUtils.pas $';
-    Revision: '$Revision: 3321 $';
-    Date: '$Date: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -681,18 +864,25 @@ const
 implementation
 
 uses
-  Types,
   {$IFDEF HAS_UNIT_LIBC}
   Libc,
   {$ENDIF HAS_UNIT_LIBC}
   {$IFDEF MSWINDOWS}
   JclConsole,
   {$ENDIF MSWINDOWS}
-  Contnrs,
+  {$IFDEF HAS_UNITSCOPE}
+  System.Variants, System.Types, System.Contnrs,
+  {$IFDEF HAS_UNIT_ANSISTRINGS}
+  System.AnsiStrings,
+  {$ENDIF HAS_UNIT_ANSISTRINGS}
+  {$ELSE ~HAS_UNITSCOPE}
+  Variants, Types, Contnrs,
   {$IFDEF HAS_UNIT_ANSISTRINGS}
   AnsiStrings,
   {$ENDIF HAS_UNIT_ANSISTRINGS}
-  JclFileUtils, JclMath, JclResources, JclStrings, JclStringConversions, JclSysInfo;
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclFileUtils, JclMath, JclResources, JclStrings,
+  JclStringConversions, JclSysInfo, JclWin32;
 
 // memory initialization
 procedure ResetMemory(out P; Size: Longint);
@@ -1089,7 +1279,7 @@ begin
   Result := 0;
   Pointer(P) := nil;
 
-  if (GetWindowsVersion in [wvUnknown..wvWinNT4]) and ((Name = '') or (Pos('\', Name) > 0)) then
+  if not JclCheckWinVersion(5, 0) and ((Name = '') or (Pos('\', Name) > 0)) then
     raise ESharedMemError.CreateResFmt(@RsInvalidMMFName, [Name]);
 
   {$IFDEF THREADSAFE}
@@ -1252,7 +1442,7 @@ begin
     while L <= H do
     begin
       I := (L + H) shr 1;
-      C := SortFunc(List.List^[I], Item);
+      C := SortFunc(List.List{$IFNDEF RTL230_UP}^{$ENDIF !RTL230_UP}[I], Item);
       if C < 0 then
         L := I + 1
       else
@@ -1315,52 +1505,58 @@ procedure SortDynArray(const ArrayPtr: Pointer; ElementSize: Cardinal; SortFunc:
 var
   TempBuf: TDynByteArray;
 
-  function ArrayItemPointer(Item: Integer): Pointer;
-  begin
-    Result := Pointer(TJclAddr(ArrayPtr) + (Cardinal(Item) * ElementSize));
-  end;
-
-  procedure QuickSort(L, R: Integer);
+  procedure QuickSort(L, R: SizeInt);
   var
-    I, J, T: Integer;
+    I, J, T: SizeInt;
     P, IPtr, JPtr: Pointer;
+    ElSize: Integer;
   begin
+    ElSize := ElementSize;
     repeat
       I := L;
       J := R;
-      P := ArrayItemPointer((L + R) shr 1);
+      P := Pointer(TJclAddr(ArrayPtr) + TJclAddr(((L + R) shr 1) * SizeInt(ElementSize)));
       repeat
-        while SortFunc(ArrayItemPointer(I), P) < 0 do
+        IPtr := Pointer(TJclAddr(ArrayPtr) + TJclAddr(I * SizeInt(ElementSize)));
+        JPtr := Pointer(TJclAddr(ArrayPtr) + TJclAddr(J * SizeInt(ElementSize)));
+        while SortFunc(IPtr, P) < 0 do
+        begin
           Inc(I);
-        while SortFunc(ArrayItemPointer(J), P) > 0 do
+          Inc(PByte(IPtr), ElSize);
+        end;
+        while SortFunc(JPtr, P) > 0 do
+        begin
           Dec(J);
+          Dec(PByte(JPtr), ElSize);
+        end;
         if I <= J then
         begin
-          IPtr := ArrayItemPointer(I);
-          JPtr := ArrayItemPointer(J);
-          case ElementSize of
-            SizeOf(Byte):
-              begin
-                T := PByte(IPtr)^;
-                PByte(IPtr)^ := PByte(JPtr)^;
-                PByte(JPtr)^ := T;
-              end;
-            SizeOf(Word):
-              begin
-                T := PWord(IPtr)^;
-                PWord(IPtr)^ := PWord(JPtr)^;
-                PWord(JPtr)^ := T;
-              end;
-            SizeOf(Integer):
-              begin
-                T := PInteger(IPtr)^;
-                PInteger(IPtr)^ := PInteger(JPtr)^;
-                PInteger(JPtr)^ := T;
-              end;
-          else
-            Move(IPtr^, TempBuf[0], ElementSize);
-            Move(JPtr^, IPtr^, ElementSize);
-            Move(TempBuf[0], JPtr^, ElementSize);
+          if I <> J then
+          begin
+            case ElementSize of
+              SizeOf(Byte):
+                begin
+                  T := PByte(IPtr)^;
+                  PByte(IPtr)^ := PByte(JPtr)^;
+                  PByte(JPtr)^ := T;
+                end;
+              SizeOf(Word):
+                begin
+                  T := PWord(IPtr)^;
+                  PWord(IPtr)^ := PWord(JPtr)^;
+                  PWord(JPtr)^ := T;
+                end;
+              SizeOf(Integer):
+                begin
+                  T := PInteger(IPtr)^;
+                  PInteger(IPtr)^ := PInteger(JPtr)^;
+                  PInteger(JPtr)^ := T;
+                end;
+            else
+              Move(IPtr^, TempBuf[0], ElementSize);
+              Move(JPtr^, IPtr^, ElementSize);
+              Move(TempBuf[0], JPtr^, ElementSize);
+            end;
           end;
           if P = IPtr then
             P := JPtr
@@ -1381,26 +1577,26 @@ begin
   if ArrayPtr <> nil then
   begin
     SetLength(TempBuf, ElementSize);
-    QuickSort(0, PInteger(TJclAddr(ArrayPtr) - 4)^ - 1);
+    QuickSort(0, PSizeInt(TJclAddr(ArrayPtr) - SizeOf(SizeInt))^ - 1);
   end;
 end;
 
 function SearchDynArray(const ArrayPtr: Pointer; ElementSize: Cardinal; SortFunc: TDynArraySortCompare;
-  ValuePtr: Pointer; Nearest: Boolean): Integer;
+  ValuePtr: Pointer; Nearest: Boolean): SizeInt;
 var
-  L, H, I, C: Integer;
+  L, H, I, C: SizeInt;
   B: Boolean;
 begin
   Result := -1;
   if ArrayPtr <> nil then
   begin
     L := 0;
-    H := PInteger(TJclAddr(ArrayPtr) - 4)^ - 1;
+    H := PSizeInt(TJclAddr(ArrayPtr) - SizeOf(SizeInt))^ - 1;
     B := False;
     while L <= H do
     begin
       I := (L + H) shr 1;
-      C := SortFunc(Pointer(TJclAddr(ArrayPtr) + (Cardinal(I) * ElementSize)), ValuePtr);
+      C := SortFunc(Pointer(TJclAddr(ArrayPtr) + TJclAddr(I * SizeInt(ElementSize))), ValuePtr);
       if C < 0 then
         L := I + 1
       else
@@ -1445,7 +1641,13 @@ end;
 
 function DynArrayCompareInteger(Item1, Item2: Pointer): Integer;
 begin
-  Result := PInteger(Item1)^ - PInteger(Item2)^;
+  if PInteger(Item1)^ < PInteger(Item2)^ then
+    Result := -1
+  else
+  if PInteger(Item1)^ > PInteger(Item2)^ then
+    Result := 1
+  else
+    Result := 0;
 end;
 
 function DynArrayCompareCardinal(Item1, Item2: Pointer): Integer;
@@ -2099,15 +2301,6 @@ begin
     GetOwner.GetInterface(IInterface, FOwnerInterface);
 end;
 
-function TJclInterfacedPersistent.QueryInterface(const IID: TGUID;
-  out Obj): HRESULT;
-begin
-  if GetInterface(IID, Obj) then
-    Result := S_OK
-  else
-    Result := E_NOINTERFACE;
-end;
-
 function TJclInterfacedPersistent._AddRef: Integer;
 begin
   if FOwnerInterface <> nil then
@@ -2171,8 +2364,8 @@ begin
   FSignChars[True] := '+';
   FPaddingChar := ' ';
   FMultiplier := '×';
-  FFractionalPartSeparator := {$IFDEF RTL220_UP}FormatSettings.{$ENDIF}DecimalSeparator;
-  FDigitBlockSeparator := {$IFDEF RTL220_UP}FormatSettings.{$ENDIF}ThousandSeparator;
+  FFractionalPartSeparator := JclFormatSettings.DecimalSeparator;
+  FDigitBlockSeparator := JclFormatSettings.ThousandSeparator;
 end;
 
 procedure TJclNumericFormat.InvalidDigit(Digit: Char);
@@ -2540,9 +2733,25 @@ end;
 
 //=== Child processes ========================================================
 
+const
+  BufferSize = 255;
+type
+  TBuffer = array [0..BufferSize] of AnsiChar;
+
+  TPipeInfo = record
+    PipeRead, PipeWrite: THandle;
+    Buffer: TBuffer;
+    Line: string;
+    TextHandler: TTextHandler;
+    RawOutput: Boolean;
+    AutoConvertOem: Boolean;
+    Event: TJclEvent;
+  end;
+  PPipeInfo = ^TPipeInfo;
+
 // MuteCRTerminatedLines was "outsourced" from Win32ExecAndRedirectOutput
 
-function MuteCRTerminatedLines(const RawOutput: string): string;
+function InternalExecuteMuteCRTerminatedLines(const RawOutput: string): string;
 const
   Delta = 1024;
 var
@@ -2580,142 +2789,439 @@ begin
   SetLength(Result, OutPos - 1);
 end;
 
-function InternalExecute(CommandLine: string; var Output: string; OutputLineCallback: TTextHandler;
-  RawOutput: Boolean; AbortPtr: PBoolean): Cardinal;
-
-const
-  BufferSize = 255;
-type
-  TBuffer = array [0..BufferSize] of AnsiChar;
-
-  procedure ProcessLine(const Line: string; LineEnd: Integer);
+procedure InternalExecuteProcessLine(const PipeInfo: TPipeInfo; LineEnd: Integer);
+begin
+  if PipeInfo.RawOutput or (PipeInfo.Line[LineEnd] <> NativeCarriageReturn) then
   begin
-    if RawOutput or (Line[LineEnd] <> NativeCarriageReturn) then
-    begin
-      while (LineEnd > 0) and CharIsReturn(Line[LineEnd]) do
-        Dec(LineEnd);
-      OutputLineCallback(Copy(Line, 1, LineEnd));
-    end;
+    while (LineEnd > 0) and CharIsReturn(PipeInfo.Line[LineEnd]) do
+      Dec(LineEnd);
+    PipeInfo.TextHandler(Copy(PipeInfo.Line, 1, LineEnd));
   end;
+end;
 
-  procedure ProcessBuffer(var Buffer: TBuffer; var Line: string; PipeBytesRead: Cardinal);
-  var
-    CR, LF: Integer;
+procedure InternalExecuteProcessBuffer(var PipeInfo: TPipeInfo; PipeBytesRead: Cardinal);
+var
+  CR, LF: Integer;
+  {$IFDEF MSWINDOWS}
+  LineLen, Len: Integer;
+  {$ENDIF MSWINDOWS}
+  S: AnsiString;
+begin
+  {$IFDEF MSWINDOWS}
+  if PipeInfo.AutoConvertOem then
   begin
-    Buffer[PipeBytesRead] := #0;
-    Line := Line + string(Buffer);
-    if Assigned(OutputLineCallback) then
+    {$IFDEF UNICODE}
+    Len := MultiByteToWideChar(CP_OEMCP, 0, PipeInfo.Buffer, PipeBytesRead, nil, 0);
+    LineLen := Length(PipeInfo.Line);
+    // Convert directly into the PipeInfo.Line string
+    SetLength(PipeInfo.Line, LineLen + Len);
+    MultiByteToWideChar(CP_OEMCP, 0, PipeInfo.Buffer, PipeBytesRead, PChar(PipeInfo.Line) + LineLen, Len);
+    {$ELSE}
+    Len := PipeBytesRead;
+    LineLen := Length(PipeInfo.Line);
+    // Convert directly into the PipeInfo.Line string
+    SetLength(PipeInfo.Line, LineLen + Len);
+    OemToAnsiBuff(PipeInfo.Buffer, PAnsiChar(PipeInfo.Line) + LineLen, PipeBytesRead);
+    {$ENDIF UNICODE}
+  end
+  else
+  {$ENDIF MSWINDOWS}
+  begin
+    SetString(S, PipeInfo.Buffer, PipeBytesRead); // interpret as ANSI
+    {$IFDEF UNICODE}
+    PipeInfo.Line := PipeInfo.Line + string(S); // ANSI => UNICODE
+    {$ELSE}
+    PipeInfo.Line := PipeInfo.Line + S;
+    {$ENDIF UNICODE}
+  end;
+  if Assigned(PipeInfo.TextHandler) then
     repeat
-      CR := Pos(NativeCarriageReturn, Line);
-      if CR = Length(Line) then
+      CR := Pos(NativeCarriageReturn, PipeInfo.Line);
+      if CR = Length(PipeInfo.Line) then
         CR := 0;        // line feed at CR + 1 might be missing
-      LF := Pos(NativeLineFeed, Line);
+      LF := Pos(NativeLineFeed, PipeInfo.Line);
       if (CR > 0) and ((LF > CR + 1) or (LF = 0)) then
         LF := CR;       // accept CR as line end
       if LF > 0 then
       begin
-        ProcessLine(Line, LF);
-        Delete(Line, 1, LF);
+        InternalExecuteProcessLine(PipeInfo, LF);
+        Delete(PipeInfo.Line, 1, LF);
       end;
     until LF = 0;
+end;
+
+procedure InternalExecuteReadPipe(var PipeInfo: TPipeInfo; var Overlapped: TOverlapped);
+var
+  NullDWORD: ^DWORD; // XE4 broke PDWORD
+  Res: DWORD;
+begin
+  NullDWORD := nil;
+  if not ReadFile(PipeInfo.PipeRead, PipeInfo.Buffer[0], BufferSize, NullDWORD^, @Overlapped) then
+  begin
+    Res := GetLastError;
+    case Res of
+      ERROR_BROKEN_PIPE:
+        begin
+          CloseHandle(PipeInfo.PipeRead);
+          PipeInfo.PipeRead := 0;
+        end;
+      ERROR_IO_PENDING:
+        ;
+    else
+      {$IFDEF DELPHI11_UP}
+      RaiseLastOSError(Res);
+      {$ELSE}
+      RaiseLastOSError;
+      {$ENDIF DELPHI11_UP}
+    end;
   end;
+end;
+
+procedure InternalExecuteHandlePipeEvent(var PipeInfo: TPipeInfo; var Overlapped: TOverlapped);
+var
+  PipeBytesRead: DWORD;
+begin
+  if GetOverlappedResult(PipeInfo.PipeRead, Overlapped, PipeBytesRead, False) then
+  begin
+    InternalExecuteProcessBuffer(PipeInfo, PipeBytesRead);
+    // automatically launch the next read
+    InternalExecuteReadPipe(PipeInfo, Overlapped);
+  end
+  else
+  if GetLastError = ERROR_BROKEN_PIPE then
+  begin
+    CloseHandle(PipeInfo.PipeRead);
+    PipeInfo.PipeRead := 0;
+  end
+  else
+    RaiseLastOSError;
+end;
+
+procedure InternalExecuteFlushPipe(var PipeInfo: TPipeInfo; var Overlapped: TOverlapped);
+var
+  PipeBytesRead: DWORD;
+begin
+  CancelIo(PipeInfo.PipeRead);
+  GetOverlappedResult(PipeInfo.PipeRead, Overlapped, PipeBytesRead, True);
+  if PipeBytesRead > 0 then
+    InternalExecuteProcessBuffer(PipeInfo, PipeBytesRead);
+  while PeekNamedPipe(PipeInfo.PipeRead, nil, 0, nil, @PipeBytesRead, nil) and (PipeBytesRead > 0) do
+  begin
+    if PipeBytesRead > BufferSize then
+      PipeBytesRead := BufferSize;
+    if not ReadFile(PipeInfo.PipeRead, PipeInfo.Buffer[0], PipeBytesRead, PipeBytesRead, nil) then
+      RaiseLastOSError;
+    InternalExecuteProcessBuffer(PipeInfo, PipeBytesRead);
+  end;
+end;
 
 var
-  Buffer: TBuffer;
-  Line: string;
-  PipeBytesRead: Cardinal;
+  AsyncPipeCounter: Integer;
+
+// CreateAsyncPipe creates a pipe that uses overlapped reading.
+function CreateAsyncPipe(var hReadPipe, hWritePipe: THandle;
+  lpPipeAttributes: PSecurityAttributes; nSize: DWORD): BOOL;
+var
+  PipeName: string;
+  Error: DWORD;
+  PipeReadHandle, PipeWriteHandle: THandle;
+begin
+  Result := False;
+
+  if (@hReadPipe = nil) or (@hWritePipe = nil) then
+  begin
+    SetLastError(ERROR_INVALID_PARAMETER);
+    Exit;
+  end;
+
+  if nSize = 0 then
+    nSize := 4096;
+
+  InterlockedIncrement(AsyncPipeCounter);
+  // In some (not so) rare instances there is a race condition
+  // where the counter is the same for two threads at the same
+  // time. This makes the CreateNamedPipe call below fail
+  // because of the limit set to 1 in the call.
+  // So, to be sure this call succeeds, we put both the process
+  // and thread id in the name of the pipe.
+  // This was found to happen while simply starting 7 instances
+  // of the same exe file in parallel.
+  PipeName := Format('\\.\Pipe\AsyncAnonPipe.%.8x.%.8x.%.8x', [GetCurrentProcessId, GetCurrentThreadId, AsyncPipeCounter]);
+
+  PipeReadHandle := CreateNamedPipe(PChar(PipeName), PIPE_ACCESS_INBOUND or FILE_FLAG_OVERLAPPED,
+      PIPE_TYPE_BYTE or PIPE_WAIT, 1, nSize, nSize, 120 * 1000, lpPipeAttributes);
+  if PipeReadHandle = INVALID_HANDLE_VALUE then
+    Exit;
+
+  PipeWriteHandle := CreateFile(PChar(PipeName), GENERIC_WRITE, 0, lpPipeAttributes, OPEN_EXISTING,
+      FILE_ATTRIBUTE_NORMAL {or FILE_FLAG_OVERLAPPED}, 0);
+  if PipeWriteHandle = INVALID_HANDLE_VALUE then
+  begin
+    Error := GetLastError;
+    CloseHandle(PipeReadHandle);
+    SetLastError(Error);
+    Exit;
+  end;
+
+  hReadPipe := PipeReadHandle;
+  hWritePipe := PipeWriteHandle;
+
+  Result := True;
+end;
+
+const
+  BELOW_NORMAL_PRIORITY_CLASS = $00004000;
+  ABOVE_NORMAL_PRIORITY_CLASS = $00008000;
+
+  ProcessPriorities: array [TJclProcessPriority] of DWORD =
+    (IDLE_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS,
+     BELOW_NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS);
+
+{ TJclExecuteCmdProcessOptions }
+
+constructor TJclExecuteCmdProcessOptions.Create(const ACommandLine: string);
+begin
+  inherited Create;
+  FCommandLine := ACommandLine;
+  FAutoConvertOem := True;
+  FProcessPriority := ppNormal;
+end;
+
+function ExecuteCmdProcess(Options: TJclExecuteCmdProcessOptions): Boolean;
+var
+  OutPipeInfo, ErrorPipeInfo: TPipeInfo;
+  Index: Cardinal;
 {$IFDEF MSWINDOWS}
 var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
   SecurityAttr: TSecurityAttributes;
-  PipeRead, PipeWrite: THandle;
+  OutOverlapped, ErrorOverlapped: TOverlapped;
+  ProcessEvent: TJclDispatcherObject;
+  WaitEvents: array of TJclDispatcherObject;
+  InternalAbort: Boolean;
+  LastError: DWORD;
+  CommandLine: string;
+  AbortPtr: PBoolean;
+  Flags: DWORD;
 begin
-  Result := $FFFFFFFF;
+  Result := False;
+
+  // hack to pass a null reference to the parameter lpNumberOfBytesRead of ReadFile
+  Options.FExitCode := $FFFFFFFF;
+
   SecurityAttr.nLength := SizeOf(SecurityAttr);
   SecurityAttr.lpSecurityDescriptor := nil;
   SecurityAttr.bInheritHandle := True;
-  PipeWrite := 0;
-  PipeRead := 0;
-  Line := '';
-  ResetMemory(Buffer, SizeOf(Buffer));
-  if not CreatePipe(PipeRead, PipeWrite, @SecurityAttr, 0) then
+
+  ResetMemory(OutPipeInfo, SizeOf(OutPipeInfo));
+  OutPipeInfo.TextHandler := Options.OutputLineCallback;
+  OutPipeInfo.RawOutput := Options.RawOutput;
+  OutPipeInfo.AutoConvertOem := Options.AutoConvertOem;
+  if not CreateAsyncPipe(OutPipeInfo.PipeRead, OutPipeInfo.PipeWrite, @SecurityAttr, 0) then
   begin
-    Result := GetLastError;
+    Options.FExitCode := GetLastError;
     Exit;
   end;
+  OutPipeInfo.Event := TJclEvent.Create(@SecurityAttr, False {automatic reset}, False {not flagged}, '' {anonymous});
+  ResetMemory(ErrorPipeInfo, SizeOf(ErrorPipeInfo));
+  if not Options.MergeError then
+  begin
+    ErrorPipeInfo.TextHandler := Options.ErrorLineCallback;
+    ErrorPipeInfo.RawOutput := Options.RawError;
+    ErrorPipeInfo.AutoConvertOem := Options.AutoConvertOem;
+    if not CreateAsyncPipe(ErrorPipeInfo.PipeRead, ErrorPipeInfo.PipeWrite, @SecurityAttr, 0) then
+    begin
+      Options.FExitCode := GetLastError;
+      CloseHandle(OutPipeInfo.PipeWrite);
+      CloseHandle(OutPipeInfo.PipeRead);
+      OutPipeInfo.Event.Free;
+      Exit;
+    end;
+    ErrorPipeInfo.Event := TJclEvent.Create(@SecurityAttr, False {automatic reset}, False {not flagged}, '' {anonymous});
+  end;
+
   ResetMemory(StartupInfo, SizeOf(TStartupInfo));
   StartupInfo.cb := SizeOf(TStartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
   StartupInfo.wShowWindow := SW_HIDE;
   StartupInfo.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
-  StartupInfo.hStdOutput := PipeWrite;
-  StartupInfo.hStdError := PipeWrite;
+  StartupInfo.hStdOutput := OutPipeInfo.PipeWrite;
+  if Options.MergeError then
+    StartupInfo.hStdError := OutPipeInfo.PipeWrite
+  else
+    StartupInfo.hStdError := ErrorPipeInfo.PipeWrite;
+  CommandLine := Options.CommandLine;
   UniqueString(CommandLine); // CommandLine must be in a writable memory block
-  ProcessInfo.dwProcessId := 0;
+  ResetMemory(ProcessInfo, SizeOf(ProcessInfo));
+  ProcessEvent := nil;
   try
-    if CreateProcess(nil, PChar(CommandLine), nil, nil, True, NORMAL_PRIORITY_CLASS,
+    Flags := Options.CreateProcessFlags and not (NORMAL_PRIORITY_CLASS or IDLE_PRIORITY_CLASS or
+                                                 HIGH_PRIORITY_CLASS or REALTIME_PRIORITY_CLASS);
+    Flags := Flags or ProcessPriorities[Options.ProcessPriority];
+    if Assigned(Options.BeforeResume) then
+      Flags := Flags or CREATE_SUSPENDED;
+
+    if CreateProcess(nil, PChar(CommandLine), nil, nil, True, Flags,
       nil, nil, StartupInfo, ProcessInfo) then
     begin
-      CloseHandle(PipeWrite);
-      PipeWrite := 0;
-      if AbortPtr <> nil then
-        {$IFDEF FPC}
-        AbortPtr^ := 0;
-        {$ELSE ~FPC}
-        AbortPtr^ := False;
-        {$ENDIF ~FPC}
-      PipeBytesRead := 0;
-      while ((AbortPtr = nil) or not LongBool(AbortPtr^)) and
-        ReadFile(PipeRead, Buffer, BufferSize, PipeBytesRead, nil) and (PipeBytesRead > 0) do
-        ProcessBuffer(Buffer, Line, PipeBytesRead);
-      if (AbortPtr <> nil) and LongBool(AbortPtr^) then
-        TerminateProcess(ProcessInfo.hProcess, Cardinal(ABORT_EXIT_CODE));
-      if (WaitForSingleObject(ProcessInfo.hProcess, INFINITE) = WAIT_OBJECT_0) and
-        not GetExitCodeProcess(ProcessInfo.hProcess, Result) then
-          Result := $FFFFFFFF;
-      CloseHandle(ProcessInfo.hThread);
-      ProcessInfo.hThread := 0;
-      CloseHandle(ProcessInfo.hProcess);
-      ProcessInfo.hProcess := 0;
-    end
-    else
-    begin
-      CloseHandle(PipeWrite);
-      PipeWrite := 0;
+      Result := True;
+      try
+        try
+          if Assigned(Options.BeforeResume) then
+            Options.BeforeResume(ProcessInfo);
+        finally
+          if Flags and CREATE_SUSPENDED <> 0 then // CREATE_SUSPENDED may also have come from CreateProcessFlags
+            ResumeThread(ProcessInfo.hThread);
+        end;
+
+        // init out and error events
+        CloseHandle(OutPipeInfo.PipeWrite);
+        OutPipeInfo.PipeWrite := 0;
+        if not Options.MergeError then
+        begin
+          CloseHandle(ErrorPipeInfo.PipeWrite);
+          ErrorPipeInfo.PipeWrite := 0;
+        end;
+        InternalAbort := False;
+        AbortPtr := Options.AbortPtr;
+        if AbortPtr <> nil then
+          AbortPtr^ := {$IFDEF FPC}Byte({$ENDIF}False{$IFDEF FPC}){$ENDIF}
+        else
+          AbortPtr := @InternalAbort;
+        // init the array of events to wait for
+        ProcessEvent := TJclDispatcherObject.Attach(ProcessInfo.hProcess);
+        SetLength(WaitEvents, 2);
+        // add the process first
+        WaitEvents[0] := ProcessEvent;
+        // add the output event
+        WaitEvents[1] := OutPipeInfo.Event;
+        // add the error event
+        if not Options.MergeError then
+        begin
+          SetLength(WaitEvents, 3);
+          WaitEvents[2] := ErrorPipeInfo.Event;
+        end;
+        // add the abort event if any
+        if Options.AbortEvent <> nil then
+        begin
+          Options.AbortEvent.ResetEvent;
+          Index := Length(WaitEvents);
+          SetLength(WaitEvents, Index + 1);
+          WaitEvents[Index] := Options.AbortEvent;
+        end;
+        // init the asynchronous reads
+        ResetMemory(OutOverlapped, SizeOf(OutOverlapped));
+        OutOverlapped.hEvent := OutPipeInfo.Event.Handle;
+        InternalExecuteReadPipe(OutPipeInfo, OutOverlapped);
+        if not Options.MergeError then
+        begin
+          ResetMemory(ErrorOverlapped, SizeOf(ErrorOverlapped));
+          ErrorOverlapped.hEvent := ErrorPipeInfo.Event.Handle;
+          InternalExecuteReadPipe(ErrorPipeInfo, ErrorOverlapped);
+        end;
+        // event based loop
+        while not {$IFDEF FPC}Boolean({$ENDIF}AbortPtr^{$IFDEF FPC}){$ENDIF} do
+        begin
+          Index := WaitAlertableForMultipleObjects(WaitEvents, False, INFINITE);
+          if Index = WAIT_OBJECT_0 then
+            // the subprocess has ended
+            Break
+          else
+          if Index = (WAIT_OBJECT_0 + 1) then
+          begin
+            // event on output
+            InternalExecuteHandlePipeEvent(OutPipeInfo, OutOverlapped);
+          end
+          else
+          if (Index = (WAIT_OBJECT_0 + 2)) and not Options.MergeError then
+          begin
+            // event on error
+            InternalExecuteHandlePipeEvent(ErrorPipeInfo, ErrorOverlapped);
+          end
+          else
+          if ((Index = (WAIT_OBJECT_0 + 2)) and Options.MergeError) or
+             ((Index = (WAIT_OBJECT_0 + 3)) and not Options.MergeError) then
+            // event on abort
+            AbortPtr^ := {$IFDEF FPC}Byte({$ENDIF}True{$IFDEF FPC}){$ENDIF}
+          else
+            {$IFDEF DELPHI11_UP}
+            RaiseLastOSError(Index);
+            {$ELSE}
+            RaiseLastOSError;
+            {$ENDIF DELPHI11_UP}
+        end;
+        if {$IFDEF FPC}Boolean({$ENDIF}AbortPtr^{$IFDEF FPC}){$ENDIF} then
+          TerminateProcess(ProcessEvent.Handle, Cardinal(ABORT_EXIT_CODE));
+        if (ProcessEvent.WaitForever = {$IFDEF RTL280_UP}TJclWaitResult.{$ENDIF RTL280_UP}wrSignaled) and not GetExitCodeProcess(ProcessEvent.Handle, Options.FExitCode) then
+          Options.FExitCode := $FFFFFFFF;
+        CloseHandle(ProcessInfo.hThread);
+        ProcessInfo.hThread := 0;
+        if OutPipeInfo.PipeRead <> 0 then
+          // read data remaining in output pipe
+          InternalExecuteFlushPipe(OutPipeinfo, OutOverlapped);
+        if not Options.MergeError and (ErrorPipeInfo.PipeRead <> 0) then
+          // read data remaining in error pipe
+          InternalExecuteFlushPipe(ErrorPipeInfo, ErrorOverlapped);
+      except
+        // always terminate process in case of an exception.
+        // This is especially useful when an exception occurred in one of
+        // the texthandler but only do it if the process actually started,
+        // this prevents eating up the last error value by calling those
+        // three functions with an invalid handle
+        // Note that we don't do it in the finally block because these
+        // calls would also then eat up the last error value which we tried
+        // to avoid in the first place
+        if ProcessInfo.hProcess <> 0 then
+        begin
+          TerminateProcess(ProcessInfo.hProcess, Cardinal(ABORT_EXIT_CODE));
+          WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+          GetExitCodeProcess(ProcessInfo.hProcess, Options.FExitCode);
+        end;
+
+        raise;
+      end;
     end;
-    CloseHandle(PipeRead);
-    PipeRead := 0;
   finally
-    if PipeRead <> 0 then
-      CloseHandle(PipeRead);
-    if PipeWrite <> 0 then
-      CloseHandle(PipeWrite);
-    if ProcessInfo.hThread <> 0 then
-      CloseHandle(ProcessInfo.hThread);
-    if ProcessInfo.hProcess <> 0 then
-    begin
-      TerminateProcess(ProcessInfo.hProcess, Cardinal(ABORT_EXIT_CODE));
-      WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
-      GetExitCodeProcess(ProcessInfo.hProcess, Result);
-      CloseHandle(ProcessInfo.hProcess);
+    LastError := GetLastError;
+    try
+      if OutPipeInfo.PipeRead <> 0 then
+        CloseHandle(OutPipeInfo.PipeRead);
+      if OutPipeInfo.PipeWrite <> 0 then
+        CloseHandle(OutPipeInfo.PipeWrite);
+      if ErrorPipeInfo.PipeRead <> 0 then
+        CloseHandle(ErrorPipeInfo.PipeRead);
+      if ErrorPipeInfo.PipeWrite <> 0 then
+        CloseHandle(ErrorPipeInfo.PipeWrite);
+      if ProcessInfo.hThread <> 0 then
+        CloseHandle(ProcessInfo.hThread);
+
+      if Assigned(ProcessEvent) then
+        ProcessEvent.Free // this calls CloseHandle(ProcessInfo.hProcess)
+      else if ProcessInfo.hProcess <> 0 then
+        CloseHandle(ProcessInfo.hProcess);
+      OutPipeInfo.Event.Free;
+      ErrorPipeInfo.Event.Free;
+    finally
+      SetLastError(LastError);
     end;
   end;
 {$ENDIF MSWINDOWS}
 {$IFDEF UNIX}
 var
+  PipeBytesRead: Cardinal;
   Pipe: PIOFile;
   Cmd: string;
 begin
-  Cmd := Format('%s 2>&1', [CommandLine]);
+  Cmd := Format('%s 2>&1', [Options.CommandLine]);
   Pipe := nil;
   try
     Pipe := Libc.popen(PChar(Cmd), 'r');
     { TODO : handle Abort }
     repeat
-      PipeBytesRead := fread_unlocked(@Buffer, 1, BufferSize, Pipe);
+      PipeBytesRead := fread_unlocked(@OutBuffer, 1, BufferSize, Pipe);
       if PipeBytesRead > 0 then
-        ProcessBuffer(Buffer, Line, PipeBytesRead);
+        ProcessBuffer(OutBuffer, OutLine, PipeBytesRead);
     until PipeBytesRead = 0;
     Result := pclose(Pipe);
     Pipe := nil;
@@ -2726,39 +3232,152 @@ begin
     wait(nil);
   end;
 {$ENDIF UNIX}
-  if Line <> '' then
-    if Assigned(OutputLineCallback) then
+  if OutPipeInfo.Line <> '' then
+    if Assigned(OutPipeInfo.TextHandler) then
       // output wasn't terminated by a line feed...
       // (shouldn't happen, but you never know)
-      ProcessLine(Line, Length(Line))
+      InternalExecuteProcessLine(OutPipeInfo, Length(OutPipeInfo.Line))
     else
-      if RawOutput then
-        Output := Output + Line
+      if Options.RawOutput then
+        Options.FOutput := OutPipeInfo.Line
       else
-        Output := Output + MuteCRTerminatedLines(Line);
+        Options.FOutput := InternalExecuteMuteCRTerminatedLines(OutPipeInfo.Line);
+  if ErrorPipeInfo.Line <> '' then
+    if Assigned(ErrorPipeInfo.TextHandler) then
+      // error wasn't terminated by a line feed...
+      // (shouldn't happen, but you never know)
+      InternalExecuteProcessLine(ErrorPipeInfo, Length(ErrorPipeInfo.Line))
+    else
+      if Options.RawError then
+        Options.FError := ErrorPipeInfo.Line
+      else
+        Options.FError := InternalExecuteMuteCRTerminatedLines(ErrorPipeInfo.Line);
+end;
+
+function InternalExecute(CommandLine: string; AbortPtr: PBoolean; AbortEvent: TJclEvent;
+  var Output: string; OutputLineCallback: TTextHandler; RawOutput: Boolean;
+  MergeError: Boolean; var Error: string; ErrorLineCallback: TTextHandler; RawError: Boolean;
+  ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
+var
+  Options: TJclExecuteCmdProcessOptions;
+begin
+  Options := TJclExecuteCmdProcessOptions.Create(CommandLine);
+  try
+    Options.AutoConvertOem := AutoConvertOem;
+
+    Options.AbortPtr := AbortPtr;
+    Options.AbortEvent := AbortEvent;
+    Options.OutputLineCallback := OutputLineCallback;
+    Options.RawOutput := RawOutput;
+    Options.MergeError := MergeError;
+    Options.ErrorLineCallback := ErrorLineCallback;
+    Options.RawError := RawError;
+    Options.ProcessPriority := ProcessPriority;
+
+    ExecuteCmdProcess(Options);
+
+    Result := Options.ExitCode;
+
+    // Append => backward compatiblity
+    Output := Output + Options.Output;
+    Error := Error + Options.Error;
+  finally
+    Options.Free;
+  end;
 end;
 
 { TODO -cHelp :
 RawOutput: Do not process isolated carriage returns (#13).
 That is, for RawOutput = False, lines not terminated by a line feed (#10) are deleted from Output. }
 
-function Execute(const CommandLine: string; var Output: string; RawOutput: Boolean = False;
-  AbortPtr: PBoolean = nil): Cardinal;
+function Execute(const CommandLine: string; var Output: string; RawOutput: Boolean;
+  AbortPtr: PBoolean; ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
+var
+  Error: string;
 begin
-  Result := InternalExecute(CommandLine, Output, nil, RawOutput, AbortPtr);
+  Error := '';
+  Result := InternalExecute(CommandLine, AbortPtr, nil, Output, nil, RawOutput, True, Error,
+    nil, False, ProcessPriority, AutoConvertOem);
+end;
+
+function Execute(const CommandLine: string; AbortEvent: TJclEvent; var Output: string; RawOutput: Boolean;
+  ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
+var
+  Error: string;
+begin
+  Error := '';
+  Result := InternalExecute(CommandLine, nil, AbortEvent, Output, nil, RawOutput, True, Error,
+    nil, False, ProcessPriority, AutoConvertOem);
 end;
 
 { TODO -cHelp :
 Author: Robert Rossmair
 OutputLineCallback called once per line of output. }
 
-function Execute(const CommandLine: string; OutputLineCallback: TTextHandler; RawOutput: Boolean = False;
-  AbortPtr: PBoolean = nil): Cardinal; overload;
+function Execute(const CommandLine: string; OutputLineCallback: TTextHandler; RawOutput: Boolean;
+  AbortPtr: PBoolean; ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
 var
-  Dummy: string;
+  Output, Error: string;
 begin
-  Dummy := '';
-  Result := InternalExecute(CommandLine, Dummy, OutputLineCallback, RawOutput, AbortPtr);
+  Output := '';
+  Error := '';
+  Result := InternalExecute(CommandLine, AbortPtr, nil, Output, OutputLineCallback, RawOutput, True, Error,
+    nil, False, ProcessPriority, AutoConvertOem);
+end;
+
+function Execute(const CommandLine: string; AbortEvent: TJclEvent; OutputLineCallback: TTextHandler; RawOutput: Boolean;
+  ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
+var
+  Output, Error: string;
+begin
+  Output := '';
+  Error := '';
+  Result := InternalExecute(CommandLine, nil, AbortEvent, Output, OutputLineCallback, RawOutput, True, Error,
+    nil, False, ProcessPriority, AutoConvertOem);
+end;
+
+{ TODO -cHelp :
+RawOutput: Do not process isolated carriage returns (#13).
+That is, for RawOutput = False, lines not terminated by a line feed (#10) are deleted from Output. }
+
+function Execute(const CommandLine: string; var Output, Error: string; RawOutput, RawError: Boolean;
+  AbortPtr: PBoolean; ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
+begin
+  Result := InternalExecute(CommandLine, AbortPtr, nil, Output, nil, RawOutput, False, Error,
+    nil, RawError, ProcessPriority, AutoConvertOem);
+end;
+
+function Execute(const CommandLine: string; AbortEvent: TJclEvent; var Output, Error: string;
+  RawOutput, RawError: Boolean; ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
+begin
+  Result := InternalExecute(CommandLine, nil, AbortEvent, Output, nil, RawOutput, False, Error,
+    nil, RawError, ProcessPriority, AutoConvertOem);
+end;
+
+{ TODO -cHelp :
+Author: Robert Rossmair
+OutputLineCallback called once per line of output. }
+
+function Execute(const CommandLine: string; OutputLineCallback, ErrorLineCallback: TTextHandler;
+  RawOutput, RawError: Boolean; AbortPtr: PBoolean; ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
+var
+  Output, Error: string;
+begin
+  Output := '';
+  Error := '';
+  Result := InternalExecute(CommandLine, AbortPtr, nil, Output, OutputLineCallback, RawOutput, False, Error,
+    ErrorLineCallback, RawError, ProcessPriority, AutoConvertOem);
+end;
+
+function Execute(const CommandLine: string; AbortEvent: TJclEvent; OutputLineCallback, ErrorLineCallback: TTextHandler;
+  RawOutput, RawError: Boolean; ProcessPriority: TJclProcessPriority; AutoConvertOem: Boolean): Cardinal;
+var
+  Output, Error: string;
+begin
+  Output := '';
+  Error := '';
+  Result := InternalExecute(CommandLine, nil, AbortEvent, Output, OutputLineCallback, RawOutput, False, Error,
+    ErrorLineCallback, RawError, ProcessPriority, AutoConvertOem);
 end;
 
 //=== { TJclCommandLineTool } ================================================
@@ -2782,7 +3401,7 @@ var
 begin
   S := PathRemoveSeparator(Path);
   {$IFDEF MSWINDOWS}
-  S := LowerCase(S); // file names are case insensitive
+  S := AnsiLowerCase(S); // file names are case insensitive
   {$ENDIF MSWINDOWS}
   S := Format('-%s%s', [Option, S]);
   // avoid duplicate entries (note that search is case sensitive)
@@ -3033,6 +3652,29 @@ begin
   Result := Ord(B);
 end;
 
+function TryStrToUInt(const Value: string; out Res: Cardinal): Boolean;
+var i6: Int64;
+begin
+  Result := false;
+  if not TryStrToInt64(Value, i6) then exit;
+  if ( i6 < Low(Res)) or ( i6 > High(Res)) then exit;
+
+  Result := true;
+  Res := i6;
+end;
+
+function StrToUIntDef(const Value: string; const Default: Cardinal): Cardinal;
+begin
+  if not TryStrToUInt(Value, Result)
+     then Result := Default;
+end;
+
+function StrToUInt(const Value: string): Cardinal;
+begin
+  if not TryStrToUInt(Value, Result)
+     then raise EConvertError.Create('"'+Value+'" is not within range of Cardinal data type');
+end;
+
 //=== RTL package information ================================================
 
 function SystemTObjectInstance: TJclAddr;
@@ -3073,6 +3715,15 @@ begin
   Result.D4[7] := StrToInt('$' + Copy(S, 36, 2));
 end;
 
+function GUIDEquals(const GUID1, GUID2: TGUID): Boolean;
+begin
+  Result := (GUID1.D1 = GUID2.D1) and (GUID1.D2 = GUID2.D2) and (GUID1.D3 = GUID2.D3) and
+    (GUID1.D4[0] = GUID2.D4[0]) and (GUID1.D4[1] = GUID2.D4[1]) and
+    (GUID1.D4[2] = GUID2.D4[2]) and (GUID1.D4[3] = GUID2.D4[3]) and
+    (GUID1.D4[4] = GUID2.D4[4]) and (GUID1.D4[5] = GUID2.D4[5]) and
+    (GUID1.D4[6] = GUID2.D4[6]) and (GUID1.D4[7] = GUID2.D4[7]);
+end;
+
 // add items at the end
 procedure ListAddItems(var List: string; const Separator, Items: string);
 var
@@ -3081,7 +3732,7 @@ var
 begin
   StrList := TStringList.Create;
   try
-    StrToStrings(List, Separator, StrList);
+    StrToStrings(List, Separator, StrList, False);
 
     NewItems := TStringList.Create;
     try
@@ -3108,7 +3759,7 @@ var
 begin
   StrList := TStringList.Create;
   try
-    StrToStrings(List, Separator, StrList);
+    StrToStrings(List, Separator, StrList, False);
 
     NewItems := TStringList.Create;
     try
@@ -3139,11 +3790,11 @@ var
 begin
   StrList := TStringList.Create;
   try
-    StrToStrings(List, Separator, StrList);
+    StrToStrings(List, Separator, StrList, False);
 
     RemItems := TStringList.Create;
     try
-      StrToStrings(Items, Separator, RemItems);
+      StrToStrings(Items, Separator, RemItems, False);
 
       for Index := 0 to RemItems.Count - 1 do
       begin
@@ -3171,7 +3822,7 @@ var
 begin
   StrList := TStringList.Create;
   try
-    StrToStrings(List, Separator, StrList);
+    StrToStrings(List, Separator, StrList, False);
 
     StrList.Delete(Index);
 
@@ -3188,7 +3839,7 @@ var
 begin
   StrList := TStringList.Create;
   try
-    StrToStrings(List, Separator, StrList);
+    StrToStrings(List, Separator, StrList, False);
 
     Result := StrList.Count;
   finally
@@ -3203,7 +3854,7 @@ var
 begin
   StrList := TStringList.Create;
   try
-    StrToStrings(List, Separator, StrList);
+    StrToStrings(List, Separator, StrList, False);
 
     Result := StrList.Strings[Index];
   finally
@@ -3219,7 +3870,7 @@ var
 begin
   StrList := TStringList.Create;
   try
-    StrToStrings(List, Separator, StrList);
+    StrToStrings(List, Separator, StrList, False);
 
     StrList.Strings[Index] := Value;
 
@@ -3236,7 +3887,7 @@ var
 begin
   StrList := TStringList.Create;
   try
-    StrToStrings(List, Separator, StrList);
+    StrToStrings(List, Separator, StrList, False);
 
     Result := StrList.IndexOf(Item);
   finally
@@ -3261,21 +3912,13 @@ end;
 function TJclIntfCriticalSection._AddRef: Integer;
 begin
   FCriticalSection.Acquire;
-  Result := 0;
+  Result := -1;
 end;
 
 function TJclIntfCriticalSection._Release: Integer;
 begin
   FCriticalSection.Release;
-  Result := 0;
-end;
-
-function TJclIntfCriticalSection.QueryInterface(const IID: TGUID; out Obj): HRESULT;
-begin
-  if GetInterface(IID, Obj) then
-    Result := S_OK
-  else
-    Result := E_NOINTERFACE;
+  Result := -1;
 end;
 
 //=== { TJclSimpleLog } ======================================================
@@ -3291,11 +3934,7 @@ begin
     FLogFileName := CreateDefaultFileName
   else
     FLogFileName := ALogFileName;
-  {$IFDEF BORLAND}
-  FLogFileHandle := Integer(INVALID_HANDLE_VALUE);
-  {$ELSE ~BORLAND}
-  FLogFileHandle := INVALID_HANDLE_VALUE;
-  {$ENDIF ~BORLAND}
+  FLogFileHandle := TFileHandle(INVALID_HANDLE_VALUE);
   FLoggingActive := True;
 end;
 
@@ -3331,11 +3970,7 @@ begin
   if LogOpen then
   begin
     FileClose(FLogFileHandle);
-    {$IFDEF BORLAND}
-    FLogFileHandle := Integer(INVALID_HANDLE_VALUE);
-    {$ELSE ~BORLAND}
-    FLogFileHandle := INVALID_HANDLE_VALUE;
-    {$ENDIF ~BORLAND}
+    FLogFileHandle := TFileHandle(INVALID_HANDLE_VALUE);
     FLogWasEmpty := False;
   end;
 end;
@@ -3392,7 +4027,7 @@ begin
         SL.Free;
       end;
       // Keep the logfile Open when it was opened before and the KeepOpen is active
-      if Not (WasOpen and KeepOpen) then
+      if not (WasOpen and KeepOpen) then
         CloseLog;
     end;
   end;
@@ -3483,6 +4118,380 @@ begin
   if AOpenLog then
     SimpleLog.OpenLog;
 end;
+
+function TJclFormatSettings.GetCurrencyDecimals: Byte;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.CurrencyDecimals;
+{$ELSE}
+  Result := SysUtils.CurrencyDecimals;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetCurrencyFormat: Byte;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.CurrencyFormat;
+{$ELSE}
+  Result := SysUtils.CurrencyFormat;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetCurrencyString: string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.CurrencyString;
+{$ELSE}
+  Result := SysUtils.CurrencyString;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetDateSeparator: Char;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.DateSeparator;
+{$ELSE}
+  Result := SysUtils.DateSeparator;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetDayNamesHighIndex: Integer;
+begin
+{$IFDEF RTL220_UP}
+  Result := High(FormatSettings.LongDayNames);
+{$ELSE}
+  Result := High(SysUtils.LongDayNames);
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetDayNamesLowIndex: Integer;
+begin
+{$IFDEF RTL220_UP}
+  Result := Low(FormatSettings.LongDayNames);
+{$ELSE}
+  Result := Low(SysUtils.LongDayNames);
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetDecimalSeparator: Char;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.DecimalSeparator;
+{$ELSE}
+  Result := SysUtils.DecimalSeparator;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetListSeparator: Char;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.ListSeparator;
+{$ELSE}
+  Result := SysUtils.ListSeparator;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetLongDateFormat: string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.LongDateFormat;
+{$ELSE}
+  Result := SysUtils.LongDateFormat;
+{$ENDIF}
+end;
+
+{ TJclFormatSettings }
+
+function TJclFormatSettings.GetLongDayNames(AIndex: Integer): string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.LongDayNames[AIndex];
+{$ELSE}
+  Result := SysUtils.LongDayNames[AIndex];
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetLongMonthNames(AIndex: Integer): string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.LongMonthNames[AIndex];
+{$ELSE}
+  Result := SysUtils.LongMonthNames[AIndex];
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetLongTimeFormat: string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.LongTimeFormat;
+{$ELSE}
+  Result := SysUtils.LongTimeFormat;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetMonthNamesHighIndex: Integer;
+begin
+{$IFDEF RTL220_UP}
+  Result := High(FormatSettings.LongMonthNames);
+{$ELSE}
+  Result := High(SysUtils.LongMonthNames);
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetMonthNamesLowIndex: Integer;
+begin
+{$IFDEF RTL220_UP}
+  Result := Low(FormatSettings.LongMonthNames);
+{$ELSE}
+  Result := Low(SysUtils.LongMonthNames);
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetNegCurrFormat: Byte;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.NegCurrFormat;
+{$ELSE}
+  Result := SysUtils.NegCurrFormat;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetShortDateFormat: string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.ShortDateFormat;
+{$ELSE}
+  Result := SysUtils.ShortDateFormat;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetShortDayNames(AIndex: Integer): string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.ShortDayNames[AIndex];
+{$ELSE}
+  Result := SysUtils.ShortDayNames[AIndex];
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetShortMonthNames(AIndex: Integer): string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.ShortMonthNames[AIndex];
+{$ELSE}
+  Result := SysUtils.ShortMonthNames[AIndex];
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetShortTimeFormat: string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.ShortTimeFormat;
+{$ELSE}
+  Result := SysUtils.ShortTimeFormat;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetThousandSeparator: Char;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.ThousandSeparator;
+{$ELSE}
+  Result := SysUtils.ThousandSeparator;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetTimeAMString: string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.TimeAMString;
+{$ELSE}
+  Result := SysUtils.TimeAMString;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetTimePMString: string;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.TimePMString;
+{$ELSE}
+  Result := SysUtils.TimePMString;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetTimeSeparator: Char;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.TimeSeparator;
+{$ELSE}
+  Result := SysUtils.TimeSeparator;
+{$ENDIF}
+end;
+
+function TJclFormatSettings.GetTwoDigitYearCenturyWindow: Word;
+begin
+{$IFDEF RTL220_UP}
+  Result := FormatSettings.TwoDigitYearCenturyWindow;
+{$ELSE}
+  Result := SysUtils.TwoDigitYearCenturyWindow;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetCurrencyDecimals(AValue: Byte);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.CurrencyDecimals := AValue;
+{$ELSE}
+  SysUtils.CurrencyDecimals := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetCurrencyFormat(const AValue: Byte);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.CurrencyFormat := AValue;
+{$ELSE}
+  SysUtils.CurrencyFormat := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetCurrencyString(AValue: string);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.CurrencyString := AValue;
+{$ELSE}
+  SysUtils.CurrencyString := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetDateSeparator(const AValue: Char);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.DateSeparator := AValue;
+{$ELSE}
+  SysUtils.DateSeparator := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetDecimalSeparator(AValue: Char);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.DecimalSeparator := AValue;
+{$ELSE}
+  SysUtils.DecimalSeparator := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetListSeparator(const AValue: Char);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.ListSeparator := AValue;
+{$ELSE}
+  SysUtils.ListSeparator := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetLongDateFormat(const AValue: string);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.LongDateFormat := AValue;
+{$ELSE}
+  SysUtils.LongDateFormat := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetLongTimeFormat(const AValue: string);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.LongTimeFormat := AValue;
+{$ELSE}
+  SysUtils.LongTimeFormat := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetNegCurrFormat(const AValue: Byte);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.NegCurrFormat := AValue;
+{$ELSE}
+  SysUtils.NegCurrFormat := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetShortDateFormat(AValue: string);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.ShortDateFormat := AValue;
+{$ELSE}
+  SysUtils.ShortDateFormat := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetShortTimeFormat(const AValue: string);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.ShortTimeFormat := AValue;
+{$ELSE}
+  SysUtils.ShortTimeFormat := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetThousandSeparator(AValue: Char);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.TimeSeparator := AValue;
+{$ELSE}
+  SysUtils.TimeSeparator := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetTimeAMString(const AValue: string);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.TimeAMString := AValue;
+{$ELSE}
+  SysUtils.TimeAMString := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetTimePMString(const AValue: string);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.TimePMString := AValue;
+{$ELSE}
+  SysUtils.TimePMString := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetTimeSeparator(const AValue: Char);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.TimeSeparator := AValue;
+{$ELSE}
+  SysUtils.TimeSeparator := AValue;
+{$ENDIF}
+end;
+
+procedure TJclFormatSettings.SetTwoDigitYearCenturyWindow(const AValue: Word);
+begin
+{$IFDEF RTL220_UP}
+  FormatSettings.TwoDigitYearCenturyWindow:= AValue;
+{$ELSE}
+  SysUtils.TwoDigitYearCenturyWindow:= AValue;
+{$ENDIF}
+end;
+
+function VarIsNullEmpty(const V: Variant): Boolean;
+begin
+  Result := VarIsNull(V) or VarIsEmpty(V);
+end;
+
+function VarIsNullEmptyBlank(const V: Variant): Boolean;
+begin
+  Result := VarIsNull(V) or VarIsEmpty(V) or (VarToStr(V) = '');
+end;
+
+
 
 initialization
   SimpleLog := nil;

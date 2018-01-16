@@ -36,9 +36,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-11-05 17:51:58 +0100 (jeu., 05 nov. 2009)                          $ }
-{ Revision:      $Rev:: 3070                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -52,7 +52,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
-  Classes, SysUtils,
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils, System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
+  SysUtils, Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase;
 
 { Mathematical constants }
@@ -332,9 +336,15 @@ const
   NegInfinity = -Infinity;
   {$EXTERNALSYM NegInfinity}
 
+{$IFDEF WIN64}
+{$HPPEMIT 'static const double Infinity    =  1.0 / 0.0;'}
+{$HPPEMIT 'static const double NaN         =  0.0 / 0.0;'}
+{$HPPEMIT 'static const double NegInfinity = -1.0 / 0.0;'}
+{$ELSE}
 {$HPPEMIT 'static const Infinity    =  1.0 / 0.0;'}
 {$HPPEMIT 'static const NaN         =  0.0 / 0.0;'}
 {$HPPEMIT 'static const NegInfinity = -1.0 / 0.0;'}
+{$ENDIF WIN64}
 
 {$IFDEF CPU32}
 
@@ -826,9 +836,9 @@ function CscH(const Z: TRectComplex): TRectComplex; overload;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclMath.pas $';
-    Revision: '$Revision: 3070 $';
-    Date: '$Date: 2009-11-05 17:51:58 +0100 (jeu., 05 nov. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -837,12 +847,27 @@ const
 
 implementation
 
+{$IFDEF DELPHI64_TEMPORARY}
+  {$DEFINE USE_MATH_UNIT}
+{$ENDIF DELPHI64_TEMPORARY}
+
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  {$IFNDEF FPC}
+  Winapi.Windows,
+  {$ENDIF ~FPC}
+  {$ENDIF MSWINDOWS}
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   {$IFNDEF FPC}
   Windows,
   {$ENDIF ~FPC}
   {$ENDIF MSWINDOWS}
+  {$ENDIF ~HAS_UNITSCOPE}
+  {$IFDEF USE_MATH_UNIT}
+  System.Math,
+  {$ENDIF USE_MATH_UNIT}
   Jcl8087,
   JclResources,
   JclSynch;
@@ -1153,6 +1178,9 @@ end;
 function LogBase10(X: Float): Float;
 begin
   DomainCheck(X <= 0.0);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.Log10(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLDLG2
           FLD     X
@@ -1160,11 +1188,15 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function LogBase2(X: Float): Float;
 begin
   DomainCheck(X <= 0.0);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.Log2(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD1
           FLD     X
@@ -1172,11 +1204,15 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function LogBaseN(Base, X: Float): Float;
 begin
   DomainCheck((X <= 0.0) or (Base <= 0.0) or (Base = 1.0));
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.LogN(Base, X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD1
           FLD     X
@@ -1188,6 +1224,7 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 //=== Transcendental =========================================================
@@ -1195,6 +1232,9 @@ end;
 function ArcCos(X: Float): Float;
 begin
   DomainCheck(Abs(X) > 1.0);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.ArcCos(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           FLD     ST(0)
@@ -1207,6 +1247,7 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function ArcCot(X: Float): Float;
@@ -1223,6 +1264,9 @@ end;
 function ArcSec(X: Float): Float;
 begin
   DomainCheck((X > -1) and (X < 1));
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.ArcSec(X);
+  {$ELSE ~USE_MATH_UNIT}
   // FArcTan(Sqrt(X*X - 1));
   asm
           FLD1
@@ -1236,11 +1280,15 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function ArcSin(X: Float): Float;
 begin
   DomainCheck(Abs(X) > 1.0);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.ArcSin(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           FLD     ST(0)
@@ -1252,6 +1300,7 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 {$IFDEF CPU32}
@@ -1267,6 +1316,10 @@ end;
 {$IFDEF CPU64}
 function ArcTan(X: Float): Float;
 begin
+  {$IFDEF USE_MATH_UNIT}
+  System.Error(rePlatformNotImplemented);
+  Result := NaN; 
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           FLD1
@@ -1274,6 +1327,7 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 {$ENDIF CPU64}
 
@@ -1290,6 +1344,9 @@ end;
 {$IFDEF CPU64}
 function ArcTan2(Y, X: Float): Float;
 begin
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.ArcTan2(Y, X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     Y
           FLD     X
@@ -1297,23 +1354,32 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 {$ENDIF CPU64}
 
 function Cos(X: Float): Float;
 begin
   DomainCheck(Abs(X) > MaxAngle);
+  {$IFDEF USE_MATH_UNIT}
+  System.Error(rePlatformNotImplemented);
+  Result := NaN;
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           FCOS
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function Cot(X: Float): Float;
 begin
   DomainCheck(Abs(X) > MaxAngle);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.Cot(X);
+  {$ELSE ~USE_MATH_UNIT}
   { TODO : Cot = 1 / Tan -> Tan(X) <> 0.0 }
   asm
           FLD     X
@@ -1322,11 +1388,12 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function Coversine(X: Float): Float;
 begin
-  Result := 1 - Sin(X);
+  Result := 1 - JclMath.Sin(X);
 end;
 
 function Csc(X: Float): Float;
@@ -1335,24 +1402,27 @@ var
 begin
   DomainCheck(Abs(X) > MaxAngle);
 
-  Y := Sin(X);
+  Y := JclMath.Sin(X);
   DomainCheck(Y = 0.0);
   Result := 1.0 / Y;
 end;
 
 function Exsecans(X: Float): Float;
 begin
-  Result := Sec(X) - 1;
+  Result := JclMath.Sec(X) - 1;
 end;
 
 function Haversine(X: Float): Float;
 begin
-  Result := 0.5 * (1 - Cos(X));
+  Result := 0.5 * (1 - JclMath.Cos(X));
 end;
 
 function Sec(X: Float): Float;
 begin
   DomainCheck(Abs(X) > MaxAngle);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.Sec(X);
+  {$ELSE ~USE_MATH_UNIT}
   { TODO : Sec = 1 / Cos -> Cos(X) <> 0! }
   asm
           FLD     X
@@ -1362,6 +1432,7 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function Sin(X: Float): Float;
@@ -1369,18 +1440,26 @@ begin
   {$IFNDEF MATH_EXT_SPECIALVALUES}
   DomainCheck(Abs(X) > MaxAngle);
   {$ENDIF ~MATH_EXT_SPECIALVALUES}
+  {$IFDEF USE_MATH_UNIT}
+  System.Error(rePlatformNotImplemented);
+  Result := NaN;
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           FSIN
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 {$IFDEF SUPPORTS_EXTENDED}
 procedure SinCos(X: Extended; out Sin, Cos: Extended);
 begin
   DomainCheck(Abs(X) > MaxAngle);
+  {$IFDEF USE_MATH_UNIT}
+  System.Math.SinCos(X, Sin, Cos);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           {$IFDEF CPU32}
@@ -1399,12 +1478,16 @@ begin
           {$ENDIF CPU64}
           FWAIT
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 {$ENDIF SUPPORTS_EXTENDED}
 
 procedure SinCos(X: Double; out Sin, Cos: Double);
 begin
   DomainCheck(Abs(X) > MaxAngle);
+  {$IFDEF USE_MATH_UNIT}
+  System.Math.SinCos(X, Sin, Cos);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           {$IFDEF CPU32}
@@ -1423,11 +1506,15 @@ begin
           {$ENDIF CPU64}
           FWAIT
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 procedure SinCos(X: Single; out Sin, Cos: Single);
 begin
   DomainCheck(Abs(X) > MaxAngle);
+  {$IFDEF USE_MATH_UNIT}
+  System.Math.SinCos(X, Sin, Cos);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           {$IFDEF CPU32}
@@ -1446,11 +1533,15 @@ begin
           {$ENDIF CPU64}
           FWAIT
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function Tan(X: Float): Float;
 begin
   DomainCheck(Abs(X) > MaxAngle);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.Tan(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLD     X
           FPTAN
@@ -1458,11 +1549,12 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function Versine(X: Float): Float;
 begin
-  Result := 1 - Cos(X);
+  Result := 1 - JclMath.Cos(X);
 end;
 
 //=== Hyperbolic =============================================================
@@ -1470,6 +1562,9 @@ end;
 function ArcCosH(X: Float): Float;
 begin
   DomainCheck(X < 1.0);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.ArcCosh(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLDLN2
           FLD     X
@@ -1482,6 +1577,7 @@ begin
           FYL2X
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function ArcCotH(X: Float): Float;
@@ -1520,6 +1616,9 @@ end;
 {$IFDEF CPU64}
 function ArcSinH(X: Float): Float;
 begin
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.ArcSinh(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLDLN2
           FLD     X
@@ -1532,12 +1631,16 @@ begin
           FYL2X
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 {$ENDIF CPU64}
 
 function ArcTanH(X: Float): Float;
 begin
   DomainCheck(Abs(X) >= 1.0);
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.ArcTanh(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           FLDLN2
           FLD     X
@@ -1553,6 +1656,7 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 
 function CosH(X: Float): Float;
@@ -1564,9 +1668,14 @@ end;
 const
   RoundDown: Word = $177F;
   OneHalf: Float = 0.5;
+{$IFNDEF USE_MATH_UNIT}
 var
   ControlWW: Word;
+{$ENDIF ~USE_MATH_UNIT}
 begin
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.Cosh(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           {$IFDEF PIC}
           CALL    GetGOT
@@ -1612,24 +1721,25 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 {$ENDIF ~PUREPASCAL}
 
 function CotH(X: Float): Float;
 begin
-  Result := 1 / TanH(X);
+  Result := 1 / JclMath.TanH(X);
 end;
 
 function CscH(X: Float): Float;
 begin
-  Result := Exp(X) - Exp(-X);
+  Result := JclMath.Exp(X) - JclMath.Exp(-X);
   DomainCheck(Result = 0.0);
   Result := 2.0 / Result;
 end;
 
 function SecH(X: Float): Float;
 begin
-  Result := Exp(X) + Exp(-X);
+  Result := JclMath.Exp(X) + JclMath.Exp(-X);
   DomainCheck(Result = 0.0);
   Result := 2.0 / Result;
 end;
@@ -1637,15 +1747,20 @@ end;
 function SinH(X: Float): Float;
 {$IFDEF PUREPASCAL}
 begin
-  Result := 0.5 * (Exp(X) - Exp(-X));
+  Result := 0.5 * (JclMath.Exp(X) - JclMath.Exp(-X));
 end;
 {$ELSE ~PUREPASCAL}
 const
   RoundDown: Word = $177F;
   OneHalf: Float = 0.5;
+{$IFNDEF USE_MATH_UNIT}
 var
   ControlWW: Word;
+{$ENDIF ~USE_MATH_UNIT}
 begin
+  {$IFDEF USE_MATH_UNIT}
+  Result := System.Math.Sinh(X);
+  {$ELSE ~USE_MATH_UNIT}
   asm
           {$IFDEF PIC}
           CALL    GetGOT
@@ -1691,6 +1806,7 @@ begin
           FWAIT
           FSTP    Result
   end;
+  {$ENDIF ~USE_MATH_UNIT}
 end;
 {$ENDIF ~PUREPASCAL}
 
@@ -1704,7 +1820,7 @@ begin
       Result := -1.0
     else
     begin
-      Result := Exp(X);
+      Result := JclMath.Exp(X);
       Result := Result * Result;
       Result := (Result - 1.0) / (Result + 1.0);
     end;
@@ -1733,6 +1849,7 @@ end;
 function Exp(const X: Float): Float;
 begin
   {$IFDEF MATH_EXT_EXTREMEVALUES}
+  {$IFDEF CPU32}
   if IsSpecialValue(X) then
   begin
     if IsNaN(X) or (X = Infinity) then
@@ -1741,6 +1858,7 @@ begin
       Result := 0;
     Exit;
   end;
+  {$ENDIF CPU32}
   {$ENDIF MATH_EXT_EXTREMEVALUES}
 
   Result := System.Exp(X);
@@ -1766,13 +1884,13 @@ begin
   end
   else
   if Base > 0.0 then
-    Result := Exp(Exponent * System.Ln(Base))
+    Result := JclMath.Exp(Exponent * System.Ln(Base))
   else
   begin
     IsAnInteger := (Frac(Exponent) = 0.0);
     if IsAnInteger then
     begin
-      Result := Exp(Exponent * System.Ln(Abs(Base)));
+      Result := JclMath.Exp(Exponent * System.Ln(Abs(Base)));
       IsOdd := Abs(Round(ModFloat(Exponent, 2))) = 1;
       if IsOdd then
         Result := -Result;
@@ -1834,13 +1952,13 @@ begin
   if Y = 0.0 then
     Result := 1.0
   else
-    Result := Exp(Y * Ln10);
+    Result := JclMath.Exp(Y * Ln10);
 end;
 
 function TruncPower(const Base, Exponent: Float): Float;
 begin
   if Base > 0 then
-    Result := Power(Base, Exponent)
+    Result := JclMath.Power(Base, Exponent)
   else
     Result := 0;
 end;
@@ -1850,7 +1968,7 @@ begin
   if Y = 0.0 then
     Result := 1.0
   else
-    Result := Exp(Y * Ln2);
+    Result := JclMath.Exp(Y * Ln2);
 end;
 
 //=== Floating point support routines ========================================
@@ -3183,11 +3301,11 @@ procedure InitExceptObjProc;
 begin
   if LockedExchange(ExceptObjProcInitialized, 1) = 0 then
     if Win32Platform = VER_PLATFORM_WIN32_NT then
-      {$IFDEF FPC}
-      PrevExceptObjProc := Pointer(InterlockedExchange(TJclAddr(ExceptObjProc), TJclAddr(@GetExceptionObject)));
-      {$ELSE ~FPC}
+      {$IFDEF RTL200_UP} // Delphi 2009+
+      PrevExceptObjProc := InterlockedExchangePointer(ExceptObjProc, @GetExceptionObject);
+      {$ELSE}
       PrevExceptObjProc := Pointer(InterlockedExchange(Integer(ExceptObjProc), Integer(@GetExceptionObject)));
-      {$ENDIF ~FPC}
+      {$ENDIF RTL200_UP}
 end;
 {$ENDIF ~FPC}
 {$ENDIF MSWINDOWS}
@@ -4146,7 +4264,7 @@ begin
   {$IFDEF DEBUG}
   Inc(ComplexTypeConversions);
   {$ENDIF DEBUG}
-  SinCos(Z.Angle, ASin, ACos);
+  JclMath.SinCos(Z.Angle, ASin, ACos);
   Result.Re := Z.Radius * ACos;
   Result.Im := Z.Radius * ASin;
 end;
@@ -4348,7 +4466,7 @@ end;
 
 function Power(const Z: TPolarComplex; const Exponent: Float): TPolarComplex;
 begin
-  Result.Radius := Power(Z.Radius, Exponent);
+  Result.Radius := JclMath.Power(Z.Radius, Exponent);
   Result.Angle := NormalizeAngle(Exponent * Z.Angle);
 end;
 
@@ -4365,7 +4483,7 @@ end;
 
 function Root(const Z: TPolarComplex; const K, N: Cardinal): TPolarComplex;
 begin
-  Result.Radius := Power(Z.Radius, 1.0 / N);
+  Result.Radius := JclMath.Power(Z.Radius, 1.0 / N);
   Result.Angle := NormalizeAngle((Z.Angle + K * TwoPi) / N);
 end;
 
@@ -4375,18 +4493,18 @@ function Cos(const Z: TRectComplex): TRectComplex;
 var
   ACos, ASin: Float;
 begin
-  SinCos(Z.Re, ASin, ACos);
-  Result.Re :=  ACos * CosH(Z.Im);
-  Result.Im := -ASin * SinH(Z.Im);
+  JclMath.SinCos(Z.Re, ASin, ACos);
+  Result.Re :=  ACos * JclMath.CosH(Z.Im);
+  Result.Im := -ASin * JclMath.SinH(Z.Im);
 end;
 
 function Sin(const Z: TRectComplex): TRectComplex;
 var
   ACos, ASin: Float;
 begin
-  SinCos(Z.Re, ASin, ACos);
-  Result.Re := ASin * CosH(Z.Im);
-  Result.Im := ACos * SinH(Z.Im);
+  JclMath.SinCos(Z.Re, ASin, ACos);
+  Result.Re := ASin * JclMath.CosH(Z.Im);
+  Result.Im := ACos * JclMath.SinH(Z.Im);
 end;
 
 function Tan(const Z: TRectComplex): TRectComplex;
@@ -4394,10 +4512,10 @@ var
   Denom: Float;
   ACos, ASin: Float;
 begin
-  SinCos(2.0 * Z.Re, ASin, ACos);
-  Denom := ACos + CosH(2.0 * Z.Im);
+  JclMath.SinCos(2.0 * Z.Re, ASin, ACos);
+  Denom := ACos + JclMath.CosH(2.0 * Z.Im);
   Result.Re := ASin / Denom;
-  Result.Im := SinH(2.0 * Z.Im) / Denom;
+  Result.Im := JclMath.SinH(2.0 * Z.Im) / Denom;
 end;
 
 function Cot(const Z: TRectComplex): TRectComplex;
@@ -4405,10 +4523,10 @@ var
   Denom: Float;
   ACos, ASin: Float;
 begin
-  SinCos(2.0 * Z.Re, ASin, ACos);
-  Denom := CosH(2.0 * Z.Im) - ACos;
+  JclMath.SinCos(2.0 * Z.Re, ASin, ACos);
+  Denom := JclMath.CosH(2.0 * Z.Im) - ACos;
   Result.Re := ASin / Denom;
-  Result.Im := -SinH(2.0 * Z.Im) / Denom;
+  Result.Im := -JclMath.SinH(2.0 * Z.Im) / Denom;
 end;
 
 function Sec(const Z: TRectComplex): TRectComplex;
@@ -4427,18 +4545,18 @@ function CosH(const Z: TRectComplex): TRectComplex;
 var
   ACos, ASin: Float;
 begin
-  SinCos(Z.Im, ASin, ACos);
-  Result.Re := CosH(Z.Re) * ACos;
-  Result.Im := SinH(Z.Re) * ASin;
+  JclMath.SinCos(Z.Im, ASin, ACos);
+  Result.Re := JclMath.CosH(Z.Re) * ACos;
+  Result.Im := JclMath.SinH(Z.Re) * ASin;
 end;
 
 function SinH(const Z: TRectComplex): TRectComplex;
 var
   ACos, ASin: Float;
 begin
-  SinCos(Z.Im, ASin, ACos);
-  Result.Re := SinH(Z.Re) * ACos;
-  Result.Im := CosH(Z.Re) * ASin;
+  JclMath.SinCos(Z.Im, ASin, ACos);
+  Result.Re := JclMath.SinH(Z.Re) * ACos;
+  Result.Im := JclMath.CosH(Z.Re) * ASin;
 end;
 
 function TanH(const Z: TRectComplex): TRectComplex;
@@ -4446,9 +4564,9 @@ var
   Denom: Float;
   ACos, ASin: Float;
 begin
-  SinCos(2.0 * Z.Im, ASin, ACos);
-  Denom := CosH(2.0 * Z.Re) + ACos;
-  Result.Re := SinH(2.0 * Z.Re) / Denom;
+  JclMath.SinCos(2.0 * Z.Im, ASin, ACos);
+  Denom := JclMath.CosH(2.0 * Z.Re) + ACos;
+  Result.Re := JclMath.SinH(2.0 * Z.Re) / Denom;
   Result.Im := ASin / Denom;
 end;
 
@@ -4457,9 +4575,9 @@ var
   Denom: Float;
   ACos, ASin: Float;
 begin
-  SinCos(2.0 * Z.Im, ASin, ACos);
-  Denom := CosH(2.0 * Z.Re) - ACos;
-  Result.Re := SinH(2.0 * Z.Re) / Denom;
+  JclMath.SinCos(2.0 * Z.Im, ASin, ACos);
+  Denom := JclMath.CosH(2.0 * Z.Re) - ACos;
+  Result.Re := JclMath.SinH(2.0 * Z.Re) / Denom;
   Result.Im := -ASin / Denom;
 end;
 
@@ -4539,7 +4657,13 @@ end;
 
 function TRectComplex.IsInfinite: Boolean;
 begin
+  {$IFDEF DELPHI64_TEMPORARY}
+  //IsInfinite is disabled for 64-bit, because BASM is not 64-bit compatible (see logmessage of public repo @3070)
+  System.Error(rePlatformNotImplemented);
+  Result := False;
+  {$ELSE ~DELPHI64_TEMPORARY}
   Result := JclMath.IsInfinite(Self);
+  {$ENDIF ~DELPHI64_TEMPORARY}
 end;
 
 { TPolarComplex }
@@ -4628,7 +4752,13 @@ end;
 
 function TPolarComplex.IsInfinite: Boolean;
 begin
+  {$IFDEF DELPHI64_TEMPORARY}
+  //IsInfinite is disabled for 64-bit, because BASM is not 64-bit compatible (see logmessage of public repo @3070)
+  System.Error(rePlatformNotImplemented);
+  Result := False;
+  {$ELSE ~DELPHI64_TEMPORARY}
   Result := JclMath.IsInfinite(Self);
+  {$ENDIF ~DELPHI64_TEMPORARY}
 end;
 
 function TPolarComplex.Power(const Exponent: TRectComplex): TPolarComplex;

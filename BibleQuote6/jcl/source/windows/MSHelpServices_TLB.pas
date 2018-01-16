@@ -1,8 +1,8 @@
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-22 11:08:20 +0100 (lun., 22 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3196                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -50,12 +50,10 @@ unit MSHelpServices_TLB;
 // removing them from the $IFDEF blocks. However, such items must still be    
 // programmatically created via a method of the appropriate CoClass before    
 // they can be used.                                                          
-{$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers. 
-{ $WARN SYMBOL_PLATFORM OFF}
-{ $WRITEABLECONST ON}
-{ $VARPROPSETTER ON}
+{ $TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers. 
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 {$IFDEF SUPPORTS_WEAKPACKAGEUNIT}
   {$IFDEF UNITVERSIONING}
@@ -71,8 +69,13 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.ActiveX, System.Classes;
+  {$ELSE ~HAS_UNITSCOPE}
   ActiveX, Classes;
-  
+  {$ENDIF ~HAS_UNITSCOPE}
+
+//DOM-IGNORE-BEGIN
 
 // *********************************************************************//
 // GUIDS declared in the TypeLibrary. Following prefixes are used:        
@@ -1590,12 +1593,14 @@ type
     class function CreateRemote(const MachineName: string): IHxRegisterProtocol;
   end;
 
+//DOM-IGNORE-END
+
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/MSHelpServices_TLB.pas $';
-    Revision: '$Revision: 3196 $';
-    Date: '$Date: 2010-02-22 11:08:20 +0100 (lun., 22 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -1604,7 +1609,12 @@ const
 
 implementation
 
-uses ComObj;
+uses 
+  {$IFDEF HAS_UNITSCOPE}
+  System.Win.ComObj;
+  {$ELSE ~HAS_UNITSCOPE}
+  ComObj;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 class function CoHxSession.Create: IHxSession;
 begin

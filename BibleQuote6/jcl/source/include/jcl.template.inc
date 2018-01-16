@@ -36,7 +36,7 @@
 {                                                                                                  }
 {**************************************************************************************************}
 
-// $Id: jcl.template.inc 2919 2009-08-07 10:02:54Z outchy $
+// $Id$
 
 // Math precision selection, mutually exclusive
 // FPC does not support EXTENDED when targetting x86_64, MATH_DOUBLE_PRECISION is the default in this situation
@@ -74,10 +74,6 @@
 {.$DEFINE DEBUG_NO_SYMBOLS}
 
 
-// mark EDI units as weak package units (to avoid conflicts with the EDI package)
-{.$DEFINE EDI_WEAK_PACKAGE_UNITS}
-
-
 // PCRE options, mutually exclusive
 // IMPORTANT: The static link works only for Delphi 2005 and newer
 //            (an internal error is raised on other compilers)
@@ -85,11 +81,20 @@
 //   static link: PCRE_STATICLINK
 //   static dll import: PCRE_LINKDLL
 //   dynamic dll import: PCRE_LINKONREQUEST
+//   RTL's RegularExpressionsAPI: PCRE_RTL
 
 {.$DEFINE PCRE_STATICLINK}
 {.$DEFINE PCRE_LINKDLL}
 {.$DEFINE PCRE_LINKONREQUEST} // default
+{.$DEFINE PCRE_RTL} // DXE and newer
 
+// ANSI/UTF8 PCRE
+{$DEFINE PCRE_8}
+// UCS2/UTF16 enabled PCRE
+{$DEFINE PCRE_16} // only valid when PCRE_STATICLINK is enabled, the RTL does not support it and the DLL found over the internet are completly outdated.
+
+// use PCRE16 when available rather than good old PCRE8
+{$DEFINE PCRE_PREFER_16}
 
 // BZIP2 options, mutually exclusive
 
@@ -103,9 +108,13 @@
 {.$DEFINE ZLIB_STATICLINK} // default
 {.$DEFINE ZLIB_LINKDLL}
 {.$DEFINE ZLIB_LINKONREQUEST}
+{.$DEFINE ZLIB_RTL} // DXE2 and newer only
 
 
 // Unicode options
+// use RTL Character Database rather than JCL one, less accurate but reduce executable size
+{.$DEFINE UNICODE_RTL_DATABASE}
+
 // insert a replacement character if sequence is corrupted rather than raising an exception
 {.$DEFINE UNICODE_SILENT_FAILURE}
 
@@ -117,8 +126,9 @@
 
 // container options
 // define mapping of TJclStr* containers to TJclAnsiStr* or TJclWideStr* (mutually exclusive)
-{.$DEFINE CONTAINER_ANSISTR} // default
+{.$DEFINE CONTAINER_ANSISTR} // default for D2007 and older
 {.$DEFINE CONTAINER_WIDESTR}
+{.$DEFINE CONTAINER_UNICODESTR} // default for D2009 and newer, not supported for Delphi 2007 and older
 {.$DEFINE CONTAINER_NOSTR}
 
 

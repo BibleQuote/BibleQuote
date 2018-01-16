@@ -27,9 +27,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-09 13:41:31 +0200 (lun., 09 août 2010)                         $ }
-{ Revision:      $Rev:: 3289                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -46,7 +46,11 @@ uses
   {$IFDEF HAS_UNIT_LIBC}
   Libc,
   {$ENDIF HAS_UNIT_LIBC}
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclContainerIntf, JclSynch, JclSysUtils,
   JclWideStrings,
   JclAnsiStrings;
@@ -73,7 +77,7 @@ type
   end;
 
   TJclAbstractContainerBase = class(TJclAbstractLockable, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer)
   protected
     FAllowDefaultElements: Boolean;
     FDuplicates: TDuplicates;
@@ -94,9 +98,9 @@ type
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); virtual;
   public
     constructor Create;
-    { IJclContainer }
-    procedure Assign(const Source: IJclContainer);
-    procedure AssignTo(const Dest: IJclContainer);
+    { IJclBaseContainer }
+    procedure Assign(const Source: IJclBaseContainer);
+    procedure AssignTo(const Dest: IJclBaseContainer);
     function GetAllowDefaultElements: Boolean; virtual;
     function GetContainerReference: TObject;
     function GetDuplicates: TDuplicates; virtual;
@@ -166,14 +170,20 @@ type
   end;
 
   TJclIntfAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclIntfEqualityComparer, IJclIntfComparer, IJclIntfHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclIntfContainer,
+    IJclIntfOwner, IJclIntfEqualityComparer, IJclIntfComparer, IJclIntfHashConverter)
   protected
     FEqualityCompare: TIntfEqualityCompare;
     FCompare: TIntfCompare;
     FHashConvert: TIntfHashConvert;
+    FOnFreeObject: TFreeIntfEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeObject(var AInterface: IInterface): IInterface;
   public
+    { IJclIntfOwner }
+    function GetOnFreeObject: TFreeIntfEvent;
+    function FreeObject(var AInterface: IInterface): IInterface; virtual;
+    procedure SetOnFreeObject(Value: TFreeIntfEvent);
+    property OnFreeObject: TFreeIntfEvent read GetOnFreeObject write SetOnFreeObject;
     { IJclIntfEqualityComparer }
     function GetEqualityCompare: TIntfEqualityCompare; virtual;
     procedure SetEqualityCompare(Value: TIntfEqualityCompare); virtual;
@@ -192,28 +202,33 @@ type
   end;
 
   TJclStrAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclStrContainer)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclStrBaseContainer)
   protected
     FCaseSensitive: Boolean;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
   public
-    { IJclStrContainer }
+    { IJclStrBaseContainer }
     function GetCaseSensitive: Boolean; virtual;
     procedure SetCaseSensitive(Value: Boolean); virtual;
     property CaseSensitive: Boolean read GetCaseSensitive write SetCaseSensitive;
   end;
 
   TJclAnsiStrAbstractContainer = class(TJclStrAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclStrContainer, IJclAnsiStrContainer,
-    IJclAnsiStrEqualityComparer, IJclAnsiStrComparer, IJclAnsiStrHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclStrBaseContainer, IJclAnsiStrContainer,
+    IJclAnsiStrOwner, IJclAnsiStrEqualityComparer, IJclAnsiStrComparer, IJclAnsiStrHashConverter)
   protected
     FEncoding: TJclAnsiStrEncoding;
     FEqualityCompare: TAnsiStrEqualityCompare;
     FCompare: TAnsiStrCompare;
     FHashConvert: TAnsiStrHashConvert;
+    FOnFreeString: TFreeAnsiStrEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeString(var AString: AnsiString): AnsiString;
   public
+    { IJclAnsiStrOwner }
+    function GetOnFreeString: TFreeAnsiStrEvent;
+    function FreeString(var AString: AnsiString): AnsiString; virtual;
+    procedure SetOnFreeString(Value: TFreeAnsiStrEvent);
+    property OnFreeString: TFreeAnsiStrEvent read GetOnFreeString write SetOnFreeString;
     { IJclAnsiStrContainer }
     function GetEncoding: TJclAnsiStrEncoding; virtual;
     procedure SetEncoding(Value: TJclAnsiStrEncoding); virtual;
@@ -236,16 +251,21 @@ type
   end;
 
   TJclWideStrAbstractContainer = class(TJclStrAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclStrContainer, IJclWideStrContainer,
-    IJclWideStrEqualityComparer, IJclWideStrComparer, IJclWideStrHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclStrBaseContainer, IJclWideStrContainer,
+    IJclWideStrOwner, IJclWideStrEqualityComparer, IJclWideStrComparer, IJclWideStrHashConverter)
   protected
     FEncoding: TJclWideStrEncoding;
     FEqualityCompare: TWideStrEqualityCompare;
     FCompare: TWideStrCompare;
     FHashConvert: TWideStrHashConvert;
+    FOnFreeString: TFreeWideStrEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeString(var AString: WideString): WideString;
   public
+    { IJclWideStrOwner }
+    function GetOnFreeString: TFreeWideStrEvent;
+    function FreeString(var AString: WideString): WideString; virtual;
+    procedure SetOnFreeString(Value: TFreeWideStrEvent);
+    property OnFreeString: TFreeWideStrEvent read GetOnFreeString write SetOnFreeString;
     { IJclWideStrContainer }
     function GetEncoding: TJclWideStrEncoding; virtual;
     procedure SetEncoding(Value: TJclWideStrEncoding); virtual;
@@ -269,15 +289,20 @@ type
 
   {$IFDEF SUPPORTS_UNICODE_STRING}
   TJclUnicodeStrAbstractContainer = class(TJclStrAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclStrContainer, IJclUnicodeStrContainer,
-    IJclUnicodeStrEqualityComparer, IJclUnicodeStrComparer, IJclUnicodeStrHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclStrBaseContainer, IJclUnicodeStrContainer,
+    IJclUnicodeStrOwner, IJclUnicodeStrEqualityComparer, IJclUnicodeStrComparer, IJclUnicodeStrHashConverter)
   protected
     FEqualityCompare: TUnicodeStrEqualityCompare;
     FCompare: TUnicodeStrCompare;
     FHashConvert: TUnicodeStrHashConvert;
+    FOnFreeString: TFreeUnicodeStrEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeString(var AString: UnicodeString): UnicodeString;
   public
+    { IJclUnicodeStrOwner }
+    function GetOnFreeString: TFreeUnicodeStrEvent;
+    function FreeString(var AString: UnicodeString): UnicodeString; virtual;
+    procedure SetOnFreeString(Value: TFreeUnicodeStrEvent);
+    property OnFreeString: TFreeUnicodeStrEvent read GetOnFreeString write SetOnFreeString;
     { IJclUnicodeStrEqualityComparer }
     function GetEqualityCompare: TUnicodeStrEqualityCompare; virtual;
     procedure SetEqualityCompare(Value: TUnicodeStrEqualityCompare); virtual;
@@ -297,16 +322,21 @@ type
   {$ENDIF SUPPORTS_UNICODE_STRING}
 
   TJclSingleAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclSingleContainer, IJclSingleEqualityComparer,
-    IJclSingleComparer, IJclSingleHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclSingleContainer,
+    IJclSingleOwner, IJclSingleEqualityComparer, IJclSingleComparer, IJclSingleHashConverter)
   protected
     FPrecision: Single;
     FEqualityCompare: TSingleEqualityCompare;
     FCompare: TSingleCompare;
     FHashConvert: TSingleHashConvert;
+    FOnFreeSingle: TFreeSingleEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeSingle(var AValue: Single): Single;
   public
+    { IJclSingleOwner }
+    function GetOnFreeSingle: TFreeSingleEvent;
+    function FreeSingle(var AValue: Single): Single; virtual;
+    procedure SetOnFreeSingle(Value: TFreeSingleEvent);
+    property OnFreeSingle: TFreeSingleEvent read GetOnFreeSingle write SetOnFreeSingle;
     { IJclSingleContainer }
     function GetPrecision: Single; virtual;
     procedure SetPrecision(const Value: Single); virtual;
@@ -329,16 +359,21 @@ type
   end;
 
   TJclDoubleAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclDoubleContainer, IJclDoubleEqualityComparer,
-    IJclDoubleComparer, IJclDoubleHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclDoubleContainer,
+    IJclDoubleOwner, IJclDoubleEqualityComparer, IJclDoubleComparer, IJclDoubleHashConverter)
   protected
     FPrecision: Double;
     FEqualityCompare: TDoubleEqualityCompare;
     FCompare: TDoubleCompare;
     FHashConvert: TDoubleHashConvert;
+    FOnFreeDouble: TFreeDoubleEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeDouble(var AValue: Double): Double;
   public
+    { IJclDoubleOwner }
+    function GetOnFreeDouble: TFreeDoubleEvent;
+    function FreeDouble(var AValue: Double): Double; virtual;
+    procedure SetOnFreeDouble(Value: TFreeDoubleEvent);
+    property OnFreeDouble: TFreeDoubleEvent read GetOnFreeDouble write SetOnFreeDouble;
     { IJclDoubleContainer }
     function GetPrecision: Double; virtual;
     procedure SetPrecision(const Value: Double); virtual;
@@ -361,16 +396,21 @@ type
   end;
 
   TJclExtendedAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclExtendedContainer, IJclExtendedEqualityComparer,
-    IJclExtendedComparer, IJclExtendedHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclExtendedContainer,
+    IJclExtendedOwner, IJclExtendedEqualityComparer, IJclExtendedComparer, IJclExtendedHashConverter)
   protected
     FPrecision: Extended;
     FEqualityCompare: TExtendedEqualityCompare;
     FCompare: TExtendedCompare;
     FHashConvert: TExtendedHashConvert;
+    FOnFreeExtended: TFreeExtendedEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeExtended(var AValue: Extended): Extended;
   public
+    { IJclExtendedOwner }
+    function GetOnFreeExtended: TFreeExtendedEvent;
+    function FreeExtended(var AValue: Extended): Extended; virtual;
+    procedure SetOnFreeExtended(Value: TFreeExtendedEvent);
+    property OnFreeExtended: TFreeExtendedEvent read GetOnFreeExtended write SetOnFreeExtended;
     { IJclExtendedContainer }
     function GetPrecision: Extended; virtual;
     procedure SetPrecision(const Value: Extended); virtual;
@@ -393,15 +433,20 @@ type
   end;
 
   TJclIntegerAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclIntegerEqualityComparer, IJclIntegerComparer,
-    IJclIntegerHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclIntegerContainer,
+    IJclIntegerOwner, IJclIntegerEqualityComparer, IJclIntegerComparer, IJclIntegerHashConverter)
   protected
     FEqualityCompare: TIntegerEqualityCompare;
     FCompare: TIntegerCompare;
     FHashConvert: TIntegerHashConvert;
+    FOnFreeInteger: TFreeIntegerEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeInteger(var AValue: Integer): Integer;
   public
+    { IJclIntegerOwner }
+    function GetOnFreeInteger: TFreeIntegerEvent;
+    function FreeInteger(var AValue: Integer): Integer; virtual;
+    procedure SetOnFreeInteger(Value: TFreeIntegerEvent);
+    property OnFreeInteger: TFreeIntegerEvent read GetOnFreeInteger write SetOnFreeInteger;
     { IJclIntegerEqualityComparer }
     function GetEqualityCompare: TIntegerEqualityCompare; virtual;
     procedure SetEqualityCompare(Value: TIntegerEqualityCompare); virtual;
@@ -420,26 +465,31 @@ type
   end;
 
   TJclCardinalAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclCardinalEqualityComparer, IJclCardinalComparer,
-    IJclCardinalHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclCardinalContainer,
+    IJclCardinalOwner, IJclCardinalEqualityComparer, IJclCardinalComparer, IJclCardinalHashConverter)
   protected
     FEqualityCompare: TCardinalEqualityCompare;
     FCompare: TCardinalCompare;
     FHashConvert: TCardinalHashConvert;
+    FOnFreeCardinal: TFreeCardinalEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeCardinal(var AValue: Cardinal): Cardinal;
   public
-    { IJclIntegerEqualityComparer }
+    { IJclCardinalOwner }
+    function GetOnFreeCardinal: TFreeCardinalEvent;
+    function FreeCardinal(var AValue: Cardinal): Cardinal; virtual;
+    procedure SetOnFreeCardinal(Value: TFreeCardinalEvent);
+    property OnFreeCardinal: TFreeCardinalEvent read GetOnFreeCardinal write SetOnFreeCardinal;
+    { IJclCardinalEqualityComparer }
     function GetEqualityCompare: TCardinalEqualityCompare; virtual;
     procedure SetEqualityCompare(Value: TCardinalEqualityCompare); virtual;
     function ItemsEqual(A, B: Cardinal): Boolean; virtual;
     property EqualityCompare: TCardinalEqualityCompare read GetEqualityCompare write SetEqualityCompare;
-    { IJclIntegerComparer }
+    { IJclCardinalComparer }
     function GetCompare: TCardinalCompare; virtual;
     procedure SetCompare(Value: TCardinalCompare); virtual;
     function ItemsCompare(A, B: Cardinal): Integer; virtual;
     property Compare: TCardinalCompare read GetCompare write SetCompare;
-    { IJclIntegerHashConverter }
+    { IJclCardinalHashConverter }
     function GetHashConvert: TCardinalHashConvert; virtual;
     procedure SetHashConvert(Value: TCardinalHashConvert); virtual;
     function Hash(AValue: Cardinal): Integer; virtual;
@@ -447,15 +497,20 @@ type
   end;
 
   TJclInt64AbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclInt64EqualityComparer, IJclInt64Comparer,
-    IJclInt64HashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclInt64Container,
+    IJclInt64Owner, IJclInt64EqualityComparer, IJclInt64Comparer, IJclInt64HashConverter)
   protected
     FEqualityCompare: TInt64EqualityCompare;
     FCompare: TInt64Compare;
     FHashConvert: TInt64HashConvert;
+    FOnFreeInt64: TFreeInt64Event;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreeInt64(var AValue: Int64): Int64;
   public
+    { IJclInt64Owner }
+    function GetOnFreeInt64: TFreeInt64Event;
+    function FreeInt64(var AValue: Int64): Int64; virtual;
+    procedure SetOnFreeInt64(Value: TFreeInt64Event);
+    property OnFreeInt64: TFreeInt64Event read GetOnFreeInt64 write SetOnFreeInt64;
     { IJclInt64EqualityComparer }
     function GetEqualityCompare: TInt64EqualityCompare; virtual;
     procedure SetEqualityCompare(Value: TInt64EqualityCompare); virtual;
@@ -474,14 +529,20 @@ type
   end;
 
   TJclPtrAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclPtrEqualityComparer, IJclPtrComparer, IJclPtrHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclPtrContainer,
+    IJclPtrOwner, IJclPtrEqualityComparer, IJclPtrComparer, IJclPtrHashConverter)
   protected
     FEqualityCompare: TPtrEqualityCompare;
     FCompare: TPtrCompare;
     FHashConvert: TPtrHashConvert;
+    FOnFreePointer: TFreePtrEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
-    function FreePointer(var APtr: Pointer): Pointer;
   public
+    { IJclPtrOwner }
+    function GetOnFreePointer: TFreePtrEvent;
+    function FreePointer(var APtr: Pointer): Pointer; virtual;
+    procedure SetOnFreePointer(Value: TFreePtrEvent);
+    property OnFreePointer: TFreePtrEvent read GetOnFreePointer write SetOnFreePointer;
     { IJclPtrEqualityComparer }
     function GetEqualityCompare: TPtrEqualityCompare; virtual;
     procedure SetEqualityCompare(Value: TPtrEqualityCompare); virtual;
@@ -500,20 +561,24 @@ type
   end;
 
   TJclAbstractContainer = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclObjectOwner, IJclEqualityComparer, IJclComparer,
-    IJclHashConverter)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclContainer,
+    IJclObjectOwner, IJclEqualityComparer, IJclComparer, IJclHashConverter)
   protected
     FOwnsObjects: Boolean;
     FEqualityCompare: TEqualityCompare;
     FCompare: TCompare;
     FHashConvert: THashConvert;
+    FOnFreeObject: TFreeObjectEvent;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
   public
     constructor Create(AOwnsObjects: Boolean);
     { IJclObjectOwner }
+    function GetOnFreeObject: TFreeObjectEvent;
     function FreeObject(var AObject: TObject): TObject; virtual;
+    procedure SetOnFreeObject(Value: TFreeObjectEvent);
+    property OnFreeObject: TFreeObjectEvent read GetOnFreeObject write SetOnFreeObject;
     function GetOwnsObjects: Boolean; virtual;
-    property OwnsObjects: Boolean read FOwnsObjects;
+    property OwnsObjects: Boolean read GetOwnsObjects;
     { IJclEqualityComparer }
     function GetEqualityCompare: TEqualityCompare; virtual;
     procedure SetEqualityCompare(Value: TEqualityCompare); virtual;
@@ -532,21 +597,27 @@ type
   end;
 
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
+
   TJclAbstractContainer<T> = class(TJclAbstractContainerBase, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclCloneable, IJclIntfCloneable, IJclContainer, IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>,
-    IJclHashConverter<T>)
+    IJclCloneable, IJclIntfCloneable, IJclBaseContainer, IJclContainer<T>,
+    IJclItemOwner<T>, IJclEqualityComparer<T>, IJclComparer<T>, IJclHashConverter<T>)
   protected
     FOwnsItems: Boolean;
     FEqualityCompare: TEqualityCompare<T>;
     FCompare: TCompare<T>;
     FHashConvert: THashConvert<T>;
+    FOnFreeItem: TFreeItemEvent<T>;
     procedure AssignPropertiesTo(Dest: TJclAbstractContainerBase); override;
   public
     constructor Create(AOwnsItems: Boolean);
     { IJclItemOwner<T> }
+    function GetOnFreeItem: TFreeItemEvent<T>;
     function FreeItem(var AItem: T): T; virtual;
+    procedure SetOnFreeItem(Value: TFreeItemEvent<T>);
+    property OnFreeItem: TFreeItemEvent<T> read GetOnFreeItem write SetOnFreeItem;
     function GetOwnsItems: Boolean; virtual;
-    property OwnsItems: Boolean read FOwnsItems;
+    property OwnsItems: Boolean read GetOwnsItems;
     { IJclEqualityComparer<T> }
     function GetEqualityCompare: TEqualityCompare<T>; virtual;
     procedure SetEqualityCompare(Value: TEqualityCompare<T>); virtual;
@@ -563,11 +634,13 @@ type
     function Hash(const AItem: T): Integer; virtual;
     property HashConvert: THashConvert<T> read GetHashConvert write SetHashConvert;
   end;
+
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   TJclAnsiStrAbstractCollection = class(TJclAnsiStrAbstractContainer,
-    {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE} IJclCloneable, IJclIntfCloneable, IJclContainer,
-    IJclStrContainer, IJclAnsiStrContainer, IJclAnsiStrFlatContainer, IJclAnsiStrCollection,
+    {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE} IJclCloneable, IJclIntfCloneable, IJclBaseContainer,
+    IJclStrBaseContainer, IJclAnsiStrContainer, IJclAnsiStrFlatContainer, IJclAnsiStrCollection,
     IJclAnsiStrEqualityComparer, IJclAnsiStrComparer)
   public
     { IJclAnsiStrCollection }
@@ -601,8 +674,8 @@ type
   end;
 
   TJclWideStrAbstractCollection = class(TJclWideStrAbstractContainer,
-    {$IFDEF THREADSAFE}IJclLockable,{$ENDIF THREADSAFE} IJclCloneable, IJclIntfCloneable, IJclContainer,
-    IJclStrContainer, IJclWideStrContainer, IJclWideStrFlatContainer, IJclWideStrCollection,
+    {$IFDEF THREADSAFE}IJclLockable,{$ENDIF THREADSAFE} IJclCloneable, IJclIntfCloneable, IJclBaseContainer,
+    IJclStrBaseContainer, IJclWideStrContainer, IJclWideStrFlatContainer, IJclWideStrCollection,
     IJclWideStrEqualityComparer, IJclWideStrComparer)
   public
     { IJclWideStrCollection }
@@ -637,8 +710,8 @@ type
 
   {$IFDEF SUPPORTS_UNICODE_STRING}
   TJclUnicodeStrAbstractCollection = class(TJclUnicodeStrAbstractContainer,
-    {$IFDEF THREADSAFE}IJclLockable,{$ENDIF THREADSAFE} IJclCloneable, IJclIntfCloneable, IJclContainer,
-    IJclStrContainer, IJclUnicodeStrContainer, IJclUnicodeStrFlatContainer, IJclUnicodeStrCollection,
+    {$IFDEF THREADSAFE}IJclLockable,{$ENDIF THREADSAFE} IJclCloneable, IJclIntfCloneable, IJclBaseContainer,
+    IJclStrBaseContainer, IJclUnicodeStrContainer, IJclUnicodeStrFlatContainer, IJclUnicodeStrCollection,
     IJclUnicodeStrEqualityComparer, IJclUnicodeStrComparer)
   public
     { IJclUnicodeStrCollection }
@@ -695,9 +768,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclAbstractContainers.pas $';
-    Revision: '$Revision: 3289 $';
-    Date: '$Date: 2010-08-09 13:41:31 +0200 (lun., 09 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -707,12 +780,18 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF HAS_UNIT_ANSISTRINGS}
+  System.AnsiStrings,
+  {$ENDIF HAS_UNIT_ANSISTRINGS}
+  System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF HAS_UNIT_ANSISTRINGS}
   AnsiStrings,
   {$ENDIF HAS_UNIT_ANSISTRINGS}
-  JclStringConversions, JclUnicode,
-  JclAlgorithms,
-  SysUtils;
+  SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclStringConversions, JclUnicode, JclAlgorithms;
 
 //=== { TJclAbstractLockable } ===============================================
 
@@ -772,7 +851,7 @@ begin
   FAutoPackParameter := 4;
 end;
 
-procedure TJclAbstractContainerBase.Assign(const Source: IJclContainer);
+procedure TJclAbstractContainerBase.Assign(const Source: IJclBaseContainer);
 begin
   Source.AssignTo(Self);
 end;
@@ -797,7 +876,7 @@ begin
   Dest.AutoPackStrategy := AutoPackStrategy;
 end;
 
-procedure TJclAbstractContainerBase.AssignTo(const Dest: IJclContainer);
+procedure TJclAbstractContainerBase.AssignTo(const Dest: IJclBaseContainer);
 var
   DestObject: TObject;
 begin
@@ -1140,8 +1219,13 @@ end;
 
 function TJclIntfAbstractContainer.FreeObject(var AInterface: IInterface): IInterface;
 begin
-  Result := AInterface;
-  AInterface := nil;
+  if Assigned(FOnFreeObject) then
+    Result := FOnFreeObject(AInterface)
+  else
+  begin
+    Result := AInterface;
+    AInterface := nil;
+  end;
 end;
 
 function TJclIntfAbstractContainer.GetCompare: TIntfCompare;
@@ -1157,6 +1241,11 @@ end;
 function TJclIntfAbstractContainer.GetHashConvert: TIntfHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclIntfAbstractContainer.GetOnFreeObject: TFreeIntfEvent;
+begin
+  Result := FOnFreeObject;
 end;
 
 function TJclIntfAbstractContainer.Hash(const AInterface: IInterface): Integer;
@@ -1201,6 +1290,11 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclIntfAbstractContainer.SetOnFreeObject(Value: TFreeIntfEvent);
+begin
+  FOnFreeObject := Value;
+end;
+
 //=== { TJclStrAbstractContainer } ===========================================
 
 procedure TJclStrAbstractContainer.AssignPropertiesTo(Dest: TJclAbstractContainerBase);
@@ -1239,8 +1333,13 @@ end;
 
 function TJclAnsiStrAbstractContainer.FreeString(var AString: AnsiString): AnsiString;
 begin
-  Result := AString;
-  AString := '';
+  if Assigned(FOnFreeString) then
+    Result := FOnFreeString(AString)
+  else
+  begin
+    Result := AString;
+    AString := '';
+  end;
 end;
 
 function TJclAnsiStrAbstractContainer.GetCompare: TAnsiStrCompare;
@@ -1261,6 +1360,11 @@ end;
 function TJclAnsiStrAbstractContainer.GetHashConvert: TAnsiStrHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclAnsiStrAbstractContainer.GetOnFreeString: TFreeAnsiStrEvent;
+begin
+  Result := FOnFreeString;
 end;
 
 function TJclAnsiStrAbstractContainer.Hash(const AString: AnsiString): Integer;
@@ -1345,6 +1449,12 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclAnsiStrAbstractContainer.SetOnFreeString(
+  Value: TFreeAnsiStrEvent);
+begin
+  FOnFreeString := Value;
+end;
+
 //=== { TJclWideStrContainer } ===============================================
 
 procedure TJclWideStrAbstractContainer.AssignPropertiesTo(Dest: TJclAbstractContainerBase);
@@ -1364,8 +1474,13 @@ end;
 
 function TJclWideStrAbstractContainer.FreeString(var AString: WideString): WideString;
 begin
-  Result := AString;
-  AString := '';
+  if Assigned(FOnFreeString) then
+    Result := FOnFreeString(AString)
+  else
+  begin
+    Result := AString;
+    AString := '';
+  end;
 end;
 
 function TJclWideStrAbstractContainer.GetCompare: TWideStrCompare;
@@ -1386,6 +1501,11 @@ end;
 function TJclWideStrAbstractContainer.GetHashConvert: TWideStrHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclWideStrAbstractContainer.GetOnFreeString: TFreeWideStrEvent;
+begin
+  Result := FOnFreeString;
 end;
 
 function TJclWideStrAbstractContainer.Hash(const AString: WideString): Integer;
@@ -1465,6 +1585,12 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclWideStrAbstractContainer.SetOnFreeString(
+  Value: TFreeWideStrEvent);
+begin
+  FOnFreeString := Value;
+end;
+
 {$IFDEF SUPPORTS_UNICODE_STRING}
 //=== { TJclUnicodeStrContainer } ===============================================
 
@@ -1484,8 +1610,13 @@ end;
 
 function TJclUnicodeStrAbstractContainer.FreeString(var AString: UnicodeString): UnicodeString;
 begin
-  Result := AString;
-  AString := '';
+  if Assigned(FOnFreeString) then
+    Result := FOnFreeString(AString)
+  else
+  begin
+    Result := AString;
+    AString := '';
+  end;
 end;
 
 function TJclUnicodeStrAbstractContainer.GetCompare: TUnicodeStrCompare;
@@ -1503,6 +1634,11 @@ begin
   Result := FHashConvert;
 end;
 
+function TJclUnicodeStrAbstractContainer.GetOnFreeString: TFreeUnicodeStrEvent;
+begin
+  Result := FOnFreeString;
+end;
+
 function TJclUnicodeStrAbstractContainer.Hash(const AString: UnicodeString): Integer;
 begin
   if Assigned(FHashConvert) then
@@ -1513,7 +1649,6 @@ begin
   else
     Result := UnicodeStrSimpleHashConvertI(AString);
 end;
-
 
 function TJclUnicodeStrAbstractContainer.ItemsCompare(const A, B: UnicodeString): Integer;
 begin
@@ -1554,6 +1689,11 @@ procedure TJclUnicodeStrAbstractContainer.SetHashConvert(Value: TUnicodeStrHashC
 begin
   FHashConvert := Value;
 end;
+
+procedure TJclUnicodeStrAbstractContainer.SetOnFreeString(Value: TFreeUnicodeStrEvent);
+begin
+  FOnFreeString := Value;
+end;
 {$ENDIF SUPPORTS_UNICODE_STRING}
 
 //=== { TJclSingleAbstractContainer } ========================================
@@ -1575,8 +1715,13 @@ end;
 
 function TJclSingleAbstractContainer.FreeSingle(var AValue: Single): Single;
 begin
-  Result := AValue;
-  AValue := 0.0;
+  if Assigned(FOnFreeSingle) then
+    Result := FOnFreeSingle(AValue)
+  else
+  begin
+    Result := AValue;
+    AValue := 0.0;
+  end;
 end;
 
 function TJclSingleAbstractContainer.GetCompare: TSingleCompare;
@@ -1592,6 +1737,11 @@ end;
 function TJclSingleAbstractContainer.GetHashConvert: TSingleHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclSingleAbstractContainer.GetOnFreeSingle: TFreeSingleEvent;
+begin
+  Result := FOnFreeSingle;
 end;
 
 function TJclSingleAbstractContainer.GetPrecision: Single;
@@ -1647,6 +1797,11 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclSingleAbstractContainer.SetOnFreeSingle(Value: TFreeSingleEvent);
+begin
+  FOnFreeSingle := Value;
+end;
+
 procedure TJclSingleAbstractContainer.SetPrecision(const Value: Single);
 begin
   FPrecision := Value;
@@ -1671,8 +1826,13 @@ end;
 
 function TJclDoubleAbstractContainer.FreeDouble(var AValue: Double): Double;
 begin
-  Result := AValue;
-  AValue := 0.0;
+  if Assigned(FOnFreeDouble) then
+    Result := FOnFreeDouble(AValue)
+  else
+  begin
+    Result := AValue;
+    AValue := 0.0;
+  end;
 end;
 
 function TJclDoubleAbstractContainer.GetCompare: TDoubleCompare;
@@ -1688,6 +1848,11 @@ end;
 function TJclDoubleAbstractContainer.GetHashConvert: TDoubleHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclDoubleAbstractContainer.GetOnFreeDouble: TFreeDoubleEvent;
+begin
+  Result := FOnFreeDouble;
 end;
 
 function TJclDoubleAbstractContainer.GetPrecision: Double;
@@ -1743,6 +1908,11 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclDoubleAbstractContainer.SetOnFreeDouble(Value: TFreeDoubleEvent);
+begin
+  FOnFreeDouble := Value;
+end;
+
 procedure TJclDoubleAbstractContainer.SetPrecision(const Value: Double);
 begin
   FPrecision := Value;
@@ -1767,8 +1937,13 @@ end;
 
 function TJclExtendedAbstractContainer.FreeExtended(var AValue: Extended): Extended;
 begin
-  Result := AValue;
-  AValue := 0.0;
+  if Assigned(FOnFreeExtended) then
+    Result := FOnFreeExtended(AValue)
+  else
+  begin
+    Result := AValue;
+    AValue := 0.0;
+  end;
 end;
 
 function TJclExtendedAbstractContainer.GetCompare: TExtendedCompare;
@@ -1784,6 +1959,11 @@ end;
 function TJclExtendedAbstractContainer.GetHashConvert: TExtendedHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclExtendedAbstractContainer.GetOnFreeExtended: TFreeExtendedEvent;
+begin
+  Result := FOnFreeExtended;
 end;
 
 function TJclExtendedAbstractContainer.GetPrecision: Extended;
@@ -1839,6 +2019,12 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclExtendedAbstractContainer.SetOnFreeExtended(
+  Value: TFreeExtendedEvent);
+begin
+  FOnFreeExtended := Value;
+end;
+
 procedure TJclExtendedAbstractContainer.SetPrecision(const Value: Extended);
 begin
   FPrecision := Value;
@@ -1862,8 +2048,13 @@ end;
 
 function TJclIntegerAbstractContainer.FreeInteger(var AValue: Integer): Integer;
 begin
-  Result := AValue;
-  AValue := 0;
+  if Assigned(FOnFreeInteger) then
+    Result := FOnFreeInteger(AValue)
+  else
+  begin
+    Result := AValue;
+    AValue := 0;
+  end;
 end;
 
 function TJclIntegerAbstractContainer.GetCompare: TIntegerCompare;
@@ -1879,6 +2070,11 @@ end;
 function TJclIntegerAbstractContainer.GetHashConvert: TIntegerHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclIntegerAbstractContainer.GetOnFreeInteger: TFreeIntegerEvent;
+begin
+  Result := FOnFreeInteger;
 end;
 
 function TJclIntegerAbstractContainer.Hash(AValue: Integer): Integer;
@@ -1923,6 +2119,12 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclIntegerAbstractContainer.SetOnFreeInteger(
+  Value: TFreeIntegerEvent);
+begin
+  FOnFreeInteger := Value;
+end;
+
 //=== { TJclCardinalAbstractContainer } ======================================
 
 procedure TJclCardinalAbstractContainer.AssignPropertiesTo(Dest: TJclAbstractContainerBase);
@@ -1941,8 +2143,13 @@ end;
 
 function TJclCardinalAbstractContainer.FreeCardinal(var AValue: Cardinal): Cardinal;
 begin
-  Result := AValue;
-  AValue := 0;
+  if Assigned(FOnFreeCardinal) then
+    Result := FOnFreeCardinal(AValue)
+  else
+  begin
+    Result := AValue;
+    AValue := 0;
+  end;
 end;
 
 function TJclCardinalAbstractContainer.GetCompare: TCardinalCompare;
@@ -1958,6 +2165,11 @@ end;
 function TJclCardinalAbstractContainer.GetHashConvert: TCardinalHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclCardinalAbstractContainer.GetOnFreeCardinal: TFreeCardinalEvent;
+begin
+  Result := FOnFreeCardinal;
 end;
 
 function TJclCardinalAbstractContainer.Hash(AValue: Cardinal): Integer;
@@ -2002,6 +2214,12 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclCardinalAbstractContainer.SetOnFreeCardinal(
+  Value: TFreeCardinalEvent);
+begin
+  FOnFreeCardinal := Value;
+end;
+
 //=== { TJclInt64AbstractContainer } =========================================
 
 procedure TJclInt64AbstractContainer.AssignPropertiesTo(Dest: TJclAbstractContainerBase);
@@ -2020,8 +2238,13 @@ end;
 
 function TJclInt64AbstractContainer.FreeInt64(var AValue: Int64): Int64;
 begin
-  Result := AValue;
-  AValue := 0;
+  if Assigned(FOnFreeInt64) then
+    Result := FOnFreeInt64(AValue)
+  else
+  begin
+    Result := AValue;
+    AValue := 0;
+  end;
 end;
 
 function TJclInt64AbstractContainer.GetCompare: TInt64Compare;
@@ -2037,6 +2260,11 @@ end;
 function TJclInt64AbstractContainer.GetHashConvert: TInt64HashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclInt64AbstractContainer.GetOnFreeInt64: TFreeInt64Event;
+begin
+  Result := FOnFreeInt64;
 end;
 
 function TJclInt64AbstractContainer.Hash(const AValue: Int64): Integer;
@@ -2081,6 +2309,11 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclInt64AbstractContainer.SetOnFreeInt64(Value: TFreeInt64Event);
+begin
+  FOnFreeInt64 := Value;
+end;
+
 //=== { TJclPtrAbstractContainer } ===========================================
 
 procedure TJclPtrAbstractContainer.AssignPropertiesTo(Dest: TJclAbstractContainerBase);
@@ -2099,8 +2332,13 @@ end;
 
 function TJclPtrAbstractContainer.FreePointer(var APtr: Pointer): Pointer;
 begin
-  Result := APtr;
-  APtr := nil;
+  if Assigned(FOnFreePointer) then
+    Result := FOnFreePointer(APtr)
+  else
+  begin
+    Result := APtr;
+    APtr := nil;
+  end;
 end;
 
 function TJclPtrAbstractContainer.GetCompare: TPtrCompare;
@@ -2116,6 +2354,11 @@ end;
 function TJclPtrAbstractContainer.GetHashConvert: TPtrHashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclPtrAbstractContainer.GetOnFreePointer: TFreePtrEvent;
+begin
+  Result := FOnFreePointer;
 end;
 
 function TJclPtrAbstractContainer.Hash(APtr: Pointer): Integer;
@@ -2159,6 +2402,11 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclPtrAbstractContainer.SetOnFreePointer(Value: TFreePtrEvent);
+begin
+  FOnFreePointer := Value;
+end;
+
 //=== { TJclAbstractContainer } ==============================================
 
 constructor TJclAbstractContainer.Create(AOwnsObjects: Boolean);
@@ -2183,6 +2431,9 @@ end;
 
 function TJclAbstractContainer.FreeObject(var AObject: TObject): TObject;
 begin
+  if Assigned(FOnFreeObject) then
+    Result := FOnFreeObject(AObject)
+  else
   if FOwnsObjects then
   begin
     Result := nil;
@@ -2208,6 +2459,11 @@ end;
 function TJclAbstractContainer.GetHashConvert: THashConvert;
 begin
   Result := FHashConvert;
+end;
+
+function TJclAbstractContainer.GetOnFreeObject: TFreeObjectEvent;
+begin
+  Result := FOnFreeObject;
 end;
 
 function TJclAbstractContainer.GetOwnsObjects: Boolean;
@@ -2257,7 +2513,14 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclAbstractContainer.SetOnFreeObject(Value: TFreeObjectEvent);
+begin
+  FOnFreeObject := Value;
+end;
+
 {$IFDEF SUPPORTS_GENERICS}
+//DOM-IGNORE-BEGIN
+
 //=== { TJclAbstractContainer<T> } ===========================================
 
 constructor TJclAbstractContainer<T>.Create(AOwnsItems: Boolean);
@@ -2282,6 +2545,9 @@ end;
 
 function TJclAbstractContainer<T>.FreeItem(var AItem: T): T;
 begin
+  if Assigned(FOnFreeItem) then
+    Result := FOnFreeItem(AItem)
+  else
   if FOwnsItems then
   begin
     Result := Default(T);
@@ -2307,6 +2573,11 @@ end;
 function TJclAbstractContainer<T>.GetHashConvert: THashConvert<T>;
 begin
   Result := FHashConvert;
+end;
+
+function TJclAbstractContainer<T>.GetOnFreeItem: TFreeItemEvent<T>;
+begin
+  Result := FOnFreeItem;
 end;
 
 function TJclAbstractContainer<T>.GetOwnsItems: Boolean;
@@ -2356,6 +2627,12 @@ begin
   FHashConvert := Value;
 end;
 
+procedure TJclAbstractContainer<T>.SetOnFreeItem(Value: TFreeItemEvent<T>);
+begin
+  FOnFreeItem := Value;
+end;
+
+//DOM-IGNORE-END
 {$ENDIF SUPPORTS_GENERICS}
 
 //=== { TJclAnsiStrAbstractCollection } ======================================
@@ -2370,10 +2647,10 @@ var
 begin
   PString := PAnsiChar(AString);
   PSep := PAnsiChar(Separator);
-  PPos := StrPos(PString, PSep);
+  PPos := StrPosA(PString, PSep);
   if PPos <> nil then
   begin
-    SepLen := StrLen(PSep);
+    SepLen := StrLenA(PSep);
     repeat
       //SetLength(Item, PPos - PString + 1);
       SetLength(Item, PPos - PString);
@@ -2381,9 +2658,9 @@ begin
       //Item[PPos - PString + 1] := #0;
       Add(Item);
       PString := PPos + SepLen;
-      PPos := StrPos(PString, PSep);
+      PPos := StrPosA(PString, PSep);
     until PPos = nil;
-    if StrLen(PString) > 0 then //ex. hello#world
+    if StrLenA(PString) > 0 then //ex. hello#world
       Add(PString);
   end
   else //There isnt a Separator in AString

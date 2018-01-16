@@ -39,19 +39,19 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-12 22:52:07 +0200 (sam., 12 sept. 2009)                         $ }
-{ Revision:      $Rev:: 3007                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclWin32;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 {$MINENUMSIZE 4}
 {$ALIGN ON}
-{$WARNINGS OFF}
 
 interface
 
@@ -59,11 +59,18 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.SysUtils,
+  {$IFNDEF FPC}
+  Winapi.AccCtrl, Winapi.ActiveX,
+  {$ENDIF ~FPC}
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, SysUtils,
   {$IFNDEF FPC}
   AccCtrl,
-  ActiveX,
   {$ENDIF ~FPC}
+  ActiveX,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase;
 
 {$HPPEMIT '#include <WinDef.h>'}
@@ -90,6 +97,14 @@ uses
 {$HPPEMIT '#include <objbase.h>'}
 {$HPPEMIT '#include <ntsecapi.h>'}
 {$HPPEMIT ''}
+{$IFDEF RTL230_UP}
+{$HPPEMIT '// To avoid ambiguity between IMAGE_LOAD_CONFIG_DIRECTORY32 and  Winapi::Windows::IMAGE_LOAD_CONFIG_DIRECTORY32'}
+{$HPPEMIT '#define IMAGE_LOAD_CONFIG_DIRECTORY32 ::IMAGE_LOAD_CONFIG_DIRECTORY32'}
+{$HPPEMIT ''}
+{$HPPEMIT '// To avoid ambiguity between IMAGE_LOAD_CONFIG_DIRECTORY64 and  Winapi::Windows::IMAGE_LOAD_CONFIG_DIRECTORY64'}
+{$HPPEMIT '#define IMAGE_LOAD_CONFIG_DIRECTORY64 ::IMAGE_LOAD_CONFIG_DIRECTORY64'}
+{$HPPEMIT ''}
+{$ENDIF RTL230_UP}
 
 // EJclWin32Error
 {$IFDEF MSWINDOWS}
@@ -108,15 +123,19 @@ type
   end;
 {$ENDIF MSWINDOWS}
 
+//DOM-IGNORE-BEGIN
+
 {$I win32api\WinDef.int}
 {$I win32api\WinNT.int}
 {$I win32api\WinBase.int}
 {$I win32api\AclApi.int}
 {$I win32api\ImageHlp.int}
+{$I win32api\IoAPI.int}
 {$I win32api\LmErr.int}
 {$I win32api\LmCons.int}
 {$I win32api\LmAccess.int}
 {$I win32api\LmApiBuf.int}
+{$I win32api\Lmwksta.int}
 {$I win32api\Nb30.int}
 {$I win32api\RasDlg.int}
 {$I win32api\Reason.int}
@@ -128,14 +147,16 @@ type
 {$I win32api\WinUser.int}
 {$I win32api\PowrProf.int}
 {$I win32api\DelayImp.int}
-{$I win32api\PropIdl.int}
 {$I win32api\MsiDefs.int}
 {$I win32api\ShlGuid.int}
 {$I win32api\imgguids.int}
 {$I win32api\ObjBase.int}
+{$I win32api\PropIdl.int}
 {$I win32api\NtSecApi.int}
 {$I win32api\TlHelp32.int}
 {$I win32api\Winternl.int}
+
+//DOM-IGNORE-END
 
 {$IFDEF MSWINDOWS}
 
@@ -207,9 +228,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/prototypes/JclWin32.pas $';
-    Revision: '$Revision: 3007 $';
-    Date: '$Date: 2009-09-12 22:52:07 +0200 (sam., 12 sept. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows'
     );
 {$ENDIF UNITVERSIONING}
@@ -274,8 +295,10 @@ end;
 
 {$I win32api\AclApi.imp}
 {$I win32api\ImageHlp.imp}
+{$I win32api\IoAPI.imp}
 {$I win32api\LmAccess.imp}
 {$I win32api\LmApiBuf.imp}
+{$I win32api\Lmwksta.imp}
 {$I win32api\Nb30.imp}
 {$I win32api\WinBase.imp}
 {$I win32api\WinNLS.imp}
@@ -283,6 +306,7 @@ end;
 {$I win32api\WinNT.imp}
 {$I win32api\PowrProf.imp}
 {$I win32api\ObjBase.imp}
+{$I win32api\PropIdl.imp}
 {$I win32api\NtSecApi.imp}
 {$I win32api\TlHelp32.imp}
 {$I win32api\Winternl.imp}
@@ -294,8 +318,6 @@ initialization
 finalization
   UnregisterUnitVersion(HInstance);
 {$ENDIF UNITVERSIONING}
-
-{$WARNINGS ON}
 
 end.
 

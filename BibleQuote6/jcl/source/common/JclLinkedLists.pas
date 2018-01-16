@@ -29,9 +29,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-02 21:09:40 +0200 (lun., 02 août 2010)                       $ }
-{ Revision:      $Rev:: 3273                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -48,12 +48,16 @@ uses
   {$IFDEF SUPPORTS_GENERICS}
   JclAlgorithms,
   {$ENDIF SUPPORTS_GENERICS}
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclAbstractContainers, JclContainerIntf, JclSynch;
+
 
 type
   TItrStart = (isFirst, isLast);
-
 
   TJclIntfLinkedListItem = class
   public
@@ -63,7 +67,8 @@ type
   end;
 
   TJclIntfLinkedList = class(TJclIntfAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclIntfEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclIntfContainer,
+    IJclIntfFlatContainer, IJclIntfEqualityComparer,
     IJclIntfCollection, IJclIntfList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -111,13 +116,13 @@ type
   private
     FCursor: TJclIntfLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclIntfList;
+    FOwnList: TJclIntfLinkedList;
     FEqualityComparer: IJclIntfEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclIntfList; ACursor: TJclIntfLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclIntfLinkedList; ACursor: TJclIntfLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclIntfIterator }
     function Add(const AInterface: IInterface): Boolean;
     procedure Extract;
@@ -147,7 +152,8 @@ type
   end;
 
   TJclAnsiStrLinkedList = class(TJclAnsiStrAbstractCollection, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclStrContainer, IJclAnsiStrContainer, IJclAnsiStrFlatContainer, IJclAnsiStrEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclAnsiStrContainer,
+    IJclAnsiStrFlatContainer, IJclAnsiStrEqualityComparer, IJclStrBaseContainer,
     IJclAnsiStrCollection, IJclAnsiStrList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -195,13 +201,13 @@ type
   private
     FCursor: TJclAnsiStrLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclAnsiStrList;
+    FOwnList: TJclAnsiStrLinkedList;
     FEqualityComparer: IJclAnsiStrEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclAnsiStrList; ACursor: TJclAnsiStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclAnsiStrLinkedList; ACursor: TJclAnsiStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclAnsiStrIterator }
     function Add(const AString: AnsiString): Boolean;
     procedure Extract;
@@ -231,7 +237,8 @@ type
   end;
 
   TJclWideStrLinkedList = class(TJclWideStrAbstractCollection, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclStrContainer, IJclWideStrContainer, IJclWideStrFlatContainer, IJclWideStrEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclWideStrContainer,
+    IJclWideStrFlatContainer, IJclWideStrEqualityComparer, IJclStrBaseContainer,
     IJclWideStrCollection, IJclWideStrList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -279,13 +286,13 @@ type
   private
     FCursor: TJclWideStrLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclWideStrList;
+    FOwnList: TJclWideStrLinkedList;
     FEqualityComparer: IJclWideStrEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclWideStrList; ACursor: TJclWideStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclWideStrLinkedList; ACursor: TJclWideStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclWideStrIterator }
     function Add(const AString: WideString): Boolean;
     procedure Extract;
@@ -318,7 +325,8 @@ type
 
   {$IFDEF SUPPORTS_UNICODE_STRING}
   TJclUnicodeStrLinkedList = class(TJclUnicodeStrAbstractCollection, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclStrContainer, IJclUnicodeStrContainer, IJclUnicodeStrFlatContainer, IJclUnicodeStrEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclUnicodeStrContainer,
+    IJclUnicodeStrFlatContainer, IJclUnicodeStrEqualityComparer, IJclStrBaseContainer,
     IJclUnicodeStrCollection, IJclUnicodeStrList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -368,13 +376,13 @@ type
   private
     FCursor: TJclUnicodeStrLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclUnicodeStrList;
+    FOwnList: TJclUnicodeStrLinkedList;
     FEqualityComparer: IJclUnicodeStrEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclUnicodeStrList; ACursor: TJclUnicodeStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclUnicodeStrLinkedList; ACursor: TJclUnicodeStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclUnicodeStrIterator }
     function Add(const AString: UnicodeString): Boolean;
     procedure Extract;
@@ -435,7 +443,8 @@ type
   end;
 
   TJclSingleLinkedList = class(TJclSingleAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclSingleContainer, IJclSingleEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclSingleContainer,
+    IJclSingleFlatContainer, IJclSingleEqualityComparer,
     IJclSingleCollection, IJclSingleList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -483,13 +492,13 @@ type
   private
     FCursor: TJclSingleLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclSingleList;
+    FOwnList: TJclSingleLinkedList;
     FEqualityComparer: IJclSingleEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclSingleList; ACursor: TJclSingleLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclSingleLinkedList; ACursor: TJclSingleLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclSingleIterator }
     function Add(const AValue: Single): Boolean;
     procedure Extract;
@@ -519,7 +528,8 @@ type
   end;
 
   TJclDoubleLinkedList = class(TJclDoubleAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclDoubleContainer, IJclDoubleEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclDoubleContainer,
+    IJclDoubleFlatContainer, IJclDoubleEqualityComparer,
     IJclDoubleCollection, IJclDoubleList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -567,13 +577,13 @@ type
   private
     FCursor: TJclDoubleLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclDoubleList;
+    FOwnList: TJclDoubleLinkedList;
     FEqualityComparer: IJclDoubleEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclDoubleList; ACursor: TJclDoubleLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclDoubleLinkedList; ACursor: TJclDoubleLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclDoubleIterator }
     function Add(const AValue: Double): Boolean;
     procedure Extract;
@@ -603,7 +613,8 @@ type
   end;
 
   TJclExtendedLinkedList = class(TJclExtendedAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclExtendedContainer, IJclExtendedEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclExtendedContainer,
+    IJclExtendedFlatContainer, IJclExtendedEqualityComparer,
     IJclExtendedCollection, IJclExtendedList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -651,13 +662,13 @@ type
   private
     FCursor: TJclExtendedLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclExtendedList;
+    FOwnList: TJclExtendedLinkedList;
     FEqualityComparer: IJclExtendedEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclExtendedList; ACursor: TJclExtendedLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclExtendedLinkedList; ACursor: TJclExtendedLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclExtendedIterator }
     function Add(const AValue: Extended): Boolean;
     procedure Extract;
@@ -717,7 +728,8 @@ type
   end;
 
   TJclIntegerLinkedList = class(TJclIntegerAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclIntegerEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclIntegerContainer,
+    IJclIntegerFlatContainer, IJclIntegerEqualityComparer,
     IJclIntegerCollection, IJclIntegerList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -765,13 +777,13 @@ type
   private
     FCursor: TJclIntegerLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclIntegerList;
+    FOwnList: TJclIntegerLinkedList;
     FEqualityComparer: IJclIntegerEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclIntegerList; ACursor: TJclIntegerLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclIntegerLinkedList; ACursor: TJclIntegerLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclIntegerIterator }
     function Add(AValue: Integer): Boolean;
     procedure Extract;
@@ -801,7 +813,8 @@ type
   end;
 
   TJclCardinalLinkedList = class(TJclCardinalAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclCardinalEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclCardinalContainer,
+    IJclCardinalFlatContainer, IJclCardinalEqualityComparer,
     IJclCardinalCollection, IJclCardinalList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -849,13 +862,13 @@ type
   private
     FCursor: TJclCardinalLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclCardinalList;
+    FOwnList: TJclCardinalLinkedList;
     FEqualityComparer: IJclCardinalEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclCardinalList; ACursor: TJclCardinalLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclCardinalLinkedList; ACursor: TJclCardinalLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclCardinalIterator }
     function Add(AValue: Cardinal): Boolean;
     procedure Extract;
@@ -885,7 +898,8 @@ type
   end;
 
   TJclInt64LinkedList = class(TJclInt64AbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclInt64EqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclInt64Container,
+    IJclInt64FlatContainer, IJclInt64EqualityComparer,
     IJclInt64Collection, IJclInt64List)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -933,13 +947,13 @@ type
   private
     FCursor: TJclInt64LinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclInt64List;
+    FOwnList: TJclInt64LinkedList;
     FEqualityComparer: IJclInt64EqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclInt64List; ACursor: TJclInt64LinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclInt64LinkedList; ACursor: TJclInt64LinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclInt64Iterator }
     function Add(const AValue: Int64): Boolean;
     procedure Extract;
@@ -969,7 +983,8 @@ type
   end;
 
   TJclPtrLinkedList = class(TJclPtrAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclPtrEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclPtrContainer,
+    IJclPtrFlatContainer, IJclPtrEqualityComparer,
     IJclPtrCollection, IJclPtrList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1017,13 +1032,13 @@ type
   private
     FCursor: TJclPtrLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclPtrList;
+    FOwnList: TJclPtrLinkedList;
     FEqualityComparer: IJclPtrEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclPtrList; ACursor: TJclPtrLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclPtrLinkedList; ACursor: TJclPtrLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclPtrIterator }
     function Add(APtr: Pointer): Boolean;
     procedure Extract;
@@ -1053,7 +1068,8 @@ type
   end;
 
   TJclLinkedList = class(TJclAbstractContainer, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclObjectOwner, IJclEqualityComparer,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclContainer,
+    IJclFlatContainer, IJclEqualityComparer, IJclObjectOwner,
     IJclCollection, IJclList)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1101,13 +1117,13 @@ type
   private
     FCursor: TJclLinkedListItem;
     FStart: TItrStart;
-    FOwnList: IJclList;
+    FOwnList: TJclLinkedList;
     FEqualityComparer: IJclEqualityComparer;
   public
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclList; ACursor: TJclLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: TJclLinkedList; ACursor: TJclLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclIterator }
     function Add(AObject: TObject): Boolean;
     procedure Extract;
@@ -1129,7 +1145,10 @@ type
     {$ENDIF SUPPORTS_FOR_IN}
   end;
 
+
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
+
   TJclLinkedListItem<T> = class
   public
     Value: T;
@@ -1140,7 +1159,8 @@ type
   TJclLinkedListIterator<T> = class;
 
   TJclLinkedList<T> = class(TJclAbstractContainer<T>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclItemOwner<T>, IJclEqualityComparer<T>,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclContainer<T>,
+    IJclFlatContainer<T>, IJclEqualityComparer<T>,IJclItemOwner<T>,
     IJclCollection<T>, IJclList<T>)
   protected
     type
@@ -1196,7 +1216,7 @@ type
     procedure AssignPropertiesTo(Dest: TJclAbstractIterator); override;
     function CreateEmptyIterator: TJclAbstractIterator; override;
   public
-    constructor Create(const AOwnList: IJclList<T>; ACursor: TJclLinkedList<T>.TLinkedListItem; AValid: Boolean; AStart: TItrStart);
+    constructor Create(AOwnList: IJclList<T>; ACursor: TJclLinkedList<T>.TLinkedListItem; AValid: Boolean; AStart: TItrStart);
     { IJclIterator<T> }
     function Add(const AItem: T): Boolean;
     procedure Extract;
@@ -1221,7 +1241,7 @@ type
   // E = External helper to compare items
   // GetHashCode is never called
   TJclLinkedListE<T> = class(TJclLinkedList<T>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclCollection<T>, IJclList<T>, IJclEqualityComparer<T>,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclContainer<T>, IJclCollection<T>, IJclList<T>, IJclEqualityComparer<T>,
     IJclItemOwner<T>)
   private
     FEqualityComparer: IJclEqualityComparer<T>;
@@ -1238,7 +1258,7 @@ type
 
   // F = Function to compare items for equality
   TJclLinkedListF<T> = class(TJclLinkedList<T>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclCollection<T>, IJclList<T>, IJclEqualityComparer<T>,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclContainer<T>, IJclCollection<T>, IJclList<T>, IJclEqualityComparer<T>,
     IJclItemOwner<T>)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1249,7 +1269,7 @@ type
 
   // I = Items can compare themselves to an other
   TJclLinkedListI<T: IEquatable<T>> = class(TJclLinkedList<T>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclContainer, IJclCollection<T>, IJclList<T>, IJclEqualityComparer<T>,
+    IJclIntfCloneable, IJclCloneable, IJclBaseContainer, IJclContainer<T>, IJclCollection<T>, IJclList<T>, IJclEqualityComparer<T>,
     IJclItemOwner<T>)
   protected
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
@@ -1257,14 +1277,30 @@ type
     { IJclEqualityComparer<T> }
     function ItemsEqual(const A, B: T): Boolean; override;
   end;
+
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
+
+{$IFDEF BCB}
+{$IFDEF WIN64}
+  {$HPPEMIT '#ifdef MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT ' #undef MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT ' #define JclLinkedLists_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT '#endif'}
+
+  {$HPPEMIT END '#ifdef JclLinkedLists_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END ' #define MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END ' #undef JclLinkedLists_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END '#endif'}
+{$ENDIF WIN64}
+{$ENDIF BCB}
 
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclLinkedLists.pas $';
-    Revision: '$Revision: 3273 $';
-    Date: '$Date: 2010-08-02 21:09:40 +0200 (lun., 02 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -1274,8 +1310,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils;
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils;
-
+  {$ENDIF ~HAS_UNITSCOPE}
 
 //=== { TJclIntfLinkedList } ==================================================
 
@@ -2211,7 +2250,7 @@ end;
 
 //=== { TJclIntfLinkedListIterator } ============================================================
 
-constructor TJclIntfLinkedListIterator.Create(const AOwnList: IJclIntfList; ACursor: TJclIntfLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclIntfLinkedListIterator.Create(AOwnList: TJclIntfLinkedList; ACursor: TJclIntfLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -3466,7 +3505,7 @@ end;
 
 //=== { TJclAnsiStrLinkedListIterator } ============================================================
 
-constructor TJclAnsiStrLinkedListIterator.Create(const AOwnList: IJclAnsiStrList; ACursor: TJclAnsiStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclAnsiStrLinkedListIterator.Create(AOwnList: TJclAnsiStrLinkedList; ACursor: TJclAnsiStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -4721,7 +4760,7 @@ end;
 
 //=== { TJclWideStrLinkedListIterator } ============================================================
 
-constructor TJclWideStrLinkedListIterator.Create(const AOwnList: IJclWideStrList; ACursor: TJclWideStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclWideStrLinkedListIterator.Create(AOwnList: TJclWideStrLinkedList; ACursor: TJclWideStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -5980,7 +6019,7 @@ end;
 {$IFDEF SUPPORTS_UNICODE_STRING}
 //=== { TJclUnicodeStrLinkedListIterator } ============================================================
 
-constructor TJclUnicodeStrLinkedListIterator.Create(const AOwnList: IJclUnicodeStrList; ACursor: TJclUnicodeStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclUnicodeStrLinkedListIterator.Create(AOwnList: TJclUnicodeStrLinkedList; ACursor: TJclUnicodeStrLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -7236,7 +7275,7 @@ end;
 
 //=== { TJclSingleLinkedListIterator } ============================================================
 
-constructor TJclSingleLinkedListIterator.Create(const AOwnList: IJclSingleList; ACursor: TJclSingleLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclSingleLinkedListIterator.Create(AOwnList: TJclSingleLinkedList; ACursor: TJclSingleLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -8491,7 +8530,7 @@ end;
 
 //=== { TJclDoubleLinkedListIterator } ============================================================
 
-constructor TJclDoubleLinkedListIterator.Create(const AOwnList: IJclDoubleList; ACursor: TJclDoubleLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclDoubleLinkedListIterator.Create(AOwnList: TJclDoubleLinkedList; ACursor: TJclDoubleLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -9746,7 +9785,7 @@ end;
 
 //=== { TJclExtendedLinkedListIterator } ============================================================
 
-constructor TJclExtendedLinkedListIterator.Create(const AOwnList: IJclExtendedList; ACursor: TJclExtendedLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclExtendedLinkedListIterator.Create(AOwnList: TJclExtendedLinkedList; ACursor: TJclExtendedLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -11001,7 +11040,7 @@ end;
 
 //=== { TJclIntegerLinkedListIterator } ============================================================
 
-constructor TJclIntegerLinkedListIterator.Create(const AOwnList: IJclIntegerList; ACursor: TJclIntegerLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclIntegerLinkedListIterator.Create(AOwnList: TJclIntegerLinkedList; ACursor: TJclIntegerLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -12256,7 +12295,7 @@ end;
 
 //=== { TJclCardinalLinkedListIterator } ============================================================
 
-constructor TJclCardinalLinkedListIterator.Create(const AOwnList: IJclCardinalList; ACursor: TJclCardinalLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclCardinalLinkedListIterator.Create(AOwnList: TJclCardinalLinkedList; ACursor: TJclCardinalLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -13511,7 +13550,7 @@ end;
 
 //=== { TJclInt64LinkedListIterator } ============================================================
 
-constructor TJclInt64LinkedListIterator.Create(const AOwnList: IJclInt64List; ACursor: TJclInt64LinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclInt64LinkedListIterator.Create(AOwnList: TJclInt64LinkedList; ACursor: TJclInt64LinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -14766,7 +14805,7 @@ end;
 
 //=== { TJclPtrLinkedListIterator } ============================================================
 
-constructor TJclPtrLinkedListIterator.Create(const AOwnList: IJclPtrList; ACursor: TJclPtrLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclPtrLinkedListIterator.Create(AOwnList: TJclPtrLinkedList; ACursor: TJclPtrLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -16021,7 +16060,7 @@ end;
 
 //=== { TJclLinkedListIterator } ============================================================
 
-constructor TJclLinkedListIterator.Create(const AOwnList: IJclList; ACursor: TJclLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclLinkedListIterator.Create(AOwnList: TJclLinkedList; ACursor: TJclLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -16342,7 +16381,9 @@ begin
   {$ENDIF THREADSAFE}
 end;
 
+
 {$IFDEF SUPPORTS_GENERICS}
+//DOM-IGNORE-BEGIN
 
 //=== { TJclLinkedList<T> } ==================================================
 
@@ -17272,7 +17313,7 @@ end;
 
 //=== { TJclLinkedListIterator<T> } ============================================================
 
-constructor TJclLinkedListIterator<T>.Create(const AOwnList: IJclList<T>; ACursor: TJclLinkedList<T>.TLinkedListItem; AValid: Boolean; AStart: TItrStart);
+constructor TJclLinkedListIterator<T>.Create(AOwnList: IJclList<T>; ACursor: TJclLinkedList<T>.TLinkedListItem; AValid: Boolean; AStart: TItrStart);
 begin
   inherited Create(AValid);
   FCursor := ACursor;
@@ -17657,6 +17698,7 @@ begin
     Result := A.Equals(B);
 end;
 
+//DOM-IGNORE-END
 {$ENDIF SUPPORTS_GENERICS}
 
 {$IFDEF UNITVERSIONING}

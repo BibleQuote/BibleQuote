@@ -25,15 +25,16 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-11 01:09:34 +0200 (mer., 11 août 2010)                         $ }
-{ Revision:      $Rev:: 3301                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclAlgorithms;
 
 {$I jcl.inc}
+
 {$I containers\JclAlgorithms.int}
 {$I containers\JclAlgorithms.imp}
 interface
@@ -46,8 +47,8 @@ uses
 
 // Compare functions
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-{$JPPEXPANDMACRO SIMPLECOMPAREINT(,,)}*)
-
+{$JPPEXPANDMACRO SIMPLECOMPAREINT(,,)}
+*)
 {$JPPEXPANDMACRO SIMPLECOMPAREINT(IntegerCompare,,TObject)}
 
 function AnsiStrSimpleCompareI(const Obj1, Obj2: AnsiString): Integer;
@@ -55,21 +56,23 @@ function WideStrSimpleCompareI(const Obj1, Obj2: WideString): Integer;
 {$IFDEF SUPPORTS_UNICODE_STRING}
 function UnicodeStrSimpleCompareI(const Obj1, Obj2: UnicodeString): Integer;
 {$ENDIF SUPPORTS_UNICODE_STRING}
+function StrSimpleCompareI(const Obj1, Obj2: string): Integer;
 
 // Compare functions for equality
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-{$JPPEXPANDMACRO SIMPLEEQUALITYCOMPAREINT(,,)}*)
-
+{$JPPEXPANDMACRO SIMPLEEQUALITYCOMPAREINT(,,)}
+*)
 function AnsiStrSimpleEqualityCompareI(const Obj1, Obj2: AnsiString): Boolean;
 function WideStrSimpleEqualityCompareI(const Obj1, Obj2: WideString): Boolean;
 {$IFDEF SUPPORTS_UNICODE_STRING}
 function UnicodeStrSimpleEqualityCompareI(const Obj1, Obj2: UnicodeString): Boolean;
 {$ENDIF SUPPORTS_UNICODE_STRING}
+function StrSimpleEqualityCompareI(const Obj1, Obj2: string): Boolean;
 
 // Hash conversion functions
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-{$JPPEXPANDMACRO SIMPLEHASHCONVERTINT(,,,)}*)
-
+{$JPPEXPANDMACRO SIMPLEHASHCONVERTINT(,,,)}
+*)
 function AnsiStrSimpleHashConvertI(const AString: AnsiString): Integer;
 function AnsiStrSimpleHashConvertU(const AString: AnsiString): Integer;
 function AnsiStrSimpleHashConvertUI(const AString: AnsiString): Integer;
@@ -77,11 +80,19 @@ function WideStrSimpleHashConvertI(const AString: WideString): Integer;
 {$IFDEF SUPPORTS_UNICODE_STRING}
 function UnicodeStrSimpleHashConvertI(const AString: UnicodeString): Integer;
 {$ENDIF SUPPORTS_UNICODE_STRING}
+function StrSimpleHashConvertI(const AString: string): Integer;
+
+type
+  // Hash Function
+  // Result must be in 0..Range-1
+  TJclHashToRangeFunction = function(Key, Range: Integer): Integer;
+
+function JclSimpleHashToRange(Key, Range: Integer): Integer;
 
 // move array algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO MOVEARRAYINT(MoveArray,, overload;)}*)
-
+{$JPPEXPANDMACRO MOVEARRAYINT(,, overload;)}
+*)
 {$JPPEXPANDMACRO MOVEARRAYINT(MoveArray,TDynSizeIntArray, overload;)}
 {$IFNDEF FPC}
 {$JPPEXPANDMACRO MOVEARRAYINT(MoveArray,TDynStringArray, overload;)}
@@ -90,40 +101,49 @@ function UnicodeStrSimpleHashConvertI(const AString: UnicodeString): Integer;
 
 // Iterate algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO ITERATEINT(Iterate,,, overload;)}*)
+{$JPPEXPANDMACRO ITERATEINT(,,, overload;)}
+*)
 
 // Apply algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO APPLYINT(Apply,,, overload;)}*)
+{$JPPEXPANDMACRO APPLYINT(,,, overload;)}
+*)
 
 // Find algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO FINDINT(Find,,,,,, overload;)}
-{$JPPEXPANDMACRO FINDEQINT(Find,,,,,, overload;)}*)
+{$JPPEXPANDMACRO FINDINT(,,,,,, overload;)}
+{$JPPEXPANDMACRO FINDEQINT(,,,,,, overload;)}
+*)
 
 // CountObject algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO COUNTOBJECTINT(CountObject,,,,,, overload;)}
-{$JPPEXPANDMACRO COUNTOBJECTEQINT(CountObject,,,,,, overload;)}*)
+{$JPPEXPANDMACRO COUNTOBJECTINT(,,,,,, overload;)}
+{$JPPEXPANDMACRO COUNTOBJECTEQINT(,,,,,, overload;)}
+*)
 
 // Copy algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO COPYINT(Copy,, overload;)}*)
+{$JPPEXPANDMACRO COPYINT(,, overload;)}
+*)
 
 // Generate algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO GENERATEINT(Generate,,,,, overload;)}*)
+{$JPPEXPANDMACRO GENERATEINT(,,,,, overload;)}
+*)
 
 // Fill algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO FILLINT(Fill,,,,, overload;)}*)
+{$JPPEXPANDMACRO FILLINT(,,,,, overload;)}
+*)
 
 // Reverse algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO REVERSEINT(Reverse,, overload;)}*)
+{$JPPEXPANDMACRO REVERSEINT(,, overload;)}
+*)
 
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO SORTINT(QuickSort,,,,, overload;)}*)
+{$JPPEXPANDMACRO QUICKSORTINT(,,,,, overload;)}
+*)
 
 var
   IntfSortProc: TIntfSortProc = QuickSort;
@@ -143,9 +163,12 @@ var
 
 // Sort algorithms
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO SORTINT(Sort,,First,Last,, overload;)}*)
+{$JPPEXPANDMACRO SORTINT(,,First,Last,, overload;)}
+*)
 
 {$IFDEF SUPPORTS_GENERICS}
+//DOM-IGNORE-BEGIN
+
 type
   // cannot implement generic global functions
   TJclAlgorithms<T> = class
@@ -154,10 +177,10 @@ type
   public
     class {$JPPEXPANDMACRO ITERATEINT(Iterate,IJclIterator<T>,TIterateProcedure<T>,)}
     class {$JPPEXPANDMACRO APPLYINT(Apply,IJclIterator<T>,TApplyFunction<T>,)}
-    class {$JPPEXPANDMACRO FINDINT(Find,IJclIterator<T>,const ,AItem,T,TCompare<T>, overload;)}
-    class {$JPPEXPANDMACRO FINDEQINT(Find,IJclIterator<T>,const ,AItem,T,TEqualityCompare<T>, overload;)}
-    class {$JPPEXPANDMACRO COUNTOBJECTINT(CountObject,IJclIterator<T>,const ,AItem,T,TCompare<T>, overload;)}
-    class {$JPPEXPANDMACRO COUNTOBJECTEQINT(CountObject,IJclIterator<T>,const ,AItem,T,TEqualityCompare<T>, overload;)}
+    class {$JPPEXPANDMACRO FINDINT(Find,IJclIterator<T>,const ,AItem,TCompare<T>,T, overload;)}
+    class {$JPPEXPANDMACRO FINDEQINT(Find,IJclIterator<T>,const ,AItem,TEqualityCompare<T>,T, overload;)}
+    class {$JPPEXPANDMACRO COUNTOBJECTINT(CountObject,IJclIterator<T>,const ,AItem,TCompare<T>,T, overload;)}
+    class {$JPPEXPANDMACRO COUNTOBJECTEQINT(CountObject,IJclIterator<T>,const ,AItem,TEqualityCompare<T>,T, overload;)}
     class {$JPPEXPANDMACRO COPYINT(Copy,IJclIterator<T>,)}
     class {$JPPEXPANDMACRO GENERATEINT(Generate,IJclList<T>,const ,AItem,T,)}
     class {$JPPEXPANDMACRO FILLINT(Fill,IJclIterator<T>,const ,AItem,T,)}
@@ -166,6 +189,8 @@ type
     class {$JPPEXPANDMACRO SORTINT(Sort,IJclList<T>,First,Last,TCompare<T>,)}
     //class property SortProc: TSortProc<T> read FSortProc write FSortProc;
   end;
+
+//DOM-IGNORE-END
 {$ENDIF SUPPORTS_GENERICS}
 
 const
@@ -191,9 +216,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/prototypes/JclAlgorithms.pas $';
-    Revision: '$Revision: 3301 $';
-    Date: '$Date: 2010-08-11 01:09:34 +0200 (mer., 11 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -203,18 +228,37 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF COMPILER11_UP}
+  Winapi.Windows,
+  {$ENDIF COMPILER11_UP}
+  {$IFDEF HAS_UNIT_ANSISTRINGS}
+  System.AnsiStrings,
+  {$ENDIF HAS_UNIT_ANSISTRINGS}
+  {$IFDEF UNICODE_RTL_DATABASE}
+  System.Character,
+  {$ENDIF UNICODE_RTL_DATABASE}
+  System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
+  {$IFDEF COMPILER11_UP}
+  Windows,
+  {$ENDIF COMPILER11_UP}
   {$IFDEF HAS_UNIT_ANSISTRINGS}
   AnsiStrings,
   {$ENDIF HAS_UNIT_ANSISTRINGS}
-  JclAnsiStrings, JclStringConversions, JclUnicode,
-  SysUtils;
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Character,
+  {$ENDIF UNICODE_RTL_DATABASE}
+  SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclAnsiStrings, JclStringConversions, JclUnicode;
 
 function IntfSimpleCompare(const Obj1, Obj2: IInterface): Integer;
 begin
-  if Integer(Obj1) < Integer(Obj2) then
+  if SizeInt(Obj1) < SizeInt(Obj2) then
     Result := -1
   else
-  if Integer(Obj1) > Integer(Obj2) then
+  if SizeInt(Obj1) > SizeInt(Obj2) then
     Result := 1
   else
     Result := 0;
@@ -241,7 +285,7 @@ end;
 // case-insensitive
 function WideStrSimpleCompareI(const Obj1, Obj2: WideString): Integer;
 begin
-  Result := WideCompareText(Obj1, Obj2);
+  Result := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.WideCompareText(Obj1, Obj2);
 end;
 
 {$IFDEF SUPPORTS_UNICODE_STRING}
@@ -268,6 +312,22 @@ begin
       Result := CompareStr(Obj1, Obj2);
       {$ELSE ~SUPPORTS_UNICODE}
       Result := WideCompareStr(Obj1, Obj2);
+      {$ENDIF ~SUPPORTS_UNICODE}
+  else
+    raise EJclOperationNotSupportedError.Create;
+  end;
+end;
+
+function StrSimpleCompareI(const Obj1, Obj2: string): Integer;
+begin
+  case SizeOf(Obj1[1]) of
+    SizeOf(AnsiChar):
+      Result := CompareText(Obj1, Obj2);
+    SizeOf(WideChar):
+      {$IFDEF SUPPORTS_UNICODE}
+      Result := CompareText(Obj1, Obj2);
+      {$ELSE ~SUPPORTS_UNICODE}
+      {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.WideCompareText(Obj1, Obj2);
       {$ENDIF ~SUPPORTS_UNICODE}
   else
     raise EJclOperationNotSupportedError.Create;
@@ -353,10 +413,10 @@ end;
 
 function PtrSimpleCompare(Obj1, Obj2: Pointer): Integer;
 begin
-  if Integer(Obj1) < Integer(Obj2) then
+  if SizeInt(Obj1) < SizeInt(Obj2) then
     Result := -1
   else
-  if Integer(Obj1) > Integer(Obj2) then
+  if SizeInt(Obj1) > SizeInt(Obj2) then
     Result := 1
   else
     Result := 0;
@@ -364,10 +424,10 @@ end;
 
 function SimpleCompare(Obj1, Obj2: TObject): Integer;
 begin
-  if Integer(Obj1) < Integer(Obj2) then
+  if SizeInt(Obj1) < SizeInt(Obj2) then
     Result := -1
   else
-  if Integer(Obj1) > Integer(Obj2) then
+  if SizeInt(Obj1) > SizeInt(Obj2) then
     Result := 1
   else
     Result := 0;
@@ -375,10 +435,10 @@ end;
 
 function IntegerCompare(Obj1, Obj2: TObject): Integer;
 begin
-  if Integer(Obj1) < Integer(Obj2) then
+  if SizeInt(Obj1) < SizeInt(Obj2) then
     Result := -1
   else
-  if Integer(Obj1) > Integer(Obj2) then
+  if SizeInt(Obj1) > SizeInt(Obj2) then
     Result := 1
   else
     Result := 0;
@@ -386,7 +446,7 @@ end;
 
 function IntfSimpleEqualityCompare(const Obj1, Obj2: IInterface): Boolean;
 begin
-  Result := Integer(Obj1) = Integer(Obj2);
+  Result := SizeInt(Obj1) = SizeInt(Obj2);
 end;
 
 // default is case-sensitive
@@ -410,7 +470,7 @@ end;
 // case-insensitive
 function WideStrSimpleEqualityCompareI(const Obj1, Obj2: WideString): Boolean;
 begin
-  Result := WideCompareText(Obj1, Obj2) = 0;
+  Result := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.WideCompareText(Obj1, Obj2) = 0;
 end;
 
 {$IFDEF SUPPORTS_UNICODE_STRING}
@@ -434,6 +494,18 @@ begin
       Result := CompareStr(Obj1, Obj2) = 0;
     SizeOf(WideChar):
       Result := WideCompareStr(Obj1, Obj2) = 0;
+  else
+    raise EJclOperationNotSupportedError.Create;
+  end;
+end;
+
+function StrSimpleEqualityCompareI(const Obj1, Obj2: string): Boolean;
+begin
+  case SizeOf(Obj1[1]) of
+    SizeOf(AnsiChar):
+      Result := CompareText(Obj1, Obj2) = 0;
+    SizeOf(WideChar):
+      Result := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.WideCompareText(Obj1, Obj2) = 0;
   else
     raise EJclOperationNotSupportedError.Create;
   end;
@@ -476,17 +548,21 @@ end;
 
 function PtrSimpleEqualityCompare(Obj1, Obj2: Pointer): Boolean;
 begin
-  Result := Integer(Obj1) = Integer(Obj2);
+  Result := SizeInt(Obj1) = SizeInt(Obj2);
 end;
 
 function SimpleEqualityCompare(Obj1, Obj2: TObject): Boolean;
 begin
-  Result := Integer(Obj1) = Integer(Obj2);
+  Result := SizeInt(Obj1) = SizeInt(Obj2);
 end;
 
 function IntfSimpleHashConvert(const AInterface: IInterface): Integer;
 begin
-  Result := Integer(AInterface) and MaxInt;
+  {$IFDEF CPU32}
+  Result := SizeInt(AInterface) and MaxInt;
+  {$ELSE ~CPU32}
+  Result := (SizeInt(AInterface) xor (SizeInt(AInterface) shr 32)) and MaxInt;
+  {$ENDIF ~CPU32}
 end;
 
 // from "Fast Hashing of Variable-Length Text Strings", Peter K. Pearson, 1990
@@ -546,7 +622,7 @@ end;
 // case-sensitive and UTF8-encoded
 function AnsiStrSimpleHashConvertU(const AString: AnsiString): Integer;
 var
-  I: Integer;
+  I: SizeInt;
   C, IntegerHash: TIntegerHash;
 begin
   IntegerHash.H1 := 0;
@@ -570,7 +646,8 @@ end;
 // case-insensitive and UTF8-encoded
 function AnsiStrSimpleHashConvertUI(const AString: AnsiString): Integer;
 var
-  I, J: Integer;
+  I: SizeInt;
+  J: Integer;
   C, IntegerHash: TIntegerHash;
   CA: TUCS4Array;
 begin
@@ -579,11 +656,19 @@ begin
   IntegerHash.H3 := 2;
   IntegerHash.H4 := 3;
   I := 1;
+  {$IFDEF UNICODE_RTL_DATABASE}
+  SetLength(CA, 1);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   SetLength(CA, 0);
+  {$ENDIF ~UNICODE_RTL_DATABASE}
   while I < Length(AString) do
   begin
     C.C := UTF8GetNextChar(AString, I);
+    {$IFDEF UNICODE_RTL_DATABASE}
+    CA[0] := Ord(TCharacter.ToLower(Chr(C.C)));
+    {$ELSE ~UNICODE_RTL_DATABASE}
     CA := UnicodeCaseFold(C.C);
+    {$ENDIF ~UNICODE_RTL_DATABASE}
     for J := Low(CA) to High(CA) do
     begin
       C.C := CA[J];
@@ -601,7 +686,7 @@ end;
 // default is case-sensitive
 function WideStrSimpleHashConvert(const AString: WideString): Integer;
 var
-  I: Integer;
+  I: SizeInt;
   C, IntegerHash: TIntegerHash;
 begin
   IntegerHash.H1 := 0;
@@ -625,7 +710,8 @@ end;
 // case-insensitive
 function WideStrSimpleHashConvertI(const AString: WideString): Integer;
 var
-  I, J: Integer;
+  I: SizeInt;
+  J: Integer;
   C, IntegerHash: TIntegerHash;
   CA: TUCS4Array;
 begin
@@ -633,12 +719,20 @@ begin
   IntegerHash.H2 := 1;
   IntegerHash.H3 := 2;
   IntegerHash.H4 := 3;
+  {$IFDEF UNICODE_RTL_DATABASE}
+  SetLength(CA, 1);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   SetLength(CA, 0);
+  {$ENDIF ~UNICODE_RTL_DATABASE}
   I := 1;
   while I < Length(AString) do
   begin
     C.C := UTF16GetNextChar(AString, I);
+    {$IFDEF UNICODE_RTL_DATABASE}
+    CA[0] := Ord(TCharacter.ToLower(Chr(C.C)));
+    {$ELSE ~UNICODE_RTL_DATABASE}
     CA := UnicodeCaseFold(C.C);
+    {$ENDIF ~UNICODE_RTL_DATABASE}
     for J := Low(CA) to High(CA) do
     begin
       C.C := CA[J];
@@ -657,7 +751,7 @@ end;
 // default is case-sensitive
 function UnicodeStrSimpleHashConvert(const AString: UnicodeString): Integer;
 var
-  I: Integer;
+  I: SizeInt;
   C, IntegerHash: TIntegerHash;
 begin
   IntegerHash.H1 := 0;
@@ -681,7 +775,8 @@ end;
 // case-insensitive
 function UnicodeStrSimpleHashConvertI(const AString: UnicodeString): Integer;
 var
-  I, J: Integer;
+  I: SizeInt;
+  J: Integer;
   C, IntegerHash: TIntegerHash;
   CA: TUCS4Array;
 begin
@@ -689,12 +784,20 @@ begin
   IntegerHash.H2 := 1;
   IntegerHash.H3 := 2;
   IntegerHash.H4 := 3;
+  {$IFDEF UNICODE_RTL_DATABASE}
+  SetLength(CA, 1);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   SetLength(CA, 0);
+  {$ENDIF ~UNICODE_RTL_DATABASE}
   I := 1;
   while I < Length(AString) do
   begin
     C.C := UTF16GetNextChar(AString, I);
+    {$IFDEF UNICODE_RTL_DATABASE}
+    CA[0] := Ord(TCharacter.ToLower(Chr(C.C)));
+    {$ELSE ~UNICODE_RTL_DATABASE}
     CA := UnicodeCaseFold(C.C);
+    {$ENDIF ~UNICODE_RTL_DATABASE}
     for J := Low(CA) to High(CA) do
     begin
       C.C := CA[J];
@@ -720,6 +823,19 @@ begin
   {$ENDIF ~SUPPORTS_UNICODE_STRING}
   {$ELSE ~SUPPORTS_UNICODE}
   Result := AnsiStrSimpleHashConvert(AString);
+  {$ENDIF ~SUPPORTS_UNICODE}
+end;
+
+function StrSimpleHashConvertI(const AString: string): Integer;
+begin
+  {$IFDEF SUPPORTS_UNICODE}
+  {$IFDEF SUPPORTS_UNICODE_STRING}
+  Result := UnicodeStrSimpleHashConvertI(AString);
+  {$ELSE ~SUPPORTS_UNICODE_STRING}
+  Result := WideStrSimpleHashConvertI(AString);
+  {$ENDIF ~SUPPORTS_UNICODE_STRING}
+  {$ELSE ~SUPPORTS_UNICODE}
+  Result := AnsiStrSimpleHashConvertI(AString);
   {$ENDIF ~SUPPORTS_UNICODE}
 end;
 
@@ -763,62 +879,79 @@ end;
 
 function Int64SimpleHashConvert(const AValue: Int64): Integer;
 begin
-  Result := AValue and MaxInt;
+  Result := (AValue xor (AValue shr 32)) and MaxInt;
 end;
 
 function PtrSimpleHashConvert(APtr: Pointer): Integer;
 begin
-  Result := Integer(APtr) and MaxInt;
+  Result := SizeInt(APtr) and MaxInt;
 end;
 
 function SimpleHashConvert(AObject: TObject): Integer;
 begin
-  Result := Integer(AObject) and MaxInt;
+  Result := SizeInt(AObject) and MaxInt;
+end;
+
+function JclSimpleHashToRange(Key, Range: Integer): Integer;
+// return a value between 0 and (Range-1) based on integer-hash Key
+const
+  A = 0.6180339887; // (sqrt(5) - 1) / 2
+begin
+  Result := Trunc(Range * (Frac(Abs(Key * A))));
 end;
 
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO MOVEARRAYIMP(,)}
+{$JPPEXPANDMACRO MOVEARRAYIMP(,,,, overload;)}
+
 *)
-{$JPPUNDEF REFCOUNTED}{$JPPDEFINE ZEROINIT}{$JPPEXPANDMACRO MOVEARRAYIMP(MoveArray,TDynSizeIntArray)}
+{$JPPUNDEF GENERIC}{$JPPUNDEF REFCOUNTED}{$JPPDEFINE ZEROINIT}{$JPPEXPANDMACRO MOVEARRAYIMP(MoveArray,TDynSizeIntArray,,, overload;)}
 
 {$IFNDEF FPC}
-{$JPPDEFINE REFCOUNTED}{$JPPUNDEF ZEROINIT}{$JPPEXPANDMACRO MOVEARRAYIMP(MoveArray,TDynStringArray)}
+{$JPPUNDEF GENERIC}{$JPPDEFINE REFCOUNTED}{$JPPUNDEF ZEROINIT}{$JPPEXPANDMACRO MOVEARRAYIMP(MoveArray,TDynStringArray,,, overload;)}
 
-{$JPPUNDEF REFCOUNTED}{$JPPDEFINE ZEROINIT}{$JPPEXPANDMACRO MOVEARRAYIMP(MoveArray,TDynFloatArray)}
+{$JPPUNDEF GENERIC}{$JPPUNDEF REFCOUNTED}{$JPPDEFINE ZEROINIT}{$JPPEXPANDMACRO MOVEARRAYIMP(MoveArray,TDynFloatArray,,, overload;)}
 {$ENDIF ~FPC}
 
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO ITERATEIMP(Iterate,,)}
-*)
-(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO APPLYIMP(Apply,,,)}
-*)
-(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO FINDIMP(Find,,,,,)}
+{$JPPEXPANDMACRO ITERATEIMP(,,)}
 
-{$JPPEXPANDMACRO FINDEQIMP(Find,,,,,)}
 *)
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO COUNTOBJECTIMP(CountObject,,,,,)}
+{$JPPEXPANDMACRO APPLYIMP(,,,)}
 
-{$JPPEXPANDMACRO COUNTOBJECTEQIMP(CountObject,,,,,)}
 *)
 (*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO COPYIMP(Copy,,)}
-*)
-(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO GENERATEIMP(Generate,,,,)}
-*)
-(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO FILLIMP(Fill,,,,,)}
-*)
-(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO REVERSEIMP(Reverse,,,,)}
-*)
-(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
-{$JPPEXPANDMACRO QUICKSORTIMP(QuickSort,,,,,,,)}
-*)
+{$JPPEXPANDMACRO FINDIMP(,,,,,)}
 
+{$JPPEXPANDMACRO FINDEQIMP(,,,,,)}
+
+*)
+(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
+{$JPPEXPANDMACRO COUNTOBJECTIMP(,,,,,)}
+
+{$JPPEXPANDMACRO COUNTOBJECTEQIMP(,,,,,)}
+
+*)
+(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
+{$JPPEXPANDMACRO COPYIMP(,,)}
+
+*)
+(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
+{$JPPEXPANDMACRO GENERATEIMP(,,,,)}
+
+*)
+(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
+{$JPPEXPANDMACRO FILLIMP(,,,,,)}
+
+*)
+(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
+{$JPPEXPANDMACRO REVERSEIMP(,,,,)}
+
+*)
+(*$JPPLOOP TRUETYPEINDEX TRUETYPECOUNT
+{$JPPEXPANDMACRO QUICKSORTIMP(,,,,,,,)}
+
+*)
 procedure Sort(const AList: IJclIntfList; First, Last: Integer; AComparator: TIntfCompare);
 begin
   IntfSortProc(AList, First, Last, AComparator);
@@ -882,17 +1015,19 @@ begin
 end;
 
 {$IFDEF SUPPORTS_GENERICS}
+//DOM-IGNORE-BEGIN
+
 class {$JPPEXPANDMACRO ITERATEIMP(TJclAlgorithms<T>.Iterate,IJclIterator<T>,TIterateProcedure<T>)}
 
 class {$JPPEXPANDMACRO APPLYIMP(TJclAlgorithms<T>.Apply,IJclIterator<T>,TApplyFunction<T>,SetItem)}
 
-class {$JPPEXPANDMACRO FINDIMP(TJclAlgorithms<T>.Find,IJclIterator<T>,const ,AItem,T,TCompare<T>)}
+class {$JPPEXPANDMACRO FINDIMP(TJclAlgorithms<T>.Find,IJclIterator<T>,const ,AItem,TCompare<T>,T)}
 
-class {$JPPEXPANDMACRO FINDEQIMP(TJclAlgorithms<T>.Find,IJclIterator<T>,const ,AItem,T,TEqualityCompare<T>)}
+class {$JPPEXPANDMACRO FINDEQIMP(TJclAlgorithms<T>.Find,IJclIterator<T>,const ,AItem,TEqualityCompare<T>,T)}
 
-class {$JPPEXPANDMACRO COUNTOBJECTIMP(TJclAlgorithms<T>.CountObject,IJclIterator<T>,const ,AItem,T,TCompare<T>)}
+class {$JPPEXPANDMACRO COUNTOBJECTIMP(TJclAlgorithms<T>.CountObject,IJclIterator<T>,const ,AItem,TCompare<T>,T)}
 
-class {$JPPEXPANDMACRO COUNTOBJECTEQIMP(TJclAlgorithms<T>.CountObject,IJclIterator<T>,const ,AItem,T,TEqualityCompare<T>)}
+class {$JPPEXPANDMACRO COUNTOBJECTEQIMP(TJclAlgorithms<T>.CountObject,IJclIterator<T>,const ,AItem,TEqualityCompare<T>,T)}
 
 class {$JPPEXPANDMACRO COPYIMP(TJclAlgorithms<T>.Copy,IJclIterator<T>,SetItem)}
 
@@ -909,6 +1044,8 @@ class procedure TJclAlgorithms<T>.Sort(const AList: IJclList<T>; First, Last: In
 begin
   TJclAlgorithms<T>.QuickSort(AList, First, Last, AComparator);
 end;
+
+//DOM-IGNORE-END
 {$ENDIF SUPPORTS_GENERICS}
 
 

@@ -26,9 +26,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-11 13:14:06 +0100 (jeu., 11 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3188                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -39,14 +39,22 @@ unit JclUnitVersioningProviders;
 interface
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  JclPeImage,
+  {$ENDIF MSWINDOWS}
+  System.SysUtils, System.Classes, System.Contnrs,
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   Windows,
   JclPeImage,
   {$ENDIF MSWINDOWS}
+  SysUtils, Classes, Contnrs,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$IFDEF LINUX}
   Types,
   {$ENDIF LINUX}
-  SysUtils, Classes, Contnrs,
   JclUnitVersioning;
 
 type
@@ -102,9 +110,9 @@ function InsertUnitVersioningSection(const ExecutableFileName: TFileName;
 
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclUnitVersioningProviders.pas $';
-    Revision: '$Revision: 3188 $';
-    Date: '$Date: 2010-02-11 13:14:06 +0100 (jeu., 11 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -114,6 +122,33 @@ implementation
 
 const
   JclUnitVersioningDataResName = 'JCLUV';
+
+function NewUnitVersionInfo: PUnitVersionInfo;
+begin
+  New(Result);
+  FillChar(Result^ , SizeOf(Result^), 0);
+end;
+
+procedure DisposeUnitVersionInfo(var Value: PUnitVersionInfo);
+begin
+  StrDispose(Value^.RCSfile);
+  StrDispose(Value^.Revision);
+  StrDispose(Value^.Date);
+  StrDispose(Value^.LogPath);
+  StrDispose(Value^.Extra);
+  Dispose(Value);
+end;
+
+function CopyUnitVersionInfo(Src: PUnitVersionInfo): PUnitVersionInfo;
+begin
+  New(Result);
+  Result^.RCSfile := StrNew(Src^.RCSfile);
+  Result^.Revision := StrNew(Src^.Revision);
+  Result^.Date := StrNew(Src^.Date);
+  Result^.LogPath := StrNew(Src^.LogPath);
+  Result^.Extra := StrNew(Src^.Extra);
+  Result^.Data := Src^.Data;
+end;
 
 type
   TJclUnitVersioningHeader = record
@@ -136,12 +171,8 @@ begin
 end;
 
 procedure TJclUnitVersioningList.Add(Info: TUnitVersionInfo);
-var
-  UnitVersionInfoPtr: PUnitVersionInfo;
 begin
-  New(UnitVersionInfoPtr);
-  UnitVersionInfoPtr^ := Info;
-  FItems.Add(UnitVersionInfoPtr);
+  FItems.Add(CopyUnitVersionInfo(@Info));
 end;
 
 procedure TJclUnitVersioningList.Clear;
@@ -152,7 +183,7 @@ begin
   for I := FItems.Count - 1 downto 0 do
   begin
     Item := PUnitVersionInfo(FItems[I]);
-    Dispose(Item);
+    DisposeUnitVersionInfo(Item);
   end;
   FItems.Clear;
 end;
@@ -180,7 +211,7 @@ begin
   end;
 end;
 
-function ReadStringFromStream(AStream: TStream; var AString: string): Boolean;
+function ReadStringFromStream(AStream: TStream; var AString: PChar): Boolean;
 var
   StringLength: Integer;
 begin
@@ -196,27 +227,26 @@ begin
       begin
         if StringLength > 0 then
         begin
-          SetLength(AString, StringLength);
-          AStream.Read(PChar(AString)^, StringLength);
-        end;
-        Result := True;
+          AString := StrAlloc(StringLength);
+          Result := AStream.Read(AString^, StringLength) = StringLength;
+        end
+        else
+          Result := True;
       end;
     end;
   end;
 end;
 
-function ReadUnitVersionInfo(AStream: TStream; var AVersionInfo: TUnitVersionInfo): Boolean;
+function ReadUnitVersionInfo(AStream: TStream; out AVersionInfo: PUnitVersionInfo): Boolean;
 begin
+  AVersionInfo := NewUnitVersionInfo;
   Result := True;
-  with AVersionInfo do
-  begin
-    Result := Result and ReadStringFromStream(AStream, RCSfile);
-    Result := Result and ReadStringFromStream(AStream, Revision);
-    Result := Result and ReadStringFromStream(AStream, Date);
-    Result := Result and ReadStringFromStream(AStream, LogPath);
-    Result := Result and ReadStringFromStream(AStream, Extra);
-    Data := nil;
-  end;
+  Result := Result and ReadStringFromStream(AStream, AVersionInfo^.RCSfile);
+  Result := Result and ReadStringFromStream(AStream, AVersionInfo^.Revision);
+  Result := Result and ReadStringFromStream(AStream, AVersionInfo^.Date);
+  Result := Result and ReadStringFromStream(AStream, AVersionInfo^.LogPath);
+  Result := Result and ReadStringFromStream(AStream, AVersionInfo^.Extra);
+  AVersionInfo^.Data := nil;
 end;
 
 function TJclUnitVersioningList.Load(AModule: HMODULE): Boolean;
@@ -279,11 +309,8 @@ begin
     LastReadOkay := True;
     while (UnitsToRead > 0) and LastReadOkay do
     begin
-      New(UnitVersionInfoPtr);
-      LastReadOkay := ReadUnitVersionInfo(AStream, UnitVersionInfoPtr^);
-      if not LastReadOkay then
-        Dispose(UnitVersionInfoPtr)
-      else
+      LastReadOkay := ReadUnitVersionInfo(AStream, UnitVersionInfoPtr);
+      if LastReadOkay then
         FItems.Add(UnitVersionInfoPtr);
       Dec(UnitsToRead);
     end;

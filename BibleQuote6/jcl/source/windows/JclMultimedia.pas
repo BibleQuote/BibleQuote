@@ -30,15 +30,16 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-12 22:52:07 +0200 (sam., 12 sept. 2009)                         $ }
-{ Revision:      $Rev:: 3007                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclMultimedia;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 interface
 
@@ -46,7 +47,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.Classes, Winapi.MMSystem, System.Contnrs,
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, Classes, MMSystem, Contnrs,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclSynch, JclStrings;
 
 type
@@ -275,7 +280,7 @@ type
   public
     constructor Create(MciErrNo: MCIERROR; const Msg: string);
     constructor CreateFmt(MciErrNo: MCIERROR; const Msg: string; const Args: array of const);
-    constructor CreateRes(MciErrNo: MCIERROR; Ident: Integer);
+    constructor CreateRes(MciErrNo: MCIERROR; Ident: Integer; Dummy: Integer);
     property MciErrorNo: DWORD read FMciErrorNo;
     property MciErrorMsg: string read FMciErrorMsg;
   end;
@@ -311,9 +316,9 @@ function GetCDAudioTrackList(TrackList: TStrings; IncludeTrackType: Boolean = Fa
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclMultimedia.pas $';
-    Revision: '$Revision: 3007 $';
-    Date: '$Date: 2009-09-12 22:52:07 +0200 (sam., 12 sept. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -323,7 +328,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclResources, JclSysUtils;
 
 //=== { TJclMultimediaTimer } ================================================
@@ -1144,7 +1153,7 @@ begin
   inherited CreateFmt(Msg + NativeLineBreak + LoadResString(@RsMmMciErrorPrefix) + FMciErrorMsg, Args);
 end;
 
-constructor EJclMciError.CreateRes(MciErrNo: MCIERROR; Ident: Integer);
+constructor EJclMciError.CreateRes(MciErrNo: MCIERROR; Ident: Integer; Dummy: Integer);
 begin
   FMciErrorNo := MciErrNo;
   FMciErrorMsg := GetMciErrorMessage(MciErrNo);
@@ -1153,9 +1162,9 @@ end;
 
 function GetMciErrorMessage(const MciErrNo: MCIERROR): string;
 var
-  Buffer: array [0..MMSystem.MAXERRORLENGTH - 1] of Char;
+  Buffer: array [0..{$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}MMSystem.MAXERRORLENGTH - 1] of Char;
 begin
-  if mciGetErrorString(MciErrNo, Buffer, SizeOf(Buffer)) then
+  if mciGetErrorString(MciErrNo, Buffer, Length(Buffer)) then
     Result := Buffer
   else
     Result := Format(LoadResString(@RsMmUnknownError), [MciErrNo]);
@@ -1241,7 +1250,7 @@ begin
     ResetMemory(Buffer, SizeOf(Buffer));
     InfoParams.dwCallback := 0;
     InfoParams.lpstrReturn := Buffer;
-    InfoParams.dwRetSize := SizeOf(Buffer) - 1;
+    InfoParams.dwRetSize := Length(Buffer) - 1;
     if mciSendCommand(Mci.wDeviceID, MCI_INFO, InfoConsts[InfoType], TJclAddr(@InfoParams)) = MMSYSERR_NOERROR then
       Result := Buffer;
   finally

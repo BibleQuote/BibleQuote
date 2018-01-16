@@ -19,15 +19,15 @@
 { Contributor(s): Robert Rossmair (IJclMsdosSys interface)                                         }
 {                                                                                                  }
 { You may retrieve the latest version of this file at the Project JEDI's Code Library home page,   }
-{ located at http://sourceforge.net/projects/jcl/                                                  }
+{ located at https://github.com/project-jedi/jcl                                                   }
 {                                                                                                  }
 { Known Issues: None                                                                               }
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-12 13:56:34 +0200 (sam., 12 sept. 2009)                         $ }
-{ Revision:      $Rev:: 2994                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -42,7 +42,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes, System.SysUtils;
+  {$ELSE ~HAS_UNITSCOPE}
   Classes, SysUtils;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 type
   IJclMsdosSys = interface
@@ -226,9 +230,9 @@ function GetMsdosSys: IJclMsdosSys;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclMsdosSys.pas $';
-    Revision: '$Revision: 2994 $';
-    Date: '$Date: 2009-09-12 13:56:34 +0200 (sam., 12 sept. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil

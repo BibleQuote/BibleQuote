@@ -24,9 +24,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-08 12:54:21 +0200 (dim., 08 août 2010)                         $ }
-{ Revision:      $Rev:: 3283                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -41,10 +41,17 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  {$ENDIF MSWINDOWS}
+  System.Classes, System.SysUtils, System.IniFiles,
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF MSWINDOWS}
   Classes, SysUtils, IniFiles,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclSysUtils;
 
 type
@@ -65,7 +72,6 @@ type
     FOutput: string;
     FOnAfterExecute: TJclBorlandCommandLineToolEvent;
     FOnBeforeExecute: TJclBorlandCommandLineToolEvent;
-    procedure OemTextHandler(const Text: string);
   protected
     procedure CheckOutputValid;
     function GetFileName: string;
@@ -97,6 +103,13 @@ type
 
   TJclBCC32 = class(TJclBorlandCommandLineTool)
   public
+    class function GetPlatform: string; virtual;
+    function GetExeName: string; override;
+  end;
+
+  TJclBCC64 = class(TJclBCC32)
+  public
+    class function GetPlatform: string; override;
     function GetExeName: string; override;
   end;
 
@@ -107,7 +120,10 @@ type
     DynamicPackages: string;
     SearchDcpPath: string;
     Conditionals: string;
+    Namespace: string;
   end;
+
+  TJclStringsGetterFunction = function: TStrings of object;
 
   TJclDCC32 = class(TJclBorlandCommandLineTool)
   private
@@ -115,13 +131,17 @@ type
     FLibrarySearchPath: string;
     FLibraryDebugSearchPath: string;
     FCppSearchPath: string;
+    FOnEnvironmentVariables: TJclStringsGetterFunction;
     FSupportsNoConfig: Boolean;
+    FSupportsPlatform: Boolean;
+    FDCCVersion: Single;
   protected
     procedure AddProjectOptions(const ProjectFileName, DCPPath: string);
     function Compile(const ProjectFileName: string): Boolean;
   public
-    constructor Create(const ABinDirectory: string; ALongPathBug: Boolean;
-      ACompilerSettingsFormat: TJclCompilerSettingsFormat; ASupportsNoConfig: Boolean;
+    class function GetPlatform: string; virtual;
+    constructor Create(const ABinDirectory: string; ALongPathBug: Boolean; ADCCVersion: Single;
+      ACompilerSettingsFormat: TJclCompilerSettingsFormat; ASupportsNoConfig, ASupportsPlatform: Boolean;
       const ADCPSearchPath, ALibrarySearchPath, ALibraryDebugSearchPath, ACppSearchPath: string);
     function GetExeName: string; override;
     function Execute(const CommandLine: string): Boolean; override;
@@ -137,7 +157,22 @@ type
     property DCPSearchPath: string read FDCPSearchPath;
     property LibrarySearchPath: string read FLibrarySearchPath;
     property LibraryDebugSearchPath: string read FLibraryDebugSearchPath;
+    property OnEnvironmentVariables: TJclStringsGetterFunction read FOnEnvironmentVariables write FOnEnvironmentVariables;
     property SupportsNoConfig: Boolean read FSupportsNoConfig;
+    property SupportsPlatform: Boolean read FSupportsPlatform;
+    property DCCVersion: Single read FDCCVersion;
+  end;
+
+  TJclDCC64 = class(TJclDCC32)
+  public
+    class function GetPlatform: string; override;
+    function GetExeName: string; override;
+  end;
+
+  TJclDCCOSX32 = class(TJclDCC32)
+  public
+    class function GetPlatform: string; override;
+    function GetExeName: string; override;
   end;
 
   {$IFDEF MSWINDOWS}
@@ -168,7 +203,10 @@ type
 const
   AsmExeName                = 'tasm32.exe';
   BCC32ExeName              = 'bcc32.exe';
+  BCC64ExeName              = 'bcc64.exe';
   DCC32ExeName              = 'dcc32.exe';
+  DCC64ExeName              = 'dcc64.exe';
+  DCCOSX32ExeName           = 'dccosx.exe';
   DCCILExeName              = 'dccil.exe';
   Bpr2MakExeName            = 'bpr2mak.exe';
   MakeExeName               = 'make.exe';
@@ -204,9 +242,9 @@ procedure GetBPKFileInfo(const BPKFileName: string; out RunOnly: Boolean;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclCompilerUtils.pas $';
-    Revision: '$Revision: 3283 $';
-    Date: '$Date: 2010-08-08 12:54:21 +0200 (dim., 08 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -216,13 +254,23 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysConst,
+  {$ELSE ~HAS_UNITSCOPE}
   SysConst,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$IFDEF HAS_UNIT_LIBC}
   Libc,
   {$ENDIF HAS_UNIT_LIBC}
-  JclFileUtils, JclDevToolsResources,
-  JclAnsiStrings, JclWideStrings, JclStrings,
-  JclSysInfo, JclSimpleXml;
+  JclFileUtils,
+  JclDevToolsResources,
+  JclIDEUtils,
+  JclAnsiStrings,
+  JclWideStrings,
+  JclStrings,
+  JclSysInfo,
+  JclSimpleXml,
+  JclMsBuild;
 
 const
   // DOF options
@@ -252,20 +300,14 @@ const
   BDSProjDirectoriesNodeName = 'Directories';
 
   // DProj options
-  DProjProjectExtensionsNodeName = 'ProjectExtensions';
   DProjPersonalityNodeName = 'Borland.Personality';
   DProjDelphiPersonalityValue = 'Delphi.Personality';
   DProjDelphiDotNetPersonalityValue = 'DelphiDotNet.Personality';
-  DProjPropertyGroupNodeName = 'PropertyGroup';
-  DProjConditionValueName = 'Condition';
   DProjUsePackageNodeName = 'DCC_UsePackage';
   DProjDcuOutputDirNodeName = 'DCC_DcuOutput';
   DProjUnitSearchPathNodeName = 'DCC_UnitSearchPath';
   DProjDefineNodeName = 'DCC_Define';
-  DProjConfigurationNodeName = 'Configuration';
-  DProjPlatformNodeName = 'Platform';
-  DProjProjectVersionNodeName = 'ProjectVersion';
-  DProjConfigNodeName = 'Config';
+  DProjNamespaceNodeName = 'DCC_Namespace';
 
   DelphiLibSuffixOption   = '{$LIBSUFFIX ''';
   DelphiDescriptionOption = '{$DESCRIPTION ''';
@@ -732,46 +774,28 @@ begin
   Result := FOutputCallback;
 end;
 
-function TJclBorlandCommandLineTool.InternalExecute(
-  const CommandLine: string): Boolean;
+function TJclBorlandCommandLineTool.InternalExecute(const CommandLine: string): Boolean;
 var
   LaunchCommand: string;
+  Options: TJclExecuteCmdProcessOptions;
 begin
   LaunchCommand := Format('%s %s', [FileName, CommandLine]);
-  if Assigned(FOutputCallback) then
-  begin
-    FOutputCallback(LaunchCommand);
-    Result := JclSysUtils.Execute(LaunchCommand, OemTextHandler) = 0;
-  end
-  else
-  begin
-    Result := JclSysUtils.Execute(LaunchCommand, FOutput) = 0;
-    {$IFDEF MSWINDOWS}
-    FOutput := string(StrOemToAnsi(AnsiString(FOutput)));
-    {$ENDIF MSWINDOWS}
-  end;
-end;
 
-procedure TJclBorlandCommandLineTool.OemTextHandler(const Text: string);
-var
-  AnsiText: string;
-begin
-  if Assigned(FOutputCallback) then
-  begin
-    {$IFDEF MSWINDOWS}
-    // Text is OEM under Windows
-    // Code below seems to crash older compilers at times, so we only do
-    // the casts when it's absolutely necessary, that is when compiling
-    // with a unicode compiler.
-    {$IFDEF UNICODE}
-    AnsiText := string(StrOemToAnsi(AnsiString(Text)));
-    {$ELSE}
-    AnsiText := StrOemToAnsi(Text);
-    {$ENDIF UNICODE}
-    {$ELSE ~MSWINDOWS}
-    AnsiText := Text;
-    {$ENDIF ~MSWINDOWS}
-    FOutputCallback(AnsiText);
+  Options := TJclExecuteCmdProcessOptions.Create(LaunchCommand);
+  try
+    if Assigned(FOutputCallback) then
+    begin
+      Options.OutputLineCallback := FOutputCallback;
+      FOutputCallback(LaunchCommand);
+      Result := ExecuteCmdProcess(Options) and (Options.ExitCode = 0);
+    end
+    else
+    begin
+      Result := ExecuteCmdProcess(Options) and (Options.ExitCode = 0);
+      FOutput := FOutput + Options.Output;
+    end;
+  finally
+    Options.Free;
   end;
 end;
 
@@ -787,28 +811,48 @@ begin
   Result := BCC32ExeName;
 end;
 
+class function TJclBCC32.GetPlatform: string;
+begin
+  Result := BDSPlatformWin32;
+end;
+
+//=== { TJclBCC64 } ============================================================
+
+function TJclBCC64.GetExeName: string;
+begin
+  Result := BCC64ExeName;
+end;
+
+class function TJclBCC64.GetPlatform: string;
+begin
+  Result := BDSPlatformWin64;
+end;
+
 //=== { TJclDCC32 } ============================================================
 
 function TJclDCC32.AddDProjOptions(const ProjectFileName: string; var ProjectOptions: TProjectOptions): Boolean;
 var
-  DProjFileName, ProjectConfiguration, ProjectPlatform, PersonalityName: string;
-  OptionsXmlFile: TJclSimpleXML;
-  ProjectExtensionsNode, PropertyGroupNode, PersonalityNode, ChildNode: TJclSimpleXMLElem;
-  NodeIndex: Integer;
-  ConditionProperty: TJclSimpleXMLProp;
-  Version: string;
+  DProjFileName, PersonalityName: string;
+  MsBuildOptions: TJclMsBuildParser;
+  ProjectExtensionsNode, PersonalityNode: TJclSimpleXMLElem;
 begin
-  Version := '';
   DProjFileName := ChangeFileExt(ProjectFileName, SourceExtensionDProject);
   Result := FileExists(DProjFileName) and (CompilerSettingsFormat = csfMsBuild);
   if Result then
   begin
-    OptionsXmlFile := TJclSimpleXML.Create;
+    MsBuildOptions := TJclMsBuildParser.Create(DProjFileName);
     try
-      OptionsXmlFile.LoadFromFile(DProjFileName);
-      OptionsXmlFile.Options := OptionsXmlFile.Options - [sxoAutoCreate];
+      MsBuildOptions.Init;
+      if SupportsPlatform then
+        MsBuildOptions.Properties.GlobalProperties.Values['Platform'] := GetPlatform;
+
+      if Assigned(FOnEnvironmentVariables) then
+        MsBuildOptions.Properties.EnvironmentProperties.Assign(FOnEnvironmentVariables);
+
+      MsBuildOptions.Parse;
+
       PersonalityName := '';
-      ProjectExtensionsNode := OptionsXmlFile.Root.Items.ItemNamed[DProjProjectExtensionsNodeName];
+      ProjectExtensionsNode := MsBuildOptions.ProjectExtensions;
       if Assigned(ProjectExtensionsNode) then
       begin
         PersonalityNode := ProjectExtensionsNode.Items.ItemNamed[DProjPersonalityNodeName];
@@ -818,69 +862,15 @@ begin
       if StrHasPrefix(PersonalityName, [DProjDelphiPersonalityValue]) or
         AnsiSameText(PersonalityName, DProjDelphiDotNetPersonalityValue) then
       begin
-        ProjectConfiguration := '';
-        ProjectPlatform := '';
-        for NodeIndex := 0 to OptionsXmlFile.Root.Items.Count - 1 do
-        begin
-          PropertyGroupNode := OptionsXmlFile.Root.Items.Item[NodeIndex];
-          if AnsiSameText(PropertyGroupNode.Name, DProjPropertyGroupNodeName) then
-          begin
-            ConditionProperty := PropertyGroupNode.Properties.ItemNamed[DProjConditionValueName];
-            if Assigned(ConditionProperty) then
-            begin
-              if ((Version = '') and (ProjectConfiguration <> '') and (ProjectPlatform <> '') and
-                  (AnsiPos(Format('%s|%s', [ProjectConfiguration, ProjectPlatform]), ConditionProperty.Value) > 0))
-                 or
-                 ((Version <> '') and (ProjectConfiguration <> '') and
-                  (AnsiPos(ProjectConfiguration, ConditionProperty.Value) > 0))
-                 or
-                 ((Version <> '') and (ProjectConfiguration <> '') and
-                  (AnsiPos('$(Base)', ConditionProperty.Value) > 0)) then
-              begin
-                // this is the active configuration, check for overrides
-                ChildNode := PropertyGroupNode.Items.ItemNamed[DProjUsePackageNodeName];
-                if Assigned(ChildNode) then
-                  ProjectOptions.DynamicPackages := ChildNode.Value;
-                ProjectOptions.UsePackages := ProjectOptions.DynamicPackages <> '';
-                ChildNode := PropertyGroupNode.Items.ItemNamed[DProjDcuOutputDirNodeName];
-                if Assigned(ChildNode) then
-                  ProjectOptions.UnitOutputDir := ChildNode.Value;
-                ChildNode := PropertyGroupNode.Items.ItemNamed[DProjUnitSearchPathNodeName];
-                if Assigned(ChildNode) then
-                  ProjectOptions.SearchPath := ChildNode.Value;
-                ChildNode := PropertyGroupNode.Items.ItemNamed[DProjDefineNodeName];
-                if Assigned(ChildNode) then
-                  ProjectOptions.Conditionals := ChildNode.Value;
-              end;
-            end
-            else
-            begin
-              // check for version and default configurations
-              ChildNode := PropertyGroupNode.Items.ItemNamed[DProjProjectVersionNodeName];
-              if Assigned(ChildNode) then
-                Version := ChildNode.Value;
-
-              if Version = '' then
-              begin
-                ChildNode := PropertyGroupNode.Items.ItemNamed[DProjConfigurationNodeName];
-                if Assigned(ChildNode) then
-                  ProjectConfiguration := ChildNode.Value;
-                ChildNode := PropertyGroupNode.Items.ItemNamed[DProjPlatformNodeName];
-                if Assigned(ChildNode) then
-                  ProjectPlatform := ChildNode.Value;
-              end
-              else
-              begin
-                ChildNode := PropertyGroupNode.Items.ItemNamed[DProjConfigNodeName];
-                if Assigned(ChildNode) then
-                  ProjectConfiguration := ChildNode.Value;
-              end;
-            end;
-          end;
-        end;
+        ProjectOptions.DynamicPackages := MsBuildOptions.Properties.Values[DProjUsePackageNodeName];
+        ProjectOptions.UsePackages := ProjectOptions.DynamicPackages <> '';
+        ProjectOptions.UnitOutputDir := MsBuildOptions.Properties.Values[DProjDcuOutputDirNodeName];
+        ProjectOptions.SearchPath := MsBuildOptions.Properties.Values[DProjUnitSearchPathNodeName];
+        ProjectOptions.Conditionals := MsBuildOptions.Properties.Values[DProjDefineNodeName];
+        ProjectOptions.Namespace := MsBuildOptions.Properties.Values[DProjNamespaceNodeName];
       end;
     finally
-      OptionsXmlFile.Free;
+      MsBuildOptions.Free;
     end;
   end;
 end;
@@ -950,6 +940,7 @@ begin
                   else
                   if SameText(NameProperty.Value, BDSProjUsePackagesValue) then
                     ProjectOptions.UsePackages := StrToBoolean(ChildNode.Value);
+                  ProjectOptions.Namespace := '';
                 end;
               end;
             end;
@@ -977,6 +968,7 @@ begin
       ProjectOptions.Conditionals := OptionsFile.ReadString(DOFDirectoriesSection, DOFConditionals, '');
       ProjectOptions.UsePackages := OptionsFile.ReadString(DOFCompilerSection, DOFPackageNoLinkKey, '') = '1';
       ProjectOptions.DynamicPackages := OptionsFile.ReadString(DOFLinkerSection, DOFPackagesKey, '');
+      ProjectOptions.Namespace := '';
     finally
       OptionsFile.Free;
     end;
@@ -993,13 +985,19 @@ begin
   ProjectOptions.DynamicPackages := '';
   ProjectOptions.SearchDcpPath := '';
   ProjectOptions.Conditionals := '';
+  ProjectOptions.Namespace := '';
 
   if AddDProjOptions(ProjectFileName, ProjectOptions) or
      AddBDSProjOptions(ProjectFileName, ProjectOptions) or
      AddDOFOptions(ProjectFileName, ProjectOptions) then
   begin
     if ProjectOptions.UnitOutputDir <> '' then
-      AddPathOption('N', ProjectOptions.UnitOutputDir);
+    begin
+      if DCCVersion >= 24.0 then // XE3+
+        AddPathOption('NU', ProjectOptions.UnitOutputDir)
+      else
+        AddPathOption('N', ProjectOptions.UnitOutputDir);
+    end;
     if ProjectOptions.SearchPath <> '' then
     begin
       AddPathOption('I', ProjectOptions.SearchPath);
@@ -1014,6 +1012,8 @@ begin
     AddPathOption('U', StrEnsureSuffix(PathSep, ProjectOptions.SearchDcpPath) + ProjectOptions.SearchPath);
     if ProjectOptions.UsePackages and (ProjectOptions.DynamicPackages <> '') then
       Options.Add(Format('-LU"%s"', [ProjectOptions.DynamicPackages]));
+    if ProjectOptions.Namespace <> '' then
+    Options.Add('-ns' + ProjectOptions.Namespace);
   end;
 end;
 
@@ -1025,12 +1025,14 @@ begin
   Result := Execute(StrDoubleQuote(StrTrimQuotes(ProjectFileName)));
 end;
 
-constructor TJclDCC32.Create(const ABinDirectory: string; ALongPathBug: Boolean;
-  ACompilerSettingsFormat: TJclCompilerSettingsFormat; ASupportsNoConfig: Boolean;
+constructor TJclDCC32.Create(const ABinDirectory: string; ALongPathBug: Boolean; ADCCVersion: Single;
+  ACompilerSettingsFormat: TJclCompilerSettingsFormat; ASupportsNoConfig, ASupportsPlatform: Boolean;
   const ADCPSearchPath, ALibrarySearchPath, ALibraryDebugSearchPath, ACppSearchPath: string);
 begin
   inherited Create(ABinDirectory, ALongPathBug, ACompilerSettingsFormat);
+  FDCCVersion := ADCCVersion;
   FSupportsNoConfig := ASupportsNoConfig;
+  FSupportsPlatform := ASupportsPlatform;
   FDCPSearchPath := ADCPSearchPath;
   FLibrarySearchPath := ALibrarySearchPath;
   FLibraryDebugSearchPath := ALibraryDebugSearchPath;
@@ -1039,6 +1041,7 @@ begin
 end;
 
 function TJclDCC32.Execute(const CommandLine: string): Boolean;
+
   function IsPathOption(const S: string; out Len: Integer): Boolean;
   begin
     Result := False;
@@ -1064,12 +1067,22 @@ function TJclDCC32.Execute(const CommandLine: string): Boolean;
         'N':
           begin
             Result := True;
-            if (Length(S) >= 3) then
+            if Length(S) >= 3 then
             begin
               case Upcase(S[3]) of
+                'U', 'X': // -NU<dcupath> -NX<xmlpath>
+                  if DCCVersion >= 24.0 then // XE3+
+                    Len := 3
+                  else
+                    Len := 2;
                 '0'..'9',
                 'H', 'O', 'B':
                   Len := 3;
+                'S': // -NS<namespace>
+                  if DCCVersion >= 23.0 then // XE2+
+                    Len := 3
+                  else
+                    Len := 2;
               else
                 Len := 2;
               end;
@@ -1077,6 +1090,7 @@ function TJclDCC32.Execute(const CommandLine: string): Boolean;
           end;
       end;
   end;
+
 var
   OptionIndex, PathIndex, SwitchLen: Integer;
   PathList: TStrings;
@@ -1087,7 +1101,7 @@ begin
 
   FOutput := '';
   Arguments := '';
-  CurrentFolder := GetCurrentFolder;
+  CurrentFolder := PathGetShortName(GetCurrentFolder); // used if LongPathBug is True
 
   PathList := TStringList.Create;
   try
@@ -1121,6 +1135,11 @@ end;
 function TJclDCC32.GetExeName: string;
 begin
   Result := DCC32ExeName;
+end;
+
+class function TJclDCC32.GetPlatform: string;
+begin
+  Result := BDSPlatformWin32;
 end;
 
 function TJclDCC32.MakePackage(const PackageName, BPLPath, DCPPath: string; ExtraOptions: string = ''; ADebug: Boolean = False): Boolean;
@@ -1200,6 +1219,30 @@ begin
     AddPathOption('U', CppSearchPath);
     Options.Add('-LUrtl');
   end;
+end;
+
+//=== { TJclDCC64 } ==========================================================
+
+class function TJclDCC64.GetPlatform: string;
+begin
+  Result := BDSPlatformWin64;
+end;
+
+function TJclDCC64.GetExeName: string;
+begin
+  Result := DCC64ExeName;
+end;
+
+//=== { TJclDCCOSX32 } =======================================================
+
+class function TJclDCCOSX32.GetPlatform: string;
+begin
+  Result := BDSPlatformOSX32;
+end;
+
+function TJclDCCOSX32.GetExeName: string;
+begin
+  Result := DCCOSX32ExeName;
 end;
 
 {$IFDEF MSWINDOWS}
