@@ -38,7 +38,7 @@
 {                                                                              }
 { **************************************************************************** }
 
-// Last modified: $Date: 2010-07-29 20:20:41 +0200 (jeu., 29 juil. 2010) $
+// Last modified: $Date$
 
 unit JppMain;
 
@@ -47,12 +47,12 @@ interface
 uses
   SysUtils,
   Classes,
+  JclBase,
   JclFileUtils,
   JclStrings,
   JclStreams,
   JclSysUtils,
-  JppState,
-  JppParser;
+  JclPreProcessorParser;
 
 procedure Syntax;
 procedure Params(State: TPppState; ACommandLine: PChar);
@@ -82,6 +82,7 @@ begin
     '  -v'#9#9'Process value directive'#10,
     '  -C'#9#9'Strip comments'#10,
     '  -fxxx'#9#9'Prefix xxx to filename'#10,
+    '  -w'#9#9'Do not add header warning'#10,
     '  -h, -?'#9'This help'#10,
     '  -i[x[,y...]]'#9'Process includes, except files x, y, ...'#10,
     '  -pxxx'#9#9'Add xxx to include path'#10,
@@ -114,10 +115,12 @@ begin
   ssOut := nil;
   AState.PushState;
   try
-    fsIn := TFileStream.Create(AOld, fmOpenRead);
+    fsIn := TFileStream.Create(AOld, fmOpenRead or fmShareDenyWrite);
     ssIn := TJclAutoStream.Create(fsIn);
     parse := TJppParser.Create(ssIn.ReadString, AState);
-    answer := Format('%s'#13#10'%s', [SWarningJppGenerated, parse.Parse]);
+    answer := parse.Parse;
+    if not (poNoWarningHeader in AState.Options) then
+      answer := Format('%s'#13#10'%s', [SWarningJppGenerated, answer]);
     fsOut := TFileStream.Create(ANew, fmCreate);
     case ssIn.Encoding of
       seAnsi:
@@ -196,7 +199,7 @@ var
       while (Result^ <> #0) and (Result^ <> '"') do
         Inc(Result);
       if Result^ = #0 then
-        raise Exception.Create('Unterminated string');
+        raise EJclError.Create('Unterminated string');
       Inc(Result); // skip over final "
       SetString(AStr, cp, Result - cp);
     end
@@ -307,6 +310,9 @@ var
             Prefix := ExpandUNCFilename(Prefix);
           end;
 
+        'w', 'W':
+          cp := CheckOpt(cp + 1, poNoWarningHeader);
+
       else
         Syntax;
       end;
@@ -349,7 +355,7 @@ var
                 ChangeFileExt(NewName, ProcessedExtension);
               Process(State, FileName, NewName);
             except
-              on e: Exception do
+              on e: EJclError do
                 Writeln(Format('Error: %s %s', [e.Message, FileName]));
             end;
           end

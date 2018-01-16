@@ -20,9 +20,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010)                         $ }
-{ Revision:      $Rev:: 3321                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -53,9 +53,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/common/JclOtaEmptyAddinOptionsFrame.pas $';
-    Revision: '$Revision: 3321 $';
-    Date: '$Date: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\common';
     Extra: '';
     Data: nil

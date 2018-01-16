@@ -17,9 +17,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-07 11:44:18 +0200 (sam., 07 août 2010)                         $ }
-{ Revision:      $Rev:: 3279                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -137,9 +137,9 @@ var
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/projectanalyzer/JclProjectAnalyzerFrm.pas $';
-    Revision: '$Revision: 3279 $';
-    Date: '$Date: 2010-08-07 11:44:18 +0200 (sam., 07 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\projectanalyser';
     Extra: '';
     Data: nil

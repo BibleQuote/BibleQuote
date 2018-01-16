@@ -20,9 +20,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-14 18:00:50 +0200 (lun., 14 sept. 2009)                         $ }
-{ Revision:      $Rev:: 3012                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -48,7 +48,7 @@ type
   TJclLocationInfoProgressEvent = procedure(AStatus: TLocationInfoProcessorProgressStatus;
     APos, AMax: Integer; const AText: string) of object;
 
-  TJclLocationInfoProcessor = class(TObject, IJclStackTraceViewerStackProcessorServices)
+  TJclLocationInfoProcessor = class(TInterfacedObject, IInterface, IJclStackTraceViewerStackProcessorServices)
   private
     FModuleList: IJclModuleInfoList;
     FOnProgress: TJclLocationInfoProgressEvent;
@@ -61,7 +61,7 @@ type
     property RootDir: string read FRootDir write FRootDir;
 
     { IInterface }
-    function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
+    // function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
     { IJclStackTraceViewerStackProcessorServices }
@@ -74,9 +74,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/stacktraceviewer/JclStackTraceViewerStackUtils.pas $';
-    Revision: '$Revision: 3012 $';
-    Date: '$Date: 2009-09-14 18:00:50 +0200 (lun., 14 sept. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\stacktraceviewer';
     Extra: '';
     Data: nil
@@ -554,14 +554,6 @@ begin
     DoProgress(lippsFinished, 0, 0, '');
     AStack.Prepared := True;
   end;
-end;
-
-function TJclLocationInfoProcessor.QueryInterface(const IID: TGUID; out Obj): HRESULT;
-begin
-  if GetInterface(IID, Obj) then
-    Result := S_OK
-  else
-    Result := E_NOINTERFACE;
 end;
 
 procedure TJclLocationInfoProcessor.SetModuleInfoList(AValue: IJclModuleInfoList);

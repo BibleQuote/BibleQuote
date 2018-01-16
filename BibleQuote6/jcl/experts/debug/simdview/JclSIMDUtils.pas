@@ -18,13 +18,13 @@
 { All Rights Reserved.                                                                             }
 {                                                                                                  }
 { You may retrieve the latest version of this file at the Project JEDI's JCL home page,            }
-{ located at http://jcl.sourceforge.net                                                            }
+{ located at https://github.com/project-jedi/jcl                                                   }
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010)                         $ }
-{ Revision:      $Rev:: 3321                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -238,9 +238,9 @@ function SetThreadJclContext(AThread: IOTAThread; const JclContext: TJclContext)
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/debug/simdview/JclSIMDUtils.pas $';
-    Revision: '$Revision: 3321 $';
-    Date: '$Date: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\debug\simdview';
     Extra: '';
     Data: nil

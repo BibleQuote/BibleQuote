@@ -20,9 +20,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-18 15:53:34 +0200 (ven., 18 sept. 2009)                         $ }
-{ Revision:      $Rev:: 3014                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -66,12 +66,18 @@ type
     property Caption: string read GetCaption write SetCaption;
   end;
 
-  IJediReadmePage = interface(IJediPage)
+  IJediTextPage = interface(IJediPage)
     ['{5DA5C5C9-649F-47CF-B64A-55E983CA88EC}']
-    procedure SetReadmeFileName(const Value: string);
-    function GetReadmeFileName: string;
+    procedure SetTextFileName(const Value: string);
+    function GetTextFileName: string;
+    function AddOption(const Caption: string): Integer;
+    function GetOptionCount: Integer;
+    function GetOption(Index: Integer): Boolean;
+    procedure SetOption(Index: Integer; Value: Boolean);
 
-    property ReadmeFileName: string read GetReadmeFileName write SetReadmeFileName;
+    property TextFileName: string read GetTextFileName write SetTextFileName;
+    property OptionCount: Integer read GetOptionCount;
+    property Options[Index: Integer]: Boolean read GetOption write SetOption;
   end;
 
   IJediInstallPage = interface(IJediPage)
@@ -84,7 +90,7 @@ type
     function GetDirectoryCount: Integer;
     function GetDirectory(Index: Integer): string;
     procedure SetDirectory(Index: Integer; const Value: string);
-    function AddDirectory(Caption: string): Integer;
+    function AddDirectory(const Caption: string): Integer;
     function GetProgress: Integer;
     procedure SetProgress(Value: Integer);
     procedure BeginInstall;
@@ -165,7 +171,7 @@ type
     ['{3471A535-51D7-4FBB-B6AE-20D136E38E34}']
     function Dialog(const Text: string; DialogType: TDialogType = dtInformation;
       Options: TDialogResponses = [drOK]): TDialogResponse;
-    function CreateReadmePage: IJediReadmePage;
+    function CreateTextPage: IJediTextPage;
     function CreateInstallPage: IJediInstallPage;
     function CreateProfilesPage: IJediProfilesPage;
     function GetPageCount: Integer;
@@ -178,6 +184,8 @@ type
     procedure SetProgress(Value: Integer);
     function GetAutoAcceptDialogs: TDialogTypes;
     procedure SetAutoAcceptDialogs(Value: TDialogTypes);
+    function GetAutoAcceptMPL: Boolean;
+    procedure SetAutoAcceptMPL(Value: Boolean);
     function GetAutoCloseOnFailure: Boolean;
     procedure SetAutoCloseOnFailure(Value: Boolean);
     function GetAutoCloseOnSuccess: Boolean;
@@ -186,13 +194,29 @@ type
     procedure SetAutoInstall(Value: Boolean);
     function GetAutoUninstall: Boolean;
     procedure SetAutoUninstall(Value: Boolean);
+    function GetContinueOnTargetError: Boolean;
+    procedure SetContinueOnTargetError(Value: Boolean);
+    function GetXMLResultFileName: string;
+    procedure SetXMLResultFileName(const Value: string);
+    function GetDeletePreviousLogFiles: Boolean;
+    procedure SetDeletePreviousLogFiles(Value: Boolean);
+    function GetIncludeLogFilesInXML: Boolean;
+    procedure SetIncludeLogFilesInXML(Value: Boolean);
+    function GetIgnoreRunningIDE: Boolean;
+    procedure SetIgnoreRunningIDE(Value: Boolean);
     procedure Execute;
 
     property AutoAcceptDialogs: TDialogTypes read GetAutoAcceptDialogs write SetAutoAcceptDialogs;
+    property AutoAcceptMPL: Boolean read GetAutoAcceptMPL write SetAutoAcceptMPL;
     property AutoCloseOnFailure: Boolean read GetAutoCloseOnFailure write SetAutoCloseOnFailure;
     property AutoCloseOnSuccess: Boolean read GetAutoCloseOnSuccess write SetAutoCloseOnSuccess;
     property AutoInstall: Boolean read GetAutoInstall write SetAutoInstall;
     property AutoUninstall: Boolean read GetAutoUninstall write SetAutoUninstall;
+    property ContinueOnTargetError: Boolean read GetContinueOnTargetError write SetContinueOnTargetError;
+    property XMLResultFileName: string read GetXMLResultFileName write SetXMLResultFileName;  
+    property DeletePreviousLogFiles: Boolean read GetDeletePreviousLogFiles write SetDeletePreviousLogFiles;
+    property IncludeLogFilesInXML: Boolean read GetIncludeLogFilesInXML write SetIncludeLogFilesInXML;
+    property IgnoreRunningIDE: Boolean read GetIgnoreRunningIDE write SetIgnoreRunningIDE;
     property PageCount: Integer read GetPageCount;
     property Pages[Index: Integer]: IJediPage read GetPage;
     property Status: string read GetStatus write SetStatus;
@@ -203,8 +227,8 @@ type
   IJediProduct = interface
     ['{CF5BE67A-4A49-43FB-8F6E-217A51023DA4}']
     procedure Init;
-    function Install: Boolean;
-    function Uninstall: Boolean;
+    function Install(InstallPage: IJediInstallPage = nil): Boolean;
+    function Uninstall(InstallPage: IJediInstallPage = nil): Boolean;
     procedure Close;
   end;
 
@@ -247,8 +271,8 @@ type
 
     function AddProduct(const AProduct: IJediProduct): Integer;
     procedure Execute;
-    function Install: Boolean;
-    function Uninstall: Boolean;
+    function Install(InstallPage: IJediInstallPage): Boolean;
+    function Uninstall(InstallPage: IJediInstallPage): Boolean;
     procedure Close;
     function AddInstallOption(const Name: string): Integer;
     function GetInstallOptionName(Id: Integer): string;
@@ -390,10 +414,16 @@ begin
     if ParamPos('AcceptErrors') >= 1 then
       Include(AutoAcceptDialogs, dtError);
     FInstallGUI.AutoAcceptDialogs := AutoAcceptDialogs;
+    FInstallGUI.AutoAcceptMPL := ParamPos('AutoAcceptMPL') >= 1; 
     FInstallGUI.AutoCloseOnFailure := ParamPos('CloseOnFailure') >= 1;
     FInstallGUI.AutoCloseOnSuccess := ParamPos('CloseOnSuccess') >= 1;
     FInstallGUI.AutoInstall := ParamPos('Install') >= 1;
     FInstallGUI.AutoUninstall := ParamPos('Uninstall') >= 1;
+    FInstallGUI.DeletePreviousLogFiles := ParamPos('DeletePreviousLogFiles') >= 1;
+    FInstallGUI.ContinueOnTargetError := ParamPos('ContinueOnTargetError') >= 1;
+    FInstallGUI.XMLResultFileName := ParamValue('XMLResult');
+    FInstallGUI.IncludeLogFilesInXML := ParamPos('IncludeLogFilesInXML') >= 1;
+    FInstallGUI.IgnoreRunningIDE := ParamPos('IgnoreRunningIDE') >= 1;
   end;
   Result := FInstallGUI;
 end;
@@ -418,7 +448,7 @@ begin
   Result := FProducts.Size;
 end;
 
-function TJediInstallCore.Install: Boolean;
+function TJediInstallCore.Install(InstallPage: IJediInstallPage): Boolean;
 var
   Index: Integer;
   AInstallGUI: IJediInstallGUI;
@@ -429,12 +459,16 @@ begin
   else
     Result := True;
 
-  for Index := FProducts.Size - 1 downto 0 do
+  if Result then
+    for Index := FProducts.Size - 1 downto 0 do
   begin
-    Result := (FProducts.GetObject(Index) as IJediProduct).Install;
+    Result := (FProducts.GetObject(Index) as IJediProduct).Install(InstallPage);
     if not Result then
       Break;
   end;
+
+  if Result then
+    ExitCode := 0;
 
   if Assigned(AInstallGUI) then
   begin
@@ -547,7 +581,7 @@ begin
     Page.AddText(Line);
 end;
 
-function TJediInstallCore.Uninstall: Boolean;
+function TJediInstallCore.Uninstall(InstallPage: IJediInstallPage): Boolean;
 var
   Index: Integer;
   AInstallGUI: IJediInstallGUI;
@@ -560,7 +594,10 @@ begin
 
   if Result then
     for Index := FProducts.Size - 1 downto 0 do
-      Result := (FProducts.GetObject(Index) as IJediProduct).Uninstall and Result;
+      Result := (FProducts.GetObject(Index) as IJediProduct).Uninstall(InstallPage) and Result;
+
+  if Result then
+    ExitCode := 0;
 
   if Assigned(AInstallGUI) then
   begin

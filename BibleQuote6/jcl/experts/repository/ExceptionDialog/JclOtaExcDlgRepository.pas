@@ -20,9 +20,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-07-29 16:58:43 +0200 (jeu., 29 juil. 2010)                         $ }
-{ Revision:      $Rev:: 3269                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -52,7 +52,7 @@ uses
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
   JclIDEUtils,
-  JclOtaUtils, JclOtaRepositoryUtils, JclExcDlgTemplates;
+  JclOtaUtils, JclOtaRepositoryUtils, JclPreProcessorExcDlgTemplates;
 
 type
   TJclExcDlgExpert = class(TJclOtaRepositoryExpert)
@@ -79,9 +79,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/repository/ExceptionDialog/JclOtaExcDlgRepository.pas $';
-    Revision: '$Revision: 3269 $';
-    Date: '$Date: 2010-07-29 16:58:43 +0200 (jeu., 29 juil. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\repository\ExceptionDialog';
     Extra: '';
     Data: nil
@@ -94,7 +94,7 @@ uses
   Windows,
   JclStrings, JclFileUtils, JclRegistry,
   JclOtaResources, JclOtaConsts,
-  JclTemplates, JclOtaRepositoryReg, JclOtaExcDlgWizard;
+  JclPreProcessorTemplates, JclOtaRepositoryReg, JclOtaExcDlgWizard;
 
 {$R JclOtaExcDlgIcons.res}
 
@@ -121,6 +121,33 @@ procedure TJclExcDlgExpert.CreateExceptionDialog(
       end;
     end;
     Result := string(AnsiResult);
+  end;
+
+  function PathGetAbsolutePath(const P: string): string;
+  var
+    ActiveEditBuffer: IOTAEditBuffer;
+    ActiveProject: IOTAProject;
+    CurrentDirectory: string;
+  begin
+    if not PathIsAbsolute(P) then
+    begin
+      CurrentDirectory := '';
+      ActiveEditBuffer := GetActiveEditBuffer;
+      if Assigned(ActiveEditBuffer) then
+        CurrentDirectory := ExtractFileDir(ActiveEditBuffer.FileName);
+      if CurrentDirectory = '' then
+      begin
+        ActiveProject := GetActiveProject;
+        if Assigned(ActiveProject) then
+          CurrentDirectory := ExtractFileDir(ActiveProject.FileName);
+      end;
+      if CurrentDirectory <> '' then
+        Result := PathGetRelativePath(PathAddSeparator(CurrentDirectory), P)
+      else
+        Result := P;
+    end
+    else
+      Result := P;
   end;
 const
   TemplateSubDir = 'experts\repository\ExceptionDialog\Templates\';
@@ -173,9 +200,9 @@ begin
 
   if Params.FileName <> '' then
   begin
-    FormFileName := ChangeFileExt(Params.FileName, FormExtension);
-    HeaderFileName := ChangeFileExt(Params.FileName, HeaderExtension);
-    SourceFileName := ChangeFileExt(Params.FileName, SourceExtension);
+    FormFileName := PathGetAbsolutePath(ChangeFileExt(Params.FileName, FormExtension));
+    HeaderFileName := PathGetAbsolutePath(ChangeFileExt(Params.FileName, HeaderExtension));
+    SourceFileName := PathGetAbsolutePath(ChangeFileExt(Params.FileName, SourceExtension));
   end
   else
   begin

@@ -20,9 +20,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-07-29 16:58:43 +0200 (jeu., 29 juil. 2010)                         $ }
-{ Revision:      $Rev:: 3269                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -38,7 +38,7 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
-  JclIDEUtils, JclOtaWizardFrame, JclExcDlgTemplates, JclOtaConsts, JclOtaUtils;
+  JclIDEUtils, JclOtaWizardFrame, JclPreProcessorExcDlgTemplates, JclOtaConsts, JclOtaUtils;
 
 type
   TJclOtaExcDlgFilePage = class(TJclWizardFrame)
@@ -74,9 +74,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/repository/ExceptionDialog/JclOtaExcDlgFileFrame.pas $';
-    Revision: '$Revision: 3269 $';
-    Date: '$Date: 2010-07-29 16:58:43 +0200 (jeu., 29 juil. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\repository\ExceptionDialog';
     Extra: '';
     Data: nil
@@ -163,7 +163,7 @@ begin
   
   Caption := LoadResString(@RsExcDlgFileOptions);
   LabelLanguage.Caption := LoadResString(@RsLanguage);
-  LabelFileName.Caption := LoadResString(@RsFileName);
+  LabelFileName.Caption := LoadResString(@RsUnitFileName);
   LabelFormName.Caption := LoadResString(@RsFormName);
   LabelFormAncestor.Caption := LoadResString(@RsFormAncestor);
 end;

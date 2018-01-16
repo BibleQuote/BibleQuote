@@ -17,9 +17,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-07 11:24:29 +0200 (sam., 07 août 2010)                         $ }
-{ Revision:      $Rev:: 3278                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -60,9 +60,9 @@ function JCLWizardInit(const BorlandIDEServices: IBorlandIDEServices;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/favfolders/JclIdeOpenDlgFavoriteUnit.pas $';
-    Revision: '$Revision: 3278 $';
-    Date: '$Date: 2010-08-07 11:24:29 +0200 (sam., 07 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\favfolders';
     Extra: '';
     Data: nil
@@ -105,7 +105,7 @@ end;
 
 function JCLWizardInit(const BorlandIDEServices: IBorlandIDEServices;
     RegisterProc: TWizardRegisterProc;
-    var TerminateProc: TWizardTerminateProc): Boolean stdcall;
+    var TerminateProc: TWizardTerminateProc): Boolean; stdcall;
 begin
   try
     TerminateProc := JclWizardTerminate;

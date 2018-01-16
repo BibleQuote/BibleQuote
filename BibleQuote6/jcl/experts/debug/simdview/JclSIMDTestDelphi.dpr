@@ -17,13 +17,13 @@
 { All Rights Free.                                                                                 }
 {                                                                                                  }
 { You may retrieve the latest version of this file at the Project JEDI's JCL home page,            }
-{ located at http://jcl.sourceforge.net                                                            }
+{ located at https://github.com/project-jedi/jcl                                                   }
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2007-09-17 23:41:02 +0200 (lun., 17 sept. 2007)                         $ }
-{ Revision:      $Rev:: 2175                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 

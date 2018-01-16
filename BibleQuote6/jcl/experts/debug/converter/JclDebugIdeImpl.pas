@@ -17,9 +17,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010)                         $ }
-{ Revision:      $Rev:: 3321                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -35,7 +35,8 @@ uses
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
   JclOtaUtils, JclOtaConsts,
-  JclDebugIdeConfigFrame;
+  JclDebugIdeConfigFrame,
+  JclOtaActions;
 
 type
   TJclDebugDataInfo = record
@@ -50,31 +51,8 @@ type
   TDebugExpertAction = (deGenerateJdbg, deInsertJdbg, deDeleteMapFile);
   TDebugExpertActions = set of TDebugExpertAction;
 
-  {$IFDEF BDS8_UP}
-  TJclDebugExtension = class;
-
-  TJclDebugAddinOptions = class(TInterfacedObject, INTAAddinOptions)
-  private
-    FConfigFrame: TJclDebugIdeConfigFrame;
-    FDebugExtension: TJclDebugExtension;
-  public
-    constructor Create(ADebugExtension: TJclDebugExtension);
-    procedure DialogClosed(Accepted: Boolean);
-    procedure FrameCreated(AFrame: TCustomFrame);
-    function GetArea: string;
-    function GetCaption: string;
-    function GetFrameClass: TCustomFrameClass;
-    function ValidateContents: Boolean;
-    function GetHelpContext: Integer;
-    function IncludeInIDEInsight: Boolean;
-  end;
-  {$ENDIF BDS8_UP}
-
   TJclDebugExtension = class(TJclOTAExpert)
   private
-    {$IFDEF BDS8_UP}
-    FAddinOptions: TJclDebugAddinOptions;
-    {$ENDIF BDS8_UP}
     FResultInfo: array of TJclDebugDataInfo;
     FStoreResults: Boolean;
     FBuildError: Boolean;
@@ -141,19 +119,21 @@ type
     procedure UpdateMenuCheckState(Sender: TMenuItem; DebugExpertAction: TDebugExpertAction);
   public
     constructor Create; reintroduce;
-    destructor Destroy; override;
     procedure AfterCompile(const Project: IOTAProject; Succeeded: Boolean);
     procedure BeforeCompile(const Project: IOTAProject; var Cancel: Boolean);
     procedure RegisterCommands; override;
     procedure UnregisterCommands; override;
-    procedure AddConfigurationPages(AddPageFunc: TJclOTAAddPageFunc); override;
-    procedure ConfigurationClosed(AControl: TControl; SaveChanges: Boolean); override;
     procedure DisableExpert(const AProject: IOTAProject);
     property GlobalStates[Index: TDebugExpertAction]: TDebugExpertState read GetGlobalState
       write SetGlobalState;
     property ProjectStates[Index: TDebugExpertAction; const AProject: IOTAProject]: TDebugExpertState
       read GetProjectState write SetProjectState;
     property ProjectActions[const AProject: IOTAProject]: TDebugExpertActions read GetProjectActions;
+  public
+    function GetPageName: string; override;
+    function GetFrameClass: TCustomFrameClass; override;
+    procedure FrameCreated(AFrame: TCustomFrame); override;
+    procedure DialogClosed(Accepted: Boolean); override;
   end;
 
   TIdeNotifier = class(TNotifierObject, IOTANotifier, IOTAIDENotifier, IOTAIDENotifier50
@@ -246,9 +226,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/debug/converter/JclDebugIdeImpl.pas $';
-    Revision: '$Revision: 3321 $';
-    Date: '$Date: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\debug\converter';
     Extra: '';
     Data: nil
@@ -262,6 +242,9 @@ implementation
 uses
   TypInfo,
   Variants,
+  {$IFDEF HAS_UNIT_SYSTEM_ACTIONS}
+  System.Actions,
+  {$ENDIF HAS_UNIT_SYSTEM_ACTIONS}
   {$IFDEF BDS8_UP}
   JclOtaAddinOptions,
   {$ENDIF BDS8_UP}
@@ -310,116 +293,17 @@ begin
   end;
 end;
 
-//=== { TJclDebugAddinOptions } ==============================================
-
-{$IFDEF BDS8_UP}
-constructor TJclDebugAddinOptions.Create(ADebugExtension: TJclDebugExtension);
-begin
-  inherited Create;
-  FDebugExtension := ADebugExtension;
-end;
-
-procedure TJclDebugAddinOptions.DialogClosed(Accepted: Boolean);
-begin
-  if Accepted then
-  begin
-    FDebugExtension.GlobalStates[deGenerateJdbg] := FConfigFrame.GenerateJdbgState;
-    FDebugExtension.GlobalStates[deInsertJdbg] := FConfigFrame.InsertJdbgState;
-    FDebugExtension.GlobalStates[deDeleteMapFile] := FConfigFrame.DeleteMapFileState;
-  end;
-end;
-
-procedure TJclDebugAddinOptions.FrameCreated(AFrame: TCustomFrame);
-begin
-  FConfigFrame := TJclDebugIdeConfigFrame(AFrame);
-  FConfigFrame.GenerateJdbgState := FDebugExtension.GlobalStates[deGenerateJdbg];
-  FConfigFrame.InsertJdbgState := FDebugExtension.GlobalStates[deInsertJdbg];
-  FConfigFrame.DeleteMapFileState := FDebugExtension.GlobalStates[deDeleteMapFile];
-end;
-
-function TJclDebugAddinOptions.GetArea: string;
-begin
-  Result := '';
-end;
-
-function TJclDebugAddinOptions.GetCaption: string;
-begin
-  Result := JclGetAddinOptionsCaption(RsDebugConfigPageCaption);
-end;
-
-function TJclDebugAddinOptions.GetFrameClass: TCustomFrameClass;
-begin
-  Result := TJclDebugIdeConfigFrame;
-end;
-
-function TJclDebugAddinOptions.GetHelpContext: Integer;
-begin
-  Result := 0;
-end;
-
-function TJclDebugAddinOptions.IncludeInIDEInsight: Boolean;
-begin
-  Result := True;
-end;
-
-function TJclDebugAddinOptions.ValidateContents: Boolean;
-begin
-  Result := True;
-end;
-{$ENDIF BDS8_UP}
-
 //=== { TJclDebugExtension } =================================================
-
-procedure TJclDebugExtension.ConfigurationClosed(AControl: TControl; SaveChanges: Boolean);
-begin
-  if Assigned(AControl) and (AControl = FConfigFrame) then
-  begin
-    if SaveChanges then
-    begin
-      GlobalStates[deGenerateJdbg] := FConfigFrame.GenerateJdbgState;
-      GlobalStates[deInsertJdbg] := FConfigFrame.InsertJdbgState;
-      GlobalStates[deDeleteMapFile] := FConfigFrame.DeleteMapFileState;
-      FQuiet := FConfigFrame.Quiet;
-    end;
-    FreeAndNil(FConfigFrame);
-  end
-  else
-    inherited ConfigurationClosed(AControl, SaveChanges);
-end;
 
 constructor TJclDebugExtension.Create;
 begin
   inherited Create(JclDebugExpertRegKey);
-  {$IFDEF BDS8_UP}
-  FAddinOptions := TJclDebugAddinOptions.Create(Self);
-  (BorlandIDEServices as INTAEnvironmentOptionsServices).RegisterAddInOptions(FAddinOptions);
-  {$ENDIF BDS8_UP}
-end;
-
-destructor TJclDebugExtension.Destroy;
-begin
-  {$IFDEF BDS8_UP}
-  (BorlandIDEServices as INTAEnvironmentOptionsServices).UnregisterAddInOptions(FAddinOptions);
-  FAddinOptions := nil;
-  {$ENDIF BDS8_UP}
-  inherited Destroy;
-end;
-
-procedure TJclDebugExtension.AddConfigurationPages(AddPageFunc: TJclOTAAddPageFunc);
-begin
-  inherited AddConfigurationPages(AddPageFunc);
-  FConfigFrame := TJclDebugIdeConfigFrame.Create(nil);
-  FConfigFrame.GenerateJdbgState := GlobalStates[deGenerateJdbg];
-  FConfigFrame.InsertJdbgState := GlobalStates[deInsertJdbg];
-  FConfigFrame.DeleteMapFileState := GlobalStates[deDeleteMapFile];
-  FConfigFrame.Quiet := FQuiet;
-  AddPageFunc(FConfigFrame, LoadResString(@RsDebugConfigPageCaption), Self);
 end;
 
 procedure TJclDebugExtension.AfterCompile(const Project: IOTAProject; Succeeded: Boolean);
 var
   ProjectFileName, MapFileName, DrcFileName, ExecutableFileName, JdbgFileName: TFileName;
-  OutputDirectory, LinkerBugUnit: string;
+  OutputDirectory, LinkerBugUnit, ErrorMsg: string;
   Succ: Boolean;
   MapFileSize, JclDebugDataSize, LineNumberErrors, C: Integer;
   EnabledActions: TDebugExpertActions;
@@ -486,7 +370,7 @@ begin
                 OutputToolMessage(Format(LoadResString(@RsInsertedJdbg), [MapFileName, MapFileSize, JclDebugDataSize]));
             end
             else
-              OutputToolMessage(Format(LoadResString(@RsEMapConversion), [MapFileName]));
+              OutputToolMessage(Format(LoadResString(@RsEMapInsertion), [MapFileName]));
           end
           else
             OutputToolMessage(Format(LoadResString(@RsEExecutableNotFound), [ProjectFileName]));
@@ -503,10 +387,18 @@ begin
           end
           else
             OutputToolMessage(Format(LoadResString(@RsEFailedToDeleteMapFile), ['MAP', MapFileName]));
+
+          if not FileExists(DrcFileName) then // Mantis #6488
+            DrcFileName := ChangeFileExt(MapFileName, CompilerExtensionDRC);
+
           if DeleteFile(DrcFileName) then
             OutputToolMessage(Format(LoadResString(@RsDeletedMapFile), ['DRC', DrcFileName]))
           else
+          begin
+            ErrorMsg := SysErrorMessage(GetLastError);
             OutputToolMessage(Format(LoadResString(@RsEFailedToDeleteMapFile), ['DRC', DrcFileName]));
+            OutputToolMessage(ErrorMsg);
+          end;
         end;
 
         Screen.Cursor := crDefault;
@@ -550,7 +442,7 @@ begin
   EnabledActions := GetProjectActions(Project);
   if EnabledActions <> [] then
   begin
-    if IsInstalledPackage(Project) then
+    if (deInsertJdbg in EnabledActions) and IsInstalledPackage(Project) then
     begin
       if MessageDlg(Format(LoadResString(@RsCantInsertToInstalledPackage), [Project.FileName]), mtError, [mbYes, mbNo], 0) = mrYes then
       begin
@@ -652,13 +544,13 @@ begin
       FSaveBuildAllProjectsActionExecute(Sender);
       DisplayResults;
     except
+      on EAbort do
+        raise;
+      on EFOpenError do // when ".ridl" files are not found by IDE, reraise the exception
+        raise;
       on ExceptionObj: TObject do
       begin
-        if ExceptionObj is EFOpenError then
-          // when ".ridl" files are not found by IDE, reraise the exception
-          raise
-        else
-          JclExpertShowExceptionDialog(ExceptionObj);
+        JclExpertShowExceptionDialog(ExceptionObj);
       end;
     end;
   finally
@@ -674,18 +566,30 @@ begin
       FSaveBuildProjectActionExecute(Sender);
       DisplayResults;
     except
+      on EAbort do
+        raise;
+      on EFOpenError do // when ".ridl" files are not found by IDE, reraise the exception
+        raise;
       on ExceptionObj: TObject do
       begin
-        if ExceptionObj is EFOpenError then
-          // when ".ridl" files are not found by IDE, reraise the exception
-          raise
-        else
-          JclExpertShowExceptionDialog(ExceptionObj);
+        JclExpertShowExceptionDialog(ExceptionObj);
       end;
     end;
   finally
     EndStoreResults;
   end;
+end;
+
+procedure TJclDebugExtension.DialogClosed(Accepted: Boolean);
+begin
+  if Accepted then
+  begin
+    GlobalStates[deGenerateJdbg] := FConfigFrame.GenerateJdbgState;
+    GlobalStates[deInsertJdbg] := FConfigFrame.InsertJdbgState;
+    GlobalStates[deDeleteMapFile] := FConfigFrame.DeleteMapFileState;
+    FQuiet := FConfigFrame.Quiet;
+  end;
+  FConfigFrame := nil;
 end;
 
 procedure TJclDebugExtension.DisableExpert(const AProject: IOTAProject);
@@ -741,6 +645,15 @@ procedure TJclDebugExtension.EndStoreResults;
 begin
   FStoreResults := False;
   FResultInfo := nil;
+end;
+
+procedure TJclDebugExtension.FrameCreated(AFrame: TCustomFrame);
+begin
+  FConfigFrame := AFrame as TJclDebugIdeConfigFrame;
+  FConfigFrame.GenerateJdbgState := GlobalStates[deGenerateJdbg];
+  FConfigFrame.InsertJdbgState := GlobalStates[deInsertJdbg];
+  FConfigFrame.DeleteMapFileState := GlobalStates[deDeleteMapFile];
+  FConfigFrame.Quiet := FQuiet;
 end;
 
 procedure TJclDebugExtension.UpdateMenuItems(const ActiveProject: IOTAProject; AMenuItem: TMenuItem; CheckTag: Integer);
@@ -1055,9 +968,19 @@ begin
   end;
 end;
 
+function TJclDebugExtension.GetFrameClass: TCustomFrameClass;
+begin
+  Result := TJclDebugIdeConfigFrame;
+end;
+
 function TJclDebugExtension.GetGlobalState(Index: TDebugExpertAction): TDebugExpertState;
 begin
   Result := FGlobalStates[Index];
+end;
+
+function TJclDebugExtension.GetPageName: string;
+begin
+  Result := LoadResString(@RsDebugConfigPageCaption);
 end;
 
 function TJclDebugExtension.GetProjectActions(const AProject: IOTAProject): TDebugExpertActions;
@@ -1299,22 +1222,31 @@ begin
   ImageBmp := TBitmap.Create;
   try
     // load images
-    ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLDEBUG');
-    FDebugImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
-    ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLNODEBUG');
-    FNoDebugImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
-    ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLGENERATEJDBG');
-    FGenerateJdbgImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
-    ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLNOGENERATEJDBG');
-    FNoGenerateJdbgImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
-    ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLINSERTJDBG');
-    FInsertJdbgImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
-    ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLNOINSERTJDBG');
-    FNoInsertJdbgImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
-    ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLDELETEMAP');
-    FDeleteMapFileImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
-    ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLNODELETEMAP');
-    FNoDeleteMapFileImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+    {$IFDEF COMPILER14_UP}
+    NTAServices.ImageList.BeginUpdate;
+    try
+    {$ENDIF COMPILER14_UP}
+      ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLDEBUG');
+      FDebugImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+      ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLNODEBUG');
+      FNoDebugImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+      ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLGENERATEJDBG');
+      FGenerateJdbgImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+      ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLNOGENERATEJDBG');
+      FNoGenerateJdbgImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+      ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLINSERTJDBG');
+      FInsertJdbgImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+      ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLNOINSERTJDBG');
+      FNoInsertJdbgImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+      ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLDELETEMAP');
+      FDeleteMapFileImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+      ImageBmp.LoadFromResourceName(FindResourceHInstance(ModuleHInstance), 'JCLNODELETEMAP');
+      FNoDeleteMapFileImageIndex := NTAServices.AddMasked(ImageBmp, clPurple);
+    {$IFDEF COMPILER14_UP}
+    finally
+      NTAServices.ImageList.EndUpdate;
+    end;
+    {$ENDIF COMPILER14_UP}
 
     // create actions
     FDebugExpertAction := TDropDownAction.Create(nil);
@@ -1329,7 +1261,7 @@ begin
     FDebugExpertAction.DropdownMenu.OnPopup := DebugExpertMenuDropDown;
     FDebugExpertAction.DropdownMenu.AutoPopup := True;
     FillMenu(FDebugExpertAction.DropDownMenu.Items, DebugExpertSubMenuClick);
-    RegisterAction(FDebugExpertAction);
+    TJclOTAActionExpert.RegisterAction(FDebugExpertAction);
 
     FGenerateJdbgAction := TDropDownAction.Create(nil);
     FGenerateJdbgAction.Caption := LoadResString(@RsDebugGenerateJdbg);
@@ -1343,7 +1275,7 @@ begin
     FGenerateJdbgAction.DropdownMenu.OnPopup := GenerateJdbgMenuDropDown;
     FGenerateJdbgAction.DropdownMenu.AutoPopup := True;
     FillMenu(FGenerateJdbgAction.DropDownMenu.Items, GenerateJdbgSubMenuClick);
-    RegisterAction(FGenerateJdbgAction);
+    TJclOTAActionExpert.RegisterAction(FGenerateJdbgAction);
 
     FInsertJdbgAction := TDropDownAction.Create(nil);
     FInsertJdbgAction.Caption := LoadResString(@RsDebugInsertJdbg);
@@ -1357,7 +1289,7 @@ begin
     FInsertJdbgAction.DropdownMenu.OnPopup := InsertJdbgMenuDropDown;
     FInsertJdbgAction.DropdownMenu.AutoPopup := True;
     FillMenu(FInsertJdbgAction.DropDownMenu.Items, InsertJdbgSubMenuClick);
-    RegisterAction(FInsertJdbgAction);
+    TJclOTAActionExpert.RegisterAction(FInsertJdbgAction);
 
     FDeleteMapFileAction := TDropDownAction.Create(nil);
     FDeleteMapFileAction.Caption := LoadResString(@RsDeleteMapFile);
@@ -1371,7 +1303,7 @@ begin
     FDeleteMapFileAction.DropdownMenu.OnPopup := DeleteMapFileMenuDropDown;
     FDeleteMapFileAction.DropdownMenu.AutoPopup := True;
     FillMenu(FDeleteMapFileAction.DropDownMenu.Items, DeleteMapFileSubMenuClick);
-    RegisterAction(FDeleteMapFileAction);
+    TJclOTAActionExpert.RegisterAction(FDeleteMapFileAction);
 
     // create menu items
     FDebugExpertItem := TMenuItem.Create(nil);
@@ -1515,10 +1447,10 @@ begin
   FDebugExpertItem.Free;
 
   // remove actions
-  UnregisterAction(FDeleteMapFileAction);
-  UnregisterAction(FInsertJdbgAction);
-  UnregisterAction(FGenerateJdbgAction);
-  UnregisterAction(FDebugExpertAction);
+  TJclOTAActionExpert.UnregisterAction(FDeleteMapFileAction);
+  TJclOTAActionExpert.UnregisterAction(FInsertJdbgAction);
+  TJclOTAActionExpert.UnregisterAction(FGenerateJdbgAction);
+  TJclOTAActionExpert.UnregisterAction(FDebugExpertAction);
   FDeleteMapFileAction.Free;
   FInsertJdbgAction.Free;
   FGenerateJdbgAction.Free;
@@ -1548,6 +1480,8 @@ begin
       FCurrentProject := nil;
     end;
   except
+    on EAbort do
+      raise;
     on ExceptionObj: Exception do
       JclExpertShowExceptionDialog(ExceptionObj);
   end;
@@ -1560,6 +1494,8 @@ begin
     if not IsCodeInsight then
       FDebugExtension.AfterCompile(Project, Succeeded);
   except
+    on EAbort do
+      raise;
     on ExceptionObj: Exception do
       JclExpertShowExceptionDialog(ExceptionObj);
   end;
@@ -1576,6 +1512,8 @@ begin
       FDebugExtension.BeforeCompile(Project, Cancel);
     end;
   except
+    on EAbort do
+      raise;
     on ExceptionObj: TObject do
       JclExpertShowExceptionDialog(ExceptionObj);
   end;
