@@ -6,12 +6,16 @@ EMail:        a.drent@aducom.com (www.aducom.com/SQLite)
 Support:      support@aducom.com (www.aducom.com/SQLite)
               Please register to the forum on www.aducom.com/sqlite. Here you're questions will be 
               answered. Do not send mail unnoticed to me or support as our filters will intercept 
-              and delete. If needed, we will ask you to send us sources / samples etc. to our support 
-              center. 
+              and delete. We need to add you to the white list. If needed, we will ask you to send us 
+              sources / samples etc. to our supportcenter. 
 
-Release 2006.03.C
+NOTICE!
+To be able to download you must register on our website. This is done to prevent misuse as we have seen in the past. To be able to you must provide a valid email address. Some users are then changing it back to rubbish or use temporary email adresses. We will delete these accounts, if possible even before registration. If you do not want to remain registered then just email support and we will remove you. But have you registered for our newsletter? We only send notices when new editions arrive, so don't be affraid to be spammed for internity. 
 
+Release 2009.02.A
 Legal issues: See licence.txt
+Important notice: 
+We have removed all that is related to static linking. The main reason is that with the utilities of Sasa Zemann (www.szutils.net) it's fairly easy to create the correct obj's and make stuff. This way we don't need to keep up with all the changes of the SQLite3.dll. 
 
 Installation
 
@@ -47,7 +51,8 @@ The most actual obj files needed for linking can be downloaded from the download
 Change the first obj reference in the source to the correct obj, currently {$L 'OBJ\sqlite3_3_4.obj'}
 
 The website of Aducom SOftware is bilangual. The sqlite components and documentation will be found on the 
-English section of the website (select 'english' in the language pull-down).
+English section of the website.
+
 
  
 			

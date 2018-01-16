@@ -1,6 +1,7 @@
 package asqlite3pkgD10;
 
 {$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
@@ -11,20 +12,81 @@ package asqlite3pkgD10;
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION ON}
+{$OPTIMIZATION OFF}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
 {$REFERENCEINFO OFF}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES OFF}
+{$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST ON}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $600000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Aducom Software -- SQLite RunTime Components'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
+
+contains
+  ASGSQLite3Dsg in 'ASGSQLite3Dsg.pas';
+
+contains
+  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
+
+contains
+  ASGRout3_unicode in 'ASGRout3_unicode.pas';
+
+contains
+  AMDSqlite3 in 'AMDSqlite3.pas' {FMD};
+
+contains
+  ASGSQLite3Dsg in 'ASGSQLite3Dsg.pas';
+
+contains
+  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
+
+contains
+  ASGRout3_unicode in 'ASGRout3_unicode.pas';
+
+contains
+  ASGSQLiteData in 'ASGSQLiteData.pas',
+  AMDSqlite3 in 'AMDSqlite3.pas' {FMD};
+
+ontains
+  ASGSQLite3Dsg in 'ASGSQLite3Dsg.pas';
+
+contains
+  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
+
+contains
+  ASGRout3_unicode in 'ASGRout3_unicode.pas';
+
+contains
+  ASGSQLiteData in 'ASGSQLiteData.pas',
+  AMDSqlite3 in 'AMDSqlite3.pas' {FMD};
+
+ontains
+  ASGSQLite3Dsg in 'ASGSQLite3Dsg.pas';
+
+contains
+  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
+
+contains
+  ASGRout3_unicode in 'ASGRout3_unicode.pas';
+
+contains
+  AMDSqlite3 in 'AMDSqlite3.pas' {FMD};
+
+contains
+  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
+
+contains
+  ASGRout3_unicode in 'ASGRout3_unicode.pas';
+
+contains
+  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
 
 requires
   rtl,
@@ -36,10 +98,11 @@ requires
   xmlrtl,
   vclactnband;
 
-contains
+ocontains
   ASGSQLiteData in 'ASGSQLiteData.pas',
   AMDSqlite3 in 'AMDSqlite3.pas',
   ASGRout3 in 'ASGRout3.pas',
-  ASGSQLite3 in 'ASGSQLite3.pas';
+  ASGSQLite3 in 'ASGSQLite3.pas',
+  ASGRout3_unicode in 'ASGRout3_unicode.pas';
 
-end.
+d.

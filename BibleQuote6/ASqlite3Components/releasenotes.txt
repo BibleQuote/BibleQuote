@@ -378,3 +378,5 @@ History:
 						
 	      may 28, 2008 Release 2008.06.D
 			- Bugfix for Delphi < version 6 (StrToDateDef is not supported in older releases)
+	      feb 10, 2009 Release 2009.02.A
+			- Several bugfixes and code-optimizations for the binding mechanism.	
