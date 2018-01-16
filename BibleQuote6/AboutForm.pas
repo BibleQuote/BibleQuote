@@ -4,15 +4,15 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, TntForms, ExtCtrls, TntStdCtrls, StdCtrls, PngImage1 ;
+  Dialogs, ExtCtrls, StdCtrls, PngImage1 ;
 
 type
-  TfrmAbout = class(TTntForm)
+  TfrmAbout = class(TForm)
     Shape1: TShape;
-    lbBQName: TTntLabel;
+    lbBQName: TLabel;
     Image1: TImage;
-    memDevs: TTntMemo;
-    btnOK: TTntButton;
+    memDevs: TMemo;
+    btnOK: TButton;
     Panel1: TPanel;
     Panel2: TPanel;
     procedure TntLabel1Click(Sender: TObject);

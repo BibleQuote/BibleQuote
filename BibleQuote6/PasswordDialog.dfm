@@ -15,7 +15,7 @@ object frmPassBox: TfrmPassBox
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object lblPasswordNeeded: TTntLabel
+  object lblPasswordNeeded: TLabel
     Left = 8
     Top = 8
     Width = 431
@@ -24,14 +24,14 @@ object frmPassBox: TfrmPassBox
     Caption = 'lblPasswordNeeded'
     WordWrap = True
   end
-  object lblEnterPassword: TTntLabel
+  object lblEnterPassword: TLabel
     Left = 8
     Top = 56
     Width = 56
     Height = 13
     Caption = 'lbPassWord'
   end
-  object btnOk: TTntButton
+  object btnOk: TButton
     Left = 40
     Top = 139
     Width = 105
@@ -40,7 +40,7 @@ object frmPassBox: TfrmPassBox
     ModalResult = 1
     TabOrder = 2
   end
-  object edPwd: TTntEdit
+  object edPwd: TEdit
     Left = 8
     Top = 75
     Width = 425
@@ -49,7 +49,7 @@ object frmPassBox: TfrmPassBox
     TabOrder = 0
     OnKeyUp = edPwdKeyUp
   end
-  object btnCancel: TTntButton
+  object btnCancel: TButton
     Left = 295
     Top = 139
     Width = 105
@@ -59,7 +59,7 @@ object frmPassBox: TfrmPassBox
     ModalResult = 2
     TabOrder = 3
   end
-  object cbxSavePwd: TTntCheckBox
+  object cbxSavePwd: TCheckBox
     Left = 8
     Top = 102
     Width = 401

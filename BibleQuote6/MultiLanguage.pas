@@ -3,52 +3,52 @@ unit MultiLanguage;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, 
+  Windows, Messages, SysUtils, Classes, WCharReader,
   Graphics, Controls,
-  Forms, TntForms, Dialogs, 
+  Forms, Dialogs,
   
   
   TypInfo,
-  string_procs, WCharReader,WideStrings;
+  string_procs;
 
 type
   TMultiLanguage = class (TComponent)
   private
     { Private declarations }
-    FLines: TWideStrings;
-    FIniFile: WideString;
-    FSeparator: WideString;
+    FLines: TStrings;
+    FIniFile: string;
+    FSeparator: string;
   protected
     { Protected declarations }
-    procedure _LoadIniFile(value: WideString);
-    procedure SetProperty (AComponent : TComponent; sProperty, sValue : WideString);
+    procedure _LoadIniFile(value: string);
+    procedure SetProperty (AComponent : TComponent; sProperty, sValue : string);
     procedure SetStringsProperty (
       AComponent : TComponent;
       PropInfo   : PPropInfo;
-      sValues    : WideString
+      sValues    : string
     );
   public
     { Public declarations }
     class function IsStringProperty (PropInfo : PPropInfo) : Boolean;
     class function IsIntegerProperty (PropInfo : PPropInfo) : Boolean;
-    function LoadIniFile (value: WideString):boolean;
+    function LoadIniFile (value: string):boolean;
 
-    property IniFile: WideString read FIniFile write _LoadIniFile;
+    property IniFile: string read FIniFile write _LoadIniFile;
     procedure SaveToFile;
 
-    function Say(s: WideString): WideString; // default = s
-    function SayDefault(s,def: WideString): WideString; // default = def
-    function GetIntDefault(valueTag:WideString; defValue:integer=0):integer;
-    function ReadString(section,s,def: WideString): WideString;
-    function Learn(s, value: WideString): boolean;overload;
-    function Learn(s:WideString; val:integer):boolean;overload;
-    procedure TranslateForm(form: TTntForm);
+    function Say(s: string): string; // default = s
+    function SayDefault(s,def: string): string; // default = def
+    function GetIntDefault(valueTag:string; defValue:integer=0):integer;
+    function ReadString(section,s,def: string): string;
+    function Learn(s, value: string): boolean;overload;
+    function Learn(s:string; val:integer):boolean;overload;
+    procedure TranslateForm(form: TForm);
 
     constructor Create (AOwner: TComponent); override;
     destructor Destroy; override;
   published
     { Published declarations }
-    property Separator: WideString read FSeparator write FSeparator;
+    property Separator: string read FSeparator write FSeparator;
   end;
 
 procedure Register;
@@ -63,7 +63,7 @@ end;
 constructor TMultiLanguage.Create (AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FLines := TWideStringList.Create;
+  FLines := TStringList.Create;
   FIniFile := '';
   FSeparator := ',';
 end;
@@ -74,15 +74,15 @@ begin
   inherited Destroy;
 end;
 
-function TMultiLanguage.GetIntDefault(valueTag: WideString;
+function TMultiLanguage.GetIntDefault(valueTag: string;
   defValue: integer): integer;
-  var val:AnsiString;
+  var val:string;
 begin
 val:=Say(valueTag);
 result:=StrToIntDef(val, defValue);
 end;
 
-procedure TMultiLanguage._LoadIniFile(value: WideString);
+procedure TMultiLanguage._LoadIniFile(value: string);
 begin
 LoadIniFile(value)
 end;
@@ -92,10 +92,10 @@ begin
   WChar_WriteTextFile (FIniFile, FLines);
 end;
 
-function TMultiLanguage.Learn(s, value: WideString): boolean;
+function TMultiLanguage.Learn(s, value: string): boolean;
 var
   i: integer;
-  tmp: WideString;
+  tmp: string;
 begin
   Result := false;
 
@@ -113,12 +113,12 @@ begin
   if not Result then FLines.Add(s + ' = ' + value);
 end;
 
-function TMultiLanguage.Learn(s: WideString; val: integer): boolean;
+function TMultiLanguage.Learn(s: string; val: integer): boolean;
 begin
 result:=Learn(s, inttostr(val));
 end;
 
-function TMultiLanguage.LoadIniFile(value: WideString): boolean;
+function TMultiLanguage.LoadIniFile(value: string): boolean;
 begin
 //  FIniFile := StrReplace (value, '&', '');
   FIniFile := value;
@@ -126,7 +126,7 @@ begin
   if not FileExists(value) then exit;
   try
     FLines.Free;
-    FLines := WChar_ReadTextFileToTWideStrings (value);
+    FLines := WChar_ReadTextFileToTStrings (value);
   except
     raise Exception.CreateFmt('TMultiLanguage.LoadIniFile: Error loading file %s',
       [value]);
@@ -134,7 +134,7 @@ begin
   result:=true;
 end;
 
-function TMultiLanguage.Say(s: WideString): WideString;
+function TMultiLanguage.Say(s: string): string;
 var
   i,j: integer;
   tmp: WideString;
@@ -158,7 +158,7 @@ begin
   end;
 end;
 
-function TMultiLanguage.ReadString(section,s,def: WideString): WideString;
+function TMultiLanguage.ReadString(section,s,def: string): string;
 var
   cnt,i,j, lineCount: integer;
   tmp: WideString;
@@ -190,7 +190,7 @@ begin
   end;
 end;
 
-function TMultiLanguage.SayDefault(s,def: WideString): WideString;
+function TMultiLanguage.SayDefault(s,def: string): string;
 var
   i,j: integer;
   tmp: WideString;
@@ -226,7 +226,8 @@ begin
   TypeInfo    := pType^;
   if (TypeInfo.Kind = tkString) or
      (TypeInfo.Kind = tkLString) or
-     (TypeInfo.Kind = tkWString)
+     (TypeInfo.Kind = tkWString) or
+     (TypeInfo.Kind = tkUString)
   then
     Result := True
   else
@@ -250,12 +251,12 @@ end;
 procedure TMultiLanguage.SetStringsProperty (
   AComponent : TComponent;
   PropInfo   : PPropInfo;
-  sValues    : WideString
+  sValues    : string
 );
-var AStrings : TWideStringList;
-    sBuffer  : WideString;
+var AStrings : TStringList;
+    sBuffer  : string;
 begin
-  AStrings := TWideStringList.Create;
+  AStrings := TStringList.Create;
 
   while (Pos(FSeparator, sValues) > 0) do
   begin
@@ -272,7 +273,7 @@ begin
   AStrings.Free;
 end;
 
-procedure TMultiLanguage.SetProperty(AComponent: TComponent; sProperty, sValue: WideString);
+procedure TMultiLanguage.SetProperty(AComponent: TComponent; sProperty, sValue: string);
 var
   PropInfo: PPropInfo;
 begin
@@ -289,10 +290,10 @@ begin
   end;
 end;
 
-procedure TMultiLanguage.TranslateForm(form: TTntForm);
+procedure TMultiLanguage.TranslateForm(form: TForm);
 var
   i: integer;
-  s, sname: WideString;
+  s, sname: string;
 begin
   with form do
   for i:=0 to ComponentCount-1 do

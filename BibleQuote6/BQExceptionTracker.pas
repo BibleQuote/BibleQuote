@@ -4,14 +4,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, TntStdCtrls,WideStrings, StdCtrls;
+  Dialogs, StdCtrls,WideStrings;
 
 type
   TbqExceptionForm = class(TForm)
-    ErrMemo: TTntMemo;
-    lblLog: TTntLabel;
-    btnOK: TTntButton;
-    btnHalt: TTntButton;
+    ErrMemo: TMemo;
+    lblLog: TLabel;
+    btnOK: TButton;
+    btnHalt: TButton;
     procedure btnHaltClick(Sender: TObject);
   private
     { Private declarations }
@@ -26,13 +26,13 @@ var
   bqExceptionForm: TbqExceptionForm;
 
 implementation
-uses TntClasses, JclDebug, BibleQuoteUtils,BibleQuoteConfig,bqPlainUtils;
+uses JclDebug, BibleQuoteUtils,BibleQuoteConfig,bqPlainUtils;
 {$R *.dfm}
  var bqExceptionLog:TbqTextFileWriter;
 
 function getExceptionLog():TbqTextFileWriter;
 begin
-  if not assigned(bqExceptionLog) then bqExceptionLog:=TbqTextFileWriter.Create(CreateAndGetConfigFolder()+'bqErr.log', );
+  if not assigned(bqExceptionLog) then bqExceptionLog:=TbqTextFileWriter.Create(CreateAndGetConfigFolder()+'bqErr.log');
   result:=bqExceptionLog;
 end;
 
@@ -43,7 +43,7 @@ else result:=S_FALSE;
 end;
 procedure BqShowException(e: Exception;addInfo:WideString=''; nonContinuable:boolean=false);
 var
-  lns: TTntStrings;
+  lns: TStrings;
   iv:TIdleEvent;
   exceptionLog:TbqTextFileWriter;
 begin
@@ -52,12 +52,12 @@ begin
   bqExceptionForm := TbqExceptionForm.Create(Application);
   exceptionLog:= getExceptionLog();
   bqExceptionForm.ErrMemo.Lines.clear();
-  lns := TTntStringList.Create();
+  lns := TStringList.Create();
   iv:=Application.OnIdle; Application.OnIdle:=nil;
   try
   bqExceptionForm.mNonContinuable:=  bqExceptionForm.mNonContinuable or nonContinuable;
   lns.Clear;
-  JclLastExceptStackListToStrings(lns.AnsiStrings,
+  JclLastExceptStackListToStrings(lns,
     true, True, True, False);
   lns.Insert(0, WideFormat('Exception:%s, msg:%s', [E.ClassName, E.Message]));
   if g_ExceptionContext.Count>0 then

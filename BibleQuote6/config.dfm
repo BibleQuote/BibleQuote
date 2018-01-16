@@ -18,7 +18,7 @@ object ConfigForm: TConfigForm
   OnKeyPress = FormKeyPress
   PixelsPerInch = 96
   TextHeight = 13
-  object PageControl1: TTntPageControl
+  object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 475
@@ -26,10 +26,9 @@ object ConfigForm: TConfigForm
     ActivePage = OtherOptionsTabSheet
     Align = alTop
     TabOrder = 0
-    HideTabsHints = False
-    object CopyOptionsTabSheet: TTntTabSheet
+    object CopyOptionsTabSheet: TTabSheet
       Caption = 'CopyOptionsTabSheet'
-      object CopyVerseNumbers: TTntCheckBox
+      object CopyVerseNumbers: TCheckBox
         Left = 13
         Top = 15
         Width = 343
@@ -37,7 +36,7 @@ object ConfigForm: TConfigForm
         Caption = 'CopyVerseNumbers'
         TabOrder = 0
       end
-      object CopyFontParams: TTntCheckBox
+      object CopyFontParams: TCheckBox
         Left = 13
         Top = 38
         Width = 351
@@ -45,7 +44,7 @@ object ConfigForm: TConfigForm
         Caption = 'CopyFontParams'
         TabOrder = 1
       end
-      object AddReference: TTntCheckBox
+      object AddReference: TCheckBox
         Left = 13
         Top = 62
         Width = 343
@@ -53,7 +52,7 @@ object ConfigForm: TConfigForm
         Caption = 'AddReference'
         TabOrder = 2
       end
-      object AddReferenceRadio: TTntRadioGroup
+      object AddReferenceRadio: TRadioGroup
         Left = 12
         Top = 84
         Width = 348
@@ -64,7 +63,7 @@ object ConfigForm: TConfigForm
           'Full reference at the end of passage')
         TabOrder = 3
       end
-      object AddModuleName: TTntCheckBox
+      object AddModuleName: TCheckBox
         Left = 13
         Top = 184
         Width = 343
@@ -72,7 +71,7 @@ object ConfigForm: TConfigForm
         Caption = 'AddModuleName'
         TabOrder = 4
       end
-      object AddLineBreaks: TTntCheckBox
+      object AddLineBreaks: TCheckBox
         Left = 13
         Top = 208
         Width = 343
@@ -81,12 +80,12 @@ object ConfigForm: TConfigForm
         TabOrder = 5
       end
     end
-    object FavouriteExTabSheet: TTntTabSheet
+    object FavouriteExTabSheet: TTabSheet
       Caption = 'FavouriteExTabSheet'
       DesignSize = (
         467
         277)
-      object lblAvailableModules: TTntLabel
+      object lblAvailableModules: TLabel
         Left = 3
         Top = 3
         Width = 206
@@ -94,7 +93,7 @@ object ConfigForm: TConfigForm
         AutoSize = False
         Caption = 'lblAvailableModules'
       end
-      object lblFavourites: TTntLabel
+      object lblFavourites: TLabel
         Left = 3
         Top = 51
         Width = 214
@@ -103,7 +102,7 @@ object ConfigForm: TConfigForm
         AutoSize = False
         Caption = 'lblFavourites'
       end
-      object lbxFavourites: TTntListBox
+      object lbxFavourites: TListBox
         Left = 3
         Top = 80
         Width = 425
@@ -182,7 +181,7 @@ object ConfigForm: TConfigForm
           FFFFFFFFFFFFFFFFFFFFFFFFB97300B97300B97300B97300B97300B97300FFFF
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
       end
-      object cbxAvailableModules: TTntComboBox
+      object cbxAvailableModules: TComboBox
         Left = 3
         Top = 24
         Width = 425
@@ -257,17 +256,17 @@ object ConfigForm: TConfigForm
           FF7FFF7FFF7FFF7FFF7FFF7FFF7F}
       end
     end
-    object OtherOptionsTabSheet: TTntTabSheet
+    object OtherOptionsTabSheet: TTabSheet
       Caption = 'OtherOptionsTabSheet'
       ImageIndex = 2
-      object SelectSecondPathLabel: TTntLabel
+      object SelectSecondPathLabel: TLabel
         Left = 8
         Top = 8
         Width = 115
         Height = 13
         Caption = 'SelectSecondPathLabel'
       end
-      object SelectPathEdit: TTntEdit
+      object SelectPathEdit: TEdit
         Left = 8
         Top = 32
         Width = 313
@@ -275,7 +274,7 @@ object ConfigForm: TConfigForm
         Enabled = False
         TabOrder = 0
       end
-      object SelectPathButton: TTntButton
+      object SelectPathButton: TButton
         Left = 322
         Top = 32
         Width = 25
@@ -290,7 +289,7 @@ object ConfigForm: TConfigForm
         TabOrder = 1
         OnClick = SelectPathButtonClick
       end
-      object DeleteButton: TTntButton
+      object DeleteButton: TButton
         Left = 346
         Top = 32
         Width = 25
@@ -305,7 +304,7 @@ object ConfigForm: TConfigForm
         TabOrder = 2
         OnClick = DeleteButtonClick
       end
-      object MinimizeToTray: TTntCheckBox
+      object MinimizeToTray: TCheckBox
         Left = 8
         Top = 70
         Width = 449
@@ -313,7 +312,7 @@ object ConfigForm: TConfigForm
         Caption = 'MinimizeToTray'
         TabOrder = 3
       end
-      object HotKeyChoice: TTntRadioGroup
+      object HotKeyChoice: TRadioGroup
         Left = 26
         Top = 96
         Width = 255
@@ -325,7 +324,7 @@ object ConfigForm: TConfigForm
           'Ctrl + Alt + B')
         TabOrder = 4
       end
-      object cbFullContextOnRestrictedLinks: TTntCheckBox
+      object cbFullContextOnRestrictedLinks: TCheckBox
         Left = 8
         Top = 193
         Width = 210
@@ -333,7 +332,7 @@ object ConfigForm: TConfigForm
         Caption = 'Full context on restricted links'
         TabOrder = 5
       end
-      object cbUseVerseHL: TTntCheckBox
+      object cbUseVerseHL: TCheckBox
         Left = 8
         Top = 218
         Width = 210
@@ -343,7 +342,7 @@ object ConfigForm: TConfigForm
       end
     end
   end
-  object OKButton: TTntButton
+  object OKButton: TButton
     Left = 251
     Top = 311
     Width = 105
@@ -352,7 +351,7 @@ object ConfigForm: TConfigForm
     TabOrder = 1
     OnClick = OKButtonClick
   end
-  object CancelButton: TTntButton
+  object CancelButton: TButton
     Left = 362
     Top = 312
     Width = 105

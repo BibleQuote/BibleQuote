@@ -6,20 +6,16 @@ program BibleQuote6;
 
 
 
-{%TogetherDiagram 'ModelSupport_BibleQuote6\default.txaPackage'}
+
 
 uses
-  //FastMM4,
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
-  tntForms,
-  forms,
+  Forms,
   string_procs in 'string_procs.pas',
   WCharWindows in 'WCharWindows.pas',
-  WCharReader in 'WCharReader.pas',
   Classes,
   WideStrings,
   SysUtils,
-  TntSysUtils,
   MultiLanguage in 'MultiLanguage.pas',
   input in 'input.pas' {InputForm},
   copyright in 'copyright.pas' {CopyrightForm},
@@ -28,7 +24,7 @@ uses
   Bible in 'Bible.pas',
   AlekPageControl in 'AlekPageControl.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
-  AboutForm in 'AboutForm.pas' {frmAbout: TTntForm},
+  AboutForm in 'AboutForm.pas' {frmAbout: TForm},
   XPTheme in 'XPTheme.pas',
   BQExceptionTracker in 'BQExceptionTracker.pas' {bqExceptionForm},
   qNavTest in 'qNavTest.pas' {frmQNav},
@@ -53,17 +49,18 @@ uses
   bqBackgroundServices in 'bqBackgroundServices.pas',
   bqEngine in 'bqEngine.pas',
   bqEngineInterfaces in 'bqEngineInterfaces.pas',
-  //bqHTMLGen in 'bqHTMLGen.pas',
-  main in 'main.pas' {MainForm: TTntForm};
+  main in 'main.pas' {MainForm: TTntForm},
+  tntSystem in 'tntSystem.pas',
+  WCharReader in 'WCharReader.pas';
 
 {$R *.res}
 var
   fn: string;
-  param:WideString;
+  param:string;
 begin
   try
     if ParamStartedWith('/debug',param) then begin
-      fn := WideExtractFilePath(tntApplication.Exename) + 'dbg.log';
+      fn := ExtractFilePath(Application.Exename) + 'dbg.log';
       G_DebugEx:=1;
       end
     else begin

@@ -2,35 +2,34 @@ unit Dict;
 
 interface
 
-uses
-  WideStrings, Windows, Classes, SysUtils, 
-  WCharReader, WCharWindows;
+uses Windows, Classes, SysUtils, WCharReader,
+  WCharWindows;
 
 type TDict = class(TObject)
   private
-    FIndex: WideString;
-    FDict: WideString;
-    FWords: TWideStrings;
-    FName: WideString;
-    FPath: WideString;
-    FiLines: TWideStrings;
+    FIndex: string;
+    FDict: string;
+    FWords: TStrings;
+    FName: string;
+    FPath: string;
+    FiLines: TStrings;
     Fii: integer;
     Filinecount:integer;
     FInitialized:boolean;
   public
     constructor Create;
     destructor Destroy(); override;
-    function Initialize(IndexFile, DictFile: WideString; background:boolean=false): boolean;
-    function Lookup(wrd: WideString): WideString; // lookup a word in dictionary...
+    function Initialize(IndexFile, DictFile: string; background:boolean=false): boolean;
+    function Lookup(wrd: string): string; // lookup a word in dictionary...
   published
     property Initialized:boolean read FInitialized;
-    property Words: TWideStrings read FWords;
-    property Name: WideString read FName;
-    property Path: WideString read FPath;
+    property Words: TStrings read FWords;
+    property Name: string read FName;
+    property Path: string read FPath;
   end;
 
 implementation
-uses BibleQuoteUtils, tntSysUtils,BQExceptionTracker;
+uses BibleQuoteUtils, BQExceptionTracker;
 
 
 
@@ -42,7 +41,7 @@ begin
   FIndex := '';
   FDict := '';
 
-  FWords := TWideStringList.Create;
+  FWords := TStringList.Create;
 end;
 
 
@@ -53,7 +52,7 @@ begin
   inherited;
 end;
 
-function TDict.Initialize(IndexFile, DictFile: WideString; background:boolean=false): boolean;
+function TDict.Initialize(IndexFile, DictFile: string; background:boolean=false): boolean;
 
 
 begin
@@ -73,10 +72,10 @@ try
   FIndex := IndexFile;
   FDict := DictFile;
 //  if IndexFile[1]='?' then IndexFile:=GetArchiveFromSpecial(IndexFile);
-  FPath := WideExtractFileName(IndexFile);
+  FPath := ExtractFileName(IndexFile);
   FPath := Copy(FPath,1,Length(FPath)-3);
 
-  FiLines := WChar_ReadTextFileToTWideStrings (FIndex);
+  FiLines := WChar_ReadTextFileToTStrings (FIndex);
 
   FName := FiLines[0]; FiLines.Delete(0);
   FWords.Clear;
@@ -112,12 +111,12 @@ end;
 end;
 end;
 
-function TDict.Lookup(wrd: WideString): WideString;
+function TDict.Lookup(wrd: string): string;
 var
   dDictSize: Integer;
   dOffset: Integer;
   dCount: Integer;
-  dExcludeWord: WideString;
+  dExcludeWord: string;
   i: Integer;
 
 begin
@@ -141,8 +140,8 @@ begin
 
   end;
 
-  dExcludeWord := WideLowerCase ('<h4>' + wrd + '</h4>');
-  if WideLowerCase (Copy (Result, 1, Length (dExcludeWord))) = dExcludeWord then
+  dExcludeWord := LowerCase ('<h4>' + wrd + '</h4>');
+  if LowerCase (Copy (Result, 1, Length (dExcludeWord))) = dExcludeWord then
     Result := Copy (Result, Length (dExcludeWord) + 1, Length (Result));
 
 end;

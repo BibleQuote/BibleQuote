@@ -48,7 +48,7 @@ constructor TbqVDTEditLink.Create(vdtInfo:IVDTInfo);
  type PClass=^TClass;
 begin
  inherited Create();
- PClass(FEdit)^:=TbqVTEdit;
+ PClass(Edit)^:=TbqVTEdit;
   mVDTInfo:=vdtInfo;
 
 
@@ -74,10 +74,10 @@ begin
   Result := not FStopping;
   if Result then
   begin
-    FEdit.Show;
-    FEdit.SelectAll;
-    FEdit.SetFocus;
-    TbqVTEdit(FEdit).AutoAdjustSize;
+    Edit.Show;
+    Edit.SelectAll;
+    Edit.SetFocus;
+    TbqVTEdit(Edit).AutoAdjustSize;
   end;
 end;
 
@@ -86,9 +86,9 @@ end;
 procedure TbqVDTEditLink.SetEdit(const Value: TbqVTEdit);
 
 begin
-  if Assigned(FEdit) then
-    FEdit.Free;
-  FEdit := Value;
+  if Assigned(Edit) then
+   Edit.Free;
+  Edit := Value;
 end;
 
 
@@ -101,10 +101,10 @@ begin
   if Result then
   begin
     FStopping := True;
-    FEdit.Hide;
+    Edit.Hide;
     FTree.CancelEditNode;
-    TbqVTEdit(FEdit).FLink := nil;
-    TbqVTEdit(FEdit).FRefLink := nil;
+    TbqVTEdit(Edit).FLink := nil;
+    TbqVTEdit(Edit).FRefLink := nil;
   end;
 end;
 
@@ -117,13 +117,13 @@ begin
   if Result then
   try
     FStopping := True;
-    if FEdit.Modified then
+    if Edit.Modified then
     ;
-    mVDTInfo.SetNodeText( TVirtualDrawTree(FTree) , FNode, FColumn, TbqVTEdit(FEdit).Text);
+    mVDTInfo.SetNodeText( TVirtualDrawTree(FTree) , FNode, FColumn, TbqVTEdit(Edit).Text);
 ///      FTree.Text[FNode, FColumn] := FEdit.Text;
-    FEdit.Hide;
-    TbqVTEdit(FEdit).FLink := nil;
-    TbqVTEdit(FEdit).FRefLink := nil;
+    Edit.Hide;
+    TbqVTEdit(Edit).FLink := nil;
+    TbqVTEdit(Edit).FRefLink := nil;
   except
     FStopping := False;
     raise;
@@ -135,7 +135,7 @@ end;
 function TbqVDTEditLink.GetBounds: TRect;
 
 begin
-  Result := FEdit.BoundsRect;
+  Result := Edit.BoundsRect;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -155,25 +155,25 @@ begin
     FNode := Node;
     FColumn := Column;
     // Initial size, font and text of the node.
-    mVDTInfo.GetTextInfo(TVirtualDrawTree(FTree), Node, Column, TbqVTEdit(FEdit).Font, FTextBounds, Text);
-   TbqVTEdit(FEdit).Font.Color := clWindowText;
-    FEdit.Parent := Tree;
-    TbqVTEdit(FEdit).RecreateWnd;
-    FEdit.HandleNeeded;
-    FEdit.Text := Text;
+    mVDTInfo.GetTextInfo(TVirtualDrawTree(FTree), Node, Column, TbqVTEdit(Edit).Font, FTextBounds, Text);
+   TbqVTEdit(Edit).Font.Color := clWindowText;
+    Edit.Parent := Tree;
+    TbqVTEdit(Edit).RecreateWnd;
+    Edit.HandleNeeded;
+    Edit.Text := Text;
 
     if Column <= NoColumn then
     begin
-      FEdit.BidiMode := FTree.BidiMode;
+      Edit.BidiMode := FTree.BidiMode;
       FAlignment := TVirtualDrawTree(FTree).Alignment;
     end
     else
     begin
-      FEdit.BidiMode := TVirtualDrawTree(FTree).Header.Columns[Column].BidiMode;
+      Edit.BidiMode := TVirtualDrawTree(FTree).Header.Columns[Column].BidiMode;
       FAlignment := TVirtualDrawTree(FTree).Header.Columns[Column].Alignment;
     end;
 
-    if FEdit.BidiMode <> bdLeftToRight then
+    if Edit.BidiMode <> bdLeftToRight then
       ChangeBidiModeAlignment(FAlignment);
   end;
 end;
@@ -183,7 +183,7 @@ end;
 procedure TbqVDTEditLink.ProcessMessage(var Message: TMessage);
 
 begin
-  FEdit.WindowProc(Message);
+  Edit.WindowProc(Message);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -193,7 +193,7 @@ procedure TbqVDTEditLink.SetBounds(R: TRect);
 // Sets the outer bounds of the edit control and the actual edit area in the control.
 
 var
-  Offset: Integer;
+  lOffset: Integer;
 
 begin
   if not FStopping then
@@ -213,20 +213,20 @@ begin
       end;
       if Right > FTree.ClientWidth then
         Right := FTree.ClientWidth;
-      FEdit.BoundsRect := R;
+      Edit.BoundsRect := R;
 
       // The selected text shall exclude the text margins and be centered vertically.
       // We have to take out the two pixel border of the edit control as well as a one pixel "edit border" the
       // control leaves around the (selected) text.
-      R := FEdit.ClientRect;
-      Offset := 2;
+      R := Edit.ClientRect;
+      lOffset := 2;
       if tsUseThemes in FTree.TreeStates then
-        Inc(Offset);
-      InflateRect(R, -TVirtualDrawTree(FTree).TextMargin + Offset, Offset);
+        Inc(lOffset);
+      InflateRect(R, -TVirtualDrawTree(FTree).TextMargin + lOffset, lOffset);
       if not (vsMultiline in FNode.States) then
-        OffsetRect(R, 0, FTextBounds.Top - FEdit.Top);
+        OffsetRect(R, 0, FTextBounds.Top - Edit.Top);
 
-      SendMessage(FEdit.Handle, EM_SETRECTNP, 0, Integer(@R));
+      SendMessage(Edit.Handle, EM_SETRECTNP, 0, Integer(@R));
     end;
   end;
 end;

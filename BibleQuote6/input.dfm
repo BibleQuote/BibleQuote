@@ -19,7 +19,7 @@ object InputForm: TInputForm
   OnShow = TntFormShow
   PixelsPerInch = 105
   TextHeight = 13
-  object Edit1: TTntEdit
+  object Edit1: TEdit
     Left = 8
     Top = 8
     Width = 369
@@ -27,7 +27,7 @@ object InputForm: TInputForm
     TabOrder = 0
     Text = 'Edit1'
   end
-  object OKButton: TTntButton
+  object OKButton: TButton
     Left = 159
     Top = 147
     Width = 73
@@ -36,7 +36,7 @@ object InputForm: TInputForm
     TabOrder = 1
     OnClick = OKButtonClick
   end
-  object Memo1: TTntMemo
+  object Memo1: TMemo
     Left = 8
     Top = 35
     Width = 369

@@ -15,14 +15,14 @@ object bqExceptionForm: TbqExceptionForm
   Position = poScreenCenter
   PixelsPerInch = 105
   TextHeight = 14
-  object lblLog: TTntLabel
+  object lblLog: TLabel
     Left = 9
     Top = 9
     Width = 133
     Height = 14
     Caption = #1055#1088#1086#1090#1086#1082#1086#1083' '#1080#1089#1082#1083#1102#1095#1077#1085#1080#1103':'
   end
-  object ErrMemo: TTntMemo
+  object ErrMemo: TMemo
     Left = 8
     Top = 29
     Width = 554
@@ -37,7 +37,7 @@ object bqExceptionForm: TbqExceptionForm
     ScrollBars = ssBoth
     TabOrder = 1
   end
-  object btnOK: TTntButton
+  object btnOK: TButton
     Left = 481
     Top = 300
     Width = 81
@@ -47,7 +47,7 @@ object bqExceptionForm: TbqExceptionForm
     ModalResult = 1
     TabOrder = 0
   end
-  object btnHalt: TTntButton
+  object btnHalt: TButton
     Left = 5
     Top = 300
     Width = 131

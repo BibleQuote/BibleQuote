@@ -2,7 +2,7 @@ unit AlekPageControl;
 
 interface
 {$R clsb.res}
-uses Windows, Classes, TntComCtrls, Graphics, Forms, Controls, ExtCtrls,
+uses Windows, Classes, ComCtrls, Graphics, Forms, Controls, ExtCtrls,
 Messages, GraphUtil;
 type
   TAlekPageControl = class;
@@ -10,7 +10,7 @@ type
     of object;
    TAlekPageControlDblClck = procedure(sender: TAlekPageControl; index: integer)
     of object;
-  TAlekPageControl = class(TTntPageControl)
+  TAlekPageControl = class(TPageControl)
   private
 
 
@@ -58,7 +58,7 @@ type
 procedure Register();
 implementation
 
-uses SysUtils, ComCtrls, CommCtrl, Types;
+uses SysUtils, CommCtrl, Types;
 
 procedure Register();
 begin
@@ -257,7 +257,7 @@ var
   textRect, saveRect: TRect;
   _caption: WideString;
   pCaption: PWideChar;
-  ts: TTntTabSheet;
+  ts: TTabSheet;
   delta, oldright{, savelength}: integer;
 begin
   inherited;
@@ -299,7 +299,7 @@ begin
       Bottom := r2.Bottom;
     end;
     saveRect := textRect;
-    ts := TTntTabSheet(Pages[i]);
+    ts := TTabSheet(Pages[i]);
 
     _caption := ts.Caption;
 

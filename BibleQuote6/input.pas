@@ -4,14 +4,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, Forms, TntForms, Dialogs,
-  TntStdCtrls, StdCtrls;
+  Graphics, Controls, Forms, Dialogs,
+  StdCtrls;
 
 type
-  TInputForm = class(TTntForm)
-    Edit1: TTntEdit;
-    OKButton: TTntButton;
-    Memo1: TTntMemo;
+  TInputForm = class(TForm)
+    Edit1: TEdit;
+    OKButton: TButton;
+    Memo1: TMemo;
     procedure TntFormShow(Sender: TObject);
     procedure TntFormKeyPress(Sender: TObject; var Key: Char);
     procedure CancelButtonClick(Sender: TObject);

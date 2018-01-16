@@ -146,7 +146,7 @@ object CopyrightForm: TCopyrightForm
       0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF}
     Transparent = True
   end
-  object lbBQModName: TTntLabel
+  object lbBQModName: TLabel
     Left = 53
     Top = 22
     Width = 602
@@ -185,7 +185,7 @@ object CopyrightForm: TCopyrightForm
     ExplicitTop = 306
     ExplicitWidth = 667
   end
-  object lblCopyRightNotice: TTntLabel
+  object lblCopyRightNotice: TLabel
     Left = 30
     Top = 54
     Width = 618

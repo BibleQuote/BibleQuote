@@ -5,10 +5,9 @@ unit bible;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, JclUnicode,
-  WideStrings,
-  Graphics, Controls, Forms, Dialogs,
-  string_procs, WCharReader, BibleQuoteUtils, bqLinksParserIntf,bqWinUIServices;
+  Windows, Messages, SysUtils, Classes, JclUnicode, IOUtils, Types,
+  Graphics, Controls, Forms, Dialogs, WCharReader,
+  string_procs, BibleQuoteUtils, bqLinksParserIntf,bqWinUIServices;
 
 const
   RusToEngTable: array[1..27] of integer =
@@ -20,7 +19,7 @@ const
 
 const
 
-  TSKShortNames: array[1..66] of WideString = // used to translate TSK references
+  TSKShortNames: array[1..66] of string = // used to translate TSK references
   (
     'Ge. Ge Gen. Gen Gn. Gn Genesis',
     'Ex. Ex Exo. Exo Exod. Exod Exodus',
@@ -89,7 +88,7 @@ const
     'Jud. Jud Jude Jd. Jd',
     'Rev. Rev Re. Re Rv. Rv Revelation');
 
-  RussianShortNames: array[1..66] of WideString =
+  RussianShortNames: array[1..66] of string =
     // used to translate dictionary references
   (
     'Быт. Быт Бт. Бт Бытие Ge. Ge Gen. Gen Gn. Gn Genesis',
@@ -178,7 +177,7 @@ type
   TBible = class;
   TBibleSearchEvent =
     procedure(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s:
-    WideString) of object;
+    string) of object;
 
   TBiblePasswordRequired =
     procedure(aSender: TBible; out outPassword: WideString) of object;
@@ -194,13 +193,13 @@ type
   TBible = class(TComponent)
   private
     { Private declarations }
-    FIniFile: WideString;
-    FPath: WideString;                  // FPath := ExtractFilePath(FIniFile);
-    FShortPath: WideString;
+    FIniFile: string;
+    FPath: string;                  // FPath := ExtractFilePath(FIniFile);
+    FShortPath: string;
       // FPath = d:\biblequote\russian -> ShortPath = russian
-    FName: WideString;                  // full description (title) of the module
-    FShortName: WideString;             // short abbreviation, like NIV, KJV
-    FCopyright: WideString;
+    FName: string;                  // full description (title) of the module
+    FShortName: string;             // short abbreviation, like NIV, KJV
+    FCopyright: string;
       // short copyright notice; full page should be in copyright.html
     FBible: boolean;                    // is this a Bible translation?
 //    FHasOT: boolean;                    // does it have Old Testament?
@@ -214,8 +213,8 @@ type
 
 //    FStrongNumbers: boolean;            // Strong numbers?
     FBookQty: integer;                  // quantity of books in module (default = 66)
-    FChapterSign: WideString;           // the beginning of a chapter
-    FVerseSign: WideString;             // the beginning of a verse
+    FChapterSign: string;           // the beginning of a chapter
+    FVerseSign: string;             // the beginning of a verse
 
     //FChapterZero: boolean;              // has chapter zero ?
 
@@ -224,22 +223,22 @@ type
     FDesiredFontCharset: Integer;       //AlekId
     FUseRightAlignment: boolean;        //AlekId
 
-    FFontName: WideString;
-    FAlphabet: WideString;              // ALL letters that can be parts of text in the module
+    FFontName: string;
+    FAlphabet: string;              // ALL letters that can be parts of text in the module
 
-    FSoundDir: WideString;
-    FStrongsDir: WideString;
+    FSoundDir: string;
+    FStrongsDir: string;
     FStrongsPrefixed: boolean; // Gxxxx and Hxxx numbers or not?
 
-    FHTML: WideString;                  // allowed HTML codes
+    FHTML: string;                  // allowed HTML codes
     FFiltered: boolean;
     FDefaultFilter: boolean;            // using default filter
 
-    FLines: TWideStrings;               // these are verses when you open a chapter
+    FLines: TStrings;               // these are verses when you open a chapter
 
     //FNoForcedLineBreaks: boolean;
 
-    BookLines: TWideStrings;            // just a buffer
+    BookLines: TStrings;            // just a buffer
 
     FBook, FChapter, FVerseQty: integer;
     FRememberPlace: boolean;
@@ -260,12 +259,12 @@ type
     AlphabetArray: array[0..2047] of Cardinal;
     mModuleState:TbqModuleState;
     mTraits:TbqModuleTraits;
-    mCategories: TWideStringList;
-    mChapterHead: WideString;
+    mCategories: TStringList;
+    mChapterHead: string;
 //    mUseChapterHead: boolean;
-    mLoadedPath: WideString;
-    mInstallFontNames:WideString;
-    mDesiredUIFont:WideString;
+    mLoadedPath: string;
+    mInstallFontNames:string;
+    mDesiredUIFont:string;
     mUIServices:IBibleWinUIServices;
     procedure ClearAlphabetBits();
     procedure SetAlphabetBit(aCode: Integer; aValue: Boolean);
@@ -274,15 +273,15 @@ type
   protected
     mRecognizeBibleLinks: boolean;
     mFuzzyResolveLnks:Boolean;
-    mShortNamesVars:WideStrings.TWideStringList;
+    mShortNamesVars:TStringList;
     mModuleType:TbqModuleType;
     { Protected declarations }
-    procedure LoadIniFile(value: WideString);
+    procedure LoadIniFile(value: string);
 
-    function SearchOK(source: WideString; words: TWideStrings; params: byte):
+    function SearchOK(source: string; words: TStrings; params: byte):
       boolean;
-    procedure SearchBook(words: TWideStrings; params: byte; book: integer);
-    procedure SetHTMLFilter(value: WideString);
+    procedure SearchBook(words: TStrings; params: byte; book: integer);
+    procedure SetHTMLFilter(value: string);
     function toInternal(const bl: TBibleLink; out obl: TBibleLink; englishbible: Boolean = False; EnglishPsalms: Boolean = false): boolean;
     function GetShortNameVars(bookIx:integer):WideString;
     procedure SetShortNameVars(bookIx:integer; const Name:WideString);
@@ -293,27 +292,27 @@ type
   public
     { Public declarations }
     ChapterQtys: array[1..MAX_BOOKQTY] of integer;
-    FullNames: array[1..MAX_BOOKQTY] of WideString;
+    FullNames: array[1..MAX_BOOKQTY] of string;
   //    VarShortNames: array[1..MAX_BOOKQTY] of WideString;
       // варианты сокращения названия книги
-    ShortNames: array[1..MAX_BOOKQTY] of WideString;
+    ShortNames: array[1..MAX_BOOKQTY] of string;
 
       // стандартное сокращение
-    PathNames: array[1..MAX_BOOKQTY] of WideString;
+    PathNames: array[1..MAX_BOOKQTY] of string;
     function GetStucture(): AnsiString;
     function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
-    function LinkValidnessStatus(path: wideString; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
+    function LinkValidnessStatus(path: string; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
     function SyncToBible(const refBible:TBible;const bl:TBibleLink; out outBibleLink):integer;
     function IsCommentary(): boolean;
-    property IniFile: WideString read FIniFile write LoadIniFile;
-    property Path: WideString read FPath;
-    property ShortPath: WideString read FShortPath;
-    property Name: WideString read FName;
-    property ShortName: WideString read FShortName;
-    property Categories: TWideStringList read mCategories;
+    property IniFile: string read FIniFile write LoadIniFile;
+    property Path: string read FPath;
+    property ShortPath: string read FShortPath;
+    property Name: string read FName;
+    property ShortName: string read FShortName;
+    property Categories: TStringList read mCategories;
 
     property ShortNamesVars[ix:integer]:Widestring read GetShortNameVars;
-    property Copyright: WideString read FCopyright;
+    property Copyright: string read FCopyright;
 
     property isBible: boolean read FBible;
     property ModuleType:TbqModuleType read mModuleType;
@@ -326,29 +325,29 @@ type
 //    property NoForcedLineBreaks: boolean read FNoForcedLineBreaks;
 
     property BookQty: integer read FBookQty;
-    property ChapterSign: WideString read FChapterSign;
-    property VerseSign: WideString read FVerseSign;
+    property ChapterSign: string read FChapterSign;
+    property VerseSign: string read FVerseSign;
 
     property DefaultEncoding: Integer read FDefaultEncoding;
     property DesiredCharset: integer read FDesiredFontCharset;
-    property DesiredUIFont:WideString read mDesiredUIFont;
+    property DesiredUIFont:string read mDesiredUIFont;
     property UseRightAlignment: boolean read FUseRightAlignment;
 
-    property Alphabet: WideString read FAlphabet;
-    property FontName: WideString read FFontName;
+    property Alphabet: string read FAlphabet;
+    property FontName: string read FFontName;
 
     property CurBook: integer read FBook;
     property CurChapter: integer read FChapter;
     property VerseQty: integer read FVerseQty write FVerseQty;
-    property ChapterHead: WideString read mChapterHead;
+    property ChapterHead: string read mChapterHead;
 
     property RememberPlace: boolean read FRememberPlace write FRememberPlace;
 
     //property Lines: TWideStrings read FLines;
     property Verses[i:Cardinal]:WideString read GetVerse;default;
 
-    property SoundDirectory: WideString read FSoundDir;
-    property StrongsDirectory: WideString read FStrongsDir;
+    property SoundDirectory: string read FSoundDir;
+    property StrongsDirectory: string read FStrongsDir;
     property StrongsPrefixed: boolean read FStrongsPrefixed;
 
     constructor Create(AOwner: TComponent; uiServices:IBibleWinUIServices);reintroduce;
@@ -356,14 +355,14 @@ type
 
     function OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false):boolean;
 
-    function OpenAddress(s: WideString; var book, chapter,
+    function OpenAddress(s: string; var book, chapter,
       fromverse, toverse: integer): boolean;
-    function OpenTSKAddress(s: WideString; var book, chapter, fromverse,
+    function OpenTSKAddress(s: string; var book, chapter, fromverse,
       toverse: integer): boolean;
-    function OpenRussianAddress(s: WideString; var book, chapter, fromverse,
+    function OpenRussianAddress(s: string; var book, chapter, fromverse,
       toverse: integer): boolean;
 
-    procedure Search(s: WideString; params: byte; bookset: TBibleSet);
+    procedure Search(s: string; params: byte; bookset: TBibleSet);
     procedure StopSearching;
 
     procedure ClearBuffers;
@@ -375,7 +374,7 @@ type
       var book, chapter, verse: integer; checkShortNames:boolean=true): boolean; overload;
     function InternalToAddress(inputLnk: TBibleLink; out outLink: TBibleLink): integer; overload;
     function ShortPassageSignature(book, chapter, fromverse, toverse: integer):
-      WideString;
+      string;
     function FullPassageSignature(book, chapter, fromverse, toverse: integer):
       WideString;
 
@@ -403,7 +402,7 @@ type
     { Published declarations }
 //    property ChapterZero: boolean read FChapterZero;
     property Filtered: boolean read FFiltered write FFiltered;
-    property HTMLFilter: WideString read FHTML write SetHTMLFilter;
+    property HTMLFilter: string read FHTML write SetHTMLFilter;
     property VersesFound: integer read FVersesFound;
 
     property OnVerseFound: TBibleSearchEvent read FOnVerseFound write
@@ -423,7 +422,7 @@ type
 procedure Register;
 
 implementation
-uses bqPlainUtils, tntSysUtils, bibleLinkParser, BQExceptionTracker ;
+uses bqPlainUtils, bibleLinkParser, BQExceptionTracker ;
 
 function Diff(a, b: integer): integer;
 begin
@@ -438,10 +437,10 @@ end;
 constructor TBible.Create(AOwner: TComponent; uiServices:IBibleWinUIServices);
 begin
   inherited Create(AOwner);
-  FLines := TWideStringList.Create;
-  BookLines := TWideStringList.Create;
-  mCategories := TWideStringList.Create();
-  mShortNamesVars:=TWideStringList.Create();
+  FLines := TStringList.Create;
+  BookLines := TStringList.Create;
+  mCategories := TStringList.Create();
+  mShortNamesVars:=TStringList.Create();
   mUIServices:=uiServices;
 end;
 
@@ -581,7 +580,7 @@ end;
 
 
 
-procedure TBible.SetHTMLFilter(value: WideString);
+procedure TBible.SetHTMLFilter(value: string);
 begin
   FHTML := DefaultHTMLFilter + value;
   FDefaultFilter := false;
@@ -617,16 +616,16 @@ if state then Include(mTraits, trait)
 else Exclude(mTraits,trait);
 end;
 
-procedure TBible.LoadIniFile(value: WideString);
+procedure TBible.LoadIniFile(value: string);
 var
-  s: TWideStrings;
+  s: TStrings;
   i, cur: integer;
-  dFirstPart: WideString;
-  dSecondPart: WideString;
+  dFirstPart: string;
+  dSecondPart: string;
   isCompressed: boolean;
   chapterCountDelta:integer;
 
-  function ToBoolean(aValue: WideString): Boolean;
+  function ToBoolean(aValue: string): Boolean;
   begin
     Result := (aValue = 'Y') or (aValue = 'y');
   end;
@@ -637,7 +636,7 @@ begin
 
   try
     FDefaultEncoding := LoadBibleqtIniFileEncoding(value);
-    s := WChar_ReadTextFileToTWideStrings(value, FDefaultEncoding);
+    s := WChar_ReadTextFileToTStrings(value, FDefaultEncoding);
 
   except
     on ex: TBQException do begin
@@ -907,12 +906,12 @@ begin
 
   if isCompressed then begin
     FPath := GetArchiveFromSpecial(value) + '??';
-    FShortPath := GetArchiveFromSpecial(WideExtractFileName(value));
+    FShortPath := GetArchiveFromSpecial(ExtractFileName(value));
     FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
   end
   else begin
-    FPath := WideExtractFilePath(value);
-    FShortPath := WideLowerCase(WideExtractFileName(Copy(FPath, 1, Length(FPath) -
+    FPath := ExtractFilePath(value);
+    FShortPath := WideLowerCase(ExtractFileName(Copy(FPath, 1, Length(FPath) -
       1)));
   end;
 {  if isCompressed then begin
@@ -931,7 +930,6 @@ begin
   for i := 1 to Length(FAlphabet) do
     SetAlphabetBit(Integer(FAlphabet[i]), true);
 
-  s.Free;
   if Self.FBible then begin
     if IsCommentary() then mModuleType:=bqmCommentary else mModuleType:=bqmBible;
 
@@ -1017,12 +1015,12 @@ begin
   result:=true;
 end;
 
-function TBible.SearchOK(source: WideString; words: TWideStrings; params: byte):
+function TBible.SearchOK(source: string; words: TStrings; params: byte):
   boolean;
 var
   i, lastpos, curpos: integer;
   res, stopKeyword, sr: boolean;
-  src, wrd: WideString;
+  src, wrd: string;
 begin
   res := true;
 
@@ -1116,17 +1114,17 @@ begin
   result := Integer(list.Objects[Index1]) - Integer(list.Objects[Index2]);
 end;
 
-procedure TBible.SearchBook(words: TWideStrings; params: byte; book: integer);
+procedure TBible.SearchBook(words: TStrings; params: byte; book: integer);
 var
   i, chapter, verse, curKeyWordIx, keywordStart, keywordCnt, compareIx, exchangeGlass, keyWrdPos, nextkwPos: integer;
-  btmp, tmpwords: TWideStringList;      // lines buffer from the book
-  s, snew: WideString;
+  btmp, tmpwords: TStringList;      // lines buffer from the book
+  s, snew: string;
   newparams: byte;
 begin
   chapter := 0;
   verse := 0;
 
-  tmpwords := TWideStringList.Create;
+  tmpwords := TStringList.Create;
 
   {
         first, we're search in the book as a whole string,
@@ -1166,7 +1164,7 @@ begin
 
   // reformat BookLines to complete VERSES, because verses can go in several lines
 
-  btmp := TWideStringList.Create;
+  btmp := TStringList.Create;
 
   s := '';
 
@@ -1243,10 +1241,10 @@ begin
   tmpwords.Free;
 end;
 
-procedure TBible.Search(s: WideString; params: byte; bookset: TBibleSet);
+procedure TBible.Search(s: string; params: byte; bookset: TBibleSet);
 var
-  words: TWideStrings;
-  w: WideString;
+  words: TStrings;
+  w: string;
   i: integer;
 {$IFDEF debug_profile}
   timeStart, time: Cardinal;
@@ -1255,7 +1253,7 @@ begin
 {$IFDEF debug_profile}
   timeStart := GetTickCount();
 {$ENDIF}
-  words := TWideStringList.Create;
+  words := TStringList.Create;
   w := s;
 
   FLines.Clear;
@@ -1356,10 +1354,10 @@ begin
   FBook := book; FChapter := chapter;
 end;
 
-function TBible.OpenRussianAddress(s: WideString; var book, chapter, fromverse,
+function TBible.OpenRussianAddress(s: string; var book, chapter, fromverse,
   toverse: integer): boolean;
 var
-  name: WideString;
+  name: string;
   ibook, ichapter, ifromverse, itoverse: integer;
 begin
   Result := false;
@@ -1373,7 +1371,7 @@ begin
   name := ' ' + WideLowerCase(name) + ' ';
 
   for ibook := 1 to 66 do
-    if Pos(name, ' ' + WideLowerCase(RussianShortNames[ibook]) + ' ') <> 0 then
+    if Pos(string(name), string(' ' + WideLowerCase(RussianShortNames[ibook]) + ' ')) <> 0 then
     begin
       book := ibook;
       chapter := ichapter;
@@ -1385,10 +1383,10 @@ begin
     end;
 end;
 
-function TBible.OpenTSKAddress(s: WideString; var book, chapter, fromverse,
+function TBible.OpenTSKAddress(s: string; var book, chapter, fromverse,
   toverse: integer): boolean;
 var
-  name: WideString;
+  name: string;
   ibook, ichapter, ifromverse, itoverse: integer;
 begin
   Result := false;
@@ -1402,7 +1400,7 @@ begin
   name := ' ' + WideLowerCase(name) + ' ';
 
   for ibook := 1 to 66 do
-    if Pos(name, ' ' + WideLowerCase(TSKShortNames[ibook]) + ' ') <> 0 then
+    if Pos(string(name), string(' ' + WideLowerCase(TSKShortNames[ibook]) + ' ')) <> 0 then
     begin
       book := ibook;
       chapter := ichapter;
@@ -1424,10 +1422,10 @@ end;
 //end;
 //end;
 
-function TBible.OpenAddress(s: WideString; var book, chapter, fromverse,
+function TBible.OpenAddress(s: string; var book, chapter, fromverse,
   toverse: integer): boolean;
 var
-  name: WideString;
+  name: string;
   ibook, ichapter, ifromverse, itoverse: integer;
 begin
   Result := false;
@@ -1441,7 +1439,7 @@ begin
   name := ' ' + WideLowerCase(name) + ' ';
 
   for ibook := 1 to FBookQty do
-    if Pos(name, ' ' + WideLowerCase(ShortNamesVars[ibook]) + ' ') <> 0 then
+    if Pos(string(name), string(' ' + WideLowerCase(ShortNamesVars[ibook]) + ' ')) <> 0 then
     begin
       book := ibook;
       chapter := ichapter;
@@ -1469,7 +1467,7 @@ begin
     or (ChapterQtys[45] = 16);
 end;
 
-function TBible.LinkValidnessStatus(path: wideString; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
+function TBible.LinkValidnessStatus(path: string; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
 var effectiveLnk: TBibleLink;
   r: integer;
   openchapter_res:boolean;
@@ -1503,7 +1501,7 @@ begin
 end;
 
 function TBible.ShortPassageSignature(book, chapter, fromverse, toverse:
-  integer): WideString;
+  integer): string;
 var
   offset: integer;
 begin
@@ -1550,7 +1548,7 @@ end;
 
 function TBible.CountVerses(book, chapter: integer): integer;
 var
-  slines: TWideStrings;
+  slines: TStrings;
   i, count: integer;
 begin
   if chapter < 1 then
@@ -1971,12 +1969,12 @@ end;
 function TBible.IsCommentary: boolean;
 var ws: WideString;
 begin
-  ws := WideExtractFileDir(FIniFile);
+  ws := ExtractFileDir(FIniFile);
 //ws:=Copy(ws, 1, length(ws)-1);
-  ws := WideExtractFileDir(ws);
+  ws := ExtractFileDir(ws);
 //ws:=Copy(ws, 1, length(ws)-1);
 
-  ws := WideExtractFileName(ws);
+  ws := ExtractFileName(ws);
   result := WideUpperCase(ws) = 'COMMENTARIES';
 end;
 

@@ -16,77 +16,77 @@ object HotKeyForm: THotKeyForm
   OnKeyPress = FormKeyPress
   PixelsPerInch = 96
   TextHeight = 13
-  object Label10: TTntLabel
+  object Label10: TLabel
     Left = 7
     Top = 237
     Width = 27
     Height = 13
     Caption = 'Ctrl+0'
   end
-  object Label11: TTntLabel
+  object Label11: TLabel
     Left = 7
     Top = 213
     Width = 27
     Height = 13
     Caption = 'Ctrl+9'
   end
-  object Label8: TTntLabel
+  object Label8: TLabel
     Left = 7
     Top = 187
     Width = 27
     Height = 13
     Caption = 'Ctrl+8'
   end
-  object Label9: TTntLabel
+  object Label9: TLabel
     Left = 7
     Top = 162
     Width = 27
     Height = 13
     Caption = 'Ctrl+7'
   end
-  object Label6: TTntLabel
+  object Label6: TLabel
     Left = 7
     Top = 137
     Width = 27
     Height = 13
     Caption = 'Ctrl+6'
   end
-  object Label7: TTntLabel
+  object Label7: TLabel
     Left = 7
     Top = 113
     Width = 27
     Height = 13
     Caption = 'Ctrl+5'
   end
-  object Label3: TTntLabel
+  object Label3: TLabel
     Left = 7
     Top = 88
     Width = 27
     Height = 13
     Caption = 'Ctrl+4'
   end
-  object Label1: TTntLabel
+  object Label1: TLabel
     Left = 7
     Top = 13
     Width = 27
     Height = 13
     Caption = 'Ctrl+1'
   end
-  object Label2: TTntLabel
+  object Label2: TLabel
     Left = 7
     Top = 38
     Width = 27
     Height = 13
     Caption = 'Ctrl+2'
   end
-  object Label5: TTntLabel
+  object Label5: TLabel
     Left = 7
     Top = 63
     Width = 27
     Height = 13
     Caption = 'Ctrl+3'
   end
-  object HotCB1: TTntComboBox
+  object HotCB1: TComboBox
     Left = 52
     Top = 8
     Width = 407
@@ -96,7 +96,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 0
   end
-  object HotCB2: TTntComboBox
+  object HotCB2: TComboBox
     Left = 52
     Top = 33
     Width = 407
@@ -106,7 +106,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 1
   end
-  object HotCB3: TTntComboBox
+  object HotCB3: TComboBox
     Left = 52
     Top = 58
     Width = 407
@@ -116,7 +116,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 2
   end
-  object HotCB4: TTntComboBox
+  object HotCB4: TComboBox
     Left = 52
     Top = 83
     Width = 407
@@ -126,7 +126,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 3
   end
-  object HotCB5: TTntComboBox
+  object HotCB5: TComboBox
     Left = 52
     Top = 108
     Width = 407
@@ -136,7 +136,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 4
   end
-  object HotCB6: TTntComboBox
+  object HotCB6: TComboBox
     Left = 52
     Top = 133
     Width = 407
@@ -146,7 +146,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 5
   end
-  object HotCB7: TTntComboBox
+  object HotCB7: TComboBox
     Left = 52
     Top = 158
     Width = 407
@@ -156,7 +156,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 6
   end
-  object HotCB8: TTntComboBox
+  object HotCB8: TComboBox
     Left = 52
     Top = 183
     Width = 407
@@ -166,7 +166,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 7
   end
-  object HotCB9: TTntComboBox
+  object HotCB9: TComboBox
     Left = 52
     Top = 208
     Width = 407
@@ -176,7 +176,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 8
   end
-  object HotCB0: TTntComboBox
+  object HotCB0: TComboBox
     Left = 52
     Top = 234
     Width = 407
@@ -186,7 +186,7 @@ object HotKeyForm: THotKeyForm
     ItemHeight = 13
     TabOrder = 9
   end
-  object HotKeyOKButton: TTntButton
+  object HotKeyOKButton: TButton
     Left = 158
     Top = 268
     Width = 82
@@ -195,7 +195,7 @@ object HotKeyForm: THotKeyForm
     TabOrder = 10
     OnClick = HotKeyOKButtonClick
   end
-  object HotKeyCancelButton: TTntButton
+  object HotKeyCancelButton: TButton
     Left = 248
     Top = 268
     Width = 82
