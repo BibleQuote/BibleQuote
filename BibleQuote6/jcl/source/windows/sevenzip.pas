@@ -45,9 +45,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-07-25 13:44:27 +0200 (dim., 25 juil. 2010)                         $ }
-{ Revision:      $Rev:: 3266                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -56,14 +56,21 @@ unit sevenzip;
 interface
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 uses
-  Windows,
-  ActiveX,
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.ActiveX, Winapi.Windows,
+  {$ELSE ~HAS_UNITSCOPE}
+  ActiveX, Windows,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
-  JclBase;
+  JclBase,
+  JclSysUtils;
+
+//DOM-IGNORE-BEGIN
 
 // Guid.txt  
 const
@@ -103,6 +110,19 @@ const
   CLSID_CFormatLzma86   : TGUID = '{23170F69-40C1-278A-1000-0001100B0000}';
   CLSID_CFormatXz       : TGUID = '{23170F69-40C1-278A-1000-0001100C0000}';
   CLSID_CFormatPpmd     : TGUID = '{23170F69-40C1-278A-1000-0001100D0000}';
+  CLSID_CFormatExt      : TGUID = '{23170F69-40C1-278A-1000-000110C70000}';
+  CLSID_CFormatVMDK     : TGUID = '{23170F69-40C1-278A-1000-000110C80000}';
+  CLSID_CFormatVDI      : TGUID = '{23170F69-40C1-278A-1000-000110C90000}';
+  CLSID_CFormatQcow     : TGUID = '{23170F69-40C1-278A-1000-000110CA0000}';
+  CLSID_CFormatGPT      : TGUID = '{23170F69-40C1-278A-1000-000110CB0000}';
+  CLSID_CFormatRar5     : TGUID = '{23170F69-40C1-278A-1000-000110CC0000}';
+  CLSID_CFormatIHex     : TGUID = '{23170F69-40C1-278A-1000-000110CD0000}';
+  CLSID_CFormatHxs      : TGUID = '{23170F69-40C1-278A-1000-000110CE0000}';
+  CLSID_CFormatTE       : TGUID = '{23170F69-40C1-278A-1000-000110CF0000}';
+  CLSID_CFormatUEFIc    : TGUID = '{23170F69-40C1-278A-1000-000110D00000}';
+  CLSID_CFormatUEFIs    : TGUID = '{23170F69-40C1-278A-1000-000110D10000}';
+  CLSID_CFormatSquashFS : TGUID = '{23170F69-40C1-278A-1000-000110D20000}';
+  CLSID_CFormatCramFS   : TGUID = '{23170F69-40C1-278A-1000-000110D30000}';
   CLSID_CFormatAPM      : TGUID = '{23170F69-40C1-278A-1000-000110D40000}';
   CLSID_CFormatMslz     : TGUID = '{23170F69-40C1-278A-1000-000110D50000}';
   CLSID_CFormatFlv      : TGUID = '{23170F69-40C1-278A-1000-000110D60000}';
@@ -137,7 +157,7 @@ type
   // "23170F69-40C1-278A-0000-000300xx0000"
   ISequentialInStream = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000300010000}']
-    function Read(Data: Pointer; Size: Cardinal; ProcessedSize: PCardinal): HRESULT; stdcall;
+    procedure Read(Data: Pointer; Size: Cardinal; ProcessedSize: PCardinal); safecall;
     {Out: if size != 0, return_value = S_OK and (*processedSize == 0),
      then there are no more bytes in stream.
      if (size > 0) && there are bytes in stream,
@@ -148,7 +168,7 @@ type
 
   ISequentialOutStream = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000300020000}']
-    function Write(Data: Pointer; Size: Cardinal; ProcessedSize: PCardinal): HRESULT; stdcall;
+    procedure Write(Data: Pointer; Size: Cardinal; ProcessedSize: PCardinal); safecall;
     {if (size > 0) this function must write at least 1 byte.
      This function is allowed to write less than "size".
      You must call Write function in loop, if you need to write exact amount of data}
@@ -156,23 +176,23 @@ type
 
   IInStream = interface(ISequentialInStream)
     ['{23170F69-40C1-278A-0000-000300030000}']
-    function Seek(Offset: Int64; SeekOrigin: Cardinal; NewPosition: PInt64): HRESULT; stdcall;
+    procedure Seek(Offset: Int64; SeekOrigin: Cardinal; NewPosition: PInt64); safecall;
   end;
 
   IOutStream = interface(ISequentialOutStream)
     ['{23170F69-40C1-278A-0000-000300040000}']
-    function Seek(Offset: Int64; SeekOrigin: Cardinal; NewPosition: PInt64): HRESULT; stdcall;
-    function SetSize(NewSize: Int64): HRESULT; stdcall;
+    procedure Seek(Offset: Int64; SeekOrigin: Cardinal; NewPosition: PInt64); safecall;
+    procedure SetSize(NewSize: Int64); safecall;
   end;
 
   IStreamGetSize = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000300060000}']
-    function GetSize(Size: PInt64): HRESULT; stdcall;
+    procedure GetSize(out Size: Int64); safecall;
   end;
 
   IOutStreamFlush = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000300070000}']
-    function Flush: HRESULT; stdcall;
+    procedure Flush; safecall;
   end;
 
 // PropID.h
@@ -268,13 +288,13 @@ const
 type
   ICompressProgressInfo = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400040000}']
-    function SetRatioInfo(InSize: PInt64; OutSize: PInt64): HRESULT; stdcall;
+    procedure SetRatioInfo(InSize: PInt64; OutSize: PInt64); safecall;
   end;
 
   ICompressCoder = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400050000}']
-    function Code(InStream: ISequentialInStream; OutStream: ISequentialOutStream;
-      InSize, OutSize: PInt64; Progress: ICompressProgressInfo): HRESULT; stdcall;
+    procedure Code(InStream: ISequentialInStream; OutStream: ISequentialOutStream;
+      InSize, OutSize: PInt64; Progress: ICompressProgressInfo); safecall;
   end;
 
   PISequentialInStream = ^ISequentialInStream;
@@ -282,9 +302,9 @@ type
 
   ICompressCoder2 = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400180000}']
-    function Code(InStreams: PISequentialInStream; InSizes: JclBase.PPInt64; NumInStreams: Cardinal;
+    procedure Code(InStreams: PISequentialInStream; InSizes: JclBase.PPInt64; NumInStreams: Cardinal;
       OutStreams: PISequentialOutStream; OutSizes: JclBase.PPInt64; NumOutStreams: Cardinal;
-      Progress: ICompressProgressInfo): HRESULT; stdcall;
+      Progress: ICompressProgressInfo); safecall;
   end;
 
 const
@@ -307,60 +327,60 @@ const
 type
   ICompressSetCoderProperties = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400200000}']
-    function SetCoderProperties(PropIDs: PPropID; Properties: PPropVariant;
-      NumProperties: Cardinal): HRESULT; stdcall;
+    procedure SetCoderProperties(PropIDs: PPropID; Properties: PPropVariant;
+      NumProperties: Cardinal); safecall;
   end;
 
   ICompressSetDecoderProperties2 = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400220000}']
-    function SetDecoderProperties2(Data: PByte; Size: Cardinal): HRESULT; stdcall;
+    procedure SetDecoderProperties2(Data: PByte; Size: Cardinal); safecall;
   end;
 
   ICompressWriteCoderProperties = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400230000}']
-    function WriteCoderProperties(OutStream: ISequentialOutStream): HRESULT; stdcall;
+    procedure WriteCoderProperties(OutStream: ISequentialOutStream); safecall;
   end;
 
   ICompressGetInStreamProcessedSize = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400240000}']
-    function GetInStreamProcessedSize(Value: PInt64): HRESULT; stdcall;
+    procedure GetInStreamProcessedSize(out Value: Int64); safecall;
   end;
 
   ICompressSetCoderMt = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400250000}']
-    function SetNumberOfThreads(NumThreads: Cardinal): HRESULT; stdcall;
+    procedure SetNumberOfThreads(NumThreads: Cardinal); safecall;
   end;
 
   ICompressGetSubStreamSize = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400300000}']
-    function GetSubStreamSize(SubStream: Int64; out Value: Int64): HRESULT; stdcall;
+    procedure GetSubStreamSize(SubStream: Int64; out Value: Int64); safecall;
   end;
 
   ICompressSetInStream = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400310000}']
-    function SetInStream(InStream: ISequentialInStream): HRESULT; stdcall;
-    function ReleaseInStream: HRESULT; stdcall;
+    procedure SetInStream(InStream: ISequentialInStream); safecall;
+    procedure ReleaseInStream; safecall;
   end;
 
   ICompressSetOutStream = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400320000}']
-    function SetOutStream(OutStream: ISequentialOutStream): HRESULT; stdcall;
-    function ReleaseOutStream: HRESULT; stdcall;
+    procedure SetOutStream(OutStream: ISequentialOutStream); safecall;
+    procedure ReleaseOutStream; safecall;
   end;
 
   ICompressSetInStreamSize = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400330000}']
-    function SetInStreamSize(InSize: PInt64): HRESULT; stdcall;
+    procedure SetInStreamSize(InSize: PInt64); safecall;
   end;
 
   ICompressSetOutStreamSize = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400340000}']
-    function SetOutStreamSize(OutSize: PInt64): HRESULT; stdcall;
+    procedure SetOutStreamSize(OutSize: PInt64); safecall;
   end;
 
   ICompressFilter = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400400000}']
-    function Init: HRESULT; stdcall;
+    procedure Init; safecall;
     function Filter(Data: PByte; Size: Cardinal): Cardinal; stdcall;
     // Filter return outSize (UInt32)
     // if (outSize <= size): Filter have converted outSize bytes
@@ -371,31 +391,31 @@ type
 
   ICompressCodecsInfo = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400600000}']
-    function GetNumberOfMethods(NumMethods: PCardinal): HRESULT; stdcall;
-    function GetProperty(Index: Cardinal; PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
-    function CreateDecoder(Index: Cardinal; IID: PGUID; out Decoder): HRESULT; stdcall;
-    function CreateEncoder(Index: Cardinal; IID: PGUID; out Coder): HRESULT; stdcall;
+    procedure GetNumberOfMethods(out NumMethods: Cardinal); safecall;
+    procedure GetProperty(Index: Cardinal; PropID: TPropID; out Value: TPropVariant); safecall;
+    procedure CreateDecoder(Index: Cardinal; IID: PGUID; out Decoder); safecall;
+    procedure CreateEncoder(Index: Cardinal; IID: PGUID; out Coder); safecall;
   end;
 
   ISetCompressCodecsInfo = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400610000}']
-    function SetCompressCodecsInfo(CompressCodecsInfo: ICompressCodecsInfo): HRESULT; stdcall;
+    procedure SetCompressCodecsInfo(CompressCodecsInfo: ICompressCodecsInfo); safecall;
   end;
 
   ICryptoProperties = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400800000}']
-    function SetKey(Data: PByte; Size: Cardinal): HRESULT; stdcall;
-    function SetInitVector(Data: PByte; Size: Cardinal): HRESULT; stdcall;
+    procedure SetKey(Data: PByte; Size: Cardinal); safecall;
+    procedure SetInitVector(Data: PByte; Size: Cardinal); safecall;
   end;
 
   ICryptoSetPassword = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400900000}']
-    function CryptoSetPassword(Data: PByte; Size: Cardinal): HRESULT; stdcall;
+    procedure CryptoSetPassword(Data: PByte; Size: Cardinal); safecall;
   end;
 
   ICryptoSetCRC = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000400A00000}']
-    function CryptoSetCRC(crc: Cardinal): HRESULT; stdcall;
+    procedure CryptoSetCRC(crc: Cardinal); safecall;
   end;
 
 const
@@ -413,8 +433,8 @@ const
 type
   IProgress = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000000050000}']
-    function SetTotal(Total: Int64): HRESULT; stdcall;
-    function SetCompleted(CompleteValue: PInt64): HRESULT; stdcall;
+    procedure SetTotal(Total: Int64); safecall;
+    procedure SetCompleted(CompleteValue: PInt64); safecall;
   end;
   
 // IArchive.h
@@ -452,100 +472,101 @@ type
   // "23170F69-40C1-278A-0000-000600xx0000"
   IArchiveOpenCallback = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000600100000}']
-    function SetTotal(Files: PInt64; Bytes: PInt64): HRESULT; stdcall;
-    function SetCompleted(Files: PInt64; Bytes: PInt64): HRESULT; stdcall;
+    procedure SetTotal(Files: PInt64; Bytes: PInt64); safecall;
+    procedure SetCompleted(Files: PInt64; Bytes: PInt64); safecall;
   end;
 
   IArchiveExtractCallback = interface(IProgress)
     ['{23170F69-40C1-278A-0000-000600200000}']
     function GetStream(Index: Cardinal; out OutStream: ISequentialOutStream;
       askExtractMode: Cardinal): HRESULT; stdcall;
-    // GetStream OUT: S_OK - OK, S_FALSE - skeep this file
-    function PrepareOperation(askExtractMode: Cardinal): HRESULT; stdcall;
-    function SetOperationResult(resultEOperationResult: Integer): HRESULT; stdcall;
+    // GetStream OUT: S_OK - OK, S_FALSE - skip this file
+    procedure PrepareOperation(askExtractMode: Cardinal); safecall;
+    procedure SetOperationResult(resultEOperationResult: Integer); safecall;
   end;
 
   IArchiveOpenVolumeCallback = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000600300000}']
-    function GetProperty(PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
-    function GetStream(Name: PWideChar; out InStream: IInStream): HRESULT; stdcall;
+    procedure GetProperty(PropID: TPropID; out Value: TPropVariant); safecall;
+    procedure GetStream(Name: PWideChar; out InStream: IInStream); safecall;
   end;
 
   IInArchiveGetStream = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000600400000}']
-    function GetStream(Index: Cardinal; out Stream: ISequentialInStream): HRESULT; stdcall;
+    procedure GetStream(Index: Cardinal; out Stream: ISequentialInStream);
   end;
 
   IArchiveOpenSetSubArchiveName = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000600500000}']
-    function SetSubArchiveName(Name: PWideChar): HRESULT; stdcall;
+    procedure SetSubArchiveName(Name: PWideChar); safecall;
   end;
 
   IInArchive = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000600600000}']
     function Open(Stream: IInStream; MaxCheckStartPosition: PInt64;
        OpenArchiveCallback: IArchiveOpenCallback): HRESULT; stdcall;
-    function Close: HRESULT; stdcall;
-    function GetNumberOfItems(NumItems: PCardinal): HRESULT; stdcall;
-    function GetProperty(Index: Cardinal; PropID: TPropID;
-      var Value: TPropVariant): HRESULT; stdcall;
-    function Extract(Indices: PCardinal; NumItems: Cardinal;
-      TestMode: Integer; ExtractCallback: IArchiveExtractCallback): HRESULT; stdcall;
+    procedure Close; safecall;
+    procedure GetNumberOfItems(out NumItems: Cardinal); safecall;
+    procedure GetProperty(Index: Cardinal; PropID: TPropID;
+      var Value: TPropVariant); safecall;
+    procedure Extract(Indices: PCardinal; NumItems: Cardinal;
+      TestMode: Integer; ExtractCallback: IArchiveExtractCallback); safecall;
     // indices must be sorted
     // numItems = 0xFFFFFFFF means all files
     // testMode != 0 means "test files operation"
-    function GetArchiveProperty(PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
+    procedure GetArchiveProperty(PropID: TPropID; out Value: TPropVariant); safecall;
 
-    function GetNumberOfProperties(NumProperties: PCardinal): HRESULT; stdcall;
-    function GetPropertyInfo(Index: Cardinal; out Name: TBStr; out PropID: TPropID;
-      out VarType: TVarType): HRESULT; stdcall;
+    procedure GetNumberOfProperties(out NumProperties: Cardinal); safecall;
+    procedure GetPropertyInfo(Index: Cardinal; out Name: TBStr; out PropID: TPropID;
+      out VarType: TVarType); safecall;
 
-    function GetNumberOfArchiveProperties(NumProperties: PCardinal): HRESULT; stdcall;
-    function GetArchivePropertyInfo(Index: Cardinal; out Name: TBStr; out PropID: TPropID;
-      out VarType: TVarType): HRESULT; stdcall;
+    procedure GetNumberOfArchiveProperties(out NumProperties: Cardinal); safecall;
+    procedure GetArchivePropertyInfo(Index: Cardinal; out Name: TBStr; out PropID: TPropID;
+      out VarType: TVarType); safecall;
   end;
 
   IArchiveUpdateCallback = interface(IProgress)
     ['{23170F69-40C1-278A-0000-000600800000}']
-    function GetUpdateItemInfo(Index: Cardinal;
+    procedure GetUpdateItemInfo(Index: Cardinal;
       NewData: PInteger;        // 1 - new data, 0 - old data
       NewProperties: PInteger;  // 1 - new properties, 0 - old properties
       IndexInArchive: PCardinal // -1 if there is no in archive, or if doesn't matter
-      ): HRESULT; stdcall;
-    function GetProperty(Index: Cardinal; PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
-    function GetStream(Index: Cardinal; out InStream: ISequentialInStream): HRESULT; stdcall;
-    function SetOperationResult(OperationResult: Integer): HRESULT; stdcall;
+      ); safecall;
+    procedure GetProperty(Index: Cardinal; PropID: TPropID; out Value: TPropVariant); safecall;
+    procedure GetStream(Index: Cardinal; out InStream: ISequentialInStream); safecall; //TODO: property
+    procedure SetOperationResult(OperationResult: Integer); safecall;
   end;
 
   IArchiveUpdateCallback2 = interface(IArchiveUpdateCallback)
     ['{23170F69-40C1-278A-0000-000600820000}']
-    function GetVolumeSize(Index: Cardinal; Size: PInt64): HRESULT; stdcall;
-    function GetVolumeStream(Index: Cardinal; out VolumeStream: ISequentialOutStream): HRESULT; stdcall;
+    function GetVolumeSize(Index: Cardinal; out Size: Int64): HRESULT;
+    // GetVolumeSize OUT: S_OK - Size is valid, S_FALSE - don't split
+    procedure GetVolumeStream(Index: Cardinal; out VolumeStream: ISequentialOutStream); safecall;
   end;
 
   IOutArchive = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000600A00000}']
-    function UpdateItems(OutStream: ISequentialOutStream; NumItems: Cardinal;
-      UpdateCallback: IArchiveUpdateCallback): HRESULT; stdcall;
-    function GetFileTimeType(Type_: PCardinal): HRESULT; stdcall;
+    procedure UpdateItems(OutStream: ISequentialOutStream; NumItems: Cardinal;
+      UpdateCallback: IArchiveUpdateCallback); safecall;
+    procedure GetFileTimeType(out Type_: Cardinal); safecall;
   end;
 
   ISetProperties = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000600030000}']
-    function SetProperties(Names: PPWideChar; Values: PPropVariant; NumProperties: Integer): HRESULT; stdcall;
+    procedure SetProperties(Names: PPWideChar; Values: PPropVariant; NumProperties: Integer); safecall;
   end;
 
 // IPassword.h
 type
   ICryptoGetTextPassword = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000500100000}']
-    function CryptoGetTextPassword(password: PBStr): HRESULT; stdcall;
+    procedure CryptoGetTextPassword(out Password: TBStr); safecall;
   end;
 
   ICryptoGetTextPassword2 = interface(IUnknown)
     ['{23170F69-40C1-278A-0000-000500110000}']
-    function CryptoGetTextPassword2(PasswordIsDefined: PInteger;
-      Password: PBStr): HRESULT; stdcall;
+    procedure CryptoGetTextPassword2(out PasswordIsDefined: LongBool;
+      out Password: TBStr); safecall;
   end;
 
 // ZipHandlerOut.cpp
@@ -608,21 +629,55 @@ const
 {$IFDEF 7ZIP_LINKONREQUEST}
 type
   TCreateObjectFunc = function (ClsID: PGUID; IID: PGUID; out Obj): HRESULT; stdcall;
+  TGetHandlerProperty2 = function (FormatIndex: Cardinal; PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
+  TGetHandlerProperty = function (PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
+  TGetMethodProperty = function (CodecIndex: Cardinal; PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
   TGetNumberOfFormatsFunc = function (NumFormats: PCardinal): HRESULT; stdcall;
   TGetNumberOfMethodsFunc = function (NumMethods: PCardinal): HRESULT; stdcall;
   TSetLargePageMode = function: HRESULT; stdcall;
 
 var
   CreateObject: TCreateObjectFunc = nil;
+  GetHandlerProperty2: TGetHandlerProperty2 = nil;
+  GetHandlerProperty: TGetHandlerProperty = nil;
+  GetMethodProperty: TGetMethodProperty = nil;
   GetNumberOfFormats: TGetNumberOfFormatsFunc = nil;
   GetNumberOfMethods: TGetNumberOfMethodsFunc = nil;
   SetLargePageMode: TSetLargePageMode = nil;
 {$ELSE ~7ZIP_LINKONREQUEST}
 function CreateObject(ClsID: PGUID; IID: PGUID; out Obj): HRESULT; stdcall;
+function GetHandlerProperty2(FormatIndex: Cardinal; PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
+function GetHandlerProperty(PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
+function GetMethodProperty(CodecIndex: Cardinal; PropID: TPropID; out Value: TPropVariant): HRESULT; stdcall;
 function GetNumberOfFormats(NumFormats: PCardinal): HRESULT; stdcall;
 function GetNumberOfMethods(NumMethods: PCardinal): HRESULT; stdcall;
 function SetLargePageMode: HRESULT; stdcall;
 {$ENDIF ~7ZIP_LINKONREQUEST}
+
+//DOM-IGNORE-END
+
+const
+  SevenzipDefaultLibraryName = '7z.dll';
+  CreateObjectDefaultExportName = 'CreateObject';
+  GetHandlerProperty2DefaultExportName = 'GetHandlerProperty2';
+  GetHandlerPropertyDefaultExportName = 'GetHandlerProperty';
+  GetMethodPropertyDefaultExportName = 'GetMethodProperty';
+  GetNumberOfFormatsDefaultExportName = 'GetNumberOfFormats';
+  GetNumberOfMethodsDefaultExportName = 'GetNumberOfMethods';
+  SetLargePageModeDefaultExportName = 'SetLargePageMode';
+
+{$IFDEF 7ZIP_LINKONREQUEST}
+var
+  SevenzipLibraryName: string = SevenzipDefaultLibraryName;
+  CreateObjectExportName: string = CreateObjectDefaultExportName;
+  GetHandlerProperty2ExportName: string = GetHandlerProperty2DefaultExportName;
+  GetHandlerPropertyExportName: string = GetHandlerPropertyDefaultExportName;
+  GetMethodPropertyExportName: string = GetMethodPropertyDefaultExportName;
+  GetNumberOfFormatsExportName: string = GetNumberOfFormatsDefaultExportName;
+  GetNumberOfMethodsExportName: string = GetNumberOfMethodsDefaultExportName;
+  SetLargePageModeExportName: string = SetLargePageModeDefaultExportName;
+  SevenzipLibraryHandle: TModuleHandle = INVALID_MODULEHANDLE_VALUE;
+{$ENDIF 7ZIP_LINKONREQUEST}
 
 function Load7Zip: Boolean;
 function Is7ZipLoaded: Boolean;
@@ -631,9 +686,9 @@ procedure Unload7Zip;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/sevenzip.pas $';
-    Revision: '$Revision: 3266 $';
-    Date: '$Date: 2010-07-25 13:44:27 +0200 (dim., 25 juil. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -642,65 +697,37 @@ const
 
 implementation
 
-type
-  {$IFDEF MSWINDOWS}
-  TModuleHandle = HINST;
-  {$ENDIF MSWINDOWS}
-  {$IFDEF LINUX}
-  TModuleHandle = Pointer;
-  {$ENDIF LINUX}
-
-const
-  sz7Zip = '7z.dll';
-  CreateObjectExportName = 'CreateObject';
-  GetNumberOfFormatsExportName = 'GetNumberOfFormats';
-  GetNumberOfMethodsExportName = 'GetNumberOfMethods';
-  SetLargePageModeExportName = 'SetLargePageMode';
-  INVALID_MODULEHANDLE_VALUE = TModuleHandle(0);
-
 {$IFDEF 7ZIP_LINKDLL}
-function CreateObject; external sz7Zip name CreateObjectExportName;
-function GetNumberOfFormats; external sz7Zip name GetNumberOfFormatsExportName;
-function GetNumberOfMethods; external sz7Zip name GetNumberOfMethodsExportName;
-function SetLargePageMode; external sz7Zip name SetLargePageModeExportName;
+function CreateObject; external SevenzipDefaultLibraryName name CreateObjectDefaultExportName;
+function GetHandlerProperty2; external SevenzipDefaultLibraryName name GetHandlerProperty2DefaultExportName;
+function GetHandlerProperty; external SevenzipDefaultLibraryName name GetHandlerPropertyDefaultExportName;
+function GetMethodProperty; external SevenzipDefaultLibraryName name GetMethodPropertyDefaultExportName;
+function GetNumberOfFormats; external SevenzipDefaultLibraryName name GetNumberOfFormatsDefaultExportName;
+function GetNumberOfMethods; external SevenzipDefaultLibraryName name GetNumberOfMethodsDefaultExportName;
+function SetLargePageMode; external SevenzipDefaultLibraryName name SetLargePageModeDefaultExportName;
 {$ENDIF 7ZIP_LINKDLL}
-
-{$IFDEF 7ZIP_LINKONREQUEST}
-var
-  SevenzipLib: TModuleHandle = INVALID_MODULEHANDLE_VALUE;
-{$ENDIF 7ZIP_LINKONREQUEST}
 
 function Load7Zip: Boolean;
 {$IFDEF 7ZIP_LINKONREQUEST}
-  function GetSymbol(SymbolName: PChar): Pointer;
-  begin
-    {$IFDEF MSWINDOWS}
-    Result := GetProcAddress(SevenzipLib, PChar(SymbolName));
-    {$ENDIF MSWINDOWS}
-    {$IFDEF UNIX}
-    Result := dlsym(SevenzipLib, PChar(SymbolName));
-    {$ENDIF UNIX}
-  end;
 begin
-  Result := SevenzipLib <> INVALID_MODULEHANDLE_VALUE;
-  if not Result then
+  Result := SevenzipLibraryHandle <> INVALID_MODULEHANDLE_VALUE;
+  if Result then
+    Exit;
+
+  Result := JclSysUtils.LoadModule(SevenzipLibraryHandle, SevenzipLibraryName);
+  if Result then
   begin
-    {$IFDEF MSWINDOWS}
-    SevenzipLib := LoadLibrary(sz7Zip);
-    {$ENDIF MSWINDOWS}
-    {$IFDEF UNIX}
-    SevenzipLib := dlopen(PChar(sz7Zip), RTLD_NOW);
-    {$ENDIF UNIX}
-    Result := SevenzipLib <> INVALID_MODULEHANDLE_VALUE;
-    if Result then
-    begin
-      @CreateObject := GetSymbol(CreateObjectExportName);
-      @GetNumberOfFormats := GetSymbol(GetNumberOfFormatsExportName);
-      @GetNumberOfMethods := GetSymbol(GetNumberOfMethodsExportName);
-      @SetLargePageMode := GetSymbol(SetLargePageModeExportName);
-      Result := Assigned(@CreateObject) and Assigned(@GetNumberOfFormats) and
-        Assigned(@GetNumberOfMethods) and Assigned(@SetLargePageMode);
-    end;
+    @CreateObject := GetModuleSymbol(SevenzipLibraryHandle, CreateObjectExportName);
+    @GetHandlerProperty2 := GetModuleSymbol(SevenzipLibraryHandle, GetHandlerProperty2ExportName);
+    @GetHandlerProperty := GetModuleSymbol(SevenzipLibraryHandle, GetHandlerPropertyExportName);
+    @GetMethodProperty := GetModuleSymbol(SevenzipLibraryHandle, GetMethodPropertyExportName);
+    @GetNumberOfFormats := GetModuleSymbol(SevenzipLibraryHandle, GetNumberOfFormatsExportName);
+    @GetNumberOfMethods := GetModuleSymbol(SevenzipLibraryHandle, GetNumberOfMethodsExportName);
+    @SetLargePageMode := GetModuleSymbol(SevenzipLibraryHandle, SetLargePageModeExportName);
+    Result := Assigned(@CreateObject) and Assigned(@GetHandlerProperty2) and
+      Assigned(@GetHandlerProperty) and Assigned(@GetMethodProperty) and
+      Assigned(@GetNumberOfFormats) and Assigned(@GetNumberOfMethods) and
+      Assigned(@SetLargePageMode);
   end;
 end;
 {$ELSE ~7ZIP_LINKONREQUEST}
@@ -712,7 +739,7 @@ end;
 function Is7ZipLoaded: Boolean;
 begin
   {$IFDEF 7ZIP_LINKONREQUEST}
-  Result := SevenzipLib <> INVALID_MODULEHANDLE_VALUE;
+  Result := SevenzipLibraryHandle <> INVALID_MODULEHANDLE_VALUE;
   {$ELSE ~7ZIP_LINKONREQUEST}
   Result := True;
   {$ENDIF ~7ZIP_LINKONREQUEST}
@@ -722,17 +749,13 @@ procedure Unload7Zip;
 begin
   {$IFDEF 7ZIP_LINKONREQUEST}
   @CreateObject := nil;
+  @GetHandlerProperty2 := nil;
+  @GetHandlerProperty := nil;
+  @GetMethodProperty := nil;
   @GetNumberOfFormats := nil;
   @GetNumberOfMethods := nil;
   @SetLargePageMode := nil;
-  if SevenzipLib <> INVALID_MODULEHANDLE_VALUE then
-    {$IFDEF MSWINDOWS}
-    FreeLibrary(SevenzipLib);
-    {$ENDIF MSWINDOWS}
-    {$IFDEF UNIX}
-    dlclose(Pointer(SevenzipLib));
-    {$ENDIF UNIX}
-  SevenzipLib := INVALID_MODULEHANDLE_VALUE;
+  JclSysUtils.UnloadModule(SevenzipLibraryHandle);
   {$ENDIF 7ZIP_LINKONREQUEST}
 end;
 

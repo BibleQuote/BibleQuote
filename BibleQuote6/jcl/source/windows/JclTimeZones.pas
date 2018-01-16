@@ -24,9 +24,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-13 11:57:20 +0200 (dim., 13 sept. 2009)                         $ }
-{ Revision:      $Rev:: 3009                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -60,7 +60,12 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
-  Windows, SysUtils, Contnrs, Classes;
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.SysUtils, System.Contnrs, System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
+  Windows, SysUtils, Contnrs, Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclBase;
 
 type
   // Contents of the TZI value in the Time Zones section of the registry
@@ -147,8 +152,8 @@ type
   end;
 
 type
-  EDaylightSavingsNotSupported = class(Exception);
-  EAutoAdjustNotEnabled = class(Exception);
+  EDaylightSavingsNotSupported = class(EJclError);
+  EAutoAdjustNotEnabled = class(EJclError);
 
 // Enumerate all time zones from the registry
 function EnumTimeZones(CallBackFunc: TJclTimeZoneCallBackFunc): Boolean;
@@ -170,9 +175,9 @@ function UTCNow: TDateTime;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclTimeZones.pas $';
-    Revision: '$Revision: 3009 $';
-    Date: '$Date: 2009-09-13 11:57:20 +0200 (dim., 13 sept. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -182,7 +187,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Messages,
+  {$ELSE ~HAS_UNITSCOPE}
   Messages,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclResources,
   JclDateTime, JclRegistry;
 

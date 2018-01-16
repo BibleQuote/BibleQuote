@@ -25,6 +25,7 @@
 {   Jack N.A. Bakker                                                                               }
 {   Jean-Fabien Connault (cycocrew)                                                                }
 {   John C Molyneux                                                                                }
+{   Kiriakos Vlahos                                                                                }
 {   Leonard Wennekers                                                                              }
 {   Marcel Bestebroer                                                                              }
 {   Martin Kimmings                                                                                }
@@ -49,9 +50,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010)                         $ }
-{ Revision:      $Rev:: 3321                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -65,10 +66,23 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  {$ENDIF MSWINDOWS}
+  {$IFDEF UNICODE_RTL_DATABASE}
+  System.Character,
+  {$ENDIF UNICODE_RTL_DATABASE}
+  System.Classes, System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF MSWINDOWS}
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Character,
+  {$ENDIF UNICODE_RTL_DATABASE}
   Classes, SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclAnsiStrings,
   JclWideStrings,
   JclBase;
@@ -245,12 +259,15 @@ procedure StrFillChar(var S; Count: SizeInt; C: Char);
 function StrRepeatChar(C: Char; Count: SizeInt): string;
 function StrFind(const Substr, S: string; const Index: SizeInt = 1): SizeInt;
 function StrHasPrefix(const S: string; const Prefixes: array of string): Boolean;
+function StrHasSuffix(const S: string; const Suffixes: array of string): Boolean;
 function StrIndex(const S: string; const List: array of string; CaseSensitive: Boolean = False): SizeInt;
 function StrIHasPrefix(const S: string; const Prefixes: array of string): Boolean;
+function StrIHasSuffix(const S: string; const Suffixes: array of string): Boolean;
 function StrILastPos(const SubStr, S: string): SizeInt;
 function StrIPos(const SubStr, S: string): SizeInt;
 function StrIPrefixIndex(const S: string; const Prefixes: array of string): SizeInt;
 function StrIsOneOf(const S: string; const List: array of string): Boolean;
+function StrISuffixIndex(const S: string; const Suffixes: array of string): SizeInt;
 function StrLastPos(const SubStr, S: string): SizeInt;
 function StrMatch(const Substr, S: string; Index: SizeInt = 1): SizeInt;
 function StrMatches(const Substr, S: string; const Index: SizeInt = 1): Boolean;
@@ -258,16 +275,28 @@ function StrNIPos(const S, SubStr: string; N: SizeInt): SizeInt;
 function StrNPos(const S, SubStr: string; N: SizeInt): SizeInt;
 function StrPrefixIndex(const S: string; const Prefixes: array of string): SizeInt;
 function StrSearch(const Substr, S: string; const Index: SizeInt = 1): SizeInt;
+function StrSuffixIndex(const S: string; const Suffixes: array of string): SizeInt;
 
 // String Extraction
+/// Returns the string after SubStr
 function StrAfter(const SubStr, S: string): string;
+/// Returns the String before SubStr
 function StrBefore(const SubStr, S: string): string;
+/// Splits a string at SubStr, returns true when SubStr is found, Left contains the
+/// string before the SubStr and Right the string behind SubStr
+function StrSplit(const SubStr, S: string;var Left, Right : string): boolean;
+/// Returns the string between Start and Stop
 function StrBetween(const S: string; const Start, Stop: Char): string;
-function StrChopRight(const S: string; N: SizeInt): string;
-function StrLeft(const S: string; Count: SizeInt): string;
-function StrMid(const S: string; Start, Count: SizeInt): string;
-function StrRestOf(const S: string; N: SizeInt): string;
-function StrRight(const S: string; Count: SizeInt): string;
+/// Returns all but rightmost N characters of the string
+function StrChopRight(const S: string; N: SizeInt): string;{$IFDEF SUPPORTS_INLINE} {$IFDEF COMPILER16_UP} inline; {$ENDIF} {$ENDIF}
+/// Returns the left Count characters of the string
+function StrLeft(const S: string; Count: SizeInt): string; {$IFDEF SUPPORTS_INLINE} {$IFDEF COMPILER16_UP} inline; {$ENDIF} {$ENDIF}
+/// Returns the string starting from position Start for the Count Characters
+function StrMid(const S: string; Start, Count: SizeInt): string; {$IFDEF SUPPORTS_INLINE} {$IFDEF COMPILER16_UP} inline; {$ENDIF} {$ENDIF}
+/// Returns the string starting from position N to the end
+function StrRestOf(const S: string; N: SizeInt): string;{$IFDEF SUPPORTS_INLINE} {$IFDEF COMPILER16_UP} inline; {$ENDIF} {$ENDIF}
+/// Returns the right Count characters of the string
+function StrRight(const S: string; Count: SizeInt): string;{$IFDEF SUPPORTS_INLINE} {$IFDEF COMPILER16_UP} inline; {$ENDIF} {$ENDIF}
 
 // Character Test Routines
 function CharEqualNoCase(const C1, C2: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
@@ -280,8 +309,8 @@ function CharIsDigit(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {
 function CharIsFracDigit(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function CharIsHexDigit(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function CharIsLower(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-function CharIsNumberChar(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-function CharIsNumber(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+function CharIsNumberChar(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} {$IFDEF COMPILER16_UP} inline; {$ENDIF} {$ENDIF}
+function CharIsNumber(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} {$IFDEF COMPILER16_UP} inline; {$ENDIF} {$ENDIF}
 function CharIsPrintable(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function CharIsPunctuation(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function CharIsReturn(const C: Char): Boolean; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
@@ -320,7 +349,7 @@ type
   PWideMultiSz = JclWideStrings.PWideMultiSz;
 
   TAnsiStrings = JclAnsiStrings.TJclAnsiStrings;
-//  TWideStrings = JclWideStrings.TJclWideStrings;
+  TWideStrings = JclWideStrings.TJclWideStrings;
   TAnsiStringList = JclAnsiStrings.TJclAnsiStringList;
   TWideStringList = JclWideStrings.TJclWideStringList;
 
@@ -339,9 +368,9 @@ procedure AllocateAnsiMultiSz(var Dest: PAnsiMultiSz; Len: SizeInt); {$IFDEF SUP
 procedure FreeAnsiMultiSz(var Dest: PAnsiMultiSz); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function AnsiMultiSzDup(const Source: PAnsiMultiSz): PAnsiMultiSz; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 
-function WideStringsToWideMultiSz(var Dest: PWideMultiSz; const Source: TJCLWideStrings): PWideMultiSz;
+function WideStringsToWideMultiSz(var Dest: PWideMultiSz; const Source: TWideStrings): PWideMultiSz;
  {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-procedure WideMultiSzToWideStrings(const Dest: TJCLWideStrings; const Source: PWideMultiSz); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+procedure WideMultiSzToWideStrings(const Dest: TWideStrings; const Source: PWideMultiSz); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 function WideMultiSzLength(const Source: PWideMultiSz): SizeInt; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 procedure AllocateWideMultiSz(var Dest: PWideMultiSz; Len: SizeInt); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 procedure FreeWideMultiSz(var Dest: PWideMultiSz); {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
@@ -350,7 +379,9 @@ function WideMultiSzDup(const Source: PWideMultiSz): PWideMultiSz; {$IFDEF SUPPO
 // TStrings Manipulation
 procedure StrIToStrings(S, Sep: string; const List: TStrings; const AllowEmptyString: Boolean = True);
 procedure StrToStrings(S, Sep: string; const List: TStrings; const AllowEmptyString: Boolean = True);
-function StringsToStr(const List: TStrings; const Sep: string; const AllowEmptyString: Boolean = True): string;
+function StringsToStr(const List: TStrings; const Sep: string; const AllowEmptyString: Boolean = True): string; overload;
+function StringsToStr(const List: TStrings; const Sep: string; const NumberOfItems: SizeInt; const AllowEmptyString:
+    Boolean = True): string; overload;
 procedure TrimStrings(const List: TStrings; DeleteIfEmpty: Boolean = True);
 procedure TrimStringsRight(const List: TStrings; DeleteIfEmpty: Boolean = True);
 procedure TrimStringsLeft(const List: TStrings; DeleteIfEmpty: Boolean = True);
@@ -392,8 +423,8 @@ type
 
   // The TStringBuilder class is a Delphi implementation of the .NET
   // System.Text.StringBuilder.
-  // It is zero based and the method that allow an TObject (Append, Insert,
-  // AppendFormat) are limited to IToString implementors.
+  // It is zero based and the methods that have a TObject argument (Append, Insert,
+  // AppendFormat) are limited to IToString implementors or Delphi 2009+ RTL.
   // This class is not threadsafe. Any instance of TStringBuilder should not
   // be used in different threads at the same time.
   TJclStringBuilder = class(TInterfacedObject, IToString)
@@ -449,6 +480,7 @@ type
 
     function Remove(StartIndex, Length: SizeInt): TJclStringBuilder;
     function EnsureCapacity(Capacity: SizeInt): SizeInt;
+    procedure Clear;
 
     { IToString }
     function ToString: string; {$IFDEF RTL200_UP} override; {$ENDIF RTL200_UP}
@@ -461,7 +493,7 @@ type
   end;
 
   {$IFDEF RTL200_UP}
-  TStringBuilder = SysUtils.TStringBuilder;
+  TStringBuilder = {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.TStringBuilder;
   {$ELSE ~RTL200_UP}
   TStringBuilder = TJclStringBuilder;
   {$ENDIF ~RTL200_UP}
@@ -575,6 +607,7 @@ procedure StrResetLength(var S: UnicodeString); overload;
 function CompareNaturalStr(const S1, S2: string): SizeInt;
 function CompareNaturalText(const S1, S2: string): SizeInt;
 
+{$IFNDEF UNICODE_RTL_DATABASE}
 // internal structures published to make function inlining working
 const
   MaxStrCharCount = Ord(High(Char)) + 1;       // # of chars in one set
@@ -587,13 +620,14 @@ var
   StrCaseMap: array [0..StrCaseMapSize - 1] of Char; // case mappings
   StrCaseMapReady: Boolean = False;         // true if case map exists
   StrCharTypes: array [Char] of Word;
+{$ENDIF ~UNICODE_RTL_DATABASE}
 
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclStrings.pas $';
-    Revision: '$Revision: 3321 $';
-    Date: '$Date: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -607,19 +641,24 @@ uses
   Libc,
   {$ENDIF HAS_UNIT_LIBC}
   {$IFDEF SUPPORTS_UNICODE}
+  {$IFDEF HAS_UNITSCOPE}
+  System.StrUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   StrUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$ENDIF SUPPORTS_UNICODE}
-  JclLogic, JclResources, JclStreams, JclSynch;
+  JclLogic, JclResources, JclStreams, JclSynch, JclSysUtils;
 
 //=== Internal ===============================================================
 
 type
   TStrRec = packed record
-    RefCount: SizeInt;
-    Length: SizeInt;
+    RefCount: Integer;
+    Length: Integer;
   end;
   PStrRec = ^TStrRec;
 
+{$IFNDEF UNICODE_RTL_DATABASE}
 procedure LoadCharTypes;
 var
   CurrChar: Char;
@@ -672,8 +711,8 @@ begin
       {$IFDEF MSWINDOWS}
       LoCaseChar := CurrChar;
       UpCaseChar := CurrChar;
-      Windows.CharLowerBuff(@LoCaseChar, 1);
-      Windows.CharUpperBuff(@UpCaseChar, 1);
+      {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.CharLowerBuff(@LoCaseChar, 1);
+      {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.CharUpperBuff(@UpCaseChar, 1);
       {$DEFINE CASE_MAP_INITIALIZED}
       {$ENDIF MSWINDOWS}
       {$IFDEF LINUX}
@@ -737,6 +776,7 @@ begin
     until C = #0;
   end;
 end;
+{$ENDIF ~UNICODE_RTL_DATABASE}
 
 function StrEndW(Str: PWideChar): PWideChar;
 begin
@@ -1163,13 +1203,42 @@ begin
 end;
 
 procedure StrLowerInPlace(var S: string);
+{$IFDEF UNICODE_RTL_DATABASE}
+var
+  P: PChar;
+  I, L: SizeInt;
+begin
+  L := Length(S);
+  if L > 0 then
+  begin
+    UniqueString(S);
+    P := PChar(S);
+    for I := 1 to L do
+    begin
+      P^ := TCharacter.ToLower(P^);
+      Inc(P);
+    end;
+  end;
+end;
+{$ELSE ~UNICODE_RTL_DATABASE}
 begin
   StrCase(S, StrLoOffset);
 end;
+{$ENDIF ~UNICODE_RTL_DATABASE}
 
 procedure StrLowerBuff(S: PChar);
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  if S <> nil then
+  begin
+    repeat
+      S^ := TCharacter.ToLower(S^);
+      Inc(S);
+    until S^ = #0;
+  end;
+  {$ELSE ~UNICODE_RTL_DATABASE}
   StrCaseBuff(S, StrLoOffset);
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 procedure StrMove(var Dest: string; const Source: string;
@@ -1890,13 +1959,42 @@ begin
 end;
 
 procedure StrUpperInPlace(var S: string);
+{$IFDEF UNICODE_RTL_DATABASE}
+var
+  P: PChar;
+  I, L: SizeInt;
+begin
+  L := Length(S);
+  if L > 0 then
+  begin
+    UniqueString(S);
+    P := PChar(S);
+    for I := 1 to L do
+    begin
+      P^ := TCharacter.ToUpper(P^);
+      Inc(P);
+    end;
+  end;
+end;
+{$ELSE ~UNICODE_RTL_DATABASE}
 begin
   StrCase(S, StrUpOffset);
 end;
+{$ENDIF ~UNICODE_RTL_DATABASE}
 
 procedure StrUpperBuff(S: PChar);
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  if S <> nil then
+  begin
+    repeat
+      S^ := TCharacter.ToUpper(S^);
+      Inc(S);
+    until S^ = #0;
+  end;
+  {$ELSE ~UNICODE_RTL_DATABASE}
   StrCaseBuff(S, StrUpOffset);
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 //=== String Management ======================================================
@@ -2190,7 +2288,7 @@ asm
         //        ECX C
         // 64 --> RCX S
         //        RDX Count
-        //        R8  C
+        //        R8W C
         {$IFDEF CPU32}
         DEC     EDX
         JS      @@Leave
@@ -2202,12 +2300,10 @@ asm
         {$ENDIF CPU32}
         {$IFDEF CPU64}
         DEC     RDX
-        MOV     RAX,RCX
-        MOV     RCX,R8
         JS      @@Leave
 @@Loop:
-        MOV     [RAX], CX
-        ADD     RAX, 2
+        MOV     WORD PTR [RCX], R8W
+        ADD     RCX, 2
         DEC     RDX
         JNS     @@Loop
         {$ENDIF CPU64}
@@ -2248,6 +2344,11 @@ begin
   Result := StrPrefixIndex(S, Prefixes) > -1;
 end;
 
+function StrHasSuffix(const S: string; const Suffixes: array of string): Boolean;
+begin
+  Result := StrSuffixIndex(S, Suffixes) > -1;
+end;
+
 function StrIndex(const S: string; const List: array of string; CaseSensitive: Boolean): SizeInt;
 var
   I: SizeInt;
@@ -2266,6 +2367,11 @@ end;
 function StrIHasPrefix(const S: string; const Prefixes: array of string): Boolean;
 begin
   Result := StrIPrefixIndex(S, Prefixes) > -1;
+end;
+
+function StrIHasSuffix(const S: string; const Suffixes: array of string): Boolean;
+begin
+  Result := StrISuffixIndex(S, Suffixes) > -1;
 end;
 
 function StrILastPos(const SubStr, S: string): SizeInt;
@@ -2298,6 +2404,23 @@ end;
 function StrIsOneOf(const S: string; const List: array of string): Boolean;
 begin
   Result := StrIndex(S, List) > -1;
+end;
+
+function StrISuffixIndex(const S: string; const Suffixes: array of string): SizeInt;
+var
+  I: SizeInt;
+  Test: string;
+begin
+  Result := -1;
+  for I := Low(Suffixes) to High(Suffixes) do
+  begin
+    Test := StrRight(S, Length(Suffixes[I]));
+    if CompareText(Test, Suffixes[I]) = 0 then
+    begin
+      Result := I;
+      Break;
+    end;
+  end;
 end;
 
 function StrLastPos(const SubStr, S: string): SizeInt;
@@ -2563,6 +2686,23 @@ begin
     Result := 0;
 end;
 
+function StrSuffixIndex(const S: string; const Suffixes: array of string): SizeInt;
+var
+  I: SizeInt;
+  Test: string;
+begin
+  Result := -1;
+  for I := Low(Suffixes) to High(Suffixes) do
+  begin
+    Test := StrRight(S, Length(Suffixes[I]));
+    if CompareStr(Test, Suffixes[I]) = 0 then
+    begin
+      Result := I;
+      Break;
+    end;
+  end;
+end;
+
 //=== String Extraction ======================================================
 
 function StrAfter(const SubStr, S: string): string;
@@ -2587,6 +2727,23 @@ begin
     Result := StrLeft(S, P - 1);
 end;
 
+function StrSplit(const SubStr, S: string;var Left, Right : string): boolean;
+var
+  P: SizeInt;
+begin
+  P := StrFind(SubStr, S, 1);
+  Result:= p > 0;
+  if Result then
+  begin
+    Left := StrLeft(S, P - 1);
+    Right := StrRestOf(S, P + Length(SubStr));
+  end
+  else
+  begin
+    Left := '';
+    Right := '';
+  end;
+end;
 
 function StrBetween(const S: string; const Start, Stop: Char): string;
 var
@@ -2642,22 +2799,39 @@ end;
 
 function CharIsAlpha(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.IsLetter(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := (StrCharTypes[C] and C1_ALPHA) <> 0;
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsAlphaNum(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.IsLetterOrDigit(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := ((StrCharTypes[C] and C1_ALPHA) <> 0) or ((StrCharTypes[C] and C1_DIGIT) <> 0);
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsBlank(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  //http://blogs.msdn.com/b/michkap/archive/2007/06/11/3230072.aspx
+  Result := (C = ' ') or (C = #$0009) or (C = #$00A0) or (C = #$3000);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := ((StrCharTypes[C] and C1_BLANK) <> 0);
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsControl(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.IsControl(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := (StrCharTypes[C] and C1_CNTRL) <> 0;
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsDelete(const C: Char): Boolean;
@@ -2667,12 +2841,16 @@ end;
 
 function CharIsDigit(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.IsDigit(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := (StrCharTypes[C] and C1_DIGIT) <> 0;
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsFracDigit(const C: Char): Boolean;
 begin
-  Result := (C = '.') or ((StrCharTypes[C] and C1_DIGIT) <> 0);
+  Result := (C = '.') or CharIsDigit(C);
 end;
 
 function CharIsHexDigit(const C: Char): Boolean;
@@ -2682,25 +2860,27 @@ begin
     'a'..'f':
       Result := True;
   else
-    Result := ((StrCharTypes[C] and C1_DIGIT) <> 0);
+    Result := CharIsDigit(C);
   end;
 end;
 
 function CharIsLower(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.IsLower(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := (StrCharTypes[C] and C1_LOWER) <> 0;
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsNumberChar(const C: Char): Boolean;
 begin
-  Result := ((StrCharTypes[C] and C1_DIGIT) <> 0) or (C = '+') or (C = '-') or
-    (C = {$IFDEF RTL220_UP}FormatSettings.{$ENDIF}DecimalSeparator);
+  Result := CharIsDigit(C) or (C = '+') or (C = '-') or (C = JclFormatSettings.DecimalSeparator);
 end;
 
 function CharIsNumber(const C: Char): Boolean;
 begin
-  Result := ((StrCharTypes[C] and C1_DIGIT) <> 0) or
-    (C = {$IFDEF RTL220_UP}FormatSettings.{$ENDIF}DecimalSeparator);
+  Result := CharIsDigit(C) or (C = JclFormatSettings.DecimalSeparator);
 end;
 
 function CharIsPrintable(const C: Char): Boolean;
@@ -2710,7 +2890,11 @@ end;
 
 function CharIsPunctuation(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.IsPunctuation(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := ((StrCharTypes[C] and C1_PUNCT) <> 0);
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsReturn(const C: Char): Boolean;
@@ -2720,12 +2904,20 @@ end;
 
 function CharIsSpace(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.IsWhiteSpace(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := (StrCharTypes[C] and C1_SPACE) <> 0;
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsUpper(const C: Char): Boolean;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.IsUpper(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := (StrCharTypes[C] and C1_UPPER) <> 0;
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharIsValidIdentifierLetter(const C: Char): Boolean;
@@ -2772,7 +2964,11 @@ end;
 
 function CharType(const C: Char): Word;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  GetStringTypeEx(LOCALE_USER_DEFAULT, CT_CTYPE1, @C, 1, Result);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := StrCharTypes[C];
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 //=== PCharVector ============================================================
@@ -2867,17 +3063,34 @@ end;
 
 function CharLower(const C: Char): Char;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.ToLower(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := StrCaseMap[Ord(C) + StrLoOffset];
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharToggleCase(const C: Char): Char;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  if CharIsLower(C) then
+    Result := CharUpper(C)
+  else if CharIsUpper(C) then
+    Result := CharLower(C)
+  else
+    Result := C;
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := StrCaseMap[Ord(C) + StrReOffset];
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 function CharUpper(const C: Char): Char;
 begin
+  {$IFDEF UNICODE_RTL_DATABASE}
+  Result := TCharacter.ToUpper(C);
+  {$ELSE ~UNICODE_RTL_DATABASE}
   Result := StrCaseMap[Ord(C) + StrUpOffset];
+  {$ENDIF ~UNICODE_RTL_DATABASE}
 end;
 
 //=== Character Search and Replace ===========================================
@@ -2910,7 +3123,7 @@ begin
   begin
     C := CharUpper(C);
     for Result := Index to Length(S) do
-      if StrCaseMap[Ord(S[Result]) + StrUpOffset] = C then
+      if CharUpper(S[Result]) = C then
         Exit;
   end;
   Result := 0;
@@ -3064,12 +3277,12 @@ begin
   Result := JclAnsiStrings.MultiSzDup(Source);
 end;
 
-function WideStringsToWideMultiSz(var Dest: PWideMultiSz; const Source: TJCLWideStrings): PWideMultiSz;
+function WideStringsToWideMultiSz(var Dest: PWideMultiSz; const Source: TWideStrings): PWideMultiSz;
 begin
   Result := JclWideStrings.StringsToMultiSz(Dest, Source);
 end;
 
-procedure WideMultiSzToWideStrings(const Dest: TJCLWideStrings; const Source: PWideMultiSz);
+procedure WideMultiSzToWideStrings(const Dest: TWideStrings; const Source: PWideMultiSz);
 begin
   JclWideStrings.MultiSzToStrings(Dest, Source);
 end;
@@ -3115,8 +3328,8 @@ begin
       Delete(S, 1, I + L - 1);
       I := Pos(Sep, S);
     end;
-    if S <> '' then
-      List.Add(S);  // Ignore empty strings at the end.
+    if (S <> '') or AllowEmptyString then
+      List.Add(S);  // Ignore empty strings at the end (only if AllowEmptyString = False).
   finally
     List.EndUpdate;
   end;
@@ -3145,14 +3358,14 @@ begin
       Delete(LowerCaseStr, 1, I + L - 1);
       I := Pos(Sep, LowerCaseStr);
     end;
-    if S <> '' then
-      List.Add(S);  // Ignore empty strings at the end.
+    if (S <> '') or AllowEmptyString then
+      List.Add(S);  // Ignore empty strings at the end (only if AllowEmptyString = False).
   finally
     List.EndUpdate;
   end;
 end;
 
-function StringsToStr(const List: TStrings; const Sep: string; const AllowEmptyString: Boolean): string;
+function StringsToStr(const List: TStrings; const Sep: string; const AllowEmptyString: Boolean = True): string;
 var
   I, L: SizeInt;
 begin
@@ -3167,7 +3380,34 @@ begin
     end;
   end;
   // remove terminating separator
-  if List.Count <> 0 then
+  if List.Count > 0 then
+  begin
+    L := Length(Sep);
+    Delete(Result, Length(Result) - L + 1, L);
+  end;
+end;
+
+function StringsToStr(const List: TStrings; const Sep: string; const NumberOfItems: SizeInt; const AllowEmptyString:
+    Boolean = True): string;
+var
+  I, L, N: SizeInt;
+begin
+  Result := '';
+  if List.Count > NumberOfItems then
+    N := NumberOfItems
+  else
+    N := List.Count;
+  for I := 0 to N - 1 do
+  begin
+    if (List[I] <> '') or AllowEmptyString then
+    begin
+      // don't combine these into one addition, somehow it hurts performance
+      Result := Result + List[I];
+      Result := Result + Sep;
+    end;
+  end;
+  // remove terminating separator
+  if N > 0 then
   begin
     L := Length(Sep);
     Delete(Result, Length(Result) - L + 1, L);
@@ -3635,8 +3875,9 @@ function DotNetFormat(const Fmt: string; const Args: array of const): string;
 var
   F, P: PChar;
   Len, Capacity, Count: SizeInt;
-  Index, ErrorCode: SizeInt;
-  S:    string;
+  Index: SizeInt;
+  ErrorCode: Integer;
+  S: string;
 
   procedure Grow(Count: SizeInt);
   begin
@@ -3742,10 +3983,15 @@ var
           Dec(TInterfacedObjectAccess(V.VObject).FRefCount);
         end
         else
-        if InheritsFrom(V.VObject.ClassType, 'TComponent') and V.VObject.GetInterface(IToString, Intf) then
+        if ((V.VObject is TComponent) or (V.VObject is TInterfacedPersistent)) and V.VObject.GetInterface(IToString, Intf) then
           Result := Intf.ToString
+        {$IFDEF RTL200_UP}
         else
-          raise ArgumentNullException.CreateResFmt(@RsDotNetFormatArgumentNotSupported, [Index]);
+          Result := V.VObject.ToString;
+        {$ELSE}
+        else
+          raise ArgumentNullException.CreateResFmt(@RsDotNetFormatObjectArgumentNotSupported, [V.VObject.ClassName, Index]);
+        {$ENDIF RTL200_UP}
       vtClass:
         Result := V.VClass.ClassName;
       vtWideChar:
@@ -3867,8 +4113,7 @@ begin
   Append(Value);
 end;
 
-constructor TJclStringBuilder.Create(const Value: string; StartIndex,
-  Length, Capacity: SizeInt);
+constructor TJclStringBuilder.Create(const Value: string; StartIndex, Length, Capacity: SizeInt);
 begin
   Create(Capacity);
   Append(Value, StartIndex + 1, Length);
@@ -3887,6 +4132,11 @@ begin
   if System.Length(FChars) < Capacity then
     SetCapacity(Capacity);
   Result := System.Length(FChars);
+end;
+
+procedure TJclStringBuilder.Clear;
+begin
+  Length := 0;
 end;
 
 procedure TJclStringBuilder.SetCapacity(const Value: SizeInt);
@@ -4141,7 +4391,7 @@ end;
 
 function TJclStringBuilder.Insert(Index: SizeInt; Obj: TObject): TJclStringBuilder;
 begin
-  Result := Insert(Index, Format('{0}', [Obj]));
+  Result := Insert(Index, DotNetFormat('{0}', [Obj]));
 end;
 
 function TJclStringBuilder.Remove(StartIndex, Length: SizeInt): TJclStringBuilder;
@@ -5151,8 +5401,10 @@ begin
 end;
 
 initialization
+  {$IFNDEF UNICODE_RTL_DATABASE}
   LoadCharTypes;  // this table first
   LoadCaseMap;    // or this function does not work
+  {$ENDIF ~UNICODE_RTL_DATABASE}
   {$IFDEF UNITVERSIONING}
   RegisterUnitVersion(HInstance, UnitVersioning);
   {$ENDIF UNITVERSIONING}
@@ -5163,3 +5415,4 @@ finalization
 {$ENDIF UNITVERSIONING}
 
 end.
+

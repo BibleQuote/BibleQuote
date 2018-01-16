@@ -28,9 +28,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-02 21:05:46 +0100 (mar., 02 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3160                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -39,15 +39,23 @@ unit JclTD32;
 interface
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  {$ENDIF MSWINDOWS}
+  System.Classes, System.SysUtils, System.Contnrs,
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF MSWINDOWS}
   Classes, SysUtils, Contnrs,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase,
   {$IFDEF BORLAND}
   JclPeImage,
@@ -853,9 +861,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclTD32.pas $';
-    Revision: '$Revision: 3160 $';
-    Date: '$Date: 2010-02-02 21:05:46 +0100 (mar., 02 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -903,7 +911,7 @@ end;
 constructor TJclTD32SourceModuleInfo.Create(pSrcFile: PSourceFileEntry; Base: TJclAddr);
 type
   PArrayOfWord = ^TArrayOfWord;
-  TArrayOfWord = array [0..0] of Word;
+  TArrayOfWord = array [0..MaxInt div SizeOf(Word) - 1] of Word;
 var
   I, J: Integer;
   pLineEntry: PLineMappingEntry;
@@ -1181,8 +1189,14 @@ begin
       Inc(pszName);
       // Get the name
       FNames.Add(pszName);
-      // skip the length of name and a NULL at the end
-      Inc(pszName, Len + 1);
+      // first, skip the length of name
+      Inc(pszName, Len);
+      // the length is only correct modulo 256 because it is stored on a single byte,
+      // so we have to iterate until we find the real end of the string
+      while PszName^ <> #0 do
+        Inc(pszName, 256);
+      // then, skip a NULL at the end
+      Inc(pszName, 1);
     end;
   end;
 end;

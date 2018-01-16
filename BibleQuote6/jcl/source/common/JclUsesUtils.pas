@@ -19,9 +19,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-03 22:53:34 +0100 (mer., 03 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3175                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -32,11 +32,14 @@ unit JclUsesUtils;
 interface
 
 uses
-  Classes, SysUtils,
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes, System.SysUtils, Winapi.Windows,
+  {$ELSE ~HAS_UNITSCOPE}
+  Classes, SysUtils, Windows,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
-  Windows,
   JclBase;
 
 type
@@ -111,9 +114,9 @@ function CreateGoal(Text: PChar): TCustomGoal;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclUsesUtils.pas $';
-    Revision: '$Revision: 3175 $';
-    Date: '$Date: 2010-02-03 22:53:34 +0100 (mer., 03 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -123,7 +126,17 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.RtlConsts,
+  {$IFDEF HAS_UNIT_CHARACTER}
+  System.Character,
+  {$ENDIF HAS_UNIT_CHARACTER}
+  {$ELSE ~HAS_UNITSCOPE}
   RtlConsts,
+  {$IFDEF HAS_UNIT_CHARACTER}
+  Character,
+  {$ENDIF HAS_UNIT_CHARACTER}
+  {$ENDIF ~HAS_UNITSCOPE}
   JclStrings,
   JclDevToolsResources;
 
@@ -150,7 +163,7 @@ begin
   if Result then
   begin
     Inc(P);
-    while CharIsValidIdentifierLetter(P^) do
+    while CharIsValidIdentifierLetter(P^) or (P^ = '.') do
       Inc(P);
   end;
 end;
@@ -213,7 +226,7 @@ begin
     PStart := P;
 
     Inc(P);
-    while CharIsValidIdentifierLetter(P^) do
+    while CharIsValidIdentifierLetter(P^) or (P^ = '.') do
       Inc(P);
 
     SetString(Result, PStart, P - PStart);
@@ -392,7 +405,7 @@ begin
     Inc(I);
     if I = Index then
     begin
-      while CharIsValidIdentifierLetter(PIdentifier^) do
+      while CharIsValidIdentifierLetter(PIdentifier^) or (P^ = '.') do
       begin
         Result := Result + PIdentifier^;
         Inc(PIdentifier);

@@ -25,9 +25,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-01-25 13:19:13 +0100 (lun., 25 janv. 2010)                         $ }
-{ Revision:      $Rev:: 3139                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -41,11 +41,19 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  {$ENDIF MSWINDOWS}
+  System.Variants,
+  System.Classes, System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF MSWINDOWS}
   Variants,
   Classes, SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase,
   JclPCRE;
 
@@ -55,6 +63,8 @@ uses
 {$ENDIF FPC}
 
 type
+  EJclStringListError = class(EJclError);
+
   IJclStringList = interface;
 
   TJclStringListObjectsMode = (omNone, omObjects, omVariants, omInterfaces);
@@ -72,7 +82,11 @@ type
     function GetObjects(Index: Integer): TObject;
     function GetTextStr: string;
     function GetValue(const Name: string): string;
+    {$IFDEF FPC}
+    function Find(const S: string; out Index: Integer): Boolean;
+    {$ELSE ~FPC}
     function Find(const S: string; var Index: Integer): Boolean;
+    {$ENDIF ~FPC}
     function IndexOf(const S: string): Integer;
     function GetCaseSensitive: Boolean;
     function GetDuplicates: TDuplicates;
@@ -165,10 +179,12 @@ type
     function First: string;
     function LastIndex: Integer;
     function Clear: IJclStringList;
+    {$IFDEF JCL_PCRE}
     function DeleteRegEx(const APattern: string): IJclStringList;
     function KeepRegEx(const APattern: string): IJclStringList;
     function Files(const APattern: string = '*'; ARecursive: Boolean = False; const ARegExPattern: string = ''): IJclStringList;
     function Directories(const APattern: string = '*'; ARecursive: Boolean = False; const ARegExPattern: string = ''): IJclStringList;
+    {$ENDIF JCL_PCRE}
     function GetStringsRef: TStrings;
     function ConfigAsSet: IJclStringList;
     function Delimit(const ADelimiter: string): IJclStringList;
@@ -195,31 +211,37 @@ type
     property KeyInterface[const AKey: string]: IInterface read GetKeyInterface write SetKeyInterface;
     property KeyVariant[const AKey: string]: Variant read GetKeyVariant write SetKeyVariant;
     property ObjectsMode: TJclStringListObjectsMode read GetObjectsMode;
+    {$IFDEF SUPPORTS_FOR_IN}
+    function GetEnumerator: TStringsEnumerator;
+    {$ENDIF SUPPORTS_FOR_IN}
   end;
 
 type
-  TJclUpdateControl = class(TObject, IInterface)
-  private
-    FStrings: TStrings;
+  TJclInterfacedStringList = class(TStringList, IInterface)
+   private
+    FOwnerInterface: IInterface;
   public
-    constructor Create(AStrings: TStrings);
     { IInterface }
-    function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
-    function _AddRef: Integer; stdcall;
-    function _Release: Integer; stdcall;
+     function _AddRef: Integer; stdcall;
+     function _Release: Integer; stdcall;
+     function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult;  stdcall;
+     procedure AfterConstruction; override;
   end;
 
-  TJclStringList = class(TStringList, IJclStringList)
+
+  TJclStringList = class(TJclInterfacedStringList, IInterface, IJclStringList)
   private
     FObjectsMode: TJclStringListObjectsMode;
     FSelfAsInterface: IJclStringList;
+    {$IFDEF JCL_PCRE}
     FLastRegExPattern: string;
-    FRegEx: TJclAnsiRegEx;
-    FUpdateControl: TJclUpdateControl;
+    FRegEx: TJclRegEx;
+    {$ENDIF JCL_PCRE}
     FCompareFunction: TJclStringListSortCompare;
-    function AutoUpdateControl: IInterface;
     function CanFreeObjects: Boolean;
+    {$IFDEF JCL_PCRE}
     function MatchRegEx(const S, APattern: string): Boolean;
+    {$ENDIF JCL_PCRE}
     procedure EnsureObjectsMode(AMode: TJclStringListObjectsMode);
   protected
     FRefCount: Integer;
@@ -230,7 +252,7 @@ type
     constructor Create;
     destructor Destroy; override;
     { IInterface }
-    function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
+    // function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
     { IJclStringList }
@@ -335,10 +357,12 @@ type
     function First: string;
     function LastIndex: Integer;
     function Clear: IJclStringList; reintroduce;
+    {$IFDEF JCL_PCRE}
     function DeleteRegEx(const APattern: string): IJclStringList;
     function KeepRegEx(const APattern: string): IJclStringList;
     function Files(const APattern: string = '*'; ARecursive: Boolean = False; const ARegExPattern: string = ''): IJclStringList;
     function Directories(const APattern: string = '*'; ARecursive: Boolean = False; const ARegExPattern: string = ''): IJclStringList;
+    {$ENDIF JCL_PCRE}
     function GetStringsRef: TStrings;
     function ConfigAsSet: IJclStringList;
     function Delimit(const ADelimiter: string): IJclStringList;
@@ -376,9 +400,9 @@ function JclStringList(const AText: string): IJclStringList; overload;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclStringLists.pas $';
-    Revision: '$Revision: 3139 $';
-    Date: '$Date: 2010-01-25 13:19:13 +0100 (lun., 25 janv. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -388,7 +412,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.TypInfo,
+  {$ELSE ~HAS_UNITSCOPE}
   TypInfo,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclFileUtils,
   JclStrings;
 
@@ -430,6 +458,45 @@ begin
   Result := JclStringList.Add(A);
 end;
 
+//=== { TJclInterfacedStringList } ==============================================
+
+procedure TJclInterfacedStringList.AfterConstruction;
+Var
+  MyOwner : TPersistent;
+begin
+  inherited;
+  MyOwner := GetOwner;
+  if Assigned(MyOwner) then
+    MyOwner.GetInterface(IUnknown,FOwnerInterface);
+end;
+
+
+function TJclInterfacedStringList._AddRef: Integer;stdcall;
+begin
+  if assigned(FOwnerInterface) then
+    Result := FOwnerInterface._AddRef
+  else
+    Result := -1;
+end;
+
+
+function TJclInterfacedStringList._Release: Integer;stdcall;
+begin
+  if assigned(FOwnerInterface) then
+    Result := FOwnerInterface._Release
+  else
+    Result := -1;
+end;
+
+
+function TJclInterfacedStringList.QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult;stdcall;
+begin
+  if GetInterface(IID, Obj) then
+    Result := 0
+  else
+    Result := E_NOINTERFACE;
+end;
+
 //=== { TJclStringList } =====================================================
 
 function TJclStringList.Add(const A: array of const): IJclStringList;
@@ -438,64 +505,65 @@ const
 var
   I: Integer;
 begin
-  AutoUpdateControl;
-  for I := Low(A) to High(A) do
-    case A[I].VType of
-      vtInteger:
-        Add(IntToStr(A[I].VInteger));
-      vtBoolean:
-        Add(string(BoolToStr[A[I].VBoolean]));
-      vtChar:
-        Add(string(AnsiString(A[I].VChar)));
-      vtExtended:
-        Add(FloatToStr(A[I].VExtended^));
-      vtString:
-        Add(string(A[I].VString^));
-      vtPChar:
-        Add(string(AnsiString(A[I].VPChar)));
-      vtPWideChar:
-        Add(string(WideString(A[I].VPWideChar)));
-      vtObject:
-        Add(A[I].VObject.ClassName);
-      vtClass:
-        Add(A[I].VClass.ClassName);
-      vtAnsiString:
-        Add(string(A[I].VAnsiString));
-      vtWideString:
-        Add(string(A[I].VWideString));
-      vtCurrency:
-        Add(CurrToStr(A[I].VCurrency^));
-      vtVariant:
-        Add(string(A[I].VVariant^));
-      vtInt64:
-        Add(IntToStr(A[I].VInt64^));
-      {$IFDEF SUPPORTS_UNICODE_STRING}
-      vtUnicodeString:
-        Add(string(A[I].VUnicodeString));
-      {$ENDIF SUPPORTS_UNICODE_STRING}
-    end;
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    for I := Low(A) to High(A) do
+      case A[I].VType of
+        vtInteger:
+          Add(IntToStr(A[I].VInteger));
+        vtBoolean:
+          Add(string(BoolToStr[A[I].VBoolean]));
+        vtChar:
+          Add(string(AnsiString(A[I].VChar)));
+        vtExtended:
+          Add(FloatToStr(A[I].VExtended^));
+        vtString:
+          Add(string(A[I].VString^));
+        vtPChar:
+          Add(string(AnsiString(A[I].VPChar)));
+        vtPWideChar:
+          Add(string(WideString(A[I].VPWideChar)));
+        vtObject:
+          Add(A[I].VObject.ClassName);
+        vtClass:
+          Add(A[I].VClass.ClassName);
+        vtAnsiString:
+          Add(string(A[I].VAnsiString));
+        vtWideString:
+          Add(string(A[I].VWideString));
+        vtCurrency:
+          Add(CurrToStr(A[I].VCurrency^));
+        vtVariant:
+          Add(string(A[I].VVariant^));
+        vtInt64:
+          Add(IntToStr(A[I].VInt64^));
+        {$IFDEF SUPPORTS_UNICODE_STRING}
+        vtUnicodeString:
+          Add(string(A[I].VUnicodeString));
+        {$ENDIF SUPPORTS_UNICODE_STRING}
+      end;
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.AddStrings(const A: array of string): IJclStringList;
 var
   I: Integer;
 begin
-  AutoUpdateControl;
-  for I := Low(A) to High(A) do
-    Add(A[I]);
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    for I := Low(A) to High(A) do
+      Add(A[I]);
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.BeginUpdate: IJclStringList;
 begin
   inherited BeginUpdate;
   Result := FSelfAsInterface;
-end;
-
-function TJclStringList.AutoUpdateControl: IInterface;
-begin
-  Result := FUpdateControl as IInterface;
 end;
 
 function TJclStringList.Clear: IJclStringList;
@@ -517,22 +585,25 @@ function TJclStringList.ExtractWords(const AText: string; const ADelims: TSetOfA
 var
   L, I, X: Integer;
 begin
-  AutoUpdateControl;
-  if AClearBeforeAdd then
-    Clear;
-  I := 1;
-  L := Length(AText);
-  while I <= L do
-  begin
-    while (I <= L) and (AnsiChar(AText[I]) in ADelims) do
-      Inc(I);
-    X := I;
-    while (I <= L) and not (AnsiChar(AText[I]) in ADelims) do
-      Inc(I);
-    if X <> I then
-      Add(Copy(AText, X, I - X));
+  Result := BeginUpdate;
+  try
+    if AClearBeforeAdd then
+      Clear;
+    I := 1;
+    L := Length(AText);
+    while I <= L do
+    begin
+      while (I <= L) and (AnsiChar(AText[I]) in ADelims) do
+        Inc(I);
+      X := I;
+      while (I <= L) and not (AnsiChar(AText[I]) in ADelims) do
+        Inc(I);
+      if X <> I then
+        Add(Copy(AText, X, I - X));
+    end;
+  finally
+    Result := EndUpdate;
   end;
-  Result := FSelfAsInterface;
 end;
 
 function TJclStringList.First: string;
@@ -562,41 +633,40 @@ var
   LStartIndex, LEndIndex: Integer;
   LLengthSeparator: Integer;
 begin
+  Result := FSelfAsInterface;
   if AText <> '' then
   begin
-    AutoUpdateControl;
-    if AClearBeforeAdd then
-      Clear;
-    LLengthSeparator := Length(ASeparator);
-    LStartIndex := 1;
-    LEndIndex := StrSearch(ASeparator, AText, LStartIndex);
-    while LEndIndex > 0 do
-    begin
-      Add(Copy(AText, LStartIndex, LEndIndex - LStartIndex));
-      LStartIndex := LEndIndex + LLengthSeparator;
+    Result := BeginUpdate;
+    try
+      if AClearBeforeAdd then
+        Clear;
+      LLengthSeparator := Length(ASeparator);
+      LStartIndex := 1;
       LEndIndex := StrSearch(ASeparator, AText, LStartIndex);
+      while LEndIndex > 0 do
+      begin
+        Add(Copy(AText, LStartIndex, LEndIndex - LStartIndex));
+        LStartIndex := LEndIndex + LLengthSeparator;
+        LEndIndex := StrSearch(ASeparator, AText, LStartIndex);
+      end;
+      Add(Copy(AText, LStartIndex, MaxInt));
+    finally
+      Result := EndUpdate;
     end;
-    Add(Copy(AText, LStartIndex, MaxInt));
   end;
-  Result := FSelfAsInterface;
 end;
 
 function TJclStringList.Trim: IJclStringList;
 var
   I: Integer;
 begin
-  AutoUpdateControl;
-  for I := 0 to LastIndex do
-    Strings[I] := SysUtils.Trim(Strings[I]);
-  Result := FSelfAsInterface;
-end;
-
-function TJclStringList.QueryInterface(const IID: TGUID; out Obj): HRESULT;
-begin
-  if GetInterface(IID, Obj) then
-    Result := 0
-  else
-    Result := E_NOINTERFACE;
+  Result := BeginUpdate;
+  try
+    for I := 0 to LastIndex do
+      Strings[I] := {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.Trim(Strings[I]);
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList._AddRef: Integer;
@@ -619,32 +689,39 @@ begin
     Destroy;
 end;
 
+{$IFDEF JCL_PCRE}
 function TJclStringList.DeleteRegEx(const APattern: string): IJclStringList;
 var
   I: Integer;
 begin
-  AutoUpdateControl;
-  for I := LastIndex downto 0 do
-    if MatchRegEx(Strings[I], APattern) then
-      Delete(I);
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    for I := LastIndex downto 0 do
+      if MatchRegEx(Strings[I], APattern) then
+        Delete(I);
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.KeepRegEx(const APattern: string): IJclStringList;
 var
   I: Integer;
 begin
-  AutoUpdateControl;
-  for I := LastIndex downto 0 do
-    if not MatchRegEx(Strings[I], APattern) then
-      Delete(I);
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    for I := LastIndex downto 0 do
+      if not MatchRegEx(Strings[I], APattern) then
+        Delete(I);
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.MatchRegEx(const S, APattern: string): Boolean;
 begin
   if FRegEx = nil then
-    FRegEx := TJclAnsiRegEx.Create;
+    FRegEx := TJclRegEx.Create;
   if FLastRegExPattern <> APattern then
   begin
     if CaseSensitive then
@@ -656,16 +733,19 @@ begin
   end;
   Result := FRegEx.Match(S);
 end;
+{$ENDIF JCL_PCRE}
 
 destructor TJclStringList.Destroy;
 begin
   if CanFreeObjects then
     FreeObjects(False);
-  FreeAndNil(FUpdateControl);
+  {$IFDEF JCL_PCRE}
   FreeAndNil(FRegEx);
+  {$ENDIF JCL_PCRE}
   inherited Destroy;
 end;
 
+{$IFDEF JCL_PCRE}
 function TJclStringList.Directories(const APattern: string = '*';
   ARecursive: Boolean = False; const ARegExPattern: string = ''): IJclStringList;
 
@@ -694,12 +774,15 @@ function TJclStringList.Directories(const APattern: string = '*';
   end;
 
 begin
-  AutoUpdateControl;
-  if DirectoryExists(APattern) then
-    DoDirectories(PathAddSeparator(APattern) + '*')
-  else
-    DoDirectories(APattern);
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    if DirectoryExists(APattern) then
+      DoDirectories(PathAddSeparator(APattern) + '*')
+    else
+      DoDirectories(APattern);
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.Files(const APattern: string = '*';
@@ -738,13 +821,17 @@ function TJclStringList.Files(const APattern: string = '*';
   end;
 
 begin
-  AutoUpdateControl;
-  if DirectoryExists(APattern) then
-    DoFiles(PathAddSeparator(APattern) + '*')
-  else
-    DoFiles(APattern);
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    if DirectoryExists(APattern) then
+      DoFiles(PathAddSeparator(APattern) + '*')
+    else
+      DoFiles(APattern);
+  finally
+    Result := EndUpdate;
+  end;
 end;
+{$ENDIF JCL_PCRE}
 
 function TJclStringList.LastIndex: Integer;
 begin
@@ -756,7 +843,6 @@ end;
 constructor TJclStringList.Create;
 begin
   inherited Create;
-  FUpdateControl := TJclUpdateControl.Create(Self);
   if QueryInterface(IJclStringList, FSelfAsInterface) <> 0 then
     System.Error(reIntfCastError);
 end;
@@ -938,7 +1024,7 @@ begin
   begin
     if FObjectsMode <> omNone then
     begin
-      raise Exception.CreateFmt('Objects cannot be used as "%s" because it has been used as "%s".',
+      raise EJclStringListError.CreateFmt('Objects cannot be used as "%s" because it has been used as "%s".',
         [GetEnumName(TypeInfo(TJclStringListObjectsMode), Ord(AMode)),
         GetEnumName(TypeInfo(TJclStringListObjectsMode), Ord(FObjectsMode))]);
     end;
@@ -1187,10 +1273,13 @@ function TJclStringList.Delimit(const ADelimiter: string): IJclStringList;
 var
   I: Integer;
 begin
-  AutoUpdateControl;
-  for I := 0 to LastIndex do
-    Strings[I] := ADelimiter + Strings[I] + ADelimiter;
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    for I := 0 to LastIndex do
+      Strings[I] := ADelimiter + Strings[I] + ADelimiter;
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.LoadExeParams: IJclStringList;
@@ -1198,16 +1287,19 @@ var
   I: Integer;
   S: string;
 begin
-  AutoUpdateControl;
-  Clear;
-  for I := 1 to ParamCount do
-  begin
-    S := ParamStr(I);
-    if (S[1] = '-') or (S[1] = '/') then
-      System.Delete(S, 1, 1);
-    Add(S);
+  Result := BeginUpdate;
+  try
+    Clear;
+    for I := 1 to ParamCount do
+    begin
+      S := ParamStr(I);
+      if (S[1] = '-') or (S[1] = '/') then
+        System.Delete(S, 1, 1);
+      Add(S);
+    end;
+  finally
+    Result := EndUpdate;
   end;
-  Result := FSelfAsInterface;
 end;
 
 function TJclStringList.Exists(const S: string): Boolean;
@@ -1224,35 +1316,44 @@ function TJclStringList.DeleteBlanks: IJclStringList;
 var
   I: Integer;
 begin
-  AutoUpdateControl;
-  for I := LastIndex downto 0 do
-    if SysUtils.Trim(Strings[I]) = '' then
-      Delete(I);
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    for I := LastIndex downto 0 do
+      if {$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.Trim(Strings[I]) = '' then
+        Delete(I);
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.KeepIntegers: IJclStringList;
 var
   I, X: Integer;
 begin
-  AutoUpdateControl;
-  X := 0;
-  for I := LastIndex downto 0 do
-    if not TryStrToInt(Strings[I], X) then
-      Delete(I);
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    X := 0;
+    for I := LastIndex downto 0 do
+      if not TryStrToInt(Strings[I], X) then
+        Delete(I);
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.DeleteIntegers: IJclStringList;
 var
   I, X: Integer;
 begin
-  AutoUpdateControl;
-  X := 0;
-  for I := LastIndex downto 0 do
-    if TryStrToInt(Strings[I], X) then
-      Delete(I);
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    X := 0;
+    for I := LastIndex downto 0 do
+      if TryStrToInt(Strings[I], X) then
+        Delete(I);
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.FreeObjects(AFreeAndNil: Boolean = False): IJclStringList;
@@ -1260,24 +1361,30 @@ var
   I: Integer;
 begin
   if AFreeAndNil then
-    AutoUpdateControl;
+    Result := BeginUpdate;
   for I := 0 to LastIndex do
   begin
     inherited Objects[I].Free;
     if AFreeAndNil then
       inherited Objects[I] := nil;
   end;
-  Result := FSelfAsInterface;
+  if AFreeAndNil then
+    Result := EndUpdate
+  else
+    Result := FSelfAsInterface;
 end;
 
 function TJclStringList.ReleaseInterfaces: IJclStringList;
 var
   I: Integer;
 begin
-  AutoUpdateControl;
-  for I := 0 to LastIndex do
-    Interfaces[I] := nil;
-  Result := FSelfAsInterface;
+  Result := BeginUpdate;
+  try
+    for I := 0 to LastIndex do
+      Interfaces[I] := nil;
+  finally
+    Result := EndUpdate;
+  end;
 end;
 
 function TJclStringList.Clone: IJclStringList;
@@ -1291,26 +1398,30 @@ var
   I: Integer;
 begin
   inherited Assign(Source);
+  Result := FSelfAsInterface;
   if Source is TJclStringList then
   begin
     L := TJclStringList(Source);
     FObjectsMode := L.FObjectsMode;
     if not (FObjectsMode in [omNone, omObjects]) then
     begin
-      AutoUpdateControl;
-      for I := 0 to LastIndex do
-      begin
-        inherited Objects[I] := nil;
-        case FObjectsMode of
-          omVariants:
-            Variants[I] := L.Variants[I];
-          omInterfaces:
-            Interfaces[I] := L.Interfaces[I];
+      Result := BeginUpdate;
+      try
+        for I := 0 to LastIndex do
+        begin
+          inherited Objects[I] := nil;
+          case FObjectsMode of
+            omVariants:
+              Variants[I] := L.Variants[I];
+            omInterfaces:
+              Interfaces[I] := L.Interfaces[I];
+          end;
         end;
+      finally
+        Result := EndUpdate;
       end;
     end;
   end;
-  Result := FSelfAsInterface;
 end;
 
 function TJclStringList.CanFreeObjects: Boolean;
@@ -1321,34 +1432,6 @@ end;
 function TJclStringList.GetObjectsMode: TJclStringListObjectsMode;
 begin
   Result := FObjectsMode;
-end;
-
-//=== { TJclUpdateControl } ==================================================
-
-constructor TJclUpdateControl.Create(AStrings: TStrings);
-begin
-  inherited Create;
-  FStrings := AStrings;
-end;
-
-function TJclUpdateControl._AddRef: Integer;
-begin
-  FStrings.BeginUpdate;
-  Result := 0;
-end;
-
-function TJclUpdateControl._Release: Integer;
-begin
-  FStrings.EndUpdate;
-  Result := 0;
-end;
-
-function TJclUpdateControl.QueryInterface(const IID: TGUID; out Obj): HRESULT;
-begin
-  if GetInterface(IID, Obj) then
-    Result := S_OK
-  else
-    Result := E_NOINTERFACE;
 end;
 
 {$IFDEF UNITVERSIONING}

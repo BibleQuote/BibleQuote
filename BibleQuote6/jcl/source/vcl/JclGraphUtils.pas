@@ -32,9 +32,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-11 12:59:59 +0100 (jeu., 11 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3187                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -45,10 +45,11 @@ interface
 {$I jcl.inc}
 
 uses
-  Types,
-  Windows,
-  SysUtils,
-  Graphics,
+  {$IFDEF HAS_UNITSCOPE}
+  System.Types, Winapi.Windows, System.SysUtils, Vcl.Graphics,
+  {$ELSE ~HAS_UNITSCOPE}
+  Types, Windows, SysUtils, Graphics,
+  {$ENDIF ~HAS_UNITSCOPE}
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
@@ -275,9 +276,9 @@ var
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/vcl/JclGraphUtils.pas $';
-    Revision: '$Revision: 3187 $';
-    Date: '$Date: 2010-02-11 12:59:59 +0100 (jeu., 11 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\vcl';
     Extra: '';
     Data: nil
@@ -287,8 +288,19 @@ const
 implementation
 
 uses
-  Classes, Consts,
-  Math,
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes, Vcl.Consts, System.Math,
+  {$ELSE ~HAS_UNITSCOPE}
+  Classes, Math,
+  {$IFDEF FPC}
+  RTLConsts,
+  {$ELSE ~FPC}
+  Consts,
+  {$ENDIF ~FPC}
+  {$ENDIF ~HAS_UNITSCOPE}
+  {$IFDEF HAS_UNIT_SYSTEM_UITYPES}
+  System.UITypes,
+  {$ENDIF HAS_UNIT_SYSTEM_UITYPES}
   JclVclResources, JclSysInfo, JclLogic;
 
 type
@@ -449,6 +461,12 @@ begin
 end;
 
 
+{$IFDEF DELPHI64_TEMPORARY}
+procedure _BlendLine(Src, Dst: PColor32; Count: Integer);
+begin
+  System.Error(rePlatformNotImplemented);
+end;
+{$ELSE ~DELPHI64_TEMPORARY}
 procedure _BlendLine(Src, Dst: PColor32; Count: Integer); assembler;
 asm
   {$IFDEF CPU32}
@@ -535,6 +553,7 @@ asm
   TODO
   {$ENDIF CPU64}
 end;
+{$ENDIF ~DELPHI64_TEMPORARY}
 
 procedure _BlendLineEx(Src, Dst: PColor32; Count: Integer; M: TColor32);
 begin
@@ -561,9 +580,10 @@ var
   P: ^Longword;
 begin
   GetMem(AlphaTable, 257 * 8);
-  alpha_ptr := Pointer(Integer(AlphaTable) and $FFFFFFF8);
-  if Integer(alpha_ptr) < Integer(AlphaTable) then
-    alpha_ptr := Pointer(Integer(alpha_ptr) + 8);
+  if (TJclAddr(AlphaTable) mod 8) <> 0 then
+    alpha_ptr := Pointer((TJclAddr(AlphaTable) + 8) and (not TJclAddr(7)))
+  else
+    alpha_ptr := AlphaTable;
   P := alpha_ptr;
   for I := 0 to 255 do
   begin
@@ -573,7 +593,7 @@ begin
     P^ := L;
     Inc(P);
   end;
-  bias_ptr := Pointer(Integer(alpha_ptr) + $80 * 8);
+  bias_ptr := Pointer(TJclAddr(alpha_ptr) + $80 * 8);
 end;
 
 procedure FreeAlphaTable;
@@ -583,12 +603,16 @@ begin
 end;
 
 procedure EMMS;
+{$IFNDEF DELPHI64_TEMPORARY}
 begin
   if MMX_ACTIVE then
+{$ENDIF ~DELPHI64_TEMPORARY}
   asm
           db      $0F, $77               // EMMS
   end;
+{$IFNDEF DELPHI64_TEMPORARY}
 end;
+{$ENDIF ~DELPHI64_TEMPORARY}
 
 function M_CombineReg(X, Y, W: TColor32): TColor32; assembler;
 asm
@@ -616,7 +640,22 @@ asm
         db $0F, $7E, $C8           // MOVD      EAX, MM1
   {$ENDIF CPU32}
   {$IFDEF CPU64}
-  TODO
+        PXOR      MM0, MM0
+        MOVD      MM1, EAX
+        SHL       RCX, 3
+        MOVD      MM2, EDX
+        PUNPCKLBW MM1, MM0
+        PUNPCKLBW MM2, MM0
+        ADD       RCX, alpha_ptr
+        PSUBW     MM1, MM2
+        PMULLW    MM1, [RCX]
+        PSLLW     MM2, 8
+        MOV       RCX, bias_ptr
+        PADDW     MM2, [RCX]
+        PADDW     MM1, MM2
+        PSRLW     MM1, 8
+        PACKUSWB  MM1, MM0
+        MOVD      EAX, MM1
   {$ENDIF CPU64}
 end;
 
@@ -652,7 +691,23 @@ asm
         db $0F, $7E, $D0           // MOVD      EAX, MM2
   {$ENDIF CPU32}
   {$IFDEF CPU64}
-  TODO
+        PXOR      MM3, MM3
+        MOVD      MM0, EAX
+        MOVD      MM2, EDX
+        PUNPCKLBW MM0, MM3
+        MOV       RCX, bias_ptr
+        PUNPCKLBW MM2, MM3
+        MOVQ      MM1, MM0
+        PUNPCKHWD MM1, MM1
+        PSUBW     MM0, MM2
+        PUNPCKHDQ MM1, MM1
+        PSLLW     MM2, 8
+        PMULLW    MM0, MM1
+        PADDW     MM2, [RCX]
+        PADDW     MM2, MM0
+        PSRLW     MM2, 8
+        PACKUSWB  MM2, MM3
+        MOVD      EAX, MM2
   {$ENDIF CPU64}
 end;
 
@@ -698,7 +753,32 @@ asm
         POP       EBX
   {$ENDIF CPU32}
   {$IFDEF CPU64}
-  TODO
+        PUSH      RBX
+        MOV       RBX, RAX
+        SHR       RBX, 24
+        IMUL      RCX, RBX
+        SHR       RCX, 8
+        JZ        @1
+
+        PXOR      MM0, MM0
+        MOVD      MM1, EAX
+        SHL       RCX, 3
+        MOVD      MM2, EDX
+        PUNPCKLBW MM1, MM0
+        PUNPCKLBW MM2, MM0
+        ADD       RCX, alpha_ptr
+        PSUBW     MM1, MM2
+        PMULLW    MM1, [RCX]
+        PSLLW     MM2, 8
+        MOV       RCX, bias_ptr
+        PADDW     MM2, [RCX]
+        PADDW     MM1, MM2
+        PSRLW     MM1, 8
+        PACKUSWB  MM1, MM0
+        MOVD      EAX, MM1
+
+@1:     MOV       RAX, RDX
+        POP       RBX
   {$ENDIF CPU64}
 end;
 
@@ -707,6 +787,12 @@ begin
   B := M_BlendRegEx(F, B, M);
 end;
 
+{$IFDEF DELPHI64_TEMPORARY}
+procedure M_BlendLine(Src, Dst: PColor32; Count: Integer);
+begin
+  System.Error(rePlatformNotImplemented);
+end;
+{$ELSE ~DELPHI64_TEMPORARY}
 procedure M_BlendLine(Src, Dst: PColor32; Count: Integer); assembler;
 asm
   {$IFDEF CPU32}
@@ -768,7 +854,14 @@ asm
   TODO
   {$ENDIF CPU64}
 end;
+{$ENDIF ~DELPHI64_TEMPORARY}
 
+{$IFDEF DELPHI64_TEMPORARY}
+procedure M_BlendLineEx(Src, Dst: PColor32; Count: Integer; M: TColor32);
+begin
+  System.Error(rePlatformNotImplemented);
+end;
+{$ELSE ~DELPHI64_TEMPORARY}
 procedure M_BlendLineEx(Src, Dst: PColor32; Count: Integer; M: TColor32); assembler;
 asm
   {$IFDEF CPU32}
@@ -834,6 +927,7 @@ asm
   TODO
   {$ENDIF CPU64}
 end;
+{$ENDIF ~DELPHI64_TEMPORARY}
 
 { MMX Detection and linking }
 
@@ -978,6 +1072,7 @@ var
 begin
   X := GetSystemMetrics(SM_CXSCREEN);
   Y := GetSystemMetrics(SM_CYSCREEN);
+
   with R do
   begin
     if Right > X then

@@ -24,9 +24,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-07-30 12:08:05 +0200 (jeu., 30 juil. 2009)                         $ }
-{ Revision:      $Rev:: 2892                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -63,6 +63,7 @@ of "structured storage"...
 unit JclStructStorage;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 interface
 
@@ -70,7 +71,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.Classes, System.SysUtils, Winapi.ActiveX,
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, Classes, SysUtils, ActiveX,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase;
 
 type
@@ -228,9 +233,9 @@ procedure CoMallocFree(P: Pointer);
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclStructStorage.pas $';
-    Revision: '$Revision: 2892 $';
-    Date: '$Date: 2009-07-30 12:08:05 +0200 (jeu., 30 juil. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -240,7 +245,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.Win.ComObj,
+  {$ELSE ~HAS_UNITSCOPE}
   ComObj,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclResources;
 
 var
@@ -345,7 +354,7 @@ begin
   else
   begin
     {$IFDEF SUPPORTS_UNICODE}
-    Result := PChar(S);
+    Result := PWideChar(S);
     {$ELSE ~SUPPORTS_UNICODE}
     Result := AllocMem((Length(S)+1) * SizeOf(WideChar));
     MultiByteToWideChar(CP_ACP, 0, PChar(S), Length(S), Result, Length(S));
@@ -358,8 +367,10 @@ end;
 
 procedure FreeWChar(W: PWideChar);
 begin
+  {$IFNDEF SUPPORTS_UNICODE}
   if Assigned(W) then
     FreeMem(W);
+  {$ENDIF ~SUPPORTS_UNICODE}
 end;
 
 //=== { TJclStructStorageFolder } ============================================
@@ -719,7 +730,7 @@ end;
 function TJclStructStorageStream.CopyTo(Stream: TJclStructStorageStream;
   Size: Int64): Boolean;
 var
-  DidRead, DidWrite: Int64;
+  DidRead, DidWrite: {$IFDEF RTL290_UP}LargeUInt{$ELSE}Largeint{$ENDIF RTL290_UP};
 begin
   DidRead := 0;
   DidWrite := 0;
@@ -763,7 +774,7 @@ end;
 
 function TJclStructStorageStream.Seek(Offset: Integer; Origin: Word): Longint;
 var
-  N: Int64;
+  N: {$IFDEF RTL290_UP}LargeUInt{$ELSE}Largeint{$ENDIF RTL290_UP};
 begin
   Check;
   if not Succeeded(FStream.Seek(Offset, Ord(Origin), N)) then

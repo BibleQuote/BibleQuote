@@ -25,9 +25,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-11 13:14:06 +0100 (jeu., 11 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3188                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -38,22 +38,29 @@ unit JclUnitVersioning;
 interface
 
 uses
-  {$IFDEF MSWINDOWS}
-  Windows,
-  {$ENDIF MSWINDOWS}
   {$IFDEF HAS_UNIT_LIBC}
   Libc,
   {$ENDIF HAS_UNIT_LIBC}
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  {$ENDIF MSWINDOWS}
+  System.SysUtils, System.Contnrs;
+  {$ELSE ~HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Windows,
+  {$ENDIF MSWINDOWS}
   SysUtils, Contnrs;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 type
   PUnitVersionInfo = ^TUnitVersionInfo;
   TUnitVersionInfo = record
-    RCSfile: string;  // $'RCSfile$
-    Revision: string; // $'Revision$
-    Date: string;     // $'Date$     in UTC (GMT)
-    LogPath: string;  // logical file path
-    Extra: string;    // user defined string
+    RCSfile: PChar;   // $'RCSfile$
+    Revision: PChar;  // $'Revision$
+    Date: PChar;      // $'Date$     in UTC (GMT)
+    LogPath: PChar;   // logical file path
+    Extra: PChar;     // user defined string
     Data: Pointer;    // user data
   end;
 
@@ -69,6 +76,7 @@ type
     function LogPath: string;
     function Data: Pointer;
     function DateTime: TDateTime;
+    function Summary: string;
   end;
 
   TUnitVersioningModule = class(TObject)
@@ -107,10 +115,10 @@ type
     FModules: TObjectList;
     FProviders: TObjectList;
 
-    function GetItems(Index: Integer): TUnitVersion;
+    function GetItem(Index: Integer): TUnitVersion;
     function GetCount: Integer;
     function GetModuleCount: Integer;
-    function GetModules(Index: Integer): TUnitVersioningModule;
+    function GetModule(Index: Integer): TUnitVersioningModule;
 
     procedure UnregisterModule(Module: TUnitVersioningModule); overload;
     procedure ValidateModules;
@@ -131,11 +139,11 @@ type
 
     // units by modules
     property ModuleCount: Integer read GetModuleCount;
-    property Modules[Index: Integer]: TUnitVersioningModule read GetModules;
+    property Modules[Index: Integer]: TUnitVersioningModule read GetModule;
 
     // all units
     property Count: Integer read GetCount;
-    property Items[Index: Integer]: TUnitVersion read GetItems; default;
+    property Items[Index: Integer]: TUnitVersion read GetItem; default;
   end;
 
 procedure RegisterUnitVersion(Instance: THandle; const Info: TUnitVersionInfo);
@@ -143,11 +151,13 @@ procedure UnregisterUnitVersion(Instance: THandle);
 
 function GetUnitVersioning: TUnitVersioning;
 
+procedure ExportUnitVersioningToFile(iFileName : string);
+
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclUnitVersioning.pas $';
-    Revision: '$Revision: 3188 $';
-    Date: '$Date: 2010-02-11 13:14:06 +0100 (jeu., 11 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -157,7 +167,12 @@ implementation
 
 uses
   // make TObjectList functions inlined
+  {$IFDEF HAS_UNITSCOPE}
+  System.Types, // inlining of TObjectList.Remove
+  System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclSysUtils, JclSynch;
 
 // Delphi 5 does not know this function //(usc) D6/7 Per does have StartsWith
@@ -330,6 +345,13 @@ begin
   Result := EncodeDate(Year, Month, Day) + EncodeTime(Hour, Minute, Second, 0);
 end;
 
+function TUnitVersion.Summary: string;
+begin
+  Result := LogPath + #9 + RCSFile + #9 + Revision + #9 + Date;
+  if Extra <> '' then
+    Result := Result + #9 + Extra;
+end;
+
 //=== { TUnitVersioningModule } ==============================================
 
 constructor TUnitVersioningModule.Create(AInstance: THandle);
@@ -380,14 +402,19 @@ begin
 end;
 
 function TUnitVersioningModule.IndexOf(const RCSfile: string; const LogPath: string): Integer;
+var
+  Item: TUnitVersion;
 begin
   for Result := 0 to FItems.Count - 1 do
-    if CompareFilenames(Items[Result].RCSfile, RCSfile) = 0 then
+  begin
+    Item := Items[Result];
+    if CompareFilenames(Item.RCSfile, RCSfile) = 0 then
       if LogPath = '*' then
         Exit
       else
-      if CompareFilenames(LogPath, Trim(Items[Result].LogPath)) = 0 then
+      if CompareFilenames(LogPath, Trim(Item.LogPath)) = 0 then
         Exit;
+  end;
   Result := -1;
 end;
 
@@ -430,12 +457,15 @@ var
   Module: TUnitVersioningModule;
 begin
   for I := 0 to FModules.Count - 1 do
-    if Modules[I].Instance = Instance then
+  begin
+    Module := Modules[I];
+    if Module.Instance = Instance then
     begin
-      if Modules[I].IndexOfInfo(Info) = -1 then
-        Modules[I].Add(Info);
+      if Module.IndexOfInfo(Info) = -1 then
+        Module.Add(Info);
       Exit;
     end;
+  end;
   // create a new module entry
   Module := TUnitVersioningModule.Create(Instance);
   FModules.Add(Module);
@@ -471,21 +501,23 @@ begin
     Inc(Result, Modules[I].Count);
 end;
 
-function TUnitVersioning.GetItems(Index: Integer): TUnitVersion;
+function TUnitVersioning.GetItem(Index: Integer): TUnitVersion;
 var
   Cnt, I: Integer;
+  Module: TUnitVersioningModule;
 begin
   Result := nil;
   ValidateModules;
   Cnt := 0;
   for I := 0 to FModules.Count - 1 do
   begin
-    if Index < Cnt + Modules[I].Count then
+    Module := Modules[I];
+    if Index < Cnt + Module.Count then
     begin
-      Result := Modules[I].Items[Index - Cnt];
+      Result := Module.Items[Index - Cnt];
       Break;
     end;
-    Inc(Cnt, Modules[I].Count);
+    Inc(Cnt, Module.Count);
   end;
 end;
 
@@ -495,7 +527,7 @@ begin
   Result := FModules.Count;
 end;
 
-function TUnitVersioning.GetModules(Index: Integer): TUnitVersioningModule;
+function TUnitVersioning.GetModule(Index: Integer): TUnitVersioningModule;
 begin
   Result := TUnitVersioningModule(FModules[Index]);
 end;
@@ -510,19 +542,25 @@ end;
 procedure TUnitVersioning.ValidateModules;
 var
   I: Integer;
+  {$IFNDEF FPCUNIX}
   Buffer: string;
+  {$ENDIF ~FPCUNIX}
+  Module: TUnitVersioningModule;
 begin
+  {$IFNDEF FPCUNIX}
+  SetLength(Buffer, 1024);
+  {$ENDIF ~FPCUNIX}
   for I := FModules.Count - 1 downto 0 do
   begin
-    SetLength(Buffer, 1024);
+    Module := Modules[I];
     {$IFDEF FPCUNIX}
-    if dlsym(Pointer(Modules[I].Instance), '_init') = nil then
+    if dlsym(Pointer(Module.Instance), '_init') = nil then
     {$ELSE ~FPCUNIX}
-    if GetModuleFileName(Modules[I].Instance, PChar(Buffer), 1024) = 0 then
+    if GetModuleFileName(Module.Instance, PChar(Buffer), 1024) = 0 then
     {$ENDIF ~FPCUNIX}
       // This module is no more in memory but has not unregistered itself so
       // unregister it here.
-      UnregisterModule(Modules[I]);
+      UnregisterModule(Module);
   end;
 end;
 
@@ -542,18 +580,20 @@ end;
 function TUnitVersioning.IndexOf(const RCSfile: string; const LogPath: string): Integer;
 var
   I, Cnt, Index: Integer;
+  Module: TUnitVersioningModule;
 begin
   Result := -1;
   Cnt := 0;
   for I := 0 to FModules.Count - 1 do
   begin
-    Index := Modules[I].IndexOf(RCSfile, LogPath);
+    Module := Modules[I];
+    Index := Module.IndexOf(RCSfile, LogPath);
     if Index <> -1 then
     begin
       Result := Cnt + Index;
       Break;
     end;
-    Inc(Cnt, Modules[I].Count);
+    Inc(Cnt, Module.Count);
   end;
 end;
 
@@ -644,18 +684,11 @@ begin
   UnitVersioningFinalized := True;
   try
     if UnitVersioningNPA <> nil then
-    begin
-      UnitVersioningMutex.WaitFor(INFINITE);
-      try
-        UnitVersioningNPA^ := nil;
-        SharedCloseMem(UnitVersioningNPA);
-      finally
-        UnitVersioningMutex.Release;
-      end;
-    end;
+      SharedCloseMem(UnitVersioningNPA);
     if (GlobalUnitVersioning <> nil) and UnitVersioningOwner then
-      GlobalUnitVersioning.Free;
-    GlobalUnitVersioning := nil;
+      FreeAndNil(GlobalUnitVersioning)
+    else
+      GlobalUnitVersioning := nil;
   except
     // ignore - should never happen
   end;
@@ -680,10 +713,31 @@ begin
     UnitVersioning.UnregisterModule(Instance);
 end;
 
+procedure ExportUnitVersioningToFile(iFileName : string);
+var
+  I: Integer;
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    for I := 0 to GetUnitVersioning.Count - 1 do
+      sl.Add(GetUnitVersioning.Items[I].Summary);
+    sl.Sort;
+    sl.SaveToFile(iFileName);
+  finally
+    sl.Free;
+  end;
+end;
+
 initialization
+{$IFDEF UNITVERSIONING}
   RegisterUnitVersion(HInstance, UnitVersioning);
+{$ENDIF UNITVERSIONING}
 
 finalization
+{$IFDEF UNITVERSIONING}
+  UnregisterUnitVersion(HInstance);
+{$ENDIF UNITVERSIONING}
   FinalizeUnitVersioning;
 
 end.

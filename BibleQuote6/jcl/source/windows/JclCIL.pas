@@ -28,9 +28,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-01-25 13:19:13 +0100 (lun., 25 janv. 2010)                         $ }
-{ Revision:      $Rev:: 3139                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -39,15 +39,23 @@ unit JclCIL;
 interface
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
-  Windows, 
+  Winapi.Windows,
+  {$ENDIF MSWINDOWS}
+  System.Classes, System.SysUtils, System.Contnrs,
+  {$ELSE ~HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Windows,
   {$ENDIF MSWINDOWS}
   Classes, SysUtils, Contnrs,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclSysUtils, JclMetadata;
 
 type
@@ -201,9 +209,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclCIL.pas $';
-    Revision: '$Revision: 3139 $';
-    Date: '$Date: 2010-01-25 13:19:13 +0100 (lun., 25 janv. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -213,7 +221,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.Variants,
+  {$ELSE ~HAS_UNITSCOPE}
   Variants,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclCLR,
   JclPeImage,
   JclStrings, JclResources;
@@ -627,43 +639,46 @@ var
     Result := StrRepeat('  ', Indent);
   end;
 
+var
+  SL: TStrings;
+  EH: TJclClrExceptionHandler;
 begin
   Indent := 0;
-  with TStringList.Create do
+  SL := TStringList.Create;
   try
     for I := 0 to InstructionCount-1 do
     begin
-      for J := 0 to Method.ExceptionHandlerCount-1 do
-      with Method.ExceptionHandlers[J] do
+      for J := 0 to Method.ExceptionHandlerCount - 1 do
       begin
-        if Instructions[I].Offset = TryBlock.Offset then
+        EH := Method.ExceptionHandlers[J];
+        if Instructions[I].Offset = EH.TryBlock.Offset then
         begin
-          Add(IndentStr + '.try');
-          Add(IndentStr + '{');
+          SL.Add(IndentStr + '.try');
+          SL.Add(IndentStr + '{');
           Inc(Indent);
         end;
-        if Instructions[I].Offset = (TryBlock.Offset + TryBlock.Length) then
+        if Instructions[I].Offset = (EH.TryBlock.Offset + EH.TryBlock.Length) then
         begin
           Dec(Indent);
-          Add(IndentStr + '}  // end .try');
+          SL.Add(IndentStr + '}  // end .try');
         end;
-        if Instructions[I].Offset = HandlerBlock.Offset then
+        if Instructions[I].Offset = EH.HandlerBlock.Offset then
         begin
-          Add(IndentStr + FlagsToName(Flags));
-          Add(IndentStr + '{');
+          SL.Add(IndentStr + FlagsToName(EH.Flags));
+          SL.Add(IndentStr + '{');
           Inc(Indent);
         end;
-        if Instructions[I].Offset = (HandlerBlock.Offset + HandlerBlock.Length) then
+        if Instructions[I].Offset = (EH.HandlerBlock.Offset + EH.HandlerBlock.Length) then
         begin
           Dec(Indent);
-          Add(IndentStr + '}  // end ' + FlagsToName(Flags));
+          SL.Add(IndentStr + '}  // end ' + FlagsToName(EH.Flags));
         end;
       end;
-      Add(IndentStr + Instructions[I].DumpIL(Options));
+      SL.Add(IndentStr + Instructions[I].DumpIL(Options));
     end;
-    Result := Text;
+    Result := SL.Text;
   finally
-    Free;
+    SL.Free;
   end;
 end;
 
@@ -955,16 +970,14 @@ begin
                   Result := TJclClrTableTypeDefRow(Row).FullName
                 else
                 if Row is TJclClrTableTypeRefRow then
-                  with TJclClrTableTypeRefRow(Row) do
-                    Result := FullName
+                  Result := TJclClrTableTypeRefRow(Row).FullName
                 else
                 if Row is TJclClrTableMethodDefRow then
                   with TJclClrTableMethodDefRow(Row) do
                     Result := ParentToken.FullName + '.' + Name
                 else
                 if Row is TJclClrTableMemberRefRow then
-                  with TJclClrTableMemberRefRow(Row) do
-                    Result := FullName
+                  Result := TJclClrTableMemberRefRow(Row).FullName
                 else
                 if Row is TJclClrTableFieldDefRow then
                   with TJclClrTableFieldDefRow(Row) do

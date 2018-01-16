@@ -30,9 +30,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-10-21 09:29:32 +0200 (jeu., 21 oct. 2010)                          $ }
-{ Revision:      $Rev:: 3383                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -46,17 +46,24 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  {$ENDIF MSWINDOWS}
+  System.SysUtils;
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF MSWINDOWS}
   SysUtils;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 // Version
 const
   JclVersionMajor   = 2;    // 0=pre-release|beta/1, 2, ...=final
-  JclVersionMinor   = 2;    // Fifth minor release since JCL 1.90
-  JclVersionRelease = 1;    // 0: pre-release|beta/ 1: release
-  JclVersionBuild   = 3886; // build number, days since march 1, 2000
+  JclVersionMinor   = 8;    // Fifth minor release since JCL 1.90
+  JclVersionRelease = 0;    // 0: pre-release|beta/ 1: release
+  JclVersionBuild   = 5677; // build number, days since march 1, 2000
   JclVersion = (JclVersionMajor shl 24) or (JclVersionMinor shl 16) or
     (JclVersionRelease shl 15) or (JclVersionBuild shl 0);
 
@@ -90,7 +97,7 @@ type
   SizeInt = Integer;
   {$ENDIF CPU32}
   {$IFDEF CPU64}
-  SizeInt = Int64;
+  SizeInt = NativeInt;
   {$ENDIF CPU64}
   PSizeInt = ^SizeInt;
   PPointer = ^Pointer;
@@ -198,12 +205,23 @@ const
 
   HexPrefixPascal = string('$');
   HexPrefixC      = string('0x');
+  HexDigitFmt32   = string('%.8x');
+  HexDigitFmt64   = string('%.16x');
 
   {$IFDEF BCB}
   HexPrefix = HexPrefixC;
   {$ELSE ~BCB}
   HexPrefix = HexPrefixPascal;
   {$ENDIF ~BCB}
+
+  {$IFDEF CPU32}
+  HexDigitFmt = HexDigitFmt32;
+  {$ENDIF CPU32}
+  {$IFDEF CPU64}
+  HexDigitFmt = HexDigitFmt64;
+  {$ENDIF CPU64}
+
+  HexFmt = HexPrefix + HexDigitFmt;
 
 const
   BOM_UTF16_LSB: array [0..1] of Byte = ($FF,$FE);
@@ -239,8 +257,13 @@ type
 
   // string types
   TUTF8String = AnsiString;
+  {$IFDEF SUPPORTS_UNICODE_STRING}
+  TUTF16String = UnicodeString;
+  TUCS2String = UnicodeString;
+  {$ELSE}
   TUTF16String = WideString;
   TUCS2String = WideString;
+  {$ENDIF SUPPORTS_UNICODE_STRING}
 
 var
   AnsiReplacementCharacter: AnsiChar;
@@ -263,6 +286,10 @@ type
 {$IFNDEF XPLATFORM_RTL}
 procedure RaiseLastOSError;
 {$ENDIF ~XPLATFORM_RTL}
+
+{$IFNDEF RTL230_UP}
+procedure CheckOSError(ErrorCode: Cardinal);
+{$ENDIF RTL230_UP}
 
 procedure MoveChar(const Source: string; FromIndex: SizeInt;
   var Dest: string; ToIndex, Count: SizeInt); overload; // Index: 0..n-1
@@ -312,7 +339,12 @@ type
   {$ENDIF FPC}
   {$IFDEF BORLAND}
   TJclAddr64 = Int64;
+  {$IFDEF CPU64}
+  TJclAddr = TJclAddr64;
+  {$ENDIF CPU64}
+  {$IFDEF CPU32}
   TJclAddr = TJclAddr32;
+  {$ENDIF CPU32}
   {$ENDIF BORLAND}
   PJclAddr = ^TJclAddr;
 
@@ -321,7 +353,14 @@ type
 function Addr64ToAddr32(const Value: TJclAddr64): TJclAddr32;
 function Addr32ToAddr64(const Value: TJclAddr32): TJclAddr64;
 
-{$IFDEF SUPPORTS_GENERICS}
+{$IFDEF FPC}
+type
+  HWND = type Windows.HWND;
+{$ENDIF FPC}
+
+ {$IFDEF SUPPORTS_GENERICS}
+//DOM-IGNORE-BEGIN
+
 type
   TCompare<T> = function(const Obj1, Obj2: T): Integer;
   TEqualityCompare<T> = function(const Obj1, Obj2: T): Boolean;
@@ -343,6 +382,8 @@ type
     function GetHashCode2(Obj: T): Integer;
     function IEqualityComparer<T>.GetHashCode = GetHashCode2;
   end;
+
+//DOM-IGNORE-END
 {$ENDIF SUPPORTS_GENERICS}
 
 const
@@ -361,9 +402,9 @@ procedure GetMem(out P; Size: Longint);
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclBase.pas $';
-    Revision: '$Revision: 3383 $';
-    Date: '$Date: 2010-10-21 09:29:32 +0200 (jeu., 21 oct. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -489,6 +530,18 @@ begin
 end;
 {$ENDIF ~XPLATFORM_RTL}
 
+{$IFNDEF RTL230_UP}
+procedure CheckOSError(ErrorCode: Cardinal);
+begin
+  if ErrorCode <> ERROR_SUCCESS then
+    {$IFDEF RTL170_UP}
+    RaiseLastOSError(ErrorCode);
+    {$ELSE ~RTL170_UP}
+    RaiseLastOSError;
+    {$ENDIF ~RTL170_UP}
+end;
+{$ENDIF RTL230_UP}
+
 {$OVERFLOWCHECKS OFF}
 
 function Addr64ToAddr32(const Value: TJclAddr64): TJclAddr32;
@@ -509,6 +562,8 @@ end;
 {$ENDIF OVERFLOWCHECKS_ON}
 
 {$IFDEF SUPPORTS_GENERICS}
+//DOM-IGNORE-BEGIN
+
 //=== { TEquatable<T> } ======================================================
 
 function TEquatable<T>.TestEquals(Other: T): Boolean;
@@ -538,6 +593,7 @@ begin
     Result := Obj.GetHashCode;
 end;
 
+//DOM-IGNORE-END
 {$ENDIF SUPPORTS_GENERICS}
 
 procedure LoadAnsiReplacementCharacter;

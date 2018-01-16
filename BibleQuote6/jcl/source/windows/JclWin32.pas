@@ -43,19 +43,19 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-02 21:27:59 +0200 (lun., 02 août 2010)                         $ }
-{ Revision:      $Rev:: 3276                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclWin32;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 {$MINENUMSIZE 4}
 {$ALIGN ON}
-{$WARNINGS OFF}
 
 interface
 
@@ -63,11 +63,18 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.SysUtils,
+  {$IFNDEF FPC}
+  Winapi.AccCtrl, Winapi.ActiveX,
+  {$ENDIF ~FPC}
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, SysUtils,
   {$IFNDEF FPC}
   AccCtrl,
-  ActiveX,
   {$ENDIF ~FPC}
+  ActiveX,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase;
 
 {$HPPEMIT '#include <WinDef.h>'}
@@ -94,6 +101,14 @@ uses
 {$HPPEMIT '#include <objbase.h>'}
 {$HPPEMIT '#include <ntsecapi.h>'}
 {$HPPEMIT ''}
+{$IFDEF RTL230_UP}
+{$HPPEMIT '// To avoid ambiguity between IMAGE_LOAD_CONFIG_DIRECTORY32 and  Winapi::Windows::IMAGE_LOAD_CONFIG_DIRECTORY32'}
+{$HPPEMIT '#define IMAGE_LOAD_CONFIG_DIRECTORY32 ::IMAGE_LOAD_CONFIG_DIRECTORY32'}
+{$HPPEMIT ''}
+{$HPPEMIT '// To avoid ambiguity between IMAGE_LOAD_CONFIG_DIRECTORY64 and  Winapi::Windows::IMAGE_LOAD_CONFIG_DIRECTORY64'}
+{$HPPEMIT '#define IMAGE_LOAD_CONFIG_DIRECTORY64 ::IMAGE_LOAD_CONFIG_DIRECTORY64'}
+{$HPPEMIT ''}
+{$ENDIF RTL230_UP}
 
 // EJclWin32Error
 type
@@ -109,6 +124,8 @@ type
     property LastError: DWORD read FLastError;
     property LastErrorMsg: string read FLastErrorMsg;
   end;
+
+//DOM-IGNORE-BEGIN
 
 {$IFNDEF FPC}
 
@@ -846,6 +863,10 @@ type
   PTokenUser = PTOKEN_USER;
 {$ENDIF ~FPC}
 
+function CaptureStackBackTrace(FramesToSkip, FramesToCapture: DWORD;
+  BackTrace: Pointer; out BackTraceHash: DWORD): Word; stdcall;
+{$EXTERNALSYM CaptureStackBackTrace}
+
 // line 3858
 
 //
@@ -1269,7 +1290,11 @@ type
   PIMAGE_OPTIONAL_HEADER32 = ^IMAGE_OPTIONAL_HEADER32;
   {$EXTERNALSYM PIMAGE_OPTIONAL_HEADER32}
 
+  {$IF declared(_IMAGE_OPTIONAL_HEADER32)} // XE2+
+  IMAGE_OPTIONAL_HEADER32 = _IMAGE_OPTIONAL_HEADER32;
+  {$ELSE}
   IMAGE_OPTIONAL_HEADER32 = _IMAGE_OPTIONAL_HEADER;
+  {$IFEND}
   {$EXTERNALSYM IMAGE_OPTIONAL_HEADER32}
   TImageOptionalHeader32 = IMAGE_OPTIONAL_HEADER32;
   PImageOptionalHeader32 = PIMAGE_OPTIONAL_HEADER32;
@@ -2973,7 +2998,6 @@ function GlobalMemoryStatusEx(out lpBuffer: TMemoryStatusEx): BOOL; stdcall;
 // line 3189
   
 
-
 function BackupSeek(hFile: THandle; dwLowBytesToSeek, dwHighBytesToSeek: DWORD;
   out lpdwLowByteSeeked, lpdwHighByteSeeked: DWORD;
   var lpContext: Pointer): BOOL; stdcall;
@@ -3017,7 +3041,7 @@ I have not had this problem on Windows 98.
 Ray Lischner, author of Delphi in a Nutshell (coming later this year)
 http://www.bardware.com and http://www.tempest-sw.com
 }
-function CreateMutex(lpMutexAttributes: PSecurityAttributes; bInitialOwner: DWORD; lpName: PChar): THandle; stdcall;
+function CreateMutex(lpMutexAttributes: PSecurityAttributes; bInitialOwner: BOOL; lpName: PChar): THandle; stdcall;
 {$EXTERNALSYM CreateMutex}
 
 // alternative conversion for WinNT 4.0 SP6 and later (OSVersionInfoEx instead of OSVersionInfo)
@@ -3093,22 +3117,21 @@ function LocateExtendedFeature(ContextEx: PCONTEXT_EX; FeatureId: DWORD; Length:
 function LocateLegacyContext(ContextEx: PCONTEXT_EX; Length: PDWORD): PCONTEXT; stdcall;
 {$EXTERNALSYM LocateLegacyContext}
 
-procedure SetExtendedFeaturesMask(ContextEx: PCONTEXT_EX; const FeatureMask: Int64);
+procedure SetExtendedFeaturesMask(ContextEx: PCONTEXT_EX; const FeatureMask: Int64); stdcall;
 {$EXTERNALSYM SetExtendedFeaturesMask}
 
+function ProcessIdToSessionId(dwProcessId: DWORD; out dwSessionId: DWORD): BOOL; stdcall;
+{$EXTERNALSYM ProcessIdToSessionId}
 
 
 // From JwaAclApi
 
 // line 185
 
-
 function SetNamedSecurityInfoW(pObjectName: LPWSTR; ObjectType: SE_OBJECT_TYPE;
   SecurityInfo: SECURITY_INFORMATION; psidOwner, psidGroup: PSID;
   pDacl, pSacl: PACL): DWORD; stdcall;
 {$EXTERNALSYM SetNamedSecurityInfoW}
-
-
 const
   IMAGE_SEPARATION = (64*1024);
   {$EXTERNALSYM IMAGE_SEPARATION}
@@ -3136,20 +3159,35 @@ type
   TLoadedImage = LOADED_IMAGE;
   PLoadedImage = PLOADED_IMAGE;
 
-// line 152
+  PIMAGE_SYMBOL = ^IMAGE_SYMBOL;
+  {$EXTERNALSYM PIMAGE_SYMBOL}
+  _IMAGE_SYMBOL = packed record  // MUST pack to obtain the right size
+    Name: array [0..7] of AnsiChar;
+    Value: ULONG;
+    SectionNumber: USHORT;
+    _Type: USHORT;
+    StorageClass: BYTE;
+    NumberOfAuxSymbols: BYTE;
+  end;
+  {$EXTERNALSYM _IMAGE_SYMBOL}
+  IMAGE_SYMBOL = _IMAGE_SYMBOL;
+  {$EXTERNALSYM IMAGE_SYMBOL}
+  TImageSymbol = IMAGE_SYMBOL;
+  PImageSymbol = PIMAGE_SYMBOL;
 
+// line 152
 
 
 function ReBaseImage(CurrentImageName: PAnsiChar; SymbolPath: PAnsiChar; fReBase: BOOL;
   fRebaseSysfileOk: BOOL; fGoingDown: BOOL; CheckImageSize: ULONG;
-  var OldImageSize: ULONG; var OldImageBase: ULONG_PTR; var NewImageSize: ULONG;
-  var NewImageBase: ULONG_PTR; TimeStamp: ULONG): BOOL; stdcall;
+  var OldImageSize: TJclAddr32; var OldImageBase: TJclAddr;
+  var NewImageSize: TJclAddr32; var NewImageBase: TJclAddr; TimeStamp: ULONG): BOOL; stdcall;
 {$EXTERNALSYM ReBaseImage}
 
 function ReBaseImage64(CurrentImageName: PAnsiChar; SymbolPath: PAnsiChar; fReBase: BOOL;
   fRebaseSysfileOk: BOOL; fGoingDown: BOOL; CheckImageSize: ULONG;
-  var OldImageSize: ULONG; var OldImageBase: TJclAddr64; var NewImageSize: ULONG;
-  var NewImageBase: TJclAddr64; TimeStamp: ULONG): BOOL; stdcall;
+  var OldImageSize: TJclAddr32; var OldImageBase: TJclAddr64;
+  var NewImageSize: TJclAddr32; var NewImageBase: TJclAddr64; TimeStamp: ULONG): BOOL; stdcall;
 {$EXTERNALSYM ReBaseImage64}
 
 // line 199
@@ -3192,7 +3230,6 @@ function ImageRvaToSection(NtHeaders: PImageNtHeaders; Base: Pointer; Rva: ULONG
 function ImageRvaToVa(NtHeaders: PImageNtHeaders; Base: Pointer; Rva: ULONG;
   LastRvaSection: PPImageSectionHeader): Pointer; stdcall;
 {$EXTERNALSYM ImageRvaToVa}
-
 
 
 // line 461
@@ -3271,6 +3308,23 @@ type
   TImagehlpSymbolA = _IMAGEHLP_SYMBOLA;
 
   { symbol data structure }
+  {$EXTERNALSYM PImagehlpSymbolA64}
+  PImagehlpSymbolA64 = ^TImagehlpSymbolA64;
+  {$EXTERNALSYM _IMAGEHLP_SYMBOLA64}
+  _IMAGEHLP_SYMBOLA64 = packed record
+    SizeOfStruct: DWORD;                                { set to sizeof(IMAGEHLP_SYMBOL) }
+    Address: TJclAddr64;                                { virtual address including dll base address }
+    Size: DWORD;                                        { estimated size of symbol, can be zero }
+    Flags: DWORD;                                       { info about the symbols, see the SYMF defines }
+    MaxNameLength: DWORD;                               { maximum size of symbol name in 'Name' }
+    Name: packed array[0..0] of AnsiChar;               { symbol name (null terminated string) }
+  end;
+  {$EXTERNALSYM IMAGEHLP_SYMBOLA64}
+  IMAGEHLP_SYMBOLA64 = _IMAGEHLP_SYMBOLA64;
+  {$EXTERNALSYM TImagehlpSymbolA64}
+  TImagehlpSymbolA64 = _IMAGEHLP_SYMBOLA64;
+
+  { symbol data structure }
   {$EXTERNALSYM PImagehlpSymbolW}
   PImagehlpSymbolW = ^TImagehlpSymbolW;
   {$EXTERNALSYM _IMAGEHLP_SYMBOLW}
@@ -3286,6 +3340,23 @@ type
   IMAGEHLP_SYMBOLW = _IMAGEHLP_SYMBOLW;
   {$EXTERNALSYM TImagehlpSymbolW}
   TImagehlpSymbolW = _IMAGEHLP_SYMBOLW;
+
+  { symbol data structure }
+  {$EXTERNALSYM PImagehlpSymbolW64}
+  PImagehlpSymbolW64 = ^TImagehlpSymbolW64;
+  {$EXTERNALSYM _IMAGEHLP_SYMBOLW64}
+  _IMAGEHLP_SYMBOLW64 = packed record
+    SizeOfStruct: DWORD;                                { set to sizeof(IMAGEHLP_SYMBOL) }
+    Address: TJclAddr64;                                { virtual address including dll base address }
+    Size: DWORD;                                        { estimated size of symbol, can be zero }
+    Flags: DWORD;                                       { info about the symbols, see the SYMF defines }
+    MaxNameLength: DWORD;                               { maximum size of symbol name in 'Name' }
+    Name: packed array[0..0] of WideChar;               { symbol name (null terminated string) }
+  end;
+  {$EXTERNALSYM IMAGEHLP_SYMBOLW64}
+  IMAGEHLP_SYMBOLW64 = _IMAGEHLP_SYMBOLW64;
+  {$EXTERNALSYM TImagehlpSymbolW64}
+  TImagehlpSymbolW64 = _IMAGEHLP_SYMBOLW64;
 
   { module data structure }
   {$EXTERNALSYM PImagehlpModuleA}
@@ -3309,6 +3380,27 @@ type
   TImagehlpModuleA = _IMAGEHLP_MODULEA;
 
   { module data structure }
+  {$EXTERNALSYM PImagehlpModuleA64}
+  PImagehlpModuleA64 = ^TImagehlpModuleA64;
+  {$EXTERNALSYM _IMAGEHLP_MODULEA64}
+  _IMAGEHLP_MODULEA64 = record
+    SizeOfStruct: DWORD;                                { set to sizeof(IMAGEHLP_MODULE) }
+    BaseOfImage: TJclAddr64;                            { base load address of module }
+    ImageSize: DWORD;                                   { virtual size of the loaded module }
+    TimeDateStamp: DWORD;                               { date/time stamp from pe header }
+    CheckSum: DWORD;                                    { checksum from the pe header }
+    NumSyms: DWORD;                                     { number of symbols in the symbol table }
+    SymType: TSymType;                                  { type of symbols loaded }
+    ModuleName: packed array[0..31] of AnsiChar;        { module name }
+    ImageName: packed array[0..255] of AnsiChar;        { image name }
+    LoadedImageName: packed array[0..255] of AnsiChar;  { symbol file name }
+  end;
+  {$EXTERNALSYM IMAGEHLP_MODULEA64}
+  IMAGEHLP_MODULEA64 = _IMAGEHLP_MODULEA64;
+  {$EXTERNALSYM TImagehlpModuleA64}
+  TImagehlpModuleA64 = _IMAGEHLP_MODULEA64;
+
+  { module data structure }
   {$EXTERNALSYM PImagehlpModuleW}
   PImagehlpModuleW = ^TImagehlpModuleW;
   {$EXTERNALSYM _IMAGEHLP_MODULEW}
@@ -3329,6 +3421,27 @@ type
   {$EXTERNALSYM TImagehlpModuleW}
   TImagehlpModuleW = _IMAGEHLP_MODULEW;
 
+  { module data structure }
+  {$EXTERNALSYM PImagehlpModuleW64}
+  PImagehlpModuleW64 = ^TImagehlpModuleW64;
+  {$EXTERNALSYM _IMAGEHLP_MODULEW64}
+  _IMAGEHLP_MODULEW64 = record
+    SizeOfStruct: DWORD;                                { set to sizeof(IMAGEHLP_MODULE) }
+    BaseOfImage: TJclAddr64;                            { base load address of module }
+    ImageSize: DWORD;                                   { virtual size of the loaded module }
+    TimeDateStamp: DWORD;                               { date/time stamp from pe header }
+    CheckSum: DWORD;                                    { checksum from the pe header }
+    NumSyms: DWORD;                                     { number of symbols in the symbol table }
+    SymType: TSymType;                                  { type of symbols loaded }
+    ModuleName: packed array[0..31] of WideChar;        { module name }
+    ImageName: packed array[0..255] of WideChar;        { image name }
+    LoadedImageName: packed array[0..255] of WideChar;  { symbol file name }
+  end;
+  {$EXTERNALSYM IMAGEHLP_MODULEW64}
+  IMAGEHLP_MODULEW64 = _IMAGEHLP_MODULEW64;
+  {$EXTERNALSYM TImagehlpModuleW64}
+  TImagehlpModuleW64 = _IMAGEHLP_MODULEW64;
+
   _IMAGEHLP_LINEA = packed record
     SizeOfStruct: DWORD;           // set to sizeof(IMAGEHLP_LINE)
     Key: Pointer;                  // internal
@@ -3341,6 +3454,18 @@ type
   TImageHlpLineA = _IMAGEHLP_LINEA;
   PImageHlpLineA = PIMAGEHLP_LINEA;
 
+  _IMAGEHLP_LINEA64 = packed record
+    SizeOfStruct: DWORD;           // set to sizeof(IMAGEHLP_LINE)
+    Key: Pointer;                  // internal
+    LineNumber: DWORD;             // line number in file
+    FileName: PAnsiChar;           // full filename
+    Address: TJclAddr64;           // first instruction of line
+  end;
+  IMAGEHLP_LINEA64 = _IMAGEHLP_LINEA64;
+  PIMAGEHLP_LINEA64 = ^_IMAGEHLP_LINEA64;
+  TImageHlpLineA64 = _IMAGEHLP_LINEA64;
+  PImageHlpLineA64 = PIMAGEHLP_LINEA64;
+
   _IMAGEHLP_LINEW = packed record
     SizeOfStruct: DWORD;           // set to sizeof(IMAGEHLP_LINE)
     Key: Pointer;                  // internal
@@ -3352,6 +3477,18 @@ type
   PIMAGEHLP_LINEW = ^_IMAGEHLP_LINEW;
   TImageHlpLineW = _IMAGEHLP_LINEW;
   PImageHlpLineW = PIMAGEHLP_LINEW;
+
+  _IMAGEHLP_LINEW64 = packed record
+    SizeOfStruct: DWORD;           // set to sizeof(IMAGEHLP_LINE)
+    Key: Pointer;                  // internal
+    LineNumber: DWORD;             // line number in file
+    FileName: PWideChar;           // full filename
+    Address: TJclAddr64;           // first instruction of line
+  end;
+  IMAGEHLP_LINEW64 = _IMAGEHLP_LINEW64;
+  PIMAGEHLP_LINEW64 = ^_IMAGEHLP_LINEW64;
+  TImageHlpLineW64 = _IMAGEHLP_LINEW64;
+  PImageHlpLineW64 = PIMAGEHLP_LINEW64;
 
 // line 1475
 
@@ -3404,6 +3541,12 @@ const
 
   SYMOPT_DEBUG                  = $80000000;
   {$EXTERNALSYM SYMOPT_DEBUG}
+
+// IoAPI.h
+
+
+function CancelIo(hFile: THandle): BOOL; stdcall;
+{$EXTERNALSYM CancelIo}
 
 
 const
@@ -5044,6 +5187,25 @@ type
 function NetApiBufferFree(Buffer: Pointer): NET_API_STATUS; stdcall;
 {$EXTERNALSYM NetApiBufferFree}
 
+type
+  _WKSTA_INFO_100 = record
+    wki100_platform_id: DWORD;
+    wki100_computername: LMSTR;
+    wki100_langroup: LMSTR;
+    wki100_ver_major: DWORD;
+    wki100_ver_minor: DWORD;
+  end;
+  {$EXTERNALSYM _WKSTA_INFO_100}
+  WKSTA_INFO_100 = _WKSTA_INFO_100;
+  {$EXTERNALSYM WKSTA_INFO_100}
+  PWKSTA_INFO_100 = ^_WKSTA_INFO_100;
+  {$EXTERNALSYM PWKSTA_INFO_100}
+  LPWKSTA_INFO_100 = ^_WKSTA_INFO_100;
+  {$EXTERNALSYM LPWKSTA_INFO_100}
+
+function NetWkstaGetInfo(servername: PWideChar; level: DWORD; out bufptr: PByte): NET_API_STATUS; stdcall;
+{$EXTERNALSYM NetWkstaGetInfo}
+
 (****************************************************************
  *                                                              *
  *              Data structure templates                        *
@@ -5624,7 +5786,6 @@ const
   UDIRTYUI = (SHTDN_REASON_FLAG_DIRTY_UI);
   {$EXTERNALSYM UDIRTYUI}
 
-
 const
   CSIDL_LOCAL_APPDATA        = $001C; { <user name>\Local Settings\Application Data (non roaming) }
   CSIDL_COMMON_APPDATA       = $0023; { All Users\Application Data }
@@ -5633,6 +5794,7 @@ const
   CSIDL_PROGRAM_FILES        = $0026; { C:\Program Files }
   CSIDL_MYPICTURES           = $0027; { C:\Program Files\My Pictures }
   CSIDL_PROFILE              = $0028; { USERPROFILE }
+  CSIDL_PROGRAM_FILESX86     = $002A; { C:\Program Files (x86)\My Pictures }
   CSIDL_PROGRAM_FILES_COMMON = $002B; { C:\Program Files\Common }
   CSIDL_COMMON_TEMPLATES     = $002D; { All Users\Templates }
   CSIDL_COMMON_DOCUMENTS     = $002E; { All Users\Documents }
@@ -5655,6 +5817,7 @@ const
   {$EXTERNALSYM CSIDL_PROGRAM_FILES}
   {$EXTERNALSYM CSIDL_MYPICTURES}
   {$EXTERNALSYM CSIDL_PROFILE}
+  {$EXTERNALSYM CSIDL_PROGRAM_FILESX86}
   {$EXTERNALSYM CSIDL_PROGRAM_FILES_COMMON}
   {$EXTERNALSYM CSIDL_COMMON_TEMPLATES}
   {$EXTERNALSYM CSIDL_COMMON_DOCUMENTS}
@@ -5669,6 +5832,133 @@ const
   {$EXTERNALSYM CSIDL_COMMON_OEM_LINKS}
   {$EXTERNALSYM CSIDL_CDBURN_AREA}
   {$EXTERNALSYM CSIDL_COMPUTERSNEARME}
+
+type
+  ITaskbarList = interface(IUnknown)
+    ['{56FDF342-FD6D-11D0-958A-006097C9A090}']
+    function HrInit: HRESULT; stdcall;
+    function AddTab(hwnd: HWND): HRESULT; stdcall;
+    function DeleteTab(hwnd: HWND): HRESULT; stdcall;
+    function ActivateTab(hwnd: HWND): HRESULT; stdcall;
+    function SetActiveAlt(hwnd: HWND): HRESULT; stdcall;
+  end;
+  {$EXTERNALSYM ITaskbarList}
+
+  ITaskbarList2 = interface(ITaskbarList)
+    ['{602D4995-B13A-429B-A66E-1935E44F4317}']
+    function MarkFullscreenWindow(hwnd: HWND; fFullscreen: BOOL): HRESULT; stdcall;
+  end;
+  {$EXTERNALSYM ITaskbarList2}
+
+type
+  THUMBBUTTON = record
+    dwMask: DWORD;
+    iId: UINT;
+    iBitmap: UINT;
+    hIcon: HICON;
+    szTip: packed array[0..259] of WCHAR;
+    dwFlags: DWORD;
+  end;
+  {$EXTERNALSYM THUMBBUTTON}
+  tagTHUMBBUTTON = THUMBBUTTON;
+  {$EXTERNALSYM tagTHUMBBUTTON}
+  TThumbButton = THUMBBUTTON;
+  {$EXTERNALSYM TThumbButton}
+  PThumbButton = ^TThumbButton;
+  {$EXTERNALSYM PThumbButton}
+
+// for ThumbButtons.dwFlags
+const
+  THBF_ENABLED        = $0000;
+  {$EXTERNALSYM THBF_ENABLED}
+  THBF_DISABLED       = $0001;
+  {$EXTERNALSYM THBF_DISABLED}
+  THBF_DISMISSONCLICK = $0002;
+  {$EXTERNALSYM THBF_DISMISSONCLICK}
+  THBF_NOBACKGROUND   = $0004;
+  {$EXTERNALSYM THBF_NOBACKGROUND}
+  THBF_HIDDEN         = $0008;
+  {$EXTERNALSYM THBF_HIDDEN}
+  THBF_NONINTERACTIVE = $0010;
+  {$EXTERNALSYM THBF_NONINTERACTIVE}
+
+// for ThumbButton.dwMask
+const
+  THB_BITMAP          = $0001;
+  {$EXTERNALSYM THB_BITMAP}
+  THB_ICON            = $0002;
+  {$EXTERNALSYM THB_ICON}
+  THB_TOOLTIP         = $0004;
+  {$EXTERNALSYM THB_TOOLTIP}
+  THB_FLAGS           = $0008;
+  {$EXTERNALSYM THB_FLAGS}
+
+// wParam for WM_COMMAND message (lParam = Button ID)
+const
+  THBN_CLICKED        = $1800;
+  {$EXTERNALSYM THBN_CLICKED}
+
+// for ITaskBarList3.SetProgressState
+const
+  TBPF_NOPROGRESS     = 0;
+  {$EXTERNALSYM TBPF_NOPROGRESS}
+  TBPF_INDETERMINATE  = $1;
+  {$EXTERNALSYM TBPF_INDETERMINATE}
+  TBPF_NORMAL         = $2;
+  {$EXTERNALSYM TBPF_NORMAL}
+  TBPF_ERROR          = $4;
+  {$EXTERNALSYM TBPF_ERROR}
+  TBPF_PAUSED         = $8;
+  {$EXTERNALSYM TBPF_PAUSED}
+
+type
+  ITaskbarList3 = interface(ITaskbarList2)
+    ['{EA1AFB91-9E28-4B86-90E9-9E9F8A5EEFAF}']
+    function SetProgressValue(hwnd: HWND; ullCompleted: ULONGLONG;
+      ullTotal: ULONGLONG): HRESULT; stdcall;
+    function SetProgressState(hwnd: HWND; tbpFlags: Integer): HRESULT; stdcall;
+    function RegisterTab(hwndTab: HWND; hwndMDI: HWND): HRESULT; stdcall;
+    function UnregisterTab(hwndTab: HWND): HRESULT; stdcall;
+    function SetTabOrder(hwndTab: HWND; hwndInsertBefore: HWND): HRESULT; stdcall;
+    function SetTabActive(hwndTab: HWND; hwndMDI: HWND;
+      tbatFlags: Integer): HRESULT; stdcall;
+    function ThumbBarAddButtons(hwnd: HWND; cButtons: UINT;
+      pButton: PThumbButton): HRESULT; stdcall;
+    function ThumbBarUpdateButtons(hwnd: HWND; cButtons: UINT;
+      pButton: PThumbButton): HRESULT; stdcall;
+    function ThumbBarSetImageList(hwnd: HWND; himl: THandle): HRESULT; stdcall;
+    function SetOverlayIcon(hwnd: HWND; hIcon: HICON;
+      pszDescription: LPCWSTR): HRESULT; stdcall;
+    function SetThumbnailTooltip(hwnd: HWND; pszTip: LPCWSTR): HRESULT; stdcall;
+    function SetThumbnailClip(hwnd: HWND; var prcClip: TRect): HRESULT; stdcall;
+  end;
+  {$EXTERNALSYM ITaskbarList3}
+
+type
+  STPFLAG = Integer;
+  {$EXTERNALSYM STPFLAG}
+const
+  STPF_NONE                      = 0;
+  {$EXTERNALSYM STPF_NONE}
+  STPF_USEAPPTHUMBNAILALWAYS     = $1;
+  {$EXTERNALSYM STPF_USEAPPTHUMBNAILALWAYS}
+  STPF_USEAPPTHUMBNAILWHENACTIVE = $2;
+  {$EXTERNALSYM STPF_USEAPPTHUMBNAILWHENACTIVE}
+  STPF_USEAPPPEEKALWAYS          = $4;
+  {$EXTERNALSYM STPF_USEAPPPEEKALWAYS}
+  STPF_USEAPPPEEKWHENACTIVE      = $8;
+  {$EXTERNALSYM STPF_USEAPPPEEKWHENACTIVE}
+
+type
+  ITaskbarList4 = interface(ITaskbarList3)
+    ['{C43DC798-95D1-4BEA-9030-BB99E2983A1A}']
+    function SetTabProperties(hwndTab: HWND; stpFlags: STPFLAG): HRESULT; stdcall;
+  end;
+  {$EXTERNALSYM ITaskbarList4}
+
+const
+  CLSID_TaskbarList: TGUID                            = '{56FDF344-FD6D-11d0-958A-006097C9A090}';
+  {$EXTERNALSYM CLSID_TaskbarList}
 
 
 { TODO BCB-compatibility}
@@ -6818,142 +7108,6 @@ type
   //PImgDelayDescr = ImgDelayDescr;
   //TImgDelayDescr = ImgDelayDescr;
 
-// propidl.h line 386
-
-// Reserved global Property IDs
-const
-  PID_DICTIONARY         = $00000000; // integer count + array of entries
-  {$EXTERNALSYM PID_DICTIONARY}
-  PID_CODEPAGE           = $00000001; // short integer
-  {$EXTERNALSYM PID_CODEPAGE}
-  PID_FIRST_USABLE       = $00000002;
-  {$EXTERNALSYM PID_FIRST_USABLE}
-  PID_FIRST_NAME_DEFAULT = $00000FFF;
-  {$EXTERNALSYM PID_FIRST_NAME_DEFAULT}
-  PID_LOCALE             = $80000000;
-  {$EXTERNALSYM PID_LOCALE}
-  PID_MODIFY_TIME        = $80000001;
-  {$EXTERNALSYM PID_MODIFY_TIME}
-  PID_SECURITY           = $80000002;
-  {$EXTERNALSYM PID_SECURITY}
-  PID_BEHAVIOR           = $80000003;
-  {$EXTERNALSYM PID_BEHAVIOR}
-  PID_ILLEGAL            = $FFFFFFFF;
-  {$EXTERNALSYM PID_ILLEGAL}
-
-// Range which is read-only to downlevel implementations
-
-const
-  PID_MIN_READONLY = $80000000;
-  {$EXTERNALSYM PID_MIN_READONLY}
-  PID_MAX_READONLY = $BFFFFFFF;
-  {$EXTERNALSYM PID_MAX_READONLY}
-
-// Property IDs for the DiscardableInformation Property Set
-
-const
-  PIDDI_THUMBNAIL = $00000002; // VT_BLOB
-  {$EXTERNALSYM PIDDI_THUMBNAIL}
-
-// Property IDs for the SummaryInformation Property Set
-
-const
-  PIDSI_TITLE        = $00000002; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_TITLE}
-  PIDSI_SUBJECT      = $00000003; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_SUBJECT}
-  PIDSI_AUTHOR       = $00000004; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_AUTHOR}
-  PIDSI_KEYWORDS     = $00000005; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_KEYWORDS}
-  PIDSI_COMMENTS     = $00000006; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_COMMENTS}
-  PIDSI_TEMPLATE     = $00000007; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_TEMPLATE}
-  PIDSI_LASTAUTHOR   = $00000008; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_LASTAUTHOR}
-  PIDSI_REVNUMBER    = $00000009; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_REVNUMBER}
-  PIDSI_EDITTIME     = $0000000A; // VT_FILETIME (UTC)
-  {$EXTERNALSYM PIDSI_EDITTIME}
-  PIDSI_LASTPRINTED  = $0000000B; // VT_FILETIME (UTC)
-  {$EXTERNALSYM PIDSI_LASTPRINTED}
-  PIDSI_CREATE_DTM   = $0000000C; // VT_FILETIME (UTC)
-  {$EXTERNALSYM PIDSI_CREATE_DTM}
-  PIDSI_LASTSAVE_DTM = $0000000D; // VT_FILETIME (UTC)
-  {$EXTERNALSYM PIDSI_LASTSAVE_DTM}
-  PIDSI_PAGECOUNT    = $0000000E; // VT_I4
-  {$EXTERNALSYM PIDSI_PAGECOUNT}
-  PIDSI_WORDCOUNT    = $0000000F; // VT_I4
-  {$EXTERNALSYM PIDSI_WORDCOUNT}
-  PIDSI_CHARCOUNT    = $00000010; // VT_I4
-  {$EXTERNALSYM PIDSI_CHARCOUNT}
-  PIDSI_THUMBNAIL    = $00000011; // VT_CF
-  {$EXTERNALSYM PIDSI_THUMBNAIL}
-  PIDSI_APPNAME      = $00000012; // VT_LPSTR
-  {$EXTERNALSYM PIDSI_APPNAME}
-  PIDSI_DOC_SECURITY = $00000013; // VT_I4
-  {$EXTERNALSYM PIDSI_DOC_SECURITY}
-
-// Property IDs for the DocSummaryInformation Property Set
-
-const
-  PIDDSI_CATEGORY    = $00000002; // VT_LPSTR
-  {$EXTERNALSYM PIDDSI_CATEGORY}
-  PIDDSI_PRESFORMAT  = $00000003; // VT_LPSTR
-  {$EXTERNALSYM PIDDSI_PRESFORMAT}
-  PIDDSI_BYTECOUNT   = $00000004; // VT_I4
-  {$EXTERNALSYM PIDDSI_BYTECOUNT}
-  PIDDSI_LINECOUNT   = $00000005; // VT_I4
-  {$EXTERNALSYM PIDDSI_LINECOUNT}
-  PIDDSI_PARCOUNT    = $00000006; // VT_I4
-  {$EXTERNALSYM PIDDSI_PARCOUNT}
-  PIDDSI_SLIDECOUNT  = $00000007; // VT_I4
-  {$EXTERNALSYM PIDDSI_SLIDECOUNT}
-  PIDDSI_NOTECOUNT   = $00000008; // VT_I4
-  {$EXTERNALSYM PIDDSI_NOTECOUNT}
-  PIDDSI_HIDDENCOUNT = $00000009; // VT_I4
-  {$EXTERNALSYM PIDDSI_HIDDENCOUNT}
-  PIDDSI_MMCLIPCOUNT = $0000000A; // VT_I4
-  {$EXTERNALSYM PIDDSI_MMCLIPCOUNT}
-  PIDDSI_SCALE       = $0000000B; // VT_BOOL
-  {$EXTERNALSYM PIDDSI_SCALE}
-  PIDDSI_HEADINGPAIR = $0000000C; // VT_VARIANT | VT_VECTOR
-  {$EXTERNALSYM PIDDSI_HEADINGPAIR}
-  PIDDSI_DOCPARTS    = $0000000D; // VT_LPSTR | VT_VECTOR
-  {$EXTERNALSYM PIDDSI_DOCPARTS}
-  PIDDSI_MANAGER     = $0000000E; // VT_LPSTR
-  {$EXTERNALSYM PIDDSI_MANAGER}
-  PIDDSI_COMPANY     = $0000000F; // VT_LPSTR
-  {$EXTERNALSYM PIDDSI_COMPANY}
-  PIDDSI_LINKSDIRTY  = $00000010; // VT_BOOL
-  {$EXTERNALSYM PIDDSI_LINKSDIRTY}
-
-//  FMTID_MediaFileSummaryInfo - Property IDs
-
-const
-  PIDMSI_EDITOR      = $00000002; // VT_LPWSTR
-  {$EXTERNALSYM PIDMSI_EDITOR}
-  PIDMSI_SUPPLIER    = $00000003; // VT_LPWSTR
-  {$EXTERNALSYM PIDMSI_SUPPLIER}
-  PIDMSI_SOURCE      = $00000004; // VT_LPWSTR
-  {$EXTERNALSYM PIDMSI_SOURCE}
-  PIDMSI_SEQUENCE_NO = $00000005; // VT_LPWSTR
-  {$EXTERNALSYM PIDMSI_SEQUENCE_NO}
-  PIDMSI_PROJECT     = $00000006; // VT_LPWSTR
-  {$EXTERNALSYM PIDMSI_PROJECT}
-  PIDMSI_STATUS      = $00000007; // VT_UI4
-  {$EXTERNALSYM PIDMSI_STATUS}
-  PIDMSI_OWNER       = $00000008; // VT_LPWSTR
-  {$EXTERNALSYM PIDMSI_OWNER}
-  PIDMSI_RATING      = $00000009; // VT_LPWSTR
-  {$EXTERNALSYM PIDMSI_RATING}
-  PIDMSI_PRODUCTION  = $0000000A; // VT_FILETIME (UTC)
-  {$EXTERNALSYM PIDMSI_PRODUCTION}
-  PIDMSI_COPYRIGHT   = $0000000B; // VT_LPWSTR
-  {$EXTERNALSYM PIDMSI_COPYRIGHT}
-
-
 // msidefs.h line 349
 
 // PIDs given specific meanings for Installer
@@ -7213,13 +7367,152 @@ function StgOpenStorageEx(const pwcsName: PWideChar; grfMode: DWORD;
 {$EXTERNALSYM StgOpenStorageEx}
 
 
+// propidl.h line 386
+
+// Reserved global Property IDs
+const
+  PID_DICTIONARY         = $00000000; // integer count + array of entries
+  {$EXTERNALSYM PID_DICTIONARY}
+  PID_CODEPAGE           = $00000001; // short integer
+  {$EXTERNALSYM PID_CODEPAGE}
+  PID_FIRST_USABLE       = $00000002;
+  {$EXTERNALSYM PID_FIRST_USABLE}
+  PID_FIRST_NAME_DEFAULT = $00000FFF;
+  {$EXTERNALSYM PID_FIRST_NAME_DEFAULT}
+  PID_LOCALE             = $80000000;
+  {$EXTERNALSYM PID_LOCALE}
+  PID_MODIFY_TIME        = $80000001;
+  {$EXTERNALSYM PID_MODIFY_TIME}
+  PID_SECURITY           = $80000002;
+  {$EXTERNALSYM PID_SECURITY}
+  PID_BEHAVIOR           = $80000003;
+  {$EXTERNALSYM PID_BEHAVIOR}
+  PID_ILLEGAL            = $FFFFFFFF;
+  {$EXTERNALSYM PID_ILLEGAL}
+
+// Range which is read-only to downlevel implementations
+
+const
+  PID_MIN_READONLY = $80000000;
+  {$EXTERNALSYM PID_MIN_READONLY}
+  PID_MAX_READONLY = $BFFFFFFF;
+  {$EXTERNALSYM PID_MAX_READONLY}
+
+// Property IDs for the DiscardableInformation Property Set
+
+const
+  PIDDI_THUMBNAIL = $00000002; // VT_BLOB
+  {$EXTERNALSYM PIDDI_THUMBNAIL}
+
+// Property IDs for the SummaryInformation Property Set
+
+const
+  PIDSI_TITLE        = $00000002; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_TITLE}
+  PIDSI_SUBJECT      = $00000003; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_SUBJECT}
+  PIDSI_AUTHOR       = $00000004; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_AUTHOR}
+  PIDSI_KEYWORDS     = $00000005; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_KEYWORDS}
+  PIDSI_COMMENTS     = $00000006; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_COMMENTS}
+  PIDSI_TEMPLATE     = $00000007; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_TEMPLATE}
+  PIDSI_LASTAUTHOR   = $00000008; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_LASTAUTHOR}
+  PIDSI_REVNUMBER    = $00000009; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_REVNUMBER}
+  PIDSI_EDITTIME     = $0000000A; // VT_FILETIME (UTC)
+  {$EXTERNALSYM PIDSI_EDITTIME}
+  PIDSI_LASTPRINTED  = $0000000B; // VT_FILETIME (UTC)
+  {$EXTERNALSYM PIDSI_LASTPRINTED}
+  PIDSI_CREATE_DTM   = $0000000C; // VT_FILETIME (UTC)
+  {$EXTERNALSYM PIDSI_CREATE_DTM}
+  PIDSI_LASTSAVE_DTM = $0000000D; // VT_FILETIME (UTC)
+  {$EXTERNALSYM PIDSI_LASTSAVE_DTM}
+  PIDSI_PAGECOUNT    = $0000000E; // VT_I4
+  {$EXTERNALSYM PIDSI_PAGECOUNT}
+  PIDSI_WORDCOUNT    = $0000000F; // VT_I4
+  {$EXTERNALSYM PIDSI_WORDCOUNT}
+  PIDSI_CHARCOUNT    = $00000010; // VT_I4
+  {$EXTERNALSYM PIDSI_CHARCOUNT}
+  PIDSI_THUMBNAIL    = $00000011; // VT_CF
+  {$EXTERNALSYM PIDSI_THUMBNAIL}
+  PIDSI_APPNAME      = $00000012; // VT_LPSTR
+  {$EXTERNALSYM PIDSI_APPNAME}
+  PIDSI_DOC_SECURITY = $00000013; // VT_I4
+  {$EXTERNALSYM PIDSI_DOC_SECURITY}
+
+// Property IDs for the DocSummaryInformation Property Set
+
+const
+  PIDDSI_CATEGORY    = $00000002; // VT_LPSTR
+  {$EXTERNALSYM PIDDSI_CATEGORY}
+  PIDDSI_PRESFORMAT  = $00000003; // VT_LPSTR
+  {$EXTERNALSYM PIDDSI_PRESFORMAT}
+  PIDDSI_BYTECOUNT   = $00000004; // VT_I4
+  {$EXTERNALSYM PIDDSI_BYTECOUNT}
+  PIDDSI_LINECOUNT   = $00000005; // VT_I4
+  {$EXTERNALSYM PIDDSI_LINECOUNT}
+  PIDDSI_PARCOUNT    = $00000006; // VT_I4
+  {$EXTERNALSYM PIDDSI_PARCOUNT}
+  PIDDSI_SLIDECOUNT  = $00000007; // VT_I4
+  {$EXTERNALSYM PIDDSI_SLIDECOUNT}
+  PIDDSI_NOTECOUNT   = $00000008; // VT_I4
+  {$EXTERNALSYM PIDDSI_NOTECOUNT}
+  PIDDSI_HIDDENCOUNT = $00000009; // VT_I4
+  {$EXTERNALSYM PIDDSI_HIDDENCOUNT}
+  PIDDSI_MMCLIPCOUNT = $0000000A; // VT_I4
+  {$EXTERNALSYM PIDDSI_MMCLIPCOUNT}
+  PIDDSI_SCALE       = $0000000B; // VT_BOOL
+  {$EXTERNALSYM PIDDSI_SCALE}
+  PIDDSI_HEADINGPAIR = $0000000C; // VT_VARIANT | VT_VECTOR
+  {$EXTERNALSYM PIDDSI_HEADINGPAIR}
+  PIDDSI_DOCPARTS    = $0000000D; // VT_LPSTR | VT_VECTOR
+  {$EXTERNALSYM PIDDSI_DOCPARTS}
+  PIDDSI_MANAGER     = $0000000E; // VT_LPSTR
+  {$EXTERNALSYM PIDDSI_MANAGER}
+  PIDDSI_COMPANY     = $0000000F; // VT_LPSTR
+  {$EXTERNALSYM PIDDSI_COMPANY}
+  PIDDSI_LINKSDIRTY  = $00000010; // VT_BOOL
+  {$EXTERNALSYM PIDDSI_LINKSDIRTY}
+
+//  FMTID_MediaFileSummaryInfo - Property IDs
+
+const
+  PIDMSI_EDITOR      = $00000002; // VT_LPWSTR
+  {$EXTERNALSYM PIDMSI_EDITOR}
+  PIDMSI_SUPPLIER    = $00000003; // VT_LPWSTR
+  {$EXTERNALSYM PIDMSI_SUPPLIER}
+  PIDMSI_SOURCE      = $00000004; // VT_LPWSTR
+  {$EXTERNALSYM PIDMSI_SOURCE}
+  PIDMSI_SEQUENCE_NO = $00000005; // VT_LPWSTR
+  {$EXTERNALSYM PIDMSI_SEQUENCE_NO}
+  PIDMSI_PROJECT     = $00000006; // VT_LPWSTR
+  {$EXTERNALSYM PIDMSI_PROJECT}
+  PIDMSI_STATUS      = $00000007; // VT_UI4
+  {$EXTERNALSYM PIDMSI_STATUS}
+  PIDMSI_OWNER       = $00000008; // VT_LPWSTR
+  {$EXTERNALSYM PIDMSI_OWNER}
+  PIDMSI_RATING      = $00000009; // VT_LPWSTR
+  {$EXTERNALSYM PIDMSI_RATING}
+  PIDMSI_PRODUCTION  = $0000000A; // VT_FILETIME (UTC)
+  {$EXTERNALSYM PIDMSI_PRODUCTION}
+  PIDMSI_COPYRIGHT   = $0000000B; // VT_LPWSTR
+  {$EXTERNALSYM PIDMSI_COPYRIGHT}
+
+function PropVariantClear(var Prop: TPropVariant): HResult; stdcall;
+{$EXTERNALSYM PropVariantClear}
+
+
 // NtSecApi.h line 566
 type
   PLSA_UNICODE_STRING = ^LSA_UNICODE_STRING;
   _LSA_UNICODE_STRING = record
     Length: USHORT;
     MaximumLength: USHORT;
-    Buffer: Windows.LPWSTR;
+    Buffer: {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.LPWSTR;
   end;
   LSA_UNICODE_STRING = _LSA_UNICODE_STRING;
   TLsaUnicodeString = LSA_UNICODE_STRING;
@@ -7238,7 +7531,7 @@ type
   PLSA_OBJECT_ATTRIBUTES = ^LSA_OBJECT_ATTRIBUTES;
   _LSA_OBJECT_ATTRIBUTES = record
     Length: ULONG;
-    RootDirectory: Windows.THandle;
+    RootDirectory: {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.THandle;
     ObjectName: PLSA_UNICODE_STRING;
     Attributes: ULONG;
     SecurityDescriptor: Pointer; // Points to type SECURITY_DESCRIPTOR
@@ -7360,7 +7653,7 @@ type
   PPOLICY_ACCOUNT_DOMAIN_INFO = ^POLICY_ACCOUNT_DOMAIN_INFO;
   _POLICY_ACCOUNT_DOMAIN_INFO = record
     DomainName: LSA_UNICODE_STRING;
-    DomainSid: Windows.PSID;
+    DomainSid: {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.PSID;
   end;
   POLICY_ACCOUNT_DOMAIN_INFO = _POLICY_ACCOUNT_DOMAIN_INFO;
   TPolicyAccountDomainInfo = POLICY_ACCOUNT_DOMAIN_INFO;
@@ -7540,6 +7833,8 @@ function NtQueryInformationThread(ThreadHandle: THandle; ThreadInformationClass:
 
 
 
+//DOM-IGNORE-END
+
 
 const
   RtdlSetNamedSecurityInfoW: function(pObjectName: LPWSTR; ObjectType: SE_OBJECT_TYPE;
@@ -7608,9 +7903,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclWin32.pas $';
-    Revision: '$Revision: 3276 $';
-    Date: '$Date: 2010-08-02 21:27:59 +0200 (lun., 02 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows'
     );
 {$ENDIF UNITVERSIONING}
@@ -7699,16 +7994,16 @@ const
 type
   TReBaseImage = function (CurrentImageName: PAnsiChar; SymbolPath: PAnsiChar; fReBase: BOOL;
     fRebaseSysfileOk: BOOL; fGoingDown: BOOL; CheckImageSize: ULONG;
-    var OldImageSize: ULONG; var OldImageBase: ULONG_PTR; var NewImageSize: ULONG;
-    var NewImageBase: ULONG_PTR; TimeStamp: ULONG): BOOL; stdcall;
+    var OldImageSize: TJclAddr32; var OldImageBase: TJclAddr;
+    var NewImageSize: TJclAddr32; var NewImageBase: TJclAddr; TimeStamp: ULONG): BOOL; stdcall;
 
 var
   _ReBaseImage: TReBaseImage = nil;
 
 function ReBaseImage(CurrentImageName: PAnsiChar; SymbolPath: PAnsiChar; fReBase: BOOL;
   fRebaseSysfileOk: BOOL; fGoingDown: BOOL; CheckImageSize: ULONG;
-  var OldImageSize: ULONG; var OldImageBase: ULONG_PTR; var NewImageSize: ULONG;
-  var NewImageBase: ULONG_PTR; TimeStamp: ULONG): BOOL;
+  var OldImageSize: TJclAddr32; var OldImageBase: TJclAddr;
+  var NewImageSize: TJclAddr32; var NewImageBase: TJclAddr; TimeStamp: ULONG): BOOL;
 begin
   GetProcedureAddress(Pointer(@_ReBaseImage), ImageHlpLib, 'ReBaseImage');
   Result := _ReBaseImage(CurrentImageName, SymbolPath, fReBase, fRebaseSysfileOk, fGoingDown, CheckImageSize, OldImageSize, OldImageBase, NewImageSize, NewImageBase, TimeStamp);
@@ -7717,16 +8012,16 @@ end;
 type
   TReBaseImage64 = function (CurrentImageName: PAnsiChar; SymbolPath: PAnsiChar; fReBase: BOOL;
     fRebaseSysfileOk: BOOL; fGoingDown: BOOL; CheckImageSize: ULONG;
-    var OldImageSize: ULONG; var OldImageBase: TJclAddr64; var NewImageSize: ULONG;
-    var NewImageBase: TJclAddr64; TimeStamp: ULONG): BOOL; stdcall;
+    var OldImageSize: TJclAddr32; var OldImageBase: TJclAddr64;
+    var NewImageSize: TJclAddr32; var NewImageBase: TJclAddr64; TimeStamp: ULONG): BOOL; stdcall;
 
 var
   _ReBaseImage64: TReBaseImage64 = nil;
 
 function ReBaseImage64(CurrentImageName: PAnsiChar; SymbolPath: PAnsiChar; fReBase: BOOL;
   fRebaseSysfileOk: BOOL; fGoingDown: BOOL; CheckImageSize: ULONG;
-  var OldImageSize: ULONG; var OldImageBase: TJclAddr64; var NewImageSize: ULONG;
-  var NewImageBase: TJclAddr64; TimeStamp: ULONG): BOOL;
+  var OldImageSize: TJclAddr32; var OldImageBase: TJclAddr64;
+  var NewImageSize: TJclAddr32; var NewImageBase: TJclAddr64; TimeStamp: ULONG): BOOL;
 begin
   GetProcedureAddress(Pointer(@_ReBaseImage64), ImageHlpLib, 'ReBaseImage64');
   Result := _ReBaseImage64(CurrentImageName, SymbolPath, fReBase, fRebaseSysfileOk, fGoingDown, CheckImageSize, OldImageSize, OldImageBase, NewImageSize, NewImageBase, TimeStamp);
@@ -7839,6 +8134,18 @@ begin
 end;
 
 
+
+
+type
+  TCancelIo = function (hFile: THandle): BOOL; stdcall;
+var
+  _CancelIo: TCancelIo = nil;
+
+function CancelIo(hFile: THandle): BOOL;
+begin
+  GetProcedureAddress(Pointer(@_CancelIo), kernel32, 'CancelIo');
+  Result := _CancelIo(hFile);
+end;
 
 
 type
@@ -8233,6 +8540,20 @@ end;
 
 
 type
+  TNetWkstaGetInfo = function (servername: PWideChar; level: DWORD; out bufptr: PByte): NET_API_STATUS; stdcall;
+
+var
+  _NetWkstaGetInfo: TNetWkstaGetInfo = nil;
+
+function NetWkstaGetInfo(servername: PWideChar; level: DWORD; out bufptr: PByte): NET_API_STATUS; stdcall;
+begin
+  GetProcedureAddress(Pointer(@_NetWkstaGetInfo), netapi32, 'NetWkstaGetInfo');
+  Result := _NetWkstaGetInfo(servername, level, bufptr);
+end;
+
+
+
+type
   TNetbios = function (pncb: PNCB): UCHAR; stdcall;
 var
   _Netbios: TNetbios = nil;
@@ -8293,7 +8614,7 @@ begin
   Result := _AdjustTokenPrivileges(TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength);
 end;
 
-function CreateMutex(lpMutexAttributes: PSecurityAttributes; bInitialOwner: DWORD; lpName: PChar): THandle; stdcall;
+function CreateMutex(lpMutexAttributes: PSecurityAttributes; bInitialOwner: BOOL; lpName: PChar): THandle; stdcall;
   external kernel32 name 'CreateMutex' + AWSuffix;
 
 function GetVersionEx(var lpVersionInformation: TOSVersionInfoEx): BOOL; stdcall;
@@ -8528,7 +8849,7 @@ begin
 end;
 
 type
-  TSetExtendedFeaturesMask = procedure (ContextEx: PCONTEXT_EX; const FeatureMask: Int64);
+  TSetExtendedFeaturesMask = procedure (ContextEx: PCONTEXT_EX; const FeatureMask: Int64); stdcall;
 
 var
   _SetExtendedFeaturesMask: TSetExtendedFeaturesMask = nil;
@@ -8537,6 +8858,18 @@ procedure SetExtendedFeaturesMask(ContextEx: PCONTEXT_EX; const FeatureMask: Int
 begin
   GetProcedureAddress(Pointer(@_SetExtendedFeaturesMask), kernel32, 'SetExtendedFeaturesMask');
   _SetExtendedFeaturesMask(ContextEx, FeatureMask);
+end;
+
+type
+  TProcessIdToSessionId = function (dwProcessId: DWORD; out dwSessionId: DWORD): BOOL; stdcall;
+
+var
+  _ProcessIdToSessionId: TProcessIdToSessionId = nil;
+
+function ProcessIdToSessionId(dwProcessId: DWORD; out dwSessionId: DWORD): BOOL;
+begin
+  GetProcedureAddress(Pointer(@_ProcessIdToSessionId), kernel32, 'ProcessIdToSessionId');
+  Result := _ProcessIdToSessionId(dwProcessId, dwSessionId);
 end;
 
 
@@ -8649,6 +8982,20 @@ end;
 function SORTVERSIONFROMLCID(LocaleId: LCID): WORD;
 begin
   Result := WORD((DWORD(LocaleId) shr 20) and $000F);
+end;
+
+type
+  TCaptureStackBackTrace = function(FramesToSkip, FramesToCapture: DWORD;
+    BackTrace: Pointer; out BackTraceHash: DWORD): Word; stdcall;
+
+var
+  _CaptureStackBackTrace: TCaptureStackBackTrace = nil;
+
+function CaptureStackBackTrace(FramesToSkip, FramesToCapture: DWORD;
+  BackTrace: Pointer; out BackTraceHash: DWORD): Word; stdcall;
+begin
+  GetProcedureAddress(Pointer(@_CaptureStackBackTrace), kernel32, 'RtlCaptureStackBackTrace');
+  Result := _CaptureStackBackTrace(FramesToSkip, FramesToCapture, BackTrace, BackTraceHash);
 end;
 
 // line 9149
@@ -8800,6 +9147,19 @@ end;
 
 
 type
+  TPropVariantClear = function (var Prop: TPropVariant): HResult; stdcall;
+
+var
+  _PropVariantClear: TPropVariantClear = nil;
+
+function PropVariantClear(var Prop: TPropVariant): HResult;
+begin
+  GetProcedureAddress(Pointer(@_PropVariantClear), Ole32Lib, 'PropVariantClear');
+  Result := _PropVariantClear(Prop);
+end;
+
+
+type
   TLsaOpenPolicy = function (SystemName: PLSA_UNICODE_STRING;
     var ObjectAttributes: LSA_OBJECT_ATTRIBUTES; DesiredAccess: ACCESS_MASK;
     var PolicyHandle: LSA_HANDLE): NTSTATUS; stdcall;
@@ -8941,8 +9301,6 @@ initialization
 finalization
   UnregisterUnitVersion(HInstance);
 {$ENDIF UNITVERSIONING}
-
-{$WARNINGS ON}
 
 end.
 

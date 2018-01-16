@@ -2,7 +2,6 @@
 {  WARNING:  JEDI preprocessor generated unit.  Do not edit.                                       }
 {**************************************************************************************************}
 
-
 {**************************************************************************************************}
 {                                                                                                  }
 { Project JEDI Code Library (JCL)                                                                  }
@@ -39,21 +38,30 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-11 13:14:06 +0100 (jeu., 11 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3188                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
+
 unit Hardlinks;
+
+{$I jcl.inc}
+{$I windowsonly.inc}
+
+// ALL enabled by default for Project JEDI
+{$DEFINE STDCALL}   // Make functions STDCALL always
+{$DEFINE RTDL}      // Use runtime dynamic linking
+{$DEFINE PREFERAPI} // Prefer the "real" Windows API on systems on which it exists
+                    // If this is defined STDCALL is automatically needed and defined!
 
 {$ALIGN ON}
 {$MINENUMSIZE 4}
 
 interface
 
-{$I jcl.inc}
-
+//DOM-IGNORE-BEGIN
 
 (*
   All possible combinations of the above DEFINEs have been tested and work fine.
@@ -71,11 +79,16 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows;
+  {$ELSE ~HAS_UNITSCOPE}
   Windows;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 
 {$EXTERNALSYM CreateHardLinkW}
 {$EXTERNALSYM CreateHardLinkA}
+
 
 // Well, we did not decide yet ;) - bind to either address, depending on whether
 // the API could be found.
@@ -90,12 +103,14 @@ var
   hNtDll: THandle = 0; // For runtime dynamic linking
   bRtdlFunctionsLoaded: Boolean = False; // To show wether the RTDL functions had been loaded
 
+//DOM-IGNORE-END
+
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/Hardlinks.pas $';
-    Revision: '$Revision: 3188 $';
-    Date: '$Date: 2010-02-11 13:14:06 +0100 (jeu., 11 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -226,6 +241,7 @@ const
 // =================================================================
 // Function prototypes
 // =================================================================
+
 
 
 type
@@ -362,6 +378,7 @@ var
 
  ******************************************************************************)
 function
+
   MyCreateHardLinkW // ... otherwise this one
   (szLinkName, szLinkTarget: PWideChar; lpSecurityAttributes: PSecurityAttributes): BOOL;
 const
@@ -584,6 +601,7 @@ end;
  ******************************************************************************)
 
 function
+
   MyCreateHardLinkA // ... otherwise this one
   (szLinkName, szLinkTarget: PAnsiChar; lpSecurityAttributes: PSecurityAttributes): BOOL;
 var
@@ -697,6 +715,7 @@ initialization
   {$IFDEF UNITVERSIONING}
   UnregisterUnitVersion(HInstance);
   {$ENDIF UNITVERSIONING}
+
 
 
 end.

@@ -28,15 +28,16 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-05-28 13:13:12 +0200 (ven., 28 mai 2010)                           $ }
-{ Revision:      $Rev:: 3255                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclMapi;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 interface
 
@@ -44,7 +45,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.Classes, System.Contnrs, Winapi.Mapi, System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, Classes, Contnrs, Mapi, SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclAnsiStrings;
 
 type
@@ -284,9 +289,9 @@ function MapiErrorMessage(const ErrorCode: DWORD): string;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclMapi.pas $';
-    Revision: '$Revision: 3255 $';
-    Date: '$Date: 2010-05-28 13:13:12 +0200 (ven., 28 mai 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -296,10 +301,16 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  {$IFDEF HAS_UNIT_ANSISTRINGS}
+  System.AnsiStrings,
+  {$ENDIF HAS_UNIT_ANSISTRINGS}
+  {$ELSE ~HAS_UNITSCOPE}
   {$IFDEF HAS_UNIT_ANSISTRINGS}
   AnsiStrings,
   {$ENDIF HAS_UNIT_ANSISTRINGS}
-  JclFileUtils, JclLogic, JclRegistry, JclResources, JclSysInfo, JclSysUtils;
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclFileUtils, JclLogic, JclPeImage, JclRegistry, JclResources, JclSysInfo, JclSysUtils;
 
 const
   MapiDll = 'mapi32.dll';
@@ -392,58 +403,56 @@ begin
    end;
 end;
 
+function RestoreTaskWnds(Wnd: THandle; List: TJclTaskWindowsList): BOOL; stdcall;
+var
+  I: Integer;
+  EnableIt: Boolean;
+begin
+  if IsWindowVisible(Wnd) then
+  begin
+    EnableIt := False;
+    for I := 1 to Length(List) - 1 do
+      if List[I] = Wnd then
+      begin
+        EnableIt := True;
+        Break;
+      end;
+    EnableWindow(Wnd, EnableIt);
+  end;
+  Result := True;
+end;
+
 procedure RestoreTaskWindowsList(const List: TJclTaskWindowsList);
 var
   I: Integer;
-
-  function RestoreTaskWnds(Wnd: THandle; List: TJclTaskWindowsList): BOOL; stdcall;
-  var
-    I: Integer;
-    EnableIt: Boolean;
-  begin
-    if IsWindowVisible(Wnd) then
-    begin
-      EnableIt := False;
-      for I := 1 to Length(List) - 1 do
-        if List[I] = Wnd then
-        begin
-          EnableIt := True;
-          Break;
-        end;
-      EnableWindow(Wnd, EnableIt);
-    end;
-    Result := True;
-  end;
-
 begin
   if Length(List) > 0 then
   begin
-    EnumThreadWindows(MainThreadID, @RestoreTaskWnds, Integer(List));
+    EnumThreadWindows(MainThreadID, @RestoreTaskWnds, LPARAM(List));
     for I := 0 to Length(List) - 1 do
       EnableWindow(List[I], True);
     SetFocus(List[0]);
   end;
 end;
 
-function SaveTaskWindowsList: TJclTaskWindowsList;
-
-  function SaveTaskWnds(Wnd: THandle; var Data: TJclTaskWindowsList): BOOL; stdcall;
-  var
-    C: Integer;
+function SaveTaskWnds(Wnd: THandle; var Data: TJclTaskWindowsList): BOOL; stdcall;
+var
+  C: Integer;
+begin
+  if IsWindowVisible(Wnd) and IsWindowEnabled(Wnd) then
   begin
-    if IsWindowVisible(Wnd) and IsWindowEnabled(Wnd) then
-    begin
-      C := Length(Data);
-      SetLength(Data, C + 1);
-      Data[C] := Wnd;
-    end;
-    Result := True;
+    C := Length(Data);
+    SetLength(Data, C + 1);
+    Data[C] := Wnd;
   end;
+  Result := True;
+end;
 
+function SaveTaskWindowsList: TJclTaskWindowsList;
 begin
   SetLength(Result, 1);
   Result[0] := GetFocus;
-  EnumThreadWindows(MainThreadID, @SaveTaskWnds, Integer(@Result));
+  EnumThreadWindows(MainThreadID, @SaveTaskWnds, LPARAM(@Result));
 end;
 
 //=== { TJclSimpleMapi } =====================================================
@@ -573,6 +582,24 @@ var
   SL: TStringList;
   I: Integer;
 
+  function CheckPeImageTarget(const ClientPath: string): Boolean;
+  var
+    Img: TJclPeImage;
+  begin
+    Img := TJclPeImage.Create(True);
+    try
+      Img.FileName := ClientPath;
+      {$IFDEF CPU32}
+      Result := Img.Target = taWin32;
+      {$ENDIF CPU32}
+      {$IFDEF CPU64}
+      Result := Img.Target = taWin64;
+      {$ENDIF CPU64}
+    finally
+      Img.Free;
+    end;
+  end;
+
   function CheckValid(var Client: TJclMapiClient): Boolean;
   var
     I: Integer;
@@ -625,9 +652,14 @@ begin
           begin
             FClients[I].ClientName := RegReadStringDef(HKEY_LOCAL_MACHINE, ClientKey, '', '');
             FClients[I].ClientPath := RegReadStringDef(HKEY_LOCAL_MACHINE, ClientKey, 'DLLPathEx', '');
-            if FClients[I].ClientPath = '' then
-              FClients[I].ClientPath := RegReadStringDef(HKEY_LOCAL_MACHINE, ClientKey, 'DLLPath', '');
             ExpandEnvironmentVar(FClients[I].ClientPath);
+            if (FClients[I].ClientPath = '') or not CheckPeImageTarget(FClients[I].ClientPath) then
+            begin
+              FClients[I].ClientPath := RegReadStringDef(HKEY_LOCAL_MACHINE, ClientKey, 'DLLPath', '');
+              ExpandEnvironmentVar(FClients[I].ClientPath);
+              if not CheckPeImageTarget(FClients[I].ClientPath) then
+                FClients[I].ClientPath := '';
+            end;
             if CheckValid(FClients[I]) then
               FAnyClientInstalled := True;
           end;
@@ -1020,12 +1052,12 @@ begin
           if (AttachmentFiles.Count > I) and (AttachmentFiles[I] <> '') then
           begin
             AttachmentFileNames[I] := Attachments[I];
-            AttachmentPathNames[I] := AnsiString(SysUtils.ExpandFileName(AttachmentFiles[I]));
+            AttachmentPathNames[I] := AnsiString({$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.ExpandFileName(AttachmentFiles[I]));
           end
           else
           begin
             AttachmentFileNames[I] := ExtractFileName(AnsiString(Attachments[I]));
-            AttachmentPathNames[I] := AnsiString(SysUtils.ExpandFileName(string(Attachments[I])));
+            AttachmentPathNames[I] := AnsiString({$IFDEF HAS_UNITSCOPE}System.{$ENDIF}SysUtils.ExpandFileName(string(Attachments[I])));
           end;
           AttachArray[I].lpszFileName := PAnsiChar(AttachmentFileNames[I]);
           AttachArray[I].lpszPathName := PAnsiChar(AttachmentPathNames[I]);
@@ -1092,7 +1124,7 @@ begin
       Flags := LogonOptionsToFlags(ShowDialog);
       if Save then
       begin
-        StrPLCopy(MsgID, SeedMessageID, Length(MsgID) - 1);
+        StrPLCopyA(MsgID, SeedMessageID, Length(MsgID) - 1);
         Res := MapiSaveMail(FSessionHandle, ParentWND, MapiMessage, Flags, MAPI_LONG_MSGID, @MsgID[0]);
         if Res = SUCCESS_SUCCESS then
           SeedMessageID := MsgID;

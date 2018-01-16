@@ -35,9 +35,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-11 13:14:06 +0100 (jeu., 11 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3188                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 {$ELSE ~JCL}
@@ -166,18 +166,24 @@
 
 unit Hardlinks;
 
+{$IFDEF JCL}
+{$I jcl.inc}
+{$I windowsonly.inc}
+
+// ALL enabled by default for Project JEDI
+{$DEFINE STDCALL}   // Make functions STDCALL always
+{$DEFINE RTDL}      // Use runtime dynamic linking
+{$DEFINE PREFERAPI} // Prefer the "real" Windows API on systems on which it exists
+                    // If this is defined STDCALL is automatically needed and defined!
+{$ENDIF JCL}
+
 {$ALIGN ON}
 {$MINENUMSIZE 4}
 
 interface
-{$IFDEF JCL        // ALL enabled by default for Project JEDI }
 
-{$I jcl.inc}
-
-{$DEFINE STDCALL   // Make functions STDCALL always }
-{$DEFINE RTDL      // Use runtime dynamic linking }
-{$DEFINE PREFERAPI // Prefer the "real" Windows API on systems on which it exists
-                   // If this is defined STDCALL is automatically needed and defined! }
+{$IFDEF JCL}
+//DOM-IGNORE-BEGIN
 {$ENDIF JCL}
 
 (*
@@ -196,7 +202,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows;
+  {$ELSE ~HAS_UNITSCOPE}
   Windows;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 {$IFDEF PREFERAPI}
   {$DEFINE STDCALL // For the windows API we _require_ STDCALL calling convention }
@@ -228,12 +238,16 @@ var
   bRtdlFunctionsLoaded: Boolean = False; // To show wether the RTDL functions had been loaded
 {$ENDIF RTDL}
 
+{$IFDEF JCL}
+//DOM-IGNORE-END
+{$ENDIF JCL}
+
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/prototypes/Hardlinks.pas $';
-    Revision: '$Revision: 3188 $';
-    Date: '$Date: 2010-02-11 13:14:06 +0100 (jeu., 11 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil

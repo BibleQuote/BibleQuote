@@ -29,9 +29,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-07-01 16:56:19 +0200 (jeu., 01 juil. 2010)                         $ }
-{ Revision:      $Rev:: 3260                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -44,6 +44,7 @@
 unit JclLANMan;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 interface
 
@@ -51,7 +52,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.SysUtils, System.Classes;
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, SysUtils, Classes;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 // User Management
 type
@@ -93,9 +98,9 @@ function IsLocalAccount(const AccountName: string): Boolean;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclLANMan.pas $';
-    Revision: '$Revision: 3260 $';
-    Date: '$Date: 2010-07-01 16:56:19 +0200 (jeu., 01 juil. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -379,7 +384,7 @@ end;
 
 function LookupGroupName(const Server: string; const RID: TNetWellKnownRID): string;
 var
-  sia: Windows.SID_IDENTIFIER_AUTHORITY;
+  sia: {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.SID_IDENTIFIER_AUTHORITY;
   rd1, rd2: DWORD;
   ridCount: Integer;
   sd: PSID;

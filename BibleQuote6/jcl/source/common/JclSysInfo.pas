@@ -50,9 +50,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-03-22 19:46:17 +0100 (lun., 22 mars 2010)                          $ }
-{ Revision:      $Rev:: 3213                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -73,11 +73,17 @@ uses
   {$IFDEF HAS_UNIT_LIBC}
   Libc,
   {$ENDIF HAS_UNIT_LIBC}
+  {$IFDEF HAS_UNITSCOPE}
   {$IFDEF MSWINDOWS}
-  Windows, ActiveX,
-  ShlObj,
+  Winapi.Windows, WinApi.ActiveX, Winapi.ShlObj,
+  {$ENDIF MSWINDOWS}
+  System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
+  {$IFDEF MSWINDOWS}
+  Windows, ActiveX, ShlObj,
   {$ENDIF MSWINDOWS}
   Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclResources;
 
 // Environment Variables
@@ -89,6 +95,7 @@ type
 
 function DelEnvironmentVar(const Name: string): Boolean;
 function ExpandEnvironmentVar(var Value: string): Boolean;
+function ExpandEnvironmentVarCustom(var Value: string; Vars: TStrings): Boolean;
 function GetEnvironmentVar(const Name: string; out Value: string): Boolean; overload;
 function GetEnvironmentVar(const Name: string; out Value: string; Expand: Boolean): Boolean; overload;
 function GetEnvironmentVars(const Vars: TStrings): Boolean; overload;
@@ -171,7 +178,7 @@ type
     fsSupportsEncryption,       // The file system supports the Encrypted File System (EFS).
     fsSupportsNamedStreams,     // The file system supports named streams.
     fsVolumeIsReadOnly          // The specified volume is read-only.
-                                //   Windows 2000/NT and Windows Me/98/95:  This value is not supported.
+                                // Windows 2000/NT and Windows Me/98/95:  This value is not supported.
    );
 
   TFileSystemFlags = set of TFileSystemFlag;
@@ -190,6 +197,7 @@ function GetLocalComputerName: string;
 function GetLocalUserName: string;
 {$IFDEF MSWINDOWS}
 function GetUserDomainName(const CurUser: string): string;
+function GetWorkGroupName: WideString;
 {$ENDIF MSWINDOWS}
 function GetDomainName: string;
 {$IFDEF MSWINDOWS}
@@ -214,6 +222,10 @@ function GetTasksList(const List: TStrings): Boolean;
 function ModuleFromAddr(const Addr: Pointer): HMODULE;
 function IsSystemModule(const Module: HMODULE): Boolean;
 
+procedure BeginModuleFromAddrCache;
+procedure EndModuleFromAddrCache;
+function CachedModuleFromAddr(const Addr: Pointer): HMODULE;
+
 function IsMainAppWindow(Wnd: THandle): Boolean;
 function IsWindowResponding(Wnd: THandle; Timeout: Integer): Boolean;
 
@@ -225,7 +237,7 @@ function TerminateApp(ProcessID: DWORD; Timeout: Integer): TJclTerminateAppResul
 
 {$IFDEF MSWINDOWS}
 {.$IFNDEF FPC}
-function GetPidFromProcessName(const ProcessName: string): DWORD;
+function GetPidFromProcessName(const ProcessName: string): THandle;
 function GetProcessNameFromWnd(Wnd: THandle): string;
 function GetProcessNameFromPid(PID: DWORD): string;
 function GetMainAppWndFromPid(PID: DWORD): THandle;
@@ -243,14 +255,18 @@ type
    (wvUnknown, wvWin95, wvWin95OSR2, wvWin98, wvWin98SE, wvWinME,
     wvWinNT31, wvWinNT35, wvWinNT351, wvWinNT4, wvWin2000, wvWinXP,
     wvWin2003, wvWinXP64, wvWin2003R2, wvWinVista, wvWinServer2008,
-    wvWin7, wvWinServer2008R2);
+    wvWin7, wvWinServer2008R2, wvWin8, wvWin8RT, wvWinServer2012,
+    wvWin81, wvWin81RT, wvWinServer2012R2, wvWin10, wvWinServer2016);
   TWindowsEdition =
    (weUnknown, weWinXPHome, weWinXPPro, weWinXPHomeN, weWinXPProN, weWinXPHomeK,
     weWinXPProK, weWinXPHomeKN, weWinXPProKN, weWinXPStarter, weWinXPMediaCenter,
     weWinXPTablet, weWinVistaStarter, weWinVistaHomeBasic, weWinVistaHomeBasicN,
     weWinVistaHomePremium, weWinVistaBusiness, weWinVistaBusinessN,
     weWinVistaEnterprise, weWinVistaUltimate, weWin7Starter, weWin7HomeBasic,
-    weWin7HomePremium, weWin7Professional, weWin7Enterprise, weWin7Ultimate);
+    weWin7HomePremium, weWin7Professional, weWin7Enterprise, weWin7Ultimate,
+    weWin8, weWin8Pro, weWin8Enterprise, weWin8RT, weWin81, weWin81Pro,
+    weWin81Enterprise, weWin81RT, weWin10, weWin10Home, weWin10Pro,
+    weWin10Enterprise, weWin10Education);
   TNtProductType =
    (ptUnknown, ptWorkStation, ptServer, ptAdvancedServer,
     ptPersonal, ptProfessional, ptDatacenterServer, ptEnterprise, ptWebEdition);
@@ -282,6 +298,14 @@ var
   IsWinServer2008: Boolean = False;
   IsWin7: Boolean = False;
   IsWinServer2008R2: Boolean = False;
+  IsWin8: Boolean = False;
+  IsWin8RT: Boolean = False;
+  IsWinServer2012: Boolean = False;
+  IsWin81: Boolean = False;
+  IsWin81RT: Boolean = False;
+  IsWinServer2012R2: Boolean = False;
+  IsWin10: Boolean = False;
+  IsWinServer2016: Boolean = False;
 
 const
   PROCESSOR_ARCHITECTURE_INTEL = 0;
@@ -300,12 +324,21 @@ function GetWindowsVersionString: string;
 function GetWindowsEditionString: string;
 function GetWindowsProductString: string;
 function NtProductTypeString: string;
+function GetWindowsBuildNumber: Integer;
+function GetWindowsMajorVersionNumber: Integer;
+function GetWindowsMinorVersionNumber: Integer;
+function GetWindowsVersionNumber: string;
 function GetWindowsServicePackVersion: Integer;
 function GetWindowsServicePackVersionString: string;
+function GetWindows10ReleaseId: Integer;
+function GetWindows10ReleaseName: String;
+function GetWindows10ReleaseCodeName: String;
+function GetWindows10ReleaseVersion: String;
 function GetOpenGLVersion(const Win: THandle; out Version, Vendor: AnsiString): Boolean;
 function GetNativeSystemInfo(var SystemInfo: TSystemInfo): Boolean;
 function GetProcessorArchitecture: TProcessorArchitecture;
 function IsWindows64: Boolean;
+function JclCheckWinVersion(Major, Minor: Integer): Boolean;
 {$ENDIF MSWINDOWS}
 
 function GetOSVersionString: string;
@@ -315,6 +348,9 @@ function GetOSVersionString: string;
 function GetMacAddresses(const Machine: string; const Addresses: TStrings): Integer;
 {$ENDIF MSWINDOWS}
 function ReadTimeStampCounter: Int64;
+{$IFDEF WIN64}
+{$EXTERNALSYM ReadTimeStampCounter}
+{$ENDIF WIN64}
 
 type
   TTLBInformation = (tiEntries, tiAssociativity);
@@ -329,6 +365,7 @@ type
     ExFeatures: Cardinal;
     Ex64Features: Cardinal;
     Ex64Features2: Cardinal;
+    PowerManagementFeatures: Cardinal;
     PhysicalAddressBits: Byte;
     VirtualAddressBits: Byte;
   end;
@@ -426,11 +463,12 @@ const
   CPU_TYPE_VIA       = 5;
 
 type
-  TSSESupport = (sse, sse2, sse3, ssse3, sse4A, sse4B, sse5, avx);
+  TSSESupport = (sse, sse2, sse3, ssse3, sse41, sse42, sse4A, sse5, avx);
   TSSESupports = set of TSSESupport;
 
   TCpuInfo = record
     HasInstruction: Boolean;
+    AES: Boolean;
     MMX: Boolean;
     ExMMX: Boolean;
     _3DNow: Boolean;
@@ -468,6 +506,7 @@ type
     LogicalCore: Byte;
     PhysicalCore: Byte;
     HyperThreadingTechnology: Boolean;
+    HardwareHyperThreadingTechnology: Boolean;
     // todo: TLB
     case CpuType: Byte of
       CPU_TYPE_INTEL: (IntelSpecific: TIntelSpecific;);
@@ -612,20 +651,20 @@ const
   EINTEL_XTPR      = BIT_14; // Send Task Priority messages
   EINTEL_PDCM      = BIT_15; // Perf/Debug Capability MSR
   EINTEL_BIT_16    = BIT_16; // Reserved, do not count on value
-  EINTEL_BIT_17    = BIT_17; // Reserved, do not count on value
+  EINTEL_PCID      = BIT_17; // Process-context Identifiers
   EINTEL_DCA       = BIT_18; // Direct Cache Access
   EINTEL_SSE4_1    = BIT_19; // Streaming SIMD Extensions 4.1
   EINTEL_SSE4_2    = BIT_20; // Streaming SIMD Extensions 4.2
   EINTEL_X2APIC    = BIT_21; // x2APIC feature
   EINTEL_MOVBE     = BIT_22; // MOVBE instruction
   EINTEL_POPCNT    = BIT_23; // A value of 1 indicates the processor supports the POPCNT instruction.
-  EINTEL_BIT_24    = BIT_24; // Reserved, do not count on value
+  EINTEL_TSC_DL    = BIT_24; // TSC-Deadline
   EINTEL_AES       = BIT_25; // the processor supports the AES instruction extensions
   EINTEL_XSAVE     = BIT_26; // XSAVE/XRSTOR processor extended states feature, XSETBV/XGETBV instructions and XFEATURE_ENABLED_MASK (XCR0) register
   EINTEL_OSXSAVE   = BIT_27; // OS has enabled features present in EINTEL_XSAVE
   EINTEL_AVX       = BIT_28; // Advanced Vector Extensions
   EINTEL_BIT_29    = BIT_29; // Reserved, do not count on value
-  EINTEL_BIT_30    = BIT_30; // Reserved, do not count on value
+  EINTEL_RDRAND    = BIT_30; // the processor supports the RDRAND instruction.
   EINTEL_BIT_31    = BIT_31; // Always return 0
 
   { Extended Intel 64 Bits Feature Flags }
@@ -655,7 +694,7 @@ const
   EINTEL64_BIT_23 = BIT_23; // Reserved, do not count on value
   EINTEL64_BIT_24 = BIT_24; // Reserved, do not count on value
   EINTEL64_BIT_25 = BIT_25; // Reserved, do not count on value
-  EINTEL64_BIT_26 = BIT_26; // Reserved, do not count on value
+  EINTEL64_1GBYTE = BIT_26; // 1G-Byte pages are available
   EINTEL64_RDTSCP = BIT_27; // RDTSCP and IA32_TSC_AUX are available
   EINTEL64_BIT_28 = BIT_28; // Reserved, do not count on value
   EINTEL64_EM64T  = BIT_29; // Intel Extended Memory 64 Technology
@@ -696,6 +735,40 @@ const
   EINTEL64_2_BIT_30 = BIT_30; // Reserved, do not count on value
   EINTEL64_2_BIT_31 = BIT_31; // Reserved, do not count on value
 
+  { INTEL Power Management Flags }
+  PINTEL_TEMPSENSOR = BIT_0;  // Digital temperature sensor
+  PINTEL_TURBOBOOST = BIT_1;  // Intel Turbo Boost Technology Available
+  PINTEL_ARAT       = BIT_2;  // APIC-Timer-always-running feature
+  PINTEL_BIT_3      = BIT_3;  // Reverved, do not count on value
+  PINTEL_PLN        = BIT_4;  // Power Limit Notification constrols
+  PINTEL_ECMD       = BIT_5;  // Clock Modulation duty cycle extension
+  PINTEL_PTM        = BIT_6;  // Package Thermal Management
+  PINTEL_BIT_7      = BIT_7;  // Reserved, do not count on value
+  PINTEL_BIT_8      = BIT_8;  // Reserved, do not count on value
+  PINTEL_BIT_9      = BIT_9;  // Reserved, do not count on value
+  PINTEL_BIT_10     = BIT_10; // Reserved, do not count on value
+  PINTEL_BIT_11     = BIT_11; // Reserved, do not count on value
+  PINTEL_BIT_12     = BIT_12; // Reserved, do not count on value
+  PINTEL_BIT_13     = BIT_13; // Reserved, do not count on value
+  PINTEL_BIT_14     = BIT_14; // Reserved, do not count on value
+  PINTEL_BIT_15     = BIT_15; // Reserved, do not count on value
+  PINTEL_BIT_16     = BIT_16; // Reserved, do not count on value
+  PINTEL_BIT_17     = BIT_17; // Reserved, do not count on value
+  PINTEL_BIT_18     = BIT_18; // Reserved, do not count on value
+  PINTEL_BIT_19     = BIT_19; // Reserved, do not count on value
+  PINTEL_BIT_20     = BIT_20; // Reserved, do not count on value
+  PINTEL_BIT_21     = BIT_21; // Reserved, do not count on value
+  PINTEL_BIT_22     = BIT_22; // Reserved, do not count on value
+  PINTEL_BIT_23     = BIT_23; // Reserved, do not count on value
+  PINTEL_BIT_24     = BIT_24; // Reserved, do not count on value
+  PINTEL_BIT_25     = BIT_25; // Reserved, do not count on value
+  PINTEL_BIT_26     = BIT_26; // Reserved, do not count on value
+  PINTEL_BIT_27     = BIT_27; // Reserved, do not count on value
+  PINTEL_BIT_28     = BIT_28; // Reserved, do not count on value
+  PINTEL_BIT_29     = BIT_29; // Reserved, do not count on value
+  PINTEL_BIT_30     = BIT_30; // Reserved, do not count on value
+  PINTEL_BIT_31     = BIT_31; // Reserved, do not count on value
+
   { AMD Standard Feature Flags }
   AMD_FPU     = BIT_0;  // Floating-Point unit on chip
   AMD_VME     = BIT_1;  // Virtual Mode Extention
@@ -714,7 +787,7 @@ const
   AMD_MCA     = BIT_14; // Machine Check Architecture
   AMD_CMOV    = BIT_15; // Conditional Move Instruction
   AMD_PAT     = BIT_16; // Page Attribute Table
-  AMD_PSE32   = BIT_17; // Page Size Extensions
+  AMD_PSE36   = BIT_17; // Page Size Extensions
   AMD_BIT_18  = BIT_18; // Reserved, do not count on value
   AMD_CLFLSH  = BIT_19; // CLFLUSH instruction
   AMD_BIT_20  = BIT_20; // Reserved, do not count on value
@@ -732,7 +805,7 @@ const
 
   { AMD Standard Feature Flags continued }
   AMD2_SSE3       = BIT_0;  // SSE3 extensions
-  AMD2_BIT_1      = BIT_1;  // Reserved, do not count on value
+  AMD2_PCLMULQDQ  = BIT_1;  // PCLMULQDQ instruction support
   AMD2_BIT_2      = BIT_2;  // Reserved, do not count on value
   AMD2_MONITOR    = BIT_3;  // MONITOR/MWAIT instructions. See "MONITOR" and "MWAIT" in APM3.
   AMD2_BIT_4      = BIT_4;  // Reserved, do not count on value
@@ -743,7 +816,7 @@ const
   AMD2_SSSE3      = BIT_9;  // supplemental SSE3 extensions
   AMD2_BIT_10     = BIT_10; // Reserved, do not count on value
   AMD2_BIT_11     = BIT_11; // Reserved, do not count on value
-  AMD2_BIT_12     = BIT_12; // Reserved, do not count on value
+  AMD2_FMA        = BIT_12; // FMA instruction support
   AMD2_CMPXCHG16B = BIT_13; // CMPXCHG16B available
   AMD2_BIT_14     = BIT_14; // Reserved, do not count on value
   AMD2_BIT_15     = BIT_15; // Reserved, do not count on value
@@ -751,18 +824,18 @@ const
   AMD2_BIT_17     = BIT_17; // Reserved, do not count on value
   AMD2_BIT_18     = BIT_18; // Reserved, do not count on value
   AMD2_SSE41      = BIT_19; // SSE4.1 instruction support
-  AMD2_BIT_20     = BIT_20; // Reserved, do not count on value
+  AMD2_SSE42      = BIT_20; // SSE4.2 instruction support
   AMD2_BIT_21     = BIT_21; // Reserved, do not count on value
   AMD2_BIT_22     = BIT_22; // Reserved, do not count on value
   AMD2_POPCNT     = BIT_23; // POPCNT instruction. See "POPCNT" in APM3.
   AMD2_BIT_24     = BIT_24; // Reserved, do not count on value
-  AMD2_BIT_25     = BIT_25; // Reserved, do not count on value
-  AMD2_BIT_26     = BIT_26; // Reserved, do not count on value
-  AMD2_BIT_27     = BIT_27; // Reserved, do not count on value
-  AMD2_BIT_28     = BIT_28; // Reserved, do not count on value
-  AMD2_BIT_29     = BIT_29; // Reserved, do not count on value
+  AMD2_AES        = BIT_25; // AES instruction support
+  AMD2_XSAVE      = BIT_26; // XSAVE (and related) instructions are supported by hardware
+  AMD2_OSXSAVE    = BIT_27; // XSAVE (and related) instructions are enabled
+  AMD2_AVX        = BIT_28; // AVX instruction support
+  AMD2_F16C       = BIT_29; // half-precision convert instruction support
   AMD2_BIT_30     = BIT_30; // Reserved, do not count on value
-  AMD2_RAZ        = BIT_31; // RAZ
+  AMD2_RAZ        = BIT_31; // Reserved for use by hypervisor to indicate guest status
 
   { AMD Enhanced Feature Flags }
   EAMD_FPU     = BIT_0;  // Floating-Point unit on chip
@@ -810,18 +883,18 @@ const
   EAMD2_3DNOWPREFETCH = BIT_8;  // PREFETCH and PREFETCHW instruction support.
   EAMD2_OSVW          = BIT_9;  // OS visible workaround.
   EAMD2_IBS           = BIT_10; // Instruction based sampling
-  EAMD2_SSE5          = BIT_11; // Streaming SIMD Extensions 5
+  EAMD2_XOP           = BIT_11; // extended operation support
   EAMD2_SKINIT        = BIT_12; // SKINIT, STGI, and DEV support.
   EAMD2_WDT           = BIT_13; // Watchdog timer support.
   EAMD2_BIT_14        = BIT_14; // Reserved, do not count on value
-  EAMD2_BIT_15        = BIT_15; // Reserved, do not count on value
-  EAMD2_BIT_16        = BIT_16; // Reserved, do not count on value
+  EAMD2_LWP           = BIT_15; // lightweight profiling support
+  EAMD2_FMA4          = BIT_16; // 4-operand FMA instruction support.
   EAMD2_BIT_17        = BIT_17; // Reserved, do not count on value
   EAMD2_BIT_18        = BIT_18; // Reserved, do not count on value
-  EAMD2_BIT_19        = BIT_19; // Reserved, do not count on value
+  EAMD2_NODEID        = BIT_19; // Support for MSRC001_100C[NodeId, NodesPerProcessor]
   EAMD2_BIT_20        = BIT_20; // Reserved, do not count on value
-  EAMD2_BIT_21        = BIT_21; // Reserved, do not count on value
-  EAMD2_BIT_22        = BIT_22; // Reserved, do not count on value
+  EAMD2_TBM           = BIT_21; // trailing bit manipulation instruction support
+  EAMD2_TOPOLOGYEXT   = BIT_22; // topology extensions support
   EAMD2_BIT_23        = BIT_23; // Reserved, do not count on value
   EAMD2_BIT_24        = BIT_24; // Reserved, do not count on value
   EAMD2_BIT_25        = BIT_25; // Reserved, do not count on value
@@ -838,12 +911,12 @@ const
   PAMD_VOLTAGEID        = BIT_2;  // Voltage ID Control
   PAMD_THERMALTRIP      = BIT_3;  // Thermal Trip
   PAMD_THERMALMONITOR   = BIT_4;  // Thermal Monitoring
-  PAMD_SOFTTHERMCONTROL = BIT_5;  // Software Thermal Control
+  PAMD_BIT_5            = BIT_5;  // Reserved, do not count on value
   PAMD_100MHZSTEP       = BIT_6;  // 100 Mhz multiplier control.
   PAMD_HWPSTATE         = BIT_7;  // Hardware P-State control.
   PAMD_TSC_INVARIANT    = BIT_8;  // TSC rate is invariant
-  PAMD_BIT_9            = BIT_9;  // Reserved, do not count on value
-  PAMD_BIT_10           = BIT_10; // Reserved, do not count on value
+  PAMD_CPB              = BIT_9;  // core performance boost
+  PAMD_EFFFREQRO        = BIT_10; // read-only effective frequency interface
   PAMD_BIT_11           = BIT_11; // Reserved, do not count on value
   PAMD_BIT_12           = BIT_12; // Reserved, do not count on value
   PAMD_BIT_13           = BIT_13; // Reserved, do not count on value
@@ -879,7 +952,14 @@ const
   AMD_L2_ASSOC_4WAY     = 4;
   AMD_L2_ASSOC_8WAY     = 6;
   AMD_L2_ASSOC_16WAY    = 8;
+  AMD_L2_ASSOC_32WAY    = 10;
+  AMD_L2_ASSOC_48WAY    = 11;
+  AMD_L2_ASSOC_64WAY    = 12;
+  AMD_L2_ASSOC_96WAY    = 13;
+  AMD_L2_ASSOC_128WAY   = 14;
   AMD_L2_ASSOC_FULLY    = 15;
+
+  // TODO AMD SVM and LWP bits
 
   { VIA Standard Feature Flags }
   VIA_FPU           = BIT_0;  // FPU present
@@ -1139,7 +1219,7 @@ const
   MXCSR_FZ  = BIT_15;                 // Flush to Zero
 
 const
-  IntelCacheDescription: array [0..101] of TCacheInfo = (
+  IntelCacheDescription: array [0..102] of TCacheInfo = (
     (D: $00; Family: cfOther;              Size: 0;     WaysOfAssoc: 0;  LineSize: 0;  LinePerSector: 0; Entries: 0;   I: @RsIntelCacheDescr00),
     (D: $01; Family: cfInstructionTLB;     Size: 4;     WaysOfAssoc: 4;  LineSize: 0;  LinePerSector: 0; Entries: 32;  I: @RsIntelCacheDescr01),
     (D: $02; Family: cfInstructionTLB;     Size: 4096;  WaysOfAssoc: 4;  LineSize: 0;  LinePerSector: 0; Entries: 2;   I: @RsIntelCacheDescr02),
@@ -1202,6 +1282,7 @@ const
     (D: $71; Family: cfTrace;              Size: 16;    WaysOfAssoc: 8;  LineSize: 0;  LinePerSector: 0; Entries: 0;   I: @RsIntelCacheDescr71),
     (D: $72; Family: cfTrace;              Size: 32;    WaysOfAssoc: 8;  LineSize: 0;  LinePerSector: 0; Entries: 0;   I: @RsIntelCacheDescr72),
     (D: $73; Family: cfTrace;              Size: 64;    WaysOfAssoc: 8;  LineSize: 0;  LinePerSector: 0; Entries: 0;   I: @RsIntelCacheDescr73),
+    (D: $76; Family: cfInstructionTLB;     Size: 2048;  WaysOfAssoc: 0;  LineSize: 0;  LinePerSector: 0; Entries: 8;   I: @RsIntelCacheDescr76),
     (D: $78; Family: cfL2Cache;            Size: 1024;  WaysOfAssoc: 4;  LineSize: 64; LinePerSector: 0; Entries: 0;   I: @RsIntelCacheDescr78),
     (D: $79; Family: cfL2Cache;            Size: 128;   WaysOfAssoc: 8;  LineSize: 64; LinePerSector: 2; Entries: 0;   I: @RsIntelCacheDescr79),
     (D: $7A; Family: cfL2Cache;            Size: 256;   WaysOfAssoc: 8;  LineSize: 64; LinePerSector: 2; Entries: 0;   I: @RsIntelCacheDescr7A),
@@ -1314,6 +1395,7 @@ function IsOutlookInstalled: Boolean;
 function IsInternetExplorerInstalled: Boolean;
 function IsMSProjectInstalled: Boolean;
 function IsOpenOfficeInstalled: Boolean;
+function IsLibreOfficeInstalled: Boolean;
 
 {$ENDIF MSWINDOWS}
 
@@ -1326,9 +1408,9 @@ var
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclSysInfo.pas $';
-    Revision: '$Revision: 3213 $';
-    Date: '$Date: 2010-03-22 19:46:17 +0100 (lun., 22 mars 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -1338,6 +1420,19 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils, System.Math,
+  {$IFDEF MSWINDOWS}
+  Winapi.Messages, Winapi.Winsock, Snmp,
+  {$IFDEF FPC}
+  JwaTlHelp32, JwaPsApi,
+  {$ELSE ~FPC}
+  Winapi.TLHelp32, Winapi.PsApi,
+  JclShell,
+  {$ENDIF ~FPC}
+  JclRegistry, JclWin32,
+  {$ENDIF MSWINDOWS}
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils,
   Math,
   {$IFDEF MSWINDOWS}
@@ -1350,8 +1445,9 @@ uses
   {$ENDIF ~FPC}
   JclRegistry, JclWin32,
   {$ENDIF MSWINDOWS}
+  {$ENDIF ~HAS_UNITSCOPE}
   Jcl8087, JclIniFiles,
-  JclSysUtils, JclFileUtils, JclStrings;
+  JclSysUtils, JclFileUtils, JclAnsiStrings, JclStrings;
 
 {$IFDEF FPC}
 {$IFDEF MSWINDOWS}
@@ -1425,6 +1521,102 @@ begin
 end;
 {$ENDIF MSWINDOWS}
 
+function ExpandEnvironmentVarCustom(var Value: string; Vars: TStrings): Boolean;
+
+  function FindClosingBrace(const R: string; var Position: Integer): Boolean;
+  var
+    Index, Len, BraceCount: Integer;
+    Quotes: string;
+  begin
+    Len := Length(R);
+    BraceCount := 0;
+    Quotes := '';
+    while (Position <= Len) do
+    begin
+      // handle quotes first
+      if (R[Position] = NativeSingleQuote) then
+      begin
+        Index := JclStrings.CharPos(Quotes, NativeSingleQuote);
+        if Index >= 0 then
+          SetLength(Quotes, Index - 1)
+        else
+          Quotes := Quotes + NativeSingleQuote;
+      end;
+
+      if (R[Position] = NativeDoubleQuote) then
+      begin
+        Index := JclStrings.CharPos(Quotes, NativeDoubleQuote);
+        if Index >= 0 then
+          SetLength(Quotes, Index - 1)
+        else
+          Quotes := Quotes + NativeDoubleQuote;
+      end;
+
+      if (R[Position] = '`') then
+      begin
+        Index := JclStrings.CharPos(Quotes, '`');
+        if Index >= 0 then
+          SetLength(Quotes, Index - 1)
+        else
+          Quotes := Quotes + '`';
+      end;
+
+      if Quotes = '' then
+      begin
+        if R[Position] = ')' then
+        begin
+          Dec(BraceCount);
+          if BraceCount = 0 then
+            Break;
+        end
+        else
+        if R[Position] = '(' then
+          Inc(BraceCount);
+      end;
+      Inc(Position);
+    end;
+    Result := Position <= Len;
+
+//    Delphi XE's CodeGear.Delphi.Targets has a bug where the closing paran is missing
+//    "'$(DelphiWin32DebugDCUPath'!=''". But it is still a valid string and not worth
+//    an exception.
+//
+//    if Position > Len then
+//      raise EJclMsBuildError.CreateResFmt(@RsEEndOfString, [S]);
+  end;
+
+var
+  Start, Position: Integer;
+  PropertyName, PropertyValue: string;
+begin
+  Result := True;
+  repeat
+    // start with the last match in order to convert $(some$(other))
+    // evaluate properties
+    Start := StrLastPos('$(', Value);
+    if Start > 0 then
+    begin
+      Position := Start;
+      if not FindClosingBrace(Value, Position) then
+        Break;
+      PropertyName := Copy(Value, Start + 2, Position - Start - 2);
+
+      PropertyValue := Vars.Values[PropertyName];
+
+      if PropertyValue <> '' then
+        StrReplace(Value,
+                   Copy(Value, Start, Position - Start + 1), // $(PropertyName)
+                   PropertyValue,
+                   [rfReplaceAll, rfIgnoreCase])
+      else
+      begin
+        Result := False;
+        Start := 0;
+      end;
+    end;
+  until Start = 0;
+end;
+
 {$IFDEF UNIX}
 
 function GetEnvironmentVar(const Name: string; var Value: string): Boolean;
@@ -1451,9 +1643,9 @@ function GetEnvironmentVar(const Name: string; out Value: string; Expand: Boolea
 var
   R: DWORD;
 begin
-  R := Windows.GetEnvironmentVariable(PChar(Name), nil, 0);
+  R := {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.GetEnvironmentVariable(PChar(Name), nil, 0);
   SetLength(Value, R);
-  R := Windows.GetEnvironmentVariable(PChar(Name), PChar(Value), R);
+  R := {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.GetEnvironmentVariable(PChar(Name), PChar(Value), R);
   Result := R <> 0;
   if not Result then
     Value := ''
@@ -1921,8 +2113,8 @@ begin
   try
     Flags := 0;
     MaximumComponentLength := 0;
-    if GetVolumeInformation(PChar(DriveStr), Name, SizeOf(Name), @VolumeSerialNumber,
-      MaximumComponentLength, Flags, FileSystem, SizeOf(FileSystem)) then
+    if GetVolumeInformation(PChar(DriveStr), Name, Length(Name), @VolumeSerialNumber,
+      MaximumComponentLength, Flags, FileSystem, Length(FileSystem)) then
     case InfoKind of
       vikName:
         Result := StrPas(Name);
@@ -2195,15 +2387,31 @@ end;
 
 {$IFDEF MSWINDOWS}
 function GetRegisteredCompany: string;
+var
+  LastAccessMode: TJclRegWOW64Access;
 begin
   { TODO : check for MSDN documentation }
-  Result := RegReadStringDef(HKEY_LOCAL_MACHINE, REG_CURRENT_VERSION, 'RegisteredOrganization', '');
+  LastAccessMode := RegGetWOW64AccessMode;
+  try
+    RegSetWOW64AccessMode(raNative);
+    Result := RegReadStringDef(HKEY_LOCAL_MACHINE, REG_CURRENT_VERSION, 'RegisteredOrganization', '');
+  finally
+    RegSetWOW64AccessMode(LastAccessMode);
+  end;
 end;
 
 function GetRegisteredOwner: string;
+var
+  LastAccessMode: TJclRegWOW64Access;
 begin
   { TODO : check for MSDN documentation }
-  Result := RegReadStringDef(HKEY_LOCAL_MACHINE, REG_CURRENT_VERSION, 'RegisteredOwner', '');
+  LastAccessMode := RegGetWOW64AccessMode;
+  try
+    RegSetWOW64AccessMode(raNative);
+    Result := RegReadStringDef(HKEY_LOCAL_MACHINE, REG_CURRENT_VERSION, 'RegisteredOwner', '');
+  finally
+    RegSetWOW64AccessMode(LastAccessMode);
+  end;
 end;
 
 { TODO: Check supported platforms, maybe complete rewrite }
@@ -2233,6 +2441,18 @@ begin
   end;
 end;
 
+function GetWorkGroupName: WideString;
+var
+  WkstaInfo: PByte;
+  WkstaInfo100: PWKSTA_INFO_100;
+begin
+  if NetWkstaGetInfo(nil, 100, WkstaInfo) <> NERR_Success then
+    raise EJclWin32Error.CreateRes(@RsENetWkstaGetInfo);
+  WkstaInfo100 := PWKSTA_INFO_100(WkstaInfo);
+  Result := WideString(PWideChar(WkstaInfo100^.wki100_langroup));
+  NetApiBufferFree(Pointer(WkstaInfo));
+end;
+
 {$ENDIF MSWINDOWS}
 function GetDomainName: string;
 {$IFDEF UNIX}
@@ -2260,8 +2480,8 @@ var
   snu: SID_NAME_USE;
 begin
   InfoBufferSize := 1000;
-  AccountSize := SizeOf(AccountName);
-  DomainSize := SizeOf(DomainName);
+  AccountSize := Length(AccountName);
+  DomainSize := Length(DomainName);
 
   hProcess := GetCurrentProcess;
   if OpenProcessToken(hProcess, TOKEN_READ, hAccessToken) then
@@ -2499,11 +2719,13 @@ function RunningProcessesList(const List: TStrings; FullPath: Boolean): Boolean;
     ProcEntry: TProcessEntry32;
     NextProc: Boolean;
     FileName: string;
+    Win2kOrNewer: Boolean;
   begin
     SnapProcHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     Result := (SnapProcHandle <> INVALID_HANDLE_VALUE);
     if Result then
     try
+      Win2kOrNewer := JclCheckWinVersion(5, 0); // Win2k or newer
       ProcEntry.dwSize := SizeOf(ProcEntry);
       NextProc := Process32First(SnapProcHandle, ProcEntry);
       while NextProc do
@@ -2516,8 +2738,7 @@ function RunningProcessesList(const List: TStrings; FullPath: Boolean): Boolean;
         end
         else
         begin
-          if IsWin2k or IsWinXP or IsWin2003 or IsWin2003R2 or IsWinXP64 or
-            IsWinVista or IsWinServer2008 or IsWin7 or IsWinServer2008R2 then
+          if Win2kOrNewer then
           begin
             FileName := ProcessFileName(ProcEntry.th32ProcessID);
             if FileName = '' then
@@ -2611,7 +2832,7 @@ function LoadedModulesList(const List: TStrings; ProcessID: DWORD; HandlesOnly: 
       if HandlesOnly then
         List.AddObject('', Pointer(ModuleInfo.lpBaseOfDll))
       else
-      if GetModuleFileNameEx(ProcessHandle, Module, Filename, SizeOf(Filename)) > 0 then
+      if GetModuleFileNameEx(ProcessHandle, Module, Filename, Length(Filename)) > 0 then
         List.AddObject(FileName, Pointer(ModuleInfo.lpBaseOfDll));
     end;
   end;
@@ -2717,7 +2938,7 @@ function EnumTaskWindowsProc(Wnd: THandle; List: TStrings): Boolean; stdcall;
 var
   Caption: array [0..1024] of Char;
 begin
-  if IsMainAppWindow(Wnd) and (GetWindowText(Wnd, Caption, SizeOf(Caption)) > 0) then
+  if IsMainAppWindow(Wnd) and (GetWindowText(Wnd, Caption, Length(Caption)) > 0) then
     List.AddObject(Caption, Pointer(Wnd));
   Result := True;
 end;
@@ -2736,12 +2957,10 @@ function ModuleFromAddr(const Addr: Pointer): HMODULE;
 var
   MI: TMemoryBasicInformation;
 begin
-  MI.AllocationBase := nil;
-  VirtualQuery(Addr, MI, SizeOf(MI));
-  if MI.State <> MEM_COMMIT then
-    Result := 0
+  if (VirtualQuery(Addr, MI, SizeOf(MI)) = SizeOf(MI)) and (MI.State = MEM_COMMIT) then
+    Result := HMODULE(MI.AllocationBase)
   else
-    Result := HMODULE(MI.AllocationBase);
+    Result := 0;
 end;
 
 function IsSystemModule(const Module: HMODULE): Boolean;
@@ -2764,6 +2983,162 @@ begin
   end;
 end;
 
+
+// Cache for the slow VirtualQuery calls
+//
+// BeginModuleFromAddrCache;
+// try
+//   Module := CachedModuleFromAddr(Address);
+//   ...
+// finally
+//   EndModuleFromAddrCache;
+// end;
+type
+  PModuleAddrSize = ^TModuleAddrSize;
+  TModuleAddrSize = record
+    BaseAddress: TJclAddr;
+    Size: SizeInt;
+    Module: HMODULE;
+  end;
+
+  TModuleAddrSizeList = class(TList)
+  public
+    Counter: Integer;
+    LastAccessIndex: Integer;
+  end;
+
+// The main module (EXE) and the module that contains the JclSysInfo unit can be
+// cached once for all Begin/EndModuleFromAddrCache blocks.
+var
+  MainModuleAddrSize, InstanceModuleAddrSize: TModuleAddrSize;
+
+threadvar
+  ModuleAddrSize: TModuleAddrSizeList;
+
+procedure BeginModuleFromAddrCache;
+const
+  ModuleCodeOffset = $1000;
+var
+  List: TModuleAddrSizeList;
+  MainModule: HMODULE;
+  P: PModuleAddrSize;
+begin
+  List := ModuleAddrSize;
+  if List = nil then
+  begin
+    List := TModuleAddrSizeList.Create;
+    List.Counter := 1;
+    List.LastAccessIndex := -1;
+    ModuleAddrSize := List;
+
+    // Query the module addresses for the main module and JclSysInfo's module and
+    // add them to the list.
+    MainModule := 0;
+    if MainModuleAddrSize.Module = 0 then
+    begin
+      MainModule := GetModuleHandle(nil);
+      CachedModuleFromAddr(Pointer(MainModule + ModuleCodeOffset));
+      if List.Count = 1 then
+      begin
+        // If JclSysInfo is in the main module then we can skip this
+        if MainModule <> HInstance then
+        begin
+          CachedModuleFromAddr(Pointer(HInstance + ModuleCodeOffset));
+          if List.Count = 2 then
+            InstanceModuleAddrSize := PModuleAddrSize(List[1])^;
+        end;
+        MainModuleAddrSize := PModuleAddrSize(List[0])^;
+        List.LastAccessIndex := -1;
+      end;
+    end;
+
+    if (MainModule = 0) and (MainModuleAddrSize.Module <> 0) then
+    begin
+      New(P);
+      P^ := MainModuleAddrSize;
+      List.Add(P);
+      if InstanceModuleAddrSize.Module <> 0 then
+      begin
+        New(P);
+        P^ := InstanceModuleAddrSize;
+        List.Add(P);
+      end;
+    end;
+  end
+  else
+    Inc(List.Counter);
+end;
+
+procedure EndModuleFromAddrCache;
+var
+  List: TModuleAddrSizeList;
+  I: Integer;
+begin
+  List := ModuleAddrSize;
+  if List <> nil then
+  begin
+    Dec(List.Counter);
+    if List.Counter = 0 then
+    begin
+      for I := 0 to List.Count - 1 do
+        Dispose(PModuleAddrSize(List[I]));
+      List.Free;
+      ModuleAddrSize := nil;
+    end;
+  end;
+end;
+
+function CachedModuleFromAddr(const Addr: Pointer): HMODULE;
+var
+  P: PModuleAddrSize;
+  List: TModuleAddrSizeList;
+  I, LastAccessIndex: Integer;
+  MI: TMemoryBasicInformation;
+begin
+  List := ModuleAddrSize;
+  if List = nil then
+  begin
+    Result := ModuleFromAddr(Addr);
+    Exit;
+  end;
+
+  LastAccessIndex := List.LastAccessIndex;
+  if LastAccessIndex <> -1 then
+  begin
+    P := List[LastAccessIndex];
+    if (P.BaseAddress <= TJclAddr(Addr)) and
+       (TJclAddr(Addr) < P.BaseAddress + TJclAddr(P.Size)) then
+    begin
+      Result := P.Module;
+      Exit;
+    end;
+  end;
+
+  for I := 0 to List.Count - 1 do
+  begin
+    P := List[I];
+    if (P.BaseAddress <= TJclAddr(Addr)) and
+       (TJclAddr(Addr) < P.BaseAddress + TJclAddr(P.Size)) then
+    begin
+      List.LastAccessIndex := I;
+      Result := P.Module;
+      Exit;
+    end;
+  end;
+
+  if (VirtualQuery(Addr, MI, SizeOf(MI)) = SizeOf(MI)) and (MI.State = MEM_COMMIT) then
+  begin
+    New(P);
+    P.Module := HMODULE(MI.AllocationBase);
+    P.BaseAddress := TJclAddr(MI.BaseAddress);
+    P.Size := MI.RegionSize;
+    List.LastAccessIndex := List.Add(P);
+    Result := HMODULE(MI.AllocationBase);
+  end
+  else
+    Result := 0;
+end;
+
 // Reference: http://msdn.microsoft.com/library/periodic/period97/win321197.htm
 { TODO : wrong link }
 
@@ -2775,7 +3150,7 @@ begin
   if IsWindowVisible(Wnd) then
   begin
     ParentWnd := THandle(GetWindowLongPtr(Wnd, GWLP_HWNDPARENT));
-    ExStyle := GetWindowLongPtr(Wnd, GWL_EXSTYLE);
+    ExStyle := GetWindowLong(Wnd, GWL_EXSTYLE);
     Result := ((ParentWnd = 0) or (ParentWnd = GetDesktopWindow)) and
       ((ExStyle and WS_EX_TOOLWINDOW = 0) or (ExStyle and WS_EX_APPWINDOW <> 0));
   end
@@ -2788,7 +3163,7 @@ var
   Res: DWORD;
 begin
   Res := 0;
-  Result := SendMessageTimeout(Wnd, WM_NULL, 0, 0, SMTO_ABORTIFHUNG, Timeout, Res) <> 0;
+  Result := SendMessageTimeout(Wnd, WM_NULL, 0, 0, SMTO_ABORTIFHUNG, Timeout, {$IFDEF RTL230_UP}@{$ENDIF}Res) <> 0;
 end;
 
 function GetWindowIcon(Wnd: THandle; LargeIcon: Boolean): HICON;
@@ -2824,6 +3199,8 @@ var
   Size: Integer;
 begin
   Size := GetWindowTextLength(Wnd);
+  if Size = 0 then
+    Size := 1;     // always allocate at least one byte, otherwise PChar(Buffer) returns nil
   SetLength(Buffer, Size);
   // strings always have an additional null character
   Size := GetWindowText(Wnd, PChar(Buffer), Size + 1);
@@ -2878,7 +3255,7 @@ end;
 function GetProcessNameFromWnd(Wnd: THandle): string;
 var
   List: TStringList;
-  PID: DWORD;
+  PID: THandle;
   I: Integer;
 begin
   Result := '';
@@ -2900,7 +3277,7 @@ begin
   end;
 end;
 
-function GetPidFromProcessName(const ProcessName: string): DWORD;
+function GetPidFromProcessName(const ProcessName: string): THandle;
 var
   List: TStringList;
   I: Integer;
@@ -3065,11 +3442,16 @@ var
   TrimmedWin32CSDVersion: string;
   SystemInfo: TSystemInfo;
   OSVersionInfoEx: TOSVersionInfoEx;
+  Win32MajorVersionEx, Win32MinorVersionEx: integer;
+  ProductName: string;
 const
   SM_SERVERR2 = 89;
 begin
+  Win32MajorVersionEx := -1;
+  Win32MinorVersionEx := -1;
   Result := wvUnknown;
   TrimmedWin32CSDVersion := Trim(Win32CSDVersion);
+
   case Win32Platform of
     VER_PLATFORM_WIN32_WINDOWS:
       case Win32MinorVersion of
@@ -3127,9 +3509,38 @@ begin
               end;
           end;
         6:
-          case Win32MinorVersion of
+        begin
+          // Starting with Windows 8.1, the GetVersion(Ex) API is deprecated and will detect the
+          // application as Windows 8 (kernel version 6.2) until an application manifest is included
+          // See https://msdn.microsoft.com/en-us/library/windows/desktop/dn302074.aspx
+
+          if Win32MinorVersion = 2 then
+          begin
+            ProductName := RegReadStringDef(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'ProductName', '');
+            if (Pos(RsOSVersionWin81, ProductName) = 1) or (Pos(RsOSVersionWinServer2012R2, ProductName) = 1) then
+              Win32MinorVersionEx := 3 // Windows 8.1 and Windows Server 2012R2
+            else
+            if (Pos(RsOSVersionWin8, ProductName) = 1) or (Pos(RsOSVersionWinServer2012, ProductName) = 1) then
+              Win32MinorVersionEx := 2 // Windows 8 and Windows Server 2012
+            else
+            begin
+              Win32MajorVersionEx := GetWindowsMajorVersionNumber;
+              if Win32MajorVersionEx = 6 then
+                 Win32MinorVersionEx := 4 // Windows 10 (builds < 9926) and Windows Server 2016 (builds < 10074)
+              else
+              if Win32MajorVersionEx = 10 then
+                 Win32MinorVersionEx := -1 // Windows 10 (builds >= 9926) and Windows Server 2016 (builds >= 10074), set to -1 to escape case block
+              else
+                 Win32MinorVersionEx := Win32MinorVersion;
+            end;
+          end
+          else
+            Win32MinorVersionEx := Win32MinorVersion;
+
+          case Win32MinorVersionEx of
             0:
               begin
+                // Windows Vista and Windows Server 2008
                 OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
                 if GetVersionEx(OSVersionInfoEx) and (OSVersionInfoEx.wProductType = VER_NT_WORKSTATION) then
                   Result := wvWinVista
@@ -3138,14 +3549,72 @@ begin
               end;
             1:
               begin
+                // Windows 7 and Windows Server 2008 R2
                 OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
                 if GetVersionEx(OSVersionInfoEx) and (OSVersionInfoEx.wProductType = VER_NT_WORKSTATION) then
                   Result := wvWin7
                 else
                   Result := wvWinServer2008R2;
               end;
+            2:
+              begin
+                // Windows 8 and Windows Server 2012
+                OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
+                if GetVersionEx(OSVersionInfoEx) and (OSVersionInfoEx.wProductType = VER_NT_WORKSTATION) then
+                  Result := wvWin8
+                else
+                  Result := wvWinServer2012;
+              end;
+            3:
+              begin
+                // Windows 8.1 and Windows Server 2012 R2
+                OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
+                if GetVersionEx(OSVersionInfoEx) and (OSVersionInfoEx.wProductType = VER_NT_WORKSTATION) then
+                  Result := wvWin81
+                else
+                  Result := wvWinServer2012R2;
+              end;
+            4:
+              begin
+                // Windows 10 (builds < 9926) and Windows Server 2016 (builds < 10074)
+                OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
+                if GetVersionEx(OSVersionInfoEx) and (OSVersionInfoEx.wProductType = VER_NT_WORKSTATION) then
+                  Result := wvWin10
+                else
+                  Result := wvWinServer2016;
+              end;
           end;
+        end;
+        10:
+        begin
+          // Windows 10 if manifest is present
+          Win32MajorVersionEx := Win32MajorVersion;
+          Win32MinorVersionEx := Win32MinorVersion;
+        end;
       end;
+  end;
+
+  // This part will only be hit with Windows 10 and Windows Server 2016 (and newer) where an application manifest is not included
+  if (Win32MajorVersionEx >= 10) then
+  begin
+    case Win32MajorVersionEx of
+      10:
+      begin
+        if (Win32MinorVersionEx = -1) then
+          Win32MinorVersionEx := GetWindowsMinorVersionNumber;
+        case Win32MinorVersionEx of
+          0:
+            begin
+              // Windows 10 (builds >= 9926) and Windows Server 2016 (builds >= 10074)
+              OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
+              if GetVersionEx(OSVersionInfoEx) and (OSVersionInfoEx.wProductType = VER_NT_WORKSTATION) then
+                Result := wvWin10
+              else
+                Result := wvWinServer2016;
+            end;
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -3157,92 +3626,145 @@ var
 begin
   Result := weUnknown;
   Edition := RegReadStringDef(HKEY_LOCAL_MACHINE, ProductName, 'ProductName', '');
-  if (pos('Windows XP', Edition) = 1) then
+
+  // Remove (tm) in 'Windows (TM) Vista Ultimate'
+  Edition := StringReplace(Edition, '(TM) ', '', [rfReplaceAll, rfIgnoreCase]);
+
+  if Pos('Windows XP', Edition) = 1 then
   begin
    // Windows XP Editions
-   if (pos('Home Edition N', Edition) > 0) then
-      Result :=  weWinXPHomeN
+   if Pos('Home Edition N', Edition) > 0 then
+      Result := weWinXPHomeN
    else
-   if (pos('Professional N', Edition) > 0) then
-      Result :=  weWinXPProN
+   if Pos('Professional N', Edition) > 0 then
+      Result := weWinXPProN
    else
-   if (pos('Home Edition K', Edition) > 0) then
-      Result :=  weWinXPHomeK
+   if Pos('Home Edition K', Edition) > 0 then
+      Result := weWinXPHomeK
    else
-   if (pos('Professional K', Edition) > 0) then
-      Result :=  weWinXPProK
+   if Pos('Professional K', Edition) > 0 then
+      Result := weWinXPProK
    else
-   if (pos('Home Edition KN', Edition) > 0) then
-      Result :=  weWinXPHomeKN
+   if Pos('Home Edition KN', Edition) > 0 then
+      Result := weWinXPHomeKN
    else
-   if (pos('Professional KN', Edition) > 0) then
-      Result :=  weWinXPProKN
+   if Pos('Professional KN', Edition) > 0 then
+      Result := weWinXPProKN
    else
-   if (pos('Home', Edition) > 0) then
-      Result :=  weWinXPHome
+   if Pos('Home', Edition) > 0 then
+      Result := weWinXPHome
    else
-   if (pos('Professional', Edition) > 0) then
-      Result :=  weWinXPPro
+   if Pos('Professional', Edition) > 0 then
+      Result := weWinXPPro
    else
-   if (pos('Starter', Edition) > 0) then
-      Result :=  weWinXPStarter
+   if Pos('Starter', Edition) > 0 then
+      Result := weWinXPStarter
    else
-   if (pos('Media Center', Edition) > 0) then
-      Result :=  weWinXPMediaCenter
+   if Pos('Media Center', Edition) > 0 then
+      Result := weWinXPMediaCenter
    else
-   if (pos('Tablet', Edition) > 0) then
-      Result :=  weWinXPTablet;
+   if Pos('Tablet', Edition) > 0 then
+      Result := weWinXPTablet;
   end
   else
-  if (pos('Windows Vista', Edition) = 1) then
+  if (Pos('Windows Vista', Edition) = 1) then
   begin
    // Windows Vista Editions
-   if (pos('Starter', Edition) > 0) then
+   if Pos('Starter', Edition) > 0 then
       Result := weWinVistaStarter
    else
-   if (pos('Home Basic N', Edition) > 0) then
+   if Pos('Home Basic N', Edition) > 0 then
       Result := weWinVistaHomeBasicN
    else
-   if (pos('Home Basic', Edition) > 0) then
+   if Pos('Home Basic', Edition) > 0 then
       Result := weWinVistaHomeBasic
    else
-   if (pos('Home Premium', Edition) > 0) then
+   if Pos('Home Premium', Edition) > 0 then
       Result := weWinVistaHomePremium
    else
-   if (pos('Business N', Edition) > 0) then
+   if Pos('Business N', Edition) > 0 then
       Result := weWinVistaBusinessN
    else
-   if (pos('Business', Edition) > 0) then
+   if Pos('Business', Edition) > 0 then
       Result := weWinVistaBusiness
    else
-   if (pos('Enterprise', Edition) > 0) then
+   if Pos('Enterprise', Edition) > 0 then
       Result := weWinVistaEnterprise
    else
-   if (pos('Ultimate', Edition) > 0) then
+   if Pos('Ultimate', Edition) > 0 then
       Result := weWinVistaUltimate;
   end
   else
-  if (pos('Windows 7', Edition) = 1) then
+  if Pos('Windows 7', Edition) = 1 then
   begin
    // Windows 7 Editions
-   if (pos('Starter', Edition) > 0) then
+   if Pos('Starter', Edition) > 0 then
       Result := weWin7Starter
    else
-   if (pos('Home Basic', Edition) > 0) then
+   if Pos('Home Basic', Edition) > 0 then
       Result := weWin7HomeBasic
    else
-   if (pos('Home Premium', Edition) > 0) then
+   if Pos('Home Premium', Edition) > 0 then
       Result := weWin7HomePremium
    else
-   if (pos('Professional', Edition) > 0) then
+   if Pos('Professional', Edition) > 0 then
       Result := weWin7Professional
    else
-   if (pos('Enterprise', Edition) > 0) then
+   if Pos('Enterprise', Edition) > 0 then
       Result := weWin7Enterprise
    else
-   if (pos('Ultimate', Edition) > 0) then
+   if Pos('Ultimate', Edition) > 0 then
       Result := weWin7Ultimate;
-  end;
+  end
+  else
+  if Pos('Windows 8.1', Edition) = 1 then
+  begin
+   // Windows 8.1 Editions
+   if Pos('Pro', Edition) > 0 then
+      Result := weWin81Pro
+   else
+   if Pos('Enterprise', Edition) > 0 then
+      Result := weWin81Enterprise
+   else
+      Result := weWin81;
+  end
+  else
+  if Pos('Windows 8', Edition) = 1 then
+  begin
+   // Windows 8 Editions
+   if Pos('Pro', Edition) > 0 then
+      Result := weWin8Pro
+   else
+   if Pos('Enterprise', Edition) > 0 then
+      Result := weWin8Enterprise
+   else
+      Result := weWin8;
+  end
+  else
+  if Pos('Windows RT 8.1', Edition) = 1 then
+    Result := weWin81RT
+  else
+  if Pos('Windows RT', Edition) = 1 then
+    Result := weWin8RT
+  else
+  if Pos('Windows 10', Edition) = 1 then
+  begin
+   // Windows 10 Editions
+   if Pos('Home', Edition) > 0 then
+      Result := weWin10Home
+   else
+   if Pos('Pro', Edition) > 0 then
+      Result := weWin10Pro
+   else
+   if Pos('Enterprise', Edition) > 0 then
+      Result := weWin10Enterprise
+   else
+   if Pos('Education', Edition) > 0 then
+      Result := weWin10Education
+   else
+      Result := weWin10;
+  end
+
 end;
 
 function NtProductType: TNtProductType;
@@ -3278,7 +3800,7 @@ begin
   begin
     if GetVersionEx(OSVersionInfo) then
     begin
-      if OSVersionInfo.wProductType  in [VER_NT_SERVER,VER_NT_DOMAIN_CONTROLLER] then
+      if OSVersionInfo.wProductType  in [VER_NT_SERVER, VER_NT_DOMAIN_CONTROLLER] then
       begin
         if (OSVersionInfo.wSuiteMask and VER_SUITE_DATACENTER) <> 0 then
           Result := ptDatacenterServer
@@ -3297,7 +3819,7 @@ begin
   begin
     if GetVersionEx(OSVersionInfo) then
     begin
-      if OSVersionInfo.wProductType in [VER_NT_SERVER,VER_NT_DOMAIN_CONTROLLER] then
+      if OSVersionInfo.wProductType in [VER_NT_SERVER, VER_NT_DOMAIN_CONTROLLER] then
       begin
         if (OSVersionInfo.wSuiteMask and VER_SUITE_DATACENTER) = VER_SUITE_DATACENTER then
           Result := ptDatacenterServer
@@ -3316,31 +3838,30 @@ begin
     end;
   end
   else
-  if IsWinXP or IsWinVista or IsWin7 then // workstation
+  if JclCheckWinVersion(5, 1) then // Windows XP or newer
   begin
     if GetVersionEx(OSVersionInfo) then
     begin
-      if OSVersionInfo.wProductType = VER_NT_WORKSTATION then
+      //if IsWinXP or IsWinVista or IsWin7 or IsWin8 or IsWin81 or IsWin10 then
+      if OSVersionInfo.wProductType = VER_NT_WORKSTATION then // workstation
       begin
         if (OSVersionInfo.wSuiteMask and VER_SUITE_PERSONAL) = VER_SUITE_PERSONAL then
           Result := ptPersonal
         else
           Result := ptProfessional;
+      end
+      else
+      //if IsWinServer2008 or IsWinServer2008R2 or IsWinServer2012 or IsWinServer2012R2 then
+      if OSVersionInfo.wProductType in [VER_NT_SERVER, VER_NT_DOMAIN_CONTROLLER] then // server
+      begin
+        if (OSVersionInfo.wSuiteMask and VER_SUITE_DATACENTER) = VER_SUITE_DATACENTER then
+          Result := ptDatacenterServer
+        else
+        if (OSVersionInfo.wSuiteMask and VER_SUITE_ENTERPRISE) = VER_SUITE_ENTERPRISE then
+          Result := ptEnterprise
+        else
+          Result := ptServer;
       end;
-    end;
-  end
-  else
-  if IsWinServer2008 or IsWinServer2008R2 then // server
-  begin
-    if OSVersionInfo.wProductType in [VER_NT_SERVER,VER_NT_DOMAIN_CONTROLLER] then
-    begin
-      if (OSVersionInfo.wSuiteMask and VER_SUITE_DATACENTER) = VER_SUITE_DATACENTER then
-        Result := ptDatacenterServer
-      else
-      if (OSVersionInfo.wSuiteMask and VER_SUITE_ENTERPRISE) = VER_SUITE_ENTERPRISE then
-        Result := ptEnterprise
-      else
-        Result := ptServer;
     end;
   end;
 
@@ -3396,8 +3917,24 @@ begin
       Result := LoadResString(@RsOSVersionWin7);
     wvWinServer2008R2:
       Result := LoadResString(@RsOSVersionWinServer2008R2);
+    wvWin8:
+      Result := LoadResString(@RsOSVersionWin8);
+    wvWin8RT:
+      Result := LoadResString(@RsOSVersionWin8RT);
+    wvWinServer2012:
+      Result := LoadResString(@RsOSVersionWinServer2012);
+    wvWin81:
+      Result := LoadResString(@RsOSVersionWin81);
+    wvWin81RT:
+      Result := LoadResString(@RsOSVersionWin81RT);
+    wvWinServer2012R2:
+      Result := LoadResString(@RsOSVersionWinServer2012R2);
+    wvWin10:
+      Result := LoadResString(@RsOSVersionWin10);
+    wvWinServer2016:
+      Result := LoadResString(@RsOSVersionWinServer2016);
   else
-    Result := Format('Unknown: %d:%d build %d',[Win32MinorVersion,Win32MinorVersion, Win32BuildNumber]);
+    Result := '';
   end;
 end;
 
@@ -3454,6 +3991,26 @@ begin
       Result := LoadResString(@RsEditionWin7Enterprise);
     weWin7Ultimate:
       Result := LoadResString(@RsEditionWin7Ultimate);
+    weWin8Pro:
+      Result := LoadResString(@RsEditionWin8Pro);
+    weWin8Enterprise:
+      Result := LoadResString(@RsEditionWin8Enterprise);
+    weWin8RT:
+      Result := LoadResString(@RsEditionWin8RT);
+    weWin81Pro:
+      Result := LoadResString(@RsEditionWin81Pro);
+    weWin81Enterprise:
+      Result := LoadResString(@RsEditionWin81Enterprise);
+    weWin81RT:
+      Result := LoadResString(@RsEditionWin81RT);
+    weWin10Home:
+      Result := LoadResString(@RsEditionWin10Home);
+    weWin10Pro:
+      Result := LoadResString(@RsEditionWin10Pro);
+    weWin10Enterprise:
+      Result := LoadResString(@RsEditionWin10Enterprise);
+    weWin10Education:
+      Result := LoadResString(@RsEditionWin10Education);
   else
     Result := '';
   end;
@@ -3462,32 +4019,93 @@ end;
 function GetWindowsProductString: string;
 begin
   Result := GetWindowsVersionString;
-  if (GetWindowsEditionString <> '') then
+  if GetWindowsEditionString <> '' then
     Result := Result + ' ' + GetWindowsEditionString;
 end;
 
 function NtProductTypeString: string;
 begin
   case NtProductType of
-   ptWorkStation:
-     Result := LoadResString(@RsProductTypeWorkStation);
-   ptServer:
-     Result := LoadResString(@RsProductTypeServer);
-   ptAdvancedServer:
-     Result := LoadResString(@RsProductTypeAdvancedServer);
-   ptPersonal:
-     Result := LoadResString(@RsProductTypePersonal);
-   ptProfessional:
-     Result := LoadResString(@RsProductTypeProfessional);
-   ptDatacenterServer:
-     Result := LoadResString(@RsProductTypeDatacenterServer);
-   ptEnterprise:
-     Result := LoadResString(@RsProductTypeEnterprise);
-   ptWebEdition:
-     Result := LoadResString(@RsProductTypeWebEdition);
+    ptWorkStation:
+      Result := LoadResString(@RsProductTypeWorkStation);
+    ptServer:
+      Result := LoadResString(@RsProductTypeServer);
+    ptAdvancedServer:
+      Result := LoadResString(@RsProductTypeAdvancedServer);
+    ptPersonal:
+      Result := LoadResString(@RsProductTypePersonal);
+    ptProfessional:
+      Result := LoadResString(@RsProductTypeProfessional);
+    ptDatacenterServer:
+      Result := LoadResString(@RsProductTypeDatacenterServer);
+    ptEnterprise:
+      Result := LoadResString(@RsProductTypeEnterprise);
+    ptWebEdition:
+      Result := LoadResString(@RsProductTypeWebEdition);
   else
     Result := '';
   end;
+end;
+
+function GetWindowsBuildNumber: Integer;
+begin
+  // Starting with Windows 8.1, the GetVersion(Ex) API is deprecated and will detect the
+  // application as Windows 8 (kernel version 6.2) until an application manifest is included
+  // See https://msdn.microsoft.com/en-us/library/windows/desktop/dn302074.aspx
+  if ((Win32MajorVersion = 6) and (Win32MinorVersion = 2)) or (Win32MajorVersion = 10) then
+    Result := StrToInt(RegReadStringDef(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentBuildNumber', IntToStr(Win32BuildNumber)))
+  else
+    Result := Win32BuildNumber;
+end;
+
+function GetWindowsMajorVersionNumber: Integer;
+var
+  Ver: string;
+begin
+  // Starting with Windows 8.1, the GetVersion(Ex) API is deprecated and will detect the
+  // application as Windows 8 (kernel version 6.2) until an application manifest is included
+  // See https://msdn.microsoft.com/en-us/library/windows/desktop/dn302074.aspx
+  if ((Win32MajorVersion = 6) and (Win32MinorVersion = 2)) or (Win32MajorVersion = 10) then
+  begin
+    // CurrentMajorVersionNumber present in registry starting with Windows 10
+    // If CurrentMajorVersionNumber not present in registry then use CurrentVersion
+    Result := RegReadIntegerDef(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMajorVersionNumber', -1);
+    if Result = -1 then
+    begin
+      Ver := RegReadStringDef(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentVersion', IntToStr(Win32MajorVersion) + '.' + IntToStr(Win32MinorVersion));
+      Result := StrToIntDef(Copy(Ver, 1, Pos('.', Ver) - 1), 2); // don't use StrBefore because it uses StrCaseMap that may not be initialized yet
+    end;
+  end
+  else
+    Result := Win32MajorVersion;
+end;
+
+function GetWindowsMinorVersionNumber: Integer;
+var
+  Ver: string;
+begin
+  // Starting with Windows 8.1, the GetVersion(Ex) API is deprecated and will detect the
+  // application as Windows 8 (kernel version 6.2) until an application manifest is included
+  // See https://msdn.microsoft.com/en-us/library/windows/desktop/dn302074.aspx
+  if ((Win32MajorVersion = 6) and (Win32MinorVersion = 2)) or (Win32MajorVersion = 10) then
+  begin
+    // CurrentMinorVersionNumber present in registry starting with Windows 10
+    // If CurrentMinorVersionNumber not present then use CurrentVersion
+    Result := RegReadIntegerDef(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentMinorVersionNumber', -1);
+    if Result = -1 then
+    begin
+      Ver := RegReadStringDef(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentVersion', IntToStr(Win32MajorVersion) + '.' + IntToStr(Win32MinorVersion));
+      Result := StrToIntDef(Copy(Ver, Pos('.', Ver) + 1, Length(Ver)), 2);  // don't use StrAfter because it uses StrCaseMap that may not be initialized yet
+    end;
+  end
+  else
+    Result := Win32MinorVersion;
+end;
+
+function GetWindowsVersionNumber: string;
+begin
+  // Returns version number as MajorVersionNumber.MinorVersionNumber (string type)
+  Result := Format('%d.%d', [GetWindowsMajorVersionNumber, GetWindowsMinorVersionNumber]);
 end;
 
 function GetWindowsServicePackVersion: Integer;
@@ -3519,6 +4137,76 @@ begin
   SP := GetWindowsServicePackVersion;
   if SP > 0 then
     Result := Format(LoadResString(@RsSPInfo), [SP])
+  else
+    Result := '';
+end;
+
+function GetWindows10ReleaseId: Integer;
+begin
+  if IsWin10 then
+    Result := StrToIntDef(RegReadStringDef(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'ReleaseId', '0'), -1)
+  else
+    Result := -1;
+end;
+
+function GetWindows10ReleaseName: String;
+begin
+  if IsWin10 then
+  begin
+    case GetWindows10ReleaseId of
+       1507:
+          Result := 'Windows 10';
+       1511:
+          Result := 'Windows 10 November Update';
+       1607:
+          Result := 'Windows 10 Anniversary Update';
+       1703:
+          Result := 'Windows 10 Creators Update';
+       1709:
+          Result := 'Windows 10 Fall Creators Update';
+    else
+      Result := '';
+    end;
+  end
+  else
+    Result := '';
+end;
+
+function GetWindows10ReleaseCodeName: String;
+begin
+  if IsWin10 then
+  begin
+    case GetWindows10ReleaseId of
+       1507:
+          Result := 'Threshold 1';
+       1511:
+          Result := 'Threshold 2';
+       1607:
+          Result := 'Redstone 1';
+       1703:
+          Result := 'Redstone 2';
+       1709:
+          Result := 'Redstone 3';
+    else
+      Result := '';
+    end;
+  end
+  else
+    Result := '';
+end;
+
+function GetWindows10ReleaseVersion: String;
+var
+  WindowsReleaseId: Integer;
+begin
+  if IsWin10 then
+  begin
+    WindowsReleaseId := GetWindows10ReleaseId;
+    if WindowsReleaseId > 0 then
+      Result := 'Windows 10 Version ' + IntToStr(WindowsReleaseId)
+    else
+      Result := '';
+  end
   else
     Result := '';
 end;
@@ -3671,7 +4359,7 @@ begin
         begin
           { TODO : Store this information in a Global Variable, and return that??
                    This would save this work being performed again with later calls }
-          sOpenGLVersion := StrPas(pcTemp);
+          sOpenGLVersion := StrPasA(pcTemp);
         end
         else
         begin
@@ -3689,7 +4377,7 @@ begin
         begin
           { TODO : Store this information in a Global Variable, and return that??
                    This would save this work being performed again with later calls }
-          sOpenGLVendor := StrPas(pcTemp);
+          sOpenGLVendor := StrPasA(pcTemp);
         end
         else
         begin
@@ -3734,7 +4422,7 @@ begin
 
   if LibraryHandle <> 0 then
   begin
-    _GetNativeSystemInfo := GetProcAddress(LibraryHandle,'GetNativeSystemInfo');
+    _GetNativeSystemInfo := GetProcAddress(LibraryHandle, PAnsiChar('GetNativeSystemInfo'));
     if Assigned(_GetNativeSystemInfo) then
     begin
       _GetNativeSystemInfo(SystemInfo);
@@ -3747,13 +4435,20 @@ begin
     GetSystemInfo(SystemInfo);
 end;
 
+var
+  CachedGetProcessorArchitecture: DWORD = DWORD(-1);
+
 function GetProcessorArchitecture: TProcessorArchitecture;
 var
   ASystemInfo: TSystemInfo;
 begin
-  ASystemInfo.dwOemId := 0;
-  GetNativeSystemInfo(ASystemInfo);
-  case ASystemInfo.wProcessorArchitecture of
+  if CachedGetProcessorArchitecture = DWORD(-1) then
+  begin
+    ASystemInfo.dwOemId := 0;
+    GetNativeSystemInfo(ASystemInfo);
+    CachedGetProcessorArchitecture := ASystemInfo.wProcessorArchitecture;
+  end;
+  case CachedGetProcessorArchitecture of
     PROCESSOR_ARCHITECTURE_INTEL:
       Result := pax8632;
     PROCESSOR_ARCHITECTURE_IA64:
@@ -3766,12 +4461,19 @@ begin
 end;
 
 function IsWindows64: Boolean;
-var
-  ASystemInfo: TSystemInfo;
 begin
-  ASystemInfo.dwOemId := 0;
-  GetNativeSystemInfo(ASystemInfo);
-  Result := ASystemInfo.wProcessorArchitecture in [PROCESSOR_ARCHITECTURE_IA64,PROCESSOR_ARCHITECTURE_AMD64];
+  Result := GetProcessorArchitecture in [paIA64, pax8664];
+end;
+
+function JclCheckWinVersion(Major, Minor: Integer): Boolean;
+begin
+  {$IFDEF RTL150_UP}
+  Result := CheckWin32Version(Major, Minor);
+  {$ELSE}
+  // Delphi 6 and older have a wrong implementation
+  Result := (Win32MajorVersion > Major) or
+            ((Win32MajorVersion = Major) and (Win32MinorVersion >= Minor));
+  {$ENDIF RTL150_UP}
 end;
 
 {$ENDIF MSWINDOWS}
@@ -3839,7 +4541,7 @@ function GetMacAddresses(const Machine: string; const Addresses: TStrings): Inte
       Result := NetBiosLib <> 0;
       if Result then
       begin
-        @_NetBios := GetProcAddress(NetBiosLib, PChar('Netbios'));
+        @_NetBios := GetProcAddress(NetBiosLib, PAnsiChar('Netbios'));
         Result := @_NetBios <> nil;
         if not Result then
           ExitNetbios;
@@ -4200,7 +4902,8 @@ function GetOSEnabledFeatures: TOSEnabledFeatures;
 var
   EnabledFeatures: Int64;
 begin
-  if IsWin7 or IsWinServer2008 or IsWinServer2008R2 then
+  // Windows 7 or newer
+  if JclCheckWinVersion(6, 1) then
   begin
     EnabledFeatures := $FFFFFFFF;
     EnabledFeatures := EnabledFeatures shl 32;
@@ -4223,7 +4926,9 @@ function CPUID: TCpuInfo;
   function HasCPUIDInstruction: Boolean;
   const
     ID_FLAG = $200000;
+  {$IFNDEF DELPHI64_TEMPORARY}
   begin
+  {$ENDIF ~DELPHI64_TEMPORARY}
     asm
       {$IFDEF CPU32}
       PUSHFD
@@ -4240,26 +4945,46 @@ function CPUID: TCpuInfo;
       SETNZ   Result
       {$ENDIF CPU32}
       {$IFDEF CPU64}
-      // PUSHFQ
+      {$IFDEF FPC}
+        {$DEFINE DELPHI64_TEMPORARY}
+      {$ENDIF FPC}
+      {$IFDEF DELPHI64_TEMPORARY}
+      PUSHFQ
+      {$ELSE ~DELPHI64_TEMPORARY}
       PUSHFD
+      {$ENDIF ~DELPHI64_TEMPORARY}
       POP     RAX
       MOV     RCX, RAX
       XOR     RAX, ID_FLAG
       AND     RCX, ID_FLAG
       PUSH    RAX
-      // POPFQ
+      {$IFDEF DELPHI64_TEMPORARY}
+      POPFQ
+      {$ELSE ~DELPHI64_TEMPORARY}
       POPFD
-      // PUSHFQ
+      {$ENDIF ~DELPHI64_TEMPORARY}
+      {$IFDEF DELPHI64_TEMPORARY}
+      PUSHFQ
+      {$ELSE ~DELPHI64_TEMPORARY}
       PUSHFD
+      {$ENDIF ~DELPHI64_TEMPORARY}
       POP     RAX
       AND     RAX, ID_FLAG
       XOR     RAX, RCX
       SETNZ   Result
+      {$IFDEF FPC}
+        {$UNDEF DELPHI64_TEMPORARY}
+      {$ENDIF FPC}
       {$ENDIF CPU64}
     end;
+  {$IFNDEF DELPHI64_TEMPORARY}
   end;
+  {$ENDIF ~DELPHI64_TEMPORARY}
+
   procedure CallCPUID(ValueEAX, ValueECX: Cardinal; out ReturnedEAX, ReturnedEBX, ReturnedECX, ReturnedEDX);
+  {$IFNDEF DELPHI64_TEMPORARY}
   begin
+  {$ENDIF ~DELPHI64_TEMPORARY}
     asm
       {$IFDEF CPU32}
       // save context
@@ -4305,7 +5030,9 @@ function CPUID: TCpuInfo;
       POP     RBX
       {$ENDIF CPU64}
     end;
+  {$IFNDEF DELPHI64_TEMPORARY}
   end;
+  {$ENDIF ~DELPHI64_TEMPORARY}
 
   procedure ProcessStandard(var CPUInfo: TCpuInfo; HiVal: Cardinal);
   var
@@ -4362,6 +5089,9 @@ function CPUID: TCpuInfo;
       CallCPUID(4, 0, CoreInfo, Unused, Unused, Unused);
       CPUInfo.PhysicalCore := ((CoreInfo and $FC000000) shr 26) + 1;
     end;
+
+    if HiVal >= 6 then
+      CallCPUID(6, 0, CPUInfo.IntelSpecific.PowerManagementFeatures, Unused, Unused, Unused);
 
     // check Intel extended
     CallCPUID($80000000, 0, ExHiVal, Unused, Unused, Unused);
@@ -4509,7 +5239,7 @@ function CPUID: TCpuInfo;
             11:
               CPUInfo.CpuName := 'Pentium III';
           else
-            StrPCopy(CPUInfo.CpuName, AnsiString(Format('P6 (Model %d)', [CPUInfo.Model])));
+            StrPCopyA(CPUInfo.CpuName, AnsiString(Format('P6 (Model %d)', [CPUInfo.Model])));
           end;
         15:
           case CPUInfo.IntelSpecific.BrandID of
@@ -4523,10 +5253,12 @@ function CPUID: TCpuInfo;
             CPUInfo.CpuName := 'Pentium 4';
           end;
       else
-        StrPCopy(CPUInfo.CpuName, AnsiString(Format('P%d', [CPUInfo.Family])));
+        StrPCopyA(CPUInfo.CpuName, AnsiString(Format('P%d', [CPUInfo.Family])));
       end;
     end;
 
+    CPUInfo.HardwareHyperThreadingTechnology := CPUInfo.LogicalCore <> CPUInfo.PhysicalCore;
+    CPUInfo.AES := (CPUInfo.IntelSpecific.ExFeatures and EINTEL_AES) <> 0;
     CPUInfo.MMX := (CPUInfo.Features and MMX_FLAG) <> 0;
     CPUInfo.SSE := [];
     if (CPUInfo.Features and SSE_FLAG) <> 0 then
@@ -4538,9 +5270,9 @@ function CPUID: TCpuInfo;
     if (CPUInfo.IntelSpecific.ExFeatures and EINTEL_SSSE3) <> 0 then
       Include(CPUInfo.SSE, ssse3);
     if (CPUInfo.IntelSpecific.ExFeatures and EINTEL_SSE4_1) <> 0 then
-      Include(CPUInfo.SSE, sse4A);
+      Include(CPUInfo.SSE, sse41);
     if (CPUInfo.IntelSpecific.ExFeatures and EINTEL_SSE4_2) <> 0 then
-      Include(CPUInfo.SSE, sse4B);
+      Include(CPUInfo.SSE, sse42);
     if (CPUInfo.IntelSpecific.ExFeatures and EINTEL_AVX) <> 0 then
       Include(CPUInfo.SSE, avx);
     CPUInfo.Is64Bits := CPUInfo.HasExtendedInfo and ((CPUInfo.IntelSpecific.Ex64Features and EINTEL64_EM64T)<>0);
@@ -4652,7 +5384,7 @@ function CPUID: TCpuInfo;
             9:
               CPUInfo.CpuName := 'AMD-K6®-III (Model 9)';
             else
-              StrFmt(CPUInfo.CpuName, PAnsiChar(AnsiString(LoadResString(@RsUnknownAMDModel))),[CPUInfo.Model]);
+              StrFmtA(CPUInfo.CpuName, PAnsiChar(AnsiString(LoadResString(@RsUnknownAMDModel))), [CPUInfo.Model]);
           end;
         6:
           case CPUInfo.Model of
@@ -4673,7 +5405,7 @@ function CPUID: TCpuInfo;
             10:
               CPUInfo.CpuName := 'AMD Athlon™ XP (Model 10)';
             else
-              StrFmt(CPUInfo.CpuName, PAnsiChar(AnsiString(LoadResString(@RsUnknownAMDModel))), [CPUInfo.Model]);
+              StrFmtA(CPUInfo.CpuName, PAnsiChar(AnsiString(LoadResString(@RsUnknownAMDModel))), [CPUInfo.Model]);
           end;
         8:
 
@@ -4682,6 +5414,8 @@ function CPUID: TCpuInfo;
       end;
     end;
 
+    CPUInfo.HardwareHyperThreadingTechnology := CPUInfo.LogicalCore <> CPUInfo.PhysicalCore;
+    CPUInfo.AES := (CPUInfo.AMDSpecific.Features2 and AMD2_AES) <> 0;
     CPUInfo.MMX := (CPUInfo.Features and AMD_MMX) <> 0;
     CPUInfo.ExMMX := CPUInfo.HasExtendedInfo and ((CPUInfo.AMDSpecific.ExFeatures and EAMD_EXMMX) <> 0);
     CPUInfo._3DNow := CPUInfo.HasExtendedInfo and ((CPUInfo.AMDSpecific.ExFeatures and EAMD_3DNOW) <> 0);
@@ -4697,8 +5431,10 @@ function CPUID: TCpuInfo;
     begin
       if (CPUInfo.AMDSpecific.ExFeatures2 and EAMD2_SSE4A) <> 0 then
         Include(CPUInfo.SSE, sse4A);
-      if (CPUInfo.AMDSpecific.ExFeatures2 and EAMD2_SSE5) <> 0 then
-        Include(CPUInfo.SSE, sse5);
+      if (CPUInfo.AMDSpecific.Features2 and AMD2_SSE41) <> 0 then
+        Include(CPUInfo.SSE, sse41);
+      if (CPUInfo.AMDSpecific.Features2 and AMD2_SSE42) <> 0 then
+        Include(CPUInfo.SSE, sse42);
     end;
     CPUInfo.Is64Bits := CPUInfo.HasExtendedInfo and ((CPUInfo.AMDSpecific.ExFeatures and EAMD_LONG) <> 0);
     CPUInfo.DEPCapable := CPUInfo.HasExtendedInfo and ((CPUInfo.AMDSpecific.ExFeatures and EAMD_NX) <> 0);
@@ -4753,7 +5489,7 @@ function CPUID: TCpuInfo;
         6:
           CPUInfo.CpuName := '6x86MX';
       else
-        StrPCopy(CPUInfo.CpuName, AnsiString(Format('%dx86', [CPUInfo.Family])));
+        StrPCopyA(CPUInfo.CpuName, AnsiString(Format('%dx86', [CPUInfo.Family])));
       end;
     end;
   end;
@@ -5390,7 +6126,7 @@ function IsSystemResourcesMeterPresent: Boolean;
     ResmeterLibHandle := SafeLoadLibrary('rsrc32.dll', SEM_FAILCRITICALERRORS);
     if ResmeterLibHandle <> 0 then
     begin
-      @MyGetFreeSystemResources := GetProcAddress(ResmeterLibHandle, '_MyGetFreeSystemResources32@4');
+      @MyGetFreeSystemResources := GetProcAddress(ResmeterLibHandle, PAnsiChar('_MyGetFreeSystemResources32@4'));
       if not Assigned(MyGetFreeSystemResources) then
         UnloadSystemResourcesMeterLib;
     end;
@@ -5492,6 +6228,11 @@ begin
   Result := ProgIDExists('com.sun.star.ServiceManager');
 end;
 
+function IsLibreOfficeInstalled: Boolean;
+begin
+  Result := ProgIDExists('com.sun.star.ServiceManager.1');
+end;
+
 //=== Initialization/Finalization ============================================
 
 procedure InitSysInfo;
@@ -5568,6 +6309,22 @@ begin
       IsWin7 := True;
     wvWinServer2008R2:
       IsWinServer2008R2 := True;
+    wvWin8:
+      IsWin8 := True;
+    wvWin8RT:
+      IsWin8RT := True;
+    wvWinServer2012:
+      IsWinServer2012 := True;
+    wvWin81:
+      IsWin81 := True;
+    wvWin81RT:
+      IsWin81RT := True;
+    wvWinServer2012R2:
+      IsWinServer2012R2 := True;
+    wvWin10:
+      IsWin10 := True;
+    wvWinServer2016:
+      IsWinServer2016 := True;
   end;
 end;
 

@@ -18,9 +18,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010)                         $ }
-{ Revision:      $Rev:: 3321                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -34,7 +34,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils, Winapi.Windows, System.Classes, Vcl.Graphics,
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils, Windows, Classes, Graphics,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclVersionControl;
 
 type
@@ -57,9 +61,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/vcl/JclVersionCtrlCVSImpl.pas $';
-    Revision: '$Revision: 3321 $';
-    Date: '$Date: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\vcl';
     Extra: '';
     Data: nil
@@ -124,9 +128,9 @@ function TJclVersionControlCVS.ExecuteAction(const FileName: TFileName;
     startupInfo.wShowWindow := SW_SHOW;
 
     if FileName = '' then
-      raise Exception.Create(RsEEmptyFileName);
+      raise EJclVersionControlError.Create(RsEEmptyFileName);
     if not Enabled then
-      raise Exception.Create(RsENoTortoiseCVS);
+      raise EJclVersionControlError.Create(RsENoTortoiseCVS);
 
     if FileName[Length(FileName)] = DirDelimiter then
       CurrentDir := FileName

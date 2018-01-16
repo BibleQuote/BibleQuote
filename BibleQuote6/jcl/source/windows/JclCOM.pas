@@ -29,15 +29,16 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-01-25 13:19:13 +0100 (lun., 25 janv. 2010)                         $ }
-{ Revision:      $Rev:: 3139                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclCOM;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 interface
 
@@ -45,7 +46,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, Winapi.ActiveX, System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, ActiveX, Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase;
 
 // Various definitions
@@ -124,9 +129,9 @@ procedure VariantArrayToStream(VarArray: OleVariant; var Stream: IStream); overl
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclCOM.pas $';
-    Revision: '$Revision: 3139 $';
-    Date: '$Date: 2010-01-25 13:19:13 +0100 (lun., 25 janv. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -139,8 +144,11 @@ uses
   {$IFDEF FPC}
   Types,
   {$ENDIF FPC}
-  SysUtils,
-  Variants,
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils, System.Variants,
+  {$ELSE ~HAS_UNITSCOPE}
+  SysUtils, Variants,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclFileUtils, JclRegistry, JclResources, JclSysInfo, JclWin32;
 
 {implementation Constants - may be reused by more than one routine }
@@ -167,7 +175,7 @@ var
   OLE32: HMODULE;
 begin
   { DCOM is installed by default on all but Windows 95 }
-  Result := not (GetWindowsVersion in [wvUnknown, wvWin95, wvWin95OSR2]);
+  Result := not (GetWindowsVersion in [wvWin95, wvWin95OSR2]);
   if not Result then
   begin
     OLE32 := SafeLoadLibrary(pcOLE32);
@@ -478,7 +486,7 @@ end;
 
 function ResetIStreamToStart(Stream: IStream): Boolean;
 var
-  i64Pos: Largeint;
+  i64Pos: {$IFDEF RTL290_UP}LargeUInt{$ELSE}Largeint{$ENDIF RTL290_UP};
   hrSeek: HRESULT;
 begin
   { TODO -cTest : D4 (CBx ??) }

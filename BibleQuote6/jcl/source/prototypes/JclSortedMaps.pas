@@ -24,9 +24,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-09 17:10:10 +0200 (lun., 09 août 2010)                         $ }
-{ Revision:      $Rev:: 3291                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -37,29 +37,43 @@ interface
 {$I jcl.inc}
 
 uses
-  Classes,
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
+  Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclAlgorithms,
   JclBase, JclSynch,
   JclAbstractContainers, JclContainerIntf, JclArrayLists, JclArraySets;
 {$I containers\JclContainerCommon.imp}
 {$I containers\JclSortedMaps.imp}
 {$I containers\JclSortedMaps.int}
+{$I containers\JclAlgorithms.int}
+{$I containers\JclAlgorithms.imp}
 type
 (*$JPPLOOP ALLMAPINDEX ALLMAPCOUNT
-  {$JPPEXPANDMACRO JCLSORTEDMAPTYPESINT(,,)}
+  {$JPPEXPANDMACRO JCLSORTEDMAPTYPESINT(,,,)}
 
-  {$JPPEXPANDMACRO JCLSORTEDMAPINT(,,,,,,,,,,,,,,)}
+  {$JPPEXPANDMACRO JCLSORTEDMAPINT(,,,,,,,,,,,,,,,)}
+
 *)
-  {$IFDEF SUPPORTS_GENERICS}
-  (*$JPPEXPANDMACRO JCLSORTEDMAPTYPESINT(TJclSortedEntry<TKey\,TValue>,TKey,TValue)*)
+  {$IFDEF SUPPORTS_GENERICS}{$JPPDEFINE KEYGENERIC}{$JPPDEFINE VALUEGENERIC}{$JPPUNDEF KEYREFCOUNTED}{$JPPUNDEF VALUEREFCOUNTED}{$JPPUNDEF KEYZEROINIT}{$JPPUNDEF VALUEZEROINIT}
+  //DOM-IGNORE-BEGIN
 
-  (*$JPPEXPANDMACRO JCLSORTEDMAPINT(TSortedEntry,TJclSortedMap<TKey\,TValue>,TJclAbstractContainerBase,IJclMap<TKey\,TValue>,IJclSortedMap<TKey\,TValue>,IJclSet<TKey>,IJclCollection<TValue>, IJclPairOwner<TKey\,TValue>\,,
+  TJclSortedEntry<TKey,TValue> = record
+    Key: TKey;
+    Value: TValue;
+  end;
+
+  (*$JPPEXPANDMACRO JCLSORTEDMAPINT(TSortedEntry,TSortedEntryArray,TJclSortedMap<TKey\,TValue>,TJclAbstractContainerBase,IJclMap<TKey\,TValue>,IJclSortedMap<TKey\,TValue>,IJclSet<TKey>,IJclCollection<TValue>, IJclPairOwner<TKey\,TValue>\,,
+
 protected
   type
     TSortedEntry = TJclSortedEntry<TKey\,TValue>;
+    TSortedEntryArray = array of TSortedEntry;
 private
   FOwnsKeys: Boolean;
   FOwnsValues: Boolean;
@@ -79,7 +93,7 @@ public
 
   // E = external helper to compare items
   TJclSortedMapE<TKey, TValue> = class(TJclSortedMap<TKey,TValue>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclMap<TKey,TValue>, IJclSortedMap<TKey,TValue>, IJclPairOwner<TKey,TValue>)
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer, IJclMap<TKey,TValue>, IJclSortedMap<TKey,TValue>, IJclPairOwner<TKey,TValue>)
   protected
     type
       TArrayList = TJclArrayListE<TValue>;
@@ -107,7 +121,7 @@ public
 
   // F = Functions to compare items
   TJclSortedMapF<TKey, TValue> = class(TJclSortedMap<TKey, TValue>, {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE}
-    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer, IJclMap<TKey,TValue>, IJclSortedMap<TKey,TValue>, IJclPairOwner<TKey, TValue>)
+    IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer, IJclMap<TKey,TValue>, IJclSortedMap<TKey,TValue>, IJclPairOwner<TKey, TValue>)
   protected
     type
       TArrayList = TJclArrayListF<TValue>;
@@ -134,7 +148,7 @@ public
 
   // I = items can compare themselves to an other
   TJclSortedMapI<TKey: IComparable<TKey>; TValue: IComparable<TValue>, IEquatable<TValue>> = class(TJclSortedMap<TKey, TValue>,
-    {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE} IJclIntfCloneable, IJclCloneable, IJclPackable, IJclContainer,
+    {$IFDEF THREADSAFE} IJclLockable, {$ENDIF THREADSAFE} IJclIntfCloneable, IJclCloneable, IJclPackable, IJclBaseContainer,
     IJclMap<TKey,TValue>, IJclSortedMap<TKey,TValue>, IJclPairOwner<TKey, TValue>)
   protected
     type
@@ -147,14 +161,30 @@ public
     function CreateEmptyContainer: TJclAbstractContainerBase; override;
     function CreateEmptyArraySet(ACapacity: Integer; AOwnsObjects: Boolean): IJclSet<TKey>; override;
   end;
+
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
+
+{$IFDEF BCB}
+{$IFDEF WIN64}
+  {$HPPEMIT '#ifdef MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT ' #undef MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT ' #define JclSortedMaps_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT '#endif'}
+
+  {$HPPEMIT END '#ifdef JclSortedMaps_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END ' #define MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END ' #undef JclSortedMaps_MANAGED_INTERFACE_OPERATORS'}
+  {$HPPEMIT END '#endif'}
+{$ENDIF WIN64}
+{$ENDIF BCB}
 
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/prototypes/JclSortedMaps.pas $';
-    Revision: '$Revision: 3291 $';
-    Date: '$Date: 2010-08-09 17:10:10 +0200 (lun., 09 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -164,17 +194,24 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils;
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils;
+  {$ENDIF ~HAS_UNITSCOPE}
 
 (*$JPPLOOP TRUEMAPINDEX TRUEMAPCOUNT
-{$JPPEXPANDMACRO JCLSORTEDMAPIMP(,,,,,,,,,,,,,,,,)}
+{$JPPEXPANDMACRO JCLSORTEDMAPIMP(,,,,,,,,,,,,,,,,,,)}
+
 *)
 
-{$IFDEF SUPPORTS_GENERICS}
+{$IFDEF SUPPORTS_GENERICS}{$JPPDEFINE KEYGENERIC}{$JPPDEFINE VALUEGENERIC}{$JPPUNDEF KEYREFCOUNTED}{$JPPUNDEF VALUEREFCOUNTED}{$JPPUNDEF KEYZEROINIT}{$JPPUNDEF VALUEZEROINIT}
+//DOM-IGNORE-BEGIN
 
-{$JPPEXPANDMACRO JCLSORTEDMAPIMP(TJclSortedMap<TKey\,TValue>,IJclMap<TKey\,TValue>,IJclSortedMap<TKey\,TValue>,IJclSet<TKey>,IJclIterator<TKey>,IJclCollection<TValue>,; AOwnsKeys: Boolean,; AOwnsValues: Boolean,
+(*$JPPEXPANDMACRO JCLSORTEDMAPIMP(TSortedEntry,TSortedEntryArray,TJclSortedMap<TKey\,TValue>,IJclMap<TKey\,TValue>,IJclSortedMap<TKey\,TValue>,IJclSet<TKey>,IJclIterator<TKey>,IJclCollection<TValue>,; AOwnsKeys: Boolean,; AOwnsValues: Boolean,
+
   FOwnsKeys := AOwnsKeys;
-  FOwnsValues := AOwnsValues;,const ,TKey,Default(TKey),const ,TValue,Default(TValue),CreateEmptyArraySet(FSize, False),CreateEmptyArrayList(FSize, False))}
+  FOwnsValues := AOwnsValues;,const ,TKey,Default(TKey),const ,TValue,Default(TValue),CreateEmptyArraySet(FSize, False),CreateEmptyArrayList(FSize, False))*)
 
 function TJclSortedMap<TKey,TValue>.FreeKey(var Key: TKey): TKey;
 begin
@@ -360,6 +397,7 @@ begin
   Result := A.CompareTo(B);
 end;
 
+//DOM-IGNORE-END
 {$ENDIF SUPPORTS_GENERICS}
 
 {$IFDEF UNITVERSIONING}

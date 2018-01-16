@@ -27,9 +27,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-10 18:01:28 +0200 (mar., 10 août 2010)                         $ }
-{ Revision:      $Rev:: 3295                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -37,13 +37,18 @@ unit JclContainerIntf;
 
 {$I jcl.inc}
 {$I containers\JclContainerIntf.int}
+
 interface
 
 uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase,
   JclAnsiStrings,
   JclWideStrings;
@@ -66,37 +71,52 @@ type
 
   // iterate functions Type -> (void)
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-  {$JPPEXPANDMACRO ITERPROCEDURE(,,,)}*)
+  {$JPPEXPANDMACRO ITERPROCEDURE(,,,)}
+*)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   {$JPPEXPANDMACRO ITERPROCEDURE(TIterateProcedure<T>,const ,AItem,T)}
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   // apply functions Type -> Type
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-  {$JPPEXPANDMACRO APPLYFUNCTION(,,,)}*)
+  {$JPPEXPANDMACRO APPLYFUNCTION(,,,)}
+*)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   {$JPPEXPANDMACRO APPLYFUNCTION(TApplyFunction<T>,const ,AItem,T)}
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   // comparison functions Type -> Type -> Integer
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-  {$JPPEXPANDMACRO COMPAREFUNCTION(,,)}*)
+  {$JPPEXPANDMACRO COMPAREFUNCTION(,,)}
+*)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   {$JPPEXPANDMACRO COMPAREFUNCTION(TCompare<T>,const ,T)}
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   // comparison for equality functions Type -> Type -> Boolean
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-  {$JPPEXPANDMACRO EQUALITYCOMPAREFUNCTION(,,)}*)
+  {$JPPEXPANDMACRO EQUALITYCOMPAREFUNCTION(,,)}
+*)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   {$JPPEXPANDMACRO EQUALITYCOMPAREFUNCTION(TEqualityCompare<T>,const ,T)}
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   // hash functions Type -> Integer
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-  {$JPPEXPANDMACRO HASHFUNCTION(,,,)}*)
+  {$JPPEXPANDMACRO HASHFUNCTION(,,,)}
+*)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   {$JPPEXPANDMACRO HASHFUNCTION(THashConvert<T>,const ,AItem,T)}
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   IJclLockable = interface
@@ -114,10 +134,10 @@ type
     function GetIteratorReference: TObject;
   end;
 
-  IJclContainer = interface{$IFDEF THREADSAFE}(IJclLockable){$ENDIF THREADSAFE}
+  IJclBaseContainer = interface{$IFDEF THREADSAFE}(IJclLockable){$ENDIF THREADSAFE}
     ['{C517175A-028E-486A-BF27-5EF7FC3101D9}']
-    procedure Assign(const Source: IJclContainer);
-    procedure AssignTo(const Dest: IJclContainer);
+    procedure Assign(const Source: IJclBaseContainer);
+    procedure AssignTo(const Dest: IJclBaseContainer);
     function GetAllowDefaultElements: Boolean;
     function GetContainerReference: TObject;
     function GetDuplicates: TDuplicates;
@@ -139,7 +159,11 @@ type
     property ThreadSafe: Boolean read GetThreadSafe write SetThreadSafe;
   end;
 
-  IJclStrContainer = interface(IJclContainer)
+  (*$JPPEXPANDMACRO CONTAINER(IJclIntfContainer,{44F10075-9702-4DCA-9731-D8990F234A74})*)
+
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclIntfFlatContainer,{15116007-6BB8-4D9D-8249-C2F49D4AB3EA},IJclIntfContainer)*)
+
+  IJclStrBaseContainer = interface(IJclBaseContainer)
     ['{9753E1D7-F093-4D5C-8B32-40403F6F700E}']
     function GetCaseSensitive: Boolean;
     procedure SetCaseSensitive(Value: Boolean);
@@ -148,7 +172,7 @@ type
 
   TJclAnsiStrEncoding = (seISO, seUTF8);
 
-  IJclAnsiStrContainer = interface(IJclStrContainer)
+  IJclAnsiStrContainer = interface(IJclStrBaseContainer)
     ['{F8239357-B96F-46F1-A48E-B5DF25B5F1FA}']
     function GetEncoding: TJclAnsiStrEncoding;
     procedure SetEncoding(Value: TJclAnsiStrEncoding);
@@ -169,7 +193,7 @@ type
 
   TJclWideStrEncoding = (seUTF16);
 
-  IJclWideStrContainer = interface(IJclStrContainer)
+  IJclWideStrContainer = interface(IJclStrBaseContainer)
     ['{875E1AC4-CA22-46BC-8999-048E5B9BF11D}']
     function GetEncoding: TJclWideStrEncoding;
     procedure SetEncoding(Value: TJclWideStrEncoding);
@@ -189,7 +213,7 @@ type
   end;
 
   {$IFDEF SUPPORTS_UNICODE_STRING}
-  IJclUnicodeStrContainer = interface(IJclStrContainer)
+  IJclUnicodeStrContainer = interface(IJclStrBaseContainer)
     ['{619BA29F-5E05-464D-B472-1C8453DBC707}']
   end;
 
@@ -206,56 +230,116 @@ type
   end;
   {$ENDIF SUPPORTS_UNICODE_STRING}
 
-  IJclSingleContainer = interface(IJclContainer)
+  {$IFDEF CONTAINER_ANSISTR}
+  IJclStrContainer = IJclAnsiStrContainer;
+  IJclStrFlatContainer = IJclAnsiStrFlatContainer;
+  {$ENDIF CONTAINER_ANSISTR}
+  {$IFDEF CONTAINER_WIDESTR}
+  IJclStrContainer = IJclWideStrContainer;
+  IJclStrFlatContainer = IJclWideStrFlatContainer;
+  {$ENDIF CONTAINER_WIDESTR}
+  {$IFDEF CONTAINER_UNICODESTR}
+  IJclStrContainer = IJclUnicodeStrContainer;
+  IJclStrFlatContainer = IJclUnicodeStrFlatContainer;
+  {$ENDIF CONTAINER_UNICODESTR}
+
+  IJclSingleContainer = interface(IJclBaseContainer)
     ['{22BE88BD-87D1-4B4D-9FAB-F1B6D555C6A9}']
     function GetPrecision: Single;
     procedure SetPrecision(const Value: Single);
     property Precision: Single read GetPrecision write SetPrecision;
   end;
 
-  IJclDoubleContainer = interface(IJclContainer)
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclSingleFlatContainer,{F16955E8-94D2-4201-809B-CC2EA39B5FDD},IJclSingleContainer)*)
+
+  IJclDoubleContainer = interface(IJclBaseContainer)
     ['{372B9354-DF6D-4CAA-A5A9-C50E1FEE5525}']
     function GetPrecision: Double;
     procedure SetPrecision(const Value: Double);
     property Precision: Double read GetPrecision write SetPrecision;
   end;
 
-  IJclExtendedContainer = interface(IJclContainer)
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclDoubleFlatContainer,{2F0252CE-7471-45CA-8C8D-FD3925507C00},IJclDoubleContainer)*)
+
+  IJclExtendedContainer = interface(IJclBaseContainer)
     ['{431A6482-FD5C-45A7-BE53-339A3CF75AC9}']
     function GetPrecision: Extended;
     procedure SetPrecision(const Value: Extended);
     property Precision: Extended read GetPrecision write SetPrecision;
   end;
 
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclExtendedFlatContainer,{1D3F48A2-001E-48F7-8A54-B9F4CE837523},IJclExtendedContainer)*)
+
   {$IFDEF MATH_EXTENDED_PRECISION}
   IJclFloatContainer = IJclExtendedContainer;
+  IJclFloatFlatContainer = IJclExtendedFlatContainer;
   {$ENDIF MATH_EXTENDED_PRECISION}
   {$IFDEF MATH_DOUBLE_PRECISION}
   IJclFloatContainer = IJclDoubleContainer;
+  IJclFloatFlatContainer = IJclDoubleFlatContainer;
   {$ENDIF MATH_DOUBLE_PRECISION}
   {$IFDEF MATH_SINGLE_PRECISION}
   IJclFloatContainer = IJclSingleContainer;
+  IJclFloatFlatContainer = IJclSingleFlatContainer;
   {$ENDIF MATH_SINGLE_PRECISION}
+
+  (*$JPPEXPANDMACRO CONTAINER(IJclIntegerContainer,{3BAF5447-9835-43A4-9FF3-E5EA7D43A7D1})*)
+
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclIntegerFlatContainer,{EF4EFCD9-60CB-4525-9D20-18E55291F7CF},IJclIntegerContainer)*)
+
+  (*$JPPEXPANDMACRO CONTAINER(IJclCardinalContainer,{01DF05CF-62E9-46B3-8BC1-2830EEF43644})*)
+
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclCardinalFlatContainer,{79E48B80-3215-47D0-A1B5-D74C495AC9D1},IJclCardinalContainer)*)
+
+  (*$JPPEXPANDMACRO CONTAINER(IJclInt64Container,{B560B2B6-F8C7-45F0-A5E5-920AA61C1540})*)
+
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclInt64FlatContainer,{E740B9EF-7342-4CEF-B7FB-96C5267F5738},IJclInt64Container)*)
+
+  (*$JPPEXPANDMACRO CONTAINER(IJclPtrContainer,{E8DD2A85-1E12-4605-B517-7E3121C5624F})*)
+
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclPtrFlatContainer,{43C41789-DE71-4DA5-B4AC-3F53EB9459CD},IJclPtrContainer)*)
+
+  (*$JPPEXPANDMACRO CONTAINER(IJclContainer,{A9EBED03-4993-426A-8449-30D98DC2AC90})*)
+
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclFlatContainer,{0A070B6F-54A1-4B3D-A4E4-CFFAE2C7C57B},IJclContainer)*)
+
+  {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
+  (*$JPPEXPANDMACRO CONTAINER(IJclContainer<T>,{19599A90-F392-430D-878D-A73E096C04AF})*)
+
+  (*$JPPEXPANDMACRO FLATCONTAINER(IJclFlatContainer<T>,{F562ECFB-98DC-4A82-A806-ED978B9D1667},IJclContainer<T>)*)
+
+  //DOM-IGNORE-END
+  {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO EQUALITYCOMPARER(,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO EQUALITYCOMPARER(IJclEqualityComparer<T>,{4AF79AD6-D9F4-424B-BEAA-68857F9222B4},TEqualityCompare<T>,const ,T)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO COMPARER(,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO COMPARER(IJclComparer<T>,{830AFC8C-AA06-46F5-AABD-8EB46B2A9986},TCompare<T>,const ,T)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO HASHCONVERTER(,,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO HASHCONVERTER(IJclHashConverter<T>,{300AEA0E-7433-4C3E-99A6-E533212ACF42},THashConvert<T>,const ,AItem,T)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   IJclIntfCloneable = interface
@@ -313,12 +397,12 @@ type
     property AutoGrowStrategy: TJclAutoGrowStrategy read GetAutoGrowStrategy write SetAutoGrowStrategy;
   end;
 
-  IJclObjectOwner = interface
-    ['{5157EA13-924E-4A56-995D-36956441025C}']
-    function FreeObject(var AObject: TObject): TObject;
-    function GetOwnsObjects: Boolean;
-    property OwnsObjects: Boolean read GetOwnsObjects;
-  end;
+(*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
+  {$JPPEXPANDMACRO RELEASEEVENT(,,)}
+
+  {$JPPEXPANDMACRO OWNER(,,,,,,,,)}
+
+*)
 
   IJclKeyOwner = interface
     ['{8BE209E6-2F85-44FD-B0CD-A8363C95349A}']
@@ -335,12 +419,14 @@ type
   end;
 
   {$IFDEF SUPPORTS_GENERICS}
-  IJclItemOwner<T> = interface
-    ['{0CC220C1-E705-4B21-9F53-4AD340952165}']
-    function FreeItem(var AItem: T): T;
-    function GetOwnsItems: Boolean;
-    property OwnsItems: Boolean read GetOwnsItems;
-  end;
+  //DOM-IGNORE-BEGIN
+
+  {$JPPEXPANDMACRO RELEASEEVENT(TFreeItemEvent<T>,AItem,T)}
+
+  (*$JPPEXPANDMACRO OWNER(IJclItemOwner<T>,IInterface,{0CC220C1-E705-4B21-9F53-4AD340952165},FreeItem,OnFreeItem,TFreeItemEvent<T>,AItem,T,
+
+  function GetOwnsItems: Boolean;
+  property OwnsItems: Boolean read GetOwnsItems;)*)
 
   IJclPairOwner<TKey, TValue> = interface
     ['{321C1FF7-AA2E-4229-966A-7EC6417EA16D}']
@@ -351,77 +437,105 @@ type
     property OwnsKeys: Boolean read GetOwnsKeys;
     property OwnsValues: Boolean read GetOwnsValues;
   end;
+
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO ITERATOR(,,,,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO ITERATOR(IJclIterator<T>,IJclAbstractIterator,{6E8547A4-5B5D-4831-8AE3-9C6D04071B11},const ,AItem,T,GetItem,SetItem)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO TREEITERATOR(,,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO TREEITERATOR(IJclTreeIterator<T>,IJclIterator<T>,{29A06DA4-D93A-40A5-8581-0FE85BC8384B},const ,AItem,T)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO BINTREEITERATOR(,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO BINTREEITERATOR(IJclBinaryTreeIterator<T>,IJclTreeIterator<T>,{0CF5B0FC-C644-458C-BF48-2E093DAFEC26},T)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO COLLECTION(,,,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
   //DOM-IGNORE-BEGIN
-  (*$JPPEXPANDMACRO COLLECTION(IJclCollection<T>,IJclContainer,{67EE8AF3-19B0-4DCA-A730-3C9B261B8EC5},const ,AItem,T,IJclIterator<T>)*)
+  (*$JPPEXPANDMACRO COLLECTION(IJclCollection<T>,IJclBaseContainer,{67EE8AF3-19B0-4DCA-A730-3C9B261B8EC5},const ,AItem,T,IJclIterator<T>)*)
   //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO LIST(,,,,,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO LIST(IJclList<T>,IJclCollection<T>,{3B4BE3D7-8FF7-4163-91DF-3F73AE6935E7},const ,AItem,T,GetItem,SetItem,Items)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   // Pointer functions for sort algorithms
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
-  {$JPPEXPANDMACRO SORTPROC(,,)}*)
+  {$JPPEXPANDMACRO SORTPROC(,,)}
+*)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   {$JPPEXPANDMACRO SORTPROC(TSortProc<T>,IJclList<T>,TCompare<T>)}
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO ARRAY(,,,,,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO ARRAY(IJclArray<T>,IJclList<T>,{38810C13-E35E-428A-B84F-D25FB994BE8E},const ,AItem,T,GetItem,SetItem,Items)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO SET(,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO SET(IJclSet<T>,IJclCollection<T>,{0B7CDB90-8588-4260-A54C-D87101C669EA})*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   TJclTraverseOrder = (toPreOrder, toOrder, toPostOrder);
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO TREE(,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO TREE(IJclTree<T>,IJclCollection<T>,{3F963AB5-5A75-41F9-A21B-7E7FB541A459},IJclTreeIterator<T>)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLMAPINDEX ALLMAPCOUNT
   {$JPPEXPANDMACRO MAP(,,,,,,,,)}
+
 *)
 
   (*IJclMultiIntfIntfMap = interface(IJclIntfIntfMap)
@@ -431,40 +545,55 @@ type
   end;*)
 
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   IHashable = interface
     function GetHashCode: Integer;
   end;
 
-  (*$JPPEXPANDMACRO MAP(IJclMap<TKey\,TValue>,IJclContainer,{22624C43-4828-4A1E-BDD4-4A7FE59AE135},const ,TKey,IJclSet<TKey>,const ,TValue,IJclCollection<TValue>)*)
+  (*$JPPEXPANDMACRO MAP(IJclMap<TKey\,TValue>,IJclBaseContainer,{22624C43-4828-4A1E-BDD4-4A7FE59AE135},const ,TKey,IJclSet<TKey>,const ,TValue,IJclCollection<TValue>)*)
+
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO QUEUE(,,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
-  (*$JPPEXPANDMACRO QUEUE(IJclQueue<T>,IJclContainer,{16AB909F-2194-46CF-BD89-B4207AC0CAB8},const ,AItem,T)*)
+  //DOM-IGNORE-BEGIN
+  (*$JPPEXPANDMACRO QUEUE(IJclQueue<T>,IJclBaseContainer,{16AB909F-2194-46CF-BD89-B4207AC0CAB8},const ,AItem,T)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLMAPINDEX ALLMAPCOUNT
   {$JPPEXPANDMACRO SORTEDMAP(,,,,)}
+
 *)
 
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO SORTEDMAP(IJclSortedMap<TKey\,TValue>,IJclMap<TKey\,TValue>,{C62B75C4-891B-442E-A5D6-9954E75A5C0C},const ,TKey)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO SORTEDSET(,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
+  //DOM-IGNORE-BEGIN
   (*$JPPEXPANDMACRO SORTEDSET(IJclSortedSet<T>,IJclSet<T>,{30F836E3-2FB1-427E-A499-DFAE201633C8},const ,T)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
 (*$JPPLOOP ALLTYPEINDEX ALLTYPECOUNT
   {$JPPEXPANDMACRO STACK(,,,,,)}
+
 *)
   {$IFDEF SUPPORTS_GENERICS}
-  (*$JPPEXPANDMACRO STACK(IJclStack<T>,IJclContainer,{2F08EAC9-270D-496E-BE10-5E975918A5F2},const ,AItem,T)*)
+  //DOM-IGNORE-BEGIN
+  (*$JPPEXPANDMACRO STACK(IJclStack<T>,IJclBaseContainer,{2F08EAC9-270D-496E-BE10-5E975918A5F2},const ,AItem,T)*)
+  //DOM-IGNORE-END
   {$ENDIF SUPPORTS_GENERICS}
 
   // Exceptions
@@ -548,9 +677,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/prototypes/JclContainerIntf.pas $';
-    Revision: '$Revision: 3295 $';
-    Date: '$Date: 2010-08-10 18:01:28 +0200 (mar., 10 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -560,7 +689,11 @@ const
 implementation
 
 uses
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils,
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclResources;
 
 //=== { EJclOutOfBoundsError } ===============================================

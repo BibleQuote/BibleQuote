@@ -30,9 +30,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010)                         $ }
-{ Revision:      $Rev:: 3321                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -60,7 +60,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysUtils, System.Classes,
+  {$ELSE ~HAS_UNITSCOPE}
   SysUtils, Classes,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclSysUtils, JclStrHashMap, JclResources;
 
 const
@@ -956,9 +960,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/common/JclExprEval.pas $';
-    Revision: '$Revision: 3321 $';
-    Date: '$Date: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
@@ -969,9 +973,19 @@ implementation
 
 uses
   {$IFDEF SUPPORTS_INLINE}
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, // inline of AnsiSameText
+  System.Types, // inline TObjectList.Remove
+  {$ELSE ~HAS_UNITSCOPE}
   Windows, // inline of AnsiSameText
+  {$ENDIF ~HAS_UNITSCOPE}
   {$ENDIF SUPPORTS_INLINE}
   JclStrings;
+
+{$IFDEF RTL150_UP}
+var
+  FFormatSettings: TFormatSettings;
+{$ENDIF RTL150_UP}
 
 //=== { TExprHashContext } ===================================================
 
@@ -1607,6 +1621,9 @@ var
   { register variable optimization }
   cp: PChar;
   start: PChar;
+  {$IFNDEF RTL150_UP}
+  OldSep: Char;
+  {$ENDIF !RTL150_UP}
 begin
   cp := FCurrPos;
 
@@ -1636,7 +1653,7 @@ begin
           Inc(cp);
 
         { check for and read in fraction part of mantissa }
-        if (cp^ = '.') or (cp^ = {$IFDEF RTL220_UP}FormatSettings.{$ENDIF}DecimalSeparator) then
+        if cp^ = '.' then
         begin
           Inc(cp);
           while CharIsDigit(cp^) do
@@ -1655,7 +1672,18 @@ begin
 
         { evaluate number }
         SetString(FTokenAsString, start, cp - start);
-        FTokenAsNumber := StrToFloat(FTokenAsString);
+        {$IFNDEF RTL150_UP}
+        OldSep := DecimalSeparator;
+        try
+          DecimalSeparator := '.';
+        {$ENDIF ~RTL150_UP}
+
+          FTokenAsNumber := StrToFloat(FTokenAsString{$IFDEF RTL150_UP}, FFormatSettings{$ENDIF RTL150_UP});
+        {$IFNDEF RTL150_UP}
+        finally
+          DecimalSeparator := OldSep;
+        end;
+        {$ENDIF ~RTL150_UP}
 
         FCurrTok := etNumber;
       end;
@@ -1690,7 +1718,10 @@ begin
       end;
   else
     { map character to token }
-    FCurrTok := CharToTokenMap[AnsiChar(cp^)];
+    if Word(cp^) < 256 then
+      FCurrTok := CharToTokenMap[AnsiChar(cp^)]
+    else
+      FCurrTok := etInvalid;
     Inc(cp);
   end;
 
@@ -2690,7 +2721,7 @@ begin
     for I := 0 to FCodeList.Count - 1 do
       TExprVirtMachOp(FCodeList[I]).Execute; }
     I := FCodeList.Count;
-    pop := @FCodeList.List^[0];
+    pop := @FCodeList.List{$IFNDEF RTL230_UP}^{$ENDIF !RTL230_UP}[0];
     while I > 0 do
     begin
       pop^.Execute;
@@ -4581,8 +4612,12 @@ begin
   inherited Clear;
 end;
 
-{$IFDEF UNITVERSIONING}
 initialization
+  {$IFDEF RTL150_UP}
+  FFormatSettings.DecimalSeparator := '.';
+  {$ENDIF RTL150_UP}
+
+{$IFDEF UNITVERSIONING}
   RegisterUnitVersion(HInstance, UnitVersioning);
 
 finalization

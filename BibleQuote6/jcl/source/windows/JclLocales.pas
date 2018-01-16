@@ -30,9 +30,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-12 18:06:20 +0200 (sam., 12 sept. 2009)                         $ }
-{ Revision:      $Rev:: 3003                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -50,7 +50,11 @@ uses
   {$IFDEF FPC}
   JwaWinNLS,
   {$ENDIF FPC}
-  Windows, Classes, SysUtils, Contnrs,
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.SysUtils, System.Classes, System.Contnrs,
+  {$ELSE ~HAS_UNITSCOPE}
+  Windows, SysUtils, Classes, Contnrs,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclWin32;
 
 type
@@ -310,9 +314,9 @@ procedure JclLocalesInfoList(const Strings: TStrings; InfoType: Integer = LOCALE
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclLocales.pas $';
-    Revision: '$Revision: 3003 $';
-    Date: '$Date: 2009-09-12 18:06:20 +0200 (sam., 12 sept. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -322,7 +326,12 @@ const
 implementation
 
 uses
-  SysConst, JclFileUtils, JclRegistry, JclStrings, JclSysInfo, JclUnicode;
+  {$IFDEF HAS_UNITSCOPE}
+  System.SysConst,
+  {$ELSE ~HAS_UNITSCOPE}
+  SysConst,
+  {$ENDIF ~HAS_UNITSCOPE}
+  JclFileUtils, JclRegistry, JclStrings, JclSysInfo, JclUnicode;
 
 const
   JclMaxKeyboardLayouts = 16;
@@ -336,7 +345,7 @@ begin
     Inc(Result, KLF_REORDER);
   if (klUnloadPrevious in ActivateFlags) and IsWinNT then
     Inc(Result, KLF_UNLOADPREVIOUS);
-  if (klSetForProcess in ActivateFlags) and IsWin2K then
+  if (klSetForProcess in ActivateFlags) and JclCheckWinVersion(5, 0) then // Win2k or newer
     Inc(Result, KLF_SETFORPROCESS);
   if LoadMode then
   begin
@@ -441,7 +450,7 @@ begin
     try
       C := CAL_SCALNAME or LocaleUseAcp[FUseSystemACP];
       if not JclWin32.RtdlEnumCalendarInfoExW(EnumCalendarInfoProcEx, FLocaleID, ENUM_ALL_CALENDARS, C) then
-        Windows.EnumCalendarInfo(@EnumCalendarInfoProcName, FLocaleID, ENUM_ALL_CALENDARS, C);
+        {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.EnumCalendarInfo(@EnumCalendarInfoProcName, FLocaleID, ENUM_ALL_CALENDARS, C);
       FValidCalendars := True;
     finally
       ProcessedLocaleInfoList := nil;
@@ -516,7 +525,7 @@ begin
       FDateFormats[Format].Clear;
     ProcessedLocaleInfoList := FDateFormats[Format];
     try
-      Windows.EnumDateFormatsW(@EnumDateFormatsProc, FLocaleID, DateFormats[Format] or
+      {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.EnumDateFormatsW(@EnumDateFormatsProc, FLocaleID, DateFormats[Format] or
         LocaleUseAcp[FUseSystemACP]);
       Include(FValidDateFormatLists, Format);
     finally
@@ -582,7 +591,7 @@ begin
   if Res > 0 then
   begin
     SetString(Result, nil, Res);
-    Res := Windows.GetLocaleInfo(FLocaleID, InfoType, PChar(Result), Res);
+    Res := {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.GetLocaleInfo(FLocaleID, InfoType, PChar(Result), Res);
     StrResetLength(Result);
     // Note: GetLocaleInfo returns sometimes incorrect length of string on Win95 (usually plus 1),
     // that's why StrResetLength is called.
@@ -594,7 +603,7 @@ begin
     if Res > 0 then
     begin
       GetMem(W, Res * SizeOf(WideChar));
-      Res := Windows.GetLocaleInfoW(FLocaleID, InfoType, W, Res);
+      Res := {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.GetLocaleInfoW(FLocaleID, InfoType, W, Res);
       Result := WideCharToString(W);
       FreeMem(W);
     end;
@@ -619,7 +628,7 @@ begin
       FTimeFormats.Clear;
     ProcessedLocaleInfoList := FTimeFormats;
     try
-      Windows.EnumTimeFormatsW(@EnumTimeFormatsProc, FLocaleID, LocaleUseAcp[FUseSystemACP]);
+      {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.EnumTimeFormatsW(@EnumTimeFormatsProc, FLocaleID, LocaleUseAcp[FUseSystemACP]);
       FValidTimeFormatLists := True;
     finally
       ProcessedLocaleInfoList := nil;
@@ -640,7 +649,7 @@ end;
 
 procedure TJclLocaleInfo.SetStringInfo(InfoType: Integer; const Value: string);
 begin
-  Win32Check(Windows.SetLocaleInfo(FLocaleID, InfoType, PChar(Value)));
+  Win32Check({$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.SetLocaleInfo(FLocaleID, InfoType, PChar(Value)));
 end;
 
 procedure TJclLocaleInfo.SetUseSystemACP(const Value: Boolean);
@@ -692,8 +701,8 @@ const
 begin
   ProcessedLocalesList := Self;
   try
-    Win32Check(Windows.EnumSystemLocalesW(@EnumLocalesProc, Flags[FKind]));
-    Win32Check(Windows.EnumSystemCodePagesW(@EnumCodePagesProc, Flags[FKind]));
+    Win32Check({$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.EnumSystemLocalesW(@EnumLocalesProc, Flags[FKind]));
+    Win32Check({$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.EnumSystemCodePagesW(@EnumCodePagesProc, Flags[FKind]));
   finally
     ProcessedLocalesList := nil;
   end;
@@ -845,7 +854,7 @@ end;
 
 function TJclKeyboardLayout.Unload: Boolean;
 begin
-  Result := Windows.UnloadKeyboardLayout(FLayout);
+  Result := {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.UnloadKeyboardLayout(FLayout);
   if Result then
     FOwner.Refresh;
 end;
@@ -991,7 +1000,7 @@ var
   Layouts: array [1..JclMaxKeyboardLayouts] of HKL;
 begin
   Layouts[1] := 0;
-  Cnt := Windows.GetKeyboardLayoutList(JclMaxKeyboardLayouts, Layouts);
+  Cnt := {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.GetKeyboardLayoutList(JclMaxKeyboardLayouts, Layouts);
   // Note: GetKeyboardLayoutList doesn't work as expected, when pass 0 to nBuff it always returns 0
   // on Win95.
   FList.Clear;

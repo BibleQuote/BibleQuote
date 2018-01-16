@@ -37,15 +37,16 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-05 13:18:47 +0100 (ven., 05 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3179                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
 unit JclShell;
 
 {$I jcl.inc}
+{$I windowsonly.inc}
 
 interface
 
@@ -53,8 +54,11 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
-  Windows, SysUtils,
-  ShlObj,
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.Windows, System.SysUtils, Winapi.ShlObj,
+  {$ELSE ~HAS_UNITSCOPE}
+  Windows, SysUtils, ShlObj,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclBase, JclWin32, JclSysUtils;
 
 // Files and Folders
@@ -173,6 +177,8 @@ function ShellOpenAs(const FileName: string): Boolean;
 function ShellRasDial(const EntryName: string): Boolean;
 function ShellRunControlPanel(const NameOrFileName: string; AppletNumber: Integer = 0): Boolean;
 
+function RunAsAdmin(const FileName: string; const Parameters: string = ''; const Parent: THandle = 0): Boolean;
+
 function GetFileNameIcon(const FileName: string; Flags: Cardinal = 0): HICON;
 
 type
@@ -201,9 +207,9 @@ var
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/source/windows/JclShell.pas $';
-    Revision: '$Revision: 3179 $';
-    Date: '$Date: 2010-02-05 13:18:47 +0100 (ven., 05 févr. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -213,9 +219,11 @@ const
 implementation
 
 uses
-  ActiveX,
-  CommCtrl,
-  Messages, ShellApi,
+  {$IFDEF HAS_UNITSCOPE}
+  Winapi.ActiveX, Winapi.CommCtrl, Winapi.Messages, Winapi.ShellAPI,
+  {$ELSE ~HAS_UNITSCOPE}
+  ActiveX, CommCtrl, Messages, ShellAPI,
+  {$ENDIF ~HAS_UNITSCOPE}
   JclFileUtils, JclStrings, JclSysInfo;
 
 type
@@ -230,6 +238,7 @@ const
   cVerbProperties = 'properties';
   cVerbOpen = 'open';
   cVerbExplore = 'explore';
+  cVerbRunas = 'runas';
 
 //=== Files and Folders ======================================================
 
@@ -432,7 +441,7 @@ begin
     begin
       IconIndex := 0;
       ExtractIcon.GetIconLocation(0, @IconFile, MAX_PATH, IconIndex, Flags);
-      if (IconIndex < 0) and ((Flags and GIL_NOTFILENAME) = GIL_NOTFILENAME) then
+      if (IconIndex < 0) or ((Flags and GIL_NOTFILENAME) = 0) then
         ExtractIconEx(@IconFile, IconIndex, F.IconLarge, F.IconSmall, 1)
       else
         ExtractIcon.Extract(@IconFile, IconIndex, F.IconLarge, F.IconSmall,
@@ -598,7 +607,7 @@ begin
   WndClass.lpszClassName := PChar(IcmCallbackWnd);
   WndClass.lpfnWndProc := @MenuCallback;
   WndClass.hInstance := HInstance;
-  Windows.RegisterClass(WndClass);
+  {$IFDEF HAS_UNITSCOPE}Winapi.{$ENDIF}Windows.RegisterClass(WndClass);
   Result := CreateWindow(IcmCallbackWnd, IcmCallbackWnd, WS_POPUPWINDOW, 0,
     0, 0, 0, 0, 0, HInstance, Pointer(ContextMenu));
 end;
@@ -1468,8 +1477,8 @@ begin
        end;
      finally
        FreeLibrary(RasDlg);
-     end;   
-   end 
+     end;
+   end
    else
      Result := ShellExecEx('rundll32', Format('rnaui.dll,RnaDial "%s"', [EntryName]), '', SW_SHOWNORMAL);
 end;
@@ -1501,6 +1510,28 @@ begin
     Result := False;
     SetLastError(ERROR_FILE_NOT_FOUND);
   end;
+end;
+
+// Compare http://msdn.microsoft.com/en-us/library/bb756922.aspx
+
+function RunAsAdmin(const FileName: string; const Parameters: string = ''; const Parent: THandle = 0): Boolean;
+var
+  Sei: TShellExecuteInfo;
+begin
+  ResetMemory(Sei, SizeOf(Sei));
+  Sei.cbSize := SizeOf(TShellExecuteInfo);
+  Sei.Wnd := Parent;
+  Sei.fMask := SEE_MASK_FLAG_DDEWAIT or SEE_MASK_FLAG_NO_UI;
+  Sei.lpVerb := PChar(cVerbRunas);
+  Sei.lpFile := PChar(FileName);
+  Sei.lpParameters := PCharOrNil(Parameters);
+  Sei.nShow := SW_SHOWNORMAL;
+
+  {$TYPEDADDRESS ON}
+  Result := ShellExecuteEx(@Sei);
+  {$IFNDEF TYPEDADDRESS_ON}
+  {$TYPEDADDRESS OFF}
+  {$ENDIF ~TYPEDADDRESS_ON}
 end;
 
 function GetFileExeType(const FileName: TFileName): TJclFileExeType;
