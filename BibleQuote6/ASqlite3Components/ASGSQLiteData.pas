@@ -25,8 +25,8 @@ uses
 {$IFDEF ASQLite_D2006PLUS}
    WideStrUtils,
 {$ENDIF}
-  ASGRout3,
-  ASGSQLite3;
+  ASGRout3_unicode,
+  ASGSQLite3_unicode;
 
 function GetCalcFieldsCount(ADataset: TDataset): integer;
 var i: integer;
