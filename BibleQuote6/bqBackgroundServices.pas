@@ -48,7 +48,7 @@ type
   end;
 
 implementation
-uses bqPlainUtils,TntSysUtils;
+uses bqPlainUtils;
 { Important: Methods and properties of objects in visual components can only be
   used in a method called using Synchronize, for example,
 
@@ -173,7 +173,7 @@ begin
   hr:=mEngine.QueryInterface(IbqEngineDicTraits,engine) ;
   if hr<>S_OK then  exit;
 
-  wsPath:=WideIncludeTrailingPathDelimiter(fromPath);
+  wsPath:=IncludeTrailingPathDelimiter(fromPath);
   wsFileMask:=wsPath + '*.idx';
   findHandle := FindFirstFileExW(Pointer(wsFileMask),FindExInfoStandard,@findData,
       FindExSearchNameMatch,nil,0);

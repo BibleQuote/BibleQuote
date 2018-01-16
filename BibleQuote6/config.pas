@@ -5,41 +5,38 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, 
-  Forms, TntForms,
-  TntStdCtrls,
-  TntComCtrls,
-  TntFileCtrl, TntExtCtrls, Buttons, StdCtrls, ComCtrls;
+  Forms, FileCtrl, ExtCtrls, Buttons, StdCtrls, ComCtrls;
 
 type
-  TConfigForm = class(TTntForm)
-    PageControl1: TTntPageControl;
-    CopyOptionsTabSheet: TTntTabSheet;
-    CopyVerseNumbers: TTntCheckBox;
-    CopyFontParams: TTntCheckBox;
-    AddReference: TTntCheckBox;
-    AddReferenceRadio: TTntRadioGroup;
-    AddModuleName: TTntCheckBox;
-    AddLineBreaks: TTntCheckBox;
-    OtherOptionsTabSheet: TTntTabSheet;
-    OKButton: TTntButton;
-    CancelButton: TTntButton;
-    SelectSecondPathLabel: TTntLabel;
-    SelectPathEdit: TTntEdit;
-    SelectPathButton: TTntButton;
-    DeleteButton: TTntButton;
-    MinimizeToTray: TTntCheckBox;
-    HotKeyChoice: TTntRadioGroup;
-    FavouriteExTabSheet: TTntTabSheet;
-    lblAvailableModules: TTntLabel;
-    lblFavourites: TTntLabel;
-    lbxFavourites: TTntListBox;
+  TConfigForm = class(TForm)
+    PageControl1: TPageControl;
+    CopyOptionsTabSheet: TTabSheet;
+    CopyVerseNumbers: TCheckBox;
+    CopyFontParams: TCheckBox;
+    AddReference: TCheckBox;
+    AddReferenceRadio: TRadioGroup;
+    AddModuleName: TCheckBox;
+    AddLineBreaks: TCheckBox;
+    OtherOptionsTabSheet: TTabSheet;
+    OKButton: TButton;
+    CancelButton: TButton;
+    SelectSecondPathLabel: TLabel;
+    SelectPathEdit: TEdit;
+    SelectPathButton: TButton;
+    DeleteButton: TButton;
+    MinimizeToTray: TCheckBox;
+    HotKeyChoice: TRadioGroup;
+    FavouriteExTabSheet: TTabSheet;
+    lblAvailableModules: TLabel;
+    lblFavourites: TLabel;
+    lbxFavourites: TListBox;
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
-    cbxAvailableModules: TTntComboBox;
+    cbxAvailableModules: TComboBox;
     BitBtn3: TBitBtn;
     btnAddHotModule: TBitBtn;
-    cbFullContextOnRestrictedLinks: TTntCheckBox;
-    cbUseVerseHL: TTntCheckBox;
+    cbFullContextOnRestrictedLinks: TCheckBox;
+    cbUseVerseHL: TCheckBox;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure OKButtonClick(Sender: TObject);
     procedure CancelButtonClick(Sender: TObject);
@@ -114,10 +111,10 @@ end;
 
 procedure TConfigForm.SelectPathButtonClick(Sender: TObject);
 var
-  s: WideString;
+  s: string;
 begin
   // ??? Как сработает ?
-  if TntFileCtrl.WideSelectDirectory (
+  if SelectDirectory(
     SelectSecondPathLabel.Caption,
     SelectPathEdit.Text,
     s

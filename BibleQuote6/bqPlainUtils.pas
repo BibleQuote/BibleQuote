@@ -1,24 +1,24 @@
 unit bqPlainUtils;
 
 interface
-uses JCLWideStrings,WideStrings,SysUtils,Windows;
+uses JCLWideStrings,WideStrings,SysUtils,Windows,Classes, Character;
 
 function PWideChar2Int(pwc:PWideChar; out val:integer):PWideChar;
-function StrToTokens(const str: WideString; const delim: WideString;
-  strLst: TWideStrings; useQuotes: boolean = false): integer;
-function StrLimitToWordCnt(const ws:widestring; maxWordCount:integer;out actualWc:integer;out limited:boolean):WideString;
-function NextWordIndex(const ws:WideString; startIx:integer):integer;
-function WideStringToUtfBOMString(const ws:WideString):UTF8String;inline;
-function WideIsSpaceEndedString(const ws:WideString):boolean;
-function bqWidePosCI(const substr:WideString; str:WideString):integer;
+function StrToTokens(const str: string; const delim: string;
+  strLst: TStrings; useQuotes: boolean = false): integer;
+function StrLimitToWordCnt(const ws:string; maxWordCount:integer;out actualWc:integer;out limited:boolean):string;
+function NextWordIndex(const ws:string; startIx:integer):integer;
+function WideStringToUtfBOMString(const ws:string):UTF8String;inline;
+function WideIsSpaceEndedString(const ws:string):boolean;
+function bqWidePosCI(const substr:string; str:string):integer;
 function FindFirstFileExW(lpFileName: PWideChar; fInfoLevelId: _FINDEX_INFO_LEVELS;
   lpFindFileData: Pointer; fSearchOp: _FINDEX_SEARCH_OPS; lpSearchFilter: Pointer;
   dwAdditionalFlags: DWORD): THANDLE; stdcall;
 function FindNextFileW(hFindFile: THANDLE; var lpFindFileData: _WIN32_FIND_DATAW): BOOL; stdcall;
 function bqNowDateTimeString():WideString;
-function ParamStartedWith(const token:WideString; out param:WideString):boolean;
+function ParamStartedWith(const token:string; out param:string):boolean;
 implementation
-uses BibleQuoteConfig,  JclUnicode, tntSystem;
+uses BibleQuoteConfig, JclUnicode, tntSystem;
 function FindFirstFileExW; external kernel32 name 'FindFirstFileExW';
 function FindNextFileW; external kernel32 name 'FindNextFileW';
 
@@ -39,8 +39,8 @@ begin
 end;
 
 
-function StrToTokens(const str: WideString; const delim: WideString;
-  strLst: WideStrings.TWideStrings; useQuotes: boolean = false): integer;
+function StrToTokens(const str: string; const delim: string;
+  strLst: TStrings; useQuotes: boolean = false): integer;
 var
   dl: integer;
 
@@ -52,7 +52,7 @@ begin
   strLst.Clear;
   dlp := PWideChar(Pointer(delim));
   prevPos := PWideChar(Pointer(str));
-  curPos := StrPosW(prevPos, dlp);
+  curPos := StrPos(prevPos, dlp);
   if not assigned(curPos) then begin
     if length(str) > 0 then strLst.Add(str);
     exit;
@@ -65,7 +65,7 @@ begin
       prevPos := curPos + dl;
       inc(result);
     end else inc(prevPos, dl);
-    curPos := StrPosW(prevPos, dlp);
+    curPos := StrPos(prevPos, dlp);
   until curPos = nil;
   if prevPos <> nil then begin
     ws := prevPos;
@@ -75,11 +75,9 @@ begin
 
 end;
 
-function StrLimitToWordCnt(const ws:widestring; maxWordCount:integer;out actualWc:integer; out limited:boolean):WideString;
+function StrLimitToWordCnt(const ws:string; maxWordCount:integer;out actualWc:integer; out limited:boolean):string;
 var pwc,start:PWideChar;
     wordStarted,charIsSeparator:boolean;
-
-
 begin
 start:=PWideChar(Pointer(ws));
 pwc:=start;
@@ -90,10 +88,17 @@ if (pwc=nil) or (pwc^=#0) or limited then exit;
 wordStarted:=false;
 repeat
 //UnicodeIsPunctuation
-charIsSeparator:=CategoryLookup(Cardinal(pwc^),[ccSeparatorSpace,
- ccPunctuationConnector, ccPunctuationDash, ccPunctuationOpen,ccPunctuationClose,
- ccPunctuationOther, ccPunctuationInitialQuote, ccPunctuationFinalQuote,
- ccSeparatorSpace, ccSeparatorLine, ccSeparatorParagraph]);
+charIsSeparator := TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
+    [TUnicodeCategory.ucConnectPunctuation,
+     TUnicodeCategory.ucDashPunctuation,
+     TUnicodeCategory.ucOpenPunctuation,
+     TUnicodeCategory.ucClosePunctuation,
+     TUnicodeCategory.ucOtherPunctuation,
+     TUnicodeCategory.ucInitialPunctuation,
+     TUnicodeCategory.ucFinalPunctuation,
+     TUnicodeCategory.ucSpaceSeparator,
+     TUnicodeCategory.ucLineSeparator,
+     TUnicodeCategory.ucParagraphSeparator];
  if charIsSeparator then begin
   if wordStarted then begin
    wordStarted:=false;
@@ -101,9 +106,13 @@ charIsSeparator:=CategoryLookup(Cardinal(pwc^),[ccSeparatorSpace,
    end;
  end
  else if not wordStarted then begin
-
-  if  CategoryLookup(Cardinal(pwc^), [ccLetterUppercase, ccLetterLowercase, ccLetterTitlecase,
-  ccLetterModifier, ccLetterOther, ccNumberDecimalDigit]) then begin
+  if (TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
+    [TUnicodeCategory.ucUppercaseLetter,
+     TUnicodeCategory.ucLowercaseLetter,
+     TUnicodeCategory.ucTitlecaseLetter,
+     TUnicodeCategory.ucModifierLetter,
+     TUnicodeCategory.ucOtherLetter,
+     TUnicodeCategory.ucDecimalNumber]) or (TCharacter.IsDigit(Cardinal(pwc^))) then begin
   Inc(actualWc);
   wordStarted:=true;
   end;//alphanum
@@ -117,7 +126,7 @@ limited:=pwc^<>#0;
 Result:= Copy(ws,1, (pwc-start));
 end;
 
-function NextWordIndex(const ws:WideString; startIx:integer):integer;
+function NextWordIndex(const ws:string; startIx:integer):integer;
 var pwc,start:PWideChar;
     charIsSeparator,separatorfound:boolean;
 
@@ -131,14 +140,27 @@ if (pwc=nil) or (pwc^=#0)  then exit;
 separatorfound:=false;
 repeat
 //UnicodeIsPunctuation
-charIsSeparator:=CategoryLookup(Cardinal(pwc^),[ccSeparatorSpace, 
- ccPunctuationConnector, ccPunctuationDash, ccPunctuationOpen,ccPunctuationClose,
- ccPunctuationOther, ccPunctuationInitialQuote, ccPunctuationFinalQuote,
- ccSeparatorSpace, ccSeparatorLine, ccSeparatorParagraph]);
+charIsSeparator := TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
+    [TUnicodeCategory.ucConnectPunctuation,
+     TUnicodeCategory.ucDashPunctuation,
+     TUnicodeCategory.ucOpenPunctuation,
+     TUnicodeCategory.ucClosePunctuation,
+     TUnicodeCategory.ucOtherPunctuation,
+     TUnicodeCategory.ucInitialPunctuation,
+     TUnicodeCategory.ucFinalPunctuation,
+     TUnicodeCategory.ucSpaceSeparator,
+     TUnicodeCategory.ucLineSeparator,
+     TUnicodeCategory.ucParagraphSeparator];
+
  if charIsSeparator and ( not separatorfound) then separatorfound:=true;
  if separatorfound then begin
-  if  CategoryLookup(Cardinal(pwc^), [ccLetterUppercase, ccLetterLowercase, ccLetterTitlecase,
-  ccLetterModifier, ccLetterOther, ccNumberDecimalDigit]) then begin
+  if (TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
+    [TUnicodeCategory.ucUppercaseLetter,
+     TUnicodeCategory.ucLowercaseLetter,
+     TUnicodeCategory.ucTitlecaseLetter,
+     TUnicodeCategory.ucModifierLetter,
+     TUnicodeCategory.ucOtherLetter,
+     TUnicodeCategory.ucDecimalNumber]) or (TCharacter.IsDigit(Cardinal(pwc^))) then begin
   result:=pwc-start;
   exit;
   end;//alphanum
@@ -149,22 +171,22 @@ charIsSeparator:=CategoryLookup(Cardinal(pwc^),[ccSeparatorSpace,
  until pwc^=#0;
 end;
 
-function WideStringToUtfBOMString(const ws:WideString):UTF8String;inline;
+function WideStringToUtfBOMString(const ws:string):UTF8String;inline;
 begin
   result:=C__Utf8BOM+UTF8Encode(ws);
 end;
-function WideIsSpaceEndedString(const ws:WideString):boolean;
+function WideIsSpaceEndedString(const ws:string):boolean;
 begin
 result:=UnicodeIsSpace(Cardinal( ws[length(ws)-1]));
 end;
 
-function bqWidePosCI(const substr:WideString; str:WideString):integer;
-var strUpper, subStrUpper:WideString;
+function bqWidePosCI(const substr:string; str:string):integer;
+var strUpper, subStrUpper:string;
 begin
-subStrUpper:= Sysutils.WideUpperCase(substr);
-strUpper:=WideUpperCase(str);
+subStrUpper:= Sysutils.UpperCase(substr);
+strUpper:=UpperCase(str);
 
-result:=WidePos(subStrUpper, strUpper);
+result:=Pos(subStrUpper, strUpper);
 
 end;
 
@@ -184,16 +206,17 @@ begin
   end;
 
 end;
-function ParamStartedWith(const token:WideString; out param:WideString):boolean;
+function ParamStartedWith(const token:string; out param:string):boolean;
 var paramCount, paramIndex:integer;
-
+var len: integer;
 begin
   paramCount:=WideParamCount()-1;
   result:=false;
   for paramIndex:=0 to paramCount do begin
-   param:=WideParamStr(paramIndex);
-  result:=WideStartsText(token,param);
-  if result then break;
+    param:=ParamStr(paramIndex);
+    len := Length(token);
+    result := (Len <= Length(param)) and (StrLIComp(PWideChar(WideString(token)), PWideChar(WideString(param)), Len) = 0);
+    if result then break;
   end;
   if not result then begin param:=''; exit end;
 end;

@@ -3,7 +3,7 @@ unit VersesDB;
 interface
 
 uses
-  SysUtils, Classes,  BibleQuoteUtils,DB, ASGSQLite3, contnrs, bqLinksParserIntf
+  SysUtils, Classes,  BibleQuoteUtils,DB, ASGSQLite3_unicode, contnrs, bqLinksParserIntf
   ;
 
 type
@@ -23,7 +23,7 @@ type
     function getText(): WideString;
     function getBibleLinkEx(): TBibleLinkEx;
     procedure packCached(const sig: WideString; const txt: WideString; const font: WideString);
-    function unpackCached(const ws: WideString; out sig: WideString; out font: WideString; out txt: WIdeString): HRESULT; //return text
+    function unpackCached(const ws: string; out sig: string; out font: string; out txt: string): HRESULT; //return text
     class function FindNodeById(lst: TObjectList; id: int64; nodeType: TVersesNodeType; out node: TVersesNodeData): integer; static;
   end;
 
@@ -67,7 +67,6 @@ type
       StringField1: TStringField;
       cdTTRelations: TASQLite3Query;
       cdTTRelationsORG_TAGID: TIntegerField;
-      cdTTRelationsREL_TAGID: TIntegerField;
       cdTTRelationsTTRELATIONID: TIntegerField;
       cdVersesLoCID: TIntegerField;
       ASQLite3Pragma1: TASQLite3Pragma;
@@ -93,7 +92,7 @@ type
 //      function InitNode(const vnd: TVersesNodeData; verse_tags_cache: TbqVerseTagsList; out addedCacheIx: integer): integer;
       function InitNodeChildren(const vnd: TVersesNodeData; verse_tags_cache: TbqVerseTagsList): integer;
 //    function AddTagged(tgid: int64; bk, ch, vs, ve: integer): HRESULT;overload;
-      function AddVerseTagged(tagsList: WideString; bk, ch, vs, ve: integer; const loc: wideString; show:boolean): HRESULT;
+      function AddVerseTagged(tagsList: string; bk, ch, vs, ve: integer; const loc: string; show:boolean): HRESULT;
       function AddTag(const tn: Widestring; out dbTagId: int64): HRESULT;
       function DeleteTag(const tn: WideString; dbTagid: int64; uiRelaxed: boolean = false): integer;
       function DeleteVerseFromTag(const verseId: int64; const dbTagName: Widestring; uiRelaxed: boolean = false): HRESULT;
@@ -140,9 +139,9 @@ end;
 //  except on e: Exception do BqShowException(e) end;
 //end;
 
-function TVerseListEngine.AddVerseTagged(tagsList: WideString; bk, ch, vs,
-  ve: integer; const loc: wideString; show:boolean): HRESULT;
-var sl: TWideStringList;
+function TVerseListEngine.AddVerseTagged(tagsList: string; bk, ch, vs,
+  ve: integer; const loc: string; show:boolean): HRESULT;
+var sl: TStringList;
 var i, c: integer;
   dbTagId, dbVerseId: int64;
   firstChar: WideChar;
@@ -150,7 +149,7 @@ var i, c: integer;
   relation: integer;
 begin
   try
-    sl := TWideStringList.Create();
+    sl := TStringList.Create();
 
     try
       StrToTokens(tagsList, '|', sl);
@@ -684,8 +683,8 @@ begin
   cachedTxt := WideFormat('bqvndPacked|%s|%s|%s', [sig, font, txt]);
 end;
 
-function TVersesNodeData.unpackCached(const ws: WideString; out sig,
-  font: WideString; out txt: WideString): HRESULT;
+function TVersesNodeData.unpackCached(const ws: string; out sig,
+  font: string; out txt: string): HRESULT;
 var i, startIx: integer;
 label fail;
 begin

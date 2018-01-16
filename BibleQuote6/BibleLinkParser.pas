@@ -12,8 +12,8 @@ type
     destructor Destroy();override;
     procedure Delete(Index: Integer); override;
     procedure Clear(); override;
-    function FromFile(const fn: WideString): boolean;
-    function FromStrings(const sl: TWideStringList): boolean;
+    function FromFile(const fn: string): boolean;
+    function FromStrings(const sl: TStringList): boolean;
     function ItemIndexFromBookIx(): integer;
   end;
 
@@ -87,7 +87,7 @@ property Options: TLinkParserOptions read mLinkParserOptions
   write mLinkParserOptions;
 end;
 
-    function Prepare(fn: WideString; var df: Text): boolean;
+    function Prepare(fn: string; var df: Text): boolean;
     function ResolveLnks(const txt: WideString;fuzzyLogic:boolean): WideString;
 
     function extractLnks(const txt:WideString;fuzzyLogic:boolean; var la:TBibleLinkArray):boolean;
@@ -861,9 +861,9 @@ begin
   result := -2;
 end;
 
-function Prepare(fn: WideString; var df: Text): boolean;
+function Prepare(fn: string; var df: Text): boolean;
 var
-  sl: TWideStringList;
+  sl: TStringList;
 begin
   result := false;
   try
@@ -874,7 +874,7 @@ begin
     if FileExists(fn) then
       bookNamesObj.FromFile(fn)
     else begin
-      sl := TWideStringList.Create();
+      sl := TStringList.Create();
       sl.Text := c_BibleBooks;
       bookNamesObj.FromStrings(sl);
     end;
@@ -1381,11 +1381,11 @@ end;
 inherited;
 end;
 
-function TBibleBookNames.FromStrings(const sl: TWideStringList): boolean;
+function TBibleBookNames.FromStrings(const sl: TStringList): boolean;
 var i, sli, slc, searchSlen, val, tokenIx, tokenCnt: integer;
   notFnd: boolean;
-  ws, ws2, ss: wideString;
-  tokens: TWideStringList;
+  ws, ws2, ss: string;
+  tokens: TStringList;
   pItem: TBibleBookNameEntry;
 label fnd1, fnd2;
 begin
@@ -1393,7 +1393,7 @@ begin
     result := false;
     try
       Clear();
-      tokens := TWideStringList.Create;
+      tokens := TStringList.Create;
       i := 1; sli := 0; slc := sl.Count;
       sorted := true; Duplicates := dupIgnore;
 
@@ -1448,13 +1448,13 @@ on e:exception do begin
   end;
 end;
 
-function TBibleBookNames.FromFile(const fn: WideString): boolean;
+function TBibleBookNames.FromFile(const fn: string): boolean;
 var
-  sl: TWideStringList;
+  sl: TStringList;
 begin
   try
     result := false;
-    sl := TWideStringList.Create;
+    sl := TStringList.Create;
     try
       Clear();
       sl.LoadFromFile(fn);

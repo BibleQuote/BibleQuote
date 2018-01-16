@@ -2,10 +2,10 @@ unit links_parser;
 
 interface
 
-uses SysUtils, Classes, WideStrings;
+uses SysUtils, Classes;
 
-procedure StrToLinks(s: WideString; Links: TWideStrings);
-procedure Tokenize(sourcestr: WideString; var Tokens: TWideStrings);
+procedure StrToLinks(s: string; Links: TStrings);
+procedure Tokenize(sourcestr: string; var Tokens: TStrings);
 
 implementation
 
@@ -21,12 +21,12 @@ begin
   end;
 end;
 
-function IsDigit(aChar: WideChar): Boolean;
+function IsDigit(aChar: Char): Boolean;
 begin
   Result := (aChar >= '0') and (aChar <= '9');
 end;
 
-procedure Tokenize(sourcestr: WideString; var Tokens: TWideStrings);
+procedure Tokenize(sourcestr: string; var Tokens: TStrings);
 var
   s, wrd: WideString;
   len, i: integer;
@@ -71,13 +71,13 @@ begin
   if wrd <> '' then Tokens.Add(wrd);
 end;
 
-procedure StrToLinks(s: WideString; Links: WideStrings.TWideStrings);
+procedure StrToLinks(s: string; Links: TStrings);
 var
   i, ci: integer;
-  list: TWideStrings;
-  book: WideString;
+  list: TStrings;
+  book: string;
   chapter, fromverse, toverse: integer;
-  ctxBook: WideString;
+  ctxBook: string;
   pl, colonUsed, commaUsed, addRslt: boolean;
 
   function parselink(out needAdd: boolean): boolean;
@@ -165,7 +165,7 @@ var
 
   
 begin
-  list := TWideStringList.Create;
+  list := TStringList.Create;
   try
   Links.Clear;
 

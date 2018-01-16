@@ -2,7 +2,7 @@ unit BibleQuoteUtils;
 
 interface
 uses SevenZipHelper,SevenZipVCL, MultiLanguage,
-  Contnrs, JCLWideStrings, WideStrings, Windows, SysUtils, Classes, JCLDebug,
+  Contnrs, JCLStrings, Windows, SysUtils, Classes, JCLDebug,
   COperatingSystemInfo;
 type
   TBibleModuleSecurity = class
@@ -135,11 +135,11 @@ type
   TbqOldObjectList=class(TList)
    procedure Notify(Ptr: Pointer; Action: TListNotification); virtual;
   end;
-  TBQStringList = class(TWideStringList)
+  TBQStringList = class(TStringList)
   protected
-    function CompareStrings(const S1, S2: WideString): Integer; override;
+    function CompareStrings(const S1, S2: string): Integer; override;
   public
-    function LocateLastStartedWith(const subString: WideString; startFromIx:
+    function LocateLastStartedWith(const subString: string; startFromIx:
       integer = 0; strict: boolean = false): integer;
   end;
   TbqExceptionContext=class(TWideStringList)
@@ -263,48 +263,48 @@ resourcestring
   '-->'#13#10 +
     '</STYLE>';
 
-function GetArchiveFromSpecial(const aSpecial: WideString): WideString;
+function GetArchiveFromSpecial(const aSpecial: string): string;
   overload;
-function GetArchiveFromSpecial(const aSpecial: WideString; out fileName:
-  WideString): WideString; overload;
-function GetCachedModulesListDir(): WideString;
-function FileExistsEx(aPath: WideString): integer;
-function ArchiveFileSize(wsPath: WideString): integer;
-function SpecialIO(const wsFileName: WideString; wsStrings: TWideStrings; obf:
+function GetArchiveFromSpecial(const aSpecial: string; out fileName:
+  string): string; overload;
+function GetCachedModulesListDir(): string;
+function FileExistsEx(aPath: string): integer;
+function ArchiveFileSize(wsPath: string): integer;
+function SpecialIO(const wsFileName: string; wsStrings: TStrings; obf:
   Int64; read: boolean = true): boolean;
-function FontExists(const wsFontName: WideString): boolean;
-function FontFromCharset(aHDC: HDC; charset: integer; wsDesiredFont: WideString =
-  ''): WideString;
+function FontExists(const wsFontName: string): boolean;
+function FontFromCharset(aHDC: HDC; charset: integer; wsDesiredFont: string =
+  ''): string;
 function GetCRC32(pData: PByteArray; count: Integer; Crc: Cardinal = 0):
   Cardinal;
-function ExtractModuleName(aModuleSignature: WideString): WideString;
-function StrPosW(const Str, SubStr: PWideChar): PWideChar;
-function ExctractName(const wsFile: WideString): WideString;
+function ExtractModuleName(aModuleSignature: string): string;
+function StrPosW(const Str, SubStr: PChar): PChar;
+function ExctractName(const wsFile: string): string;
 function IsDown(key: integer): boolean;
-function FileRemoveExtension(const Path: widestring): widestring;
-procedure CopyHTMLToClipBoard(const str: WideString; const htmlStr: AnsiString =
+function FileRemoveExtension(const Path: string): string;
+procedure CopyHTMLToClipBoard(const str: string; const htmlStr: AnsiString =
   '');
-function OmegaCompareTxt(const str1, str2: WideString; len: integer = -1;
+function OmegaCompareTxt(const str1, str2: string; len: integer = -1;
   strict: boolean = false): integer;
 procedure InsertDefaultFontInfo(var html: string; fontName: string; fontSz:
   integer);
-function TokensToStr(Lst: TWideStrings; delim: WideString; addlastDelim: boolean
-  = true): WideString;
-function StrMathTokens(const str: WideString; tkns: TWideStrings; fullMatch:
+function TokensToStr(Lst: TStrings; delim: string; addlastDelim: boolean
+  = true): string;
+function StrMathTokens(const str: string; tkns: TStrings; fullMatch:
   boolean): boolean;
-function CompareTokenStrings(const tokensCompare:WideString; const tokenCompareAgainst:WideString; delim:WideChar):integer;
+function CompareTokenStrings(const tokensCompare:string; const tokenCompareAgainst:string; delim:Char):integer;
 function StrGetTokenByIx(tknString:AnsiString;tokenIx:integer):AnsiString;
-function GetTokenFromString(pStr:PWidechar;delim:WideChar; out len:integer):PWideChar;
-function PeekToken(pC:PWideChar; delim:WideChar):WideString;
+function GetTokenFromString(pStr:Pchar;delim:Char; out len:integer):PChar;
+function PeekToken(pC:PChar; delim:Char):string;
 
-function MainFileExists(s: WideString): WideString;
-function ExePath():WideString;
+function MainFileExists(s: string): string;
+function ExePath():string;
 function OSinfo():TOperatingSystemInfo;
-function WinInfoString():WideString;
+function WinInfoString():string;
 function GetCallerEIP():Pointer;
 function GetCallerEbP():Pointer;
 procedure cleanUpInstalledFonts();
-function CreateAndGetConfigFolder: WideString;
+function CreateAndGetConfigFolder: string;
 type
   PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector;
     p4: LPDWORD): THandle; stdcall;
@@ -321,10 +321,10 @@ var
   MainCfgIni: TMultiLanguage;
   G_SecondPath:WideString;
 implementation
-uses JclSysInfo,main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, tntSysUtils,WCharWindows ,string_procs,JclBase;
+uses JclSysInfo,main, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, WCharWindows ,string_procs,JclBase;
 var __exe__path:WideString;
 
-function OmegaCompareTxt(const str1, str2: WideString; len: integer = -1;
+function OmegaCompareTxt(const str1, str2: string; len: integer = -1;
   strict: boolean = false): integer;
 var
   str1len, str2len, minLen: integer;
@@ -342,7 +342,7 @@ begin
   if (result = 0) and strict then result := str1len - str2len;
 end;
 
-function GetArchiveFromSpecial(const aSpecial: WideString): WideString;
+function GetArchiveFromSpecial(const aSpecial: string): string;
   overload;
 var
   pz: Integer;
@@ -354,20 +354,20 @@ begin
     result := Copy(aSpecial, 1, pz - 1);
 end;
 
-function FileRemoveExtension(const Path: WideString): WideString;
+function FileRemoveExtension(const Path: string): string;
 var
   I: Integer;
 begin
 
-  I := WideLastDelimiter(':.\', Path);
+  I := LastDelimiter(':.\', Path);
   if (I > 0) and (Path[I] = '.') then
     Result := Copy(Path, 1, I - 1)
   else
     Result := Path;
 end;
 
-function GetArchiveFromSpecial(const aSpecial: WideString; out fileName:
-  WideString): WideString; overload;
+function GetArchiveFromSpecial(const aSpecial: string; out fileName:
+  string): string; overload;
 var
   pz: Integer;
   correct: integer;
@@ -382,8 +382,8 @@ begin
   end; //else
 end; //fn
 
-function TokensToStr(Lst: TWideStrings; delim: WideString; addlastDelim: boolean
-  = true): WideString;
+function TokensToStr(Lst: TStrings; delim: string; addlastDelim: boolean
+  = true): string;
 var
   c, i: integer;
 begin
@@ -430,23 +430,23 @@ end;
 
 
 var
-  __cachedModulesListFolder: WideString;
+  __cachedModulesListFolder: string;
 
-function GetCachedModulesListDir(): WideString;
+function GetCachedModulesListDir(): string;
 begin
   if length(__cachedModulesListFolder) <= 0 then begin
 
     __cachedModulesListFolder := CreateAndGetConfigFolder();
-    __cachedModulesListFolder := WideExtractFilePath(
+    __cachedModulesListFolder := ExtractFilePath(
       Copy(__cachedModulesListFolder, 1, length(__cachedModulesListFolder) -
         1));
   end;
   result := __cachedModulesListFolder;
 end;
 
-function ArchiveFileSize(wsPath: WideString): integer;
+function ArchiveFileSize(wsPath: string): integer;
 var
-  wsArchive, wsFile: WideString;
+  wsArchive, wsFile: string;
 begin
   Result := -1;
   try
@@ -461,9 +461,9 @@ begin
 
 end;
 
-function FileExistsEx(aPath: WideString): integer;
+function FileExistsEx(aPath: string): integer;
 var
-  wsArchive, wsFile: WideString;
+  wsArchive, wsFile: string;
 begin
   result := -1;
   if length(aPath) < 1 then exit;
@@ -481,15 +481,15 @@ begin
 
 end;
 
-function SpecialIO(const wsFileName: WideString; wsStrings: TWideStrings; obf:
+function SpecialIO(const wsFileName: string; wsStrings: TStrings; obf:
   Int64; read: boolean = true): boolean;
 var
   fileHandle: THandle;
   fileSz, readed: Cardinal;
   crcExpected, crcCalculated: Cardinal;
 //    rslt:LongBool;
-  buf: PWideChar;
-  ws: WideString;
+  buf: PChar;
+  ws: string;
 
   procedure _EncodeDecode(); //простое 64bit xor шифрование
   var
@@ -713,7 +713,7 @@ begin
   try
     if not assigned(mPasswordList) then mPasswordList := TWideStringList.Create()
     else mPasswordList.Clear();
-    mPath := WideExtractFilePath(fileName);
+    mPath := ExtractFilePath(fileName);
     result := SpecialIo(filename, mPasswordList, $1F6D35AC138E5311);
     if not result then exit;
     count := mPasswordList.Count - 1;
@@ -809,8 +809,8 @@ begin
   end;
 end;
 
-function FontFromCharset(aHDC: HDC; charset: integer; wsDesiredFont: WideString =
-  ''): WideString;
+function FontFromCharset(aHDC: HDC; charset: integer; wsDesiredFont: string =
+  ''): string;
 var
   logFont: tagLOGFONTW;
   fontNameLength: integer;
@@ -843,7 +843,7 @@ begin
   else result := EmptyWideStr;
 end;
 
-function FontExists(const wsFontName: WideString): boolean;
+function FontExists(const wsFontName: string): boolean;
 begin
   if G_InstalledFonts.IndexOf(wsFontName) >= 0 then
     begin result := true; exit; end;
@@ -861,11 +861,11 @@ begin
 
 end;
 
-function ExctractName(const wsFile: WideString): WideString;
+function ExctractName(const wsFile: string): string;
 var
-  pC, pLastDot: PWideChar;
+  pC, pLastDot: PChar;
 begin
-  pC := PWideChar(Pointer(wsFile));
+  pC := PChar(Pointer(wsFile));
   if (pC = nil) or (pC^ = #0) then begin result := ''; exit end;
   pLastDot := nil;
   repeat
@@ -877,7 +877,7 @@ begin
   else result := wsFile;
 end;
 
-function ExtractModuleName(aModuleSignature: WideString): WideString;
+function ExtractModuleName(aModuleSignature: string): string;
 var
   ipos: integer;
 begin
@@ -1067,7 +1067,7 @@ begin
   Insert(S, HTML, I);
 end;
 
-procedure CopyHTMLToClipBoard(const str: WideString; const htmlStr: AnsiString =
+procedure CopyHTMLToClipBoard(const str: string; const htmlStr: AnsiString =
   '');
 var
   gMem: HGLOBAL;
@@ -1207,13 +1207,13 @@ begin
   end else modCats := amodCats;
 end;
 
-function TModuleEntry.Match(matchLst: TWideStringList;
+function TModuleEntry.Match(matchLst: TStringList;
   var mi:TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
 type TBQBookSet=set of Byte;
 
 var
   listIx, listCnt,  fndPos: integer;
-  matchStrUp, strCatsUp, strNameUP, strBNamesUp: WideString;
+  matchStrUp, strCatsUp, strNameUP, strBNamesUp: string;
   tagFullMatch, nameFullMatch, bookNameFullMatch, nameFound,tagFound, bookNameFound,
     partialMacthed, foundBookNameHits,searchBookNames, booksetInit: Boolean;
     p,pf:PWideChar;
@@ -1225,9 +1225,9 @@ begin
   listCnt := matchLst.Count - 1;
   result := [];
   if listCnt < 0 then exit;
-  strNameUP := WideLowerCase(wsFullName);
-  strCatsUp := WideLowerCase(modCats);
-  strBNamesUp := WideLowerCase(UTF8Decode(modBookNames));
+  strNameUP := LowerCase(wsFullName);
+  strCatsUp := LowerCase(modCats);
+  strBNamesUp := LowerCase(UTF8Decode(modBookNames));
 
   tagFullMatch := true; nameFullMatch := true; bookNameFullMatch:=true; partialMacthed := true;
   allHits:=[];
@@ -1236,13 +1236,13 @@ begin
   booksetInit:=true;
   for listIx := 0 to listCnt do begin
     curHits:=[];
-    matchStrUp := WideLowerCase(matchLst[ListIx]);
-    nameFound := (WidePos(matchStrUp, strNameUP) > 0);
+    matchStrUp := LowerCase(matchLst[ListIx]);
+    nameFound := (Pos(matchStrUp, strNameUP) > 0);
     if nameFound then begin
       if not allMath then begin Include(result, mmtName); end;
     end else nameFullMatch := false;
 //else if allMath then begin  result:=mmtNone; exit end;
-    tagFound:=WidePos(matchStrUp, strCatsUp) > 0;
+    tagFound:=Pos(matchStrUp, strCatsUp) > 0;
     if tagFound then begin
       if not allMath then begin
        Include(result, mmtCat); break; end;
@@ -1583,12 +1583,12 @@ end;
 
 { TBQStringList }
 
-function TBQStringList.CompareStrings(const S1, S2: WideString): Integer;
+function TBQStringList.CompareStrings(const S1, S2: string): Integer;
 begin
   result := OmegaCompareTxt(S1, S2);
 end;
 
-function TBQStringList.LocateLastStartedWith(const subString: WideString;
+function TBQStringList.LocateLastStartedWith(const subString: string;
   startFromIx: integer = 0; strict: boolean = false): integer;
 var
   l, fin, i, newi, cnt, bestMatchLen, matchLen,bestMatchLenIx,currentCompareLen,
@@ -1645,19 +1645,19 @@ begin
 //  end;
 end;
 
-function StrMathTokens(const str: WideString; tkns: TWideStrings; fullMatch:
+function StrMathTokens(const str: string; tkns: TStrings; fullMatch:
   boolean): boolean;
 var
   i, c: integer;
-  s: WideString;
+  s: string;
   fnd: boolean;
 begin
   c := tkns.Count - 1;
   if c < 0 then begin result := false; exit end;
   result := true;
-  s := WideLowerCase(str);
+  s := LowerCase(str);
   for i := 0 to c do begin
-    fnd := (Pos(WideLowerCase(tkns[i]), s) > 0);
+    fnd := (Pos(LowerCase(tkns[i]), s) > 0);
     if fnd xor fullMatch then begin result := fnd; exit end
   end; //for
   result := fullMatch;
@@ -1689,8 +1689,8 @@ endfail:len:=0; result:=nil;
 end;
 
 
-function PeekToken(pC:PWideChar; delim:WideChar):WideString;
-var saveChar:WideChar;
+function PeekToken(pC:PChar; delim:Char):string;
+var saveChar:Char;
     l:integer;
 label fail;
 begin
@@ -1707,9 +1707,9 @@ end;
 fail:
  result:=''; 
 end;
-function CompareTokenStrings(const tokensCompare:WideString; const tokenCompareAgainst:WideString; delim:WideChar):integer;
-var pTokenCmp, pTokenCmpAg :PWideChar;
-    currentCmpCh,currentCmpChA:WideChar;
+function CompareTokenStrings(const tokensCompare:string; const tokenCompareAgainst:string; delim:Char):integer;
+var pTokenCmp, pTokenCmpAg :PChar;
+    currentCmpCh,currentCmpChA:Char;
     cmpTokeLen,cmpTokeLenAdj, cmpAgTokeLen,cmpAgTokeLenAdj, matchCnt, compareCnt:integer;
     equal:boolean;
 
@@ -1740,13 +1740,13 @@ else result:= matchCnt*100 div compareCnt;
 end;
 
 
-function MainFileExists(s: WideString): WideString;
+function MainFileExists(s: string): string;
 var
   filePath, fullPath, modfolder: WideString;
 begin
   Result := '';
   //сжатые модули имеют приоритет над иными
-  filePath := WideExtractFilePath(s);
+  filePath := ExtractFilePath(s);
   modfolder := Copy(filePath, 1, length(filePath) - 1);
   fullPath := ExePath + C_CompressedModulesSubPath + '\' + modfolder + '.bqb';
   if FileExists(fullpath) then
@@ -1763,39 +1763,39 @@ begin
       Result := '?' + fullpath + '??' + C_ModuleIniName
     else
     begin
-      filePath := WideExtractFilePath(s);
+      filePath := ExtractFilePath(s);
       fullPath := ExePath + C_CommentariesSubPath + '\' + Copy(filePath, 1,
         length(filePath) - 1) + '.bqb';
-      if WideFileExists(fullpath) then
+      if FileExists(fullpath) then
         Result := '?' + fullpath + '??' + C_ModuleIniName
-      else if WideFileExists(ExePath + 'Commentaries\' + s) then
+      else if FileExists(ExePath + 'Commentaries\' + s) then
         Result := ExePath + 'Commentaries\' + s;
     end;
   end;
 end;
 
 procedure __init_vars();
-var buff:PWideChar;
+var buff:PChar;
     wrtn:integer;
 begin
 GetMem(buff, 4096);
 wrtn:=Windows.GetModuleFileNameW(0, buff, 2047);
-__exe__path:=WideExtractFilePath(  buff);
+__exe__path:=ExtractFilePath(  buff);
 
 FreeMem(buff);
 end;
-function ExePath():WideString; 
+function ExePath():string;
 begin
 result:=__exe__path;
 end;
 
-function CreateAndGetConfigFolder: WideString;
+function CreateAndGetConfigFolder: string;
 var
-  dUserName: WideString;
-  dPath: WideString;
-  wsPath: WideString;
+  dUserName: string;
+  dPath: string;
+  wsPath: string;
 begin
-  wsPath := WideExtractFileName(WideExtractFileDir(ExePath()));
+  wsPath := ExtractFileName(ExtractFileDir(ExePath()));
 
   if Pos('Portable', wsPath) <> 0 then dUserName := 'CommonProfile'
   else dUserName := WindowsUserName();
@@ -1866,9 +1866,9 @@ result:= _osInfo;
 
 end;
 
-function WinInfoString():WideString;
+function WinInfoString():string;
 {$J+}
-const win_info:WideString='';
+const win_info:string='';
 var osprop:TOperatingSystemProperties;
 {$J-}
 begin

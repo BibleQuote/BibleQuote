@@ -1,43 +1,43 @@
-unit WCharReader;
+п»їunit WCharReader;
 
 interface
 
 uses
-  Windows, Classes, SysUtils, StrUtils, {WideStrings,} string_procs, WideStrings;
+  Windows, Classes, SysUtils, StrUtils, string_procs;
 
 const
   cRussianCodePage = 1251;
 
-// Чтение html-файла, с автоматическим распознаванием кодировки.
-procedure WChar_ReadHtmlFileTo(const aFileName: WideString; var rResult: TWideStrings; aDefaultByteEncoding: Integer = cRussianCodePage); overload;
-procedure WChar_ReadHtmlFileTo(const aFileName: WideString; var rResult: WideString; aDefaultByteEncoding: Integer = cRussianCodePage); overload;
-function WChar_ReadHtmlFile(const aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): TWideStrings;
+// Р§С‚РµРЅРёРµ html-С„Р°Р№Р»Р°, СЃ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРј СЂР°СЃРїРѕР·РЅР°РІР°РЅРёРµРј РєРѕРґРёСЂРѕРІРєРё.
+procedure WChar_ReadHtmlFileTo(const aFileName: string; var rResult: TStrings; aDefaultByteEncoding: Integer = cRussianCodePage); overload;
+procedure WChar_ReadHtmlFileTo(const aFileName: string; var rResult: string; aDefaultByteEncoding: Integer = cRussianCodePage); overload;
+function WChar_ReadHtmlFile(const aFileName: string; aDefaultByteEncoding: Integer = cRussianCodePage): TStrings;
 
-// Запись html-файла в кодировке 1251 (если возможно) или в utf-8.
-procedure WChar_WriteHtmlFile(const aFileName: WideString; const aContent: WideString);
+// Р—Р°РїРёСЃСЊ html-С„Р°Р№Р»Р° РІ РєРѕРґРёСЂРѕРІРєРµ 1251 (РµСЃР»Рё РІРѕР·РјРѕР¶РЅРѕ) РёР»Рё РІ utf-8.
+procedure WChar_WriteHtmlFile(const aFileName: string; const aContent: string);
 
-// Чтение текстового файла, с автоматическим распознаванием кодировки.
-function WChar_ReadTextFileToTWideStrings(const aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): TWideStrings;
-function WChar_ReadTextFileToWideString(const aFileName: WideString; aDefaultByteEncoding: Integer = cRussianCodePage): WideString;
+// Р§С‚РµРЅРёРµ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р°, СЃ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРј СЂР°СЃРїРѕР·РЅР°РІР°РЅРёРµРј РєРѕРґРёСЂРѕРІРєРё.
+function WChar_ReadTextFileToTStrings(const aFileName: string; aDefaultByteEncoding: Integer = cRussianCodePage): TStrings;
+function WChar_ReadTextFileToWideString(const aFileName: string; aDefaultByteEncoding: Integer = cRussianCodePage): string;
 
-// Запись текстового файла, с автоматическим принятием решения, в какой кодировке записывать..
-procedure WChar_WriteTextFile(const aFileName: WideString; aContent: TWideStrings); overload;
-procedure WChar_WriteTextFile(const aFileName: WideString; const aContent: WideString); overload;
+// Р—Р°РїРёСЃСЊ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р°, СЃ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРј РїСЂРёРЅСЏС‚РёРµРј СЂРµС€РµРЅРёСЏ, РІ РєР°РєРѕР№ РєРѕРґРёСЂРѕРІРєРµ Р·Р°РїРёСЃС‹РІР°С‚СЊ..
+procedure WChar_WriteTextFile(const aFileName: string; aContent: TStrings); overload;
+procedure WChar_WriteTextFile(const aFileName: string; const aContent: string); overload;
 
-// Чтение фрагмента словаря, с автоматическим распознаванием кодировки.
-function WChar_ReadDictFragment(const aFileName: WideString; aOffset: Integer; aCount: Integer; aDefaultByteEncoding: Integer = cRussianCodePage): WideString;
+// Р§С‚РµРЅРёРµ С„СЂР°РіРјРµРЅС‚Р° СЃР»РѕРІР°СЂСЏ, СЃ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРј СЂР°СЃРїРѕР·РЅР°РІР°РЅРёРµРј РєРѕРґРёСЂРѕРІРєРё.
+function WChar_ReadDictFragment(const aFileName: string; aOffset: Integer; aCount: Integer; aDefaultByteEncoding: Integer = cRussianCodePage): string;
 
-function TextFromFile(filename: WideString): WideString;
+function TextFromFile(filename: string): string;
 
-// Получение ID кодировки по ее html-названию
-// (скажем, 'win-1251' -> 1251, 'utf-8' -> CP_UTF8).
-function GetEncodingByName(const aName: WideString): Integer;
+// РџРѕР»СѓС‡РµРЅРёРµ ID РєРѕРґРёСЂРѕРІРєРё РїРѕ РµРµ html-РЅР°Р·РІР°РЅРёСЋ
+// (СЃРєР°Р¶РµРј, 'win-1251' -> 1251, 'utf-8' -> CP_UTF8).
+function GetEncodingByName(const aName: string): Integer;
 
-// Получение ID кодировки по внутреннему виндовому набору символов
-// (скажем, 204 -> 1251).
+// РџРѕР»СѓС‡РµРЅРёРµ ID РєРѕРґРёСЂРѕРІРєРё РїРѕ РІРЅСѓС‚СЂРµРЅРЅРµРјСѓ РІРёРЅРґРѕРІРѕРјСѓ РЅР°Р±РѕСЂСѓ СЃРёРјРІРѕР»РѕРІ
+// (СЃРєР°Р¶РµРј, 204 -> 1251).
 function GetEncodingByWinCharSet(aCharSet: Integer): Integer;
 
-function LoadBibleqtIniFileEncoding( const  aFileName: WideString; aDefault: Integer = cRussianCodePage ): Integer;
+function LoadBibleqtIniFileEncoding( const  aFileName: string; aDefault: Integer = cRussianCodePage ): Integer;
 
 implementation
 uses SevenZipVCL, sevenZipHelper, BibleQuoteUtils;
@@ -49,15 +49,15 @@ const
 var
   fUnicodeToRussianXLAT: array[0..65535] of AnsiChar;
 
-function ParseArchived(fileName: WideString; out fileIx, fileSz: integer): boolean;
+function ParseArchived(fileName: string; out fileIx, fileSz: integer): boolean;
 var
-  fn: WideString;
+  fn: string;
   filenameEndPos: integer;
 begin
  if (length(fileName)<=0) or (fileName[1] <> '?') then begin
     result := false; exit; end;
   filenameEndPos := Pos('??', fileName);
-  if filenameEndPos <= 0 then raise Exception.Create('Неверый путь к архиву');
+  if filenameEndPos <= 0 then raise Exception.Create('РќРµРІРµСЂС‹Р№ РїСѓС‚СЊ Рє Р°СЂС…РёРІСѓ');
   fn := Copy(fileName, 2, filenameEndPos - 2);
   if getSevenZ().SZFileName<>fn then
   getSevenZ().SZFileName := fn;
@@ -66,7 +66,7 @@ begin
   result := true;
 end;
 
-procedure ReadFileContent(aFileName: WideString; var rBuffer: AnsiString);
+procedure ReadFileContent(aFileName: string; var rBuffer: AnsiString);
 var
   dFile: TFileStream;
   dSize, indexOfFile: Integer;
@@ -86,9 +86,9 @@ begin
     finally
       dFile.Free;
     end;
-  end //если несжатый
+  end //РµСЃР»Рё РЅРµСЃР¶Р°С‚С‹Р№
   else begin
-    if dSize < 0 then raise Exception.CreateFmt('Не найден в архиве: %s', [aFileName]);
+    if dSize < 0 then raise Exception.CreateFmt('РќРµ РЅР°Р№РґРµРЅ РІ Р°СЂС…РёРІРµ: %s', [aFileName]);
     SetLength(rBuffer, dSize);
     getSevenZ().ExtracttoMem(indexofFile, Pointer(rBuffer), dSize);
     if getSevenZ().ErrCode <> 0 then begin
@@ -112,11 +112,11 @@ begin
     );
 end;
 
-procedure ReadUtf16ContentToStrings(var aBuffer: AnsiString; var rStrings: TWideStrings);
+procedure ReadUtf16ContentToStrings(var aBuffer: AnsiString; var rStrings: TStrings);
 var
   dPos: Integer;
   dLength: Integer;
-  dCurString: WideString;
+  dCurString: string;
   dCurLength: Integer;
   dChar: WideChar;
   dIsMSL: Boolean; //True: Most Significal Last order.
@@ -128,7 +128,7 @@ begin
     dLength := dLength - 1;
 
   if rStrings = nil then
-    rStrings := TWideStringList.Create
+    rStrings := TStringList.Create
   else
     rStrings.Clear;
 
@@ -158,7 +158,7 @@ begin
       dCurLength := 0;
       dPrevCR := (dChar = #13);
     end else
-      if dChar = #10 {and dPrevCR, всегда} then begin
+      if dChar = #10 {and dPrevCR, РІСЃРµРіРґР°} then begin
       dPrevCR := false;
     end else begin
       dCurLength := dCurLength + 1;
@@ -177,11 +177,11 @@ begin
 
 end;
 
-procedure ReadWCharContentToStrings(var aBuffer: WideString; var rStrings: TWideStrings);
+procedure ReadWCharContentToStrings(var aBuffer: string; var rStrings: TStrings);
 var
   dPos: Integer;
   dLength: Integer;
-  dCurString: WideString;
+  dCurString: string;
   dCurLength: Integer;
   dChar: WideChar;
   dPrevCR: Boolean;
@@ -190,7 +190,7 @@ begin
   dLength := Length(aBuffer);
 
   if rStrings = nil then
-    rStrings := TWideStringList.Create
+    rStrings := TStringList.Create
   else
     rStrings.Clear;
 
@@ -207,7 +207,7 @@ begin
       dCurLength := 0;
       dPrevCR := (dChar = #13);
     end else
-      if dChar = #10 {and dPrevCR, всегда} then begin
+      if dChar = #10 {and dPrevCR, РІСЃРµРіРґР°} then begin
       dPrevCR := false;
     end else begin
       dCurLength := dCurLength + 1;
@@ -226,7 +226,7 @@ begin
 
 end;
 
-procedure ChangeByteOrderInWideString(var aString: WideString);
+procedure ChangeByteOrderInWideString(var aString: string);
 var
   dPtr: PAnsiChar;
   dCount: Integer;
@@ -247,7 +247,7 @@ begin
 
 end;
 
-procedure ChangeByteOrderInWideStringIfNeed(var aString: WideString);
+procedure ChangeByteOrderInWideStringIfNeed(var aString: string);
 begin
   if Length(aString) >= 1 then
     if Integer(aString[1]) = $FFFE then
@@ -298,9 +298,9 @@ begin
 
 end;
 
-function GetEncodingByName(const aName: WideString): Integer;
+function GetEncodingByName(const aName: string): Integer;
 var
-  dName: WideString;
+  dName: string;
 begin
   dName := WideLowerCase(aName);
 
@@ -327,7 +327,7 @@ begin
 
 end;
 
-function GetNameOfEncoding(aEncoding: Integer): WideSTring;
+function GetNameOfEncoding(aEncoding: Integer): string;
 begin
   case aEncoding of
     1251: Result := 'windows-1251';
@@ -389,7 +389,7 @@ function IntMultiByteToWideChar(
 var
   i: Integer;
 begin
-  if CodePage = 1252 then begin // Хак от традиционных для русских ОС редиректов 1252 -> 1251
+  if CodePage = 1252 then begin // РҐР°Рє РѕС‚ С‚СЂР°РґРёС†РёРѕРЅРЅС‹С… РґР»СЏ СЂСѓСЃСЃРєРёС… РћРЎ СЂРµРґРёСЂРµРєС‚РѕРІ 1252 -> 1251
     if cchMultiByte = -1 then
       cchMultiByte := Length(lpMultiByteStr);
 
@@ -419,11 +419,11 @@ function IntWideCharToMultiByte(
   lpDefaultChar: LPCSTR; lpUsedDefaultChar: PBOOL
   ): Integer;
 begin
-  // Заглушка
+  // Р—Р°РіР»СѓС€РєР°
   Result := 0;
 end;
 
-procedure ConvertFromByteToWideChar(const aABuffer: AnsiString; aEncoding: Integer; var rWBuffer: WideString; aABufferLength: Integer = -1);
+procedure ConvertFromByteToWideChar(const aABuffer: AnsiString; aEncoding: Integer; var rWBuffer: string; aABufferLength: Integer = -1);
 var
   dResLength: Integer;
 begin
@@ -433,7 +433,7 @@ begin
   dResLength := IntMultiByteToWideChar(
     aEncoding,
     0,
-    PChar(aABuffer),
+    PAnsiChar(aABuffer),
     aABufferLength,
     nil,
     0
@@ -444,7 +444,7 @@ begin
     IntMultiByteToWideChar(
       aEncoding,
       0,
-      PChar(aABuffer),
+      PAnsiChar(aABuffer),
       aABufferLength,
       PWideChar(rWBuffer),
       dResLength
@@ -455,7 +455,7 @@ begin
 
 end;
 
-procedure ConvertFromWideCharToByte(const aWBuffer: WideString; aEncoding: Integer; var rABuffer: AnsiString; aWBufferLength: Integer = -1);
+procedure ConvertFromWideCharToByte(const aWBuffer: string; aEncoding: Integer; var rABuffer: AnsiString; aWBufferLength: Integer = -1);
 var
   dResLength: Integer;
 begin
@@ -480,7 +480,7 @@ begin
       0,
       PWideChar(aWBuffer),
       aWBufferLength,
-      PChar(rABuffer),
+      PAnsiChar(rABuffer),
       Length(rABuffer),
       nil,
       nil
@@ -491,8 +491,8 @@ begin
 
 end;
 
-// Возвращает codepage и границы кодировочного метатэга.
-// Код жадноватый, но рефакторить лень.
+// Р’РѕР·РІСЂР°С‰Р°РµС‚ codepage Рё РіСЂР°РЅРёС†С‹ РєРѕРґРёСЂРѕРІРѕС‡РЅРѕРіРѕ РјРµС‚Р°С‚СЌРіР°.
+// РљРѕРґ Р¶Р°РґРЅРѕРІР°С‚С‹Р№, РЅРѕ СЂРµС„Р°РєС‚РѕСЂРёС‚СЊ Р»РµРЅСЊ.
 
 function FindContentTypeMetatag(
   const aBuffer: AnsiString;
@@ -522,9 +522,9 @@ begin
   dResBeginPos := 0;
   dResLength := 0;
 
-  { Ограничиваем зону поиска метатэгов заголовком.
-  После заголовка могут быть довольно сложные структуры,
-  простой парсер с ними не справится.
+  { РћРіСЂР°РЅРёС‡РёРІР°РµРј Р·РѕРЅСѓ РїРѕРёСЃРєР° РјРµС‚Р°С‚СЌРіРѕРІ Р·Р°РіРѕР»РѕРІРєРѕРј.
+  РџРѕСЃР»Рµ Р·Р°РіРѕР»РѕРІРєР° РјРѕРіСѓС‚ Р±С‹С‚СЊ РґРѕРІРѕР»СЊРЅРѕ СЃР»РѕР¶РЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹,
+  РїСЂРѕСЃС‚РѕР№ РїР°СЂСЃРµСЂ СЃ РЅРёРјРё РЅРµ СЃРїСЂР°РІРёС‚СЃСЏ.
   }
 
   dHeaderEndPos := PosCIL('</head>', aBuffer);
@@ -535,8 +535,8 @@ begin
 
   dLCBuffer := Copy(aBuffer, 1, dHeaderEndPos - 1);
 
-  { Отыскиваем тэг <meta http-equiv="Content-Type" content="...">,
-    получаем значение content.
+  { РћС‚С‹СЃРєРёРІР°РµРј С‚СЌРі <meta http-equiv="Content-Type" content="...">,
+    РїРѕР»СѓС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ content.
   }
 
   dContentTypeValue := '';
@@ -599,7 +599,7 @@ begin
   if dContentTypeValue = '' then
     Exit;
 
-  // Разбираем значение Content-Type, выделяя из него charset.
+  // Р Р°Р·Р±РёСЂР°РµРј Р·РЅР°С‡РµРЅРёРµ Content-Type, РІС‹РґРµР»СЏСЏ РёР· РЅРµРіРѕ charset.
 
   dPos := 1;
   dLength := Length(dContentTypeValue);
@@ -630,7 +630,7 @@ begin
 end;
 
 function FindContentTypeMetatag(
-  const aBuffer: WideString;
+  const aBuffer: string;
   out rBeginPos: Integer;
   out rLength: Integer
   ): Integer; overload;
@@ -643,9 +643,9 @@ begin
   rBeginPos := 0;
   rLength := 0;
 
-  { Ограничиваем зону поиска метатэгов заголовком.
-  После заголовка могут быть довольно сложные структуры,
-  простой парсер с ними не справится.
+  { РћРіСЂР°РЅРёС‡РёРІР°РµРј Р·РѕРЅСѓ РїРѕРёСЃРєР° РјРµС‚Р°С‚СЌРіРѕРІ Р·Р°РіРѕР»РѕРІРєРѕРј.
+  РџРѕСЃР»Рµ Р·Р°РіРѕР»РѕРІРєР° РјРѕРіСѓС‚ Р±С‹С‚СЊ РґРѕРІРѕР»СЊРЅРѕ СЃР»РѕР¶РЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹,
+  РїСЂРѕСЃС‚РѕР№ РїР°СЂСЃРµСЂ СЃ РЅРёРјРё РЅРµ СЃРїСЂР°РІРёС‚СЃСЏ.
   }
 
   dHeaderEndPos := PosCIL('</head>', aBuffer);
@@ -654,9 +654,9 @@ begin
   if dHeaderEndPos <= 0 then
     Exit;
 
-  { Для дальнейшего парсинга важна только латинская часть,
-    так что можно не заботиться, к какой кодировке
-    будет приведена строка при преобразовании.
+  { Р”Р»СЏ РґР°Р»СЊРЅРµР№С€РµРіРѕ РїР°СЂСЃРёРЅРіР° РІР°Р¶РЅР° С‚РѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєР°СЏ С‡Р°СЃС‚СЊ,
+    С‚Р°Рє С‡С‚Рѕ РјРѕР¶РЅРѕ РЅРµ Р·Р°Р±РѕС‚РёС‚СЊСЃСЏ, Рє РєР°РєРѕР№ РєРѕРґРёСЂРѕРІРєРµ
+    Р±СѓРґРµС‚ РїСЂРёРІРµРґРµРЅР° СЃС‚СЂРѕРєР° РїСЂРё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРё.
   }
 
   dHeader := Copy(aBuffer, 1, dHeaderEndPos - 1);
@@ -672,11 +672,11 @@ begin
   Result := FindContentTypeMetatag(aBuffer, dTempBeginPos, dTempLength);
 end;
 
-procedure WriteEncodingMetatagToHtml(var aBuffer: WideString; aEncoding: Integer);
+procedure WriteEncodingMetatagToHtml(var aBuffer: string; aEncoding: Integer);
 var
   dBeginPos: Integer;
   dLength: Integer;
-  dMetatag: WideString;
+  dMetatag: string;
 begin
   dMetatag := GetNameOfEncoding(aEncoding);
   if dMetatag = '' then Exit; // Unknown encoding
@@ -686,7 +686,7 @@ begin
 
   FindContentTypeMetatag(aBuffer, dBeginPos, dLength);
   if dBeginPos <> 0 then begin
-    // Есть метатэг. Меняем его на наш.
+    // Р•СЃС‚СЊ РјРµС‚Р°С‚СЌРі. РњРµРЅСЏРµРј РµРіРѕ РЅР° РЅР°С€.
     aBuffer := Copy(aBuffer, 1, dBeginPos - 1) +
       dMetatag +
       Copy(aBuffer, dBeginPos + dLength, Length(aBuffer));
@@ -694,7 +694,7 @@ begin
   end else begin
     dBeginPos := PosCIL('<head>', aBuffer);
     if dBeginPos <> 0 then begin
-      // Нет метатэга, но есть <head>. Вставляем после него наш метатэг.
+      // РќРµС‚ РјРµС‚Р°С‚СЌРіР°, РЅРѕ РµСЃС‚СЊ <head>. Р’СЃС‚Р°РІР»СЏРµРј РїРѕСЃР»Рµ РЅРµРіРѕ РЅР°С€ РјРµС‚Р°С‚СЌРі.
       aBuffer := Copy(aBuffer, 1, dBeginPos + 6 {Length ('<head>')} - 1) + #13#10 +
         dMetatag + #13#10 +
         Copy(aBuffer, dBeginPos + 6, Length(aBuffer));
@@ -702,15 +702,15 @@ begin
     end else begin
       dBeginPos := PosCIL('<html>', aBuffer);
       if dBeginPos <> 0 then begin
-        // Нет метатэга, нет <head>, но есть <html>.
-        // Вставляем после него <head> и наш метатэг.
+        // РќРµС‚ РјРµС‚Р°С‚СЌРіР°, РЅРµС‚ <head>, РЅРѕ РµСЃС‚СЊ <html>.
+        // Р’СЃС‚Р°РІР»СЏРµРј РїРѕСЃР»Рµ РЅРµРіРѕ <head> Рё РЅР°С€ РјРµС‚Р°С‚СЌРі.
 
         aBuffer := Copy(aBuffer, 1, dBeginPos + 6 {Length ('<html>')} - 1) + #13#10 +
           '<head>' + dMetatag + '</head>' + #13#10 +
           Copy(aBuffer, dBeginPos + 6, Length(aBuffer));
 
       end else begin
-        // Вообще ничего нет.
+        // Р’РѕРѕР±С‰Рµ РЅРёС‡РµРіРѕ РЅРµС‚.
 
         aBuffer := '<html>' + #13#10 +
           '<head>' + #13#10 +
@@ -727,7 +727,7 @@ begin
 
 end;
 
-function IsContainsNonRussianChars(const aString: WideString): Boolean; overload;
+function IsContainsNonRussianChars(const aString: string): Boolean; overload;
 var
   dLength: Integer;
   i: Integer;
@@ -746,7 +746,7 @@ begin
 
 end;
 
-function IsContainsNonRussianChars(aStrings: TWideStrings): Boolean; overload;
+function IsContainsNonRussianChars(aStrings: TStrings): Boolean; overload;
 var
   dCount: Integer;
   i: Integer;
@@ -811,15 +811,15 @@ begin
 
 end;
 
-function WChar_ReadHtmlFile(const aFileName: WideString; aDefaultByteEncoding: Integer): TWideStrings;
+function WChar_ReadHtmlFile(const aFileName: string; aDefaultByteEncoding: Integer): TStrings;
 var
-  dRes: TWideStrings;
+  dRes: TStrings;
   dSuccess: Boolean;
 begin
   dSuccess := false;
 
   try
-    dRes := TWideStringList.Create;
+    dRes := TStringList.Create;
     WChar_ReadHtmlFileTo(aFileName, dRes, aDefaultByteEncoding);
     Result := dRes;
 
@@ -832,14 +832,14 @@ begin
 
 end;
 
-procedure WChar_ReadHtmlFileTo(const aFileName: WideString; var rResult: TWideStrings; aDefaultByteEncoding: Integer); overload;
+procedure WChar_ReadHtmlFileTo(const aFileName: string; var rResult: TStrings; aDefaultByteEncoding: Integer); overload;
 var
   dBuffer: AnsiString;
   dEncoding: Integer;
-  dWBuffer: WideString;
+  dWBuffer: string;
 begin
   if rResult = nil then
-    rResult := TWideStringList.Create
+    rResult := TStringList.Create
   else
     rResult.Clear;
 
@@ -860,7 +860,7 @@ begin
 
 end;
 
-procedure WChar_ReadHtmlFileTo(const aFileName: WideString; var rResult: WideString; aDefaultByteEncoding: Integer); overload;
+procedure WChar_ReadHtmlFileTo(const aFileName: string; var rResult: string; aDefaultByteEncoding: Integer); overload;
 var
   dBuffer: AnsiString;
   dEncoding: Integer;
@@ -887,15 +887,15 @@ begin
 
 end;
 
-function WChar_ReadTextFileToTWideStrings(const aFileName: WideString; aDefaultByteEncoding: Integer): TWideStrings;
+function WChar_ReadTextFileToTStrings(const aFileName: string; aDefaultByteEncoding: Integer): TStrings;
 var
   dBuffer: AnsiString;
-  dRes: TWideStrings;
-  dWBuffer: WideString;
+  dRes: TStrings;
+  dWBuffer: string;
 begin
   dBuffer := '';
   ReadFileContent(aFileName, dBuffer);
-  dRes := TWideStringList.Create;
+  dRes := TStringList.Create;
 
   if IsContentUnicode(dBuffer) then begin
     ReadUtf16ContentToStrings(dBuffer, dRes);
@@ -908,7 +908,7 @@ begin
 
 end;
 
-function WChar_ReadTextFileToWideString(const aFileName: WideString; aDefaultByteEncoding: Integer): WideString;
+function WChar_ReadTextFileToWideString(const aFileName: string; aDefaultByteEncoding: Integer): string;
 var
   dBuffer: AnsiString;
 begin
@@ -929,14 +929,14 @@ begin
 
 end;
 
-procedure WChar_WriteTextFile(const aFileName: WideString; aContent: TWideStrings); overload;
+procedure WChar_WriteTextFile(const aFileName: string; aContent: TStrings); overload;
 var
   dFile: TFileStream;
   dCount: Integer;
   i: Integer;
 
-  dWString: WideString;
-  dWEol: WideString;
+  dWString: string;
+  dWEol: string;
 
   dAString: AnsiString;
   dAEol: AnsiString;
@@ -983,7 +983,7 @@ begin
   end;
 end;
 
-procedure WChar_WriteTextFile(const aFileName: WideString; const aContent: WideString); overload;
+procedure WChar_WriteTextFile(const aFileName: string; const aContent: string); overload;
 var
   dFile: TFileStream;
   dAString: AnsiString;
@@ -1015,9 +1015,9 @@ begin
   end;
 end;
 
-procedure WChar_WriteHtmlFile(const aFileName: WideString; const aContent: WideString);
+procedure WChar_WriteHtmlFile(const aFileName: string; const aContent: string);
 var
-  dWContent: WideString;
+  dWContent: string;
   dAContent: AnsiString;
   dEncoding: Integer;
   dFile: TFileStream;
@@ -1042,11 +1042,11 @@ begin
 
 end;
 
-function WChar_ReadDictFragment(const aFileName: WideString; aOffset: Integer; aCount: Integer; aDefaultByteEncoding: Integer): WideString;
+function WChar_ReadDictFragment(const aFileName: string; aOffset: Integer; aCount: Integer; aDefaultByteEncoding: Integer): string;
 var
   dFile: TFileStream;
   dEncoding: Integer;
-  dRes: WideString;
+  dRes: string;
   dResLength: Integer;
   dReadedCount: Integer;
   dABuffer: AnsiString;
@@ -1097,16 +1097,16 @@ begin
 end;
 
 function LoadBibleqtIniFileEncoding(
-  const aFileName: WideString;
+  const aFileName: string;
   aDefault: Integer
   ): Integer;
 var
-  dLines: TWideStrings;
+  dLines: TStrings;
   i: Integer;
-  dName: WideString;
-  dValue: WideString;
+  dName: string;
+  dValue: string;
 begin
-  dLines := WChar_ReadTextFileToTWideStrings(aFileName);
+  dLines := WChar_ReadTextFileToTStrings(aFileName);
   Result := aDefault;
 
   try
@@ -1146,7 +1146,7 @@ end;
 procedure InitializeXLAT;
 var
   dABuffer: AnsiString;
-  dWBuffer: WideString;
+  dWBuffer: string;
   i: Integer;
 begin
   for i := 0 to 65535 do
@@ -1163,12 +1163,12 @@ begin
 
 end;
 
-function TextFromFile(filename: WideString): WideString;
+function TextFromFile(filename: string): string;
 var
-  lines: TWideStrings;
+  lines: TStrings;
 begin
   try
-    lines := WChar_ReadTextFileToTWideStrings(filename);
+    lines := WChar_ReadTextFileToTStrings(filename);
     Result := lines.Text;
     lines.Free;
   except
@@ -1180,6 +1180,7 @@ initialization
   InitializeXLAT;
 
 end.
+
 
 
 

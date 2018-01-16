@@ -11,7 +11,7 @@ class var mCurrentRenderer:TSectionList;
 class var mVmargin,mHmargin, mCurveRadius:integer;
 class var mSaveBrush:TBrush;
 class var mTagFont,mDefaultVerseFont:TFont;
-class function EffectiveGetVerseNodeText(var nd:TVersesNodeData;var usedFnt:WideString):UTF8String;static;
+class function EffectiveGetVerseNodeText(var nd:TVersesNodeData;var usedFnt:string):UTF8String;static;
 class function GetHTMLRenderer(id:int64; out match:boolean):TSectionList;static;
 class procedure ResetRendererStyles(renderer:TSectionList; prefFnt:Widestring);
 class function BuildVerseHTML(const verseTxt:WideString;const verseCommand:WideString;
@@ -66,8 +66,8 @@ mCurrentRenderer:=nil;
 end;
 
 class function TbqTagsRenderer.EffectiveGetVerseNodeText(
-  var nd: TVersesNodeData;var usedFnt:WideString): UTF8String;
-  var cmd, verseSig,  verseText:WideString;
+  var nd: TVersesNodeData;var usedFnt:string): UTF8String;
+  var cmd, verseSig,  verseText:string;
        commandType:TbqCommandType;
        hr:HRESULT;
 
@@ -96,7 +96,7 @@ class function TbqTagsRenderer.GetContentTypeAt(x, y: integer; canvas:TCanvas;
   var renderer:TSectionList;
       match:boolean;
       txt:UTF8String;
-      usedFnt:WideString;
+      usedFnt:string;
       sw,cur:integer;
       UrlTarget : TUrlTarget;
       formControl:TIDObject;
@@ -220,7 +220,7 @@ end;
 
 class function TbqTagsRenderer.RenderVerseNode(canvas: TCanvas;
   var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
-var  cmd, usedFont:WideString;
+var  cmd, usedFont:string;
 txt:UTF8String;
     scrollWidth, scrollHeight, curs:integer;
     renderer:TSectionList;

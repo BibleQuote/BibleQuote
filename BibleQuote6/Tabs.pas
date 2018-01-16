@@ -295,7 +295,7 @@ type
 
 implementation
 
-uses Consts, SysUtils, Themes, Math, Types, GraphUtil, tntControls;
+uses Consts, SysUtils, Themes, Math, Types, GraphUtil;
 
 {$R Tabs.res}
 
@@ -937,10 +937,12 @@ var
   TextFormat: TTextFormat = []);
   const
   cTextFormats: array[TTextFormats] of Integer =
-  (DT_BOTTOM, DT_CALCRECT, DT_CENTER, DT_EDITCONTROL, DT_END_ELLIPSIS,
-   DT_PATH_ELLIPSIS, DT_EXPANDTABS, DT_EXTERNALLEADING, DT_LEFT,
-   DT_MODIFYSTRING, DT_NOCLIP, DT_NOPREFIX, DT_RIGHT, DT_RTLREADING,
-   DT_SINGLELINE, DT_TOP, DT_VCENTER, DT_WORDBREAK);
+  (DT_TOP, DT_LEFT, DT_CENTER, DT_RIGHT, DT_VCENTER,
+   DT_BOTTOM, DT_WORDBREAK, DT_SINGLELINE, DT_EXPANDTABS,
+   DT_TABSTOP, DT_NOCLIP, DT_EXTERNALLEADING, DT_CALCRECT,
+   DT_NOPREFIX, DT_INTERNAL, DT_EDITCONTROL, DT_PATH_ELLIPSIS,
+   DT_END_ELLIPSIS, DT_MODIFYSTRING, DT_RTLREADING, DT_WORD_ELLIPSIS,
+   DT_NOFULLWIDTHCHARBREAK, DT_HIDEPREFIX, DT_PREFIXONLY);
 var
   Format: Integer;
   F: TTextFormats;
@@ -2062,7 +2064,12 @@ begin
       end;
     end;
     end else begin
-      ProcessCMHintShowMsg(TMessage(Message) );
+      with TCMHintShow(Message) do begin
+      if (HintInfo.HintWindowClass = THintWindow) then begin
+        HintInfo.HintData := HintInfo;
+        HintInfo.HintStr := GetShortHint(HintInfo.HintControl.Hint);
+      end;
+    end;
     end;
 end;
 

@@ -22,7 +22,7 @@ type
     procedure Build(aBook, aChapter, aVStart, aVEnd:integer);
     function GetHref(idNum:cardinal=0;bloOptions: TBibleLinkProcessingOptions=[]):WideString;
     function ToCommand(const path: WideString; bloOptions: TBibleLinkProcessingOptions=[]):WideString;
-    function FromBqStringLocation(loc:WideString; out path:WideString):boolean;
+    function FromBqStringLocation(loc:string; out path:string):boolean;
     function GetLikeNess(const bl:TBibleLink):TBibleLinkLikeness;
     procedure AssignTo(out dest:TBibleLink);
   end;
@@ -31,9 +31,9 @@ type
   TBibleLinkExLikeNessTraits=(bllTag, bllModName,bllBook, bllChapter, bllVerse1, bllVerse2);
   TBibleLinkExLikeness=set of TBibleLinkExLikeNessTraits;
   TBibleLinkEx=object(TBibleLink)
-  modName:WideString;
+  modName:string;
   tag:Cardinal;
-  function FromBqStringLocation(loc:WideString):boolean;
+  function FromBqStringLocation(loc:string):boolean;
   function GetLikeNess(const bl:TBibleLinkEx):TBibleLinkExLikeness;
   function ToCommand(bloOptions: TBibleLinkProcessingOptions=[]):WideString;
   function IsAutoBible():boolean;
@@ -132,9 +132,9 @@ type TfnResolveLnks=function(const txt: WideString): WideString;
 
 
 
-function ExtractFirstTkn(var s: WideString): WideString;
+function ExtractFirstTkn(var s: string): string;
 var
-  s1: WideString;
+  s1: string;
   i: integer;
 begin
   Result := s;
@@ -178,8 +178,8 @@ begin
 book:=0;chapter:=0; vstart:=0; vend:=0;tokenStartOffset:=0; tokenEndOffset:=0;
 end;
 
-function TBibleLink.FromBqStringLocation( loc: WideString; out path:WideString): boolean;
-var value:WideString;
+function TBibleLink.FromBqStringLocation( loc: string; out path:string): boolean;
+var value:string;
 begin
 try
 
@@ -269,7 +269,7 @@ Reset();
 book:=aBook; chapter:=aChapter; vstart:=avstart; vend:=avend;
 end;
 {TBibleLinkEx}
-function TBibleLinkEx.FromBqStringLocation(loc:WideString):boolean;
+function TBibleLinkEx.FromBqStringLocation(loc:string):boolean;
 begin
 result:=inherited FromBqStringLocation(loc,modName);
 end;

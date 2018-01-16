@@ -4,16 +4,16 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, TntStdCtrls;
+  Dialogs, StdCtrls;
 
 type
   TfrmPassBox = class(TForm)
-    lblPasswordNeeded: TTntLabel;
-    btnOk: TTntButton;
-    edPwd: TTntEdit;
-    lblEnterPassword: TTntLabel;
-    btnCancel: TTntButton;
-    cbxSavePwd: TTntCheckBox;
+    lblPasswordNeeded: TLabel;
+    btnOk: TButton;
+    edPwd: TEdit;
+    lblEnterPassword: TLabel;
+    btnCancel: TButton;
+    cbxSavePwd: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure edPwdKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private

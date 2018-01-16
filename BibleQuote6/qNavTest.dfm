@@ -30,7 +30,7 @@ object frmQNav: TfrmQNav
     454)
   PixelsPerInch = 120
   TextHeight = 17
-  object lbBQName: TTntLabel
+  object lbBQName: TLabel
     Left = 2
     Top = 11
     Width = 71
@@ -123,7 +123,7 @@ object frmQNav: TfrmQNav
     OnMouseUp = vstBookListMouseUp
     Columns = <>
   end
-  object edFilter: TTntEdit
+  object edFilter: TEdit
     Left = 87
     Top = 11
     Width = 666
@@ -186,7 +186,7 @@ object frmQNav: TfrmQNav
     TabStop = False
     OnClick = btnClearClick
   end
-  object stCount: TTntStaticText
+  object stCount: TStaticText
     Left = 736
     Top = 50
     Width = 65

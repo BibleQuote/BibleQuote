@@ -28,7 +28,7 @@ object frmAbout: TfrmAbout
     Height = 92
     Align = alTop
   end
-  object lbBQName: TTntLabel
+  object lbBQName: TLabel
     Left = 96
     Top = 5
     Width = 399
@@ -218,7 +218,7 @@ object frmAbout: TfrmAbout
       3F3F3F3F}
     Transparent = True
   end
-  object memDevs: TTntMemo
+  object memDevs: TMemo
     Left = 9
     Top = 97
     Width = 485
@@ -239,8 +239,8 @@ object frmAbout: TfrmAbout
     ScrollBars = ssVertical
     TabOrder = 1
   end
-  object btnOK: TTntButton
-    Left = 404
+  object btnOK: TButton
+    Left = 406
     Top = 293
     Width = 91
     Height = 30

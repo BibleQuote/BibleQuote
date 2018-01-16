@@ -14,60 +14,60 @@ uses
 
    function GetMyDocuments: string;
 
-function UpperCaseFirstLetter(s: WideString): WideString;
+function UpperCaseFirstLetter(s: string): string;
 
-function FirstWord(s: WideString): WideString;
-function DeleteFirstWord(var s: WideString): WideString;
-function IniStringFirstPart(s: WideString): WideString;
-function IniStringSecondPart(s: WideString): WideString;
+function FirstWord(s: string): string;
+function DeleteFirstWord(var s: string): string;
+function IniStringFirstPart(s: string): string;
+function IniStringSecondPart(s: string): string;
 
-function SingleLetterDelete(var s: WideString): boolean;
+function SingleLetterDelete(var s: string): boolean;
 
-function StrReplace(var s: WideString; const substr1, substr2: WideString; recurse: boolean): boolean;
-function StrColorUp(var s: WideString; const wrd, c1, c2: WideString; casesensitive: boolean): boolean;
+function StrReplace(var s: string; const substr1, substr2: string; recurse: boolean): boolean;
+function StrColorUp(var s: string; const wrd, c1, c2: string; casesensitive: boolean): boolean;
 
-function StrDeleteFirstNumber(var s: WideString): WideString;
-function StrGetFirstNumber(s: WideString): WideString;
+function StrDeleteFirstNumber(var s: string): string;
+function StrGetFirstNumber(s: string): string;
 
 // address $$$ comment $$$$$$ commentnext
 
-function Comment(s: WideString): WideString; // retrieves a comment from a command line
+function Comment(s: string): string; // retrieves a comment from a command line
 
-function DumpFileName(s: WideString): WideString;
+function DumpFileName(s: string): string;
 
-function SplitValue(s: WideString; var strname: WideString;
+function SplitValue(s: string; var strname: string;
          var chapter, fromverse, toverse: integer): boolean;
 
-function Hex2Color(s: WideString): TColor;
-function Color2Hex(col: TColor): WideString;
+function Hex2Color(s: string): TColor;
+function Color2Hex(col: TColor): string;
 
-function ParseHTML(s, HTML: WideString): WideString;
+function ParseHTML(s, HTML: string): string;
 
-function Get_ANAME_VerseNumber(const s: WideString; start, iPos: integer): integer;
+function Get_ANAME_VerseNumber(const s: string; start, iPos: integer): integer;
 function Get_AHREF_VerseCommand(const s: string;  iPos: integer): string;
 
-function DeleteStrongNumbers(s: WideString): WideString;
-function FormatStrongNumbers(s: WideString; hebrew: boolean; supercase: boolean): WideString;
+function DeleteStrongNumbers(s: string): string;
+function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
 
-function LastPos(SubS, S: WideString): integer;
+function LastPos(SubS, S: string): integer;
 
-function FindString(List: TWideStringList; s: WideString): integer;
+function FindString(List: TStringList; s: string): integer;
 // find string in SORTED list, maybe partial match
 
-procedure AddLine (var rResult: WideString; const aLine: WideString);
+procedure AddLine (var rResult: string; const aLine: string);
 
 function PosCIL (aSubString: AnsiString; const aString: AnsiString; aStartPos: Integer = 1): Integer; overload;
-function PosCIL (aSubString: WideString; const aString: WideString; aStartPos: Integer = 1): Integer; overload;
+function PosCIL (aSubString: string; const aString: string; aStartPos: Integer = 1): Integer; overload;
 
 procedure TrimNullTerminatedString (var aString: String);
 
 const
-  DefaultHTMLFilter: WideString = '<b></b><i></i><u></u><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6>';
+  DefaultHTMLFilter: string = '<b></b><i></i><u></u><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6>';
 
 implementation
 uses StrUtils ;
 // find string in SORTED list, maybe partial match
-function FindString(List: TWideStringList; s: WideString): integer;
+function FindString(List: TStringList; s: string): integer;
 var
   b,e,len: integer;
 begin
@@ -91,7 +91,7 @@ begin
   if (b=e-1) and (Copy(List[e],1,len) = s) then Result := e;
 end;
 
-function LastPos(SubS, S: WideString): integer;
+function LastPos(SubS, S: string): integer;
 var
   offset, i, len: integer;
 begin
@@ -106,11 +106,11 @@ begin
 end;
 
 
-function FormatStrongNumbers(s: WideString; hebrew: boolean; supercase: boolean): WideString;
+function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
 var
   i, len: integer;
   isNum: boolean;
-  link: WideString;
+  link: string;
 begin
   Result := '';
   len := Length(s);
@@ -166,7 +166,7 @@ begin
 
 end;
 
-function DeleteStrongNumbers(s: WideString): WideString;
+function DeleteStrongNumbers(s: string): string;
 var
   i, len: integer;
 begin
@@ -202,9 +202,9 @@ begin
   end;
 end;
 
-function FirstWord(s: WideString): WideString;
+function FirstWord(s: string): string;
 var
-  s1: WideString;
+  s1: string;
   i: integer;
 begin
   Result := '';
@@ -215,7 +215,7 @@ begin
   else Result := s1;
 end;
 
-function DeleteFirstWord(var s: WideString): WideString;
+function DeleteFirstWord(var s: string): string;
 var
   s1: WideString;
   i: integer;
@@ -231,7 +231,7 @@ begin
   else s := '';
 end;
 
-function IniStringFirstPart(s: WideString): WideString;
+function IniStringFirstPart(s: string): string;
 var
   i: integer;
 begin
@@ -241,7 +241,7 @@ begin
   else Result := Trim(s);
 end;
 
-function IniStringSecondPart(s: WideString): WideString;
+function IniStringSecondPart(s: string): string;
 var
   i: integer;
 begin
@@ -251,10 +251,10 @@ begin
   else Result := '';
 end;
 
-function StrColorUp(var s: WideString; const wrd, c1, c2: WideString; casesensitive: boolean): boolean;
+function StrColorUp(var s: string; const wrd, c1, c2: string; casesensitive: boolean): boolean;
 var
   i, len1: integer;
-  res, slow, wrdlow: WideString;
+  res, slow, wrdlow: string;
 begin
   if not casesensitive then
   begin
@@ -290,10 +290,10 @@ begin
   s := res + s;
 end;
 
-function StrReplace(var s: WideString; const substr1, substr2: WideString; recurse: boolean): boolean;
+function StrReplace(var s: string; const substr1, substr2: string; recurse: boolean): boolean;
 var
   i,len1: integer;
-  res: WideString;
+  res: string;
 begin
   Result := true;
 
@@ -318,7 +318,7 @@ begin
   s := res + s;
 end;
 
-function StrGetFirstNumber(s: WideString): WideString;
+function StrGetFirstNumber(s: string): string;
 var
   i,len: integer;
   ok: boolean;
@@ -334,7 +334,7 @@ begin
   Result := Copy(s,1,i-1);
 end;
 
-function StrDeleteFirstNumber(var s: WideString): WideString;
+function StrDeleteFirstNumber(var s: string): string;
 var
   i,len,nums: integer;
   ok: boolean;
@@ -353,7 +353,7 @@ begin
   s := Trim(Copy(s,i,len));
 end;
 
-function Comment(s: WideString): WideString; // retrieves a comment from a command line
+function Comment(s: string): string; // retrieves a comment from a command line
 var
   i: integer;
 begin
@@ -363,7 +363,7 @@ begin
   else Result := '';
 end;
 
-function DumpFileName(s: WideString): WideString;
+function DumpFileName(s: string): string;
 begin
   Result := s;
   StrReplace(Result, ':', ' ', true);
@@ -380,7 +380,7 @@ begin
   Result := Trim(Result);
 end;
 
-function UpperCaseFirstLetter(s: WideString): WideString;
+function UpperCaseFirstLetter(s: string): string;
 begin
   Result := WideUpperCase(Copy(s,1,1)) + WideLowerCase(Copy(s,2,Length(s)));
 end;
@@ -388,10 +388,10 @@ end;
 // разбор записей типа Ѕыт. 1 : 1- 25 дл€ получени€ адреса отрывка
 // дл€ модул€ bookmarks адреса выгл€д€т так: 40.1:2-34
 
-function SplitValue(s: WideString; var strname: WideString;
+function SplitValue(s: string; var strname: string;
          var chapter, fromverse, toverse: integer): boolean;
 var
-  scopy: WideString;
+  scopy: string;
   colonpos, dashpos, spacepos, pointpos, commapos: integer;
 begin
   chapter := 1;
@@ -447,9 +447,9 @@ begin
 end;
 
 
-function SingleLetterDelete(var s: WideString): boolean;
+function SingleLetterDelete(var s: string): boolean;
 var
-  snew, sword: WideString;
+  snew, sword: string;
 begin
   Result := false;
   snew := '';
@@ -465,16 +465,16 @@ begin
   s := Trim(snew);
 end;
 
-function Char2Hex(c: WideChar): integer;
+function Char2Hex(c: Char): integer;
 begin
   result:=0;
   if (c <= '9') and (c>='0') then Result := Integer (c) - Integer ('0')
   else if (c>='A') and  (c<='F') then Result := Integer (c) - Integer ('A') + 10;
 end;
 
-function Hex2Color(s: WideString): TColor; // #xxyyzz -> TColor
+function Hex2Color(s: string): TColor; // #xxyyzz -> TColor
 var
-  snew: WideString;
+  snew: string;
   l:integer;
 begin
   result:=0;
@@ -494,7 +494,7 @@ begin
   Result := Result + Char2Hex(snew[2]) * 16 + Char2Hex(snew[3]);
 end;
 
-function Color2Hex(col: TColor): WideString;
+function Color2Hex(col: TColor): string;
 begin
   Result := Format('#%.2x%.2x%.2x',
     [ColorToRGB(col) and $FF,
@@ -503,13 +503,13 @@ begin
 end;
 
 //!!!   оптимизации: последовательное наращивание длинной строки.
-function ParseHTML(s, HTML: WideString): WideString;
+function ParseHTML(s, HTML: string): string;
 var
-  Tokens: TWideStrings;
+  Tokens: TStrings;
   i, minCharCode, s_length, tmp_max, tmp_ix{, tc}: integer;
-  charArrayAccumullator: array of WideChar;
+  charArrayAccumullator: array of Char;
   useDefaultFilter: boolean;
-  wstr:WideString;
+  wstr:string;
   procedure grow_tmp();
   begin
   Inc(tmp_max);
@@ -527,7 +527,7 @@ begin
     Exit;
   end;
 
-  Tokens := TWideStringList.Create;
+  Tokens := TStringList.Create;
   try
   i := 0;
   tmp_max:=1024;
@@ -604,10 +604,10 @@ begin
   finally  SetLength(charArrayAccumullator,0); Tokens.Free; end;
 end;
 
-function Get_ANAME_VerseNumber(const s: WideString; start, iPos: integer): integer;
+function Get_ANAME_VerseNumber(const s: string; start, iPos: integer): integer;
 var
   anamepos, len, i: integer;
-  sign: WideString;
+  sign: string;
 begin
   i := start;
 
@@ -627,7 +627,7 @@ end;
 function Get_AHREF_VerseCommand(const s: string;  iPos: integer): string;
 var
   anamepos,  i, searchpos: integer;
-  sign: WideString;
+  sign: string;
   label found;
 begin
   searchpos:=1;
@@ -652,7 +652,7 @@ if  (searchpos=0) then begin result:=''; exit; end;
     end;
 end;
 {/ALekID}
-procedure AddLine (var rResult: WideString; const aLine: WideString);
+procedure AddLine (var rResult: string; const aLine: string);
 begin
   if rResult = '' then
     rResult := aLine
@@ -668,10 +668,10 @@ begin
     Result := aChar;
 end;
 
-function LatCharToLower (aChar: WideChar): WideChar; overload;
+function LatCharToLower (aChar: Char): Char; overload;
 begin
   if (aChar >= 'A') and (aChar <= 'Z') then
-    Result := WideChar (Word (aChar) + 32)
+    Result := Char (Word (aChar) + 32)
   else
     Result := aChar;
 end;
@@ -718,13 +718,13 @@ NextFirstChar:
 
 end;
 
-function PosCIL (aSubString: WideString; const aString: WideString; aStartPos: Integer = 1): Integer; overload;
+function PosCIL (aSubString: string; const aString: string; aStartPos: Integer = 1): Integer; overload;
 var
   dLength: Integer;
   dSubLength: Integer;
   dPos: Integer;
   dPos2: Integer;
-  dFirstChar: WideChar;
+  dFirstChar: Char;
 
 label
   NextFirstChar;
@@ -760,7 +760,7 @@ NextFirstChar:
 
 end;
 
-procedure TrimNullTerminatedString (var aString: String);
+procedure TrimNullTerminatedString (var aString: string);
 var
   dPos: Integer;
 begin

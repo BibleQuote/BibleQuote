@@ -4,7 +4,7 @@ interface
 uses HTMLEmbedInterfaces, controls, classes,Htmlsubs;
 type
   IHTMLViewerSite =interface
- ['{14ED0EC0-45FE-1FD6-F1F0-41345DE47A64}']  
+ ['{14ED0EC0-45FE-1FD6-F1F0-41345DE47A64}']
   procedure Init(sectionList:TSectionList);
   end;
 

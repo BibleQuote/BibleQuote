@@ -1,11 +1,11 @@
 unit bqHintTools;
 
 interface
-uses Controls,tntControls,Classes,Windows,Forms, tntSysUtils;
+uses Controls,Classes,Windows,Forms, SysUtils;
 type
-TbqHintWindow=class(TTntCustomHintWindow)
-procedure ActivateHint(Rect: TRect; const AHint: AnsiString); override;
-function CalcHintRect(MaxWidth: Integer; const AHint: AnsiString; AData: Pointer): TRect; override;
+TbqHintWindow=class(THintWindow)
+procedure ActivateHint(Rect: TRect; const AHint: string); override;
+//function CalcHintRect(MaxWidth: Integer; const AHint: string; AData: Pointer): TRect; override;
 end;
 implementation
 
@@ -13,7 +13,7 @@ uses Types;
 
 { TbqHintWindow }
 
-procedure TbqHintWindow.ActivateHint(Rect: TRect; const AHint: AnsiString);
+procedure TbqHintWindow.ActivateHint(Rect: TRect; const AHint: string);
 var r, maxOffset:integer;
 
 begin
@@ -28,8 +28,8 @@ begin
 //    OffsetRect(rect,-20,0);
   inherited;
 end;
-
-function TbqHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: AnsiString;
+{
+function TbqHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: string;
   AData: Pointer): TRect;
 
 var
@@ -63,8 +63,7 @@ end;
   Inc(Result.Right, 8);
   Inc(Result.Bottom, 4);
  end;
-
-
+}
 
 
 end.

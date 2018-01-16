@@ -5,18 +5,18 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics,
-  Controls, Forms, TntForms, Dialogs,
-  Htmlview, ShellAPI, TntStdCtrls, ExtCtrls, StdCtrls;
+  Controls, Forms, Dialogs,
+  Htmlview, ShellAPI, StdCtrls, ExtCtrls;
 
 type
-  TCopyrightForm = class(TTntForm)
+  TCopyrightForm = class(TForm)
     Browser: THTMLViewer;
     Shape1: TShape;
     imgModule: TImage;
-    lbBQModName: TTntLabel;
+    lbBQModName: TLabel;
     Shape2: TShape;
     Shape3: TShape;
-    lblCopyRightNotice: TTntLabel;
+    lblCopyRightNotice: TLabel;
     imgCopyRight: TImage;
     procedure BrowserHotSpotClick(Sender: TObject; const SRC: String;
       var Handled: Boolean);

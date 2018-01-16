@@ -4,22 +4,21 @@ interface
 
 uses
   Tabs, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, VirtualTrees, Contnrs, StdCtrls, TntStdCtrls, ExtCtrls, TntForms,
-  WideStrings,
+  Dialogs, VirtualTrees, Contnrs, StdCtrls, ExtCtrls,
   BibleQuoteUtils, DockTabSet;
 
 type
   TBQUseDisposition = (udMyLibrary, udParabibles);
   TLibLinkType = (lltTag, lltBook);
-  TfrmQNav = class(TTntForm)
+  TfrmQNav = class(TForm)
     vstBookList: TVirtualDrawTree;
-    edFilter: TTntEdit;
-    lbBQName: TTntLabel;
+    edFilter: TEdit;
+    lbBQName: TLabel;
     btnOK: TButton;
     mTagTabsEx: TDockTabSet;
     btnCollapse: TButton;
     btnClear: TButton;
-    stCount: TTntStaticText;
+    stCount: TStaticText;
     procedure vstBookListGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
@@ -65,11 +64,11 @@ type
     { Private declarations }
 
     mods: TObjectList;
-    mStrTokens, mFilterStrTokens, mTagTokens: TWideStringList;
+    mStrTokens, mFilterStrTokens, mTagTokens: TStringList;
     mAllMatch:boolean;
     mAllowExp, mFiltered: boolean;
     mCatNodes: TCachedModules;
-    mFilterStr: WideString;
+    mFilterStr: string;
     mCounter: Integer;
     mfntReg, mfntBook, mfntTag, mfntTagCap: TFont;
 
@@ -77,7 +76,7 @@ type
     function LinkFromPoint(pt: TPoint; out me: TModuleEntry;
       out linkType: TLibLinkType): integer;
     function PaintTokens(canv: TCanvas; rct: TRect;
-      tkns: TWideStrings; calc: boolean; var rects: PRectArray): integer;
+      tkns: TStrings; calc: boolean; var rects: PRectArray): integer;
     function PaintBookTokens(canv: TCanvas; rct: TRect;
       var tkns: TMatchInfoArray; calc: boolean): integer;
     procedure SetTagTabs();
@@ -298,7 +297,7 @@ begin
 
 end;
 
-function TfrmQNav.PaintTokens(canv: TCanvas; rct: TRect; tkns: TWideStrings;
+function TfrmQNav.PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings;
   calc: boolean;
   var rects: PRectArray): integer;
 var
@@ -470,9 +469,9 @@ begin
 
     mTagTabsEx.TabIndex := 0;
     Lang.TranslateForm(self);
-    mStrTokens := TWideStringList.Create();
-    mTagTokens := TWideStringList.Create();
-    mFilterStrTokens := TWideStringList.Create();
+    mStrTokens := TStringList.Create();
+    mTagTokens := TStringList.Create();
+    mFilterStrTokens := TStringList.Create();
     self.Font.Assign((self.Owner as TForm).Font);
     self.Font.Height := self.Font.Height * 5 div 4;
     v:=  MainCfgIni.GetIntDefault(C_frmMyLibHeight,10000);
@@ -531,11 +530,11 @@ procedure TfrmQNav.UpdateList(ml: TObjectList; ti: integer = -1; selName:
   WideString = '');
 var
   cnt, i, mIx: integer;
-  name: WideString;
+  name: string;
   me, catMe: TModuleEntry;
   mt: TModMatchTypes;
   allMatch, doAdd, selFlag, foundCat: boolean;
-  ss, tagstr: WideString;
+  ss, tagstr: string;
   ci: INTEGER;
   rt, sel, tempVN: PVirtualNode;
   j, tg: integer;
@@ -792,8 +791,7 @@ begin
 
   r.Right := 640;
   r.Bottom := 480;
-  DrawTextW(vstBookList.Canvas.Handle, PWideChar(Pointer(me.wsShortPath)),
-    length(me.wsShortPath), r, DT_CALCRECT, true);
+  DrawTextW(vstBookList.Canvas.Handle, PWideChar(Pointer(me.wsShortPath)), length(me.wsShortPath), r, DT_CALCRECT);
   InflateRect(r, 6, 6);
 end;
 
