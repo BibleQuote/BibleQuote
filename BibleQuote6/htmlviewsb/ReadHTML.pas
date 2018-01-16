@@ -98,7 +98,7 @@ implementation
 
 uses
   Windows, SysUtils, Math, {$IFDEF Delphi6_Plus}Variants, {$ENDIF}
-   HtmlSbs1, HtmlView, StylePars, UrlSubs{ALekId} {$IFDEF SMARTFONTS}, bibleQuoteUtils{$ENDIF}{/AlekID};
+   HtmlSbs1, HtmlView, StylePars, UrlSubs;
 
 Const
   Tab = #9;

@@ -141,15 +141,15 @@ implementation
 
 {** link zlib code **********************************************************}
 
-{$L deflate.obj}
-{$L inflate.obj}
-{$L infblock.obj}
-{$L inftrees.obj}
-{$L infcodes.obj}
-{$L infutil.obj}
-{$L inffast.obj}
-{$L trees.obj}
-{$L adler32.obj}
+{$L obj\deflate.obj}
+{$L obj\inflate.obj}
+{$L obj\infblock.obj}
+{$L obj\inftrees.obj}
+{$L obj\infcodes.obj}
+{$L obj\infutil.obj}
+{$L obj\inffast.obj}
+{$L obj\trees.obj}
+{$L obj\adler32.obj}
 
 {*****************************************************************************
 *  note: do not reorder the above -- doing so will result in external        *
