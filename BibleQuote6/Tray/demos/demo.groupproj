@@ -1,0 +1,120 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{41557190-6902-410A-8861-FF63DE8A5B9B}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="CoolTrayTest\CoolTrayTest.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="CoolService\CoolService.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="CustomHint1\CustomHint.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="CustomHint2\BigHintDemo.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="MinimizeAnimation\MinimizeAnimation.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="StartHidden\StartHidden.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="TextTrayTest\TextTrayTest.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="TrayDraw\TrayDraw.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="CoolTrayTest">
+			<MSBuild Projects="CoolTrayTest\CoolTrayTest.dproj"/>
+		</Target>
+		<Target Name="CoolTrayTest:Clean">
+			<MSBuild Targets="Clean" Projects="CoolTrayTest\CoolTrayTest.dproj"/>
+		</Target>
+		<Target Name="CoolTrayTest:Make">
+			<MSBuild Targets="Make" Projects="CoolTrayTest\CoolTrayTest.dproj"/>
+		</Target>
+		<Target Name="CoolService">
+			<MSBuild Projects="CoolService\CoolService.dproj"/>
+		</Target>
+		<Target Name="CoolService:Clean">
+			<MSBuild Targets="Clean" Projects="CoolService\CoolService.dproj"/>
+		</Target>
+		<Target Name="CoolService:Make">
+			<MSBuild Targets="Make" Projects="CoolService\CoolService.dproj"/>
+		</Target>
+		<Target Name="CustomHint">
+			<MSBuild Projects="CustomHint1\CustomHint.dproj"/>
+		</Target>
+		<Target Name="CustomHint:Clean">
+			<MSBuild Targets="Clean" Projects="CustomHint1\CustomHint.dproj"/>
+		</Target>
+		<Target Name="CustomHint:Make">
+			<MSBuild Targets="Make" Projects="CustomHint1\CustomHint.dproj"/>
+		</Target>
+		<Target Name="BigHintDemo">
+			<MSBuild Projects="CustomHint2\BigHintDemo.dproj"/>
+		</Target>
+		<Target Name="BigHintDemo:Clean">
+			<MSBuild Targets="Clean" Projects="CustomHint2\BigHintDemo.dproj"/>
+		</Target>
+		<Target Name="BigHintDemo:Make">
+			<MSBuild Targets="Make" Projects="CustomHint2\BigHintDemo.dproj"/>
+		</Target>
+		<Target Name="MinimizeAnimation">
+			<MSBuild Projects="MinimizeAnimation\MinimizeAnimation.dproj"/>
+		</Target>
+		<Target Name="MinimizeAnimation:Clean">
+			<MSBuild Targets="Clean" Projects="MinimizeAnimation\MinimizeAnimation.dproj"/>
+		</Target>
+		<Target Name="MinimizeAnimation:Make">
+			<MSBuild Targets="Make" Projects="MinimizeAnimation\MinimizeAnimation.dproj"/>
+		</Target>
+		<Target Name="StartHidden">
+			<MSBuild Projects="StartHidden\StartHidden.dproj"/>
+		</Target>
+		<Target Name="StartHidden:Clean">
+			<MSBuild Targets="Clean" Projects="StartHidden\StartHidden.dproj"/>
+		</Target>
+		<Target Name="StartHidden:Make">
+			<MSBuild Targets="Make" Projects="StartHidden\StartHidden.dproj"/>
+		</Target>
+		<Target Name="TextTrayTest">
+			<MSBuild Projects="TextTrayTest\TextTrayTest.dproj"/>
+		</Target>
+		<Target Name="TextTrayTest:Clean">
+			<MSBuild Targets="Clean" Projects="TextTrayTest\TextTrayTest.dproj"/>
+		</Target>
+		<Target Name="TextTrayTest:Make">
+			<MSBuild Targets="Make" Projects="TextTrayTest\TextTrayTest.dproj"/>
+		</Target>
+		<Target Name="TrayDraw">
+			<MSBuild Projects="TrayDraw\TrayDraw.dproj"/>
+		</Target>
+		<Target Name="TrayDraw:Clean">
+			<MSBuild Targets="Clean" Projects="TrayDraw\TrayDraw.dproj"/>
+		</Target>
+		<Target Name="TrayDraw:Make">
+			<MSBuild Targets="Make" Projects="TrayDraw\TrayDraw.dproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="CoolTrayTest;CoolService;CustomHint;BigHintDemo;MinimizeAnimation;StartHidden;TextTrayTest;TrayDraw"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="CoolTrayTest:Clean;CoolService:Clean;CustomHint:Clean;BigHintDemo:Clean;MinimizeAnimation:Clean;StartHidden:Clean;TextTrayTest:Clean;TrayDraw:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="CoolTrayTest:Make;CoolService:Make;CustomHint:Make;BigHintDemo:Make;MinimizeAnimation:Make;StartHidden:Make;TextTrayTest:Make;TrayDraw:Make"/>
+		</Target>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+	</Project>
