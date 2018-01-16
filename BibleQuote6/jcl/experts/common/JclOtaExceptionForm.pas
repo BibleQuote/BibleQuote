@@ -18,9 +18,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-10-16 19:11:39 +0200 (ven., 16 oct. 2009)                          $ }
-{ Revision:      $Rev:: 3044                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 unit JclOtaExceptionForm;
@@ -56,9 +56,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/common/JclOtaExceptionForm.pas $';
-    Revision: '$Revision: 3044 $';
-    Date: '$Date: 2009-10-16 19:11:39 +0200 (ven., 16 oct. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\common';
     Extra: '';
     Data: nil

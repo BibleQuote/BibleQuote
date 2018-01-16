@@ -20,9 +20,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-09-21 23:25:05 +0200 (lun., 21 sept. 2009)                         $ }
-{ Revision:      $Rev:: 3017                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -171,7 +171,7 @@ type
     property ModuleName: string read GetModuleName;
   end;
 
-  TJclStackTraceViewerModuleInfoList = class(TObject, IJclModuleInfoList)
+  TJclStackTraceViewerModuleInfoList = class(TInterfacedObject, IInterface, IJclModuleInfoList)
   private
     FItems: TObjectList;
   public
@@ -181,7 +181,7 @@ type
     procedure Clear;
 
     { IInterface }
-    function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
+    // function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
     { IJclModuleInfoList }
@@ -209,9 +209,9 @@ type
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/stacktraceviewer/JclStackTraceViewerClasses.pas $';
-    Revision: '$Revision: 3017 $';
-    Date: '$Date: 2009-09-21 23:25:05 +0200 (lun., 21 sept. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\stacktraceviewer';
     Extra: '';
     Data: nil
@@ -615,14 +615,6 @@ end;
 function TJclStackTraceViewerModuleInfoList.GetModuleInfo(AIndex: Integer): IJclModuleInfo;
 begin
   FItems[AIndex].GetInterface(IJclModuleInfo, Result);
-end;
-
-function TJclStackTraceViewerModuleInfoList.QueryInterface(const IID: TGUID; out Obj): HRESULT;
-begin
-  if GetInterface(IID, Obj) then
-    Result := S_OK
-  else
-    Result := E_NOINTERFACE;
 end;
 
 function TJclStackTraceViewerModuleInfoList._AddRef: Integer;

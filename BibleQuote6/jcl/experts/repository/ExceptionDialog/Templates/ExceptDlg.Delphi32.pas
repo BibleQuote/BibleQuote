@@ -17,9 +17,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-22 18:24:06 +0100 (lun., 22 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3199                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -139,10 +139,10 @@ var
 function SortModulesListByAddressCompare(List: TStringList;
   Index1, Index2: Integer): Integer;
 var
-  Addr1, Addr2: Cardinal;
+  Addr1, Addr2: TJclAddr;
 begin
-  Addr1 := Cardinal(List.Objects[Index1]);
-  Addr2 := Cardinal(List.Objects[Index2]);
+  Addr1 := TJclAddr(List.Objects[Index1]);
+  Addr2 := TJclAddr(List.Objects[Index2]);
   if Addr1 > Addr2 then
     Result := 1
   else if Addr1 < Addr2 then
@@ -174,8 +174,10 @@ end;
 
 function HookTApplicationHandleException: Boolean;
 const
-  CallOffset      = $86;
-  CallOffsetDebug = $94;
+  CallOffset      = $86;   // Until D2007
+  CallOffsetDebug = $94;   // Until D2007
+  CallOffsetWin32 = $7A;   // D2009 and newer
+  CallOffsetWin64 = $95;   // DXE2 for Win64
 type
   PCALLInstruction = ^TCALLInstruction;
   TCALLInstruction = packed record
@@ -191,15 +193,15 @@ var
   function CheckAddressForOffset(Offset: Cardinal): Boolean;
   begin
     try
-      CallAddress := Pointer(Cardinal(TApplicationHandleExceptionAddr) + Offset);
+      CallAddress := Pointer(TJclAddr(TApplicationHandleExceptionAddr) + Offset);
       CALLInstruction.Call := $E8;
       Result := PCALLInstruction(CallAddress)^.Call = CALLInstruction.Call;
       if Result then
       begin
         if IsCompiledWithPackages then
-          Result := PeMapImgResolvePackageThunk(Pointer(Integer(CallAddress) + Integer(PCALLInstruction(CallAddress)^.Address) + SizeOf(CALLInstruction))) = SysUtilsShowExceptionAddr
+          Result := PeMapImgResolvePackageThunk(Pointer(SizeInt(CallAddress) + Integer(PCALLInstruction(CallAddress)^.Address) + SizeOf(CALLInstruction))) = SysUtilsShowExceptionAddr
         else
-          Result := PCALLInstruction(CallAddress)^.Address = Integer(SysUtilsShowExceptionAddr) - Integer(CallAddress) - SizeOf(CALLInstruction);
+          Result := PCALLInstruction(CallAddress)^.Address = SizeInt(SysUtilsShowExceptionAddr) - SizeInt(CallAddress) - SizeOf(CALLInstruction);
       end;
     except
       Result := False;
@@ -211,10 +213,11 @@ begin
   SysUtilsShowExceptionAddr := PeMapImgResolvePackageThunk(@SysUtils.ShowException);
   if Assigned(TApplicationHandleExceptionAddr) and Assigned(SysUtilsShowExceptionAddr) then
   begin
-    Result := CheckAddressForOffset(CallOffset) or CheckAddressForOffset(CallOffsetDebug);
+    Result := CheckAddressForOffset(CallOffset) or CheckAddressForOffset(CallOffsetDebug) or
+      CheckAddressForOffset(CallOffsetWin32) or CheckAddressForOffset(CallOffsetWin64);
     if Result then
     begin
-      CALLInstruction.Address := Integer(@HookShowException) - Integer(CallAddress) - SizeOf(CALLInstruction);
+      CALLInstruction.Address := SizeInt(@HookShowException) - SizeInt(CallAddress) - SizeOf(CALLInstruction);
       Result := WriteProtectedMemory(CallAddress, @CallInstruction, SizeOf(CallInstruction), WrittenBytes);
     end;
   end
@@ -334,7 +337,7 @@ var
   ModuleName: TFileName;
   NtHeaders32: PImageNtHeaders32;
   NtHeaders64: PImageNtHeaders64;
-  ModuleBase: Cardinal;
+  ModuleBase: TJclAddr;
   ImageBaseStr: string;{$ENDIF}
 {$IFDEF ActiveControls}  C: TWinControl;{$ENDIF}
 {$IFDEF OSInfo}  CpuInfo: TCpuInfo;
@@ -348,8 +351,8 @@ var
   UnitVersion: TUnitVersion;
   ModuleIndex, UnitIndex: Integer;{$ENDIF}
 begin
-  DetailsMemo.Lines.Add(Format(LoadResString(@RsMainThreadID), [MainThreadID]));
-  DetailsMemo.Lines.Add(Format(LoadResString(@RsExceptionThreadID), [MainThreadID]));
+  DetailsMemo.Lines.Add(Format(LoadResString(PResStringRec(@RsMainThreadID)), [MainThreadID]));
+  DetailsMemo.Lines.Add(Format(LoadResString(PResStringRec(@RsExceptionThreadID)), [MainThreadID]));
   NextDetailBlock;
 
   SL := TStringList.Create;
@@ -359,7 +362,7 @@ begin
     if Assigned(StackList) then
     begin
       DetailsMemo.Lines.Add(RsExceptionStack);
-      DetailsMemo.Lines.Add(Format(LoadResString(@RsStackList), [DateTimeToStr(StackList.TimeStamp)]));
+      DetailsMemo.Lines.Add(Format(LoadResString(PResStringRec(@RsStackList)), [DateTimeToStr(StackList.TimeStamp)]));
       StackList.AddToStrings(DetailsMemo.Lines, {$JPPBOOLVALUE ModuleName}, {$JPPBOOLVALUE ModuleOffset}, {$JPPBOOLVALUE CodeDetails}, {$JPPBOOLVALUE VirtualAddress});
       NextDetailBlock;
     end;
@@ -368,8 +371,8 @@ begin
     StackList := JclCreateThreadStackTraceFromID({$JPPBOOLVALUE RawData}, MainThreadID);
     if Assigned(StackList) then
     begin
-      DetailsMemo.Lines.Add(LoadResString(@RsMainThreadCallStack));
-      DetailsMemo.Lines.Add(Format(LoadResString(@RsStackList), [DateTimeToStr(StackList.TimeStamp)]));
+      DetailsMemo.Lines.Add(LoadResString(PResStringRec(@RsMainThreadCallStack)));
+      DetailsMemo.Lines.Add(Format(LoadResString(PResStringRec(@RsStackList)), [DateTimeToStr(StackList.TimeStamp)]));
       StackList.AddToStrings(DetailsMemo.Lines, {$JPPBOOLVALUE ModuleName}, {$JPPBOOLVALUE ModuleOffset}, {$JPPBOOLVALUE CodeDetails}, {$JPPBOOLVALUE VirtualAddress});
       NextDetailBlock;
     end;{$ENDIF}
@@ -379,8 +382,8 @@ begin
       StackList := JclCreateThreadStackTraceFromID({$JPPBOOLVALUE RawData}, FThreadID);
       if Assigned(StackList) then
       begin
-        DetailsMemo.Lines.Add(Format(LoadResString(@RsExceptionThreadCallStack), [FThreadID]));
-        DetailsMemo.Lines.Add(Format(LoadResString(@RsStackList), [DateTimeToStr(StackList.TimeStamp)]));
+        DetailsMemo.Lines.Add(Format(LoadResString(PResStringRec(@RsExceptionThreadCallStack)), [FThreadID]));
+        DetailsMemo.Lines.Add(Format(LoadResString(PResStringRec(@RsStackList)), [DateTimeToStr(StackList.TimeStamp)]));
         StackList.AddToStrings(DetailsMemo.Lines, {$JPPBOOLVALUE ModuleName}, {$JPPBOOLVALUE ModuleOffset}, {$JPPBOOLVALUE CodeDetails}, {$JPPBOOLVALUE VirtualAddress});
         NextDetailBlock;
       end;
@@ -398,7 +401,7 @@ begin
           if Assigned(StackList) then
           begin
             DetailsMemo.Lines.Add(Format(RsThreadCallStack, [AThreadID, ThreadList.ThreadInfos[AThreadID], ThreadList.ThreadNames[AThreadID]]));
-            DetailsMemo.Lines.Add(Format(LoadResString(@RsStackList), [DateTimeToStr(StackList.TimeStamp)]));
+            DetailsMemo.Lines.Add(Format(LoadResString(PResStringRec(@RsStackList)), [DateTimeToStr(StackList.TimeStamp)]));
             StackList.AddToStrings(DetailsMemo.Lines, {$JPPBOOLVALUE ModuleName}, {$JPPBOOLVALUE ModuleOffset}, {$JPPBOOLVALUE CodeDetails}, {$JPPBOOLVALUE VirtualAddress});
             NextDetailBlock;
           end;
@@ -429,12 +432,14 @@ begin
       ProcessorDetails := ProcessorDetails + ' SSE3';
     if ssse3 in CpuInfo.SSE then
       ProcessorDetails := ProcessorDetails + ' SSSE3';
+    if sse41 in CpuInfo.SSE then
+      ProcessorDetails := ProcessorDetails + ' SSE41';
+    if sse42 in CpuInfo.SSE then
+      ProcessorDetails := ProcessorDetails + ' SSE42';
     if sse4A in CpuInfo.SSE then
       ProcessorDetails := ProcessorDetails + ' SSE4A';
-    if sse4B in CpuInfo.SSE then
-      ProcessorDetails := ProcessorDetails + ' SSE4B';
     if sse5 in CpuInfo.SSE then
-      ProcessorDetails := ProcessorDetails + ' SSE';
+      ProcessorDetails := ProcessorDetails + ' SSE5';
     if CpuInfo.Ex3DNow then
       ProcessorDetails := ProcessorDetails + ' 3DNow!ex';
     if CpuInfo._3DNow then
@@ -460,8 +465,8 @@ begin
       for I := 0 to SL.Count - 1 do
       begin
         ModuleName := SL[I];
-        ModuleBase := Cardinal(SL.Objects[I]);
-        DetailsMemo.Lines.Add(Format('[%.8x] %s', [ModuleBase, ModuleName]));
+        ModuleBase := TJclAddr(SL.Objects[I]);
+        DetailsMemo.Lines.Add(Format('[' + HexDigitFmt + '] %s', [ModuleBase, ModuleName]));
         PETarget := PeMapImgTarget(Pointer(ModuleBase));
         NtHeaders32 := nil;
         NtHeaders64 := nil;
@@ -471,10 +476,10 @@ begin
         if PETarget = taWin64 then
           NtHeaders64 := PeMapImgNtHeaders64(Pointer(ModuleBase));
         if (NtHeaders32 <> nil) and (NtHeaders32^.OptionalHeader.ImageBase <> ModuleBase) then
-          ImageBaseStr := Format('<%.8x> ', [NtHeaders32^.OptionalHeader.ImageBase])
+          ImageBaseStr := Format('<' + HexDigitFmt32 + '> ', [NtHeaders32^.OptionalHeader.ImageBase])
         else
         if (NtHeaders64 <> nil) and (NtHeaders64^.OptionalHeader.ImageBase <> ModuleBase) then
-          ImageBaseStr := Format('<%.8x> ', [NtHeaders64^.OptionalHeader.ImageBase])
+          ImageBaseStr := Format('<' + HexDigitFmt64 + '> ', [NtHeaders64^.OptionalHeader.ImageBase])
         else
           ImageBaseStr := StrRepeat(' ', 11);
         if VersionResourceAvailable(ModuleName) then
@@ -494,7 +499,7 @@ begin
           if UnitVersioningModule.Instance = ModuleBase then
           begin
             if UnitVersioningModule.Count > 0 then
-              DetailsMemo.Lines.Add(StrRepeat(' ', 11) + LoadResString(@RsUnitVersioningIntro));
+              DetailsMemo.Lines.Add(StrRepeat(' ', 11) + LoadResString(PResStringRec(@RsUnitVersioningIntro)));
             for UnitIndex := 0 to UnitVersioningModule.Count - 1 do
             begin
               UnitVersion := UnitVersioningModule.Items[UnitIndex];

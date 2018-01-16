@@ -18,13 +18,13 @@
 { All Rights Reserved.                                                                             }
 {                                                                                                  }
 { You may retrieve the latest version of this file at the Project JEDI's JCL home page,            }
-{ located at http://jcl.sourceforge.net                                                            }
+{ located at https://github.com/project-jedi/jcl                                                   }
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2009-10-16 19:11:39 +0200 (ven., 16 oct. 2009)                          $ }
-{ Revision:      $Rev:: 3044                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -41,7 +41,7 @@ uses
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
   JclSysInfo,
-  JclOtaUtils, JclSIMDViewForm;
+  JclOtaUtils, JclOtaActions, JclSIMDViewForm;
 
 {$R 'JclSIMDIcon.dcr'}
 
@@ -129,9 +129,9 @@ function JCLWizardInit(const BorlandIDEServices: IBorlandIDEServices;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/debug/simdview/JclSIMDView.pas $';
-    Revision: '$Revision: 3044 $';
-    Date: '$Date: 2009-10-16 19:11:39 +0200 (ven., 16 oct. 2009) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\debug\simdview';
     Extra: '';
     Data: nil
@@ -342,7 +342,7 @@ begin
 
   FViewDebugMenu.Add(FSIMDMenuItem);
 
-  RegisterAction(FSIMDAction);
+  TJclOTAActionExpert.RegisterAction(FSIMDAction);
 
   FDebuggerNotifier := TJclDebuggerNotifier.Create(Self);
   FIndex := DebuggerServices.AddNotifier(FDebuggerNotifier);
@@ -352,7 +352,7 @@ procedure TJclSIMDWizard.UnregisterCommands;
 begin
   inherited UnregisterCommands;
 
-  UnregisterAction(FSIMDAction);
+  TJclOTAActionExpert.UnregisterAction(FSIMDAction);
   FreeAndNil(FIcon);
   FreeAndNil(FSIMDMenuItem);
   FreeAndNil(FSIMDAction);

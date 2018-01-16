@@ -17,9 +17,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-08-07 11:44:18 +0200 (sam., 07 août 2010)                         $ }
-{ Revision:      $Rev:: 3279                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -34,7 +34,7 @@ uses
   {$IFDEF UNITVERSIONING}
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
-  JclOtaUtils, JclProjectAnalyzerFrm;
+  JclOtaUtils, JclOtaActions, JclProjectAnalyzerFrm;
 
 type
   TJclProjectAnalyzerExpert = class(TJclOTAExpert)
@@ -94,9 +94,9 @@ function JCLWizardInit(const BorlandIDEServices: IBorlandIDEServices;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/projectanalyzer/JclProjectAnalyzerImpl.pas $';
-    Revision: '$Revision: 3279 $';
-    Date: '$Date: 2010-08-07 11:44:18 +0200 (sam., 07 août 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\projectanalyser';
     Extra: '';
     Data: nil
@@ -108,6 +108,9 @@ implementation
 {$R JclProjectAnalyzerIcon.res}
 
 uses
+  {$IFDEF HAS_UNIT_SYSTEM_ACTIONS}
+  System.Actions,
+  {$ENDIF HAS_UNIT_SYSTEM_ACTIONS}
   Variants,
   JclDebug, JclFileUtils, JclOtaConsts, 
   JclOtaResources;
@@ -378,7 +381,7 @@ begin
         if Assigned(Items[I].Action) then
           FBuildAction.Category := TContainedAction(Items[I].Action).Category;
         FBuildAction.ActionList := IDEActionList;
-        RegisterAction(FBuildAction);
+        TJclOTAActionExpert.RegisterAction(FBuildAction);
         FBuildMenuItem := TMenuItem.Create(nil);
         FBuildMenuItem.Name := JclProjectAnalyzeMenuName;
         FBuildMenuItem.Action := FBuildAction;
@@ -407,7 +410,7 @@ begin
   {$ENDIF BDS4_UP}
   {$ENDIF ~BDS7_UP}
 
-  UnregisterAction(FBuildAction);
+  TJclOTAActionExpert.UnregisterAction(FBuildAction);
   FreeAndNil(FBuildMenuItem);
   FreeAndNil(FBuildAction);
 end;

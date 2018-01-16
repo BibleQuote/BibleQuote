@@ -21,9 +21,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010)                         $ }
-{ Revision:      $Rev:: 3321                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -40,7 +40,8 @@ uses
   JclUnitVersioning,
   {$ENDIF UNITVERSIONING}
   JclVersionControl,
-  JclOtaUtils, JclVersionCtrlCommonOptions;
+  JclOtaUtils, JclOtaActions,
+  JclVersionCtrlCommonOptions;
 
 type
   TJclVersionControlStandardAction = class(TCustomAction)
@@ -57,31 +58,8 @@ type
     property ControlAction: TJclVersionControlActionType read FControlAction write FControlAction;
   end;
 
-  {$IFDEF BDS8_UP}
-  TJclVersionControlExpert = class;
-
-  TJclVersionControlExpertOptions = class(TInterfacedObject, INTAAddinOptions)
-  private
-    FOptionsFrame: TJclVersionCtrlOptionsFrame;
-    FVersionControlExpert: TJclVersionControlExpert;
-  public
-    constructor Create(AVersionControlExpert: TJclVersionControlExpert);
-    procedure DialogClosed(Accepted: Boolean);
-    procedure FrameCreated(AFrame: TCustomFrame);
-    function GetArea: string;
-    function GetCaption: string;
-    function GetFrameClass: TCustomFrameClass;
-    function ValidateContents: Boolean;
-    function GetHelpContext: Integer;
-    function IncludeInIDEInsight: Boolean;
-  end;
-  {$ENDIF BDS8_UP}
-
   TJclVersionControlExpert = class (TJclOTAExpert)
   private
-    {$IFDEF BDS8_UP}
-    FAddinOptions: TJclVersionControlExpertOptions;
-    {$ENDIF BDS8_UP}
     FVersionCtrlMenu: TMenuItem;
     FActions: array [TJclVersionControlActionType] of TCustomAction;
     FIconIndexes: array [TJclVersionControlActionType] of Integer;
@@ -110,8 +88,6 @@ type
     destructor Destroy; override;
     procedure RegisterCommands; override;
     procedure UnregisterCommands; override;
-    procedure AddConfigurationPages(AddPageFunc: TJclOTAAddPageFunc); override;
-    procedure ConfigurationClosed(AControl: TControl; SaveChanges: Boolean); override;
     function SaveModules(const FileName: string;
       const IncludeSubDirectories: Boolean): Boolean;
 
@@ -123,6 +99,11 @@ type
     property CurrentCache: TJclVersionControlCache read GetCurrentCache;
     property CurrentPlugin: TJclVersionControlPlugin read GetCurrentPlugin;
     property CurrentFileName: string read GetCurrentFileName;
+  public
+    function GetPageName: string; override;
+    function GetFrameClass: TCustomFrameClass; override;
+    procedure FrameCreated(AFrame: TCustomFrame); override;
+    procedure DialogClosed(Accepted: Boolean); override;
   end;
 
 // design package entry point
@@ -142,9 +123,9 @@ function CharIsAmpersand(const C: Char): Boolean;
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/versioncontrol/JclVersionControlImpl.pas $';
-    Revision: '$Revision: 3321 $';
-    Date: '$Date: 2010-09-01 21:48:55 +0200 (mer., 01 sept. 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\versioncontrol';
     Extra: '';
     Data: nil
@@ -160,6 +141,7 @@ uses
   {$ENDIF BDS8_UP}
   JclDebug, JclFileUtils, JclRegistry, JclShell, JclStrings,
   JclOtaConsts, JclOtaResources,
+  JclVersionCtrlGITImpl,
   JclVersionCtrlSVNImpl,
   JclVersionCtrlCVSImpl;
 
@@ -342,73 +324,6 @@ begin
     raise EJclExpertException.CreateRes(@RsEInvalidAction);
 end;
 
-//=== { TJclVersionControlExpertOptions } ====================================
-
-{$IFDEF BDS8_UP}
-constructor TJclVersionControlExpertOptions.Create(AVersionControlExpert: TJclVersionControlExpert);
-begin
-  inherited Create;
-  FVersionControlExpert := AVersionControlExpert;
-end;
-
-procedure TJclVersionControlExpertOptions.DialogClosed(Accepted: Boolean);
-begin
-  if Accepted then
-  begin
-    FVersionControlExpert.DisableActions := FOptionsFrame.DisableActions;
-    FVersionControlExpert.HideActions := FOptionsFrame.HideActions;
-    FVersionControlExpert.SaveConfirmation := FOptionsFrame.SaveConfirmation;
-    FVersionControlExpert.ActOnTopSandbox := FOptionsFrame.ActOnTopSandbox;
-    FVersionControlExpert.FMenuOrganization.Assign(FOptionsFrame.MenuTree);
-    FVersionControlExpert.IconType := FOptionsFrame.IconType;
-    FVersionControlExpert.RefreshMenu;
-  end;
-end;
-
-procedure TJclVersionControlExpertOptions.FrameCreated(AFrame: TCustomFrame);
-begin
-  FOptionsFrame := TJclVersionCtrlOptionsFrame(AFrame);
-  FOptionsFrame.DisableActions := FVersionControlExpert.DisableActions;
-  FOptionsFrame.HideActions := FVersionControlExpert.HideActions;
-  FOptionsFrame.SaveConfirmation := FVersionControlExpert.SaveConfirmation;
-  FOptionsFrame.ActOnTopSandbox := FVersionControlExpert.ActOnTopSandbox;
-  FOptionsFrame.SetActions(FVersionControlExpert.FActions);
-  // after SetActions
-  FOptionsFrame.MenuTree := FVersionControlExpert.FMenuOrganization;
-  FOptionsFrame.IconType := FVersionControlExpert.IconType;
-end;
-
-function TJclVersionControlExpertOptions.GetArea: string;
-begin
-  Result := '';
-end;
-
-function TJclVersionControlExpertOptions.GetCaption: string;
-begin
-  Result := JclGetAddinOptionsCaption(RsVersionControlSheet);
-end;
-
-function TJclVersionControlExpertOptions.GetFrameClass: TCustomFrameClass;
-begin
-  Result := TJclVersionCtrlOptionsFrame;
-end;
-
-function TJclVersionControlExpertOptions.GetHelpContext: Integer;
-begin
-  Result := 0;
-end;
-
-function TJclVersionControlExpertOptions.IncludeInIDEInsight: Boolean;
-begin
-  Result := True;
-end;
-
-function TJclVersionControlExpertOptions.ValidateContents: Boolean;
-begin
-  Result := True;
-end;
-{$ENDIF BDS8_UP}
-
 //=== { TJclVersionControlExpert } ===================================================
 
 procedure TJclVersionControlExpert.ActionExecute(Sender: TObject);
@@ -586,63 +501,32 @@ begin
   end;
 end;
 
-procedure TJclVersionControlExpert.AddConfigurationPages(
-  AddPageFunc: TJclOTAAddPageFunc);
-begin
-  inherited AddConfigurationPages(AddPageFunc);
-  FOptionsFrame := TJclVersionCtrlOptionsFrame.Create(nil);
-  FOptionsFrame.DisableActions := DisableActions;
-  FOptionsFrame.HideActions := HideActions;
-  FOptionsFrame.SaveConfirmation := SaveConfirmation;
-  FOptionsFrame.ActOnTopSandbox := ActOnTopSandbox;
-  FOptionsFrame.SetActions(FActions);
-  // after SetActions
-  FOptionsFrame.MenuTree := FMenuOrganization;
-  FOptionsFrame.IconType := IconType;
-  AddPageFunc(FOptionsFrame, LoadResString(@RsVersionControlSheet), Self);
-end;
-
-procedure TJclVersionControlExpert.ConfigurationClosed(AControl: TControl;
-  SaveChanges: Boolean);
-begin
-  if (AControl = FOptionsFrame) and Assigned(FOptionsFrame) then
-  begin
-    if SaveChanges then
-    begin
-      DisableActions := FOptionsFrame.DisableActions;
-      HideActions := FOptionsFrame.HideActions;
-      SaveConfirmation := FOptionsFrame.SaveConfirmation;
-      ActOnTopSandbox := FOptionsFrame.ActOnTopSandbox;
-      FMenuOrganization.Assign(FOptionsFrame.MenuTree);
-      IconType := FOptionsFrame.IconType;
-      RefreshMenu;
-    end;
-    FreeAndNil(FOptionsFrame);
-  end
-  else
-    inherited ConfigurationClosed(AControl, SaveChanges);
-end;
-
 constructor TJclVersionControlExpert.Create;
 begin
   FMenuOrganization := TStringList.Create;
 
   inherited Create('JclVersionControlExpert');
-
-  {$IFDEF BDS8_UP}
-  FAddinOptions := TJclVersionControlExpertOptions.Create(Self);
-  (BorlandIDEServices as INTAEnvironmentOptionsServices).RegisterAddInOptions(FAddinOptions);
-  {$ENDIF BDS8_UP}
 end;
 
 destructor TJclVersionControlExpert.Destroy;
 begin
-  {$IFDEF BDS8_UP}
-  (BorlandIDEServices as INTAEnvironmentOptionsServices).UnregisterAddInOptions(FAddinOptions);
-  FAddinOptions := nil;
-  {$ENDIF BDS8_UP}
   inherited Destroy;
   FMenuOrganization.Free;
+end;
+
+procedure TJclVersionControlExpert.DialogClosed(Accepted: Boolean);
+begin
+  if Accepted then
+  begin
+    DisableActions := FOptionsFrame.DisableActions;
+    HideActions := FOptionsFrame.HideActions;
+    SaveConfirmation := FOptionsFrame.SaveConfirmation;
+    ActOnTopSandbox := FOptionsFrame.ActOnTopSandbox;
+    FMenuOrganization.Assign(FOptionsFrame.MenuTree);
+    IconType := FOptionsFrame.IconType;
+    RefreshMenu;
+  end;
+  FOptionsFrame := nil;
 end;
 
 procedure TJclVersionControlExpert.DropDownMenuPopup(Sender: TObject);
@@ -715,6 +599,20 @@ begin
   end;
 end;
 
+procedure TJclVersionControlExpert.FrameCreated(AFrame: TCustomFrame);
+begin
+  FOptionsFrame := AFrame as TJclVersionCtrlOptionsFrame;
+
+  FOptionsFrame.DisableActions := DisableActions;
+  FOptionsFrame.HideActions := HideActions;
+  FOptionsFrame.SaveConfirmation := SaveConfirmation;
+  FOptionsFrame.ActOnTopSandbox := ActOnTopSandbox;
+  FOptionsFrame.SetActions(FActions);
+  // after SetActions
+  FOptionsFrame.MenuTree := FMenuOrganization;
+  FOptionsFrame.IconType := IconType;
+end;
+
 function TJclVersionControlExpert.GetCurrentCache: TJclVersionControlCache;
 var
   Index: Integer;
@@ -768,6 +666,16 @@ begin
       Exit;
   end;
   Result := nil;
+end;
+
+function TJclVersionControlExpert.GetFrameClass: TCustomFrameClass;
+begin
+  Result := TJclVersionCtrlOptionsFrame;
+end;
+
+function TJclVersionControlExpert.GetPageName: string;
+begin
+  Result := LoadResString(@RsVersionControlSheet);
 end;
 
 procedure TJclVersionControlExpert.IDEActionMenuClick(Sender: TObject);
@@ -1091,11 +999,20 @@ begin
   IDEImageList := NTAServices.ImageList;
   AIcon := TIcon.Create;
   try
-    for ControlAction := Low(TJclVersionControlActionType) to High(TJclVersionControlActionType) do
-    begin
-      AIcon.Handle := LoadIcon(HInstance, IconNames[ControlAction]);
-      FIconIndexes[ControlAction] := IDEImageList.AddIcon(AIcon);
+    {$IFDEF COMPILER14_UP}
+    IDEImageList.BeginUpdate;
+    try
+    {$ENDIF COMPILER14_UP}
+      for ControlAction := Low(TJclVersionControlActionType) to High(TJclVersionControlActionType) do
+      begin
+        AIcon.Handle := LoadIcon(HInstance, IconNames[ControlAction]);
+        FIconIndexes[ControlAction] := IDEImageList.AddIcon(AIcon);
+      end;
+    {$IFDEF COMPILER14_UP}
+    finally
+      IDEImageList.EndUpdate;
     end;
+    {$ENDIF COMPILER14_UP}
   finally
     AIcon.Free;
   end;
@@ -1104,10 +1021,10 @@ begin
   IDEToolsItem := nil;
   for I := 0 to IDEMainMenu.Items.Count - 1 do
     if IDEMainMenu.Items[I].Name = 'ToolsMenu' then
-  begin
-    IDEToolsItem := IDEMainMenu.Items[I];
-    Break;
-  end;
+    begin
+      IDEToolsItem := IDEMainMenu.Items[I];
+      Break;
+    end;
   if not Assigned(IDEToolsItem) then
     raise EJclExpertException.CreateRes(@RsENoToolsMenuItem);
 
@@ -1150,7 +1067,7 @@ begin
     AAction.OnExecute := ActionExecute;
     AAction.OnUpdate := ActionUpdate;
     AAction.Category := LoadResString(@RsActionCategory);
-    RegisterAction(AAction);
+    TJclOTAActionExpert.RegisterAction(AAction);
     FActions[ControlAction] := AAction;
   end;
 
@@ -1279,7 +1196,7 @@ begin
 
   for ControlAction := Low(TJclVersionControlActionType) to High(TJclVersionControlActionType) do
   begin
-    UnregisterAction(FActions[ControlAction]);
+    TJclOTAActionExpert.UnregisterAction(FActions[ControlAction]);
     if FActions[ControlAction] is TDropDownAction then
     begin
       ADropDownAction := TDropDownAction(FActions[ControlAction]);

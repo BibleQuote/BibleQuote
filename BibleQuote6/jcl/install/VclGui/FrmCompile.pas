@@ -19,19 +19,20 @@ Contributor(s): -
   Florent Ouchet (outchy) - New installer core
 
 You may retrieve the latest version of this file at the Project JEDI's JVCL
-home page, located at http://jvcl.sourceforge.net
+home page, located at https://github.com/project-jedi/jcl
 
 Known Issues:
 -----------------------------------------------------------------------------}
-// $Id: FrmCompile.pas 3014 2009-09-18 13:53:34Z outchy $
+// $Id$
 
 unit FrmCompile;
 
-{$I jedi.inc}
+{$I jcl.inc}
 
 interface
 
 uses
+  JediInstall,
   Windows, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, ExtCtrls;
 
 type
@@ -86,8 +87,11 @@ type
     FCurFilename: string;
     FCompileMessages: ICompileMessages;
     FAutoClearCompileMessages: Boolean;
+    FInstallGUI: IJediInstallGUI;
     procedure SetCurrentLine(Line: Cardinal);
   public
+    constructor Create(AOwner: TComponent; AInstallGUI: IJediInstallGUI); reintroduce;
+
     procedure Init(const ProjectName: string; Clear: Boolean = True);
     procedure Compiling(const Filename: string);
     procedure Linking(const Filename: string);
@@ -175,6 +179,14 @@ begin
   end;
 end;
 
+constructor TFormCompile.Create(AOwner: TComponent;
+  AInstallGUI: IJediInstallGUI);
+begin
+  inherited Create(AOwner);
+
+  FInstallGUI := AInstallGUI;
+end;
+
 procedure TFormCompile.Linking(const Filename: string);
 begin
   FTotalLines := FTotalLines + FCurrentLine;
@@ -208,7 +220,7 @@ begin
   else
     LblStatus.Caption := LoadResString(@RsGUICompiled);
   BtnOk.Enabled := ErrorReason <> '';
-  if ErrorReason <> '' then
+  if (ErrorReason <> '') and not (dtError in FInstallGUI.AutoAcceptDialogs) then
   begin
     Hide;
     ShowModal;

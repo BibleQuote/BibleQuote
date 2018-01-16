@@ -21,9 +21,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-05-09 17:14:36 +0200 (dim., 09 mai 2010)                           $ }
-{ Revision:      $Rev:: 3248                                                                     $ }
-{ Author:        $Author:: ahuser                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -68,6 +68,9 @@ const
   JclPanelTreeWidth      = 'PanelTreeWidth';
   JclConfigureActionName = 'JCLConfigureCommand';
   JclConfigureMenuName   = 'JCLConfigureMenu';
+
+  //=== Unit Versioning Expert ===============================================
+  JclUnitVersioningExpertName   = 'JclUnitVersioningExpert';
 
   //=== Debug Expert =========================================================
   JclDebugExpertRegKey          = 'JclDebugExpert';
@@ -160,9 +163,9 @@ const
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: https://jcl.svn.sourceforge.net:443/svnroot/jcl/tags/JCL-2.2-Build3886/jcl/experts/common/JclOtaConsts.pas $';
-    Revision: '$Revision: 3248 $';
-    Date: '$Date: 2010-05-09 17:14:36 +0200 (dim., 09 mai 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\experts\common';
     Extra: '';
     Data: nil

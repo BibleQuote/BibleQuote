@@ -22,9 +22,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-02-03 20:21:40 +0100 (mer., 03 févr. 2010)                        $ }
-{ Revision:      $Rev:: 3163                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -39,7 +39,7 @@ uses
   Windows, Messages, CommCtrl,
   SysUtils, Classes,
   Graphics, Forms, Controls, Dialogs, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, ImgList,
-  JclIDEUtils, JclContainerIntf, JediInstall;
+  JclWin32, JclIDEUtils, JclContainerIntf, JediInstall;
 
 const
   WM_AFTERSHOW = WM_USER + 10;
@@ -58,6 +58,7 @@ type
     Bevel1: TBevel;
     ProgressBar: TProgressBar;
     ImageList: TImageList;
+    InstallSelectedOnlyCheckBox: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -65,13 +66,24 @@ type
     procedure InstallBtnClick(Sender: TObject);
     procedure UninstallBtnClick(Sender: TObject);
     procedure JediImageClick(Sender: TObject);
+    procedure ProductsPageControlChange(Sender: TObject);
   protected
     FPages: IJclIntfList;
     FAutoAcceptDialogs: TDialogTypes;
+    FAutoAcceptMPL: Boolean;
     FAutoCloseOnFailure: Boolean;
     FAutoCloseOnSuccess: Boolean;
     FAutoInstall: Boolean;
     FAutoUninstall: Boolean;
+    FContinueOnTargetError: Boolean;
+    FXMLResultFileName: string;
+    FIncludeLogFilesInXML: Boolean;
+    FDeletePreviousLogFiles: Boolean;
+    FIgnoreRunningIDE: Boolean;
+    FTaskBarList: ITaskbarList3;
+    FInstallPageCount: Integer;
+    procedure UpdateInstallSelectedOnlyCheckBoxVisibility;
+    function GetSelectedInstallPage: IJediInstallPage;
     procedure HandleException(Sender: TObject; E: Exception);
     procedure SetFrameIcon(Sender: TObject; const FileName: string);
     procedure WMAfterShow(var Message: TMessage); Message WM_AFTERSHOW;
@@ -83,7 +95,7 @@ type
     // IJediInstallGUI
     function Dialog(const Text: string; DialogType: TDialogType = dtInformation;
       Options: TDialogResponses = [drOK]): TDialogResponse;
-    function CreateReadmePage: IJediReadmePage;
+    function CreateTextPage: IJediTextPage;
     function CreateInstallPage: IJediInstallPage;
     function CreateProfilesPage: IJediProfilesPage;
     function GetPageCount: Integer;
@@ -96,6 +108,8 @@ type
     procedure SetProgress(Value: Integer);
     function GetAutoAcceptDialogs: TDialogTypes;
     procedure SetAutoAcceptDialogs(Value: TDialogTypes);
+    function GetAutoAcceptMPL: Boolean;
+    procedure SetAutoAcceptMPL(Value: Boolean);
     function GetAutoCloseOnFailure: Boolean;
     procedure SetAutoCloseOnFailure(Value: Boolean);
     function GetAutoCloseOnSuccess: Boolean;
@@ -104,6 +118,16 @@ type
     procedure SetAutoInstall(Value: Boolean);
     function GetAutoUninstall: Boolean;
     procedure SetAutoUninstall(Value: Boolean);
+    function GetContinueOnTargetError: Boolean;
+    procedure SetContinueOnTargetError(Value: Boolean);
+    function GetXMLResultFileName: string;
+    procedure SetXMLResultFileName(const Value: string);
+    function GetDeletePreviousLogFiles: Boolean;
+    procedure SetDeletePreviousLogFiles(Value: Boolean);
+    function GetIncludeLogFilesInXML: Boolean;
+    procedure SetIncludeLogFilesInXML(Value: Boolean);
+    function GetIgnoreRunningIDE: Boolean;
+    procedure SetIgnoreRunningIDE(Value: Boolean);
     procedure Execute;
   end;
 
@@ -112,11 +136,15 @@ implementation
 {$R *.dfm}
 
 uses
+  {$IFDEF HAS_UNIT_SYSTEM_UITYPES}
+  UITypes,
+  {$ENDIF HAS_UNIT_SYSTEM_UITYPES}
+  ActiveX, ComObj,
   FileCtrl,
   JclDebug, JclShell, JediGUIProfiles,
   JclBase, JclFileUtils, JclStrings, JclSysInfo, JclSysUtils, JclArrayLists,
   JediInstallResources,
-  JediGUIReadme, JediGUIInstall;
+  JediGUIText, JediGUIInstall;
 
 const
   DelphiJediURL     = 'http://www.delphi-jedi.org/';
@@ -125,6 +153,11 @@ function CreateMainForm: IJediInstallGUI;
 var
   MainForm: TMainForm;
 begin
+  {$IFDEF RTL185_UP}
+  Application.MainFormOnTaskbar := True;
+  {$ENDIF RTL185_UP}
+  Application.Initialize;
+  Application.Title := 'JEDI Installer';
   Application.CreateForm(TMainForm, MainForm);
   Result := MainForm;
 end;
@@ -135,6 +168,7 @@ constructor TMainForm.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FPages := TJclIntfArrayList.Create(5);
+  Application.OnException := HandleException;
 end;
 
 destructor TMainForm.Destroy;
@@ -143,30 +177,18 @@ begin
   inherited Destroy;
 end;
 
-procedure TMainForm.HandleException(Sender: TObject; E: Exception);
-begin
-  if E is EJediInstallInitFailure then
-  begin
-    Dialog(E.Message, dtError);
-    Application.ShowMainForm := False;
-    Application.Terminate;
-  end
-  else
-    Application.ShowException(E);
-end;
-
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  SetStatus('');
+
   Caption := LoadResString(@RsGUIJEDIInstaller);
   Title.Caption := LoadResString(@RsGUIProjectJEDIInstaller);
   InstallBtn.Caption := LoadResString(@RsGUIInstall);
   UninstallBtn.Caption := LoadResString(@RsGUIUninstall);
   QuitBtn.Caption := LoadResString(@RsGUIQuit);
+  InstallSelectedOnlyCheckBox.Caption := LoadResString(@RsGUIInstallSelectedOnly);
 
-  Application.OnException := HandleException;
   JediImage.Hint := DelphiJediURL;
-
-  SetStatus('');
 
   TitlePanel.DoubleBuffered := True;
   {$IFDEF COMPILER7_UP}
@@ -174,6 +196,10 @@ begin
   {$ENDIF}
   Application.HintPause := 500;
   Application.OnShowHint := ShowFeatureHint;
+
+  CoCreateInstance(CLSID_TaskbarList, nil, CLSCTX_INPROC_SERVER, ITaskBarList3, FTaskBarList);
+  if Assigned(FTaskBarList) then
+    FTaskBarList.HrInit;
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
@@ -184,6 +210,11 @@ end;
 procedure TMainForm.FormShow(Sender: TObject);
 begin
   PostMessage(Handle, WM_AFTERSHOW, 0, 0);
+end;
+
+procedure TMainForm.UpdateInstallSelectedOnlyCheckBoxVisibility;
+begin
+  InstallSelectedOnlyCheckBox.Visible := (FInstallPageCount > 1) and (GetSelectedInstallPage <> nil);
 end;
 
 procedure TMainForm.ShowFeatureHint(var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo);
@@ -233,6 +264,11 @@ begin
   end;
 end;
 
+procedure TMainForm.SetIncludeLogFilesInXML(Value: Boolean);
+begin
+  FIncludeLogFilesInXML := Value;
+end;
+
 procedure TMainForm.QuitBtnClick(Sender: TObject);
 begin
   Close;
@@ -241,17 +277,28 @@ end;
 procedure TMainForm.InstallBtnClick(Sender: TObject);
 var
   Success: Boolean;
+  InstallPage: IJediInstallPage;
 begin
+  InstallPage := nil;
+  if InstallSelectedOnlyCheckBox.Visible and InstallSelectedOnlyCheckBox.Checked then
+    InstallPage := GetSelectedInstallPage;
+
   ProgressBar.Position := 0;
   ProgressBar.Visible := True;
+  InstallSelectedOnlyCheckBox.Visible := False;
   Screen.Cursor := crHourGlass;
   try
-    Success := InstallCore.Install;
+    if Assigned(FTaskBarList) then
+      FTaskBarList.SetProgressState(Self.Handle, TBPF_NORMAL);
+    Success := InstallCore.Install(InstallPage);
     if (Success and FAutoCloseOnSuccess) or (not Success and FAutoCloseOnFailure) then
       Close;
   finally
     ProgressBar.Visible := False;
+    UpdateInstallSelectedOnlyCheckBoxVisibility;
     Screen.Cursor := crDefault;
+    if Assigned(FTaskBarList) then
+      FTaskBarList.SetProgressState(Self.Handle, TBPF_NOPROGRESS);
   end;
   QuitBtn.SetFocus;
 end;
@@ -259,17 +306,29 @@ end;
 procedure TMainForm.UninstallBtnClick(Sender: TObject);
 var
   Success: Boolean;
+  InstallPage: IJediInstallPage;
 begin
+  InstallPage := nil;
+  if InstallSelectedOnlyCheckBox.Visible and InstallSelectedOnlyCheckBox.Checked then
+    InstallPage := GetSelectedInstallPage;
+
   ProgressBar.Position := 0;
   ProgressBar.Visible := True;
+  InstallSelectedOnlyCheckBox.Visible := False;
   Screen.Cursor := crHourGlass;
   try
-    Success := InstallCore.Uninstall;
+    if Assigned(FTaskBarList) then
+      FTaskBarList.SetProgressState(Self.Handle, TBPF_NORMAL);
+
+    Success := InstallCore.Uninstall(InstallPage);
     if (Success and FAutoCloseOnSuccess) or (not Success and FAutoCloseOnFailure) then
       Close;
   finally
     ProgressBar.Visible := False;
+    UpdateInstallSelectedOnlyCheckBoxVisibility;
     Screen.Cursor := crDefault;
+    if Assigned(FTaskBarList) then
+      FTaskBarList.SetProgressState(Self.Handle, TBPF_NOPROGRESS);
   end;
   QuitBtn.SetFocus;
 end;
@@ -277,10 +336,15 @@ end;
 procedure TMainForm.WMAfterShow(var Message: TMessage);
 begin
   if FAutoInstall then
+  begin
+    UninstallBtn.Visible := False;
     InstallBtnClick(InstallBtn)
-  else
-  if FAutoUninstall then
+  end
+  else if FAutoUninstall then
+  begin
+    InstallBtn.Visible := False;
     UninstallBtnClick(UninstallBtn);
+  end;
 end;
 
 procedure TMainForm.JediImageClick(Sender: TObject);
@@ -289,10 +353,27 @@ begin
   ShellExecEx(DelphiJediURL);
 end;
 
-function TMainForm.Dialog(const Text: string; DialogType: TDialogType = dtInformation;
+procedure TMainForm.ProductsPageControlChange(Sender: TObject);
+begin
+  UpdateInstallSelectedOnlyCheckBoxVisibility;
+end;
+
+procedure TMainForm.HandleException(Sender: TObject; E: Exception);
+begin
+  if E is EJediInstallInitFailure then
+  begin
+    Dialog(E.Message, dtError);
+    Application.ShowMainForm := False;
+    Application.Terminate;
+  end
+  else
+    Application.ShowException(E);
+end;
+
+function TMainForm.Dialog(const Text: string; DialogType: JediInstall.TDialogType = dtInformation;
   Options: TDialogResponses = [drOK]): TDialogResponse;
 const
-  DlgType: array[TDialogType] of TMsgDlgType = (mtWarning, mtError, mtInformation, mtConfirmation);
+  DlgType: array[JediInstall.TDialogType] of TMsgDlgType = (mtWarning, mtError, mtInformation, mtConfirmation);
   DlgButton: array[TDialogResponse] of TMsgDlgBtn = (mbYes, mbNo, mbOK, mbCancel);
   DlgResult: array[TDialogResponse] of Word = (mrYes, mrNo, mrOK, mrCancel);
 var
@@ -312,6 +393,14 @@ begin
   end;
   OldCursor := Screen.Cursor;
   try
+    if Assigned(FTaskBarList) then
+    begin
+      if DialogType = dtError then
+        FTaskBarList.SetProgressState(Self.Handle, TBPF_ERROR)
+      else
+        FTaskBarList.SetProgressState(Self.Handle, TBPF_PAUSED);
+    end;
+
     Screen.Cursor := crDefault;
     Buttons := [];
     for Result := Low(TDialogResponse) to High(TDialogResponse) do
@@ -321,21 +410,24 @@ begin
     for Result := Low(TDialogResponse) to High(TDialogResponse) do
       if DlgResult[Result] = Res then
         Break;
+
+    if Assigned(FTaskBarList) then
+      FTaskBarList.SetProgressState(Self.Handle, TBPF_NORMAL)
   finally
     Screen.Cursor := OldCursor;
   end;
 end;
 
-function TMainForm.CreateReadmePage: IJediReadmePage;
+function TMainForm.CreateTextPage: IJediTextPage;
 var
-  AReadmeFrame: TReadmeFrame;
+  AReadmeFrame: TTextFrame;
   ATabSheet: TTabSheet;
 begin
   ATabSheet := TTabSheet.Create(Self);
   ATabSheet.PageControl := ProductsPageControl;
   ATabSheet.ImageIndex := -1;
 
-  AReadmeFrame := TReadmeFrame.Create(Self);
+  AReadmeFrame := TTextFrame.Create(Self);
   AReadmeFrame.Parent := ATabSheet;
   AReadmeFrame.Align := alClient;
   AReadmeFrame.Name := '';
@@ -349,11 +441,13 @@ var
   AInstallFrame: TInstallFrame;
   ATabSheet: TTabSheet;
 begin
+  Inc(FInstallPageCount);
+
   ATabSheet := TTabSheet.Create(Self);
   ATabSheet.PageControl := ProductsPageControl;
   ATabSheet.ImageIndex := -1;
 
-  AInstallFrame := TInstallFrame.Create(Self);
+  AInstallFrame := TInstallFrame.Create(Self, Self);
   AInstallFrame.Parent := ATabSheet;
   AInstallFrame.Align := alClient;
   AInstallFrame.TreeView.Images := ImageList;
@@ -382,6 +476,17 @@ begin
   FPages.Add(Result);
 end;
 
+function TMainForm.GetSelectedInstallPage: IJediInstallPage;
+var
+  Tab: TTabSheet;
+begin
+  Tab := ProductsPageControl.ActivePage;
+  if (Tab <> nil) and (Tab.ControlCount > 0) and (Tab.Controls[0] is TInstallFrame) then
+    Result := TInstallFrame(Tab.Controls[0])
+  else
+    Result := nil;
+end;
+
 function TMainForm.GetPageCount: Integer;
 begin
   Result := FPages.Size;
@@ -395,6 +500,11 @@ end;
 function TMainForm.GetStatus: string;
 begin
   Result := StatusLabel.Caption;
+end;
+
+function TMainForm.GetXMLResultFileName: string;
+begin
+  Result := FXMLResultFileName;
 end;
 
 procedure TMainForm.SetStatus(const Value: string);
@@ -413,9 +523,19 @@ begin
   Application.ProcessMessages;  //Update;
 end;
 
+procedure TMainForm.SetXMLResultFileName(const Value: string);
+begin
+  FXMLResultFileName := Value;
+end;
+
 function TMainForm.GetAutoAcceptDialogs: TDialogTypes;
 begin
   Result := FAutoAcceptDialogs;
+end;
+
+function TMainForm.GetAutoAcceptMPL: Boolean;
+begin
+  Result := FAutoAcceptMPL;
 end;
 
 function TMainForm.GetAutoCloseOnFailure: Boolean;
@@ -443,9 +563,29 @@ begin
   Result := Caption;
 end;
 
+function TMainForm.GetContinueOnTargetError: Boolean;
+begin
+  Result := FContinueOnTargetError;
+end;
+
+function TMainForm.GetDeletePreviousLogFiles: Boolean;
+begin
+  Result := FDeletePreviousLogFiles;
+end;
+
+function TMainForm.GetIncludeLogFilesInXML: Boolean;
+begin
+  Result := FIncludeLogFilesInXML;
+end;
+
 procedure TMainForm.SetAutoAcceptDialogs(Value: TDialogTypes);
 begin
   FAutoAcceptDialogs := Value;
+end;
+
+procedure TMainForm.SetAutoAcceptMPL(Value: Boolean);
+begin
+  FAutoAcceptMPL := Value;
 end;
 
 procedure TMainForm.SetAutoCloseOnFailure(Value: Boolean);
@@ -473,6 +613,16 @@ begin
   Caption := Value;
 end;
 
+procedure TMainForm.SetContinueOnTargetError(Value: Boolean);
+begin
+  FContinueOnTargetError := Value;
+end;
+
+procedure TMainForm.SetDeletePreviousLogFiles(Value: Boolean);
+begin
+  FDeletePreviousLogFiles := Value;
+end;
+
 function TMainForm.GetProgress: Integer;
 begin
   Result := ProgressBar.Position;
@@ -481,6 +631,12 @@ end;
 procedure TMainForm.SetProgress(Value: Integer);
 begin
   ProgressBar.Position := Value;
+
+  if Assigned(FTaskBarList) then
+  begin
+    FTaskBarList.SetProgressState(Self.Handle, TBPF_NORMAL);
+    FTaskBarList.SetProgressValue(Self.Handle, Value,100);
+  end;
 end;
 
 procedure TMainForm.Execute;
@@ -488,8 +644,18 @@ begin
   Application.Run;
 end;
 
+function TMainForm.GetIgnoreRunningIDE: Boolean;
+begin
+  Result := FIgnoreRunningIDE;
+end;
+
+procedure TMainForm.SetIgnoreRunningIDE(Value: Boolean);
+begin
+  FIgnoreRunningIDE := Value;
+end;
+
 initialization
 
-InstallCore.InstallGUICreator := CreateMainForm;
+  InstallCore.InstallGUICreator := CreateMainForm;
 
 end.
