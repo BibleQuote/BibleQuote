@@ -417,41 +417,12 @@ end;
 
 function LoadStringFromStream(Stream: TStream): String;
 var
-  ByteCount: Integer;
-{$IFDEF UNICODE}
-  PreambleSize: Integer;
-  Buffer: TBytes;
-  Encoding: TEncoding;
-{$ENDIF}
+  StringBytes: TBytes;
 begin
-  //BG, 07.12.2010: cannot start in the middle of a stream,
-  // if I want to recognize encoding by preamble.
   Stream.Position := 0;
-{$IFDEF UNICODE}
-  ByteCount := Stream.Size - Stream.Position;
-  if ByteCount = 0 then
-  begin
-    Result := '';
-    exit;
-  end;
-  SetLength(Buffer, ByteCount);
-  Stream.Read(Buffer[0], ByteCount);
-  Encoding := nil;
-  PreambleSize := TEncoding.GetBufferEncoding(Buffer, Encoding);
-  if Encoding = TEncoding.Default then
-  begin
-    // BG, 04.12.2010: GetBufferEncoding looks for preambles only to detected
-    // encoding, but often there is no header/preamble in UTF-8 streams/files.
-    Result := TEncoding.UTF8.GetString(Buffer, PreambleSize, Length(Buffer) - PreambleSize);
-    if Result <> '' then
-      exit;
-  end;
-  Result := Encoding.GetString(Buffer, PreambleSize, Length(Buffer) - PreambleSize);
-{$ELSE}
-  ByteCount := Stream.Size - Stream.Position;
-  SetString(Result, nil, ByteCount);
-  Stream.Read(Result[1], ByteCount);
-{$ENDIF}
+  SetLength(StringBytes, Stream.Size);
+  Stream.ReadBuffer(StringBytes, Stream.Size);
+  Result := TEncoding.Default.GetString(StringBytes);
 end;
 
 function LoadStringFromStreamW(Stream: TStream): WideString;

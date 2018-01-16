@@ -639,7 +639,7 @@ function getFileType(const S: string): THtmlFileType;
 implementation
 
 uses
-  SysUtils, Math, Clipbrd, Forms, Printers, TntControls, {$IFDEF UNICODE}AnsiStrings, {$ENDIF}
+  SysUtils, Math, Clipbrd, Forms, Printers, {$IFDEF UNICODE}AnsiStrings, {$ENDIF}
   htmlgif2 {$IFNDEF NoGDIPlus}, GDIPL2A{$ENDIF};
 const
   ScrollGap = 20;
@@ -4042,7 +4042,10 @@ end;
 procedure THTMLViewer.CMHintShow(var Message: TMessage);
 begin
   inherited;
-  ProcessCMHintShowMsg(Message);
+  with TCMHintShow(Message) do begin
+    HintInfo.HintData := HintInfo;
+    HintInfo.HintStr := GetShortHint(HintInfo.HintControl.Hint);
+  end;
 end;
 
 procedure ThtmlViewer.AbortPrint;
@@ -5650,7 +5653,10 @@ end;
 procedure TPaintPanel.CMHintShow(var Message: TMessage);
 begin
 inherited;
-ProcessCMHintShowMsg(Message);
+  with TCMHintShow(Message) do begin
+    HintInfo.HintData := HintInfo;
+    HintInfo.HintStr := GetShortHint(HintInfo.HintControl.Hint);
+  end;
 end;
 {/AlekiD}
 

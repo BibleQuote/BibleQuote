@@ -310,11 +310,6 @@ procedure FreeAndNil(var Obj);
 
 implementation
 
-{$IFDEF SMARTFONTS}
-uses
-   BibleQuoteUtils;
-{$ENDIF}
-
 var
   DefPointSize: double;
 
@@ -2027,7 +2022,7 @@ while (S1 <> '') and not Done do
   begin
 {$IFDEF SMARTFONTS}
 //AlekId:
-  Done:=FontExists(S1);
+//  Done:=FontExists(S1);
 {$ELSE}
   Done := Screen.Fonts.IndexOf(S1) >= 0;
   {$ENDIF}
@@ -2109,7 +2104,7 @@ while (S1 <> '') and not Done do
   begin
  // Done := Screen.Fonts.IndexOf(S1) >= 0;
  {$IFDEF SMARTFONTS}
- Done:=FontExists(s1);
+ //Done:=FontExists(s1);
  {$ELSE}
  Done:=Screen.Fonts.IndexOf(s1)>=0;
  {$ENDIF}
