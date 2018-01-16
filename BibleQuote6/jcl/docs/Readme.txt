@@ -2,9 +2,9 @@
 
 
 JEDI Code Library
-Release 2.2
-Build 3886
-21-October-2010
+Release 2.9
+Build YYYY
+XX-January-2016
 
 
 --------------------------------------------------------------------------------
@@ -26,25 +26,35 @@ Getting involved in JCL development
 
 
 About this release
-JCL release 2.2 provides support for RAD Studio XE (including Delphi XE and C++Builder XE) an updated support for all targets.
+JCL release 2.9 provides support for RAD Studio 11 (including Delphi and C++Builder) an updated support for all targets.
 
 Multiple bugs have been fixed; for detailed change logs, use the facilities of our Subversion repository at Sourceforge.net  http://sourceforge.net/projects/jcl/ , see below.
 
 Head changes: 
 
-BZip2 is updated to 1.0.6
-PCRE is updated to 8.02 
-The JEDI PreProcessor is now merged to JCL runtime code, you can embed it in your own application 
-ZLib is updated to 1.2.5 
-7z is updated to 9.15 
-The JCL packages are heavily reorganized: all developer tools (JclBorlandTools has been split for instance, JclParseUses is moved to runtime code) are moved to a separate package 
-The JCLDebug code was heavily reworked to avoid internal exceptions 
-The Unicode Character Database (UCD) is updated to 5.2.0, this resource is now more packed than previously 
-The EDI units are removed from the library because of maintenance lack 
-The MoveArray functions are moved to JclAlgorithms, this move breaks backward compatibility 
+Speed improvements in string conversion functions and in TJclSimpleXml; new option to enable case sensitivity 
+New function FileDateTime and FileHistory in JclFileUtils.pas 
+JclPeImage can now read string tables 
+Speed improvements in JclDebug when parsing MAP files and generating JCL Debug information 
+JclSysUtils.Execute: Custom priority for spawned processes 
+JclCompression: information about which file is being extracted or compressed 
+bzip2.pas, pcre.pas, zlibh.pas and sevenzip.pas: new option to customize the name of the DLL to load, full support for Win64 
+JclHashSets.pas reimplemented from scratch 
+JclPrint.pas: major update to prevent corruption of printer settings 
+Experts: various fixes to prevent access violations on invokes and on unloads 
+SVN 1.7 support in JCL Version control integration 
+zlibh.pas and JclCompression.pas: new option to use RTL zlib 
+JclUnicode.pas and others: the RTL Unicode database is now fully supported and does not require the JCL Unicode database anymore 
+JclUnicode.pas: update to Unicode Character Database (UCD) 6.0 
+pcre.pas: update to PCRE 8.31 with JIT and 16-bit character support 
+favorite combobox and custom open dialog: support with Vista new-style open dialogs 
+Exception dialog: 64-bit compatibility 
+Stack tracking now supports Win64 
 Important: 
 
 As of JCL 2.0, the library does not support Delphi 5, C++Builder 5, Kylix 3 and Delphi.net anymore;
+
+Due to many internal failure, we do not provide full support for Delphi 2005: JCL for Delphi 2005 should compile, it may work or not.
 
 (Windows only) Installation options:
 
@@ -54,7 +64,7 @@ The JEDI Code Library packages are required by some 3rd party packages (includin
 
 The installer can generate MAP informations for each package. These informations can be linked into binaries to become JCL debug data or be converted to .jdbg files. Once linked MAP files could be deleted. These options are subnodes of the "Packages" node.
 
-For BDS 2006, RAD Studio 2007, RAD Studio 2009, RAD Studio 2010 and RAD Studio XE the compiler introduced a new option to make the same packages available in C++, by checking the "Dual packages" option of the "Packages" node, you will be able to call functions of the JCL from C++ code.
+For BDS 2006, RAD Studio 2007, 2009, 2010, XE, XE2, XE3, XE4, XE5, XE6, XE7, XE8, 10, 10.1 and 10.2 the compiler introduced a new option to make the same packages available in C++, by checking the "Dual packages" option of the "Packages" node, you will be able to call functions of the JCL from C++ code.
 
 
 --------------------------------------------------------------------------------
@@ -81,6 +91,16 @@ CodeGear RAD Studio 2007 (Delphi for Win32 and C++Builder for Win32 personalitie
 Delphi 2009 and C++Builder 2009; 
 Delphi 2010 and C++Builder 2010. 
 Delphi XE and C++Builder XE. 
+Delphi XE2 and C++Builder XE2. 
+Delphi XE3 and C++Builder XE3. 
+Delphi XE4 and C++Builder XE4. 
+Delphi XE5 and C++Builder XE5.
+Delphi XE6 and C++Builder XE6.
+Delphi XE7 and C++Builder XE7.
+Delphi XE8 and C++Builder XE8.
+Delphi 10 and C++Builder 10.
+Delphi 10.1 and C++Builder 10.1.
+Delphi 10.2 and C++Builder 10.2.
 
 --------------------------------------------------------------------------------
 
@@ -125,6 +145,26 @@ For CodeGear RAD Studio 2007 (Delphi for Win32 and C++Builder): source\include\j
 For Delphi 2009 and C++Builder 2009: source\include\jcld12.inc 
 For Delphi 2010 and C++Builder 2010: source\include\jcld14.inc 
 For Delphi XE and C++Builder XE: source\include\jcld15.inc 
+For Delphi XE2 and C++Builder XE2 Win32: source\include\jcld16win32.inc 
+For Delphi XE2 Win64: source\include\jcld16win64.inc 
+For Delphi XE3 and C++Builder XE3 Win32: source\include\jcld17win32.inc 
+For Delphi XE3 and C++Builder XE3 Win64: source\include\jcld17win64.inc 
+For Delphi XE4 and C++Builder XE4 Win32: source\include\jcld18win32.inc 
+For Delphi XE4 and C++Builder XE4 Win64: source\include\jcld18win64.inc 
+For Delphi XE5 and C++Builder XE5 Win32: source\include\jcld19win32.inc 
+For Delphi XE5 and C++Builder XE5 Win64: source\include\jcld19win64.inc 
+For Delphi XE6 and C++Builder XE6 Win32: source\include\jcld20win32.inc 
+For Delphi XE6 and C++Builder XE6 Win64: source\include\jcld20win64.inc 
+For Delphi XE7 and C++Builder XE7 Win32: source\include\jcld21win32.inc 
+For Delphi XE7 and C++Builder XE7 Win64: source\include\jcld21win64.inc 
+For Delphi XE8 and C++Builder XE8 Win32: source\include\jcld22win32.inc 
+For Delphi XE8 and C++Builder XE8 Win64: source\include\jcld22win64.inc 
+For Delphi 10 and C++Builder 10 Win32: source\include\jcld23win32.inc 
+For Delphi 10 and C++Builder 10 Win64: source\include\jcld23win64.inc 
+For Delphi 10.1 and C++Builder 10.1 Win32: source\include\jcld24win32.inc 
+For Delphi 10.1 and C++Builder 10.1 Win64: source\include\jcld24win64.inc 
+For Delphi 10.2 and C++Builder 10.2 Win32: source\include\jcld25win32.inc 
+For Delphi 10.2 and C++Builder 10.2 Win64: source\include\jcld25win64.inc 
 For FreePascal: source\include\jclfpc.inc 
 In the IDE, open and compile package Jcl.dpk (or Jcl.bpk for C++Builder) located in a subdirectory of the "packages" directory matching your version of the IDE. This package doesn't have to be installed since it doesn't provide any components. 
 If you want to install experts, open package JclBaseExpert.dpk and compile it, then you can install all the experts you want (packages are located in the same directory). 
