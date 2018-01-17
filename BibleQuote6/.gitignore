@@ -18,5 +18,8 @@ __recovery/
 *.tvsconfig
 *.dsk
 
+# Project Statistics
+*.stat
+
 # BibleQuote user settings
 Output/users
