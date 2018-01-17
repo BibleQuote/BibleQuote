@@ -4,7 +4,7 @@
         <MainSource>BibleQuote6.dpr</MainSource>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <DCC_DependencyCheckOutputName>h:\BibleQuote 5 Bibliologia Edition\BibleQuote6.exe</DCC_DependencyCheckOutputName>
+        <DCC_DependencyCheckOutputName>.\output\BibleQuote6.exe</DCC_DependencyCheckOutputName>
         <FrameworkType>VCL</FrameworkType>
         <ProjectVersion>18.2</ProjectVersion>
         <Base>True</Base>

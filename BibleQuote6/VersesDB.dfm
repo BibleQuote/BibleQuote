@@ -87,7 +87,7 @@ object VerseListEngine: TVerseListEngine
   object DbTags: TASQLite3DB
     TimeOut = 0
     CharacterEncoding = 'UTF8'
-    Database = 'h:\BibleQuote 5 Bibliologia Edition\TagsDb.bqd'
+    Database = '.\TagsDb.bqd'
     DefaultExt = '.bqd'
     Version = '3.6.23.1'
     DriverDLL = 'BQsqlite3.dll'
