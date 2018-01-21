@@ -60,7 +60,7 @@ Modifications
 
 {$I asqlite_def.inc}
 {$WARNINGS OFF}
-unit ASGRout3_unicode;
+unit ASGRout3;
 
 interface
 
