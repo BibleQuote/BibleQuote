@@ -3,7 +3,7 @@ unit bqCollections;
 interface
 
 uses
-  SysUtils, Classes, ASGSQLite3_unicode;
+  SysUtils, Classes, ASGSQLite3;
 
 type
   TDataModule1 = class(TDataModule)

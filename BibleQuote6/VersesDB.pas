@@ -3,7 +3,7 @@ unit VersesDB;
 interface
 
 uses
-  SysUtils, Classes,  BibleQuoteUtils,DB, ASGSQLite3_unicode, contnrs, bqLinksParserIntf
+  SysUtils, Classes,  BibleQuoteUtils,DB, ASGSQLite3, contnrs, bqLinksParserIntf
   ;
 
 type
