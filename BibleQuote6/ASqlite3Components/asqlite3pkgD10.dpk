@@ -29,65 +29,6 @@ package asqlite3pkgD10;
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
-contains
-  ASGSQLite3Dsg in 'ASGSQLite3Dsg.pas';
-
-contains
-  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
-
-contains
-  ASGRout3_unicode in 'ASGRout3_unicode.pas';
-
-contains
-  AMDSqlite3 in 'AMDSqlite3.pas' {FMD};
-
-contains
-  ASGSQLite3Dsg in 'ASGSQLite3Dsg.pas';
-
-contains
-  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
-
-contains
-  ASGRout3_unicode in 'ASGRout3_unicode.pas';
-
-contains
-  ASGSQLiteData in 'ASGSQLiteData.pas',
-  AMDSqlite3 in 'AMDSqlite3.pas' {FMD};
-
-ontains
-  ASGSQLite3Dsg in 'ASGSQLite3Dsg.pas';
-
-contains
-  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
-
-contains
-  ASGRout3_unicode in 'ASGRout3_unicode.pas';
-
-contains
-  ASGSQLiteData in 'ASGSQLiteData.pas',
-  AMDSqlite3 in 'AMDSqlite3.pas' {FMD};
-
-ontains
-  ASGSQLite3Dsg in 'ASGSQLite3Dsg.pas';
-
-contains
-  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
-
-contains
-  ASGRout3_unicode in 'ASGRout3_unicode.pas';
-
-contains
-  AMDSqlite3 in 'AMDSqlite3.pas' {FMD};
-
-contains
-  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
-
-contains
-  ASGRout3_unicode in 'ASGRout3_unicode.pas';
-
-contains
-  ASGSQLite3_unicode in 'ASGSQLite3_unicode.pas';
-
 requires
   rtl,
   vcl,
@@ -98,11 +39,9 @@ requires
   xmlrtl,
   vclactnband;
 
-ocontains
-  ASGSQLiteData in 'ASGSQLiteData.pas',
+contains
   AMDSqlite3 in 'AMDSqlite3.pas',
   ASGRout3 in 'ASGRout3.pas',
-  ASGSQLite3 in 'ASGSQLite3.pas',
-  ASGRout3_unicode in 'ASGRout3_unicode.pas';
+  ASGSQLite3 in 'ASGSQLite3.pas';
 
-d.
+end.

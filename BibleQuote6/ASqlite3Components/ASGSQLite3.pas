@@ -14,7 +14,7 @@
 
 {$I asqlite_def.inc}
 {$HINTS OFF}
-unit ASGSQLite3_unicode;
+unit ASGSQLite3;
 {*_* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Author:       Albert Drent
@@ -100,7 +100,7 @@ uses
   SqlTimSt,
   Variants,
   {$IFDEF ASQLite_XE3PLUS}System.Generics.Collections,{$ENDIF}
-  ASGRout3_unicode;
+  ASGRout3;
 const
   SQLiteVersion     = 'ASGSQLiteUC V2009.12.A beta release candidate';
   MAX_FIELDS        = 2048;
