@@ -2050,7 +2050,7 @@ begin
           end; end;
       end;                              //for
       wsFolder := GetCachedModulesListDir();
-      modStringList.SaveToFile(wsFolder + C_CachedModsFileName);
+      modStringList.SaveToFile(wsFolder + C_CachedModsFileName, TEncoding.UTF8);
     finally modStringList.Free()
     end;
   except on e: Exception do begin
@@ -2215,19 +2215,19 @@ begin
       fname := UserDir + 'bibleqt_history.ini';
       if (not FileExists(fname))
         or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
-        History.SaveToFile(fname);
+        History.SaveToFile(fname, TEncoding.UTF8);
     except on e: Exception do BqShowException(e) end;
     try
       fname := UserDir + 'bibleqt_bookmarks.ini';
       if (not FileExists(fname))
         or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
-        Bookmarks.SaveToFile(fname);
+        Bookmarks.SaveToFile(fname, TEncoding.UTF8);
     except on e: Exception do BqShowException(e) end;
     try
       fname := UserDir + 'UserMemos.mls';
       if (not FileExists(fname))
         or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
-        Memos.SaveToFile(fname);
+        Memos.SaveToFile(fname, TEncoding.UTF8);
     except on e: Exception do BqShowException(e) end;
     try
       SaveMru();
@@ -2275,7 +2275,7 @@ begin
       end;
     end;                                //for
 
-    tabStringList.SaveToFile(path);
+    tabStringList.SaveToFile(path, TEncoding.UTF8);
 
   except on e: Exception do BqShowException(e) end;
   tabStringList.Free();
@@ -9368,7 +9368,7 @@ begin
       - 3, 4)) <> '.doc') then
       MemoFileName := MemoFileName + '.doc';
 
-    TREMemo.Lines.SaveToFile(MemoFileName);
+    TREMemo.Lines.SaveToFile(MemoFileName, TEncoding.UTF8);
     TREMemo.Tag := 0;                   // not changed
 
     MemoLabel.Caption := ExtractFileName(MemoFileName);
@@ -13290,7 +13290,7 @@ begin
 
     end;
   except end;
-  lst.SaveToFile(savePath);
+  lst.SaveToFile(savePath, TEncoding.UTF8);
   lst.Free();
 end;
 
