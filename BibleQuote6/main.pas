@@ -752,7 +752,7 @@ type
     procedure SetFirstTabInitialLocation(wsCommand, wsSecondaryView:
       WideString;const Title:WideString;   state:TViewtabInfoState; visual:boolean );
 //    function SatelliteMenuItemFromModuleName(aName: WideString): TMenuItem;
-    procedure SaveTabsToFile(path: WideString);
+    procedure SaveTabsToFile(path: string);
     procedure LoadTabsFromFile(path: WideString);
     function NewViewTab(const command:WideString;const satellite: WideString;
     const browserbase: Utf8String;   state:TViewtabInfoState;const title:WideString; visual:boolean ): boolean;
@@ -2017,14 +2017,14 @@ end;
 
 procedure TMainForm.SaveCachedModules;
 var
-  modStringList: TWideStringList;
+  modStringList: TStringList;
   count, i: integer;
   moduleEntry: TModuleEntry;
-  wsFolder: WideString;
+  wsFolder: string;
 begin
 
   try
-    modStringList := TWideStringList.Create();
+    modStringList := TStringList.Create();
     try
       count := S_cachedModules.Count - 1;
       if count <= 0 then
@@ -2243,16 +2243,16 @@ Inc(Result, 100*ord(viewTabInfo[vtisResolveLinks]));
 Inc(Result, 1000*ord(viewTabInfo[vtisFuzzyResolveLinks]));
 end;
 
-procedure TMainForm.SaveTabsToFile(path: WideString);
+procedure TMainForm.SaveTabsToFile(path: string);
 var
-  tabStringList: TWideStringList;
+  tabStringList: TStringList;
   tabCount, i: integer;
   tabInfo, activeTabInfo: TViewTabInfo;
   viewTabsEncoded:UInt64;
 begin
   tabStringList := nil;
   try
-    tabStringList := TWideStringList.Create();
+    tabStringList := TStringList.Create();
     tabCount := mViewTabs.PageCount - 1;
     activeTabInfo := TObject(mViewTabs.ActivePage.Tag) as TViewTabInfo;
 
@@ -3324,7 +3324,7 @@ begin
 
   if SaveFileDialog.Execute then
   begin
-    WChar_WriteHtmlFile(SaveFileDialog.FileName, Browser.DocumentSourceUtf16);
+    WChar_WriteHtmlFile(SaveFileDialog.FileName, Browser.DocumentSource);
     SaveFileDialog.InitialDir := ExtractFilePath(SaveFileDialog.FileName);
   end;
 end;
@@ -6386,7 +6386,7 @@ begin
   if status_load < 0 then begin messagebeep(MB_ICONEXCLAMATION); exit; end;
 
 //  psg := SecondBook.ShortPassageSignature(bl.book, bl.chapter, bl.vstart, bl.vend);
-  doc := XRefBrowser.DocumentSourceUtf16;
+  doc := XRefBrowser.DocumentSource;
   docLen := length(doc);
 
   ws := WideFormat(
@@ -6984,19 +6984,19 @@ begin
 
     WStrMessageBox (dMessage);}
   CurVerseNumber := Get_ANAME_VerseNumber(
-    Browser.DocumentSourceUtf16,
+    Browser.DocumentSource,
     CurFromVerse,
     Browser.FindSourcePos(Browser.RightMouseClickPos, true)
     );
 
   CurSelStart := Get_ANAME_VerseNumber(
-    Browser.DocumentSourceUtf16,
+    Browser.DocumentSource,
     CurFromVerse,
     Browser.FindSourcePos(Browser.SelStart, true)
     );
 
   CurSelEnd := Get_ANAME_VerseNumber(
-    Browser.DocumentSourceUtf16,
+    Browser.DocumentSource,
     CurFromVerse,
     Browser.FindSourcePos(Browser.SelStart + Browser.SelLength, true)
     );
@@ -7972,7 +7972,7 @@ begin
     oxt := XrefTab.Tag;
     oct := CommentsTab.Tag;
     XrefTab.Tag := Get_ANAME_VerseNumber(
-      Browser.DocumentSourceUtf16,
+      Browser.DocumentSource,
       CurFromVerse,
       Browser.FindSourcePos(Browser.CaretPos, true)
       );
@@ -11960,7 +11960,7 @@ begin
       DefFontName := FontDialog1.Font.Name;
       DefFontColor := FontDialog1.Font.Color;
       DefFontSize := FontDialog1.Font.Size;
-      LoadFromString(DocumentSourceUtf16);
+      LoadFromString(DocumentSource);
     end;
 
     with DicBrowser do
@@ -11968,7 +11968,7 @@ begin
       DefFontName := SearchBrowser.DefFontName;
       DefFontColor := SearchBrowser.DefFontColor;
       DefFontSize := SearchBrowser.DefFontSize;
-      LoadFromString(DocumentSourceUtf16);
+      LoadFromString(DocumentSource);
     end;
 
     with StrongBrowser do
@@ -11976,7 +11976,7 @@ begin
       DefFontName := SearchBrowser.DefFontName;
       DefFontColor := SearchBrowser.DefFontColor;
       DefFontSize := SearchBrowser.DefFontSize;
-      LoadFromString(DocumentSourceUtf16);
+      LoadFromString(DocumentSource);
     end;
 
     with XrefBrowser do
@@ -12266,7 +12266,7 @@ var
 begin
   i := LastPos(
     WideLowerCase(SearchEdit.Text),
-    WideLowerCase(Copy(Browser.DocumentSourceUtf16, 1, BrowserSearchPosition -
+    WideLowerCase(Copy(Browser.DocumentSource, 1, BrowserSearchPosition -
     1))
     );
 
@@ -12306,15 +12306,15 @@ var
 begin
   if BrowserSearchPosition = 0 then
   begin
-    BrowserSearchPosition := Pos('</title>', string(Browser.DocumentSourceUtf16));
+    BrowserSearchPosition := Pos('</title>', string(Browser.DocumentSource));
     if BrowserSearchPosition > 0 then
       Inc(BrowserSearchPosition, Length('</title>'));
   end;
 
   i := Pos(
     WideLowerCase(SearchEdit.Text),
-    WideLowerCase(Copy(Browser.DocumentSourceUtf16, BrowserSearchPosition + 1,
-    Length(Browser.DocumentSourceUtf16)))
+    WideLowerCase(Copy(Browser.DocumentSource, BrowserSearchPosition + 1,
+    Length(Browser.DocumentSource)))
     );
 
   if i > 0 then
