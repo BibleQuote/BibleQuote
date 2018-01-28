@@ -17,18 +17,17 @@ uses
   WideStrings,
   SysUtils,
   MultiLanguage in 'MultiLanguage.pas',
-  input in 'input.pas' {InputForm},
-  copyright in 'copyright.pas' {CopyrightForm},
-  config in 'config.pas' {ConfigForm},
+  input in 'Forms\input.pas' {InputForm},
+  copyright in 'Forms\copyright.pas' {CopyrightForm},
+  config in 'Forms\config.pas' {ConfigForm},
   Dict in 'Dict.pas',
   Bible in 'Bible.pas',
   AlekPageControl in 'AlekPageControl.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
-  AboutForm in 'AboutForm.pas' {frmAbout: TForm},
   XPTheme in 'XPTheme.pas',
-  BQExceptionTracker in 'BQExceptionTracker.pas' {bqExceptionForm},
-  qNavTest in 'qNavTest.pas' {frmQNav},
-  VersesDB in 'VersesDB.pas' {VerseListEngine: TDataModule},
+  BQExceptionTracker in 'Forms\BQExceptionTracker.pas' {bqExceptionForm},
+  qNavTest in 'Forms\qNavTest.pas' {frmQNav},
+  VersesDB in 'Forms\VersesDB.pas' {VerseListEngine: TDataModule},
   bqHintTools in 'bqHintTools.pas',
   bqLinksParserIntf in 'bqLinksParserIntf.pas',
   sevenZipHelper in 'sevenZipHelper.pas',
@@ -37,7 +36,7 @@ uses
   bqHistoryContainer in 'bqHistoryContainer.pas',
   links_parser in 'links_parser.pas',
   BibleLinkParser in 'BibleLinkParser.pas',
-  bqCollectionsEdit in 'bqCollectionsEdit.pas' {bqCollectionsEditor},
+  bqCollectionsEdit in 'Forms\bqCollectionsEdit.pas' {bqCollectionsEditor},
   bqGfxRenderers in 'bqGfxRenderers.pas',
   bqICommandProcessor in 'bqICommandProcessor.pas',
   bqWinUIServices in 'bqWinUIServices.pas',
@@ -45,13 +44,14 @@ uses
   bqHTMLViewerSite in 'bqHTMLViewerSite.pas',
   bqVdtEditLink in 'bqVdtEditLink.pas',
   bqSettings in 'bqSettings.pas',
-  bqCollections in 'bqCollections.pas' {DataModule1: TDataModule},
+  bqCollections in 'Forms\bqCollections.pas' {DataModule1: TDataModule},
   bqBackgroundServices in 'bqBackgroundServices.pas',
   bqEngine in 'bqEngine.pas',
   bqEngineInterfaces in 'bqEngineInterfaces.pas',
-  main in 'main.pas' {MainForm: TTntForm},
+  main in 'Forms\main.pas' {MainForm: TTntForm},
   tntSystem in 'tntSystem.pas',
-  WCharReader in 'WCharReader.pas';
+  WCharReader in 'WCharReader.pas',
+  AboutForm in 'Forms\AboutForm.pas' {frmAbout};
 
 {$R *.res}
 var
@@ -81,6 +81,7 @@ begin
 
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
+  Application.CreateForm(TfrmAbout, frmAbout);
   //  Application.HintPause :=100;
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
