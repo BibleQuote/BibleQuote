@@ -42,7 +42,7 @@
         <DCC_S>false</DCC_S>
         <DCC_MapFile>3</DCC_MapFile>
         <DCC_ImageBase>00400000</DCC_ImageBase>
-        <DCC_UnitSearchPath>gdiPlus\pas;H:\devsoft\myprojects\bqnet\BibleQuote6\gdiPlus\pas;H:\devsoft\myprojects\bqnet\BibleQuote6\htmlviewsb\Obj;htmlviewsb\;htmlviewsb\obj;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\Components\gdiPlus\pas;.\Components\htmlviewsb\obj;.\Components\htmlviewsb\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
         <SanitizedProjectName>AlekControls</SanitizedProjectName>
@@ -85,8 +85,8 @@
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="vclx.dcp"/>
         <DCCReference Include="AlekPageControl.pas"/>
-        <DCCReference Include="SevenZip\SevenZipVCL.pas"/>
-        <DCCReference Include="rkcontrols\rkGlassButton.pas"/>
+        <DCCReference Include="Components\rkcontrols\rkGlassButton.pas"/>
+        <DCCReference Include="Components\SevenZip\SevenZipVCL.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

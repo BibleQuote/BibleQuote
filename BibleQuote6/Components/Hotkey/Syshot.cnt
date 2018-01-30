@@ -1,0 +1,23 @@
+:Base syshot.hlp
+:Title The TSysHotKey component
+1 The TSysHotKey component
+2 An Overview=IDD_MAIN
+2 TSysHotKey Properties
+3 Active Property=IDD_PROPACTIVE
+3 Handle Property=IDD_PROPHANDLE
+3 HotKeys Property Array=IDD_PROPHOTKEYS
+3 HotKeyCount Property=IDD_PROPHOTKEYCOUNT
+2 TSysHotKey Methods
+3 Add Method=IDD_METHADD
+3 AddHotKey Method=IDD_METHADDHOTKEY
+3 Clear Method=IDD_METHCLEAR
+3 Delete Method=IDD_METHDELETE
+2 TSysHotKey Events
+3 OnHotKey event=IDD_EVENTHOTKEY
+2 Types
+3 THKModifiers Type=IDD_TYPEHKMODIFIERS
+3 THotKeyItem Type=IDD_TYPEHOTKEYITEM
+3 TVirtKey Type=IDD_TYPEVIRTKEY
+2 Functions
+3 KeyToVirtKey Function=IDD_FUNCKEYTOVIRTKEY
+3 HotKeyItem Function=IDD_FUNCHOTKEYITEM
