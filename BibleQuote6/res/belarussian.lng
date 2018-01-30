@@ -1,0 +1,242 @@
+
+; СІСТЭМНЫЯ ПАВЕДАМЛЕННІ ===================================
+
+; Увага:
+; доўгае паведамленне можна перанесці на наступны радок са знакам = у першай пазіцыі
+
+SoundNotFound = Не знойдзены гукавы файл для "%s". Магчыма, Вам 
+= трэба набыць адмысловую версію з аўдыёзапісам тэкстаў Бібліі.
+= Калі ласка, звяжыцеся з аўтарамі праграмы.
+
+FileNotFound = Не магу знайсці файл %s
+GoingOnline = Цяпер "Цытата з Бібліі" адкрые сайт %s у Вашым Інтэрнэт-браўзары
+#1%s=Памылка чытання модуля %s. Модуль пашкоджаны ці паказаны няслушны пароль.
+
+lblPasswordNeeded=Для адкрыцця модуля трэба ўвесці пароль (%s)
+lblPassword=Пароль:
+btnCancel=Адмена
+cbxSavePwd=Захаваць пароль
+
+HelpFileName = indexrus.htm
+
+AllBooks = Усё
+OTOnly = С.З.
+NTOnly = Н.З.
+APOnly = Н.К.
+
+PublicDomainText = Гэты тэкст не мае капірайту
+
+OneLetterWordsDeleted =  Былі выдалены адналітарныя часткі шуканага выраза, бо яны занадта часта сустракаюцца ў тэксце.
+SearchTitle = Пошук: "%s"
+SearchHeaders = <b>Модуль: %s<P>Дыяпазон пошуку: %s<P>
+SearchInterrupted = ПРАЦЭС БЫЎ ДАТЭРМІНОВА ПЕРАПЫНЕНЫ.<P>
+SearchOptions = Опцыі пошуку:</b>
+SearchResults = <b>Знойдзена: %d</b><P>
+
+SearchAllBooks = Усе кнігі модуля
+
+SearchWholeBible = УСЯ БІБЛІЯ
+SearchOT = СТАРЫ ЗАПАВЕТ
+SearchNT = НОВЫ ЗАПАВЕТ
+SearchPT = # Пяцікніжжа
+SearchHP = # Гістарычныя і паэтычныя кнігі
+SearchPR = # Прарокі
+SearchGA = # Евангеллі і Дзеі
+SearchER = # Пасланні і Адкрыццё
+SearchAP = # Некананічныя кнігі
+
+ViewPrevPage = Папярэдняя старонка
+ViewNextPage = Наступная старонка
+
+; ЭЛЕМЕНТЫ ФОРМЫ І МЕНЮ =================================
+
+MainForm.Caption = Цытата з Бібліі
+;
+MainForm.CBAll.Caption = іскомае ўтрымоўвае хоць бы адно слова
+MainForm.CBAll.Hint = Прыклад: знайсці не толькі вершы, якія змяшчаюць "Ісус Хрыстос", але і тыя, якія ўтрымоўваюць "Ісус" ці "Хрыстос"
+MainForm.CBCase.Caption = адрозніваць прапісныя і загалоўныя літары
+MainForm.CBCase.Hint = Прыклад: адрозніваць пры пошуку слова "Бог" і "бог"
+MainForm.CBDisplayOptions.Caption = падрабязныя загалоўкі ў выніках
+MainForm.CBDisplayOptions.Hint = Старонка вынікаў будзе ўтрымоўваць падрабязную інфармацыю пра абраныя опцыі
+MainForm.CBParts.Caption = выразы не могуць быць часткамі слоў
+MainForm.CBParts.Hint = Прыклад: шукаць "дабраславен", але не "дабраславенне"
+MainForm.CBPhrase.Caption = словы ідуць у зададзеным парадку
+MainForm.CBPhrase.Hint = Прыклад: знайсці вершы, дзе сустракаецца "Ісус Хрыстос", але не "Хрыстос Ісус"
+MainForm.CBExactPhrase.Caption = шукаць дакладную фразу
+MainForm.CBExactPhrase.Hint = Прыклад: вершы, дзе ёсць "Дабраславен Бог", але не "Дабраславен Госпад Бог"
+;
+CBAllNotCaption = іскомае ўтрымоўвае ўсе ўведзеныя словы
+CBCaseNotCaption = не адрозніваць прапісныя і загалоўныя літары
+CBPartsNotCaption = выразы могуць быць часткамі слоў
+CBPhraseNotCaption = словы могуць прытрымлівацца любога парадку
+;
+MainForm.BackButton.Hint = Папр. запіс у гісторыі (Backspace, Alt+стрэлка налева)
+MainForm.ForwardButton.Hint = Наст. запіс у гісторыі (Alt+стрэлка направа)
+MainForm.PrevChapterButton.Hint = Папр. частка (Ctrl+Z)
+MainForm.NextChapterButton.Hint = Наст. частка (Ctrl+X)
+;
+MainForm.AddressOKButton.Caption = OK
+MainForm.AddressOKButton.Hint = Паказаць абраны ўрывак
+MainForm.FindButton.Caption = Знайсці
+MainForm.FindButton.Hint = Пачаць/спыніць пошук
+MainForm.HelpButton.Hint = Дакументацыя
+MainForm.HotKeyCancelButton.Caption = Адмена
+MainForm.HotKeyCancelButton.Hint = Выйсці без захавання
+MainForm.HotKeyLabel.Hint = Прывяжыце любімыя модулі да клавіш хуткага доступу
+MainForm.HotKeyOKButton.Caption = OK
+MainForm.HotKeyOKButton.Hint = Захаваць налады
+MainForm.MemoCancelButton.Caption = Адмена
+MainForm.MemoCancelButton.Hint = 
+MainForm.MemoOKButton.Caption = OK
+MainForm.MemoOKButton.Hint = Захаваць тэкст
+MainForm.miActions.Caption = Аперацыі
+MainForm.miAddBookmark.Caption = Дадаць закладку ...
+MainForm.miAddMemo.Caption = Рэдагаваць нататку ...
+MainForm.miMemosToggle.Caption = Укл/выкл. асабістыя нататкі
+MainForm.miAddPassageBookmark.Caption = Паставіць закладку на бягучы ўрывак
+MainForm.miBibleModules.Caption = Біблія
+MainForm.miBookmark.Caption = Закладкі...
+MainForm.miCloseWindow.Caption = Зачыніць бягучае акно
+MainForm.miCompare.Caption = Параўнаць пераклады...
+
+MainForm.miToggle.Caption = Укл/выкл. левую панэль
+MainForm.miQuickNav.Caption = Хуткі пераход да ўрыўка
+MainForm.miQuickSearch.Caption = Хуткі ўвод пошукавай фразы
+MainForm.miCopy.Caption = Капіяваць тэкст у буфер абмену
+
+MainForm.miCopyPassage.Caption = Капіяваць ...
+MainForm.miCopyVerse.Caption = Капіяваць ...
+MainForm.miExit.Caption = Выхад
+MainForm.miFavorites.Caption = Любімыя модулі
+MainForm.miFile.Caption = Файл
+MainForm.miGoBack.Caption = Вярнуцца да папярэдняй старонкі
+MainForm.miHistory.Caption = Журнал працы...
+MainForm.miHotKey.Caption = Выбраць любімыя модулі...
+MainForm.miHrefUnderline.Caption = Падкрэсліваць гіперспасылкі
+MainForm.miLargeButtons.Caption = Выкарыстоўваць вялікія кнопкі на панэлі
+MainForm.miNotepad.Caption = Міні-рэдактар
+MainForm.miNewWindow.Caption = Стварыць новае акно прагляду
+MainForm.miNextChapter.Caption = Перайсці да наступнага раздзела
+MainForm.miOpen.Caption = Адкрыць файл...
+MainForm.miOpenPassage.Caption = Абраць урывак...
+MainForm.miOptions.Caption = Налады
+MainForm.miPrevChapter.Caption = Перайсці да папярэдняга раздзела
+MainForm.miPrint.Caption = Друк...
+MainForm.miPrintPreview.Caption = Папярэдні прагляд
+MainForm.miSave.Caption = Захаваць у файл...
+MainForm.miSearch.Caption = Пошук...
+MainForm.miSearchResults.Caption = Апошнія вынікі пошуку
+MainForm.miSearchWord.Caption = Пошук вылучанага тэксту
+MainForm.miSound.Caption = Праслухаць гукавы файл, калі ёсць
+MainForm.miTextModules.Caption = Іншыя кнігі
+MainForm.miXref.Caption = Паралельныя месцы
+MainForm.SearchLabel.Caption = Увядзіце опцыі для пошуку
+MainForm.SearchLabel.Hint = Шляхам звужэння дыяпазону пошуку і заданні дакладных параметраў можна атрымаць лепшыя вынікі
+MainForm.miNewTab.Caption = Новая ўкладка
+MainForm.miNewTab.Hint=Стварыць новую ўкладку выгляду
+MainForm.miNewViewTab.Caption = Новая ўкладка
+MainForm.miCloseTab.Caption = Закрыць укладку
+MainForm.miCloseTab.Caption = Закрыць актыўную ўкладку выгляду
+MainForm.miCloseViewTab.Caption = Закрыць укладку
+;
+MainForm.MaxCB.Items = Паказаць не больш за 100 вершаў,Паказаць не больш за 200 вершаў,Паказаць не больш за 300 вершаў,Паказаць усе знойдзеныя вершы
+;
+MainForm.HistoryTab.Caption = Журнал
+MainForm.BookmarksTab.Caption = Закладкі
+MainForm.tbQuickSearch.Caption=Хуткі пошук
+MainForm.SearchInWindowLabel.Caption=Знайсці ў дадзеным выглядзе
+MainForm.SearchEdit.Hint=Увядзіце слова ці выраз  для пошуку
+
+;
+MainForm.miDic.Caption = Слоўнікі
+MainForm.miStrong.Caption = Лексіконы Стронга
+MainForm.miComments.Caption = Каментары
+MainForm.miXref.Caption = Паралельныя месцы (TSK)
+;
+MainForm.miColors.Caption = Абраць колеры
+MainForm.miBGConfig.Caption = Колер фону галоўнага акна
+MainForm.miHrefConfig.Caption = Колер для гіперспасылак
+MainForm.miFoundTextConfig.Caption = Колер знойдзенага тэксту і нататак
+
+MainForm.miFonts.Caption = Абраць шрыфты
+MainForm.miFontConfig.Caption = Шрыфт галоўнага акна
+MainForm.miRefFontConfig.Caption = Шрыфт акна даведнікаў
+MainForm.miDialogFontConfig.Caption = Шрыфт дыялогавых вокнаў і інтэрфейсу
+
+;
+MainForm.miHelpMenu.Caption = Даведка
+MainForm.miHelp.Caption = Кіраўніцтва карыстача
+MainForm.miAbout.Caption = Пра гэту праграму
+;
+
+MainForm.miSearchWindow.Caption = Шукаць у гэтым акне...
+MainForm.SearchInWindowPanel.Caption = Пошук у гэтым акне
+MainForm.TBSearchForward.Hint = Наперад
+MainForm.TBSearchBackward.Hint = Назад
+;
+StrBibleTranslations = ПЕРАКЛАДЫ БІБЛІІ
+StrBooks = ІНШЫЯ КНІГІ
+StrCommentaries = КАМЕНТАРЫ
+StrAllDictionaries = УСЕ СЛОЎНІКІ
+;
+FoundInSeveralDictionaries = знойдзена ў некалькіх слоўніках
+FoundInOneDictionary = знойдзена ў адным слоўніку
+;
+MainForm.DicFoundSeveral.Caption = знойдзена ў некалькіх слоўніках
+MainForm.FindStrongNumberPanel.Caption = знайсці вершы з гэтым нумарам
+;
+MainForm.miCopyOptions.Caption = Опцыі капіявання
+;
+ConfigForm.Caption = Налады
+;
+ConfigForm.CopyOptionsTabSheet.Caption = Опцыі капіявання
+ConfigForm.FavoritesTabSheet.Caption = Любімыя модулі
+ConfigForm.FavouriteExTabSheet.Caption=Любімыя модулі
+ConfigForm.OtherOptionsTabSheet.Caption = Іншыя опцыі
+;
+ConfigForm.CopyVerseNumbers.Caption = Капіяваць нумары вершаў
+ConfigForm.CopyFontParams.Caption = Капіяваць параметры шрыфта
+ConfigForm.CopyFontParams.Hint = Тэкст будзе перадавацца ў фармаце RTF
+ConfigForm.AddReference.Caption = Дадаваць подпіс да ўрыўка
+ConfigForm.AddLineBreaks.Caption = Дадаваць перанос радка пасля кожнага верша
+ConfigForm.AddModuleName.Caption = Устаўляць у подпіс код модуля/перакладу
+;
+ConfigForm.OKButton.Caption = ОК
+ConfigForm.CancelButton.Caption = Адмена
+;
+ConfigForm.SelectSecondPathLabel.Caption = Дадатковы шлях да модуляў
+;
+ConfigForm.MinimizeToTray.Caption = Згортваць у трэй пры мінімізаванні акна
+ConfigForm.MinimizeToTray.Hint = Каля сістэмнага гадзінніка будзе створаны абразок
+ConfigForm.HotKeyChoice.Caption = Камбінацыя клавіш
+;
+CopyOptionsAddReference_ShortAtBeginning = Кароткі подпіс напачатку кожнага верша
+CopyOptionsAddReference_ShortAtEnd = Кароткі подпіс у канцы ўрыўка
+CopyOptionsAddReference_FullAtEnd = Поўны подпіс у канцы ўрыўка
+;
+ConfigForm.lblAvailableModules.Caption=Даступныя модулі
+ConfigForm.lblFavourites.Caption=Абраныя
+;
+MainForm.JCRU_Home.Caption = JesusChrist.ru - сервер хрысціянскіх зносін
+MainForm.JCRU_Software.Caption = Бясплатныя хрысціянскія софт-стварэнні
+MainForm.JCRU_Bible.Caption = Біблія ў Інтэрнэце
+MainForm.JCRU_News.Caption = Дайджэст навін з усяго свету
+MainForm.JCRU_Forum.Caption = Адкрыты хрысціянскі форум
+MainForm.JCRU_Chat.Caption = Гістарычны хрысціянскі чат
+MainForm.JCRU_Library.Caption = Хрысціянская бібліятэка clib.ru
+MainForm.JCRU_Docs.Caption = Карысныя духоўныя артыкулы
+MainForm.JCRU_Mail.Caption = Сэрвіс паштовых рассыланняў
+
+;
+
+;COPY - PASTE - PRINT
+
+MainForm.miRefCopy.Caption = Капіяваць
+MainForm.miRefPrint.Caption = Друкаваць
+
+MainForm.miMemoCopy.Caption = Капіяваць
+MainForm.miMemoCut.Caption = Выразаць
+MainForm.miMemoPaste.Caption = Уставіць
+
+
+MainForm.SatelliteButton.Hint = Паралельная Біблія
