@@ -49,7 +49,6 @@ uses
   bqEngine in 'bqEngine.pas',
   bqEngineInterfaces in 'bqEngineInterfaces.pas',
   main in 'Forms\main.pas' {MainForm: TTntForm},
-  tntSystem in 'tntSystem.pas',
   WCharReader in 'WCharReader.pas',
   AboutForm in 'Forms\AboutForm.pas' {frmAbout};
 

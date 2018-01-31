@@ -667,7 +667,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <Form>MainForm</Form>
             <DesignClass>TTntForm</DesignClass>
         </DCCReference>
-        <DCCReference Include="tntSystem.pas"/>
         <DCCReference Include="WCharReader.pas"/>
         <DCCReference Include="Forms\AboutForm.pas">
             <Form>frmAbout</Form>
