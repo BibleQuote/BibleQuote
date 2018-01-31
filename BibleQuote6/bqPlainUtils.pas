@@ -18,7 +18,7 @@ function FindNextFileW(hFindFile: THANDLE; var lpFindFileData: _WIN32_FIND_DATAW
 function bqNowDateTimeString():WideString;
 function ParamStartedWith(const token:string; out param:string):boolean;
 implementation
-uses BibleQuoteConfig, JclUnicode, tntSystem;
+uses BibleQuoteConfig, JclUnicode;
 function FindFirstFileExW; external kernel32 name 'FindFirstFileExW';
 function FindNextFileW; external kernel32 name 'FindNextFileW';
 
@@ -206,16 +206,16 @@ begin
   end;
 
 end;
-function ParamStartedWith(const token:string; out param:string):boolean;
-var paramCount, paramIndex:integer;
+function ParamStartedWith(const token: string; out param: string):boolean;
+var params, paramIndex: integer;
 var len: integer;
 begin
-  paramCount:=WideParamCount()-1;
-  result:=false;
-  for paramIndex:=0 to paramCount do begin
-    param:=ParamStr(paramIndex);
+  params := ParamCount - 1;
+  result := false;
+  for paramIndex := 0 to params do begin
+    param := ParamStr(paramIndex);
     len := Length(token);
-    result := (Len <= Length(param)) and (StrLIComp(PWideChar(WideString(token)), PWideChar(WideString(param)), Len) = 0);
+    result := (Len <= Length(param)) and (StrLIComp(PChar(token), PChar(param), Len) = 0);
     if result then break;
   end;
   if not result then begin param:=''; exit end;
