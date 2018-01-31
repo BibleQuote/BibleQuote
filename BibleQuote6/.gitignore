@@ -42,3 +42,6 @@ __recovery/
 
 # BibleQuote user settings
 Output/users
+
+# BibleQuote output files
+Output/*.*
