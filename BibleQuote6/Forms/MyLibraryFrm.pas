@@ -421,40 +421,40 @@ begin
   if mUseDisposition = udMyLibrary then begin
 
     s := Lang.SayDefault('LibTabsAll', 'All');
-    if mTagTabsEx.WideTabs.Count < 1 then
-      mTagTabsEx.WideTabs.Add(s)
-    else if mTagTabsEx.WideTabs[0] <> s then mTagTabsEx.WideTabs[0] := s;
+    if mTagTabsEx.Tabs.Count < 1 then
+      mTagTabsEx.Tabs.Add(s)
+    else if mTagTabsEx.Tabs[0] <> s then mTagTabsEx.Tabs[0] := s;
 
     s := Lang.SayDefault('LibTabsScriptures', 'Scriptures');
-    if mTagTabsEx.WideTabs.Count < 2 then
-      mTagTabsEx.WideTabs.Add(s)
-    else if mTagTabsEx.WideTabs[1] <> s then mTagTabsEx.WideTabs[1] := s;
+    if mTagTabsEx.Tabs.Count < 2 then
+      mTagTabsEx.Tabs.Add(s)
+    else if mTagTabsEx.Tabs[1] <> s then mTagTabsEx.Tabs[1] := s;
 
     s := Lang.SayDefault('LibTabsBooks', 'Books');
-    if mTagTabsEx.WideTabs.Count < 3 then
-      mTagTabsEx.WideTabs.Add(s)
-    else if mTagTabsEx.WideTabs[2] <> s then mTagTabsEx.WideTabs[2] := s;
+    if mTagTabsEx.Tabs.Count < 3 then
+      mTagTabsEx.Tabs.Add(s)
+    else if mTagTabsEx.Tabs[2] <> s then mTagTabsEx.Tabs[2] := s;
 
     s := Lang.SayDefault('LibTabsComments', 'Commentaries');
-    if mTagTabsEx.WideTabs.Count < 4 then
-      mTagTabsEx.WideTabs.Add(s)
-    else if mTagTabsEx.WideTabs[3] <> s then mTagTabsEx.WideTabs[3] := s;
+    if mTagTabsEx.Tabs.Count < 4 then
+      mTagTabsEx.Tabs.Add(s)
+    else if mTagTabsEx.Tabs[3] <> s then mTagTabsEx.Tabs[3] := s;
 
     s := Lang.SayDefault('LibTabsTags', 'Tags');
-    if mTagTabsEx.WideTabs.Count < 5 then
-      mTagTabsEx.WideTabs.Add(s)
-    else if mTagTabsEx.WideTabs[4] <> s then mTagTabsEx.WideTabs[4] := s;
+    if mTagTabsEx.Tabs.Count < 5 then
+      mTagTabsEx.Tabs.Add(s)
+    else if mTagTabsEx.Tabs[4] <> s then mTagTabsEx.Tabs[4] := s;
 
   end
   else if mUseDisposition = udParabibles then begin
     btnCollapse.Visible := true;
-    c := mTagTabsEx.WideTabs.Count - 1;
+    c := mTagTabsEx.Tabs.Count - 1;
     s := Lang.SayDefault('LibTabsScriptures', 'Scriptures');
     if c >= 0 then begin
-      for i := 1 to c do mTagTabsEx.WideTabs.Delete(0)
+      for i := 1 to c do mTagTabsEx.Tabs.Delete(0)
     end;
-    if c < 0 then mTagTabsEx.WideTabs.Add(s)
-    else if mTagTabsEx.WideTabs[0] <> s then mTagTabsEx.WideTabs[0] := s;
+    if c < 0 then mTagTabsEx.Tabs.Add(s)
+    else if mTagTabsEx.Tabs[0] <> s then mTagTabsEx.Tabs[0] := s;
     mTagTabsEx.TabIndex := 0;
   end;
 end;
@@ -507,8 +507,8 @@ begin
     Dec(dlt, ord(ssShift in Shift) * 2);
     ti := mTagTabsEx.TabIndex;
     inc(ti, dlt);
-    if (ti >= mTagTabsEx.WideTabs.Count) then ti := 0
-    else if (ti < 0) then ti := mTagTabsEx.WideTabs.Count - 1;
+    if (ti >= mTagTabsEx.Tabs.Count) then ti := 0
+    else if (ti < 0) then ti := mTagTabsEx.Tabs.Count - 1;
     mTagTabsEx.TabIndex := ti;
   end;
 
