@@ -1,7 +1,7 @@
 unit BibleLinkParser;
 
 interface
-uses JclUnicode, Classes, WideStrings, bqLinksParserIntf, bqContainers;
+uses JclUnicode, Classes, WideStrings, LinksParserIntf, Containers;
 type
   TLinkMatchType = (lmtNone, lmtFirst, lmtConCat, lmtSecond, lmtBoth);
   TLinkParserFlag = (lpsBookEntered, lpsChapterEntered, lpsFirstVerseEntered);
@@ -93,7 +93,7 @@ end;
     function extractLnks(const txt:WideString;fuzzyLogic:boolean; var la:TBibleLinkArray):boolean;
     function FinalizeParser():HRESULT;
 implementation
-uses bqPlainUtils, BibleQuoteUtils, BibleQuoteConfig, JCLDebug, Dialogs, ExceptionFrm,
+uses PlainUtils, BibleQuoteUtils, BibleQuoteConfig, JCLDebug, Dialogs, ExceptionFrm,
   SysUtils, {string_procs,} windows {$IFDEF DEBUG} , TypInfo{$ENDIF};
 
 var bookNamesObj: TBibleBookNames;

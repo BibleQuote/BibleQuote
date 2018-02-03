@@ -26,7 +26,7 @@ var
   ExceptionForm: TExceptionForm;
 
 implementation
-uses JclDebug, BibleQuoteUtils,BibleQuoteConfig,bqPlainUtils;
+uses JclDebug, BibleQuoteUtils, BibleQuoteConfig, PlainUtils;
 {$R *.dfm}
  var bqExceptionLog:TbqTextFileWriter;
 

@@ -3,7 +3,7 @@
 interface
 
 uses
-  Windows, Classes, SysUtils, StrUtils, string_procs;
+  Windows, Classes, SysUtils, StrUtils, StringProcs;
 
 const
   cRussianCodePage = 1251;

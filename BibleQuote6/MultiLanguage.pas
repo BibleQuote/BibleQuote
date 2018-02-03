@@ -8,8 +8,7 @@ uses
   Forms, Dialogs,
   
   
-  TypInfo,
-  string_procs;
+  TypInfo, StringProcs;
 
 type
   TMultiLanguage = class (TComponent)
