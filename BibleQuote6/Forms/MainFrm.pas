@@ -1691,8 +1691,8 @@ begin
 
     hotList := nil;
     Result := false;
-    mBibleTabsEx.WideTabs.Clear();
-    mBibleTabsEx.WideTabs.Add('***');
+    mBibleTabsEx.Tabs.Clear();
+    mBibleTabsEx.Tabs.Add('***');
     fn1 := CreateAndGetConfigFolder() + C_HotModulessFileName;
     f1Exists := FileExists(fn1);
     if f1Exists then begin mFavorites.LoadModules(mModules, fn1) end
@@ -3907,10 +3907,10 @@ begin
     favouriteMenuItem.Add(hotMenuItem);
     if not addBibleTab then
       exit;
-    ix := mBibleTabsEx.WideTabs.Count - 1;
+    ix := mBibleTabsEx.Tabs.Count - 1;
 
-    mBibleTabsEx.WideTabs.Insert(ix, modEntry.VisualSignature());
-    mBibleTabsEx.WideTabs.Objects[ix] := modEntry;
+    mBibleTabsEx.Tabs.Insert(ix, modEntry.VisualSignature());
+    mBibleTabsEx.Tabs.Objects[ix] := modEntry;
 //     mBibleTabsEx.WideTabs.Objects[tag] :=modEntry;
   except
     on e: Exception do begin BqShowException(e); end;
@@ -4335,7 +4335,7 @@ var
   //  hotModuleMenuItem: TMenuItem;
   saveOnChange: TTabChangeEvent;
 begin
-  bibleTabsCount := mBibleTabsEx.WideTabs.Count - 1;
+  bibleTabsCount := mBibleTabsEx.Tabs.Count - 1;
   curItem := mBibleTabsEx.TabIndex;
   if bibleTabsCount > 9 then
     bibleTabsCount := 9
@@ -4343,20 +4343,20 @@ begin
     Dec(bibleTabsCount);
   for i := 0 to bibleTabsCount do
   begin
-    s := mBibleTabsEx.WideTabs[i];
+    s := mBibleTabsEx.Tabs[i];
     if showHints then
     begin
       if (i < 9) then
         num := i + 1
       else
         num := 0;
-      mBibleTabsEx.WideTabs[i] := WideFormat('%d-%s', [num, s]);
+      mBibleTabsEx.Tabs[i] := WideFormat('%d-%s', [num, s]);
     end
     else
     begin
       if (s[2] <> '-') or (not (Char(s[1]) in ['0'..'9'])) then
         break;
-      mBibleTabsEx.WideTabs[i] := Copy(s, 3, $FFFFFF);
+      mBibleTabsEx.Tabs[i] := Copy(s, 3, $FFFFFF);
     end;
   end;                                  //for
 
@@ -5372,9 +5372,9 @@ var i, cnt: integer;
 
 begin
   result := -1;
-  cnt := mBibleTabsEx.WideTabs.Count - 1; i := 0;
+  cnt := mBibleTabsEx.Tabs.Count - 1; i := 0;
   while i <= cnt do begin
-    if mBibleTabsEx.WideTabs.Objects[i] = me then break;
+    if mBibleTabsEx.Tabs.Objects[i] = me then break;
     inc(i);
   end;
   if i <= cnt then result := i;
@@ -6154,7 +6154,7 @@ var
   hotModuleMenuItem: TMenuItem;
 begin
   bibleTabsCount := GetHotModuleCount() - 1;
-  mBibleTabsEx.WideTabs.Clear();
+  mBibleTabsEx.Tabs.Clear();
   for i := 0 to bibleTabsCount do
   begin
     hotModuleMenuItem := GetHotMenuItem(i);
@@ -6165,10 +6165,10 @@ begin
       continue;
     j := ModuleIndexByName(s);
     if j >= 0 then
-      mBibleTabsEx.WideTabs.AddObject(ModulesCodeList[j],
+      mBibleTabsEx.Tabs.AddObject(ModulesCodeList[j],
         hotModuleMenuItem);
   end; //for
-  mBibleTabsEx.WideTabs.AddObject('***', nil);
+  mBibleTabsEx.Tabs.AddObject('***', nil);
 end;       }
 
 procedure TMainForm.InitBkScan;
@@ -6231,8 +6231,8 @@ begin
     hotMenuItem.OnClick := HotKeyClick;
 
     favouriteMenuItem.Insert(ix + i, hotMenuItem);
-    mBibleTabsEx.WideTabs.Insert(ix, newMe.VisualSignature());
-    mBibleTabsEx.WideTabs.Objects[ix] := newMe;
+    mBibleTabsEx.Tabs.Insert(ix, newMe.VisualSignature());
+    mBibleTabsEx.Tabs.Objects[ix] := newMe;
     result := ix;
     mBibleTabsEx.Repaint();
   except
@@ -7508,7 +7508,7 @@ begin
   if miDeteleBibleTab.Tag < 0 then
     exit;
   try
-    me := (mBibleTabsEx.WideTabs.Objects[miDeteleBibleTab.Tag]) as TModuleEntry;
+    me := (mBibleTabsEx.Tabs.Objects[miDeteleBibleTab.Tag]) as TModuleEntry;
     mFavorites.DeleteModule(me);
   except
   end;
@@ -8502,13 +8502,13 @@ var
 
 begin
   try
-    hotMenuItem := mBibleTabsEx.WideTabs.Objects[moduleTabIx] as TMenuItem;
+    hotMenuItem := mBibleTabsEx.Tabs.Objects[moduleTabIx] as TMenuItem;
 
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
     if not Assigned(favouriteMenuItem) then
       exit;
     favouriteMenuItem.Remove(hotMenuItem);
-    mBibleTabsEx.WideTabs.Delete(moduleTabIx);
+    mBibleTabsEx.Tabs.Delete(moduleTabIx);
     hotMenuItem.Free();
     AdjustBibleTabs(MainBook.ShortName);
     SetFavouritesShortcuts();
@@ -8891,10 +8891,10 @@ begin
       if it < 0 then it := ti.mFirstVisiblePara + 10;
       bl.vstart := ti.mFirstVisiblePara; bl.vend := it;
       tabIx := mBibleTabsEx.ItemAtPos(mBibleTabsEx.ScreenToClient(pt));
-      if (tabIx < 0) or (tabIx >= mBibleTabsEx.WideTabs.Count) then begin
+      if (tabIx < 0) or (tabIx >= mBibleTabsEx.Tabs.Count) then begin
         exit; end;
 
-      me := mBibleTabsEx.WideTabs.Objects[tabIx] as TModuleEntry;
+      me := mBibleTabsEx.Tabs.Objects[tabIx] as TModuleEntry;
 
       r := ti.mBible.AddressToInternal(bl, common_lnk);
       if r < -1 then exit;
@@ -9122,11 +9122,11 @@ begin
   if length(awsNewModuleName) = 0 then
     awsNewModuleName := MainBook.ShortName;
   offset := ord(mBibleTabsInCtrlKeyDownState) shl 1;
-  tabCount := mBibleTabsEx.WideTabs.Count - 1;
+  tabCount := mBibleTabsEx.Tabs.Count - 1;
   tabIx := -1;
   for i := 0 to tabCount do
   begin
-    ws := mBibleTabsEx.WideTabs.Strings[i];
+    ws := mBibleTabsEx.Tabs.Strings[i];
     if CompareStringW(LOCALE_SYSTEM_DEFAULT, 0,
       PWideChar(Pointer(awsNewModuleName)),
       -1, PWideChar(Pointer(ws)) + offset, -1) = CSTR_EQUAL then
@@ -9139,7 +9139,7 @@ begin
   if tabIx >= 0 then
     mBibleTabsEx.TabIndex := tabIx
   else
-    mBibleTabsEx.TabIndex := mBibleTabsEx.WideTabs.Count - 1;
+    mBibleTabsEx.TabIndex := mBibleTabsEx.Tabs.Count - 1;
   // not a favorite book
   mBibleTabsEx.OnChange := mBibleTabsExChange;
 end;
@@ -9565,7 +9565,7 @@ procedure TMainForm.UpdateUI();
 var
   saveEvent, saveEvent2: TNotifyEvent;
   tabInfo: TViewTabInfo;
-  i, c: integer;
+  i: integer;
 begin
   mInterfaceLock := true;
   mScrollAcc := 0;
@@ -9625,16 +9625,6 @@ begin
     lbTitleLabel.Font.Name := tabInfo.mwsTitleFont;
     lbTitleLabel.Caption := tabInfo.mwsTitleLocation;
     lbCopyRightNotice.Caption := tabInfo.mwsCopyrightNotice;
-    c := mBibleTabsEx.WideTabs.Count - 2;
-    for i := 0 to c do begin
-      TUnicodeTabList(mBibleTabsEx.WideTabs).tbStyles[i] := ord(
-        (MainBook.isBible) and
-        (TModuleEntry(mBibleTabsEx.WideTabs.Objects[i]).BibleBookPresent(MainBook.CurBook
-        + Ord(not MainBook.Trait[bqmtOldCovenant]) * 66))
-        );
-    end;
-    if c + 1 > 0 then
-      TUnicodeTabList(mBibleTabsEx.WideTabs).tbStyles[c + 1] := 0;
   {  end
     else
       lbTitleLabel.Caption := tabInfo.mwsTitleLocation + '; ' +
@@ -11039,7 +11029,7 @@ begin
   try
 
 //  i := ord(mBibleTabsInCtrlKeyDownState) shl 1;
-    if newtab >= mBibleTabsEx.WideTabs.Count - 1 then begin
+    if newtab >= mBibleTabsEx.Tabs.Count - 1 then begin
       AllowChange := false;
       exit;
     end
@@ -11047,9 +11037,9 @@ begin
       if IsDown(VK_Shift) or isDown(VK_MENU) then begin
         AllowChange := false; exit;
       end;
-      me := mBibleTabsEx.WideTabs.Objects[newtab] as TModuleEntry;
+      me := mBibleTabsEx.Tabs.Objects[newtab] as TModuleEntry;
 
-//  s := mBibleTabsEx.WideTabs[NewTab];
+//  s := mBibleTabsEx.Tabs[NewTab];
 //  pwsNewModuleText := PWideChar(Pointer(s)) + i;
 //  moduleCodelistCount := ModulesCodeList.Count - 1;
 //  for i := 0 to moduleCodelistCount do
@@ -11091,8 +11081,8 @@ begin
   if mInterfaceLock then exit;
   pt := mBibleTabsEx.ScreenToClient(Mouse.CursorPos);
   it := mBibleTabsEx.ItemAtPos(pt);
-  if (it < 0) or (it >= mBibleTabsEx.WideTabs.Count) then exit;
-  if (it = mBibleTabsEx.WideTabs.Count - 1) then begin
+  if (it < 0) or (it >= mBibleTabsEx.Tabs.Count) then exit;
+  if (it = mBibleTabsEx.Tabs.Count - 1) then begin
     if isdown(VK_SHIFT) then begin
       SelectSatelliteBibleByName('');
       exit;
@@ -11105,7 +11095,7 @@ begin
     exit;
   end;
 
-  me := mBibleTabsEx.WideTabs.Objects[it] as TModuleEntry;
+  me := mBibleTabsEx.Tabs.Objects[it] as TModuleEntry;
   if IsDown(VK_SHIFT) then begin
     SelectSatelliteBibleByName(me.wsFullName);
     exit;
@@ -11139,7 +11129,7 @@ begin
   pt.Y := Y;
   ix := mBibleTabsEx.ItemAtPos(pt);
   mBibleTabsEx.Tag := ix;
-  if (ix < 0) or (ix >= mBibleTabsEx.WideTabs.Count - 1) then
+  if (ix < 0) or (ix >= mBibleTabsEx.Tabs.Count - 1) then
     exit;
   mBibleTabsEx.BeginDrag(false, 20);
 end;
@@ -11191,10 +11181,10 @@ begin
   end
   else if hint_expanded >= 1 then exit; //same tab hint already expanded
 
-  if (it < 0) or (it = mBibleTabsEx.WideTabs.Count - 1) then
+  if (it < 0) or (it = mBibleTabsEx.Tabs.Count - 1) then
   begin mBibleTabsEx.Hint := ''; exit end;
 
-  me := mBibleTabsEx.WideTabs.Objects[it] as TModuleEntry;
+  me := mBibleTabsEx.Tabs.Objects[it] as TModuleEntry;
   ws := me.wsFullName;
 
 //   ws:=ws+#13#10+txt;
@@ -11218,8 +11208,8 @@ begin
   pt.X := X;
   pt.Y := Y;
   itemIx := mBibleTabsEx.ItemAtPos(pt);
-  if ((itemIx < 0) or (itemIx >= mBibleTabsEx.WideTabs.Count - 1))
-    or (mBibleTabsEx.WideTabs.Count <= 2) then
+  if ((itemIx < 0) or (itemIx >= mBibleTabsEx.Tabs.Count - 1))
+    or (mBibleTabsEx.Tabs.Count <= 2) then
     exit;
   miDeteleBibleTab.Tag := ItemIx;
   pt := mBibleTabsEx.ClientToScreen(pt);
@@ -11760,7 +11750,7 @@ begin
   except on e: Exception do BqShowException(e); end;
   try
     i := FavouriteTabFromModEntry(me);
-    if i >= 0 then mBibleTabsEx.WideTabs.Delete(i);
+    if i >= 0 then mBibleTabsEx.Tabs.Delete(i);
     AdjustBibleTabs(MainBook.ShortName);
   except on e: Exception do BqShowException(e); end;
 
@@ -11842,7 +11832,7 @@ begin
   dragDropPoint.X := X;
   dragDropPoint.Y := Y;
   tabIndex := mBibleTabsEx.ItemAtPos(dragDropPoint);
-  if (tabIndex < 0) or (tabIndex >= mBibleTabsEx.WideTabs.Count) then
+  if (tabIndex < 0) or (tabIndex >= mBibleTabsEx.Tabs.Count) then
     exit;
 
   if Source is TAlekPageControl then
@@ -11850,7 +11840,7 @@ begin
     try
       viewTabInfo := TObject((TObject((Source as TAlekPageControl).Tag) as
         TTabSheet).Tag) as TViewTabInfo;
-      if tabIndex = mBibleTabsEx.WideTabs.Count - 1 then
+      if tabIndex = mBibleTabsEx.Tabs.Count - 1 then
       begin
         // drop on *** - last tab, adding new tab
         modIx := mModules.FindByFolder(viewTabInfo.mBible.ShortPath);
@@ -11868,33 +11858,33 @@ begin
       me := TModuleEntry(mModules.Items[modIx]);
       if not assigned(me) then exit;
       mFavorites.ReplaceModule(TModuleEntry(
-        mBibleTabsEx.WideTabs.Objects[tabIndex]), me);
+        mBibleTabsEx.Tabs.Objects[tabIndex]), me);
       AdjustBibleTabs(MainBook.ShortName);
     except
     end;
   end
   else if source is TDockTabSet then
   begin                                 //move/exchange
-    if (tabIndex = mBibleTabsEx.WideTabs.Count) then
+    if (tabIndex = mBibleTabsEx.Tabs.Count) then
       exit;
 
     sourceTabIx := mBibleTabsEx.Tag;
-    if (sourceTabIx < 0) or (sourceTabIx >= mBibleTabsEx.WideTabs.Count) or
+    if (sourceTabIx < 0) or (sourceTabIx >= mBibleTabsEx.Tabs.Count) or
       (sourceTabIx = tabIndex) then exit;
-    me := TModuleEntry(mBibleTabsEx.WideTabs.Objects[sourceTabIx]);
-    me2 := TModuleEntry(mBibleTabsEx.WideTabs.Objects[tabIndex]);
+    me := TModuleEntry(mBibleTabsEx.Tabs.Objects[sourceTabIx]);
+    me2 := TModuleEntry(mBibleTabsEx.Tabs.Objects[tabIndex]);
 
 //    if tabIndex<sourceTabIx then begin
 //      xch:=me2; me2:=me; me:=xch;
 //    end;
 //    mFavorites.xChg(me,me2);
     mFavorites.moveItem(me, tabIndex);
-//    mBibleTabsEx.WideTabs.Move(sourceTabIx, tabIndex);
-//    count := mBibleTabsEx.WideTabs.Count - 2;
+//    mBibleTabsEx.Tabs.Move(sourceTabIx, tabIndex);
+//    count := mBibleTabsEx.Tabs.Count - 2;
 //    firstHotMenuItemPos := GetHotMenuItem(0).MenuIndex;
 //    for i := 0 to count do
 //    begin
-//      mi := mBibleTabsEx.WideTabs.Objects[i] as TMenuItem;
+//      mi := mBibleTabsEx.Tabs.Objects[i] as TMenuItem;
 //      mi.MenuIndex := firstHotMenuItemPos + i;
 //    end;
 
@@ -11917,7 +11907,7 @@ begin
     delta := 1
   else
     delta := 0;
-  Accept := (tabIx >= 0) and (tabIx < mBibleTabsEx.WideTabs.Count - delta);
+  Accept := (tabIx >= 0) and (tabIx < mBibleTabsEx.Tabs.Count - delta);
 end;
 
 procedure TMainForm.miMemoPasteClick(Sender: TObject);
@@ -12514,7 +12504,7 @@ begin
 
   moduleCount := ConfigForm.lbxFavourites.Count - 1;
   mFavorites.Clear();
-//  mBibleTabsEx.WideTabs.Clear();
+//  mBibleTabsEx.Tabs.Clear();
   for i := 0 to moduleCount do begin
     try
       mFavorites.AddModule(mModules.ResolveModuleByNames(
@@ -12523,7 +12513,7 @@ begin
         BqShowException(e);
       end; end;
   end;
-//  mBibleTabsEx.WideTabs.Add('***');
+//  mBibleTabsEx.Tabs.Add('***');
 //  favMenuItemCount := GetHotModuleCount();
 //  favMenuItem := FindTaggedTopMenuItem(3333);
 //  for i := 0 to moduleCount do
@@ -13144,8 +13134,8 @@ begin
   end;
   ix := FavouriteTabFromModEntry(oldMe);
   if ix >= 0 then begin
-    mBibleTabsEx.WideTabs[ix] := newMe.VisualSignature();
-    mBibleTabsEx.WideTabs.Objects[ix] := newMe;
+    mBibleTabsEx.Tabs[ix] := newMe.VisualSignature();
+    mBibleTabsEx.Tabs.Objects[ix] := newMe;
   end;
 
 end;

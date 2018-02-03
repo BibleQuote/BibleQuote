@@ -42,8 +42,7 @@ uses
   MainFrm in 'Forms\MainFrm.pas' {MainForm: TTntForm},
   WCharReader in 'WCharReader.pas',
   AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
-  VersesDb in 'Data\VersesDb.pas' {VerseListEngine: TDataModule},
-  Tabs in 'Tabs.pas';
+  VersesDb in 'Data\VersesDb.pas' {VerseListEngine: TDataModule};
 
 {$R *.res}
 var
