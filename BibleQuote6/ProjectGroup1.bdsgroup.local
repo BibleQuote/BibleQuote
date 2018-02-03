@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject>
-	<Transactions>
-    <Transaction>2011.06.25 02:31:12.854.bdsgroup,D:\Users\Usr\Documents\Borland Studio Projects\ProjectGroup1.bdsgroup=H:\devsoft\myprojects\bqnet\BibleQuote6\ProjectGroup1.bdsgroup</Transaction>
-  </Transactions>
-	<Default.Personality>
-		<Projects ActiveProject="BibleQuote6.exe"/>
-	</Default.Personality>
-</BorlandProject>
