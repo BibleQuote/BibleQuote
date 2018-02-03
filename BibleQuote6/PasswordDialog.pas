@@ -26,7 +26,7 @@ var
   frmPassBox: TfrmPassBox;
 
 implementation
-uses main;
+uses MainFrm;
 {$R *.dfm}
 
 procedure TfrmPassBox.edPwdKeyUp(Sender: TObject; var Key: Word;

@@ -180,7 +180,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 <Platform value="Win64">False</Platform>
             </Platforms>
             <Deployment Version="3">
-                <DeployFile LocalName="output\BibleQuote6.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Output\BibleQuote6.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>BibleQuote6.exe</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -614,13 +614,13 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="string_procs.pas"/>
         <DCCReference Include="WCharWindows.pas"/>
         <DCCReference Include="MultiLanguage.pas"/>
-        <DCCReference Include="Forms\input.pas">
+        <DCCReference Include="Forms\InputFrm.pas">
             <Form>InputForm</Form>
         </DCCReference>
-        <DCCReference Include="Forms\copyright.pas">
+        <DCCReference Include="Forms\CopyrightFrm.pas">
             <Form>CopyrightForm</Form>
         </DCCReference>
-        <DCCReference Include="Forms\config.pas">
+        <DCCReference Include="Forms\ConfigFrm.pas">
             <Form>ConfigForm</Form>
         </DCCReference>
         <DCCReference Include="Dict.pas"/>
@@ -628,15 +628,11 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="AlekPageControl.pas"/>
         <DCCReference Include="BibleQuoteConfig.pas"/>
         <DCCReference Include="XPTheme.pas"/>
-        <DCCReference Include="Forms\BQExceptionTracker.pas">
-            <Form>bqExceptionForm</Form>
+        <DCCReference Include="Forms\ExceptionFrm.pas">
+            <Form>ExceptionForm</Form>
         </DCCReference>
-        <DCCReference Include="Forms\qNavTest.pas">
-            <Form>frmQNav</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\VersesDB.pas">
-            <Form>VerseListEngine</Form>
-            <DesignClass>TDataModule</DesignClass>
+        <DCCReference Include="Forms\MyLibraryFrm.pas">
+            <Form>MyLibraryForm</Form>
         </DCCReference>
         <DCCReference Include="bqHintTools.pas"/>
         <DCCReference Include="bqLinksParserIntf.pas"/>
@@ -646,9 +642,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="bqHistoryContainer.pas"/>
         <DCCReference Include="links_parser.pas"/>
         <DCCReference Include="BibleLinkParser.pas"/>
-        <DCCReference Include="Forms\bqCollectionsEdit.pas">
-            <Form>bqCollectionsEditor</Form>
-        </DCCReference>
         <DCCReference Include="bqGfxRenderers.pas"/>
         <DCCReference Include="bqICommandProcessor.pas"/>
         <DCCReference Include="bqWinUIServices.pas"/>
@@ -656,21 +649,22 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="bqHTMLViewerSite.pas"/>
         <DCCReference Include="bqVdtEditLink.pas"/>
         <DCCReference Include="bqSettings.pas"/>
-        <DCCReference Include="Forms\bqCollections.pas">
-            <Form>DataModule1</Form>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
         <DCCReference Include="bqBackgroundServices.pas"/>
         <DCCReference Include="bqEngine.pas"/>
         <DCCReference Include="bqEngineInterfaces.pas"/>
-        <DCCReference Include="Forms\main.pas">
+        <DCCReference Include="Forms\MainFrm.pas">
             <Form>MainForm</Form>
             <DesignClass>TTntForm</DesignClass>
         </DCCReference>
         <DCCReference Include="WCharReader.pas"/>
-        <DCCReference Include="Forms\AboutForm.pas">
-            <Form>frmAbout</Form>
+        <DCCReference Include="Forms\AboutFrm.pas">
+            <Form>AboutForm</Form>
             <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Data\VersesDb.pas">
+            <Form>VerseListEngine</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>

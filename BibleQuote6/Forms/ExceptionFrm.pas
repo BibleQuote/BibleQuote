@@ -1,4 +1,4 @@
-unit BQExceptionTracker;
+unit ExceptionFrm;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls,WideStrings;
 
 type
-  TbqExceptionForm = class(TForm)
+  TExceptionForm = class(TForm)
     ErrMemo: TMemo;
     lblLog: TLabel;
     btnOK: TButton;
@@ -23,7 +23,7 @@ type
 procedure BqShowException(e: Exception;addInfo:WideString=''; nonContinuable:boolean=false);
 function StackLst(codePtr,stackTop:Pointer):WideString;
 var
-  bqExceptionForm: TbqExceptionForm;
+  ExceptionForm: TExceptionForm;
 
 implementation
 uses JclDebug, BibleQuoteUtils,BibleQuoteConfig,bqPlainUtils;
@@ -48,14 +48,14 @@ var
   exceptionLog:TbqTextFileWriter;
 begin
 
-  if not assigned(bqExceptionForm) then
-  bqExceptionForm := TbqExceptionForm.Create(Application);
+  if not assigned(ExceptionForm) then
+  ExceptionForm := TExceptionForm.Create(Application);
   exceptionLog:= getExceptionLog();
-  bqExceptionForm.ErrMemo.Lines.clear();
+  ExceptionForm.ErrMemo.Lines.clear();
   lns := TStringList.Create();
   iv:=Application.OnIdle; Application.OnIdle:=nil;
   try
-  bqExceptionForm.mNonContinuable:=  bqExceptionForm.mNonContinuable or nonContinuable;
+  ExceptionForm.mNonContinuable:=  ExceptionForm.mNonContinuable or nonContinuable;
   lns.Clear;
   JclLastExceptStackListToStrings(lns,
     true, True, True, False);
@@ -63,20 +63,20 @@ begin
   if g_ExceptionContext.Count>0 then
   lns.Insert(1, 'Context:'#13#10+g_ExceptionContext.Text);
   if length(addInfo)>0 then  lns.Insert(0,addInfo);
-  bqExceptionForm.btnOK.Enabled:=not nonContinuable;
+  ExceptionForm.btnOK.Enabled:=not nonContinuable;
   lns.Add('OS info:'+WinInfoString());
   lns.Add('bqVersion: '+C_bqVersion+' ('+C_bqDate+')');
-  bqExceptionForm.ErrMemo.Lines.AddStrings(lns);
+  ExceptionForm.ErrMemo.Lines.AddStrings(lns);
   exceptionLog.WriteUnicodeLine(bqNowDateTimeString()+':');
   exceptionLog.WriteUnicodeLine(lns.Text);
   exceptionLog.WriteUnicodeLine('--------');
-  if not bqExceptionForm.visible then begin
-    bqExceptionForm.ShowModal();
+  if not ExceptionForm.visible then begin
+    ExceptionForm.ShowModal();
     if nonContinuable then halt(1);
   end;
 
   finally
-  bqExceptionForm.mNonContinuable:=false;
+  ExceptionForm.mNonContinuable:=false;
   lns.free();
   g_ExceptionContext.Clear();
   Application.OnIdle:=iv;
@@ -101,7 +101,7 @@ end;
 
 end;
 
-procedure TbqExceptionForm.btnHaltClick(Sender: TObject);
+procedure TExceptionForm.btnHaltClick(Sender: TObject);
 begin
 
 CloseLog();

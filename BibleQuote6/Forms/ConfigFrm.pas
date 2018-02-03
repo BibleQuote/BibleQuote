@@ -1,10 +1,10 @@
-unit config;
+п»їunit ConfigFrm;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Classes,
-  Graphics, Controls, 
+  Graphics, Controls,
   Forms, FileCtrl, ExtCtrls, Buttons, StdCtrls, ComCtrls;
 
 type
@@ -113,7 +113,7 @@ procedure TConfigForm.SelectPathButtonClick(Sender: TObject);
 var
   s: string;
 begin
-  // ??? Как сработает ?
+  // ??? РљР°Рє СЃСЂР°Р±РѕС‚Р°РµС‚ ?
   if SelectDirectory(
     SelectSecondPathLabel.Caption,
     SelectPathEdit.Text,

@@ -29,7 +29,7 @@ type TDict = class(TObject)
   end;
 
 implementation
-uses BibleQuoteUtils, BQExceptionTracker;
+uses BibleQuoteUtils, ExceptionFrm;
 
 
 
