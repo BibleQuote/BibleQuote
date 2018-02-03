@@ -2,12 +2,6 @@
 // JCL_DEBUG_EXPERT_INSERTJDBG ON
 program BibleQuote6;
 
-
-
-
-
-
-
 uses
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
   Forms,
@@ -17,17 +11,16 @@ uses
   WideStrings,
   SysUtils,
   MultiLanguage in 'MultiLanguage.pas',
-  input in 'Forms\input.pas' {InputForm},
-  copyright in 'Forms\copyright.pas' {CopyrightForm},
-  config in 'Forms\config.pas' {ConfigForm},
+  InputFrm in 'Forms\InputFrm.pas' {InputForm},
+  CopyrightFrm in 'Forms\CopyrightFrm.pas' {CopyrightForm},
+  ConfigFrm in 'Forms\ConfigFrm.pas' {ConfigForm},
   Dict in 'Dict.pas',
   Bible in 'Bible.pas',
   AlekPageControl in 'AlekPageControl.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
   XPTheme in 'XPTheme.pas',
-  BQExceptionTracker in 'Forms\BQExceptionTracker.pas' {bqExceptionForm},
-  qNavTest in 'Forms\qNavTest.pas' {frmQNav},
-  VersesDB in 'Forms\VersesDB.pas' {VerseListEngine: TDataModule},
+  ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm},
+  MyLibraryFrm in 'Forms\MyLibraryFrm.pas' {MyLibraryForm},
   bqHintTools in 'bqHintTools.pas',
   bqLinksParserIntf in 'bqLinksParserIntf.pas',
   sevenZipHelper in 'sevenZipHelper.pas',
@@ -36,7 +29,6 @@ uses
   bqHistoryContainer in 'bqHistoryContainer.pas',
   links_parser in 'links_parser.pas',
   BibleLinkParser in 'BibleLinkParser.pas',
-  bqCollectionsEdit in 'Forms\bqCollectionsEdit.pas' {bqCollectionsEditor},
   bqGfxRenderers in 'bqGfxRenderers.pas',
   bqICommandProcessor in 'bqICommandProcessor.pas',
   bqWinUIServices in 'bqWinUIServices.pas',
@@ -44,13 +36,13 @@ uses
   bqHTMLViewerSite in 'bqHTMLViewerSite.pas',
   bqVdtEditLink in 'bqVdtEditLink.pas',
   bqSettings in 'bqSettings.pas',
-  bqCollections in 'Forms\bqCollections.pas' {DataModule1: TDataModule},
   bqBackgroundServices in 'bqBackgroundServices.pas',
   bqEngine in 'bqEngine.pas',
   bqEngineInterfaces in 'bqEngineInterfaces.pas',
-  main in 'Forms\main.pas' {MainForm: TTntForm},
+  MainFrm in 'Forms\MainFrm.pas' {MainForm},
   WCharReader in 'WCharReader.pas',
-  AboutForm in 'Forms\AboutForm.pas' {frmAbout};
+  AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
+  VersesDb in 'Data\VersesDb.pas' {VerseListEngine: TDataModule};
 
 {$R *.res}
 var
@@ -80,11 +72,12 @@ begin
 
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
-  Application.CreateForm(TfrmAbout, frmAbout);
+  Application.CreateForm(TAboutForm, AboutForm);
+  Application.CreateForm(TVerseListEngine, VerseListEngine);
   //  Application.HintPause :=100;
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
-  Application.CreateForm(TbqExceptionForm, bqExceptionForm);
+  Application.CreateForm(TExceptionForm, ExceptionForm);
 
   Application.Run;
   try

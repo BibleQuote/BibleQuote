@@ -6,7 +6,7 @@
 
 // test
 
-unit main;
+unit MainFrm;
 
 {$WARN UNIT_PLATFORM OFF}
 {$WARN SYMBOL_PLATFORM OFF}
@@ -24,8 +24,8 @@ uses
   AlekPageControl, VirtualTrees, ToolWin, StdCtrls, rkGlassButton, WCharReader,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, bqHTMLViewerSite,
   Bible,BibleQuoteUtils,bqICommandProcessor,bqWinUIServices,versesDB,bqVdtEditlink,
-  bqEngine,MultiLanguage,bqLinksParserIntf,qNavTest,HTMLEmbedInterfaces,
-  MetaFilePrinter,Dict, Tabs, System.ImageList;
+  bqEngine,MultiLanguage,bqLinksParserIntf,MyLibraryFrm,HTMLEmbedInterfaces,
+  MetaFilePrinter,Dict, Tabs, System.ImageList, HTMLUn2;
 
 const
   ConstBuildCode: WideString = '2011.09.08';
@@ -929,13 +929,13 @@ var
 
 implementation
 
-uses   jclUnicode,copyright, input, config, PasswordDialog, BibleQuoteConfig,
-  BQExceptionTracker, AboutForm, ShellAPI,
+uses   jclUnicode, CopyrightFrm, InputFrm, ConfigFrm, PasswordDialog, BibleQuoteConfig,
+  ExceptionFrm, AboutFrm, ShellAPI,
   StrUtils, CommCtrl,
 
    bqHintTools, sevenZipHelper,
   Types, BibleLinkParser, IniFiles, bqPlainUtils, bqGfxRenderers, bqCommandProcessor,
-  bqEngineInterfaces, HTMLUn2,string_procs,WCharWindows, links_parser;
+  bqEngineInterfaces, string_procs,WCharWindows, links_parser;
 type
 //  TModuleType = (modtypeBible, modtypeBook, modtypeComment);
 //  TModuleEntry = class
@@ -2188,9 +2188,9 @@ begin
   //ini.Learn('MainFormFontCharset', IntToStr(MainForm.Font.Charset));
 
     ini.Learn('SaveDirectory', SaveFileDialog.InitialDir);
-    if assigned(frmQNav) then begin
-      ini.Learn(C_frmMyLibWidth, frmQNav.Width);
-      ini.Learn(C_frmMyLibHeight, frmQNav.Height);
+    if assigned(MyLibraryForm) then begin
+      ini.Learn(C_frmMyLibWidth, MyLibraryForm.Width);
+      ini.Learn(C_frmMyLibHeight, MyLibraryForm.Height);
     end;
     ini.Learn(C_opt_FullContextLinks, ord(mFlagFullcontextLinks));
     ini.Learn(C_opt_HighlightVerseHits, ord(mFlagHighlightVerses));
@@ -4036,8 +4036,8 @@ begin
     end end;
 
   UpdateDictionariesCombo();
-  if Assigned(frmQNav) then
-    Lang.TranslateForm(frmQNav);
+  if Assigned(MyLibraryForm) then
+    Lang.TranslateForm(MyLibraryForm);
   for i := 0 to miLanguage.Count - 1 do
     with miLanguage.Items[i] do
       Checked := WideLowerCase(Caption + '.lng') = WideLowerCase(inifile);
@@ -6205,7 +6205,7 @@ end;
 
 procedure TMainForm.InitQNavList;
 begin
-  if not assigned(frmQNav) then frmQNav := TfrmQNav.Create(self);
+  if not assigned(MyLibraryForm) then MyLibraryForm := TMyLibraryForm.Create(self);
 
 end;
 
@@ -7550,9 +7550,9 @@ begin
         vstDicList.ReinitNode(vstDicList.RootNode, true);
         vstDicList.Invalidate();
         vstDicList.Repaint();
-        if Assigned(frmQNav) then begin frmQNav.Font.Assign(Font);
-          frmQNav.Font.Height := frmQNav.Font.Height * 5 div 4;
-          frmQNav.Refresh();
+        if Assigned(MyLibraryForm) then begin MyLibraryForm.Font.Assign(Font);
+          MyLibraryForm.Font.Height := MyLibraryForm.Font.Height * 5 div 4;
+          MyLibraryForm.Refresh();
 
         end;
 
@@ -9002,8 +9002,8 @@ end;
 
 procedure TMainForm.miAboutClick(Sender: TObject);
 begin
-  if not assigned(frmAbout) then frmAbout := TfrmAbout.Create(self);
-  frmAbout.ShowModal();
+  if not assigned(AboutForm) then AboutForm := TAboutForm.Create(self);
+  AboutForm.ShowModal();
 end;
 
 procedure TMainForm.SearchBrowserKeyUp(Sender: TObject; var Key: Word;
@@ -9530,10 +9530,10 @@ begin
     if not assigned(mModules) then mModules := TCachedModules.Create(true);
     mModules.Assign(S_cachedModules);
 
-    if assigned(frmQNav) then begin
-      if frmQNav.mUseDisposition = udMyLibrary then
-        frmQNav.UpdateList(mModules, -1, MainBook.Name)
-      else frmQNav.UpdateList(mModules, -1, SecondBook.Name);
+    if assigned(MyLibraryForm) then begin
+      if MyLibraryForm.mUseDisposition = udMyLibrary then
+        MyLibraryForm.UpdateList(mModules, -1, MainBook.Name)
+      else MyLibraryForm.UpdateList(mModules, -1, SecondBook.Name);
     end;
 //    for i := 0 to modCount do
 //    begin
@@ -12599,8 +12599,8 @@ end;
 procedure TMainForm.ShowQNav(useDisposition: TBQUseDisposition = udMyLibrary);
 var ws, wcap, wbtn: WideString;
 begin
-  if not assigned(frmQNav) then frmQNav := TfrmQNav.Create(self);
-   Lang.TranslateForm(frmQNav);
+  if not assigned(MyLibraryForm) then MyLibraryForm := TMyLibraryForm.Create(self);
+   Lang.TranslateForm(MyLibraryForm);
   case useDisposition of
     udParabibles: begin ws := GetActiveTabInfo().mSatelliteName;
         wcap := Lang.SayDefault('SelectParaBible', 'Select secondary bible');
@@ -12613,24 +12613,24 @@ begin
       end;
   end;
 
-  frmQNav.Caption := wcap;
-  frmQNav.btnCollapse.Caption := wbtn;
+  MyLibraryForm.Caption := wcap;
+  MyLibraryForm.btnCollapse.Caption := wbtn;
 
-  frmQNav.mUseDisposition := useDisposition;
-  frmQNav.mCellText := EmptyWideStr;
-  frmQNav.UpdateList(mModules, -1, ws);
-  frmQNav.ShowModal();
-  if (frmQNav.ModalResult <> mrOk) or (length(frmQNav.mCellText) <= 0) then
+  MyLibraryForm.mUseDisposition := useDisposition;
+  MyLibraryForm.mCellText := EmptyWideStr;
+  MyLibraryForm.UpdateList(mModules, -1, ws);
+  MyLibraryForm.ShowModal();
+  if (MyLibraryForm.ModalResult <> mrOk) or (length(MyLibraryForm.mCellText) <= 0) then
   begin
     SatelliteButton.Down := GetActiveTabInfo().mSatelliteName <> '------';
     exit;
   end;
   case useDisposition of
-    udParabibles: SelectSatelliteBibleByName(frmQNav.mCellText);
+    udParabibles: SelectSatelliteBibleByName(MyLibraryForm.mCellText);
     udMyLibrary: begin
-        GoModuleName(frmQNav.mCellText);
-        if frmQNav.mBookIx > 0 then begin
-          BookLB.ItemIndex := frmQNav.mBookIx - 1;
+        GoModuleName(MyLibraryForm.mCellText);
+        if MyLibraryForm.mBookIx > 0 then begin
+          BookLB.ItemIndex := MyLibraryForm.mBookIx - 1;
           BookLBClick(self);
         end;
       end;

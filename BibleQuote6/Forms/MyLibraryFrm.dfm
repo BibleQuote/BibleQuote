@@ -1,8 +1,8 @@
-object frmQNav: TfrmQNav
+object MyLibraryForm: TMyLibraryForm
   Left = 0
   Top = 0
   BorderStyle = bsSizeToolWin
-  Caption = 'frmQNav'
+  Caption = 'My Library'
   ClientHeight = 454
   ClientWidth = 952
   Color = clBtnFace

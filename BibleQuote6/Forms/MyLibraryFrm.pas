@@ -1,4 +1,4 @@
-unit qNavTest;
+unit MyLibraryFrm;
 
 interface
 
@@ -10,7 +10,7 @@ uses
 type
   TBQUseDisposition = (udMyLibrary, udParabibles);
   TLibLinkType = (lltTag, lltBook);
-  TfrmQNav = class(TForm)
+  TMyLibraryForm = class(TForm)
     vstBookList: TVirtualDrawTree;
     edFilter: TEdit;
     lbBQName: TLabel;
@@ -94,10 +94,10 @@ type
   end;
 
 var
-  frmQNav: TfrmQNav;
+  MyLibraryForm: TMyLibraryForm;
   G_OtherCats: WideString = 'Другие категории';
 implementation
-uses bqExceptionTracker, Types, BibleQuoteConfig,bqPlainUtils;
+uses ExceptionFrm, Types, BibleQuoteConfig,bqPlainUtils;
 {$R *.dfm}
 
 function EmptyModuleEntry(): TModuleEntry;
@@ -114,12 +114,12 @@ begin
   result := S_EmptyModuleEntry;
 end;
 
-procedure TfrmQNav.btnClearClick(Sender: TObject);
+procedure TMyLibraryForm.btnClearClick(Sender: TObject);
 begin
   edFilter.Text := '';
 end;
 
-procedure TfrmQNav.btnCollapseClick(Sender: TObject);
+procedure TMyLibraryForm.btnCollapseClick(Sender: TObject);
 var
   pn: PVirtualNode;
 begin
@@ -137,12 +137,12 @@ begin
   end;
 end;
 
-procedure TfrmQNav.edFilterChange(Sender: TObject);
+procedure TMyLibraryForm.edFilterChange(Sender: TObject);
 begin
   UpdateList(mods);
 end;
 
-procedure TfrmQNav.edFilterKeyUp(Sender: TObject; var Key: Word;
+procedure TMyLibraryForm.edFilterKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   pvn: PVirtualNode;
@@ -154,7 +154,7 @@ begin
   end;
 end;
 
-procedure TfrmQNav.FormKeyPress(Sender: TObject; var Key: Char);
+procedure TMyLibraryForm.FormKeyPress(Sender: TObject; var Key: Char);
 
 begin
   try
@@ -166,7 +166,7 @@ begin
   except end;
 end;
 
-procedure TfrmQNav.FormShow(Sender: TObject);
+procedure TMyLibraryForm.FormShow(Sender: TObject);
 begin
   PrepareFonts();
   edFilter.SelectAll();
@@ -174,7 +174,7 @@ begin
   FocusControl(edFilter);
 end;
 
-function TfrmQNav.LinkFromPoint(pt: TPoint; out me: TModuleEntry;
+function TMyLibraryForm.LinkFromPoint(pt: TPoint; out me: TModuleEntry;
   out linkType: TLibLinkType): integer;
 var
   node: PVirtualNode;
@@ -209,7 +209,7 @@ begin
   except end;
 end;
 
-procedure TfrmQNav.mTagTabsExChange(Sender: TObject; NewTab: Integer;
+procedure TMyLibraryForm.mTagTabsExChange(Sender: TObject; NewTab: Integer;
   var AllowChange: Boolean);
 begin
   if mods = nil then exit;
@@ -220,7 +220,7 @@ begin
   UpdateList(mods, NewTab);
 end;
 
-function TfrmQNav.PaintBookTokens(canv: TCanvas; rct: TRect; var tkns:
+function TMyLibraryForm.PaintBookTokens(canv: TCanvas; rct: TRect; var tkns:
   TMatchInfoArray;
   calc: boolean): integer;
 
@@ -297,7 +297,7 @@ begin
 
 end;
 
-function TfrmQNav.PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings;
+function TMyLibraryForm.PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings;
   calc: boolean;
   var rects: PRectArray): integer;
 var
@@ -352,7 +352,7 @@ begin
 
 end;
 
-procedure TfrmQNav.PrepareFonts;
+procedure TMyLibraryForm.PrepareFonts;
 var
   rh: integer;
 begin
@@ -370,7 +370,7 @@ begin
   mfntTag.Color := $B07B00; mfntBook.Color := $005EBB;
 end;
 
-procedure TfrmQNav.SelAction(const modName: Widestring = '';
+procedure TMyLibraryForm.SelAction(const modName: Widestring = '';
   bookName: integer = 0);
 var
   pvn: PVirtualNode;
@@ -413,7 +413,7 @@ begin
 
 end;
 
-procedure TfrmQNav.SetTagTabs;
+procedure TMyLibraryForm.SetTagTabs;
 var
   s: WideString;
   c, i: integer;
@@ -459,7 +459,7 @@ begin
   end;
 end;
 
-procedure TfrmQNav.TntFormCreate(Sender: TObject);
+procedure TMyLibraryForm.TntFormCreate(Sender: TObject);
 var v:integer;
 begin
   try
@@ -486,7 +486,7 @@ begin
   end;
 end;
 
-procedure TfrmQNav.TntFormDestroy(Sender: TObject);
+procedure TMyLibraryForm.TntFormDestroy(Sender: TObject);
 begin
 try
  mfntReg.Free(); mfntBook.Free(); mfntTag.Free; mfntTagCap.Free();
@@ -495,7 +495,7 @@ try
 except end;
 end;
 
-procedure TfrmQNav.TntFormKeyUp(Sender: TObject; var Key: Word;
+procedure TMyLibraryForm.TntFormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   dlt, ti: integer;
@@ -514,19 +514,19 @@ begin
 
 end;
 
-procedure TfrmQNav.TntFormMouseWheel(Sender: TObject; Shift: TShiftState;
+procedure TMyLibraryForm.TntFormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
   if self.ActiveControl <> vstBookList then self.FocusControl(vstBookList);
 //Handled:=true;
 end;
 
-procedure TfrmQNav.TntFormResize(Sender: TObject);
+procedure TMyLibraryForm.TntFormResize(Sender: TObject);
 begin
   vstBookList.ReinitChildren(nil, true);
 end;
 
-procedure TfrmQNav.UpdateList(ml: TObjectList; ti: integer = -1; selName:
+procedure TMyLibraryForm.UpdateList(ml: TObjectList; ti: integer = -1; selName:
   WideString = '');
 var
   cnt, i, mIx: integer;
@@ -558,7 +558,7 @@ mUILock:=true;
   sel := nil;
   selFlag := false;
   if length(selname) <= 0 then begin
-    rt := frmQNav.vstBookList.GetFirstSelected();
+    rt := vstBookList.GetFirstSelected();
     if assigned(rt) then begin
       me := TModuleEntry(vstBookList.GetNodeData(rt)^);
       if Assigned(me) then begin
@@ -567,11 +567,11 @@ mUILock:=true;
     end;
   end;
 
-  qNavTest.frmQNav.vstBookList.Clear();
+  vstBookList.Clear();
   mCatNodes.Clear();
   mCounter := 0;
   cnt := ml.Count - 1;
-  frmQNav.vstBookList.BeginUpdate();
+  vstBookList.BeginUpdate();
   try
     mStrTokens.Clear();
     if length(ss) > 0 then begin
@@ -652,7 +652,7 @@ mUILock:=true;
           end
           else rt := PVirtualNode(TModuleEntry(mCatNodes[ci]).mNode);
 
-          tempVN := frmQNav.vstBookList.AddChild(rt, me);
+          tempVN := vstBookList.AddChild(rt, me);
           if selFlag then begin selFlag := false; sel := tempVN; end;
           if length(ss) > 0 then
             vstBookList.Expanded[rt] := true;
@@ -662,15 +662,15 @@ mUILock:=true;
       end
       else if doadd then begin
         Inc(mCounter);
-        tempVN := frmQNav.vstBookList.AddChild(nil, me);
+        tempVN := vstBookList.AddChild(nil, me);
       end;
 
       if selFlag then sel := tempVN;
     end;
-    frmQNav.vstBookList.Sort(nil, 0, sdAscending, false);
+    vstBookList.Sort(nil, 0, sdAscending, false);
   finally
     stCount.Caption := IntToStr(mCounter);
-    frmQNav.vstBookList.EndUpdate();
+    vstBookList.EndUpdate();
   end;
 
   if (not assigned(sel)) and (vstBookList.RootNodeCount > 0) then
@@ -682,7 +682,7 @@ mUILock:=true;
 
  finally
    mUILock:=false;
-   frmQNav.vstBookList.EndUpdate;
+   vstBookList.EndUpdate;
  end;
 
 //repeat
@@ -691,7 +691,7 @@ selFlag:= vstBookList.ScrollIntoView(sel, true);
 
 end;
 
-procedure TfrmQNav.vstBookListClick(Sender: TObject);
+procedure TMyLibraryForm.vstBookListClick(Sender: TObject);
 var
   me: TModuleEntry;
   pt: TPoint;
@@ -746,7 +746,7 @@ begin
 
 end;
 
-procedure TfrmQNav.vstBookListCompareNodes(Sender: TBaseVirtualTree; Node1,
+procedure TMyLibraryForm.vstBookListCompareNodes(Sender: TBaseVirtualTree; Node1,
   Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
 var
   mod1, mod2: TModuleEntry;
@@ -777,7 +777,7 @@ begin
 
 end;
 
-procedure TfrmQNav.vstBookListGetHintSize(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vstBookListGetHintSize(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; var R: TRect);
 var
   me: TModuleEntry;
@@ -795,7 +795,7 @@ begin
   InflateRect(r, 6, 6);
 end;
 
-procedure TfrmQNav.vstBookListGetText(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vstBookListGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: WideString);
 var
@@ -808,7 +808,7 @@ begin
   except end;
 end;
 
-procedure TfrmQNav.vstBookListKeyUp(Sender: TObject; var Key: Word;
+procedure TMyLibraryForm.vstBookListKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
 begin
@@ -817,13 +817,14 @@ begin
   except end;
 end;
 
-procedure TfrmQNav.vstBookListMeasureItem(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vstBookListMeasureItem(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
 var
   me: TModuleEntry;
   rct: TRect;
   h, dlt, vmarg, rght: integer;
   ws: WideString;
+  p: Pointer;
 begin
   if (node = nil) or (csDestroying in Self.ComponentState) then exit;
 
@@ -834,7 +835,8 @@ begin
     dlt := dlt div 4;
     if dlt = 0 then dlt := 2;
 
-    me := TModuleEntry((Sender.GetNodeData(Node))^);
+    p:= Sender.GetNodeData(Node);
+    me := TModuleEntry((p)^);
     ws := me.wsFullName;
 
     rct.Left := 0; rct.Top := 0; rct.Bottom := 200;
@@ -900,7 +902,7 @@ begin
 
 end;
 
-procedure TfrmQNav.vstBookListMouseDown(Sender: TObject; Button: TMouseButton;
+procedure TMyLibraryForm.vstBookListMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
   me: TModuleEntry;
@@ -920,7 +922,7 @@ begin
 
 end;
 
-procedure TfrmQNav.vstBookListMouseMove(Sender: TObject; Shift: TShiftState; X,
+procedure TMyLibraryForm.vstBookListMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 var
   i: integer;
@@ -947,7 +949,7 @@ begin
   end;
 end;
 
-procedure TfrmQNav.vstBookListMouseUp(Sender: TObject; Button: TMouseButton;
+procedure TMyLibraryForm.vstBookListMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var pvn:PVirtualNode;
     me:TModuleEntry;
@@ -985,7 +987,7 @@ vstBookList.ReinitNode(pvn, false);
 end
 end;
 
-procedure TfrmQNav.vstBookListDblClick(Sender: TObject);
+procedure TMyLibraryForm.vstBookListDblClick(Sender: TObject);
 var
   pt: TPoint;
   pn: PVirtualNode;
@@ -996,7 +998,7 @@ begin
   SelAction();
 end;
 
-procedure TfrmQNav.vstBookListDrawHint(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vstBookListDrawHint(Sender: TBaseVirtualTree;
   HintCanvas: TCanvas; Node: PVirtualNode; R: TRect; Column: TColumnIndex);
 var
   me: TModuleEntry;
@@ -1013,7 +1015,7 @@ begin
     length(me.wsShortPath), r, 0);
 end;
 
-procedure TfrmQNav.vstBookListDrawNode(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vstBookListDrawNode(Sender: TBaseVirtualTree;
   const PaintInfo: TVTPaintInfo);
 
 var
@@ -1092,7 +1094,7 @@ begin
 
 end;
 
-procedure TfrmQNav.vstBookListFocusChanging(Sender: TBaseVirtualTree; OldNode,
+procedure TMyLibraryForm.vstBookListFocusChanging(Sender: TBaseVirtualTree; OldNode,
   NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
   var Allowed: Boolean);
 var
@@ -1110,7 +1112,7 @@ begin
   sender.Selected[n] := true;
 end;
 
-procedure TfrmQNav.vstBookListFreeNode(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vstBookListFreeNode(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 var
   me: TModuleEntry;

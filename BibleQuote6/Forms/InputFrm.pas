@@ -1,4 +1,4 @@
-unit input;
+unit InputFrm;
 
 interface
 

@@ -1,4 +1,4 @@
-unit copyright;
+unit CopyrightFrm;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics,
   Controls, Forms, Dialogs,
-  Htmlview, ShellAPI, StdCtrls, ExtCtrls;
+  Htmlview, ShellAPI, StdCtrls, ExtCtrls, HTMLUn2;
 
 type
   TCopyrightForm = class(TForm)
@@ -34,7 +34,7 @@ var
   CopyrightForm: TCopyrightForm;
 
 implementation
-uses main;
+uses MainFrm;
 {$R *.DFM}
 
 procedure TCopyrightForm.BrowserHotSpotClick(Sender: TObject;

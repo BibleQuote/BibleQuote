@@ -1,4 +1,4 @@
-unit VersesDB;
+unit VersesDb;
 
 interface
 
@@ -104,7 +104,7 @@ type
     VerseListEngine: TVerseListEngine;
   const RELATION_NORMAL = 20;
 implementation
-uses BQExceptionTracker, bqPlainUtils, WideStrings, Windows;
+uses ExceptionFrm, bqPlainUtils, WideStrings, Windows;
 {$R *.dfm}
 
 function is_not_unique_msg(const msg: string): boolean; forward;

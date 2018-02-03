@@ -1,13 +1,13 @@
-unit AboutForm;
+Ôªøunit AboutFrm;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, PngImage1 ;
+  Dialogs, ExtCtrls, StdCtrls, PngImage1, Vcl.Imaging.jpeg, Vcl.Imaging.GIFImg ;
 
 type
-  TfrmAbout = class(TForm)
+  TAboutForm = class(TForm)
     Shape1: TShape;
     lbBQName: TLabel;
     Image1: TImage;
@@ -30,19 +30,19 @@ type
   end;
 
 var
-  frmAbout: TfrmAbout;
+  AboutForm: TAboutForm;
 
 implementation
-  uses main,BibleQuoteUtils,BibleQuoteConfig;
+  uses MainFrm,BibleQuoteUtils,BibleQuoteConfig;
 {$R *.DFM}
 
-procedure TfrmAbout.Panel2MouseEnter(Sender: TObject);
+procedure TAboutForm.Panel2MouseEnter(Sender: TObject);
 begin
 Screen.Cursor:=crHandPoint;
 
 end;
 
-procedure TfrmAbout.Panel2MouseLeave(Sender: TObject);
+procedure TAboutForm.Panel2MouseLeave(Sender: TObject);
 begin
 Screen.Cursor:=crDefault;
 end;
@@ -51,29 +51,29 @@ end;
 
 
 
-procedure TfrmAbout.TntFormCreate(Sender: TObject);
+procedure TAboutForm.TntFormCreate(Sender: TObject);
 begin
 //DrawIconEx(Image1.Picture.Bitmap.Canvas.Handle, 0,0, Application.Icon.Handle,
 //32,32,0,0,DI_NORMAL);
 //Image1.Picture.Icon.Assign(Application.Icon);
 memDevs.Lines.Insert(0,
-       WideFormat('¬ÂÒËˇ %s (%s) BETA', [C_bqVersion,C_bqDate])   );
+       WideFormat('–í–µ—Ä—Å–∏—è %s (%s) BETA', [C_bqVersion,C_bqDate])   );
 memDevs.Lines.Add('');
 memDevs.Lines.Add('OS:'+WinInfoString());
 
 end;
 
-procedure TfrmAbout.TntFormShow(Sender: TObject);
+procedure TAboutForm.TntFormShow(Sender: TObject);
 begin
 if Pos('Russian',LastLanguageFile)<>0 then begin
-lbBQName.Caption:='÷ËÚ‡Ú‡ ËÁ ¡Ë·ÎËË 6';
+lbBQName.Caption:='–¶–∏—Ç–∞—Ç–∞ –∏–∑ –ë–∏–±–ª–∏–∏ 6';
 end
 else begin
 lbBQName.Caption:='BibleQuote 6';
 end;
 end;
 
-procedure TfrmAbout.TntLabel1Click(Sender: TObject);
+procedure TAboutForm.TntLabel1Click(Sender: TObject);
 begin
 if (sender as TComponent).Tag=1 then
 MainForm.JCRU_HomeClick(MainForm.miDownloadLatest)

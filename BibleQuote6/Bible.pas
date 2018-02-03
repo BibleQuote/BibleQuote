@@ -422,7 +422,7 @@ type
 procedure Register;
 
 implementation
-uses bqPlainUtils, bibleLinkParser, BQExceptionTracker ;
+uses bqPlainUtils, bibleLinkParser, ExceptionFrm;
 
 function Diff(a, b: integer): integer;
 begin

@@ -209,7 +209,7 @@ object CopyrightForm: TCopyrightForm
     Width = 16
     Height = 16
   end
-  object Browser: THTMLViewer
+  object Browser: THtmlViewer
     Left = 7
     Top = 80
     Width = 649
