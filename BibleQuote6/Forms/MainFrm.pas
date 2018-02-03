@@ -22,9 +22,9 @@ uses
   Menus,
   ExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
   AlekPageControl, VirtualTrees, ToolWin, StdCtrls, rkGlassButton, WCharReader,
-  Buttons, DockTabSet, Htmlview, SysUtils, SysHot, bqHTMLViewerSite,
-  Bible,BibleQuoteUtils,bqICommandProcessor,bqWinUIServices,versesDB,bqVdtEditlink,
-  bqEngine,MultiLanguage,bqLinksParserIntf,MyLibraryFrm,HTMLEmbedInterfaces,
+  Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
+  Bible,BibleQuoteUtils,ICommandProcessor,WinUIServices,versesDB,VdtEditlink,
+  Engine,MultiLanguage,LinksParserIntf,MyLibraryFrm,HTMLEmbedInterfaces,
   MetaFilePrinter,Dict, Tabs, System.ImageList, HTMLUn2;
 
 const
@@ -933,9 +933,9 @@ uses   jclUnicode, CopyrightFrm, InputFrm, ConfigFrm, PasswordDialog, BibleQuote
   ExceptionFrm, AboutFrm, ShellAPI,
   StrUtils, CommCtrl,
 
-   bqHintTools, sevenZipHelper,
-  Types, BibleLinkParser, IniFiles, bqPlainUtils, bqGfxRenderers, bqCommandProcessor,
-  bqEngineInterfaces, string_procs,WCharWindows, links_parser;
+  HintTools, sevenZipHelper,
+  Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
+  EngineInterfaces, StringProcs, WCharWindows, LinksParser;
 type
 //  TModuleType = (modtypeBible, modtypeBook, modtypeComment);
 //  TModuleEntry = class
@@ -2314,7 +2314,7 @@ begin
   InitializeTaggedBookMarks();
 
 //  Application.OnShowHint := ShowHintEventHandler;
-  HintWindowClass := bqHintTools.TbqHintWindow;
+  HintWindowClass := HintTools.TbqHintWindow;
   //  TrayIcon.Visible := true;
 
 
@@ -3578,9 +3578,9 @@ begin
 
   br.Hint := '';
   br.Hint := wstr;
-  HintWindowClass := bqHintTools.TbqHintWindow;
+  HintWindowClass := HintTools.TbqHintWindow;
   Application.CancelHint();
-  HintWindowClass := bqHintTools.TbqHintWindow;  
+  HintWindowClass := HintTools.TbqHintWindow;
 end;
 
 procedure TMainForm.FirstBrowserImageRequest(Sender: TObject; const SRC: string;
@@ -5836,7 +5836,7 @@ mBqEngine.Finalize();
     { CacheDicPaths.Free(); CacheDicTitles.Free(); CacheModPaths.Free();
      CacheModTitles.Free(); }//ModulesList.Free();
 //    ModulesCodeList.Free();
-    bqGfxRenderers.TbqTagsRenderer.Done();
+    GfxRenderers.TbqTagsRenderer.Done();
     FreeAndNil(Memos);
     FreeAndNil(Bookmarks);
     FreeAndNil(History);
@@ -8908,7 +8908,7 @@ begin
     wstr := psg + ' (' + mRefenceBible.ShortName + ')'#13#10;
     wstr := wstr + txt;
 
-    HintWindowClass := bqHintTools.TbqHintWindow;
+    HintWindowClass := HintTools.TbqHintWindow;
     mBibleTabsEx.Hint := wstr;
     Application.CancelHint();
     hint_expanded := 2;
@@ -9941,7 +9941,7 @@ if nd.nodeType<>bqvntVerse then exit;
 levelIndent:=(vdt.Indent*vdt.GetNodeLevel(pvn));
 rct:=Rect(0,0,vdt.ClientWidth-levelIndent- vdt.Margin-vdt.TextMargin, 500);
 vdt.Canvas.Font:=vdt.Font;
-r:=bqGfxRenderers.TbqTagsRenderer.GetContentTypeAt(pt.x-vdt.Margin -levelIndent,pt.y-nodeTop,vdt.Canvas,nd,rct);
+r := GfxRenderers.TbqTagsRenderer.GetContentTypeAt(pt.x-vdt.Margin -levelIndent,pt.y-nodeTop,vdt.Canvas,nd,rct);
 if r<>tvcPlainTxt then exit;
 ble:=nd.getBibleLinkEx();
 ProcessCommand(ble.ToCommand(), hlTrue );
@@ -10241,7 +10241,7 @@ levelIndent:=(vdt.Indent*vdt.GetNodeLevel(pvn));
 rct:=Rect(0,0,vdt.ClientWidth-levelIndent- vdt.Margin-vdt.TextMargin, 500);
 //rct:=Rect(vdt.Indent,0,vdt.Width-vdt.Indent, 500);
 vdt.Canvas.Font:=vdt.Font;
-r:=bqGfxRenderers.TbqTagsRenderer.GetContentTypeAt(x-vdt.Margin -levelIndent,y-nodeTop,vdt.Canvas,nd,rct);
+r := GfxRenderers.TbqTagsRenderer.GetContentTypeAt(x-vdt.Margin -levelIndent,y-nodeTop,vdt.Canvas,nd,rct);
 case r of
 tvcLink:vdt.Cursor:=crHandPoint;
 
@@ -13090,7 +13090,7 @@ begin
   if (not tbList.Visible) or (not VerseListEngine.DbTags.Connected)  then exit;
 
 //  VerseNodesEraseCachedText();
-  bqGfxRenderers.TbqTagsRenderer.InvalidateRenderers();
+  GfxRenderers.TbqTagsRenderer.InvalidateRenderers();
   vdtTags_Verses.Invalidate();  
   vdtTags_Verses.ReinitNode(vdtTags_Verses.RootNode, true);
 

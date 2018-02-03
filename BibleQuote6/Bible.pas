@@ -7,7 +7,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, JclUnicode, IOUtils, Types,
   Graphics, Controls, Forms, Dialogs, WCharReader,
-  string_procs, BibleQuoteUtils, bqLinksParserIntf,bqWinUIServices;
+  StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices;
 
 const
   RusToEngTable: array[1..27] of integer =
@@ -422,7 +422,7 @@ type
 procedure Register;
 
 implementation
-uses bqPlainUtils, bibleLinkParser, ExceptionFrm;
+uses PlainUtils, bibleLinkParser, ExceptionFrm;
 
 function Diff(a, b: integer): integer;
 begin

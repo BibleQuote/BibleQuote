@@ -3,8 +3,7 @@ unit VersesDb;
 interface
 
 uses
-  SysUtils, Classes,  BibleQuoteUtils,DB, ASGSQLite3, contnrs, bqLinksParserIntf
-  ;
+  SysUtils, Classes, BibleQuoteUtils, DB, ASGSQLite3, Contnrs, LinksParserIntf;
 
 type
   TVersesNodeType = (bqvntTag, bqvntVerse);
@@ -104,7 +103,7 @@ type
     VerseListEngine: TVerseListEngine;
   const RELATION_NORMAL = 20;
 implementation
-uses ExceptionFrm, bqPlainUtils, WideStrings, Windows;
+uses ExceptionFrm, PlainUtils, WideStrings, Windows;
 {$R *.dfm}
 
 function is_not_unique_msg(const msg: string): boolean; forward;

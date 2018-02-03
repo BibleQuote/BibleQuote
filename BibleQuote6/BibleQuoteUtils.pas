@@ -321,7 +321,7 @@ var
   MainCfgIni: TMultiLanguage;
   G_SecondPath:WideString;
 implementation
-uses JclSysInfo, MainFrm, Controls, Forms, Clipbrd,StrUtils,BibleQuoteConfig, WCharWindows ,string_procs,JclBase;
+uses JclSysInfo, MainFrm, Controls, Forms, Clipbrd, StrUtils, BibleQuoteConfig, WCharWindows, StringProcs, JclBase;
 var __exe__path:WideString;
 
 function OmegaCompareTxt(const str1, str2: string; len: integer = -1;

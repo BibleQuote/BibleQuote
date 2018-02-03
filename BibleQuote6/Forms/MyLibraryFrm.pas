@@ -97,7 +97,7 @@ var
   MyLibraryForm: TMyLibraryForm;
   G_OtherCats: WideString = 'Другие категории';
 implementation
-uses ExceptionFrm, Types, BibleQuoteConfig,bqPlainUtils;
+uses ExceptionFrm, Types, BibleQuoteConfig, PlainUtils;
 {$R *.dfm}
 
 function EmptyModuleEntry(): TModuleEntry;

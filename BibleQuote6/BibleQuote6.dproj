@@ -611,7 +611,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="BibleQuoteUtils.pas"/>
-        <DCCReference Include="string_procs.pas"/>
+        <DCCReference Include="StringProcs.pas"/>
         <DCCReference Include="WCharWindows.pas"/>
         <DCCReference Include="MultiLanguage.pas"/>
         <DCCReference Include="Forms\InputFrm.pas">
@@ -634,24 +634,24 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Forms\MyLibraryFrm.pas">
             <Form>MyLibraryForm</Form>
         </DCCReference>
-        <DCCReference Include="bqHintTools.pas"/>
-        <DCCReference Include="bqLinksParserIntf.pas"/>
-        <DCCReference Include="sevenZipHelper.pas"/>
-        <DCCReference Include="bqContainers.pas"/>
-        <DCCReference Include="bqPlainUtils.pas"/>
-        <DCCReference Include="bqHistoryContainer.pas"/>
-        <DCCReference Include="links_parser.pas"/>
+        <DCCReference Include="HintTools.pas"/>
+        <DCCReference Include="LinksParserIntf.pas"/>
+        <DCCReference Include="SevenZipHelper.pas"/>
+        <DCCReference Include="Containers.pas"/>
+        <DCCReference Include="PlainUtils.pas"/>
+        <DCCReference Include="HistoryContainer.pas"/>
+        <DCCReference Include="LinksParser.pas"/>
         <DCCReference Include="BibleLinkParser.pas"/>
-        <DCCReference Include="bqGfxRenderers.pas"/>
-        <DCCReference Include="bqICommandProcessor.pas"/>
-        <DCCReference Include="bqWinUIServices.pas"/>
-        <DCCReference Include="bqCommandProcessor.pas"/>
-        <DCCReference Include="bqHTMLViewerSite.pas"/>
-        <DCCReference Include="bqVdtEditLink.pas"/>
-        <DCCReference Include="bqSettings.pas"/>
-        <DCCReference Include="bqBackgroundServices.pas"/>
-        <DCCReference Include="bqEngine.pas"/>
-        <DCCReference Include="bqEngineInterfaces.pas"/>
+        <DCCReference Include="GfxRenderers.pas"/>
+        <DCCReference Include="ICommandProcessor.pas"/>
+        <DCCReference Include="WinUIServices.pas"/>
+        <DCCReference Include="CommandProcessor.pas"/>
+        <DCCReference Include="HTMLViewerSite.pas"/>
+        <DCCReference Include="VDTEditLink.pas"/>
+        <DCCReference Include="Settings.pas"/>
+        <DCCReference Include="BackgroundServices.pas"/>
+        <DCCReference Include="Engine.pas"/>
+        <DCCReference Include="EngineInterfaces.pas"/>
         <DCCReference Include="Forms\MainFrm.pas">
             <Form>MainForm</Form>
             <DesignClass>TTntForm</DesignClass>
@@ -666,6 +666,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="Tabs.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
