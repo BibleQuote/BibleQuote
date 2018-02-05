@@ -55,9 +55,8 @@ contains
   StyleUn in 'StyleUn.pas',
   htmlgif1 in 'htmlgif1.pas',
   HTMLGif2 in 'HTMLGif2.pas',
-  PngImage1 in 'PngImage1.pas',
-  PNGZLIB1 in 'PNGZLIB1.pas',
   FrameViewerReg in 'FrameViewerReg.pas',
-  GDIPL2A in 'GDIPL2A.pas';
+  GDIPL2A in 'GDIPL2A.pas',
+  HtmlGlobals in 'HtmlGlobals.pas';
 
 end.
