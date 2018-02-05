@@ -42,7 +42,8 @@ uses
   MainFrm in 'Forms\MainFrm.pas' {MainForm: TTntForm},
   WCharReader in 'WCharReader.pas',
   AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
-  VersesDb in 'Data\VersesDb.pas' {VerseListEngine: TDataModule};
+  VersesDb in 'Data\VersesDb.pas' {VerseListEngine: TDataModule},
+  PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox};
 
 {$R *.res}
 var
@@ -74,6 +75,7 @@ begin
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TAboutForm, AboutForm);
   Application.CreateForm(TVerseListEngine, VerseListEngine);
+  Application.CreateForm(TPasswordBox, PasswordBox);
   //  Application.HintPause :=100;
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
