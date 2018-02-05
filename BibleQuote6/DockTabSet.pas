@@ -11,7 +11,7 @@ unit DockTabSet;
 interface
 
 uses
-  Windows, SysUtils, Classes, Controls, Tabs, Messages, Types, ExtCtrls, Contnrs,
+  Windows, SysUtils, Classes, Controls, Vcl.Tabs, Messages, Types, ExtCtrls, Contnrs,
   CaptionedDockTree, Graphics;
 
 type

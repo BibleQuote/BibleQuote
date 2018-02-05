@@ -25,7 +25,7 @@ uses
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible,BibleQuoteUtils,ICommandProcessor,WinUIServices,versesDB,VdtEditlink,
   Engine,MultiLanguage,LinksParserIntf,MyLibraryFrm,HTMLEmbedInterfaces,
-  MetaFilePrinter,Dict, Tabs, System.ImageList, HTMLUn2;
+  MetaFilePrinter,Dict, Vcl.Tabs, System.ImageList, HTMLUn2;
 
 const
   ConstBuildCode: WideString = '2011.09.08';

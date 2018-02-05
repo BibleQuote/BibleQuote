@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, PngImage1, Vcl.Imaging.jpeg, Vcl.Imaging.GIFImg ;
+  Dialogs, ExtCtrls, StdCtrls, Vcl.Imaging.PngImage, Vcl.Imaging.jpeg, Vcl.Imaging.GIFImg ;
 
 type
   TAboutForm = class(TForm)
