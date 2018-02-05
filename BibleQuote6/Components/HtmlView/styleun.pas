@@ -2020,12 +2020,9 @@ Done := False;
 S1 := NextFontName;
 while (S1 <> '') and not Done do
   begin
-{$IFDEF SMARTFONTS}
 //AlekId:
 //  Done:=FontExists(S1);
-{$ELSE}
   Done := Screen.Fonts.IndexOf(S1) >= 0;
-  {$ENDIF}
   if Done then
     Result := S1
     else
@@ -2103,11 +2100,8 @@ S1 := NextFontName;
 while (S1 <> '') and not Done do
   begin
  // Done := Screen.Fonts.IndexOf(S1) >= 0;
- {$IFDEF SMARTFONTS}
  //Done:=FontExists(s1);
- {$ELSE}
  Done:=Screen.Fonts.IndexOf(s1)>=0;
- {$ENDIF}
   if Done then
     begin
     Font.iName := S1;
