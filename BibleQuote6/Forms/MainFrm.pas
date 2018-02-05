@@ -929,7 +929,7 @@ var
 
 implementation
 
-uses   jclUnicode, CopyrightFrm, InputFrm, ConfigFrm, PasswordDialog, BibleQuoteConfig,
+uses jclUnicode, CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg, BibleQuoteConfig,
   ExceptionFrm, AboutFrm, ShellAPI,
   StrUtils, CommCtrl,
 
@@ -4607,9 +4607,9 @@ begin
       modName := ' '
     else
       modName := mModules[i].wsFullName;
-    if not assigned(frmPassBox) then
-      frmPassBox := TfrmPassBox.Create(self);
-    with frmPassBox do
+    if not assigned(PasswordBox) then
+      PasswordBox := TPasswordBox.Create(self);
+    with PasswordBox do
     begin
       Font.Assign(self.Font);
       lblPasswordNeeded.Caption := WideFormat(
@@ -4623,7 +4623,7 @@ begin
       btnCancel.Caption := Lang.SayDefault('btnCancel', 'Отмена');
       edPwd.Text := '';
       cbxSavePwd.Checked := false;
-      result := frmPassBox.ShowModal();
+      result := PasswordBox.ShowModal();
       if result = mrOk then
       begin
         Pwd := edPwd.Text;
