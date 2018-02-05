@@ -3,7 +3,7 @@ unit MyLibraryFrm;
 interface
 
 uses
-  Tabs, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Vcl.Tabs, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, VirtualTrees, Contnrs, StdCtrls, ExtCtrls,
   BibleQuoteUtils, DockTabSet;
 
