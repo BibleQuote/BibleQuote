@@ -18,19 +18,19 @@ object MyLibraryForm: TMyLibraryForm
   KeyPreview = True
   OldCreateOrder = False
   Position = poMainFormCenter
-  OnCreate = TntFormCreate
-  OnDestroy = TntFormDestroy
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnKeyPress = FormKeyPress
-  OnKeyUp = TntFormKeyUp
-  OnMouseWheel = TntFormMouseWheel
-  OnResize = TntFormResize
+  OnKeyUp = FormKeyUp
+  OnMouseWheel = FormMouseWheel
+  OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
     952
     454)
   PixelsPerInch = 120
   TextHeight = 17
-  object lbBQName: TLabel
+  object lblNavigate: TLabel
     Left = 2
     Top = 11
     Width = 71
@@ -41,7 +41,7 @@ object MyLibraryForm: TMyLibraryForm
     Transparent = True
     Layout = tlCenter
   end
-  object mTagTabsEx: TDockTabSet
+  object dtsTags: TDockTabSet
     Tag = -1
     Left = -1
     Top = 53
@@ -62,10 +62,10 @@ object MyLibraryForm: TMyLibraryForm
     Style = tsSoftTabs
     TabHeight = 18
     TabPosition = tpTop
-    OnChange = mTagTabsExChange
+    OnChange = dtsTagsChange
     DockSite = False
   end
-  object vstBookList: TVirtualDrawTree
+  object vdtBookList: TVirtualDrawTree
     Left = 9
     Top = 90
     Width = 932
@@ -105,21 +105,21 @@ object MyLibraryForm: TMyLibraryForm
     TreeOptions.MiscOptions = [toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight, toEditOnClick]
     TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toThemeAware, toUseBlendedImages, toStaticBackground]
     TreeOptions.SelectionOptions = [toFullRowSelect]
-    OnClick = vstBookListClick
-    OnCompareNodes = vstBookListCompareNodes
-    OnDblClick = vstBookListDblClick
-    OnDrawHint = vstBookListDrawHint
-    OnDrawNode = vstBookListDrawNode
-    OnFreeNode = vstBookListFreeNode
-    OnGetHintSize = vstBookListGetHintSize
-    OnKeyUp = vstBookListKeyUp
-    OnMeasureItem = vstBookListMeasureItem
-    OnMouseDown = vstBookListMouseDown
-    OnMouseMove = vstBookListMouseMove
-    OnMouseUp = vstBookListMouseUp
+    OnClick = vdtBookListClick
+    OnCompareNodes = vdtBookListCompareNodes
+    OnDblClick = vdtBookListDblClick
+    OnDrawHint = vdtBookListDrawHint
+    OnDrawNode = vdtBookListDrawNode
+    OnFreeNode = vdtBookListFreeNode
+    OnGetHintSize = vdtBookListGetHintSize
+    OnKeyUp = vdtBookListKeyUp
+    OnMeasureItem = vdtBookListMeasureItem
+    OnMouseDown = vdtBookListMouseDown
+    OnMouseMove = vdtBookListMouseMove
+    OnMouseUp = vdtBookListMouseUp
     Columns = <>
   end
-  object edFilter: TEdit
+  object edtFilter: TEdit
     Left = 87
     Top = 11
     Width = 666
@@ -127,8 +127,8 @@ object MyLibraryForm: TMyLibraryForm
     Anchors = [akLeft, akTop, akRight]
     BevelInner = bvNone
     TabOrder = 0
-    OnChange = edFilterChange
-    OnKeyUp = edFilterKeyUp
+    OnChange = edtFilterChange
+    OnKeyUp = edtFilterKeyUp
   end
   object btnOK: TButton
     Left = 855
@@ -146,7 +146,7 @@ object MyLibraryForm: TMyLibraryForm
     ModalResult = 1
     ParentFont = False
     TabOrder = 2
-    OnClick = vstBookListDblClick
+    OnClick = btnOKClick
   end
   object btnCollapse: TButton
     Left = 806
@@ -182,7 +182,7 @@ object MyLibraryForm: TMyLibraryForm
     TabStop = False
     OnClick = btnClearClick
   end
-  object stCount: TStaticText
+  object stxCount: TStaticText
     Left = 736
     Top = 50
     Width = 65

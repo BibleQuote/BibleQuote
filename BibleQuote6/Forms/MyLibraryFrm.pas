@@ -1,102 +1,107 @@
-unit MyLibraryFrm;
+Ôªøunit MyLibraryFrm;
 
 interface
 
 uses
-  Vcl.Tabs, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Vcl.Tabs, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls,
+  Forms,
   Dialogs, VirtualTrees, Contnrs, StdCtrls, ExtCtrls,
   BibleQuoteUtils, DockTabSet;
 
 type
   TBQUseDisposition = (udMyLibrary, udParabibles);
   TLibLinkType = (lltTag, lltBook);
+
   TMyLibraryForm = class(TForm)
-    vstBookList: TVirtualDrawTree;
-    edFilter: TEdit;
-    lbBQName: TLabel;
+    vdtBookList: TVirtualDrawTree;
+    edtFilter: TEdit;
+    lblNavigate: TLabel;
     btnOK: TButton;
-    mTagTabsEx: TDockTabSet;
+    dtsTags: TDockTabSet;
     btnCollapse: TButton;
     btnClear: TButton;
-    stCount: TStaticText;
-    procedure vstBookListGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+    stxCount: TStaticText;
+    procedure vdtBookListGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure vstBookListCompareNodes(Sender: TBaseVirtualTree; Node1,
-      Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
-    procedure edFilterChange(Sender: TObject);
-    procedure edFilterKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure vstBookListKeyUp(Sender: TObject; var Key: Word;
+    procedure vdtBookListCompareNodes(Sender: TBaseVirtualTree;
+      Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+    procedure edtFilterChange(Sender: TObject);
+    procedure edtFilterKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure vdtBookListKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormShow(Sender: TObject);
-    procedure vstBookListDblClick(Sender: TObject);
-    procedure TntFormCreate(Sender: TObject);
-    procedure TntFormMouseWheel(Sender: TObject; Shift: TShiftState;
+    procedure vdtBookListDblClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure vstBookListDrawNode(Sender: TBaseVirtualTree;
+    procedure vdtBookListDrawNode(Sender: TBaseVirtualTree;
       const PaintInfo: TVTPaintInfo);
-    procedure vstBookListMeasureItem(Sender: TBaseVirtualTree;
+    procedure vdtBookListMeasureItem(Sender: TBaseVirtualTree;
       TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
-    procedure TntFormResize(Sender: TObject);
-    procedure vstBookListMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
-    procedure vstBookListClick(Sender: TObject);
-    procedure mTagTabsExChange(Sender: TObject; NewTab: Integer;
+    procedure FormResize(Sender: TObject);
+    procedure vdtBookListMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
+    procedure vdtBookListClick(Sender: TObject);
+    procedure dtsTagsChange(Sender: TObject; NewTab: Integer;
       var AllowChange: Boolean);
 
-    procedure vstBookListFocusChanging(Sender: TBaseVirtualTree; OldNode,
-      NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
+    procedure vdtBookListFocusChanging(Sender: TBaseVirtualTree;
+      OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
       var Allowed: Boolean);
-    procedure vstBookListMouseDown(Sender: TObject; Button: TMouseButton;
+    procedure vdtBookListMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure vstBookListDrawHint(Sender: TBaseVirtualTree; HintCanvas: TCanvas;
+    procedure vdtBookListDrawHint(Sender: TBaseVirtualTree; HintCanvas: TCanvas;
       Node: PVirtualNode; R: TRect; Column: TColumnIndex);
-    procedure vstBookListGetHintSize(Sender: TBaseVirtualTree;
+    procedure vdtBookListGetHintSize(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; var R: TRect);
-    procedure TntFormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure TntFormDestroy(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormDestroy(Sender: TObject);
     procedure btnCollapseClick(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
-    procedure vstBookListFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
-    procedure vstBookListMouseUp(Sender: TObject; Button: TMouseButton;
+    procedure vdtBookListFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vdtBookListMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure btnOKClick(Sender: TObject);
   private
     { Private declarations }
 
     mods: TObjectList;
     mStrTokens, mFilterStrTokens, mTagTokens: TStringList;
-    mAllMatch:boolean;
-    mAllowExp, mFiltered: boolean;
+    mAllMatch: Boolean;
+    mAllowExp, mFiltered: Boolean;
     mCatNodes: TCachedModules;
     mFilterStr: string;
     mCounter: Integer;
     mfntReg, mfntBook, mfntTag, mfntTagCap: TFont;
 
-    procedure SelAction(const modName: Widestring = ''; bookName: integer = 0);
+    procedure SelAction(const modName: WideString = ''; bookName: Integer = 0);
     function LinkFromPoint(pt: TPoint; out me: TModuleEntry;
-      out linkType: TLibLinkType): integer;
-    function PaintTokens(canv: TCanvas; rct: TRect;
-      tkns: TStrings; calc: boolean; var rects: PRectArray): integer;
+      out linkType: TLibLinkType): Integer;
+    function PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings;
+      calc: Boolean; var rects: PRectArray): Integer;
     function PaintBookTokens(canv: TCanvas; rct: TRect;
-      var tkns: TMatchInfoArray; calc: boolean): integer;
+      var tkns: TMatchInfoArray; calc: Boolean): Integer;
     procedure SetTagTabs();
   public
     mCellText: WideString;
-    mBookIx: integer;
+    mBookIx: Integer;
     mUseDisposition: TBQUseDisposition;
-    mUILock:boolean;
-    mSavedWidth, mSavedHeight:integer;
-    procedure UpdateList(ml: TObjectList; ti: integer = -1; selName: WideString
-      =
-      '');
+    mUILock: Boolean;
+    mSavedWidth, mSavedHeight: Integer;
+    procedure UpdateList(ml: TObjectList; ti: Integer = -1;
+      selName: WideString = '');
     procedure PrepareFonts();
     { Public declarations }
   end;
 
 var
   MyLibraryForm: TMyLibraryForm;
-  G_OtherCats: WideString = 'ƒÛ„ËÂ Í‡ÚÂ„ÓËË';
+  G_OtherCats: WideString = '–î—Ä—É–≥–∏–µ –∫–∞—Ç–µ–≥–æ—Ä–∏–∏';
+
 implementation
+
 uses ExceptionFrm, Types, BibleQuoteConfig, PlainUtils;
 {$R *.dfm}
 
@@ -107,50 +112,64 @@ const
   S_EmptyModuleEntry: TModuleEntry = nil;
 {$J-}
 begin
-  if not assigned(S_EmptyModuleEntry) then begin
+  if not assigned(S_EmptyModuleEntry) then
+  begin
     S_EmptyModuleEntry := TModuleEntry.Create(modtypeBible, '------', '',
       '<none>', '', '', '');
   end;
-  result := S_EmptyModuleEntry;
+  Result := S_EmptyModuleEntry;
 end;
 
 procedure TMyLibraryForm.btnClearClick(Sender: TObject);
 begin
-  edFilter.Text := '';
+  edtFilter.Text := '';
 end;
 
 procedure TMyLibraryForm.btnCollapseClick(Sender: TObject);
 var
   pn: PVirtualNode;
 begin
-  pn := vstBookList.GetFirstVisible(vstBookList.RootNode);
-  if mUseDisposition=udMyLibrary then begin
-  while (assigned(pn)) and ((vstBookList.RootNode <> pn)) do begin
-    vstBookList.Expanded[pn] := false; pn := vstBookList.GetNextVisible(pn);
-  end;
-  exit
+  pn := vdtBookList.GetFirstVisible(vdtBookList.RootNode);
+  if mUseDisposition = udMyLibrary then
+  begin
+    while (assigned(pn)) and ((vdtBookList.RootNode <> pn)) do
+    begin
+      vdtBookList.Expanded[pn] := false;
+      pn := vdtBookList.GetNextVisible(pn);
+    end;
+    exit
   end
-  else if mUseDisposition=udParabibles then begin
-    if not assigned(pn) then exit;
-    vstBookList.Selected[pn]:=true;
+  else if mUseDisposition = udParabibles then
+  begin
+    if not assigned(pn) then
+      exit;
+    vdtBookList.Selected[pn] := true;
     btnOK.Click();
   end;
 end;
 
-procedure TMyLibraryForm.edFilterChange(Sender: TObject);
+procedure TMyLibraryForm.btnOKClick(Sender: TObject);
+begin
+  SelAction();
+end;
+
+procedure TMyLibraryForm.edtFilterChange(Sender: TObject);
 begin
   UpdateList(mods);
 end;
 
-procedure TMyLibraryForm.edFilterKeyUp(Sender: TObject; var Key: Word;
+procedure TMyLibraryForm.edtFilterKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   pvn: PVirtualNode;
 begin
-  if key = VK_DOWN then begin FocusControl(vstBookList);
-    pvn := vstBookList.GetFirst();
-    if not assigned(pvn) then exit;
-    vstBookList.FocusedNode := pvn;
+  if Key = VK_DOWN then
+  begin
+    FocusControl(vdtBookList);
+    pvn := vdtBookList.GetFirst();
+    if not assigned(pvn) then
+      exit;
+    vdtBookList.FocusedNode := pvn;
   end;
 end;
 
@@ -158,97 +177,122 @@ procedure TMyLibraryForm.FormKeyPress(Sender: TObject; var Key: Char);
 
 begin
   try
-    if (key = #27) and (ActiveControl <> vstBookList) then
-    begin ModalResult := mrCancel; close; end
-    else if key = #13 then begin
+    if (Key = #27) and (ActiveControl <> vdtBookList) then
+    begin
+      ModalResult := mrCancel;
+      close;
+    end
+    else if Key = #13 then
+    begin
       SelAction();
     end;
-  except end;
+  except
+  end;
 end;
 
 procedure TMyLibraryForm.FormShow(Sender: TObject);
 begin
   PrepareFonts();
-  edFilter.SelectAll();
-  btnCollapse.Visible:=(mTagTabsEx.TabIndex=4) or (mUseDisposition=udParabibles);
-  FocusControl(edFilter);
+  edtFilter.SelectAll();
+  btnCollapse.Visible := (dtsTags.TabIndex = 4) or
+    (mUseDisposition = udParabibles);
+  FocusControl(edtFilter);
 end;
 
 function TMyLibraryForm.LinkFromPoint(pt: TPoint; out me: TModuleEntry;
-  out linkType: TLibLinkType): integer;
+  out linkType: TLibLinkType): Integer;
 var
-  node: PVirtualNode;
-  nVOrg, i, c: integer;
+  Node: PVirtualNode;
+  nVOrg, i, c: Integer;
 begin
-  result := -1;
-  node := vstBookList.GetNodeAt(pt.x, pt.y, true, nVOrg);
-  if node = nil then exit;
+  Result := -1;
+  Node := vdtBookList.GetNodeAt(pt.X, pt.Y, true, nVOrg);
+  if Node = nil then
+    exit;
   try
-    me := TModuleEntry((vstBookList.GetNodeData(node))^);
+    me := TModuleEntry((vdtBookList.GetNodeData(Node))^);
     pt.Y := pt.Y - nVOrg;
-    if integer(me) < 65536 then exit;
+    if Integer(me) < 65536 then
+      exit;
     c := me.mCatsCnt - 1;
 
-    if c >= 0 then begin
+    if c >= 0 then
+    begin
       i := -1;
       repeat
         inc(i);
       until (i > c) or (PtInRect(me.mRects^[i], pt));
-      if i <= c then begin result := i; linkType := lltTag; exit end;
+      if i <= c then
+      begin
+        Result := i;
+        linkType := lltTag;
+        exit
+      end;
     end;
 
     c := length(me.mMatchInfo) - 1;
-    if c >= 0 then begin
+    if c >= 0 then
+    begin
       i := -1;
       repeat
         inc(i);
       until (i > c) or (PtInRect(me.mMatchInfo[i].rct, pt));
-      if i <= c then begin result :=  i; linkType := lltBook; end;
+      if i <= c then
+      begin
+        Result := i;
+        linkType := lltBook;
+      end;
     end;
 
-  except end;
+  except
+  end;
 end;
 
-procedure TMyLibraryForm.mTagTabsExChange(Sender: TObject; NewTab: Integer;
+procedure TMyLibraryForm.dtsTagsChange(Sender: TObject; NewTab: Integer;
   var AllowChange: Boolean);
 begin
-  if mods = nil then exit;
-  if NewTab = 4 then begin
+  if mods = nil then
+    exit;
+  if NewTab = 4 then
+  begin
 
   end;
   btnCollapse.Visible := NewTab = 4;
   UpdateList(mods, NewTab);
 end;
 
-function TMyLibraryForm.PaintBookTokens(canv: TCanvas; rct: TRect; var tkns:
-  TMatchInfoArray;
-  calc: boolean): integer;
+function TMyLibraryForm.PaintBookTokens(canv: TCanvas; rct: TRect;
+  var tkns: TMatchInfoArray; calc: Boolean): Integer;
 
 var
-  i, c, fw, fh, fi, fwidth: integer;
+  i, c, fw, fh, fi, fwidth: Integer;
   ws: WideString;
   sz: TSize;
 
-  procedure AlignRects(f, l: integer);
+  procedure AlignRects(f, l: Integer);
   var
-    sw, i, space: integer;
+    sw, i, space: Integer;
   begin
-    if f = l then exit;
+    if f = l then
+      exit;
     sw := 0;
-    for i := f to l do Inc(sw, tkns[i].rct.Right - tkns[i].rct.Left);
+    for i := f to l do
+      inc(sw, tkns[i].rct.Right - tkns[i].rct.Left);
     space := (fwidth - sw) div (l - f);
     sw := 0;
-    for i := f + 1 to l do begin
+    for i := f + 1 to l do
+    begin
       sw := tkns[i - 1].rct.Right - tkns[i - 1].rct.Left + space + sw;
-      OffsetRect(tkns[i].rct, sw - tkns[i].rct.left, 0);
+      OffsetRect(tkns[i].rct, sw - tkns[i].rct.Left, 0);
     end;
 
   end;
 
 begin
   c := length(tkns) - 1;
-//  if c > 9 then c := 9;
-  if calc then begin
+  // if c > 9 then c := 9;
+  if calc then
+  begin
 
     tkns[0].rct.Left := rct.Left;
     tkns[0].rct.Right := rct.Right;
@@ -258,56 +302,60 @@ begin
     fw := sz.cx;
     fh := canv.Font.Height div 3;
     fwidth := rct.Right - rct.Left;
-    if fh < 0 then fh := -fh;
+    if fh < 0 then
+      fh := -fh;
 
   end;
   fi := 0;
-  for i := 0 to c do begin
+  for i := 0 to c do
+  begin
     ws := tkns[i].name;
-    if calc then begin
-      Windows.DrawTextW(canv.Handle,
-        PWideChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or
-        DT_SINGLELINE);
+    if calc then
+    begin
+      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct,
+        DT_TOP or DT_CALCRECT or DT_SINGLELINE);
       if (tkns[i].rct.Right > rct.Right) and (tkns[i].rct.Left > rct.Left) then
-        begin
+      begin
         AlignRects(fi, i - 1);
         fi := i;
         tkns[i].rct.Left := rct.Left;
         tkns[i].rct.Top := tkns[i].rct.Bottom + fh;
-        Windows.DrawTextW(canv.Handle,
-          PWideChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or
-          DT_SINGLELINE);
+        Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct,
+          DT_TOP or DT_CALCRECT or DT_SINGLELINE);
       end;
 
-      if i < c then begin
-        tkns[i + 1].rct.Left := tkns[i].rct.RIGHT + fw * 4;
+      if i < c then
+      begin
+        tkns[i + 1].rct.Left := tkns[i].rct.Right + fw * 4;
         tkns[i + 1].rct.Top := tkns[i].rct.Top;
         tkns[i + 1].rct.Bottom := rct.Bottom;
         tkns[i + 1].rct.Right := rct.Right;
       end;
 
     end
-    else begin
-      Windows.DrawTextW(canv.Handle,
-        PWideChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_SINGLELINE);
+    else
+    begin
+      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct,
+        DT_TOP or DT_SINGLELINE);
     end;
 
   end;
-  result := tkns[c].rct.Bottom;
+  Result := tkns[c].rct.Bottom;
 
 end;
 
 function TMyLibraryForm.PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings;
-  calc: boolean;
-  var rects: PRectArray): integer;
+  calc: Boolean; var rects: PRectArray): Integer;
 var
-  i, c, fw, fh: integer;
+  i, c, fw, fh: Integer;
   ws: WideString;
   sz: TSize;
 begin
   c := tkns.Count - 1;
-  if c > 9 then c := 9;
-  if calc then begin
+  if c > 9 then
+    c := 9;
+  if calc then
+  begin
 
     rects^[0].Left := rct.Left;
     rects^[0].Right := rct.Right;
@@ -316,62 +364,74 @@ begin
     sz := canv.TextExtent('X');
     fw := sz.cx;
     fh := canv.Font.Height;
-    if fh < 0 then fh := -fh;
+    if fh < 0 then
+      fh := -fh;
 
   end;
 
-  for i := 0 to c do begin
+  for i := 0 to c do
+  begin
     ws := tkns[i];
-    if calc then begin
-      Windows.DrawTextW(canv.Handle,
-        PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_CALCRECT or
-        DT_SINGLELINE);
-      if (rects^[i].Right > rct.Right) and (rects^[i].Left > rct.Left) then begin
+    if calc then
+    begin
+      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i],
+        DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+      if (rects^[i].Right > rct.Right) and (rects^[i].Left > rct.Left) then
+      begin
         rects^[i].Left := rct.Left;
         rects^[i].Top := rects^[i].Bottom + fh;
-        Windows.DrawTextW(canv.Handle,
-          PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_CALCRECT or
-          DT_SINGLELINE);
+        Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i],
+          DT_TOP or DT_CALCRECT or DT_SINGLELINE);
       end;
 
-      if i < c then begin
-        rects^[i + 1].Left := rects^[i].RIGHT + fw * 4;
+      if i < c then
+      begin
+        rects^[i + 1].Left := rects^[i].Right + fw * 4;
         rects^[i + 1].Top := rects^[i].Top;
         rects^[i + 1].Bottom := rct.Bottom;
         rects^[i + 1].Right := rct.Right;
       end;
 
     end
-    else begin
-      Windows.DrawTextW(canv.Handle,
-        PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_SINGLELINE);
+    else
+    begin
+      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i],
+        DT_TOP or DT_SINGLELINE);
     end;
 
   end;
-  result := rects[c].Bottom;
+  Result := rects[c].Bottom;
 
 end;
 
 procedure TMyLibraryForm.PrepareFonts;
 var
-  rh: integer;
+  rh: Integer;
 begin
-  rh := vstBookList.Font.Height;
+  rh := vdtBookList.Font.Height;
 
-//if rh<0 t;
-  if not assigned(mfntReg) then mfntReg := TFont.Create();
-  if not assigned(mfntBook) then mfntBook := TFont.Create();
-  if not assigned(mfntTag) then mfntTag := TFont.Create();
-  if not assigned(mfntTagCap) then mfntTagCap := TFont.Create();
-  mfntReg.Height := rh; mfntBook.Height := rh * 4 div 5;
-  mfntTag.Height := rh * 4 div 5; mfntTagCap.Height := rh;
+  // if rh<0 t;
+  if not assigned(mfntReg) then
+    mfntReg := TFont.Create();
+  if not assigned(mfntBook) then
+    mfntBook := TFont.Create();
+  if not assigned(mfntTag) then
+    mfntTag := TFont.Create();
+  if not assigned(mfntTagCap) then
+    mfntTagCap := TFont.Create();
+  mfntReg.Height := rh;
+  mfntBook.Height := rh * 4 div 5;
+  mfntTag.Height := rh * 4 div 5;
+  mfntTagCap.Height := rh;
   mfntTag.Style := [fsUnderline]; // mfntBook.Style:=[fsBold];
-  mfntReg.Color := clWindowText; mfntTagCap.Color := clWindowText;
-  mfntTag.Color := $B07B00; mfntBook.Color := $005EBB;
+  mfntReg.Color := clWindowText;
+  mfntTagCap.Color := clWindowText;
+  mfntTag.Color := $B07B00;
+  mfntBook.Color := $005EBB;
 end;
 
-procedure TMyLibraryForm.SelAction(const modName: Widestring = '';
-  bookName: integer = 0);
+procedure TMyLibraryForm.SelAction(const modName: WideString = '';
+  bookName: Integer = 0);
 var
   pvn: PVirtualNode;
 var
@@ -380,754 +440,903 @@ var
   CellText: WideString;
 begin
 
-  pvn := vstBookList.GetFirstSelected();
-  if length(modName) <= 0 then begin
-    if assigned(pvn) then begin
-      pNodeData := TModuleEntry((vstBookList.GetNodeData(pvn))^);
-      if integer(pNodeData) > 65536 then begin
-        if pNodeData.modType = modtypeTag then exit;
+  pvn := vdtBookList.GetFirstSelected();
+  if length(modName) <= 0 then
+  begin
+    if assigned(pvn) then
+    begin
+      pNodeData := TModuleEntry((vdtBookList.GetNodeData(pvn))^);
+      if Integer(pNodeData) > 65536 then
+      begin
+        if pNodeData.modType = modtypeTag then
+          exit;
         mCellText := pNodeData.wsFullName;
         ModalResult := mrOk;
-      end //modentry valid
-    end//selected node found
-  end// modName not spec
-  else begin
+      end // modentry valid
+    end // selected node found
+  end // modName not spec
+  else
+  begin
     mCellText := modName;
     ModalResult := mrOk;
   end;
-  if ModalResult<>0 then
-  if bookName > 0 then mBookIx := bookName
-  else begin
-    if (assigned(pvn)) then begin
-      pNodeData := TModuleEntry((vstBookList.GetNodeData(pvn))^);
-      if integer(pNodeData) > 65536 then begin
-        if (pNodeData.modType = modtypeBookHighlighted)
-          and (length(pNodeData.mMatchInfo) > 0) then begin
-          mBookIx := pNodeData.mMatchInfo[0].ix; exit
-        end; //if modtype is book hl
-      end; //if modentry valid object
-    end; //if selected node detected
-    mBookIx := 0;
-  end; //else- when modname is not specif
-
+  if ModalResult <> 0 then
+    if bookName > 0 then
+      mBookIx := bookName
+    else
+    begin
+      if (assigned(pvn)) then
+      begin
+        pNodeData := TModuleEntry((vdtBookList.GetNodeData(pvn))^);
+        if Integer(pNodeData) > 65536 then
+        begin
+          if (pNodeData.modType = modtypeBookHighlighted) and
+            (length(pNodeData.mMatchInfo) > 0) then
+          begin
+            mBookIx := pNodeData.mMatchInfo[0].ix;
+            exit
+          end; // if modtype is book hl
+        end; // if modentry valid object
+      end; // if selected node detected
+      mBookIx := 0;
+    end; // else- when modname is not specif
 
 end;
 
 procedure TMyLibraryForm.SetTagTabs;
 var
   s: WideString;
-  c, i: integer;
+  c, i: Integer;
 begin
-  if mUseDisposition = udMyLibrary then begin
+  if mUseDisposition = udMyLibrary then
+  begin
 
     s := Lang.SayDefault('LibTabsAll', 'All');
-    if mTagTabsEx.Tabs.Count < 1 then
-      mTagTabsEx.Tabs.Add(s)
-    else if mTagTabsEx.Tabs[0] <> s then mTagTabsEx.Tabs[0] := s;
+    if dtsTags.Tabs.Count < 1 then
+      dtsTags.Tabs.Add(s)
+    else if dtsTags.Tabs[0] <> s then
+      dtsTags.Tabs[0] := s;
 
     s := Lang.SayDefault('LibTabsScriptures', 'Scriptures');
-    if mTagTabsEx.Tabs.Count < 2 then
-      mTagTabsEx.Tabs.Add(s)
-    else if mTagTabsEx.Tabs[1] <> s then mTagTabsEx.Tabs[1] := s;
+    if dtsTags.Tabs.Count < 2 then
+      dtsTags.Tabs.Add(s)
+    else if dtsTags.Tabs[1] <> s then
+      dtsTags.Tabs[1] := s;
 
     s := Lang.SayDefault('LibTabsBooks', 'Books');
-    if mTagTabsEx.Tabs.Count < 3 then
-      mTagTabsEx.Tabs.Add(s)
-    else if mTagTabsEx.Tabs[2] <> s then mTagTabsEx.Tabs[2] := s;
+    if dtsTags.Tabs.Count < 3 then
+      dtsTags.Tabs.Add(s)
+    else if dtsTags.Tabs[2] <> s then
+      dtsTags.Tabs[2] := s;
 
     s := Lang.SayDefault('LibTabsComments', 'Commentaries');
-    if mTagTabsEx.Tabs.Count < 4 then
-      mTagTabsEx.Tabs.Add(s)
-    else if mTagTabsEx.Tabs[3] <> s then mTagTabsEx.Tabs[3] := s;
+    if dtsTags.Tabs.Count < 4 then
+      dtsTags.Tabs.Add(s)
+    else if dtsTags.Tabs[3] <> s then
+      dtsTags.Tabs[3] := s;
 
     s := Lang.SayDefault('LibTabsTags', 'Tags');
-    if mTagTabsEx.Tabs.Count < 5 then
-      mTagTabsEx.Tabs.Add(s)
-    else if mTagTabsEx.Tabs[4] <> s then mTagTabsEx.Tabs[4] := s;
+    if dtsTags.Tabs.Count < 5 then
+      dtsTags.Tabs.Add(s)
+    else if dtsTags.Tabs[4] <> s then
+      dtsTags.Tabs[4] := s;
 
   end
-  else if mUseDisposition = udParabibles then begin
+  else if mUseDisposition = udParabibles then
+  begin
     btnCollapse.Visible := true;
-    c := mTagTabsEx.Tabs.Count - 1;
+    c := dtsTags.Tabs.Count - 1;
     s := Lang.SayDefault('LibTabsScriptures', 'Scriptures');
-    if c >= 0 then begin
-      for i := 1 to c do mTagTabsEx.Tabs.Delete(0)
+    if c >= 0 then
+    begin
+      for i := 1 to c do
+        dtsTags.Tabs.Delete(0)
     end;
-    if c < 0 then mTagTabsEx.Tabs.Add(s)
-    else if mTagTabsEx.Tabs[0] <> s then mTagTabsEx.Tabs[0] := s;
-    mTagTabsEx.TabIndex := 0;
+    if c < 0 then
+      dtsTags.Tabs.Add(s)
+    else if dtsTags.Tabs[0] <> s then
+      dtsTags.Tabs[0] := s;
+    dtsTags.TabIndex := 0;
   end;
 end;
 
-procedure TMyLibraryForm.TntFormCreate(Sender: TObject);
-var v:integer;
+procedure TMyLibraryForm.FormCreate(Sender: TObject);
+var
+  v: Integer;
 begin
   try
     PrepareFonts();
     mCatNodes := TCachedModules.Create(true);
     SetTagTabs();
 
-    mTagTabsEx.TabIndex := 0;
+    dtsTags.TabIndex := 0;
     Lang.TranslateForm(self);
     mStrTokens := TStringList.Create();
     mTagTokens := TStringList.Create();
     mFilterStrTokens := TStringList.Create();
     self.Font.Assign((self.Owner as TForm).Font);
     self.Font.Height := self.Font.Height * 5 div 4;
-    v:=  MainCfgIni.GetIntDefault(C_frmMyLibHeight,10000);
-    if v>Screen.Height then v:=Screen.Height*2 div 3;
-    Height:=v;
-    v:=MainCfgIni.GetIntDefault(C_frmMyLibWidth,10000);
-    if v>Screen.Width then v:=Screen.Width div 3;
-    Width:=v;
-    Position:=poMainFormCenter;
-  except on e: Exception do BqShowException(e, '');
+    v := MainCfgIni.GetIntDefault(C_frmMyLibHeight, 10000);
+    if v > Screen.Height then
+      v := Screen.Height * 2 div 3;
+    Height := v;
+    v := MainCfgIni.GetIntDefault(C_frmMyLibWidth, 10000);
+    if v > Screen.Width then
+      v := Screen.Width div 3;
+    Width := v;
+    Position := poMainFormCenter;
+  except
+    on e: Exception do
+      BqShowException(e, '');
 
   end;
 end;
 
-procedure TMyLibraryForm.TntFormDestroy(Sender: TObject);
+procedure TMyLibraryForm.FormDestroy(Sender: TObject);
 begin
-try
- mfntReg.Free(); mfntBook.Free(); mfntTag.Free; mfntTagCap.Free();
- mStrTokens.Free();mTagTokens.Free();mFilterStrTokens.Free();
- FreeAndNil(mCatNodes);
-except end;
+  try
+    mfntReg.Free();
+    mfntBook.Free();
+    mfntTag.Free;
+    mfntTagCap.Free();
+    mStrTokens.Free();
+    mTagTokens.Free();
+    mFilterStrTokens.Free();
+    FreeAndNil(mCatNodes);
+  except
+  end;
 end;
 
-procedure TMyLibraryForm.TntFormKeyUp(Sender: TObject; var Key: Word;
+procedure TMyLibraryForm.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  dlt, ti: integer;
+  dlt, ti: Integer;
 
 begin
 
-  if (key = VK_TAB) and (ssCtrl in Shift) then begin
+  if (Key = VK_TAB) and (ssCtrl in Shift) then
+  begin
     dlt := 1;
     Dec(dlt, ord(ssShift in Shift) * 2);
-    ti := mTagTabsEx.TabIndex;
+    ti := dtsTags.TabIndex;
     inc(ti, dlt);
-    if (ti >= mTagTabsEx.Tabs.Count) then ti := 0
-    else if (ti < 0) then ti := mTagTabsEx.Tabs.Count - 1;
-    mTagTabsEx.TabIndex := ti;
+    if (ti >= dtsTags.Tabs.Count) then
+      ti := 0
+    else if (ti < 0) then
+      ti := dtsTags.Tabs.Count - 1;
+    dtsTags.TabIndex := ti;
   end;
 
 end;
 
-procedure TMyLibraryForm.TntFormMouseWheel(Sender: TObject; Shift: TShiftState;
+procedure TMyLibraryForm.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  if self.ActiveControl <> vstBookList then self.FocusControl(vstBookList);
-//Handled:=true;
+  if self.ActiveControl <> vdtBookList then
+    self.FocusControl(vdtBookList);
+  // Handled:=true;
 end;
 
-procedure TMyLibraryForm.TntFormResize(Sender: TObject);
+procedure TMyLibraryForm.FormResize(Sender: TObject);
 begin
-  vstBookList.ReinitChildren(nil, true);
+  vdtBookList.ReinitChildren(nil, true);
 end;
 
-procedure TMyLibraryForm.UpdateList(ml: TObjectList; ti: integer = -1; selName:
-  WideString = '');
+procedure TMyLibraryForm.UpdateList(ml: TObjectList; ti: Integer = -1;
+  selName: WideString = '');
 var
-  cnt, i, mIx: integer;
+  cnt, i, mIx: Integer;
   name: string;
   me, catMe: TModuleEntry;
   mt: TModMatchTypes;
-  allMatch, doAdd, selFlag, foundCat: boolean;
+  allMatch, doAdd, selFlag, foundCat: Boolean;
   ss, tagstr: string;
-  ci: INTEGER;
+  ci: Integer;
   rt, sel, tempVN: PVirtualNode;
-  j, tg: integer;
+  j, tg: Integer;
 
 begin
-if mUILock then exit;
-mUILock:=true;
- try
-
-  ss := Trim(edFilter.Text);
-  mFilterStr := ss;
-  mFiltered := length(ss) > 0;
-//  edFilter.Text:=ss;
-
-  if ti < 0 then ti := mTagTabsEx.TabIndex;
-  SetTagTabs();
-  if mUseDisposition = udParabibles then begin
-    ti := 1;
-  end;
-  mods := ml;
-  sel := nil;
-  selFlag := false;
-  if length(selname) <= 0 then begin
-    rt := vstBookList.GetFirstSelected();
-    if assigned(rt) then begin
-      me := TModuleEntry(vstBookList.GetNodeData(rt)^);
-      if Assigned(me) then begin
-        selName := me.wsFullName;
-      end;
-    end;
-  end;
-
-  vstBookList.Clear();
-  mCatNodes.Clear();
-  mCounter := 0;
-  cnt := ml.Count - 1;
-  vstBookList.BeginUpdate();
+  if mUILock then
+    exit;
+  mUILock := true;
   try
-    mStrTokens.Clear();
-    if length(ss) > 0 then begin
 
-      allMatch := ss[1] <> '.';
-      mAllMatch:=allMatch;
-      if not allMatch then ss := Copy(ss, 2, $FFF);
+    ss := Trim(edtFilter.Text);
+    mFilterStr := ss;
+    mFiltered := length(ss) > 0;
+    // edtFilter.Text:=ss;
+
+    if ti < 0 then
+      ti := dtsTags.TabIndex;
+    SetTagTabs();
+    if mUseDisposition = udParabibles then
+    begin
+      ti := 1;
+    end;
+    mods := ml;
+    sel := nil;
+    selFlag := false;
+    if length(selName) <= 0 then
+    begin
+      rt := vdtBookList.GetFirstSelected();
+      if assigned(rt) then
+      begin
+        me := TModuleEntry(vdtBookList.GetNodeData(rt)^);
+        if assigned(me) then
+        begin
+          selName := me.wsFullName;
+        end;
+      end;
     end;
 
-    if mUseDisposition = udParabibles then begin
-      vstBookList.AddChild(nil, Pointer(EmptyModuleEntry()));
-    end;
+    vdtBookList.Clear();
+    mCatNodes.Clear();
+    mCounter := 0;
+    cnt := ml.Count - 1;
+    vdtBookList.BeginUpdate();
+    try
+      mStrTokens.Clear();
+      if length(ss) > 0 then
+      begin
 
-    StrToTokens(ss, ' ', mFilterStrTokens);
-    for i := 0 to cnt do begin
-      me := TModuleEntry(ml.Items[i]);
-      if length(ss) > 0 then begin
-
-        mt := me.Match(mFilterStrTokens, me.mMatchInfo, allMatch);
-        if (mt = []) or ((me.modType in [modtypeBible, modtypeComment])
-          and (mt = [mmtBookName])) then Continue;
-
-//  if Pos(WideLowerCase(edFilter.Text), WideLowerCase(TModuleEntry(ml.Items[i]).wsFullName))<=0 then continue;
+        allMatch := ss[1] <> '.';
+        mAllMatch := allMatch;
+        if not allMatch then
+          ss := Copy(ss, 2, $FFF);
       end;
 
-      case ti of
-        0, 4: doAdd := true;
-        1: doAdd := me.modType = modtypeBible;
-        2: doAdd := me.modType = modtypeBook;
-        3: doAdd := me.modType = modtypeComment;
+      if mUseDisposition = udParabibles then
+      begin
+        vdtBookList.AddChild(nil, Pointer(EmptyModuleEntry()));
       end;
-      selFlag := (me.wsFullName = selName) and doAdd;
-      if (doadd) and (mmtBookName in mt) then begin
-        catme := me;
-        me := TModuleEntry.Create(me);
-        catme.mMatchInfo := nil;
-        me.modType := modtypeBookHighlighted;
 
-      end;
-      if ti = 4 then begin
-        StrToTokens(me.modCats, '|', mTagTokens);
-        tg := mTagTokens.Count;
-        j := 0;
-        Inc(mCounter);
-        foundCat := false;
-        repeat
-          tagstr := mTagTokens[j];
-          if (mFiltered) then begin
-            if (not (mmtCat in mt)) then begin
-              tg := 1; tagstr := G_OtherCats;
-            end
-            else //mmtCat hit
+      StrToTokens(ss, ' ', mFilterStrTokens);
+      for i := 0 to cnt do
+      begin
+        me := TModuleEntry(ml.Items[i]);
+        if length(ss) > 0 then
+        begin
 
-              if (not StrMathTokens(tagstr, mFilterStrTokens, allMatch)) then
+          mt := me.Match(mFilterStrTokens, me.mMatchInfo, allMatch);
+          if (mt = []) or ((me.modType in [modtypeBible, modtypeComment]) and
+            (mt = [mmtBookName])) then
+            Continue;
+
+          // if Pos(WideLowerCase(edtFilter.Text), WideLowerCase(TModuleEntry(ml.Items[i]).wsFullName))<=0 then continue;
+        end;
+
+        case ti of
+          0, 4:
+            doAdd := true;
+          1:
+            doAdd := me.modType = modtypeBible;
+          2:
+            doAdd := me.modType = modtypeBook;
+          3:
+            doAdd := me.modType = modtypeComment;
+        end;
+        selFlag := (me.wsFullName = selName) and doAdd;
+        if (doAdd) and (mmtBookName in mt) then
+        begin
+          catMe := me;
+          me := TModuleEntry.Create(me);
+          catMe.mMatchInfo := nil;
+          me.modType := modtypeBookHighlighted;
+
+        end;
+        if ti = 4 then
+        begin
+          StrToTokens(me.modCats, '|', mTagTokens);
+          tg := mTagTokens.Count;
+          j := 0;
+          inc(mCounter);
+          foundCat := false;
+          repeat
+            tagstr := mTagTokens[j];
+            if (mFiltered) then
             begin
-                // not found cat
-              inc(j);
-              if (j >= tg) and (not foundCat) then begin
+              if (not(mmtCat in mt)) then
+              begin
+                tg := 1;
                 tagstr := G_OtherCats;
               end
-              else continue;
-            end else {cat found} foundCat := true;
+              else // mmtCat hit
 
-          end; //filtered
+                if (not StrMathTokens(tagstr, mFilterStrTokens, allMatch)) then
+                begin
+                  // not found cat
+                  inc(j);
+                  if (j >= tg) and (not foundCat) then
+                  begin
+                    tagstr := G_OtherCats;
+                  end
+                  else
+                    Continue;
+                end
+                else { cat found }
+                  foundCat := true;
 
-//          end;
+            end; // filtered
 
-          ci := mCatNodes.IndexOf(tagstr);
-          if ci < 0 then begin
-            catMe := TModuleEntry.Create(modtypeTag, tagstr, '', '', '', '',
-             '');
+            // end;
 
-            rt := vstBookList.AddChild(nil, Pointer(catMe));
-            if tagstr = selName then sel := rt;
-            Include(rt^.States, vsDisabled);
-            catMe.mNode := rt;
-            mCatNodes.Add(catMe);
-          end
-          else rt := PVirtualNode(TModuleEntry(mCatNodes[ci]).mNode);
+            ci := mCatNodes.IndexOf(tagstr);
+            if ci < 0 then
+            begin
+              catMe := TModuleEntry.Create(modtypeTag, tagstr, '', '',
+                '', '', '');
 
-          tempVN := vstBookList.AddChild(rt, me);
-          if selFlag then begin selFlag := false; sel := tempVN; end;
-          if length(ss) > 0 then
-            vstBookList.Expanded[rt] := true;
-          inc(j);
-        until j >= tg;
+              rt := vdtBookList.AddChild(nil, Pointer(catMe));
+              if tagstr = selName then
+                sel := rt;
+              Include(rt^.States, vsDisabled);
+              catMe.mNode := rt;
+              mCatNodes.Add(catMe);
+            end
+            else
+              rt := PVirtualNode(TModuleEntry(mCatNodes[ci]).mNode);
 
-      end
-      else if doadd then begin
-        Inc(mCounter);
-        tempVN := vstBookList.AddChild(nil, me);
+            tempVN := vdtBookList.AddChild(rt, me);
+            if selFlag then
+            begin
+              selFlag := false;
+              sel := tempVN;
+            end;
+            if length(ss) > 0 then
+              vdtBookList.Expanded[rt] := true;
+            inc(j);
+          until j >= tg;
+
+        end
+        else if doAdd then
+        begin
+          inc(mCounter);
+          tempVN := vdtBookList.AddChild(nil, me);
+        end;
+
+        if selFlag then
+          sel := tempVN;
       end;
-
-      if selFlag then sel := tempVN;
+      vdtBookList.Sort(nil, 0, sdAscending, false);
+    finally
+      stxCount.Caption := IntToStr(mCounter);
+      vdtBookList.EndUpdate();
     end;
-    vstBookList.Sort(nil, 0, sdAscending, false);
+
+    if (not assigned(sel)) and (vdtBookList.RootNodeCount > 0) then
+      sel := vdtBookList.GetFirst();
+    if assigned(sel) then
+    begin
+      vdtBookList.Selected[sel] := true;
+
+    end;
+
   finally
-    stCount.Caption := IntToStr(mCounter);
-    vstBookList.EndUpdate();
+    mUILock := false;
+    vdtBookList.EndUpdate;
   end;
 
-  if (not assigned(sel)) and (vstBookList.RootNodeCount > 0) then
-    sel := vstBookList.GetFirst();
-  if assigned(sel) then begin
-    vstBookList.Selected[sel] := true;
-
-  end;
-
- finally
-   mUILock:=false;
-   vstBookList.EndUpdate;
- end;
-
-//repeat
-selFlag:= vstBookList.ScrollIntoView(sel, true);
-//until selFlag;
+  // repeat
+  selFlag := vdtBookList.ScrollIntoView(sel, true);
+  // until selFlag;
 
 end;
 
-procedure TMyLibraryForm.vstBookListClick(Sender: TObject);
+procedure TMyLibraryForm.vdtBookListClick(Sender: TObject);
 var
   me: TModuleEntry;
   pt: TPoint;
-  i: integer;
+  i: Integer;
   lt: TLibLinkType;
 var
   pn, cn: PVirtualNode;
 begin
 
-  pt := vstBookList.ScreenToClient(Mouse.CursorPos);
-  pn := vstBookList.GetNodeAt(pt.x, pt.y);
-  if not assigned(pn) then exit;
-  me := TModuleEntry(vstBookList.GetNodeData(pn)^);
-  if not assigned(me) then exit;
-  if me.modType = modtypeTag then begin
-    vstBookList.Expanded[pn] := not vstBookList.Expanded[pn];
-    if vstBookList.Expanded[pn] then begin
-      cn := vstBookList.GetFirstChild(pn);
-      if assigned(cn) then vstBookList.FocusedNode := cn
+  pt := vdtBookList.ScreenToClient(Mouse.CursorPos);
+  pn := vdtBookList.GetNodeAt(pt.X, pt.Y);
+  if not assigned(pn) then
+    exit;
+  me := TModuleEntry(vdtBookList.GetNodeData(pn)^);
+  if not assigned(me) then
+    exit;
+  if me.modType = modtypeTag then
+  begin
+    vdtBookList.Expanded[pn] := not vdtBookList.Expanded[pn];
+    if vdtBookList.Expanded[pn] then
+    begin
+      cn := vdtBookList.GetFirstChild(pn);
+      if assigned(cn) then
+        vdtBookList.FocusedNode := cn
     end
-    else vstBookList.FocusedNode := nil;
+    else
+      vdtBookList.FocusedNode := nil;
     exit;
   end;
 
   i := LinkFromPoint(pt, me, lt);
-  if i < 0 then exit;
-  if lt = lltBook then begin
+  if i < 0 then
+    exit;
+  if lt = lltBook then
+  begin
     SelAction(me.wsFullName, me.mMatchInfo[i].ix);
 
   end
-  else begin
-  StrToTokens(me.modCats, '|', mStrTokens);
-  edFilter.Text := mStrTokens[i];
+  else
+  begin
+    StrToTokens(me.modCats, '|', mStrTokens);
+    edtFilter.Text := mStrTokens[i];
   end;
-//node:=vstBookList.GetNodeAt(pt.x,pt.y, true, nVOrg);
-//if node=nil then exit;
-//try
-//me:=TModuleEntry((vstBookList.GetNodeData(node))^);
-//if not assigned(me) then exit;
-//c:=me.mCatsCnt-1;
-//if c<0 then exit;
-//pt.Y:=pt.Y - nVOrg;
-//
-//for I := 0 to c do begin
-//  if PtInRect(me.mRects^[i],pt) then begin
-//     StrToTokens(me.modCats, '|', mStrTokens);
-//     edFilter.Text:='.'+ mStrTokens[i];
-//  end;
-//
-//end;//fr
-//
+  // node:=vdtBookList.GetNodeAt(pt.x,pt.y, true, nVOrg);
+  // if node=nil then exit;
+  // try
+  // me:=TModuleEntry((vdtBookList.GetNodeData(node))^);
+  // if not assigned(me) then exit;
+  // c:=me.mCatsCnt-1;
+  // if c<0 then exit;
+  // pt.Y:=pt.Y - nVOrg;
+  //
+  // for I := 0 to c do begin
+  // if PtInRect(me.mRects^[i],pt) then begin
+  // StrToTokens(me.modCats, '|', mStrTokens);
+  // edtFilter.Text:='.'+ mStrTokens[i];
+  // end;
+  //
+  // end;//fr
+  //
 
 end;
 
-procedure TMyLibraryForm.vstBookListCompareNodes(Sender: TBaseVirtualTree; Node1,
-  Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+procedure TMyLibraryForm.vdtBookListCompareNodes(Sender: TBaseVirtualTree;
+  Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
 var
   mod1, mod2: TModuleEntry;
-  tr: integer;
+  tr: Integer;
 const
-  synodalny: string = '—ËÌÓ‰';
-  russky: string = '–ÛÒÒÍ';
+  synodalny: string = '√ë√®√≠√Æ√§';
+  russky: string = '√ê√≥√±√±√™';
 label
   done;
 begin
-  mod1 := TModuleEntry(Sender.getNodeData(node1)^);
-  mod2 := TModuleEntry(Sender.getNodeData(node2)^);
+  mod1 := TModuleEntry(Sender.GetNodeData(Node1)^);
+  mod2 := TModuleEntry(Sender.GetNodeData(Node2)^);
 
-  if not (Assigned(mod1) and Assigned(mod2)) then begin
-    result := 0;
+  if not(assigned(mod1) and assigned(mod2)) then
+  begin
+    Result := 0;
   end;
 
   tr := ord(mod1.modType) - ord(mod2.modType);
   if tr = 0 then
-    if mod1.modType = modtypeTag then begin
-      if mod1.wsFullName = G_OtherCats then begin result := 1; exit; end;
-      if mod2.wsFullName = G_OtherCats then begin result := -1; exit; end;
+    if mod1.modType = modtypeTag then
+    begin
+      if mod1.wsFullName = G_OtherCats then
+      begin
+        Result := 1;
+        exit;
+      end;
+      if mod2.wsFullName = G_OtherCats then
+      begin
+        Result := -1;
+        exit;
+      end;
     end;
   tr := OmegaCompareTxt(mod1.wsFullName, mod2.wsFullName);
-      // AnsiCompareText(mod1.name, mod2.name);
-  done:
-  result := tr;
+  // AnsiCompareText(mod1.name, mod2.name);
+done:
+  Result := tr;
 
 end;
 
-procedure TMyLibraryForm.vstBookListGetHintSize(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vdtBookListGetHintSize(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; var R: TRect);
 var
   me: TModuleEntry;
 begin
-  if node = nil then exit;
-//if column<0 then exit;
+  if Node = nil then
+    exit;
+  // if column<0 then exit;
   me := TModuleEntry((Sender.GetNodeData(Node))^);
-  if (not Assigned(me)) or (me.modType = modtypeTag) then exit;
-  vstBookList.Canvas.Font.Assign(self.Font);
-  vstBookList.Canvas.Font.Height := self.Font.Height * 4 div 5;
+  if (not assigned(me)) or (me.modType = modtypeTag) then
+    exit;
+  vdtBookList.Canvas.Font.Assign(self.Font);
+  vdtBookList.Canvas.Font.Height := self.Font.Height * 4 div 5;
 
-  r.Right := 640;
-  r.Bottom := 480;
-  DrawTextW(vstBookList.Canvas.Handle, PWideChar(Pointer(me.wsShortPath)), length(me.wsShortPath), r, DT_CALCRECT);
-  InflateRect(r, 6, 6);
+  R.Right := 640;
+  R.Bottom := 480;
+  DrawTextW(vdtBookList.Canvas.Handle, PWideChar(Pointer(me.wsShortPath)),
+    length(me.wsShortPath), R, DT_CALCRECT);
+  InflateRect(R, 6, 6);
 end;
 
-procedure TMyLibraryForm.vstBookListGetText(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vdtBookListGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: WideString);
 var
   pNodeData: TModuleEntry;
 begin
-  if node = nil then exit;
+  if Node = nil then
+    exit;
   pNodeData := TModuleEntry((Sender.GetNodeData(Node))^);
-  if integer(pNodeData) > 65536 then try
-    CellText := pNodeData.wsFullName;
-  except end;
+  if Integer(pNodeData) > 65536 then
+    try
+      CellText := pNodeData.wsFullName;
+    except
+    end;
 end;
 
-procedure TMyLibraryForm.vstBookListKeyUp(Sender: TObject; var Key: Word;
+procedure TMyLibraryForm.vdtBookListKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
 begin
   try
-    if Key = VK_ESCAPE then FocusControl(edFilter)
-  except end;
+    if Key = VK_ESCAPE then
+      FocusControl(edtFilter)
+  except
+  end;
 end;
 
-procedure TMyLibraryForm.vstBookListMeasureItem(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vdtBookListMeasureItem(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
 var
   me: TModuleEntry;
   rct: TRect;
-  h, dlt, vmarg, rght: integer;
+  h, dlt, vmarg, rght: Integer;
   ws: WideString;
   p: Pointer;
 begin
-  if (node = nil) or (csDestroying in Self.ComponentState) then exit;
+  if (Node = nil) or (csDestroying in self.ComponentState) then
+    exit;
 
   try
     TargetCanvas.Font := mfntReg;
     dlt := mfntReg.Height;
-    if dlt < 0 then dlt := -dlt;
+    if dlt < 0 then
+      dlt := -dlt;
     dlt := dlt div 4;
-    if dlt = 0 then dlt := 2;
+    if dlt = 0 then
+      dlt := 2;
 
-    p:= Sender.GetNodeData(Node);
+    p := Sender.GetNodeData(Node);
     me := TModuleEntry((p)^);
     ws := me.wsFullName;
 
-    rct.Left := 0; rct.Top := 0; rct.Bottom := 200;
+    rct.Left := 0;
+    rct.Top := 0;
+    rct.Bottom := 200;
 
-    rght := vstBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
-      vstBookList.TextMargin * 2 - 6;
+    rght := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
+      vdtBookList.TextMargin * 2 - 6;
     rct.Right := rght;
-    h := Windows.DrawTextW(TargetCanvas.Handle,
-      PWideChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
+    h := Windows.DrawTextW(TargetCanvas.Handle, PWideChar(Pointer(ws)), -1, rct,
+      DT_CALCRECT or DT_WORDBREAK);
     NodeHeight := h;
     rct.Top := h;
     vmarg := dlt + dlt;
     rct.Right := rght;
-    if me.modType = modtypeBookHighlighted then begin
-      Inc(rct.Top, dlt);
+    if me.modType = modtypeBookHighlighted then
+    begin
+      inc(rct.Top, dlt);
       dlt := TargetCanvas.Font.Height * 4 div 5;
       TargetCanvas.Font := mfntBook;
     end;
-    Inc(rct.Left, 4);
-    if ((me.modType = modtypeBookHighlighted) or (bqisExpanded in me.mStyle )) and (length(me.mMatchInfo) > 0) then
-      begin
-      rct.Left := vstBookList.TextMargin;
-      rct.Right := vstBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
-        vstBookList.TextMargin - 2;
+    inc(rct.Left, 4);
+    if ((me.modType = modtypeBookHighlighted) or (bqisExpanded in me.mStyle))
+      and (length(me.mMatchInfo) > 0) then
+    begin
+      rct.Left := vdtBookList.TextMargin;
+      rct.Right := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
+        vdtBookList.TextMargin - 2;
       dlt := mfntTag.Height;
       TargetCanvas.Font := mfntBook;
-      if dlt < 0 then dlt := -dlt;
+      if dlt < 0 then
+        dlt := -dlt;
       rct.Top := rct.Top + (dlt div 4);
       rct.Bottom := rct.Top + 300;
       rct.Top := PaintBookTokens(TargetCanvas, rct, me.mMatchInfo, true);
     end;
 
-    if (length(me.modCats) <= 0) then begin
-      if me.modType = modtypeTag then inc(vmarg, 5);
-      Inc(NodeHeight, vmarg); exit; end;
+    if (length(me.modCats) <= 0) then
+    begin
+      if me.modType = modtypeTag then
+        inc(vmarg, 5);
+      inc(NodeHeight, vmarg);
+      exit;
+    end;
 
     mStrTokens.Clear();
     StrToTokens(me.modCats, '|', mStrTokens);
     ws := TokensToStr(mStrTokens, ' ', false);
 
-    if not assigned(me.mRects) then begin
+    if not assigned(me.mRects) then
+    begin
       GetMem(me.mRects, mStrTokens.Count * sizeof(TRect));
       me.mCatsCnt := mStrTokens.Count;
     end;
 
-    rct.Right := vstBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
-      vstBookList.TextMargin - 2;
+    rct.Right := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
+      vdtBookList.TextMargin - 2;
     dlt := mfntTag.Height;
 
     TargetCanvas.Font := mfntTag;
 
-    if dlt < 0 then dlt := -dlt;
+    if dlt < 0 then
+      dlt := -dlt;
     rct.Top := rct.Top + (dlt div 4);
     rct.Bottom := rct.Top + 300;
-    NodeHeight := PaintTokens(TargetCanvas, rct, mStrTokens, true, me.mRects) +
-      (vmarg);
-//h:=Windows.DrawTextW(TargetCanvas.Handle,
-// PWideChar(Pointer(ws)), -1,rct,DT_CALCRECT or DT_WORDBREAK);
+    NodeHeight := PaintTokens(TargetCanvas, rct, mStrTokens, true, me.mRects)
+      + (vmarg);
+    // h:=Windows.DrawTextW(TargetCanvas.Handle,
+    // PWideChar(Pointer(ws)), -1,rct,DT_CALCRECT or DT_WORDBREAK);
 
     ///
-  except {on e:Exception do BqShowException(e);}
+  except { on e:Exception do BqShowException(e); }
   end;
 
 end;
 
-procedure TMyLibraryForm.vstBookListMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TMyLibraryForm.vdtBookListMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   me: TModuleEntry;
   pt: TPoint;
-  i: integer;
+  i: Integer;
 var
   pn: PVirtualNode;
 
 begin
-  pn := vstBookList.GetNodeAt(x, y);
-  if not assigned(pn) then exit;
-  me := TModuleEntry(vstBookList.GetNodeData(pn)^);
-  if not assigned(me) then exit;
-  if me.modType = modtypeTag then begin
-    mAllowExp := not vstBookList.Expanded[pn];
+  pn := vdtBookList.GetNodeAt(X, Y);
+  if not assigned(pn) then
+    exit;
+  me := TModuleEntry(vdtBookList.GetNodeData(pn)^);
+  if not assigned(me) then
+    exit;
+  if me.modType = modtypeTag then
+  begin
+    mAllowExp := not vdtBookList.Expanded[pn];
   end;
 
 end;
 
-procedure TMyLibraryForm.vstBookListMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
+procedure TMyLibraryForm.vdtBookListMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
 var
-  i: integer;
+  i: Integer;
   me: TModuleEntry;
   pt: TPoint;
   pn: PVirtualNode;
   lt: TLibLinkType;
 begin
-//
-  pn := vstBookList.GetNodeAt(x, y);
-  if not assigned(pn) then exit;
-  me := TModuleEntry(vstBookList.GetNodeData(pn)^);
-  if not assigned(me) then exit;
-  if me.modType = modtypeTag then begin
-    vstBookList.Cursor := crHandPoint;
+  //
+  pn := vdtBookList.GetNodeAt(X, Y);
+  if not assigned(pn) then
+    exit;
+  me := TModuleEntry(vdtBookList.GetNodeData(pn)^);
+  if not assigned(me) then
+    exit;
+  if me.modType = modtypeTag then
+  begin
+    vdtBookList.Cursor := crHandPoint;
     exit;
   end;
 
-  pt.X := x; pt.y := Y;
+  pt.X := X;
+  pt.Y := Y;
   i := LinkFromPoint(pt, me, lt);
-  if i < 0 then begin vstBookList.Cursor := crDefault;
+  if i < 0 then
+  begin
+    vdtBookList.Cursor := crDefault;
   end
-  else begin vstBookList.Cursor := crHandPoint;
+  else
+  begin
+    vdtBookList.Cursor := crHandPoint;
   end;
 end;
 
-procedure TMyLibraryForm.vstBookListMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-var pvn:PVirtualNode;
-    me:TModuleEntry;
-    i:integer;
-    wbk:WideString;
-    bk:AnsiString;
+procedure TMyLibraryForm.vdtBookListMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  pvn: PVirtualNode;
+  me: TModuleEntry;
+  i: Integer;
+  wbk: WideString;
+  bk: AnsiString;
 begin
-if Button<>mbRight then  Exit;
-pvn:= vstBookList.GetNodeAt(x,y);
-if not Assigned(pvn) then Exit;
-me:=TObject(vstBookList.GetNodeData(pvn)^) as TModuleEntry;
-if (me.modType in [modtypeBook,modtypeBookHighlighted] ) then begin
-if not (bqisExpanded in me.mStyle) then begin
-Include(me.mStyle, bqisExpanded);
-SetLength(me.mMatchInfo,255);
-i:=0;
-repeat
-bk:=StrGetTokenByIx(me.modBookNames,i+1);
-if length(bk)<=0 then break;
-me.mMatchInfo[i].ix:=i+1; me.mMatchInfo[i].name:=C_BulletChar+#32+UTF8Decode(bk);
-inc(i)
-until i>=255;
-SetLength(me.mMatchInfo, i);
+  if Button <> mbRight then
+    exit;
+  pvn := vdtBookList.GetNodeAt(X, Y);
+  if not assigned(pvn) then
+    exit;
+  me := TObject(vdtBookList.GetNodeData(pvn)^) as TModuleEntry;
+  if (me.modType in [modtypeBook, modtypeBookHighlighted]) then
+  begin
+    if not(bqisExpanded in me.mStyle) then
+    begin
+      Include(me.mStyle, bqisExpanded);
+      SetLength(me.mMatchInfo, 255);
+      i := 0;
+      repeat
+        bk := StrGetTokenByIx(me.modBookNames, i + 1);
+        if length(bk) <= 0 then
+          break;
+        me.mMatchInfo[i].ix := i + 1;
+        me.mMatchInfo[i].name := C_BulletChar + #32 + UTF8Decode(bk);
+        inc(i)
+      until i >= 255;
+      SetLength(me.mMatchInfo, i);
 
-end
+    end
 
-else begin
-Exclude(me.mStyle, bqisExpanded);
-SetLength(me.mMatchInfo, 0);
-if me.modType=modtypeBookHighlighted then begin
-me.Match(mFilterStrTokens, me.mMatchInfo,mAllMatch);
-end;
-end;
-vstBookList.ReinitNode(pvn, false);
-end
+    else
+    begin
+      Exclude(me.mStyle, bqisExpanded);
+      SetLength(me.mMatchInfo, 0);
+      if me.modType = modtypeBookHighlighted then
+      begin
+        me.Match(mFilterStrTokens, me.mMatchInfo, mAllMatch);
+      end;
+    end;
+    vdtBookList.ReinitNode(pvn, false);
+  end
 end;
 
-procedure TMyLibraryForm.vstBookListDblClick(Sender: TObject);
+procedure TMyLibraryForm.vdtBookListDblClick(Sender: TObject);
 var
   pt: TPoint;
   pn: PVirtualNode;
   me: TModuleEntry;
 begin
-//pt:=vstBookList.ScreenToClient(Mouse.CursorPos);
+  // pt:=vdtBookList.ScreenToClient(Mouse.CursorPos);
 
   SelAction();
 end;
 
-procedure TMyLibraryForm.vstBookListDrawHint(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vdtBookListDrawHint(Sender: TBaseVirtualTree;
   HintCanvas: TCanvas; Node: PVirtualNode; R: TRect; Column: TColumnIndex);
 var
   me: TModuleEntry;
 begin
-  if node = nil then exit;
+  if Node = nil then
+    exit;
   me := TModuleEntry((Sender.GetNodeData(Node))^);
-  if not Assigned(me) then exit;
+  if not assigned(me) then
+    exit;
   HintCanvas.Font.Assign(self.Font);
   HintCanvas.Font.Height := HintCanvas.Font.Height * 4 div 5;
   HintCanvas.Brush.Color := clWindow;
-  HintCanvas.RoundRect(r.Left, r.Top, r.Right, r.Bottom, 2, 2);
-  InflateRect(r, -6, -6);
+  HintCanvas.RoundRect(R.Left, R.Top, R.Right, R.Bottom, 2, 2);
+  InflateRect(R, -6, -6);
   Windows.DrawTextW(HintCanvas.Handle, PWideChar(Pointer(me.wsShortPath)),
-    length(me.wsShortPath), r, 0);
+    length(me.wsShortPath), R, 0);
 end;
 
-procedure TMyLibraryForm.vstBookListDrawNode(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vdtBookListDrawNode(Sender: TBaseVirtualTree;
   const PaintInfo: TVTPaintInfo);
 
 var
   me: TModuleEntry;
   rct: TRect;
-  h, dlt, flgs: integer;
+  h, dlt, flgs: Integer;
   ws: WideString;
   cl1, cl2: TColor;
 begin
 
-  if PaintInfo.Node = nil then exit;
+  if PaintInfo.Node = nil then
+    exit;
   me := TModuleEntry((Sender.GetNodeData(PaintInfo.Node))^);
   rct := PaintInfo.ContentRect;
   PaintInfo.Canvas.Font := mfntReg;
   dlt := mfntReg.Height;
-  if dlt < 0 then dlt := -dlt;
+  if dlt < 0 then
+    dlt := -dlt;
 
   dlt := dlt div 4;
-  if dlt = 0 then dlt := 1;
-  if me.modType = modtypeTag then begin
+  if dlt = 0 then
+    dlt := 1;
+  if me.modType = modtypeTag then
+  begin
     flgs := DT_WORDBREAK or DT_VCENTER;
     InflateRect(rct, -2, -2);
     if Sender.FocusedNode = PaintInfo.Node then
-      cl1 := vstBookList.Colors.FocusedSelectionColor
-    else begin
-      if me.wsFullName = G_NoCategoryStr then cl1 := $00D1D9ED
-      else cl1 := $acd5ff;
+      cl1 := vdtBookList.Colors.FocusedSelectionColor
+    else
+    begin
+      if me.wsFullName = G_NoCategoryStr then
+        cl1 := $00D1D9ED
+      else
+        cl1 := $ACD5FF;
 
     end;
-    PaintInfo.Canvas.Pen.Color:=$90c0e0;
+    PaintInfo.Canvas.Pen.Color := $90C0E0;
     PaintInfo.Canvas.Brush.Color := cl1;
-    PaintInfo.Canvas.RoundRect(rct.Left, rct.Top, rct.Right, rct.Bottom, 4,
-      10);
-    Inc(rct.Left, 12);
+    PaintInfo.Canvas.RoundRect(rct.Left, rct.Top, rct.Right, rct.Bottom, 4, 10);
+    inc(rct.Left, 12);
     Dec(rct.Right, 2);
-  end else flgs := DT_WORDBREAK;
+  end
+  else
+    flgs := DT_WORDBREAK;
 
   ws := me.wsFullName;
 
-  Inc(rct.Top, dlt);
+  inc(rct.Top, dlt);
   PaintInfo.Canvas.Font := mfntTagCap;
-  if (not (me.modType = modtypeTag)) and (vsSelected in PaintInfo.Node^.States)
-    then begin
-    if vstBookList.Focused then
-      PaintInfo.Canvas.Brush.Color := vstBookList.Colors.FocusedSelectionColor;
+  if (not(me.modType = modtypeTag)) and (vsSelected in PaintInfo.Node^.States)
+  then
+  begin
+    if vdtBookList.Focused then
+      PaintInfo.Canvas.Brush.Color := vdtBookList.Colors.FocusedSelectionColor;
   end;
-  h := Windows.DrawTextW(PaintInfo.Canvas.Handle,
-    PWideChar(Pointer(ws)), -1, rct, flgs);
+  h := Windows.DrawTextW(PaintInfo.Canvas.Handle, PWideChar(Pointer(ws)), -1,
+    rct, flgs);
 
   rct.Top := h;
 
-//   if me.modType=modtypeBookHighlighted then begin
-//     Inc(rct.Top,dlt);
-//     dlt := PaintInfo.Canvas.Font.Height;
-//     PaintInfo.Canvas.Font:=mfntBook;
-//     //h := Windows.DrawTextW(PaintInfo.Canvas.Handle,
-////      PWideChar(me.mMatchInfo[0].name ), -1, rct,  DT_WORDBREAK);
-//     Inc(rct.Top,h);
-//    end;
-  if ((me.modType = modtypeBookHighlighted) or (bqisExpanded in me.mStyle)) and (length(me.mMatchInfo) > 0) then
-    begin
+  // if me.modType=modtypeBookHighlighted then begin
+  // Inc(rct.Top,dlt);
+  // dlt := PaintInfo.Canvas.Font.Height;
+  // PaintInfo.Canvas.Font:=mfntBook;
+  // //h := Windows.DrawTextW(PaintInfo.Canvas.Handle,
+  /// /      PWideChar(me.mMatchInfo[0].name ), -1, rct,  DT_WORDBREAK);
+  // Inc(rct.Top,h);
+  // end;
+  if ((me.modType = modtypeBookHighlighted) or (bqisExpanded in me.mStyle)) and
+    (length(me.mMatchInfo) > 0) then
+  begin
     PaintInfo.Canvas.Font := mfntBook;
     PaintBookTokens(PaintInfo.Canvas, rct, me.mMatchInfo, false);
   end;
 
-  if (length(me.modCats) <= 0) then exit;
-//Inc(rct.Top,h+dlt);
+  if (length(me.modCats) <= 0) then
+    exit;
+  // Inc(rct.Top,h+dlt);
   mStrTokens.Clear();
   StrToTokens(me.modCats, '|', mStrTokens);
 
   ws := TokensToStr(mStrTokens, ' ', false);
   PaintInfo.Canvas.Font := mfntTag;
   PaintTokens(PaintInfo.Canvas, rct, mStrTokens, false, me.mRects);
-//h:=Windows.DrawTextW(PaintInfo.Canvas.Handle,
-// PWideChar(Pointer(ws)), -1,rct,DT_WORDBREAK);
+  // h:=Windows.DrawTextW(PaintInfo.Canvas.Handle,
+  // PWideChar(Pointer(ws)), -1,rct,DT_WORDBREAK);
 
 end;
 
-procedure TMyLibraryForm.vstBookListFocusChanging(Sender: TBaseVirtualTree; OldNode,
-  NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
+procedure TMyLibraryForm.vdtBookListFocusChanging(Sender: TBaseVirtualTree;
+  OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
   var Allowed: Boolean);
 var
   me: TModuleEntry;
   n: PVirtualNode;
 begin
-  if NewNode = nil then exit;
+  if NewNode = nil then
+    exit;
   me := TModuleEntry((Sender.GetNodeData(NewNode))^);
-  if not assigned(me) then exit;
-  if me.modType <> modtypeTag then exit;
+  if not assigned(me) then
+    exit;
+  if me.modType <> modtypeTag then
+    exit;
   Allowed := false;
-  n := sender.GetFirstChild(NewNode);
-  if not assigned(n) then exit;
-  sender.FocusedNode := n;
-  sender.Selected[n] := true;
+  n := Sender.GetFirstChild(NewNode);
+  if not assigned(n) then
+    exit;
+  Sender.FocusedNode := n;
+  Sender.Selected[n] := true;
 end;
 
-procedure TMyLibraryForm.vstBookListFreeNode(Sender: TBaseVirtualTree;
+procedure TMyLibraryForm.vdtBookListFreeNode(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 var
   me: TModuleEntry;
 
 begin
-try
-  me := TModuleEntry((Sender.GetNodeData(Node))^);
-  PPointer(Sender.GetNodeData(Node))^ := nil;
-//  if assigned(me) and (me.modType = modtypeBookHighlighted) then me.Free();
-except on e:Exception do begin
-// BqShowException(e);
-end;
-end;
+  try
+    me := TModuleEntry((Sender.GetNodeData(Node))^);
+    PPointer(Sender.GetNodeData(Node))^ := nil;
+    // if assigned(me) and (me.modType = modtypeBookHighlighted) then me.Free();
+  except
+    on e: Exception do
+    begin
+      // BqShowException(e);
+    end;
+  end;
 end;
 
 end.
-
-

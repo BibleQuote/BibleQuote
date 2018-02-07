@@ -9,13 +9,13 @@ uses
 
 type
   TInputForm = class(TForm)
-    Edit1: TEdit;
-    OKButton: TButton;
-    Memo1: TMemo;
-    procedure TntFormShow(Sender: TObject);
-    procedure TntFormKeyPress(Sender: TObject; var Key: Char);
+    edtValue: TEdit;
+    btnOK: TButton;
+    memValue: TMemo;
+    procedure FormShow(Sender: TObject);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure CancelButtonClick(Sender: TObject);
-    procedure OKButtonClick(Sender: TObject);
+    procedure btnOKClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -34,12 +34,12 @@ begin
   ModalResult := mrCancel;
 end;
 
-procedure TInputForm.OKButtonClick(Sender: TObject);
+procedure TInputForm.btnOKClick(Sender: TObject);
 begin
 ModalResult := mrOK;
 end;
 
-procedure TInputForm.TntFormKeyPress(Sender: TObject; var Key: Char);
+procedure TInputForm.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #27 then
   begin
@@ -47,14 +47,14 @@ begin
     CancelButtonClick(Sender);
   end;
 
-  if Edit1.Visible and (Key = #13) then
+  if edtValue.Visible and (Key = #13) then
   begin
      Key := #0;
-     OKButtonClick(Sender);
+     btnOKClick(Sender);
   end;
 end;
 
-procedure TInputForm.TntFormShow(Sender: TObject);
+procedure TInputForm.FormShow(Sender: TObject);
 begin
   {
      this input form can be used for entering text in TEdit or TMemo
@@ -70,27 +70,27 @@ begin
 
   if InputForm.Tag = 0 then // TEdit
   begin
-    Edit1.Visible := true;
-    Memo1.Visible := false;
+    edtValue.Visible := true;
+    memValue.Visible := false;
 
-    Edit1.Top := 8;
-    OKButton.Top := Edit1.Top + Edit1.Height + 10;
+    edtValue.Top := 8;
+    btnOK.Top := edtValue.Top + edtValue.Height + 10;
   end
   else begin
-    Edit1.Visible := false;
-    Memo1.Visible := true;
+    edtValue.Visible := false;
+    memValue.Visible := true;
 
-    Memo1.Top := 8;
-    OKButton.Top := Memo1.Top + Memo1.Height + 10;
+    memValue.Top := 8;
+    btnOK.Top := memValue.Top + memValue.Height + 10;
   end;
 
-  InputForm.Height := OKButton.Top + OKButton.Height + 35;
+  InputForm.Height := btnOK.Top + btnOK.Height + 35;
 
-  if Edit1.Visible then
+  if edtValue.Visible then
   begin
-    ActiveControl := Edit1;
+    ActiveControl := edtValue;
   end else
-    ActiveControl := Memo1;
+    ActiveControl := memValue;
     
 end;
 

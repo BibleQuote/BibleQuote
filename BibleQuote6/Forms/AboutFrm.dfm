@@ -14,21 +14,21 @@ object AboutForm: TAboutForm
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
-  OnCreate = TntFormCreate
-  OnShow = TntFormShow
+  OnCreate = FormCreate
+  OnShow = FormShow
   DesignSize = (
     505
     333)
   PixelsPerInch = 120
   TextHeight = 17
-  object Shape1: TShape
+  object shpHeader: TShape
     Left = 0
     Top = 0
     Width = 505
     Height = 92
     Align = alTop
   end
-  object lbBQName: TLabel
+  object lblTitle: TLabel
     Left = 96
     Top = 5
     Width = 399
@@ -46,7 +46,7 @@ object AboutForm: TAboutForm
     Transparent = True
     Layout = tlCenter
   end
-  object Image1: TImage
+  object imgLogo: TImage
     Left = 15
     Top = 6
     Width = 64
@@ -214,7 +214,7 @@ object AboutForm: TAboutForm
     ModalResult = 1
     TabOrder = 3
   end
-  object Panel1: TPanel
+  object pnlForum: TPanel
     Left = 10
     Top = 267
     Width = 351
@@ -232,9 +232,9 @@ object AboutForm: TAboutForm
     ParentBiDiMode = False
     ParentFont = False
     TabOrder = 2
-    OnClick = TntLabel1Click
+    OnClick = pnlForumClick
   end
-  object Panel2: TPanel
+  object pnlDownloadLatest: TPanel
     Tag = 1
     Left = 10
     Top = 293
@@ -252,8 +252,8 @@ object AboutForm: TAboutForm
     ParentBiDiMode = False
     ParentFont = False
     TabOrder = 0
-    OnClick = TntLabel1Click
-    OnMouseEnter = Panel2MouseEnter
-    OnMouseLeave = Panel2MouseLeave
+    OnClick = pnlDownloadLatestClick
+    OnMouseEnter = pnlDownloadLatestMouseEnter
+    OnMouseLeave = pnlDownloadLatestMouseLeave
   end
 end
