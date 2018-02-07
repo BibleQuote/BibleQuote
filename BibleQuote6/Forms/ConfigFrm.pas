@@ -9,40 +9,40 @@ uses
 
 type
   TConfigForm = class(TForm)
-    PageControl1: TPageControl;
-    CopyOptionsTabSheet: TTabSheet;
-    CopyVerseNumbers: TCheckBox;
-    CopyFontParams: TCheckBox;
-    AddReference: TCheckBox;
-    AddReferenceRadio: TRadioGroup;
-    AddModuleName: TCheckBox;
-    AddLineBreaks: TCheckBox;
-    OtherOptionsTabSheet: TTabSheet;
-    OKButton: TButton;
-    CancelButton: TButton;
-    SelectSecondPathLabel: TLabel;
-    SelectPathEdit: TEdit;
-    SelectPathButton: TButton;
-    DeleteButton: TButton;
-    MinimizeToTray: TCheckBox;
-    HotKeyChoice: TRadioGroup;
-    FavouriteExTabSheet: TTabSheet;
+    pgcOptions: TPageControl;
+    tsCopyOptions: TTabSheet;
+    chkCopyVerseNumbers: TCheckBox;
+    chkCopyFontParams: TCheckBox;
+    chkAddReference: TCheckBox;
+    rgAddReference: TRadioGroup;
+    chkAddModuleName: TCheckBox;
+    chkAddLineBreaks: TCheckBox;
+    tsOtherOptions: TTabSheet;
+    btnOK: TButton;
+    btnCancel: TButton;
+    lblSelectSecondPath: TLabel;
+    edtSelectPath: TEdit;
+    btnSelectPath: TButton;
+    btnDeletePath: TButton;
+    chkMinimizeToTray: TCheckBox;
+    rgHotKeyChoice: TRadioGroup;
+    tsFavouriteEx: TTabSheet;
     lblAvailableModules: TLabel;
     lblFavourites: TLabel;
-    lbxFavourites: TListBox;
-    BitBtn1: TBitBtn;
-    BitBtn2: TBitBtn;
-    cbxAvailableModules: TComboBox;
-    BitBtn3: TBitBtn;
+    lbFavourites: TListBox;
+    bbtnUp: TBitBtn;
+    bbtnDown: TBitBtn;
+    cbAvailableModules: TComboBox;
+    bbtnDelete: TBitBtn;
     btnAddHotModule: TBitBtn;
-    cbFullContextOnRestrictedLinks: TCheckBox;
-    cbUseVerseHL: TCheckBox;
+    chkFullContextOnRestrictedLinks: TCheckBox;
+    chkHighlightVerseHits: TCheckBox;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure OKButtonClick(Sender: TObject);
-    procedure CancelButtonClick(Sender: TObject);
-    procedure SelectPathButtonClick(Sender: TObject);
-    procedure DeleteButtonClick(Sender: TObject);
-    procedure LBButtonClick(Sender: TObject);
+    procedure btnOKClick(Sender: TObject);
+    procedure btnCancelClick(Sender: TObject);
+    procedure btnSelectPathClick(Sender: TObject);
+    procedure btnDeletePathClick(Sender: TObject);
+    procedure favouritesBitBtnClick(Sender: TObject);
     procedure btnAddHotModuleClick(Sender: TObject);
   private
     { Private declarations }
@@ -55,8 +55,6 @@ var
 
 implementation
 
-
-
 {$R *.DFM}
 
 procedure TConfigForm.FormKeyPress(Sender: TObject; var Key: Char);
@@ -65,98 +63,94 @@ begin
     ModalResult := mrCancel;
 end;
 
-procedure TConfigForm.OKButtonClick(Sender: TObject);
+procedure TConfigForm.btnOKClick(Sender: TObject);
 begin
   ModalResult := mrOK;
 end;
 
-
-
-
-procedure TConfigForm.LBButtonClick(Sender: TObject);
-var itemIx, newItemIx, itemCount:integer;
-     op:integer;
+procedure TConfigForm.favouritesBitBtnClick(Sender: TObject);
+var
+  itemIx, newItemIx, itemCount: integer;
+  op: integer;
 begin
-itemIx:= lbxFavourites.ItemIndex; itemCount:=lbxFavourites.Count-1;
-if (itemIx<0) or (itemIx>itemCount) then exit;
-op:=(Sender as TBitBtn).Tag;
-if op=0 then begin
- lbxFavourites.Items.Delete(itemIx);
- Dec(itemCount);
-  if (itemCount>=0)then begin
-    if  (itemIx>itemCount) then itemIx:=itemCount;
-    lbxFavourites.ItemIndex:=itemIx;
- end;
- exit end;
-newItemIx:=itemIx+ op;
-if (newItemIx<0) or (newItemIx>itemCount) then exit;
-lbxFavourites.Items.Move(itemIx, newItemIx);
-lbxFavourites.ItemIndex:=newItemIx;
+  itemIx := lbFavourites.ItemIndex;
+  itemCount := lbFavourites.Count - 1;
+  if (itemIx < 0) or (itemIx > itemCount) then
+    exit;
+  op := (Sender as TBitBtn).Tag;
+  if op = 0 then
+  begin
+    lbFavourites.Items.Delete(itemIx);
+    Dec(itemCount);
+    if (itemCount >= 0) then
+    begin
+      if (itemIx > itemCount) then
+        itemIx := itemCount;
+      lbFavourites.ItemIndex := itemIx;
+    end;
+    exit
+  end;
+  newItemIx := itemIx + op;
+  if (newItemIx < 0) or (newItemIx > itemCount) then
+    exit;
+  lbFavourites.Items.Move(itemIx, newItemIx);
+  lbFavourites.ItemIndex := newItemIx;
 end;
 
 procedure TConfigForm.btnAddHotModuleClick(Sender: TObject);
-var ix, cnt:integer;
+var
+  ix, cnt: integer;
 begin
-cnt:=cbxAvailableModules.Items.Count;
-ix:=cbxAvailableModules.ItemIndex;
-if (ix<0) or (ix>=cnt) then exit;
-ix:=lbxFavourites.Items.Add(cbxAvailableModules.Items[ix]);
-lbxFavourites.ItemIndex:=ix;
+  cnt := cbAvailableModules.Items.Count;
+  ix := cbAvailableModules.ItemIndex;
+  if (ix < 0) or (ix >= cnt) then
+    exit;
+  ix := lbFavourites.Items.Add(cbAvailableModules.Items[ix]);
+  lbFavourites.ItemIndex := ix;
 end;
 
-procedure TConfigForm.CancelButtonClick(Sender: TObject);
+procedure TConfigForm.btnCancelClick(Sender: TObject);
 begin
   ModalResult := mrCancel;
 end;
 
-procedure TConfigForm.SelectPathButtonClick(Sender: TObject);
+procedure TConfigForm.btnSelectPathClick(Sender: TObject);
 var
   s: string;
 begin
   // ??? Как сработает ?
-  if SelectDirectory(
-    SelectSecondPathLabel.Caption,
-    SelectPathEdit.Text,
-    s
-  ) then
+  if SelectDirectory(lblSelectSecondPath.Caption, edtSelectPath.Text, s) then
   begin
     if s[Length(s)] <> '\' then
       s := s + '\';
 
-    SelectPathEdit.Text := s;
+    edtSelectPath.Text := s;
 
   end;
 
   {
-  with BrowseDir1 do
-  begin
+    with BrowseDir1 do
+    begin
     Caption := Application.Title;
     Title := SelectSecondPathLabel.Caption;
     Selection := SelectPathEdit.Text;
-  end;
+    end;
 
-  if BrowseDir1.Execute then
-  begin
+    if BrowseDir1.Execute then
+    begin
     s := BrowseDir1.Selection;
 
     if s[Length(s)] <> '\'
     then s := s + '\';
 
     SelectPathEdit.Text := s;
-  end;
+    end;
   }
 end;
 
-
-
-
-
-
-
-
-procedure TConfigForm.DeleteButtonClick(Sender: TObject);
+procedure TConfigForm.btnDeletePathClick(Sender: TObject);
 begin
-  SelectPathEdit.Text := '';
+  edtSelectPath.Text := '';
 end;
 
 end.

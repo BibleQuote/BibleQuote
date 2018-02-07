@@ -1,7 +1,7 @@
 object InputForm: TInputForm
   Left = 255
   Top = 239
-  ActiveControl = OKButton
+  ActiveControl = btnOK
   BorderStyle = bsDialog
   Caption = 'InputForm'
   ClientHeight = 180
@@ -15,28 +15,28 @@ object InputForm: TInputForm
   KeyPreview = True
   OldCreateOrder = False
   Position = poMainFormCenter
-  OnKeyPress = TntFormKeyPress
-  OnShow = TntFormShow
+  OnKeyPress = FormKeyPress
+  OnShow = FormShow
   PixelsPerInch = 105
   TextHeight = 13
-  object Edit1: TEdit
+  object edtValue: TEdit
     Left = 8
     Top = 8
     Width = 369
     Height = 21
     TabOrder = 0
-    Text = 'Edit1'
+    Text = 'edtValue'
   end
-  object OKButton: TButton
+  object btnOK: TButton
     Left = 159
     Top = 147
     Width = 73
     Height = 25
     Caption = 'OK'
     TabOrder = 1
-    OnClick = OKButtonClick
+    OnClick = btnOKClick
   end
-  object Memo1: TMemo
+  object memValue: TMemo
     Left = 8
     Top = 35
     Width = 369

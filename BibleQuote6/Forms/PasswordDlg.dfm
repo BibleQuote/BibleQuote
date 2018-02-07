@@ -40,14 +40,14 @@ object PasswordBox: TPasswordBox
     ModalResult = 1
     TabOrder = 2
   end
-  object edPwd: TEdit
+  object edtPwd: TEdit
     Left = 8
     Top = 75
     Width = 425
     Height = 21
     PasswordChar = '*'
     TabOrder = 0
-    OnKeyUp = edPwdKeyUp
+    OnKeyUp = edtPwdKeyUp
   end
   object btnCancel: TButton
     Left = 295
@@ -59,12 +59,12 @@ object PasswordBox: TPasswordBox
     ModalResult = 2
     TabOrder = 3
   end
-  object cbxSavePwd: TCheckBox
+  object chkSavePwd: TCheckBox
     Left = 8
     Top = 102
     Width = 401
     Height = 19
-    Caption = 'cbxSavePwd'
+    Caption = 'chkSavePwd'
     TabOrder = 1
   end
 end

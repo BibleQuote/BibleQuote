@@ -22,7 +22,7 @@ object ExceptionForm: TExceptionForm
     Height = 14
     Caption = #1055#1088#1086#1090#1086#1082#1086#1083' '#1080#1089#1082#1083#1102#1095#1077#1085#1080#1103':'
   end
-  object ErrMemo: TMemo
+  object memError: TMemo
     Left = 8
     Top = 29
     Width = 554

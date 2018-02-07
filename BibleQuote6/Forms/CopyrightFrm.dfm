@@ -14,15 +14,15 @@ object CopyrightForm: TCopyrightForm
   KeyPreview = True
   OldCreateOrder = False
   Position = poMainFormCenter
-  OnCreate = TntFormCreate
-  OnKeyPress = TntFormKeyPress
-  OnShow = TntFormShow
+  OnCreate = FormCreate
+  OnKeyPress = FormKeyPress
+  OnShow = FormShow
   DesignSize = (
     663
     357)
   PixelsPerInch = 105
   TextHeight = 13
-  object Shape1: TShape
+  object shpHeader: TShape
     Left = 0
     Top = 0
     Width = 663
@@ -146,7 +146,7 @@ object CopyrightForm: TCopyrightForm
       0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF}
     Transparent = True
   end
-  object lbBQModName: TLabel
+  object lblModName: TLabel
     Left = 53
     Top = 22
     Width = 602
@@ -163,7 +163,7 @@ object CopyrightForm: TCopyrightForm
     Transparent = True
     ExplicitWidth = 606
   end
-  object Shape2: TShape
+  object shpBody: TShape
     Left = -1
     Top = 72
     Width = 666
@@ -173,7 +173,7 @@ object CopyrightForm: TCopyrightForm
     ExplicitWidth = 668
     ExplicitHeight = 236
   end
-  object Shape3: TShape
+  object shpFooter: TShape
     Left = -1
     Top = 295
     Width = 665
@@ -185,7 +185,7 @@ object CopyrightForm: TCopyrightForm
     ExplicitTop = 306
     ExplicitWidth = 667
   end
-  object lblCopyRightNotice: TLabel
+  object lblCopyrightNotice: TLabel
     Left = 30
     Top = 54
     Width = 618
@@ -209,15 +209,12 @@ object CopyrightForm: TCopyrightForm
     Width = 16
     Height = 16
   end
-  object Browser: THtmlViewer
+  object bwrCopyright: THtmlViewer
     Left = 7
     Top = 80
     Width = 649
     Height = 271
-    TabOrder = 0
-    Anchors = [akLeft, akTop, akRight, akBottom]
     BorderStyle = htSingle
-    CharSet = DEFAULT_CHARSET
     DefFontName = 'Times New Roman'
     DefPreFontName = 'Courier New'
     HistoryMaxCount = 0
@@ -228,8 +225,9 @@ object CopyrightForm: TCopyrightForm
     PrintMarginRight = 2.000000000000000000
     PrintMarginTop = 2.000000000000000000
     PrintScale = 1.000000000000000000
-    OnKeyUp = BrowserKeyUp
-    OnHotSpotClick = BrowserHotSpotClick
-    ExplicitHeight = 280
+    OnHotSpotClick = bwrCopyrightHotSpotClick
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    TabOrder = 0
+    OnKeyUp = bwrCopyrightKeyUp
   end
 end
