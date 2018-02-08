@@ -52,43 +52,43 @@ ViewNextPage = Наступная старонка
 
 MainForm.Caption = Цытата з Бібліі
 ;
-MainForm.CBAll.Caption = іскомае ўтрымоўвае хоць бы адно слова
-MainForm.CBAll.Hint = Прыклад: знайсці не толькі вершы, якія змяшчаюць "Ісус Хрыстос", але і тыя, якія ўтрымоўваюць "Ісус" ці "Хрыстос"
-MainForm.CBCase.Caption = адрозніваць прапісныя і загалоўныя літары
-MainForm.CBCase.Hint = Прыклад: адрозніваць пры пошуку слова "Бог" і "бог"
-MainForm.CBDisplayOptions.Caption = падрабязныя загалоўкі ў выніках
-MainForm.CBDisplayOptions.Hint = Старонка вынікаў будзе ўтрымоўваць падрабязную інфармацыю пра абраныя опцыі
-MainForm.CBParts.Caption = выразы не могуць быць часткамі слоў
-MainForm.CBParts.Hint = Прыклад: шукаць "дабраславен", але не "дабраславенне"
-MainForm.CBPhrase.Caption = словы ідуць у зададзеным парадку
-MainForm.CBPhrase.Hint = Прыклад: знайсці вершы, дзе сустракаецца "Ісус Хрыстос", але не "Хрыстос Ісус"
-MainForm.CBExactPhrase.Caption = шукаць дакладную фразу
-MainForm.CBExactPhrase.Hint = Прыклад: вершы, дзе ёсць "Дабраславен Бог", але не "Дабраславен Госпад Бог"
+MainForm.chkAll.Caption = іскомае ўтрымоўвае хоць бы адно слова
+MainForm.chkAll.Hint = Прыклад: знайсці не толькі вершы, якія змяшчаюць "Ісус Хрыстос", але і тыя, якія ўтрымоўваюць "Ісус" ці "Хрыстос"
+MainForm.chkCase.Caption = адрозніваць прапісныя і загалоўныя літары
+MainForm.chkCase.Hint = Прыклад: адрозніваць пры пошуку слова "Бог" і "бог"
+;MainForm.CBDisplayOptions.Caption = падрабязныя загалоўкі ў выніках
+;MainForm.CBDisplayOptions.Hint = Старонка вынікаў будзе ўтрымоўваць падрабязную інфармацыю пра абраныя опцыі
+MainForm.chkParts.Caption = выразы не могуць быць часткамі слоў
+MainForm.chkParts.Hint = Прыклад: шукаць "дабраславен", але не "дабраславенне"
+MainForm.chkPhrase.Caption = словы ідуць у зададзеным парадку
+MainForm.chkPhrase.Hint = Прыклад: знайсці вершы, дзе сустракаецца "Ісус Хрыстос", але не "Хрыстос Ісус"
+MainForm.chkExactPhrase.Caption = шукаць дакладную фразу
+MainForm.chkExactPhrase.Hint = Прыклад: вершы, дзе ёсць "Дабраславен Бог", але не "Дабраславен Госпад Бог"
 ;
 CBAllNotCaption = іскомае ўтрымоўвае ўсе ўведзеныя словы
 CBCaseNotCaption = не адрозніваць прапісныя і загалоўныя літары
 CBPartsNotCaption = выразы могуць быць часткамі слоў
 CBPhraseNotCaption = словы могуць прытрымлівацца любога парадку
 ;
-MainForm.BackButton.Hint = Папр. запіс у гісторыі (Backspace, Alt+стрэлка налева)
-MainForm.ForwardButton.Hint = Наст. запіс у гісторыі (Alt+стрэлка направа)
-MainForm.PrevChapterButton.Hint = Папр. частка (Ctrl+Z)
-MainForm.NextChapterButton.Hint = Наст. частка (Ctrl+X)
+MainForm.tbtnBack.Hint = Папр. запіс у гісторыі (Backspace, Alt+стрэлка налева)
+MainForm.tbtnForward.Hint = Наст. запіс у гісторыі (Alt+стрэлка направа)
+MainForm.tbtnPrevChapter.Hint = Папр. частка (Ctrl+Z)
+MainForm.tbtnNextChapter.Hint = Наст. частка (Ctrl+X)
 ;
-MainForm.AddressOKButton.Caption = OK
-MainForm.AddressOKButton.Hint = Паказаць абраны ўрывак
-MainForm.FindButton.Caption = Знайсці
-MainForm.FindButton.Hint = Пачаць/спыніць пошук
+MainForm.btnAddressOK.Caption = OK
+MainForm.btnAddressOK.Hint = Паказаць абраны ўрывак
+MainForm.btnFind.Caption = Знайсці
+MainForm.btnFind.Hint = Пачаць/спыніць пошук
 MainForm.HelpButton.Hint = Дакументацыя
-MainForm.HotKeyCancelButton.Caption = Адмена
-MainForm.HotKeyCancelButton.Hint = Выйсці без захавання
-MainForm.HotKeyLabel.Hint = Прывяжыце любімыя модулі да клавіш хуткага доступу
-MainForm.HotKeyOKButton.Caption = OK
-MainForm.HotKeyOKButton.Hint = Захаваць налады
-MainForm.MemoCancelButton.Caption = Адмена
-MainForm.MemoCancelButton.Hint = 
-MainForm.MemoOKButton.Caption = OK
-MainForm.MemoOKButton.Hint = Захаваць тэкст
+;MainForm.HotKeyCancelButton.Caption = Адмена
+;MainForm.HotKeyCancelButton.Hint = Выйсці без захавання
+;MainForm.HotKeyLabel.Hint = Прывяжыце любімыя модулі да клавіш хуткага доступу
+;MainForm.HotKeyOKButton.Caption = OK
+;MainForm.HotKeyOKButton.Hint = Захаваць налады
+;MainForm.MemoCancelButton.Caption = Адмена
+;MainForm.MemoCancelButton.Hint = 
+;MainForm.MemoOKButton.Caption = OK
+;MainForm.MemoOKButton.Hint = Захаваць тэкст
 MainForm.miActions.Caption = Аперацыі
 MainForm.miAddBookmark.Caption = Дадаць закладку ...
 MainForm.miAddMemo.Caption = Рэдагаваць нататку ...
@@ -130,8 +130,8 @@ MainForm.miSearchWord.Caption = Пошук вылучанага тэксту
 MainForm.miSound.Caption = Праслухаць гукавы файл, калі ёсць
 MainForm.miTextModules.Caption = Іншыя кнігі
 MainForm.miXref.Caption = Паралельныя месцы
-MainForm.SearchLabel.Caption = Увядзіце опцыі для пошуку
-MainForm.SearchLabel.Hint = Шляхам звужэння дыяпазону пошуку і заданні дакладных параметраў можна атрымаць лепшыя вынікі
+MainForm.lblSearch.Caption = Увядзіце опцыі для пошуку
+MainForm.lblSearch.Hint = Шляхам звужэння дыяпазону пошуку і заданні дакладных параметраў можна атрымаць лепшыя вынікі
 MainForm.miNewTab.Caption = Новая ўкладка
 MainForm.miNewTab.Hint=Стварыць новую ўкладку выгляду
 MainForm.miNewViewTab.Caption = Новая ўкладка
@@ -139,13 +139,13 @@ MainForm.miCloseTab.Caption = Закрыць укладку
 MainForm.miCloseTab.Caption = Закрыць актыўную ўкладку выгляду
 MainForm.miCloseViewTab.Caption = Закрыць укладку
 ;
-MainForm.MaxCB.Items = Паказаць не больш за 100 вершаў,Паказаць не больш за 200 вершаў,Паказаць не больш за 300 вершаў,Паказаць усе знойдзеныя вершы
+;MainForm.MaxCB.Items = Паказаць не больш за 100 вершаў,Паказаць не больш за 200 вершаў,Паказаць не больш за 300 вершаў,Паказаць усе знойдзеныя вершы
 ;
-MainForm.HistoryTab.Caption = Журнал
-MainForm.BookmarksTab.Caption = Закладкі
+MainForm.tbHistory.Caption = Журнал
+MainForm.tbBookmarks.Caption = Закладкі
 MainForm.tbQuickSearch.Caption=Хуткі пошук
-MainForm.SearchInWindowLabel.Caption=Знайсці ў дадзеным выглядзе
-MainForm.SearchEdit.Hint=Увядзіце слова ці выраз  для пошуку
+MainForm.lblSearchInWindow.Caption=Знайсці ў дадзеным выглядзе
+MainForm.edtSearch.Hint=Увядзіце слова ці выраз  для пошуку
 
 ;
 MainForm.miDic.Caption = Слоўнікі
@@ -170,9 +170,9 @@ MainForm.miAbout.Caption = Пра гэту праграму
 ;
 
 MainForm.miSearchWindow.Caption = Шукаць у гэтым акне...
-MainForm.SearchInWindowPanel.Caption = Пошук у гэтым акне
-MainForm.TBSearchForward.Hint = Наперад
-MainForm.TBSearchBackward.Hint = Назад
+;MainForm.SearchInWindowPanel.Caption = Пошук у гэтым акне
+;MainForm.TBSearchForward.Hint = Наперад
+;MainForm.TBSearchBackward.Hint = Назад
 ;
 StrBibleTranslations = ПЕРАКЛАДЫ БІБЛІІ
 StrBooks = ІНШЫЯ КНІГІ
@@ -182,33 +182,33 @@ StrAllDictionaries = УСЕ СЛОЎНІКІ
 FoundInSeveralDictionaries = знойдзена ў некалькіх слоўніках
 FoundInOneDictionary = знойдзена ў адным слоўніку
 ;
-MainForm.DicFoundSeveral.Caption = знойдзена ў некалькіх слоўніках
-MainForm.FindStrongNumberPanel.Caption = знайсці вершы з гэтым нумарам
+MainForm.lblDicFoundSeveral.Caption = знойдзена ў некалькіх слоўніках
+MainForm.pnlFindStrongNumber.Caption = знайсці вершы з гэтым нумарам
 ;
 MainForm.miCopyOptions.Caption = Опцыі капіявання
 ;
 ConfigForm.Caption = Налады
 ;
-ConfigForm.CopyOptionsTabSheet.Caption = Опцыі капіявання
-ConfigForm.FavoritesTabSheet.Caption = Любімыя модулі
-ConfigForm.FavouriteExTabSheet.Caption=Любімыя модулі
-ConfigForm.OtherOptionsTabSheet.Caption = Іншыя опцыі
+ConfigForm.tsCopyOptions.Caption = Опцыі капіявання
+;ConfigForm.FavoritesTabSheet.Caption = Любімыя модулі
+ConfigForm.tsFavouriteEx.Caption=Любімыя модулі
+ConfigForm.tsOtherOptions.Caption = Іншыя опцыі
 ;
-ConfigForm.CopyVerseNumbers.Caption = Капіяваць нумары вершаў
-ConfigForm.CopyFontParams.Caption = Капіяваць параметры шрыфта
-ConfigForm.CopyFontParams.Hint = Тэкст будзе перадавацца ў фармаце RTF
-ConfigForm.AddReference.Caption = Дадаваць подпіс да ўрыўка
-ConfigForm.AddLineBreaks.Caption = Дадаваць перанос радка пасля кожнага верша
-ConfigForm.AddModuleName.Caption = Устаўляць у подпіс код модуля/перакладу
+ConfigForm.chkCopyVerseNumbers.Caption = Капіяваць нумары вершаў
+ConfigForm.chkCopyFontParams.Caption = Капіяваць параметры шрыфта
+ConfigForm.chkCopyFontParams.Hint = Тэкст будзе перадавацца ў фармаце RTF
+ConfigForm.chkAddReference.Caption = Дадаваць подпіс да ўрыўка
+ConfigForm.chkAddLineBreaks.Caption = Дадаваць перанос радка пасля кожнага верша
+ConfigForm.chkAddModuleName.Caption = Устаўляць у подпіс код модуля/перакладу
 ;
-ConfigForm.OKButton.Caption = ОК
-ConfigForm.CancelButton.Caption = Адмена
+ConfigForm.btnOK.Caption = ОК
+ConfigForm.btnCancel.Caption = Адмена
 ;
-ConfigForm.SelectSecondPathLabel.Caption = Дадатковы шлях да модуляў
+ConfigForm.lblSelectSecondPath.Caption = Дадатковы шлях да модуляў
 ;
-ConfigForm.MinimizeToTray.Caption = Згортваць у трэй пры мінімізаванні акна
-ConfigForm.MinimizeToTray.Hint = Каля сістэмнага гадзінніка будзе створаны абразок
-ConfigForm.HotKeyChoice.Caption = Камбінацыя клавіш
+ConfigForm.chkMinimizeToTray.Caption = Згортваць у трэй пры мінімізаванні акна
+ConfigForm.chkMinimizeToTray.Hint = Каля сістэмнага гадзінніка будзе створаны абразок
+ConfigForm.rgHotKeyChoice.Caption = Камбінацыя клавіш
 ;
 CopyOptionsAddReference_ShortAtBeginning = Кароткі подпіс напачатку кожнага верша
 CopyOptionsAddReference_ShortAtEnd = Кароткі подпіс у канцы ўрыўка
