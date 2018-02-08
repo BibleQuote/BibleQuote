@@ -12,7 +12,7 @@ SoundNotFound = Could not find sound file for "%s". Probably, you
 FileNotFound = Could not find file %s
 #1%s=Error reading module %s. Module is corrupt or wrong password was supplied.
 GoingOnline = Now Bible Quote will open the site %s in your default Internet browser
-e:\DevSoft\myprojects\BQ6\SandBox\english.lng
+
 HelpFileName=indexeng.htm
 lblPasswordNeeded=To open this module, please enter the password (%s)
 lblPassword=Password:
@@ -52,45 +52,45 @@ ViewNextPage = Next page
 ;
 MainForm.Caption = Bible Quote
 ;
-MainForm.CBAll.Caption = results contain at least one word
-MainForm.CBAll.Hint = Example: display not only verses that contain "Jesus Christ", but also those that contain "Jesus" or "Christ"
-MainForm.CBCase.Caption = case sensitive search
-MainForm.CBCase.Hint = Example: search for "God", but not "god"
-MainForm.CBDisplayOptions.Caption = display chosen options in output
-MainForm.CBDisplayOptions.Hint = The search results page will contain detailed information
-MainForm.CBParts.Caption = search for whole words
-MainForm.CBParts.Hint = Example: searching for "Christ" but not "christian"
-MainForm.CBPhrase.Caption = words should follow the given order
-MainForm.CBPhrase.Hint = Example: display verses that contain "Jesus Christ", but not "Christ Jesus"
-MainForm.CBExactPhrase.Caption = exact phrase matching
-MainForm.CBExactPhrase.Hint = Example: verses that contain "in that day", but not "in that very day"
+MainForm.chkAll.Caption = results contain at least one word
+MainForm.chkAll.Hint = Example: display not only verses that contain "Jesus Christ", but also those that contain "Jesus" or "Christ"
+MainForm.chkCase.Caption = case sensitive search
+MainForm.chkCase.Hint = Example: search for "God", but not "god"
+;MainForm.CBDisplayOptions.Caption = display chosen options in output
+;MainForm.CBDisplayOptions.Hint = The search results page will contain detailed information
+MainForm.chkParts.Caption = search for whole words
+MainForm.chkParts.Hint = Example: searching for "Christ" but not "christian"
+MainForm.chkPhrase.Caption = words should follow the given order
+MainForm.chkPhrase.Hint = Example: display verses that contain "Jesus Christ", but not "Christ Jesus"
+MainForm.chkExactPhrase.Caption = exact phrase matching
+MainForm.chkExactPhrase.Hint = Example: verses that contain "in that day", but not "in that very day"
 ;
 CBAllNotCaption = results contain all given words
 CBCaseNotCaption = case unsensitive search
 CBPartsNotCaption = parts of words are allowed
 CBPhraseNotCaption = words can be in any order
 ;
-MainForm.BackButton.Hint = Previous history record (Backspace, Alt+Left arrow)
-MainForm.ForwardButton.Hint = Next history record (Alt+Right arrow)
-MainForm.PrevChapterButton.Hint = Previous chapter (Ctrl+Z)
-MainForm.NextChapterButton.Hint = Next chapter (Ctrl+X)
+MainForm.tbtnBack.Hint = Previous history record (Backspace, Alt+Left arrow)
+MainForm.tbtnForward.Hint = Next history record (Alt+Right arrow)
+MainForm.tbtnPrevChapter.Hint = Previous chapter (Ctrl+Z)
+MainForm.tbtnNextChapter.Hint = Next chapter (Ctrl+X)
 ;
-MainForm.AddressOKButton.Caption = OK
-MainForm.AddressOKButton.Hint = Show the chosen passage
-MainForm.FindButton.Caption = Find
-MainForm.FindButton.Hint = Begin/stop searching
+MainForm.btnAddressOK.Caption = OK
+MainForm.btnAddressOK.Hint = Show the chosen passage
+MainForm.btnFind.Caption = Find
+MainForm.btnFind.Hint = Begin/stop searching
 MainForm.HelpButton.Hint = User's manual
-MainForm.HotKeyCancelButton.Caption = Cancel
-MainForm.HotKeyCancelButton.Hint = Quit without saving settings
-MainForm.HotKeyLabel.Hint = Assign your favorites to quick-access (hot) keys
-MainForm.HotKeyOKButton.Caption = OK
-MainForm.HotKeyOKButton.Hint = Save settings
-MainForm.MemoCancelButton.Caption = Cancel
-MainForm.MemoCancelButton.Hint = 
-MainForm.MemoOKButton.Caption = OK
-MainForm.MemoOKButton.Hint = Save your comment
-MainForm.MemoPanelLabel.Caption = 
-MainForm.MemoPanelLabel.Hint = 
+;MainForm.HotKeyCancelButton.Caption = Cancel
+;MainForm.HotKeyCancelButton.Hint = Quit without saving settings
+;MainForm.HotKeyLabel.Hint = Assign your favorites to quick-access (hot) keys
+;MainForm.HotKeyOKButton.Caption = OK
+;MainForm.HotKeyOKButton.Hint = Save settings
+;MainForm.MemoCancelButton.Caption = Cancel
+;MainForm.MemoCancelButton.Hint = 
+;MainForm.MemoOKButton.Caption = OK
+;MainForm.MemoOKButton.Hint = Save your comment
+;MainForm.MemoPanelLabel.Caption = 
+;MainForm.MemoPanelLabel.Hint = 
 MainForm.miActions.Caption = Actions
 MainForm.miAddBookmark.Caption = Add bookmark ...
 MainForm.miAddMemo.Caption = Add memo ...
@@ -164,21 +164,21 @@ MainForm.miSearchWord.Caption = Search for selected text
 MainForm.miSound.Caption = Listen to sound recording, if exists
 MainForm.miTextModules.Caption = Other books
 MainForm.miXref.Caption = Cross references
-MainForm.SearchLabel.Caption = Please enter search options...
-MainForm.SearchLabel.Hint = By narrowing search range and options you will get better results
+MainForm.lblSearch.Caption = Please enter search options...
+MainForm.lblSearch.Hint = By narrowing search range and options you will get better results
 ;
-MainForm.MaxCB.Items = Display a maximum of 100 results,Display a maximum of 200 results,Display a maximum of 300 results,Display all search results
+;MainForm.MaxCB.Items = Display a maximum of 100 results,Display a maximum of 200 results,Display a maximum of 300 results,Display all search results
 ;
-MainForm.HistoryTab.Caption = History
-MainForm.BookmarksTab.Caption = Favorites
+MainForm.tbHistory.Caption = History
+MainForm.tbBookmarks.Caption = Favorites
 MainForm.tbQuickSearch.Caption= Quick Search
-MainForm.SearchInWindowLabel.Caption=Find in current view
-MainForm.SearchEdit.Hint=Enter an expression to search
+MainForm.edtSearch.Caption=Find in current view
+MainForm.edtSearch.Hint=Enter an expression to search
 ;
 MainForm.miSearchWindow.Caption = Search within this window...
-MainForm.SearchInWindowPanel.Caption = Search within this window
-MainForm.TBSearchForward.Hint = Search forward
-MainForm.TBSearchBackward.Hint = Search backward
+;MainForm.SearchInWindowPanel.Caption = Search within this window
+;MainForm.TBSearchForward.Hint = Search forward
+;MainForm.TBSearchBackward.Hint = Search backward
 ;
 ;
 StrBibleTranslations = BIBLE TRANSLATIONS
@@ -189,33 +189,33 @@ StrAllDictionaries = ALL DICTIONARIES
 FoundInSeveralDictionaries = found in several dictionaries
 FoundInOneDictionary = found in one dictionary
 ;
-MainForm.DicFoundSeveral.Caption = found in several dictionaries
-MainForm.FindStrongNumberPanel.Caption = find verses with this number
+MainForm.lblDicFoundSeveral.Caption = found in several dictionaries
+MainForm.pnlFindStrongNumber.Caption = find verses with this number
 ;
 MainForm.miCopyOptions.Caption = Parameters of copying
 ;
 ConfigForm.Caption = Parameters
 ;
-ConfigForm.CopyOptionsTabSheet.Caption = Parameters of copying
-ConfigForm.FavoritesTabSheet.Caption = Favorite modules
-ConfigForm.FavouriteExTabSheet.Caption=Favorite modules
-ConfigForm.OtherOptionsTabSheet.Caption = Other options
+ConfigForm.tsCopyOptions.Caption = Parameters of copying
+;ConfigForm.FavoritesTabSheet.Caption = Favorite modules
+ConfigForm.tsFavouriteEx.Caption=Favorite modules
+ConfigForm.tsOtherOptions.Caption = Other options
 ;
-ConfigForm.CopyVerseNumbers.Caption = Copy verse numbers
-ConfigForm.CopyFontParams.Caption = Copy font parameters
-ConfigForm.CopyFontParams.Hint = Text will be copied as RTF
-ConfigForm.AddReference.Caption = Add passage reference
-ConfigForm.AddLineBreaks.Caption = Add line breaks at the end of each verse
-ConfigForm.AddModuleName.Caption = Add name of module/translation
+ConfigForm.chkCopyVerseNumbers.Caption = Copy verse numbers
+ConfigForm.chkCopyFontParams.Caption = Copy font parameters
+ConfigForm.chkCopyFontParams.Hint = Text will be copied as RTF
+ConfigForm.chkAddReference.Caption = Add passage reference
+ConfigForm.chkAddLineBreaks.Caption = Add line breaks at the end of each verse
+ConfigForm.chkAddModuleName.Caption = Add name of module/translation
 ;
-ConfigForm.OKButton.Caption = OK
-ConfigForm.CancelButton.Caption = Cancel
+ConfigForm.btnOK.Caption = OK
+ConfigForm.btnCancel.Caption = Cancel
 ;
-ConfigForm.SelectSecondPathLabel.Caption = Secondary path for modules
+ConfigForm.lblSelectSecondPath.Caption = Secondary path for modules
 ;
-ConfigForm.MinimizeToTray.Caption = Minimize to tray
-ConfigForm.MinimizeToTray.Hint = An icon will be placed near the system clock
-ConfigForm.HotKeyChoice.Caption = Hotkey combination
+ConfigForm.chkMinimizeToTray.Caption = Minimize to tray
+ConfigForm.chkMinimizeToTray.Hint = An icon will be placed near the system clock
+ConfigForm.rgHotKeyChoice.Caption = Hotkey combination
 ;
 ConfigForm.lblAvailableModules.Caption=Available modules
 ConfigForm.lblFavourites.Caption=Favorites
@@ -249,4 +249,4 @@ MainForm.miMemoPaste.Caption = Paste
 
 ;
 
-MainForm.SatelliteButton.Hint = Satellite Bible
+MainForm.tbtnSatellite.Hint = Satellite Bible

@@ -444,7 +444,6 @@ type
     procedure MainBookVerseFound(Sender: TObject; NumVersesFound, book, chapter,
       verse: integer; s: string);
     procedure MainBookChangeModule(Sender: TObject);
-    procedure HelpButtonClick(Sender: TObject);
     procedure bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -555,7 +554,7 @@ type
     procedure tbtnSatelliteClick(Sender: TObject);
     procedure SelectSatelliteBibleByName(const bibleName: WideString);
     procedure edtDicChange(Sender: TObject);
-    procedure TntFormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure miNewTabClick(Sender: TObject);
     procedure miCloseTabClick(Sender: TObject);
     procedure pgcViewTabsChange(Sender: TObject);
@@ -580,12 +579,12 @@ type
       Shift: TShiftState; X, Y: integer);
     procedure dtsBibleMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
-    procedure TntFormDeactivate(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
     procedure bwrHtmlFileBrowse(Sender, Obj: TObject; var s: string);
     procedure bwrHtmlImageRequest(Sender: TObject; const SRC: string;
       var Stream: TMemoryStream);
     procedure cbModulesCloseUp(Sender: TObject);
-    procedure TntFormActivate(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
     procedure cbCommentsCloseUp(Sender: TObject);
     procedure bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
     procedure bwrHtmlMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -615,7 +614,7 @@ type
     procedure pgcViewTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
     function LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
-    procedure TntFormDblClick(Sender: TObject);
+    procedure FormDblClick(Sender: TObject);
     procedure dtsBibleClick(Sender: TObject);
     procedure pgcMainMouseLeave(Sender: TObject);
     procedure SearchTabContextPopup(Sender: TObject; MousePos: TPoint;
@@ -625,7 +624,7 @@ type
     procedure lbBookMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
     procedure pgcViewTabsDragDrop(Sender, Source: TObject; X, Y: integer);
-    procedure TntFormMouseWheel(Sender: TObject; Shift: TShiftState;
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
     procedure miCloseAllOtherTabsClick(Sender: TObject);
     procedure tmCommonTimer(Sender: TObject);
@@ -8303,16 +8302,6 @@ begin
 
 end;
 
-procedure TMainForm.HelpButtonClick(Sender: TObject);
-var
-  s: WideString;
-begin
-  s := 'file ' + ExePath + 'help\' + HelpFileName + ' $$$' +
-    Lang.Say('MainForm.HelpButton.Hint');
-
-  ProcessCommand(s, hlFalse);
-end;
-
 procedure TMainForm.bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 var
@@ -9483,7 +9472,7 @@ end;
   vstBooks.EditNode(pNewNode, -1);
   end; }
 
-procedure TMainForm.TntFormActivate(Sender: TObject);
+procedure TMainForm.FormActivate(Sender: TObject);
 var
   ctrlIsDown: Boolean;
 begin
@@ -9494,17 +9483,17 @@ begin
   SetBibleTabsHintsState(ctrlIsDown);
 end;
 
-procedure TMainForm.TntFormCloseQuery(Sender: TObject; var CanClose: Boolean);
+procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose := true;
 end;
 
-procedure TMainForm.TntFormDblClick(Sender: TObject);
+procedure TMainForm.FormDblClick(Sender: TObject);
 begin
   //
 end;
 
-procedure TMainForm.TntFormDeactivate(Sender: TObject);
+procedure TMainForm.FormDeactivate(Sender: TObject);
 begin
   if G_ControlKeyDown then
   begin
@@ -9513,7 +9502,7 @@ begin
   end
 end;
 
-procedure TMainForm.TntFormMouseWheel(Sender: TObject; Shift: TShiftState;
+procedure TMainForm.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
 begin
   //
