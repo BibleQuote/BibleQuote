@@ -60,7 +60,7 @@
         <VerInfo_Locale>1049</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=DevAlek;FileDescription=BibleQuote 6 - Bible Research and Study Tool;FileVersion=6.0.1.1347;InternalName=BibleQuote;LegalCopyright=GNU GPL v2;LegalTrademarks=;OriginalFilename=BibleQuote;ProductName=BibleQuote 6;ProductVersion=6.0.1.10;Comments=Bible Research and Study Tool;PrivateBuild=Yes</VerInfo_Keys>
         <DCC_ExeOutput>.\Output\</DCC_ExeOutput>
-        <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\AsqLite3;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\RkControls;.\Components\HtmlView;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\AsqLite3;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\Components\BqComponents;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PostBuildEvent><![CDATA[xcopy "$(PROJECTDIR)\res\*.lng" "$(OUTPUTDIR)" /d /s /y
 xcopy "$(PROJECTDIR)\Libs\*.dll" "$(OUTPUTDIR)" /d /s /y
 xcopy "$(PROJECTDIR)\TagsDb.bqd" "$(OUTPUTDIR)" /d /y
@@ -623,7 +623,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         </DCCReference>
         <DCCReference Include="Dict.pas"/>
         <DCCReference Include="Bible.pas"/>
-        <DCCReference Include="AlekPageControl.pas"/>
         <DCCReference Include="BibleQuoteConfig.pas"/>
         <DCCReference Include="XPTheme.pas"/>
         <DCCReference Include="Forms\ExceptionFrm.pas">
@@ -657,16 +656,13 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="WCharReader.pas"/>
         <DCCReference Include="Forms\AboutFrm.pas">
             <Form>AboutForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Data\VersesDb.pas">
             <Form>VerseListEngine</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="Forms\PasswordDlg.pas">
             <Form>PasswordBox</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
@@ -688,7 +684,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -696,7 +692,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
@@ -704,7 +700,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
@@ -712,7 +708,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>

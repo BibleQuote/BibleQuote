@@ -6,9 +6,6 @@
         <Projects Include="BibleQuote.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="AlekControls.dproj">
-            <Dependencies/>
-        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -26,23 +23,14 @@
     <Target Name="BibleQuote:Make">
         <MSBuild Projects="BibleQuote.dproj" Targets="Make"/>
     </Target>
-    <Target Name="AlekControls">
-        <MSBuild Projects="AlekControls.dproj"/>
-    </Target>
-    <Target Name="AlekControls:Clean">
-        <MSBuild Projects="AlekControls.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="AlekControls:Make">
-        <MSBuild Projects="AlekControls.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="BibleQuote;AlekControls"/>
+        <CallTarget Targets="BibleQuote"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="BibleQuote:Clean;AlekControls:Clean"/>
+        <CallTarget Targets="BibleQuote:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="BibleQuote:Make;AlekControls:Make"/>
+        <CallTarget Targets="BibleQuote:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
