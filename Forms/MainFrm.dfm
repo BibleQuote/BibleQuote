@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 517
+  ClientHeight = 477
   ClientWidth = 714
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 24
     Width = 8
-    Height = 493
+    Height = 453
     AutoSnap = False
     MinSize = 100
     OnMoved = splMainMoved
@@ -52,7 +52,7 @@ object MainForm: TMainForm
     Left = 298
     Top = 24
     Width = 416
-    Height = 493
+    Height = 453
     Align = alClient
     Caption = 'pnlMain'
     TabOrder = 0
@@ -61,7 +61,7 @@ object MainForm: TMainForm
       Left = 4
       Top = 1
       Width = 411
-      Height = 470
+      Height = 430
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -82,16 +82,15 @@ object MainForm: TMainForm
       object tbInitialViewPage: TTabSheet
         PopupMenu = mViewTabsPopup
         OnContextPopup = tbInitialViewPageContextPopup
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
-        object bwrHtml: THtmlViewer
+        object bwrHtml: THTMLViewer
           Left = 114
           Top = 10
           Width = 360
           Height = 249
+          TabOrder = 0
+          PopupMenu = pmBrowser
           BorderStyle = htSingle
+          CharSet = DEFAULT_CHARSET
           DefBackground = 14870763
           DefFontName = 'Times New Roman'
           DefPreFontName = 'Courier New'
@@ -103,23 +102,21 @@ object MainForm: TMainForm
           PrintMarginRight = 2.000000000000000000
           PrintMarginTop = 2.000000000000000000
           PrintScale = 1.000000000000000000
-          OnHotSpotClick = bwrHtmlHotSpotClick
-          OnHotSpotCovered = bwrHtmlHotSpotCovered
-          OnImageRequest = bwrHtmlImageRequest
-          OnMouseDouble = bwrHtmlMouseDouble
-          PopupMenu = pmBrowser
-          TabOrder = 0
           OnKeyDown = bwrHtmlKeyDown
           OnKeyPress = bwrHtmlKeyPress
           OnKeyUp = bwrHtmlKeyUp
           OnMouseUp = bwrHtmlMouseUp
           OnMouseWheel = bwrHtmlMouseWheel
+          OnHotSpotClick = bwrHtmlHotSpotClick
+          OnHotSpotCovered = bwrHtmlHotSpotCovered
+          OnImageRequest = bwrHtmlImageRequest
+          OnMouseDouble = bwrHtmlMouseDouble
         end
       end
     end
     object pnlPaint: TPanel
       Left = 1
-      Top = 471
+      Top = 431
       Width = 414
       Height = 21
       Align = alBottom
@@ -217,7 +214,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 24
     Width = 290
-    Height = 493
+    Height = 453
     Hint = 'Memos'
     ActivePage = tbXRef
     Align = alLeft
@@ -364,7 +361,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 208
+        Height = 168
         ActivePage = tbQuickSearch
         Align = alClient
         TabOrder = 1
@@ -415,7 +412,7 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = 68
+            Top = 28
             Width = 274
             Height = 110
             Align = alBottom
@@ -502,11 +499,14 @@ object MainForm: TMainForm
       ExplicitTop = 0
       ExplicitWidth = 0
       ExplicitHeight = 0
-      object bwrSearch: THtmlViewer
+      object bwrSearch: THTMLViewer
         Left = 0
         Top = 179
         Width = 282
-        Height = 284
+        Height = 264
+        TabOrder = 0
+        Align = alClient
+        PopupMenu = pmRef
         BorderStyle = htSingle
         CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
@@ -519,12 +519,9 @@ object MainForm: TMainForm
         PrintMarginRight = 2.000000000000000000
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
-        OnHotSpotClick = bwrSearchHotSpotClick
-        Align = alClient
-        PopupMenu = pmRef
-        TabOrder = 0
         OnKeyDown = bwrSearchKeyDown
         OnKeyUp = bwrSearchKeyUp
+        OnHotSpotClick = bwrSearchHotSpotClick
         ExplicitHeight = 304
       end
       object pnlSearch: TPanel
@@ -664,11 +661,14 @@ object MainForm: TMainForm
       ExplicitTop = 0
       ExplicitWidth = 0
       ExplicitHeight = 0
-      object bwrDic: THtmlViewer
+      object bwrDic: THTMLViewer
         Left = 0
         Top = 234
         Width = 282
         Height = 249
+        TabOrder = 0
+        Align = alClient
+        PopupMenu = pmRef
         BorderStyle = htSingle
         CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
@@ -685,9 +685,6 @@ object MainForm: TMainForm
         OnHotSpotClick = bwrDicHotSpotClick
         OnHotSpotCovered = bwrHtmlHotSpotCovered
         OnMouseDouble = bwrDicMouseDouble
-        Align = alClient
-        PopupMenu = pmRef
-        TabOrder = 0
       end
       object pnlDic: TPanel
         Left = 0
@@ -793,12 +790,15 @@ object MainForm: TMainForm
       ExplicitTop = 0
       ExplicitWidth = 0
       ExplicitHeight = 0
-      object bwrStrong: THtmlViewer
+      object bwrStrong: THTMLViewer
         AlignWithMargins = True
         Left = 3
         Top = 210
         Width = 276
         Height = 270
+        TabOrder = 0
+        Align = alClient
+        PopupMenu = pmRef
         BorderStyle = htSingle
         CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
@@ -814,9 +814,6 @@ object MainForm: TMainForm
         ScrollBars = ssVertical
         OnHotSpotClick = bwrStrongHotSpotClick
         OnMouseDouble = bwrStrongMouseDouble
-        Align = alClient
-        PopupMenu = pmRef
-        TabOrder = 0
       end
       object pnlStrong: TPanel
         Left = 0
@@ -882,11 +879,14 @@ object MainForm: TMainForm
       ExplicitTop = 0
       ExplicitWidth = 0
       ExplicitHeight = 0
-      object bwrComments: THtmlViewer
+      object bwrComments: THTMLViewer
         Left = 0
         Top = 30
         Width = 282
         Height = 453
+        TabOrder = 0
+        Align = alClient
+        PopupMenu = pmRef
         BorderStyle = htSingle
         CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
@@ -901,9 +901,6 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrCommentsHotSpotClick
         OnHotSpotCovered = bwrHtmlHotSpotCovered
-        Align = alClient
-        PopupMenu = pmRef
-        TabOrder = 0
       end
       object pnlComments: TPanel
         Left = 0
@@ -952,9 +949,11 @@ object MainForm: TMainForm
           Font.Name = 'Tahoma'
           Font.Style = []
           GlossyLevel = 36
-          ImageIdx = 40
+          GlyphPos = gpLeft
+          ImageIndex = 40
           Images = ilImages
           LightHeight = 27
+          ParentFont = False
           TabOrder = 1
           TextAlign = taLeft
           OnClick = btnOnlyMeaningfulClick
@@ -988,7 +987,7 @@ object MainForm: TMainForm
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 434
+        Top = 394
         Width = 282
         Height = 29
         Align = alBottom
@@ -1094,15 +1093,14 @@ object MainForm: TMainForm
     object tbXRef: TTabSheet
       Hint = 'TSK'
       ImageIndex = 19
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object bwrXRef: THtmlViewer
+      object bwrXRef: THTMLViewer
         Left = 0
         Top = 0
         Width = 282
-        Height = 463
+        Height = 423
+        TabOrder = 0
+        Align = alClient
+        PopupMenu = pmRef
         BorderStyle = htSingle
         CharSet = RUSSIAN_CHARSET
         DefFontName = 'Times New Roman'
@@ -1116,9 +1114,6 @@ object MainForm: TMainForm
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrXRefHotSpotClick
-        Align = alClient
-        PopupMenu = pmRef
-        TabOrder = 0
       end
     end
     object tbList: TTabSheet
@@ -1225,7 +1220,7 @@ object MainForm: TMainForm
       end
     end
   end
-  object tlbPanel: TAlekPanel
+  object tlbPanel: TGradientPanel
     Left = 0
     Top = 0
     Width = 714
@@ -1242,13 +1237,14 @@ object MainForm: TMainForm
       Left = 606
       Top = 4
       Width = 30
-      Height = 15
+      Height = 16
       Margins.Right = 7
       Align = alLeft
       Anchors = []
       Caption = 'lblTitle'
       Transparent = True
       Layout = tlCenter
+      ExplicitHeight = 15
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
@@ -1979,7 +1975,7 @@ object MainForm: TMainForm
     Left = 360
     Top = 432
     Bitmap = {
-      494C01012C002D001C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01012C002D00280010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000C0000000010020000000000000C0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3605,7 +3601,7 @@ object MainForm: TMainForm
     Left = 378
     Top = 401
     Bitmap = {
-      494C0101020003001C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000300280018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

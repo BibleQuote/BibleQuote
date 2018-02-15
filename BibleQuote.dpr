@@ -16,7 +16,6 @@ uses
   ConfigFrm in 'Forms\ConfigFrm.pas' {ConfigForm},
   Dict in 'Dict.pas',
   Bible in 'Bible.pas',
-  AlekPageControl in 'AlekPageControl.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
   XPTheme in 'XPTheme.pas',
   ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm},

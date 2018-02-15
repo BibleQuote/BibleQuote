@@ -1,12 +1,11 @@
-package AlekControls;
+package BqComponents;
 
 {$R *.res}
-{$R 'Components\SevenZip\SevenZipVCL.dcr'}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
+{$DEBUGINFO OFF}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
@@ -26,16 +25,15 @@ package AlekControls;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
   rtl,
-  vcl,
-  vclx;
+  vcl;
 
 contains
+  bqGradientPanel in 'bqGradientPanel.pas',
   AlekPageControl in 'AlekPageControl.pas',
-  rkGlassButton in 'Components\rkcontrols\rkGlassButton.pas',
-  SevenZipVCL in 'Components\SevenZip\SevenZipVCL.pas';
+  rkGlassButton in 'rkGlassButton.pas';
 
 end.
