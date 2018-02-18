@@ -56,7 +56,7 @@ object MainForm: TMainForm
     Align = alClient
     Caption = 'pnlMain'
     TabOrder = 0
-    object pgcViewTabs: TAlekPageControl
+    object pgcViewTabs: TClosablePageControl
       AlignWithMargins = True
       Left = 4
       Top = 1
@@ -67,6 +67,9 @@ object MainForm: TMainForm
       Margins.Bottom = 0
       ActivePage = tbInitialViewPage
       Align = alClient
+      DoubleBuffered = True
+      Images = ilImages
+      ParentDoubleBuffered = False
       PopupMenu = mViewTabsPopup
       RaggedRight = True
       TabOrder = 0
@@ -77,9 +80,11 @@ object MainForm: TMainForm
       OnDragOver = pgcViewTabsDragOver
       OnMouseDown = pgcViewTabsMouseDown
       OnStartDrag = pgcViewTabsStartDrag
+      CloseButtonIndex = 35
       OnDeleteTab = pgcViewTabsDeleteTab
-      OnDblClick = pgcViewTabsDblClick
+      OnTabDoubleClick = pgcViewTabsDblClick
       object tbInitialViewPage: TTabSheet
+        ImageIndex = -1
         PopupMenu = mViewTabsPopup
         OnContextPopup = tbInitialViewPageContextPopup
         object bwrHtml: THTMLViewer
@@ -1975,7 +1980,7 @@ object MainForm: TMainForm
     Left = 360
     Top = 432
     Bitmap = {
-      494C01012C002D00280010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01012C006800A80010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000C0000000010020000000000000C0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3601,7 +3606,7 @@ object MainForm: TMainForm
     Left = 378
     Top = 401
     Bitmap = {
-      494C010102000300280018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101020003003C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

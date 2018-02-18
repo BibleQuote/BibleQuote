@@ -21,10 +21,10 @@ uses
   ComCtrls,
   Menus,
   ExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
-  AlekPageControl, VirtualTrees, ToolWin, StdCtrls, rkGlassButton, WCharReader,
+  VirtualTrees, ToolWin, StdCtrls, rkGlassButton, WCharReader,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, versesDB,
-  VdtEditlink, bqGradientPanel,
+  VdtEditlink, bqGradientPanel, bqClosablePageControl,
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
   MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2;
 
@@ -345,7 +345,7 @@ type
     edtSearch: TEdit;
     btnQuickSearchFwd: TBitBtn;
     cbLinks: TComboBox;
-    pgcViewTabs: TAlekPageControl;
+    pgcViewTabs: TClosablePageControl;
     tbInitialViewPage: TTabSheet;
     bwrHtml: THTMLViewer;
     miDeteleBibleTab: TMenuItem;
@@ -564,7 +564,7 @@ type
       Shift: TShiftState);
     procedure pgcViewTabsStartDrag(Sender: TObject;
       var DragObject: TDragObject);
-    procedure pgcViewTabsDeleteTab(Sender: TAlekPageControl; Index: integer);
+    procedure pgcViewTabsDeleteTab(Sender: TClosablePageControl; Index: integer);
     procedure pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure dtsBibleDrawTab(Sender: TObject; TabCanvas: TCanvas; R: TRect;
@@ -619,7 +619,7 @@ type
     procedure pgcMainMouseLeave(Sender: TObject);
     procedure SearchTabContextPopup(Sender: TObject; MousePos: TPoint;
       var Handled: Boolean);
-    procedure pgcViewTabsDblClick(Sender: TAlekPageControl; Index: integer);
+    procedure pgcViewTabsDblClick(Sender: TClosablePageControl; Index: integer);
     procedure miRecognizeBibleLinksClick(Sender: TObject);
     procedure lbBookMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
@@ -2657,7 +2657,7 @@ begin
     lblBookmark.Caption := Comment(Bookmarks[0]);
 
   (* AlekId:Добавлено *)
-  pgcViewTabs.CloseTabImage := LoadIcon(MainInstance, PChar(1233));
+  //pgcViewTabs.CloseTabImage := LoadIcon(MainInstance, PChar(1233));
   // pgcViewTabs.CloseTabImage.LoadFromResourceID(MainInstance, 1233);
   // pgcViewTabs.CloseTabImage.TransparentColor := 0;
   viewTabState := DefaultViewTabState();
@@ -11704,6 +11704,7 @@ begin
   try
     Tab1 := TTabSheet.Create(MainForm);
     Tab1.PageControl := pgcViewTabs;
+    Tab1.ImageIndex := -1;
     Tab1.OnContextPopup := tbInitialViewPageContextPopup;
     Tab1.Caption := Title;
 
@@ -12235,7 +12236,7 @@ end;
 
 { AlekId:добавлено }
 
-procedure TMainForm.pgcViewTabsDblClick(Sender: TAlekPageControl;
+procedure TMainForm.pgcViewTabsDblClick(Sender: TClosablePageControl;
   Index: integer);
 var
   ti: TViewTabInfo;
@@ -12246,7 +12247,7 @@ begin
   NewViewTab(ti.mwsLocation, ti.mSatelliteName, '', ti.state, '', true)
 end;
 
-procedure TMainForm.pgcViewTabsDeleteTab(Sender: TAlekPageControl;
+procedure TMainForm.pgcViewTabsDeleteTab(Sender: TClosablePageControl;
   Index: integer);
 begin
   //
@@ -12881,10 +12882,10 @@ begin
   if (TabIndex < 0) or (TabIndex >= dtsBible.Tabs.Count) then
     Exit;
 
-  if Source is TAlekPageControl then
+  if Source is TClosablePageControl then
   begin
     try
-      ViewTabInfo := TObject((TObject((Source as TAlekPageControl).tag)
+      ViewTabInfo := TObject((TObject((Source as TClosablePageControl).tag)
         as TTabSheet).tag) as TViewTabInfo;
       if TabIndex = dtsBible.Tabs.Count - 1 then
       begin
