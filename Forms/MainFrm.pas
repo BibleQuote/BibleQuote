@@ -836,7 +836,7 @@ type
   procedure GoPrevChapter;
   procedure GoNextChapter;
 
-  procedure TranslateInterface(inifile: WideString);
+  procedure TranslateInterface(inifile: string);
 
   procedure LoadConfiguration;
   procedure SaveConfiguration;
@@ -4365,14 +4365,14 @@ begin
     ShortCutToText(aMenuItem.ShortCut) + ')';
 end;
 
-procedure TMainForm.TranslateInterface(inifile: WideString);
+procedure TMainForm.TranslateInterface(inifile: string);
 var
   i: integer;
-  s: WideString;
+  s: string;
   fnt: TFont;
   menuHandle: HMenu;
   menuitemInfo: tagMENUITEMINFOW;
-  buffer: array [0 .. 79] of WideChar;
+  buffer: array [0 .. 79] of Char;
   checkR: BOOL;
 begin
 
@@ -4392,7 +4392,7 @@ begin
     Lang.TranslateForm(MyLibraryForm);
   for i := 0 to miLanguage.Count - 1 do
     with miLanguage.Items[i] do
-      Checked := WideLowerCase(Caption + '.lng') = WideLowerCase(inifile);
+      Checked := LowerCase(Caption + '.lng') = LowerCase(inifile);
 
   if Assigned(ConfigForm) then
   begin
@@ -7122,8 +7122,8 @@ begin
 
   for i := 0 to miLanguage.Count - 1 do
     with miLanguage.Items[i] do
-      Checked := (WideLowerCase(Caption + '.lng')
-        = WideLowerCase(LastLanguageFile));
+      Checked := (LowerCase(Caption + '.lng')
+        = LowerCase(LastLanguageFile));
   { TODO -oAlekId -cQA : Кажется, вызов MainMenuInit лишний }
   // MainMenuInit(false);
 end;

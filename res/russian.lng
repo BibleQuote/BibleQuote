@@ -1,247 +1,247 @@
+п»ї
+; РЎРРЎРўР•РњРќР«Р• РЎРћРћР‘Р©Р•РќРРЇ ===================================
 
-; СИСТЕМНЫЕ СООБЩЕНИЯ ===================================
+; Р’РЅРёРјР°РЅРёРµ:
+; РґР»РёРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ РјРѕР¶РЅРѕ РїРµСЂРµРЅРµСЃС‚Рё РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ СЃРѕ Р·РЅР°РєРѕРј = РІ РїРµСЂРІРѕР№ РїРѕР·РёС†РёРё
 
-; Внимание:
-; длинное сообщение можно перенести на следующую строку со знаком = в первой позиции
+SoundNotFound = РќРµ РЅР°Р№РґРµРЅ Р·РІСѓРєРѕРІРѕР№ С„Р°Р№Р» РґР»СЏ "%s". Р’РѕР·РјРѕР¶РЅРѕ, Р’Р°Рј 
+= РЅСѓР¶РЅРѕ РїСЂРёРѕР±СЂРµСЃС‚Рё СЃРїРµС†РёР°Р»СЊРЅСѓСЋ РІРµСЂСЃРёСЋ СЃ Р°СѓРґРёРѕР·Р°РїРёСЃСЊСЋ С‚РµРєСЃС‚РѕРІ Р‘РёР±Р»РёРё.
+= РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СЃРІСЏР¶РёС‚РµСЃСЊ СЃ Р°РІС‚РѕСЂР°РјРё РїСЂРѕРіСЂР°РјРјС‹.
 
-SoundNotFound = Не найден звуковой файл для "%s". Возможно, Вам 
-= нужно приобрести специальную версию с аудиозаписью текстов Библии.
-= Пожалуйста, свяжитесь с авторами программы.
+FileNotFound = РќРµ РјРѕРіСѓ РЅР°Р№С‚Рё С„Р°Р№Р» %s
+GoingOnline = РЎРµР№С‡Р°СЃ "Р¦РёС‚Р°С‚Р° РёР· Р‘РёР±Р»РёРё" РѕС‚РєСЂРѕРµС‚ СЃР°Р№С‚ %s РІ Р’Р°С€РµРј РРЅС‚РµСЂРЅРµС‚-Р±СЂР°СѓР·РµСЂРµ
+#1%s=РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РјРѕРґСѓР»СЏ %s. РњРѕРґСѓР»СЊ РїРѕРІСЂРµР¶РґРµРЅ РёР»Рё СѓРєР°Р·Р°РЅ РЅРµРІРµСЂРЅС‹Р№ РїР°СЂРѕР»СЊ.
 
-FileNotFound = Не могу найти файл %s
-GoingOnline = Сейчас "Цитата из Библии" откроет сайт %s в Вашем Интернет-браузере
-#1%s=Ошибка чтения модуля %s. Модуль поврежден или указан неверный пароль.
-
-lblPasswordNeeded=Для открытия модуля нужно ввести пароль (%s)
-lblPassword=Пароль:
-btnCancel=Отмена
-cbxSavePwd=Сохранить пароль
+lblPasswordNeeded=Р”Р»СЏ РѕС‚РєСЂС‹С‚РёСЏ РјРѕРґСѓР»СЏ РЅСѓР¶РЅРѕ РІРІРµСЃС‚Рё РїР°СЂРѕР»СЊ (%s)
+lblPassword=РџР°СЂРѕР»СЊ:
+btnCancel=РћС‚РјРµРЅР°
+cbxSavePwd=РЎРѕС…СЂР°РЅРёС‚СЊ РїР°СЂРѕР»СЊ
 
 HelpFileName = indexrus.htm
 
-AllBooks = Всё
-OTOnly = В.З.
-NTOnly = Н.З.
-APOnly = Н.К.
+AllBooks = Р’СЃС‘
+OTOnly = Р’.Р—.
+NTOnly = Рќ.Р—.
+APOnly = Рќ.Рљ.
 
-PublicDomainText = Этот текст не имеет копирайта
+PublicDomainText = Р­С‚РѕС‚ С‚РµРєСЃС‚ РЅРµ РёРјРµРµС‚ РєРѕРїРёСЂР°Р№С‚Р°
 
-OneLetterWordsDeleted =  Были удалены однобуквенные части искомого выражения, т.к. они слишком часто встречаются в тексте.
-SearchTitle = Поиск: "%s"
-SearchHeaders = <b>Модуль: %s<P>Диапазон поиска: %s<P>
-SearchInterrupted = ПРОЦЕСС БЫЛ ДОСРОЧНО ПРЕРВАН.<P>
-SearchOptions = Опции поиска:</b>
-SearchResults = <b>Найдено: %d</b><P>
+OneLetterWordsDeleted =  Р‘С‹Р»Рё СѓРґР°Р»РµРЅС‹ РѕРґРЅРѕР±СѓРєРІРµРЅРЅС‹Рµ С‡Р°СЃС‚Рё РёСЃРєРѕРјРѕРіРѕ РІС‹СЂР°Р¶РµРЅРёСЏ, С‚.Рє. РѕРЅРё СЃР»РёС€РєРѕРј С‡Р°СЃС‚Рѕ РІСЃС‚СЂРµС‡Р°СЋС‚СЃСЏ РІ С‚РµРєСЃС‚Рµ.
+SearchTitle = РџРѕРёСЃРє: "%s"
+SearchHeaders = <b>РњРѕРґСѓР»СЊ: %s<P>Р”РёР°РїР°Р·РѕРЅ РїРѕРёСЃРєР°: %s<P>
+SearchInterrupted = РџР РћР¦Р•РЎРЎ Р‘Р«Р› Р”РћРЎР РћР§РќРћ РџР Р•Р Р’РђРќ.<P>
+SearchOptions = РћРїС†РёРё РїРѕРёСЃРєР°:</b>
+SearchResults = <b>РќР°Р№РґРµРЅРѕ: %d</b><P>
 
-SearchAllBooks = Все книги модуля
+SearchAllBooks = Р’СЃРµ РєРЅРёРіРё РјРѕРґСѓР»СЏ
 
-SearchWholeBible = ВСЯ БИБЛИЯ
-SearchOT = ВЕТХИЙ ЗАВЕТ
-SearchNT = НОВЫЙ ЗАВЕТ
-SearchPT = # Пятикнижие
-SearchHP = # Исторические и поэтические книги
-SearchPR = # Пророки
-SearchGA = # Евангелия и Деяния
-SearchER = # Послания и Откровение
-SearchAP = # Неканонические книги
+SearchWholeBible = Р’РЎРЇ Р‘РР‘Р›РРЇ
+SearchOT = Р’Р•РўРҐРР™ Р—РђР’Р•Рў
+SearchNT = РќРћР’Р«Р™ Р—РђР’Р•Рў
+SearchPT = # РџСЏС‚РёРєРЅРёР¶РёРµ
+SearchHP = # РСЃС‚РѕСЂРёС‡РµСЃРєРёРµ Рё РїРѕСЌС‚РёС‡РµСЃРєРёРµ РєРЅРёРіРё
+SearchPR = # РџСЂРѕСЂРѕРєРё
+SearchGA = # Р•РІР°РЅРіРµР»РёСЏ Рё Р”РµСЏРЅРёСЏ
+SearchER = # РџРѕСЃР»Р°РЅРёСЏ Рё РћС‚РєСЂРѕРІРµРЅРёРµ
+SearchAP = # РќРµРєР°РЅРѕРЅРёС‡РµСЃРєРёРµ РєРЅРёРіРё
 
-ViewPrevPage = Предыдущая страница
-ViewNextPage = Следующая страница
+ViewPrevPage = РџСЂРµРґС‹РґСѓС‰Р°СЏ СЃС‚СЂР°РЅРёС†Р°
+ViewNextPage = РЎР»РµРґСѓСЋС‰Р°СЏ СЃС‚СЂР°РЅРёС†Р°
 
-; ЭЛЕМЕНТЫ ФОРМЫ И МЕНЮ =================================
+; Р­Р›Р•РњР•РќРўР« Р¤РћР РњР« Р РњР•РќР® =================================
 
-MainForm.Caption = Цитата из Библии
+MainForm.Caption = Р¦РёС‚Р°С‚Р° РёР· Р‘РёР±Р»РёРё
 ;
-MainForm.chkAll.Caption = искомое содержит хотя бы одно слово
-MainForm.chkAll.Hint = Пример: найти не только стихи, содержащие "Иисус Христос", но и те, которые содержат "Иисус" или "Христос"
-MainForm.chkCase.Caption = различать прописные и заглавные буквы
-MainForm.chkCase.Hint = Пример: различать при поиске слова "Бог" и "бог"
-;MainForm.CBDisplayOptions.Caption = подробные заголовки в результатах
-;MainForm.CBDisplayOptions.Hint = Страница результатов будет содержать подробную информацию о выбранных опциях
-MainForm.chkParts.Caption = выражения не могут быть частями слов
-MainForm.chkParts.Hint = Пример: искать "благословен", но не "благословение"
-MainForm.chkPhrase.Caption = слова идут в заданном порядке
-MainForm.chkPhrase.Hint = Пример: найти стихи, где встречается "Иисус Христос", но не "Христос Иисус"
-MainForm.chkExactPhrase.Caption = искать точную фразу
-MainForm.chkExactPhrase.Hint = Пример: стихи, где есть "Благословен Бог", но не "Благословен Господь Бог"
+MainForm.chkAll.Caption = РёСЃРєРѕРјРѕРµ СЃРѕРґРµСЂР¶РёС‚ С…РѕС‚СЏ Р±С‹ РѕРґРЅРѕ СЃР»РѕРІРѕ
+MainForm.chkAll.Hint = РџСЂРёРјРµСЂ: РЅР°Р№С‚Рё РЅРµ С‚РѕР»СЊРєРѕ СЃС‚РёС…Рё, СЃРѕРґРµСЂР¶Р°С‰РёРµ "РРёСЃСѓСЃ РҐСЂРёСЃС‚РѕСЃ", РЅРѕ Рё С‚Рµ, РєРѕС‚РѕСЂС‹Рµ СЃРѕРґРµСЂР¶Р°С‚ "РРёСЃСѓСЃ" РёР»Рё "РҐСЂРёСЃС‚РѕСЃ"
+MainForm.chkCase.Caption = СЂР°Р·Р»РёС‡Р°С‚СЊ РїСЂРѕРїРёСЃРЅС‹Рµ Рё Р·Р°РіР»Р°РІРЅС‹Рµ Р±СѓРєРІС‹
+MainForm.chkCase.Hint = РџСЂРёРјРµСЂ: СЂР°Р·Р»РёС‡Р°С‚СЊ РїСЂРё РїРѕРёСЃРєРµ СЃР»РѕРІР° "Р‘РѕРі" Рё "Р±РѕРі"
+;MainForm.CBDisplayOptions.Caption = РїРѕРґСЂРѕР±РЅС‹Рµ Р·Р°РіРѕР»РѕРІРєРё РІ СЂРµР·СѓР»СЊС‚Р°С‚Р°С…
+;MainForm.CBDisplayOptions.Hint = РЎС‚СЂР°РЅРёС†Р° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РїРѕРґСЂРѕР±РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІС‹Р±СЂР°РЅРЅС‹С… РѕРїС†РёСЏС…
+MainForm.chkParts.Caption = РІС‹СЂР°Р¶РµРЅРёСЏ РЅРµ РјРѕРіСѓС‚ Р±С‹С‚СЊ С‡Р°СЃС‚СЏРјРё СЃР»РѕРІ
+MainForm.chkParts.Hint = РџСЂРёРјРµСЂ: РёСЃРєР°С‚СЊ "Р±Р»Р°РіРѕСЃР»РѕРІРµРЅ", РЅРѕ РЅРµ "Р±Р»Р°РіРѕСЃР»РѕРІРµРЅРёРµ"
+MainForm.chkPhrase.Caption = СЃР»РѕРІР° РёРґСѓС‚ РІ Р·Р°РґР°РЅРЅРѕРј РїРѕСЂСЏРґРєРµ
+MainForm.chkPhrase.Hint = РџСЂРёРјРµСЂ: РЅР°Р№С‚Рё СЃС‚РёС…Рё, РіРґРµ РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ "РРёСЃСѓСЃ РҐСЂРёСЃС‚РѕСЃ", РЅРѕ РЅРµ "РҐСЂРёСЃС‚РѕСЃ РРёСЃСѓСЃ"
+MainForm.chkExactPhrase.Caption = РёСЃРєР°С‚СЊ С‚РѕС‡РЅСѓСЋ С„СЂР°Р·Сѓ
+MainForm.chkExactPhrase.Hint = РџСЂРёРјРµСЂ: СЃС‚РёС…Рё, РіРґРµ РµСЃС‚СЊ "Р‘Р»Р°РіРѕСЃР»РѕРІРµРЅ Р‘РѕРі", РЅРѕ РЅРµ "Р‘Р»Р°РіРѕСЃР»РѕРІРµРЅ Р“РѕСЃРїРѕРґСЊ Р‘РѕРі"
 ;
-CBAllNotCaption = искомое содержит все введенные слова
-CBCaseNotCaption = не различать прописные и заглавные буквы
-CBPartsNotCaption = выражения могут быть частями слов
-CBPhraseNotCaption = слова могут следовать в любом порядке
+CBAllNotCaption = РёСЃРєРѕРјРѕРµ СЃРѕРґРµСЂР¶РёС‚ РІСЃРµ РІРІРµРґРµРЅРЅС‹Рµ СЃР»РѕРІР°
+CBCaseNotCaption = РЅРµ СЂР°Р·Р»РёС‡Р°С‚СЊ РїСЂРѕРїРёСЃРЅС‹Рµ Рё Р·Р°РіР»Р°РІРЅС‹Рµ Р±СѓРєРІС‹
+CBPartsNotCaption = РІС‹СЂР°Р¶РµРЅРёСЏ РјРѕРіСѓС‚ Р±С‹С‚СЊ С‡Р°СЃС‚СЏРјРё СЃР»РѕРІ
+CBPhraseNotCaption = СЃР»РѕРІР° РјРѕРіСѓС‚ СЃР»РµРґРѕРІР°С‚СЊ РІ Р»СЋР±РѕРј РїРѕСЂСЏРґРєРµ
 ;
-MainForm.tbtnBack.Hint = Пред. запись в истории (Backspace, Alt+стрелка влево)
-MainForm.tbtnForward.Hint = След. запись в истории (Alt+стрелка вправо)
-MainForm.tbtnPrevChapter.Hint = Пред. глава (Ctrl+Z)
-MainForm.tbtnNextChapter.Hint = След. глава (Ctrl+X)
+MainForm.tbtnBack.Hint = РџСЂРµРґ. Р·Р°РїРёСЃСЊ РІ РёСЃС‚РѕСЂРёРё (Backspace, Alt+СЃС‚СЂРµР»РєР° РІР»РµРІРѕ)
+MainForm.tbtnForward.Hint = РЎР»РµРґ. Р·Р°РїРёСЃСЊ РІ РёСЃС‚РѕСЂРёРё (Alt+СЃС‚СЂРµР»РєР° РІРїСЂР°РІРѕ)
+MainForm.tbtnPrevChapter.Hint = РџСЂРµРґ. РіР»Р°РІР° (Ctrl+Z)
+MainForm.tbtnNextChapter.Hint = РЎР»РµРґ. РіР»Р°РІР° (Ctrl+X)
 ;
 MainForm.btnAddressOK.Caption = OK
-MainForm.btnAddressOK.Hint = Показать выбранный отрывок
-MainForm.btnFind.Caption = Найти
-MainForm.btnFind.Hint = Начать/остановить поиск
-MainForm.HelpButton.Hint = Документация
-;MainForm.HotKeyCancelButton.Caption = Отмена
-;MainForm.HotKeyCancelButton.Hint = Выйти без сохранения
-;MainForm.HotKeyLabel.Hint = Привяжите избранные модули к клавишам быстрого доступа
+MainForm.btnAddressOK.Hint = РџРѕРєР°Р·Р°С‚СЊ РІС‹Р±СЂР°РЅРЅС‹Р№ РѕС‚СЂС‹РІРѕРє
+MainForm.btnFind.Caption = РќР°Р№С‚Рё
+MainForm.btnFind.Hint = РќР°С‡Р°С‚СЊ/РѕСЃС‚Р°РЅРѕРІРёС‚СЊ РїРѕРёСЃРє
+MainForm.HelpButton.Hint = Р”РѕРєСѓРјРµРЅС‚Р°С†РёСЏ
+;MainForm.HotKeyCancelButton.Caption = РћС‚РјРµРЅР°
+;MainForm.HotKeyCancelButton.Hint = Р’С‹Р№С‚Рё Р±РµР· СЃРѕС…СЂР°РЅРµРЅРёСЏ
+;MainForm.HotKeyLabel.Hint = РџСЂРёРІСЏР¶РёС‚Рµ РёР·Р±СЂР°РЅРЅС‹Рµ РјРѕРґСѓР»Рё Рє РєР»Р°РІРёС€Р°Рј Р±С‹СЃС‚СЂРѕРіРѕ РґРѕСЃС‚СѓРїР°
 ;MainForm.HotKeyOKButton.Caption = OK
-;MainForm.HotKeyOKButton.Hint = Сохранить настройки
-;MainForm.MemoCancelButton.Caption = Отмена
+;MainForm.HotKeyOKButton.Hint = РЎРѕС…СЂР°РЅРёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё
+;MainForm.MemoCancelButton.Caption = РћС‚РјРµРЅР°
 ;MainForm.MemoCancelButton.Hint = 
 ;MainForm.MemoOKButton.Caption = OK
-;MainForm.MemoOKButton.Hint = Сохранить текст
-MainForm.miActions.Caption = Операции
-MainForm.miAddBookmark.Caption = Добавить закладку ...
-MainForm.miAddMemo.Caption = Редактировать заметку ...
-MainForm.miMemosToggle.Caption = Вкл/выкл. личные заметки
-MainForm.miAddPassageBookmark.Caption = Поставить закладку на текущий отрывок
-MainForm.miBibleModules.Caption = Библия
-MainForm.miBookmark.Caption = Закладки...
-MainForm.miCloseWindow.Caption = Закрыть текущее окно
-MainForm.miCompare.Caption = Сравнить переводы...
+;MainForm.MemoOKButton.Hint = РЎРѕС…СЂР°РЅРёС‚СЊ С‚РµРєСЃС‚
+MainForm.miActions.Caption = РћРїРµСЂР°С†РёРё
+MainForm.miAddBookmark.Caption = Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР»Р°РґРєСѓ ...
+MainForm.miAddMemo.Caption = Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ Р·Р°РјРµС‚РєСѓ ...
+MainForm.miMemosToggle.Caption = Р’РєР»/РІС‹РєР». Р»РёС‡РЅС‹Рµ Р·Р°РјРµС‚РєРё
+MainForm.miAddPassageBookmark.Caption = РџРѕСЃС‚Р°РІРёС‚СЊ Р·Р°РєР»Р°РґРєСѓ РЅР° С‚РµРєСѓС‰РёР№ РѕС‚СЂС‹РІРѕРє
+MainForm.miBibleModules.Caption = Р‘РёР±Р»РёСЏ
+MainForm.miBookmark.Caption = Р—Р°РєР»Р°РґРєРё...
+MainForm.miCloseWindow.Caption = Р—Р°РєСЂС‹С‚СЊ С‚РµРєСѓС‰РµРµ РѕРєРЅРѕ
+MainForm.miCompare.Caption = РЎСЂР°РІРЅРёС‚СЊ РїРµСЂРµРІРѕРґС‹...
 
-MainForm.miToggle.Caption = Вкл/выкл. левую панель
-MainForm.miQuickNav.Caption = Быстрый переход к отрывку
-MainForm.miQuickSearch.Caption = Быстрый ввод поисковой фразы
-MainForm.miCopy.Caption = Копировать текст в буфер обмена
+MainForm.miToggle.Caption = Р’РєР»/РІС‹РєР». Р»РµРІСѓСЋ РїР°РЅРµР»СЊ
+MainForm.miQuickNav.Caption = Р‘С‹СЃС‚СЂС‹Р№ РїРµСЂРµС…РѕРґ Рє РѕС‚СЂС‹РІРєСѓ
+MainForm.miQuickSearch.Caption = Р‘С‹СЃС‚СЂС‹Р№ РІРІРѕРґ РїРѕРёСЃРєРѕРІРѕР№ С„СЂР°Р·С‹
+MainForm.miCopy.Caption = РљРѕРїРёСЂРѕРІР°С‚СЊ С‚РµРєСЃС‚ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°
 
-MainForm.miCopyPassage.Caption = Копировать ...
-MainForm.miCopyVerse.Caption = Копировать ...
-MainForm.miExit.Caption = Выход
-MainForm.miFavorites.Caption = Избранные модули
-MainForm.miFile.Caption = Файл
-MainForm.miGoBack.Caption = Вернуться к предыдущей странице
-MainForm.miHistory.Caption = Журнал работы...
-MainForm.miHotKey.Caption = Выбрать избранные модули...
-MainForm.miHrefUnderline.Caption = Подчеркивать гиперссылки
-MainForm.miLargeButtons.Caption = Использовать большие кнопки на панели
-MainForm.miNotepad.Caption = Мини-редактор
-MainForm.miNewWindow.Caption = Создать новое окно просмотра
-MainForm.miNextChapter.Caption = Перейти к следующей главе
-MainForm.miOpen.Caption = Открыть файл...
-MainForm.miOpenPassage.Caption = Выбрать отрывок...
-MainForm.miOptions.Caption = Настройки
-MainForm.miPrevChapter.Caption = Перейти к предыдущей главе
-MainForm.miPrint.Caption = Печать...
-MainForm.miPrintPreview.Caption = Предварительный просмотр
-MainForm.miSave.Caption = Сохранить в файл...
-MainForm.miSearch.Caption = Поиск...
-MainForm.miSearchResults.Caption = Последние результаты поиска
-MainForm.miSearchWord.Caption = Поиск выделенного текста
-MainForm.miSound.Caption = Прослушать звуковой файл, если есть
-MainForm.miTextModules.Caption = Другие книги
-MainForm.miXref.Caption = Параллельные места
-MainForm.lblSearch.Caption = Введите опции для поиска
-MainForm.lblSearch.Hint = Путем сужения диапазона поиска и задания точных параметров можно получить лучшие результаты
-MainForm.miNewTab.Caption = Новая вкладка
-MainForm.miNewTab.Hint=Создать новую вкладку вида
-MainForm.miNewViewTab.Caption = Новая вкладка
-MainForm.miCloseTab.Caption = Закрыть вкладку
-MainForm.miCloseTab.Caption = Закрыть активную вкладку вида
-MainForm.miCloseViewTab.Caption = Закрыть вкладку
+MainForm.miCopyPassage.Caption = РљРѕРїРёСЂРѕРІР°С‚СЊ ...
+MainForm.miCopyVerse.Caption = РљРѕРїРёСЂРѕРІР°С‚СЊ ...
+MainForm.miExit.Caption = Р’С‹С…РѕРґ
+MainForm.miFavorites.Caption = РР·Р±СЂР°РЅРЅС‹Рµ РјРѕРґСѓР»Рё
+MainForm.miFile.Caption = Р¤Р°Р№Р»
+MainForm.miGoBack.Caption = Р’РµСЂРЅСѓС‚СЊСЃСЏ Рє РїСЂРµРґС‹РґСѓС‰РµР№ СЃС‚СЂР°РЅРёС†Рµ
+MainForm.miHistory.Caption = Р–СѓСЂРЅР°Р» СЂР°Р±РѕС‚С‹...
+MainForm.miHotKey.Caption = Р’С‹Р±СЂР°С‚СЊ РёР·Р±СЂР°РЅРЅС‹Рµ РјРѕРґСѓР»Рё...
+MainForm.miHrefUnderline.Caption = РџРѕРґС‡РµСЂРєРёРІР°С‚СЊ РіРёРїРµСЂСЃСЃС‹Р»РєРё
+MainForm.miLargeButtons.Caption = РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р±РѕР»СЊС€РёРµ РєРЅРѕРїРєРё РЅР° РїР°РЅРµР»Рё
+MainForm.miNotepad.Caption = РњРёРЅРё-СЂРµРґР°РєС‚РѕСЂ
+MainForm.miNewWindow.Caption = РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРµ РѕРєРЅРѕ РїСЂРѕСЃРјРѕС‚СЂР°
+MainForm.miNextChapter.Caption = РџРµСЂРµР№С‚Рё Рє СЃР»РµРґСѓСЋС‰РµР№ РіР»Р°РІРµ
+MainForm.miOpen.Caption = РћС‚РєСЂС‹С‚СЊ С„Р°Р№Р»...
+MainForm.miOpenPassage.Caption = Р’С‹Р±СЂР°С‚СЊ РѕС‚СЂС‹РІРѕРє...
+MainForm.miOptions.Caption = РќР°СЃС‚СЂРѕР№РєРё
+MainForm.miPrevChapter.Caption = РџРµСЂРµР№С‚Рё Рє РїСЂРµРґС‹РґСѓС‰РµР№ РіР»Р°РІРµ
+MainForm.miPrint.Caption = РџРµС‡Р°С‚СЊ...
+MainForm.miPrintPreview.Caption = РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Р№ РїСЂРѕСЃРјРѕС‚СЂ
+MainForm.miSave.Caption = РЎРѕС…СЂР°РЅРёС‚СЊ РІ С„Р°Р№Р»...
+MainForm.miSearch.Caption = РџРѕРёСЃРє...
+MainForm.miSearchResults.Caption = РџРѕСЃР»РµРґРЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚С‹ РїРѕРёСЃРєР°
+MainForm.miSearchWord.Caption = РџРѕРёСЃРє РІС‹РґРµР»РµРЅРЅРѕРіРѕ С‚РµРєСЃС‚Р°
+MainForm.miSound.Caption = РџСЂРѕСЃР»СѓС€Р°С‚СЊ Р·РІСѓРєРѕРІРѕР№ С„Р°Р№Р», РµСЃР»Рё РµСЃС‚СЊ
+MainForm.miTextModules.Caption = Р”СЂСѓРіРёРµ РєРЅРёРіРё
+MainForm.miXref.Caption = РџР°СЂР°Р»Р»РµР»СЊРЅС‹Рµ РјРµСЃС‚Р°
+MainForm.lblSearch.Caption = Р’РІРµРґРёС‚Рµ РѕРїС†РёРё РґР»СЏ РїРѕРёСЃРєР°
+MainForm.lblSearch.Hint = РџСѓС‚РµРј СЃСѓР¶РµРЅРёСЏ РґРёР°РїР°Р·РѕРЅР° РїРѕРёСЃРєР° Рё Р·Р°РґР°РЅРёСЏ С‚РѕС‡РЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ Р»СѓС‡С€РёРµ СЂРµР·СѓР»СЊС‚Р°С‚С‹
+MainForm.miNewTab.Caption = РќРѕРІР°СЏ РІРєР»Р°РґРєР°
+MainForm.miNewTab.Hint=РЎРѕР·РґР°С‚СЊ РЅРѕРІСѓСЋ РІРєР»Р°РґРєСѓ РІРёРґР°
+MainForm.miNewViewTab.Caption = РќРѕРІР°СЏ РІРєР»Р°РґРєР°
+MainForm.miCloseTab.Caption = Р—Р°РєСЂС‹С‚СЊ РІРєР»Р°РґРєСѓ
+MainForm.miCloseTab.Caption = Р—Р°РєСЂС‹С‚СЊ Р°РєС‚РёРІРЅСѓСЋ РІРєР»Р°РґРєСѓ РІРёРґР°
+MainForm.miCloseViewTab.Caption = Р—Р°РєСЂС‹С‚СЊ РІРєР»Р°РґРєСѓ
 ;
-;MainForm.MaxCB.Items = Показать не более 100 стихов,Показать не более 200 стихов,Показать не более 300 стихов,Показать все найденные стихи
+;MainForm.MaxCB.Items = РџРѕРєР°Р·Р°С‚СЊ РЅРµ Р±РѕР»РµРµ 100 СЃС‚РёС…РѕРІ,РџРѕРєР°Р·Р°С‚СЊ РЅРµ Р±РѕР»РµРµ 200 СЃС‚РёС…РѕРІ,РџРѕРєР°Р·Р°С‚СЊ РЅРµ Р±РѕР»РµРµ 300 СЃС‚РёС…РѕРІ,РџРѕРєР°Р·Р°С‚СЊ РІСЃРµ РЅР°Р№РґРµРЅРЅС‹Рµ СЃС‚РёС…Рё
 ;
-MainForm.tbHistory.Caption = Журнал
-MainForm.tbBookmarks.Caption = Закладки
-MainForm.tbQuickSearch.Caption=Быстрый поиск
-MainForm.lblSearchInWindow.Caption=Найти в данном виде
-MainForm.edtSearch.Hint=Введите слово или выражение  для поиска
-
-;
-MainForm.miDic.Caption = Словари
-MainForm.miStrong.Caption = Лексиконы Стронга
-MainForm.miComments.Caption = Комментарии
-MainForm.miXref.Caption = Параллельные места (TSK)
-;
-MainForm.miColors.Caption = Выбрать цвета
-MainForm.miBGConfig.Caption = Цвет фона главного окна
-MainForm.miHrefConfig.Caption = Цвет для гиперссылок
-MainForm.miFoundTextConfig.Caption = Цвет найденного текста и заметок
-MainForm.miVerseHighlightBG.Caption = Цвет фона выделенных стихов
-
-
-MainForm.miFonts.Caption = Выбрать шрифты
-MainForm.miFontConfig.Caption = Шрифт главного окна
-MainForm.miRefFontConfig.Caption = Шрифт окна справочников
-MainForm.miDialogFontConfig.Caption = Шрифт диалоговых окон и интерфейса
+MainForm.tbHistory.Caption = Р–СѓСЂРЅР°Р»
+MainForm.tbBookmarks.Caption = Р—Р°РєР»Р°РґРєРё
+MainForm.tbQuickSearch.Caption=Р‘С‹СЃС‚СЂС‹Р№ РїРѕРёСЃРє
+MainForm.lblSearchInWindow.Caption=РќР°Р№С‚Рё РІ РґР°РЅРЅРѕРј РІРёРґРµ
+MainForm.edtSearch.Hint=Р’РІРµРґРёС‚Рµ СЃР»РѕРІРѕ РёР»Рё РІС‹СЂР°Р¶РµРЅРёРµ  РґР»СЏ РїРѕРёСЃРєР°
 
 ;
-MainForm.miHelpMenu.Caption = Помощь
-MainForm.miHelp.Caption = Руководство пользователя
-MainForm.miAbout.Caption = Об этой программе
+MainForm.miDic.Caption = РЎР»РѕРІР°СЂРё
+MainForm.miStrong.Caption = Р›РµРєСЃРёРєРѕРЅС‹ РЎС‚СЂРѕРЅРіР°
+MainForm.miComments.Caption = РљРѕРјРјРµРЅС‚Р°СЂРёРё
+MainForm.miXref.Caption = РџР°СЂР°Р»Р»РµР»СЊРЅС‹Рµ РјРµСЃС‚Р° (TSK)
+;
+MainForm.miColors.Caption = Р’С‹Р±СЂР°С‚СЊ С†РІРµС‚Р°
+MainForm.miBGConfig.Caption = Р¦РІРµС‚ С„РѕРЅР° РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
+MainForm.miHrefConfig.Caption = Р¦РІРµС‚ РґР»СЏ РіРёРїРµСЂСЃСЃС‹Р»РѕРє
+MainForm.miFoundTextConfig.Caption = Р¦РІРµС‚ РЅР°Р№РґРµРЅРЅРѕРіРѕ С‚РµРєСЃС‚Р° Рё Р·Р°РјРµС‚РѕРє
+MainForm.miVerseHighlightBG.Caption = Р¦РІРµС‚ С„РѕРЅР° РІС‹РґРµР»РµРЅРЅС‹С… СЃС‚РёС…РѕРІ
+
+
+MainForm.miFonts.Caption = Р’С‹Р±СЂР°С‚СЊ С€СЂРёС„С‚С‹
+MainForm.miFontConfig.Caption = РЁСЂРёС„С‚ РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
+MainForm.miRefFontConfig.Caption = РЁСЂРёС„С‚ РѕРєРЅР° СЃРїСЂР°РІРѕС‡РЅРёРєРѕРІ
+MainForm.miDialogFontConfig.Caption = РЁСЂРёС„С‚ РґРёР°Р»РѕРіРѕРІС‹С… РѕРєРѕРЅ Рё РёРЅС‚РµСЂС„РµР№СЃР°
+
+;
+MainForm.miHelpMenu.Caption = РџРѕРјРѕС‰СЊ
+MainForm.miHelp.Caption = Р СѓРєРѕРІРѕРґСЃС‚РІРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+MainForm.miAbout.Caption = РћР± СЌС‚РѕР№ РїСЂРѕРіСЂР°РјРјРµ
 ;
 
-MainForm.miSearchWindow.Caption = Искать в этом окне...
-;MainForm.SearchInWindowPanel.Caption = Поиск в этом окне
-;MainForm.TBSearchForward.Hint = Вперед
-;MainForm.TBSearchBackward.Hint = Назад
+MainForm.miSearchWindow.Caption = РСЃРєР°С‚СЊ РІ СЌС‚РѕРј РѕРєРЅРµ...
+;MainForm.SearchInWindowPanel.Caption = РџРѕРёСЃРє РІ СЌС‚РѕРј РѕРєРЅРµ
+;MainForm.TBSearchForward.Hint = Р’РїРµСЂРµРґ
+;MainForm.TBSearchBackward.Hint = РќР°Р·Р°Рґ
 ;
-StrBibleTranslations = ПЕРЕВОДЫ БИБЛИИ
-StrBooks = ДРУГИЕ КНИГИ
-StrCommentaries = КОММЕНТАРИИ
-StrAllDictionaries = ВСЕ СЛОВАРИ
+StrBibleTranslations = РџР•Р Р•Р’РћР”Р« Р‘РР‘Р›РР
+StrBooks = Р”Р РЈР“РР• РљРќРР“Р
+StrCommentaries = РљРћРњРњР•РќРўРђР РР
+StrAllDictionaries = Р’РЎР• РЎР›РћР’РђР Р
 ;
-FoundInSeveralDictionaries = найдено в нескольких словарях
-FoundInOneDictionary = найдено в одном словаре
+FoundInSeveralDictionaries = РЅР°Р№РґРµРЅРѕ РІ РЅРµСЃРєРѕР»СЊРєРёС… СЃР»РѕРІР°СЂСЏС…
+FoundInOneDictionary = РЅР°Р№РґРµРЅРѕ РІ РѕРґРЅРѕРј СЃР»РѕРІР°СЂРµ
 ;
-MainForm.lblDicFoundSeveral.Caption = найдено в нескольких словарях
-MainForm.pnlFindStrongNumber.Caption = найти стихи с этим номером
+MainForm.lblDicFoundSeveral.Caption = РЅР°Р№РґРµРЅРѕ РІ РЅРµСЃРєРѕР»СЊРєРёС… СЃР»РѕРІР°СЂСЏС…
+MainForm.pnlFindStrongNumber.Caption = РЅР°Р№С‚Рё СЃС‚РёС…Рё СЃ СЌС‚РёРј РЅРѕРјРµСЂРѕРј
 ;
-MainForm.miCopyOptions.Caption = Опции копирования
+MainForm.miCopyOptions.Caption = РћРїС†РёРё РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 ;
-ConfigForm.Caption = Настройки
+ConfigForm.Caption = РќР°СЃС‚СЂРѕР№РєРё
 ;
-ConfigForm.tsCopyOptions.Caption = Опции копирования
-;ConfigForm.FavoritesTabSheet.Caption = Избранные модули
-ConfigForm.tsFavouriteEx.Caption=Избранные модули
-ConfigForm.tsOtherOptions.Caption = Другие опции
+ConfigForm.tsCopyOptions.Caption = РћРїС†РёРё РєРѕРїРёСЂРѕРІР°РЅРёСЏ
+;ConfigForm.FavoritesTabSheet.Caption = РР·Р±СЂР°РЅРЅС‹Рµ РјРѕРґСѓР»Рё
+ConfigForm.tsFavouriteEx.Caption=РР·Р±СЂР°РЅРЅС‹Рµ РјРѕРґСѓР»Рё
+ConfigForm.tsOtherOptions.Caption = Р”СЂСѓРіРёРµ РѕРїС†РёРё
 ;
-ConfigForm.chkCopyVerseNumbers.Caption = Копировать номера стихов
-ConfigForm.chkCopyFontParams.Caption = Копировать параметры шрифта
-ConfigForm.chkCopyFontParams.Hint = Текст будет передаваться в формате RTF
-ConfigForm.chkAddReference.Caption = Добавлять подпись к отрывку
-ConfigForm.chkAddLineBreaks.Caption = Добавлять перенос строки после каждого стиха
-ConfigForm.chkAddModuleName.Caption = Вставлять в подпись код модуля/перевода
+ConfigForm.chkCopyVerseNumbers.Caption = РљРѕРїРёСЂРѕРІР°С‚СЊ РЅРѕРјРµСЂР° СЃС‚РёС…РѕРІ
+ConfigForm.chkCopyFontParams.Caption = РљРѕРїРёСЂРѕРІР°С‚СЊ РїР°СЂР°РјРµС‚СЂС‹ С€СЂРёС„С‚Р°
+ConfigForm.chkCopyFontParams.Hint = РўРµРєСЃС‚ Р±СѓРґРµС‚ РїРµСЂРµРґР°РІР°С‚СЊСЃСЏ РІ С„РѕСЂРјР°С‚Рµ RTF
+ConfigForm.chkAddReference.Caption = Р”РѕР±Р°РІР»СЏС‚СЊ РїРѕРґРїРёСЃСЊ Рє РѕС‚СЂС‹РІРєСѓ
+ConfigForm.chkAddLineBreaks.Caption = Р”РѕР±Р°РІР»СЏС‚СЊ РїРµСЂРµРЅРѕСЃ СЃС‚СЂРѕРєРё РїРѕСЃР»Рµ РєР°Р¶РґРѕРіРѕ СЃС‚РёС…Р°
+ConfigForm.chkAddModuleName.Caption = Р’СЃС‚Р°РІР»СЏС‚СЊ РІ РїРѕРґРїРёСЃСЊ РєРѕРґ РјРѕРґСѓР»СЏ/РїРµСЂРµРІРѕРґР°
 ;
-ConfigForm.btnOK.Caption = ОК
-ConfigForm.btnCancel.Caption = Отмена
+ConfigForm.btnOK.Caption = РћРљ
+ConfigForm.btnCancel.Caption = РћС‚РјРµРЅР°
 ;
-ConfigForm.lblSelectSecondPath.Caption = Дополнительный путь к модулям
+ConfigForm.lblSelectSecondPath.Caption = Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РїСѓС‚СЊ Рє РјРѕРґСѓР»СЏРј
 ;
-ConfigForm.chkMinimizeToTray.Caption = Сворачивать в трей при минимизировании окна
-ConfigForm.chkMinimizeToTray.Hint = Возле системных часов будет создана иконка
-ConfigForm.rgHotKeyChoice.Caption = Комбинация клавиш
+ConfigForm.chkMinimizeToTray.Caption = РЎРІРѕСЂР°С‡РёРІР°С‚СЊ РІ С‚СЂРµР№ РїСЂРё РјРёРЅРёРјРёР·РёСЂРѕРІР°РЅРёРё РѕРєРЅР°
+ConfigForm.chkMinimizeToTray.Hint = Р’РѕР·Р»Рµ СЃРёСЃС‚РµРјРЅС‹С… С‡Р°СЃРѕРІ Р±СѓРґРµС‚ СЃРѕР·РґР°РЅР° РёРєРѕРЅРєР°
+ConfigForm.rgHotKeyChoice.Caption = РљРѕРјР±РёРЅР°С†РёСЏ РєР»Р°РІРёС€
 ;
-CopyOptionsAddReference_ShortAtBeginning = Короткая подпись в начале каждого стиха
-CopyOptionsAddReference_ShortAtEnd = Короткая подпись в конце отрывка
-CopyOptionsAddReference_FullAtEnd = Полная подпись в конце отрывка
+CopyOptionsAddReference_ShortAtBeginning = РљРѕСЂРѕС‚РєР°СЏ РїРѕРґРїРёСЃСЊ РІ РЅР°С‡Р°Р»Рµ РєР°Р¶РґРѕРіРѕ СЃС‚РёС…Р°
+CopyOptionsAddReference_ShortAtEnd = РљРѕСЂРѕС‚РєР°СЏ РїРѕРґРїРёСЃСЊ РІ РєРѕРЅС†Рµ РѕС‚СЂС‹РІРєР°
+CopyOptionsAddReference_FullAtEnd = РџРѕР»РЅР°СЏ РїРѕРґРїРёСЃСЊ РІ РєРѕРЅС†Рµ РѕС‚СЂС‹РІРєР°
 ;
-ConfigForm.lblAvailableModules.Caption=Доступные модули
-ConfigForm.lblFavourites.Caption=Избранные
+ConfigForm.lblAvailableModules.Caption=Р”РѕСЃС‚СѓРїРЅС‹Рµ РјРѕРґСѓР»Рё
+ConfigForm.lblFavourites.Caption=РР·Р±СЂР°РЅРЅС‹Рµ
 ;
-MainForm.JCRU_Home.Caption = JesusChrist.ru - сервер христианского общения
-MainForm.JCRU_Software.Caption = Бесплатные христианские софт-твари
-MainForm.JCRU_Bible.Caption = Библия в Интернете
-MainForm.JCRU_News.Caption = Дайджест новостей со всего мира
-MainForm.JCRU_Forum.Caption = Открытый христианский форум
-MainForm.JCRU_Chat.Caption = Исторический христианский чат
-MainForm.JCRU_Library.Caption = Христианская библиотека clib.ru
-MainForm.JCRU_Docs.Caption = Полезные духовные статьи
-MainForm.JCRU_Mail.Caption = Сервис почтовых рассылок
+MainForm.JCRU_Home.Caption = JesusChrist.ru - СЃРµСЂРІРµСЂ С…СЂРёСЃС‚РёР°РЅСЃРєРѕРіРѕ РѕР±С‰РµРЅРёСЏ
+MainForm.JCRU_Software.Caption = Р‘РµСЃРїР»Р°С‚РЅС‹Рµ С…СЂРёСЃС‚РёР°РЅСЃРєРёРµ СЃРѕС„С‚-С‚РІР°СЂРё
+MainForm.JCRU_Bible.Caption = Р‘РёР±Р»РёСЏ РІ РРЅС‚РµСЂРЅРµС‚Рµ
+MainForm.JCRU_News.Caption = Р”Р°Р№РґР¶РµСЃС‚ РЅРѕРІРѕСЃС‚РµР№ СЃРѕ РІСЃРµРіРѕ РјРёСЂР°
+MainForm.JCRU_Forum.Caption = РћС‚РєСЂС‹С‚С‹Р№ С…СЂРёСЃС‚РёР°РЅСЃРєРёР№ С„РѕСЂСѓРј
+MainForm.JCRU_Chat.Caption = РСЃС‚РѕСЂРёС‡РµСЃРєРёР№ С…СЂРёСЃС‚РёР°РЅСЃРєРёР№ С‡Р°С‚
+MainForm.JCRU_Library.Caption = РҐСЂРёСЃС‚РёР°РЅСЃРєР°СЏ Р±РёР±Р»РёРѕС‚РµРєР° clib.ru
+MainForm.JCRU_Docs.Caption = РџРѕР»РµР·РЅС‹Рµ РґСѓС…РѕРІРЅС‹Рµ СЃС‚Р°С‚СЊРё
+MainForm.JCRU_Mail.Caption = РЎРµСЂРІРёСЃ РїРѕС‡С‚РѕРІС‹С… СЂР°СЃСЃС‹Р»РѕРє
 
 ;
 
 ;COPY - PASTE - PRINT
 
-MainForm.miRefCopy.Caption = Копировать
-MainForm.miRefPrint.Caption = Печатать
+MainForm.miRefCopy.Caption = РљРѕРїРёСЂРѕРІР°С‚СЊ
+MainForm.miRefPrint.Caption = РџРµС‡Р°С‚Р°С‚СЊ
 
-MainForm.miMemoCopy.Caption = Копировать
-MainForm.miMemoCut.Caption = Вырезать
-MainForm.miMemoPaste.Caption = Вставить
+MainForm.miMemoCopy.Caption = РљРѕРїРёСЂРѕРІР°С‚СЊ
+MainForm.miMemoCut.Caption = Р’С‹СЂРµР·Р°С‚СЊ
+MainForm.miMemoPaste.Caption = Р’СЃС‚Р°РІРёС‚СЊ
 
 
-MainForm.tbtnSatellite.Hint = Параллельная Библия
+MainForm.tbtnSatellite.Hint = РџР°СЂР°Р»Р»РµР»СЊРЅР°СЏ Р‘РёР±Р»РёСЏ
 
-MainForm.miRecognizeBibleLinks.Caption = Распознавать ссылки на Библию
-MainForm.miShowSignatures.Caption = Показывать подпись главы у каждого стиха
+MainForm.miRecognizeBibleLinks.Caption = Р Р°СЃРїРѕР·РЅР°РІР°С‚СЊ СЃСЃС‹Р»РєРё РЅР° Р‘РёР±Р»РёСЋ
+MainForm.miShowSignatures.Caption = РџРѕРєР°Р·С‹РІР°С‚СЊ РїРѕРґРїРёСЃСЊ РіР»Р°РІС‹ Сѓ РєР°Р¶РґРѕРіРѕ СЃС‚РёС…Р°
