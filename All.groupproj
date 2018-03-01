@@ -6,6 +6,9 @@
         <Projects Include="BibleQuote.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Tests\BibleQuoteTests.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -23,14 +26,23 @@
     <Target Name="BibleQuote:Make">
         <MSBuild Projects="BibleQuote.dproj" Targets="Make"/>
     </Target>
+    <Target Name="BibleQuoteTests">
+        <MSBuild Projects="Tests\BibleQuoteTests.dproj"/>
+    </Target>
+    <Target Name="BibleQuoteTests:Clean">
+        <MSBuild Projects="Tests\BibleQuoteTests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BibleQuoteTests:Make">
+        <MSBuild Projects="Tests\BibleQuoteTests.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="BibleQuote"/>
+        <CallTarget Targets="BibleQuote;BibleQuoteTests"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="BibleQuote:Clean"/>
+        <CallTarget Targets="BibleQuote:Clean;BibleQuoteTests:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="BibleQuote:Make"/>
+        <CallTarget Targets="BibleQuote:Make;BibleQuoteTests:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -5,7 +5,6 @@ program BibleQuote;
 uses
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
   Forms,
-  StringProcs in 'StringProcs.pas',
   WCharWindows in 'WCharWindows.pas',
   Classes,
   WideStrings,
@@ -39,10 +38,11 @@ uses
   Engine in 'Engine.pas',
   EngineInterfaces in 'EngineInterfaces.pas',
   MainFrm in 'Forms\MainFrm.pas' {MainForm: TTntForm},
-  WCharReader in 'WCharReader.pas',
+  IOProcs in 'IOProcs.pas',
   AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
   VersesDb in 'Data\VersesDb.pas' {VerseListEngine: TDataModule},
-  PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox};
+  PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox},
+  StringProcs in 'StringProcs.pas';
 
 {$R *.res}
 var
