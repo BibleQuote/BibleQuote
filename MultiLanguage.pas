@@ -125,7 +125,7 @@ begin
   if not FileExists(value) then exit;
   try
     FLines.Free;
-    FLines := ReadTextFileLines(value, TEncoding.GetEncoding(1251));
+    FLines := ReadTextFileLines(value, TEncoding.UTF8);
   except
     raise Exception.CreateFmt('TMultiLanguage.LoadIniFile: Error loading file %s',
       [value]);
