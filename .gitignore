@@ -44,4 +44,7 @@ __recovery/
 Output/users
 
 # BibleQuote output files
-Output/*.*
+Output/*
+
+# BibleQuote test results
+Tests/Output/*
