@@ -6,7 +6,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, JclUnicode, IOUtils, Types,
-  Graphics, Controls, Forms, Dialogs, WCharReader,
+  Graphics, Controls, Forms, Dialogs, IOProcs,
   StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices;
 
 const
@@ -218,7 +218,7 @@ type
 
     //FChapterZero: boolean;              // has chapter zero ?
 
-    FDefaultEncoding: Integer;
+    FDefaultEncoding: TEncoding;
       // Default 8-bit encoding for all book files of TBible.
     FDesiredFontCharset: Integer;       //AlekId
     FUseRightAlignment: boolean;        //AlekId
@@ -276,7 +276,7 @@ type
     mShortNamesVars:TStringList;
     mModuleType:TbqModuleType;
     { Protected declarations }
-    procedure LoadIniFile(value: string);
+    procedure LoadIniFile(fileName: string);
 
     function SearchOK(source: string; words: TStrings; params: byte):
       boolean;
@@ -328,7 +328,7 @@ type
     property ChapterSign: string read FChapterSign;
     property VerseSign: string read FVerseSign;
 
-    property DefaultEncoding: Integer read FDefaultEncoding;
+    property DefaultEncoding: TEncoding read FDefaultEncoding;
     property DesiredCharset: integer read FDesiredFontCharset;
     property DesiredUIFont:string read mDesiredUIFont;
     property UseRightAlignment: boolean read FUseRightAlignment;
@@ -540,8 +540,7 @@ end;
 function TBible.GetStucture: AnsiString;
 var
   bookIx, bookCnt: integer;
-  bookName, s: string;
-  pStr, pStrPtr: integer;
+  s: string;
 
 begin
 //if FBible then exit;
@@ -616,7 +615,7 @@ if state then Include(mTraits, trait)
 else Exclude(mTraits,trait);
 end;
 
-procedure TBible.LoadIniFile(value: string);
+procedure TBible.LoadIniFile(fileName: string);
 var
   s: TStrings;
   i, cur: integer;
@@ -635,8 +634,8 @@ begin
   s := nil;
 
   try
-    FDefaultEncoding := LoadBibleqtIniFileEncoding(value);
-    s := WChar_ReadTextFileToTStrings(value, FDefaultEncoding);
+    FDefaultEncoding := LoadBibleqtIniFileEncoding(fileName, TEncoding.GetEncoding(1251));
+    s := ReadTextFileLines(fileName, FDefaultEncoding);
 
   except
     on ex: TBQException do begin
@@ -646,13 +645,13 @@ begin
     end;
     on Exception do begin
       s.Free();
-      g_ExceptionContext.Add('TBible.LoadIniFile.value=' + value);
+      g_ExceptionContext.Add('TBible.LoadIniFile.value=' + fileName);
       raise Exception.CreateFmt('TBible.LoadIniFile: Error loading file %s',
-        [value]);
+        [fileName]);
     end;
 
   end;
-  isCompressed := value[1] = '?';
+  isCompressed := fileName[1] = '?';
   mModuleType:=bqmBook;
   mModuleState:=[];
   FBookQty := 0;
@@ -899,18 +898,18 @@ begin
 
   until false;
 
-  FIniFile := value;
+  FIniFile := fileName;
   if not mEngPsalmsSet then begin
 //    if FHasOT and (ChapterQtys[19]=150) then FEnglishPsalms:=true;
   end;
 
   if isCompressed then begin
-    FPath := GetArchiveFromSpecial(value) + '??';
-    FShortPath := GetArchiveFromSpecial(ExtractFileName(value));
+    FPath := GetArchiveFromSpecial(fileName) + '??';
+    FShortPath := GetArchiveFromSpecial(ExtractFileName(fileName));
     FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
   end
   else begin
-    FPath := ExtractFilePath(value);
+    FPath := ExtractFilePath(fileName);
     FShortPath := WideLowerCase(ExtractFileName(Copy(FPath, 1, Length(FPath) -
       1)));
   end;
@@ -943,7 +942,7 @@ begin
   Exclude(mTraits, bqmtApocrypha);
   end;
   if Assigned(FOnChangeModule) then FOnChangeModule(Self);
-except       g_ExceptionContext.Add('TBible.LoadIniFile.value='+value); raise; end;
+except       g_ExceptionContext.Add('TBible.LoadIniFile.value='+fileName); raise; end;
 end;
 
 function TBible.OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false ):boolean;
@@ -960,7 +959,7 @@ begin
   if (book<=0) or (book>BookQty) or (chapter<=0) or (chapter>ChapterQtys[book]) then begin
   result:=false; exit;
   end;
-  WChar_ReadHtmlFileTo(FPath + PathNames[book], BookLines, FDefaultEncoding);
+  ReadHtmlTo(FPath + PathNames[book], BookLines, TEncoding.GetEncoding(1251));
 
   ichapter := 0;
 
@@ -1154,7 +1153,7 @@ begin
     tmpwords.AddStrings(words);
   end;
 
-  WChar_ReadHtmlFileTo(FPath + PathNames[book], BookLines, FDefaultEncoding);
+  ReadHtmlTo(FPath + PathNames[book], BookLines, FDefaultEncoding);
 
   // if the whole book doesn't have matches, just skip it
   if not SearchOK(BookLines.Text, tmpwords, newparams or $F0) then Exit;
@@ -1564,7 +1563,7 @@ begin
 
   slines := nil;
   try
-    slines := WChar_ReadHtmlFile(FPath + PathNames[book], FDefaultEncoding);
+    slines := ReadHtml(FPath + PathNames[book], FDefaultEncoding);
 
     i := 0;
     count := 0;

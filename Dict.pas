@@ -2,7 +2,7 @@ unit Dict;
 
 interface
 
-uses Windows, Classes, SysUtils, WCharReader,
+uses Windows, Classes, SysUtils, IOProcs,
   WCharWindows;
 
 type TDict = class(TObject)
@@ -75,7 +75,7 @@ try
   FPath := ExtractFileName(IndexFile);
   FPath := Copy(FPath,1,Length(FPath)-3);
 
-  FiLines := WChar_ReadTextFileToTStrings (FIndex);
+  FiLines := ReadTextFileLines(FIndex, TEncoding.GetEncoding(1251));
 
   FName := FiLines[0]; FiLines.Delete(0);
   FWords.Clear;
@@ -136,7 +136,7 @@ begin
     else
       dCount := dDictSize - dOffset;
 
-    Result := WChar_ReadDictFragment (FDict, dOffset, dCount);
+    Result := ReadDictFragment(FDict, dOffset, dCount, TEncoding.GetEncoding(1251));
 
   end;
 

@@ -21,7 +21,7 @@ uses
   ComCtrls,
   Menus,
   ExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
-  VirtualTrees, ToolWin, StdCtrls, rkGlassButton, WCharReader,
+  VirtualTrees, ToolWin, StdCtrls, rkGlassButton, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, versesDB,
   VdtEditlink, bqGradientPanel, bqClosablePageControl,
@@ -1818,16 +1818,16 @@ var
   procedure WriteLst(lst: TStrings; const section: string);
   var
     i, C: integer;
-    sc: Utf8String;
+    sc: string;
 
   begin
     try
       C := lst.Count - 1;
-      sc := UTF8Encode(section);
+      sc := section;
 
       for i := 0 to C do
       begin
-        mi.WriteString(sc, Format('Item%.3d', [i]), UTF8Encode(lst[i]));
+        mi.WriteString(sc, Format('Item%.3d', [i]), lst[i]);
       end;
     except
       on E: Exception do
@@ -1840,7 +1840,7 @@ var
 begin
   mi := nil;
 
-  mi := TMemIniFile.Create(UserDir + 'mru.lst');
+  mi := TMemIniFile.Create(UserDir + 'mru.lst', TEncoding.UTF8);
   mi.Clear();
   try
 
@@ -1862,12 +1862,12 @@ var
   procedure LoadLst(lst: TStrings; const section: string);
   var
     i, C: integer;
-    sc, it: Utf8String;
-    Val: WideString;
+    sc, it: string;
+    Val: string;
   begin
     try
       lst.Clear();
-      sc := UTF8Encode(section);
+      sc := section;
       mi.ReadSectionValues(sc, sectionVals);
       C := sectionVals.Count - 1;
       if C > 400 then
@@ -1875,7 +1875,7 @@ var
 
       for i := 0 to C do
       begin
-        Val := Utf8Decode(sectionVals.ValueFromIndex[i]);
+        Val := sectionVals.ValueFromIndex[i];
         if lst.IndexOf(Val) < 0 then
           lst.Add(Val);
       end;
@@ -1891,7 +1891,7 @@ var
 begin
   mi := nil;
   sl := nil;
-  mi := TMemIniFile.Create(UserDir + 'mru.lst');
+  mi := TMemIniFile.Create(UserDir + 'mru.lst', TEncoding.UTF8);
   sl := TStringList.Create();
   sectionVals := TStringList.Create();
   try
@@ -3641,7 +3641,7 @@ begin
 
   if SaveFileDialog.Execute then
   begin
-    WChar_WriteHtmlFile(SaveFileDialog.FileName, Browser.DocumentSource);
+    WriteHtml(SaveFileDialog.FileName, Browser.DocumentSource);
     SaveFileDialog.InitialDir := ExtractFilePath(SaveFileDialog.FileName);
   end;
 end;
@@ -5252,7 +5252,7 @@ begin
 
       // Browser.Charset := DefaultCharset;
 
-      WChar_ReadHtmlFileTo(path, dBrowserSource);
+      ReadHtmlTo(path, dBrowserSource, TEncoding.GetEncoding(1251));
 
       if wasSearchHistory then
       begin
@@ -6919,7 +6919,7 @@ begin
             Exit;
           try
 
-            wstrings := WChar_ReadHtmlFile(SRC);
+            wstrings := ReadHtml(SRC, TEncoding.GetEncoding(1251));
 
             wsResolvedTxt := ResolveLnks(wstrings.Text,
               ti[vtisFuzzyResolveLinks]);

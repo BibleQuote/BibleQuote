@@ -3,7 +3,7 @@ unit MultiLanguage;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, WCharReader,
+  Windows, Messages, SysUtils, Classes, IOProcs,
   Graphics, Controls,
   Forms, Dialogs,
   
@@ -88,7 +88,7 @@ end;
 
 procedure TMultiLanguage.SaveToFile;
 begin
-  WChar_WriteTextFile (FIniFile, FLines);
+  WriteTextFile (FIniFile, FLines);
 end;
 
 function TMultiLanguage.Learn(s, value: string): boolean;
@@ -125,7 +125,7 @@ begin
   if not FileExists(value) then exit;
   try
     FLines.Free;
-    FLines := WChar_ReadTextFileToTStrings (value);
+    FLines := ReadTextFileLines(value, TEncoding.GetEncoding(1251));
   except
     raise Exception.CreateFmt('TMultiLanguage.LoadIniFile: Error loading file %s',
       [value]);
