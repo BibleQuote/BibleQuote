@@ -6631,30 +6631,9 @@ begin
 end;
 
 procedure TMainForm.Idle(Sender: TObject; var Done: Boolean);
-var
-  rct: PRect;
-  C: TControl;
 begin
   // фоновая загрузка модулей
-{$IFDEF VER180}
-  rct := PRect(PChar(Application) + $64);
-  // if rct^.Right-rct^.Left=0 then begin
-  C := nil;
-  try
 
-    C := FindDragTarget(Mouse.CursorPos, false);
-    // c:=self.ActiveControl;
-
-    if Assigned(C) then
-    begin
-
-      rct^.TopLeft := C.ClientToScreen(Point(0, 0));
-      rct^.BottomRight := C.ClientToScreen(Point(C.Width, C.Height));
-    end;
-  except
-  end;
-  // end;
-{$ENDIF}
   if not mAllBkScanDone then
   begin
     LoadModules(true);
@@ -6996,14 +6975,15 @@ var
   modType: TModuleType;
   cats: WideString;
   bookNames: Utf8String;
+  cachedModsFilePath: string;
 begin
-  cachedModulesList := nil;
-  // result := false;
   try
     cachedModulesList := TWideStringList.Create();
     try
-      cachedModulesList.LoadFromFile(GetCachedModulesListDir() +
-        C_CachedModsFileName);
+      cachedModsFilePath := GetCachedModulesListDir() + C_CachedModsFileName;
+      if not FileExists(cachedModsFilePath) then Exit;
+
+      cachedModulesList.LoadFromFile(cachedModsFilePath);
       S_cachedModules.Clear();
       i := 1;
       if cachedModulesList[0] <> 'v3' then

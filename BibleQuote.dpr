@@ -73,7 +73,6 @@ begin
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TAboutForm, AboutForm);
-  Application.CreateForm(TVerseListEngine, VerseListEngine);
   Application.CreateForm(TPasswordBox, PasswordBox);
   //  Application.HintPause :=100;
   Application.CreateForm(TInputForm, InputForm);

@@ -63,7 +63,6 @@
         <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\AsqLite3;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\BqComponents;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PostBuildEvent><![CDATA[xcopy "$(PROJECTDIR)\res\*.lng" "$(OUTPUTDIR)" /d /s /y
 xcopy "$(PROJECTDIR)\Libs\*.dll" "$(OUTPUTDIR)" /d /s /y
-xcopy "$(PROJECTDIR)\TagsDb.bqd" "$(OUTPUTDIR)" /d /y
 $(PostBuildEvent)]]></PostBuildEvent>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -684,7 +683,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -692,7 +691,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
@@ -700,7 +699,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
@@ -708,7 +707,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\TagsDb.bqd&quot; &quot;$(OUTPUTDIR)&quot; /d /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\res\*.lng&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>
