@@ -1,7 +1,7 @@
 unit GfxRenderers;
 
 interface
-uses VersesDB, Graphics, Windows, ICommandProcessor, WinUIServices, Htmlsubs;
+uses TagsDb, Graphics, Windows, ICommandProcessor, WinUIServices, Htmlsubs;
 type TbqTagVersesContent=(tvcTag, tvcPlainTxt, tvcLink);
 TbqTagsRenderer=class(TObject)
 private
@@ -11,11 +11,11 @@ class var mCurrentRenderer:TSectionList;
 class var mVmargin,mHmargin, mCurveRadius:integer;
 class var mSaveBrush:TBrush;
 class var mTagFont,mDefaultVerseFont:TFont;
-class function EffectiveGetVerseNodeText(var nd:TVersesNodeData;var usedFnt:string):UTF8String;static;
+class function EffectiveGetVerseNodeText(var nd:TVersesNodeData;var usedFnt:string):string;static;
 class function GetHTMLRenderer(id:int64; out match:boolean):TSectionList;static;
 class procedure ResetRendererStyles(renderer:TSectionList; prefFnt:Widestring);
 class function BuildVerseHTML(const verseTxt:WideString;const verseCommand:WideString;
-                                   const verseSignature:WideString): UTF8String;static;
+                                   const verseSignature:WideString): string;static;
 class procedure SetVMargin( value:integer); static;
 class procedure SetHMargin( value:integer); static;
 public
@@ -44,12 +44,10 @@ implementation
 { TbqTagsRenderer }
 var _rendererPair:TRendererPair;
 class function TbqTagsRenderer.BuildVerseHTML(const verseTxt:WideString;
-const verseCommand:WideString; const verseSignature:WideString): UTF8String;
-var txt:WideString;
+const verseCommand:WideString; const verseSignature:WideString): string;
 begin
-txt:=WideFormat('<HTML><BODY><a href="%s">%s</a> %s</BODY></HTML>',
+result:=Format('<HTML><BODY><a href="%s">%s</a> %s</BODY></HTML>',
   [verseCommand, verseSignature, verseTxt]);
-result:=WideStringToUtfBOMString(txt);
 end;
 
 class function TbqTagsRenderer.CurrentRenderer: TSectionList;
@@ -66,7 +64,7 @@ mCurrentRenderer:=nil;
 end;
 
 class function TbqTagsRenderer.EffectiveGetVerseNodeText(
-  var nd: TVersesNodeData;var usedFnt:string): UTF8String;
+  var nd: TVersesNodeData;var usedFnt:string): string;
   var cmd, verseSig,  verseText:string;
        commandType:TbqCommandType;
        hr:HRESULT;

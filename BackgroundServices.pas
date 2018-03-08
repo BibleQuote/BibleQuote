@@ -3,7 +3,7 @@ unit BackgroundServices;
 interface
 
 uses
-  Classes, SyncObjs, SysUtils, Dict, Windows, BibleQuoteUtils, EngineInterfaces, VersesDB;
+  Classes, SyncObjs, SysUtils, Dict, Windows, BibleQuoteUtils, EngineInterfaces, TagsDb;
 
 type
 
@@ -151,7 +151,8 @@ function TbqWorker._InitVerseListEngine(ui: IuiVerseOperations): HRESULT;
 begin
 result:=S_FALSE;
   try
-    VerseListEngine.InitVerseListEngine(ExePath + 'TagsDb.bqd',ui);
+    TagsDbEngine.InitVerseListEngine(ExePath + 'TagsDb.bqd',ui);
+    //TagsDbEngine.CreateDb(ExePath + 'TagsDb11.bqd');
     result:=S_OK;
   except on e: Exception do begin
    result:=-2;

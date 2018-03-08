@@ -23,10 +23,10 @@ uses
   ExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
   VirtualTrees, ToolWin, StdCtrls, rkGlassButton, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
-  Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, versesDB,
+  Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
   VdtEditlink, bqGradientPanel, bqClosablePageControl,
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
-  MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2;
+  MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2,FireDAC.DatS;
 
 const
   ConstBuildCode: WideString = '2011.09.08';
@@ -893,10 +893,10 @@ type
   procedure DeferredReloadViewPages();
   procedure AppOnHintHandler(Sender: TObject);
   procedure HintShowHideEvent(state: integer);
-  procedure TagAdded(tagId: int64; const txt: WideString; Show: Boolean);
-  procedure TagRenamed(tagId: int64; const newTxt: WideString);
-  procedure TagDeleted(id: int64; const txt: WideString);
-  procedure VerseAdded(verseId, tagId: int64; const cmd: WideString;
+  procedure TagAdded(tagId: int64; const txt: string; Show: Boolean);
+  procedure TagRenamed(tagId: int64; const newTxt: string);
+  procedure TagDeleted(id: int64; const txt: string);
+  procedure VerseAdded(verseId, tagId: int64; const cmd: string;
     Show: Boolean);
   procedure VerseDeleted(verseId, tagId: int64);
   function GetAutoTxt(const cmd: string; maxWords: integer; out fnt: string;
@@ -2054,7 +2054,7 @@ begin
     if not mBqEngine[bqsVerseListEngineInitialized] then
       mBqEngine.InitVerseListEngine(self, true);
 
-    if not verseListEngine.DbTags.Connected then
+    if not TagsDbEngine.fdTagsConnection.Connected then
     begin
       Fail();
       Exit;
@@ -2454,7 +2454,7 @@ var
   i { , b, c, v1, v2 } : integer; // AlekId:not used anymore
   viewTabState: TViewtabInfoState;
   foundmenu: Boolean;
-
+  rows: TFDDatSTableRowList;
 begin
   // tbList.PageControl := nil;
   // tbList.Parent := self;
@@ -4839,7 +4839,7 @@ begin
   if (vnd = nil) or (vnd.nodeType <> bqvntTag) then
     Exit;
 
-  rslt := verseListEngine.RenameTag(vnd.SelfId, Text);
+  rslt := TagsDbEngine.RenameTag(vnd.SelfId, Text);
   if rslt <> 0 then
   begin
     if rslt = -1 then
@@ -9365,7 +9365,7 @@ begin
 
 end;
 
-procedure TMainForm.TagAdded(tagId: int64; const txt: WideString;
+procedure TMainForm.TagAdded(tagId: int64; const txt: string;
   Show: Boolean);
 var
   vnd: TVersesNodeData;
@@ -9385,7 +9385,7 @@ begin
 
 end;
 
-procedure TMainForm.TagDeleted(id: int64; const txt: WideString);
+procedure TMainForm.TagDeleted(id: int64; const txt: string);
 var
   vnd: TVersesNodeData;
   pvn: PVirtualNode;
@@ -9409,7 +9409,7 @@ begin
 
 end;
 
-procedure TMainForm.TagRenamed(tagId: int64; const newTxt: WideString);
+procedure TMainForm.TagRenamed(tagId: int64; const newTxt: string);
 var
   vnd: TVersesNodeData;
   pvn: PVirtualNode;
@@ -9502,7 +9502,7 @@ begin
     Exit;
   if not mTaggedBookmarksLoaded then
     LoadTaggedBookMarks();
-  versesDB.verseListEngine.AddTag(InputForm.edtValue.Text, dummyTag);
+  TagsDb.TagsDbEngine.AddTag(InputForm.edtValue.Text, dummyTag);
   /// LoadTaggedBookMarks();
 
 end;
@@ -9521,7 +9521,7 @@ begin
   vnd := TVersesNodeData(vdtTagsVerses.GetNodeData(pvn)^);
   if vnd.nodeType = bqvntTag then
   begin
-    versesDB.verseListEngine.DeleteTag(vnd.getText(), vnd.SelfId, true);
+    TagsDb.TagsDbEngine.DeleteTag(vnd.getText(), vnd.SelfId, true);
     del_ix := mBqEngine.VersesTagsList.IndexOf(vnd);
     vdtTagsVerses.DeleteNode(pvn);
     if del_ix >= 0 then
@@ -9538,7 +9538,7 @@ begin
     vndParent := TVersesNodeData(vdtTagsVerses.GetNodeData(pvn)^);
     if vndParent.nodeType <> bqvntTag then
       Exit;
-    versesDB.verseListEngine.DeleteVerseFromTag(vnd.SelfId,
+      TagsDb.TagsDbEngine.DeleteVerseFromTag(vnd.SelfId,
       vndParent.getText(), false);
   end;
 
@@ -10426,7 +10426,7 @@ begin
   //
 end;
 
-procedure TMainForm.VerseAdded(verseId, tagId: int64; const cmd: WideString;
+procedure TMainForm.VerseAdded(verseId, tagId: int64; const cmd: string;
   Show: Boolean);
 var
   ix: integer;
@@ -10917,6 +10917,9 @@ begin
     dlt := vdt.Font.Height;
     rct := Rect(0, 0, vdt.ClientWidth - vdt.Indent * vdt.GetNodeLevel(Node)
       { grace gap } , 500);
+
+    if (nd = nil) then Exit;
+
     if (nd.nodeType = bqvntVerse) then
     begin
       TargetCanvas.Font := vdt.Font;
@@ -11016,7 +11019,7 @@ begin
     begin
       Sender.BeginUpdate();
       try
-        versesDB.verseListEngine.InitNodeChildren(nd, mBqEngine.VersesTagsList);
+        TagsDb.TagsDbEngine.InitNodeChildren(nd, mBqEngine.VersesTagsList);
       finally
         Sender.EndUpdate();
       end;
@@ -11032,7 +11035,7 @@ begin
   begin
     Sender.BeginUpdate();
     try
-      versesDB.verseListEngine.InitNodeChildren(nd, mBqEngine.VersesTagsList);
+      TagsDb.TagsDbEngine.InitNodeChildren(nd, mBqEngine.VersesTagsList);
     finally
       Sender.EndUpdate();
     end;
@@ -13210,7 +13213,7 @@ begin
     F := CurVerseNumber;
     t := CurVerseNumber;
   end;
-  verseListEngine.AddVerseTagged(nd.getText(), MainBook.CurBook,
+  TagsDbEngine.AddVerseTagged(nd.getText(), MainBook.CurBook,
     MainBook.CurChapter, F, t, MainBook.ShortPath, true);
 
 end;
@@ -14180,10 +14183,10 @@ end;
 procedure TMainForm.ReCalculateTagTree;
 begin
   if (not Assigned(tbList)) or (not tbList.Visible) or
-    (not Assigned(verseListEngine)) or (not Assigned(verseListEngine.DbTags))
+    (not Assigned(TagsDbEngine)) or (not Assigned(TagsDbEngine.fdTagsConnection))
   then
     Exit;
-  if (not tbList.Visible) or (not verseListEngine.DbTags.Connected) then
+  if (not tbList.Visible) or (not TagsDbEngine.fdTagsConnection.Connected) then
     Exit;
 
   // VerseNodesEraseCachedText();

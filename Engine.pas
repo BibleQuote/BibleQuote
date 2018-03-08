@@ -1,7 +1,7 @@
 unit Engine;
 
 interface
-uses Windows,Classes, Contnrs,Dict, BackgroundServices,BibleQuoteUtils, EngineInterfaces,VersesDB,Forms;
+uses Windows,Classes, Contnrs,Dict, BackgroundServices,BibleQuoteUtils, EngineInterfaces, TagsDb, Forms;
 type
 
 
@@ -63,7 +63,7 @@ result:=S_OK;
 if State[bqsTaggedBookmarksCached] then begin result:=S_OK; exit; end;
 if not Assigned(mTags_n_VersesList) then mTags_n_VersesList:=TbqVerseTagsList.Create(true);
 
-VerseListEngine.SeedNodes(mTags_n_VersesList);
+TagsDbEngine.SeedNodes(mTags_n_VersesList);
 Include(mState,bqsTaggedBookmarksCached);
 end;
 
@@ -148,8 +148,8 @@ end;
 
 function TBibleQuoteEngine.InitVerseListEngine(ui:IuiVerseOperations;foreground:boolean): HRESULT;
 begin
-  if not assigned(VerseListEngine) then
-    Application.CreateForm(TVerseListEngine, VerseListEngine);
+  if not assigned(TagsDbEngine) then
+    Application.CreateForm(TTagsDbEngine, TagsDbEngine);
   if bqsVerseListEngineInitialized in mState  then begin result:=S_OK; exit end;
   if bqsVerseListEngineInitializing in mState then
     if foreground then begin
