@@ -8,7 +8,6 @@ function StrToTokens(const str: string; const delim: string;
   strLst: TStrings; useQuotes: boolean = false): integer;
 function StrLimitToWordCnt(const ws:string; maxWordCount:integer;out actualWc:integer;out limited:boolean):string;
 function NextWordIndex(const ws:string; startIx:integer):integer;
-function WideStringToUtfBOMString(const ws:string):UTF8String;inline;
 function WideIsSpaceEndedString(const ws:string):boolean;
 function bqWidePosCI(const substr:string; str:string):integer;
 function FindFirstFileExW(lpFileName: PWideChar; fInfoLevelId: _FINDEX_INFO_LEVELS;
@@ -171,10 +170,6 @@ charIsSeparator := TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
  until pwc^=#0;
 end;
 
-function WideStringToUtfBOMString(const ws:string):UTF8String;inline;
-begin
-  result:=C__Utf8BOM+UTF8Encode(ws);
-end;
 function WideIsSpaceEndedString(const ws:string):boolean;
 begin
 result:=UnicodeIsSpace(Cardinal( ws[length(ws)-1]));

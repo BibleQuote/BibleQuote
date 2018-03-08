@@ -40,9 +40,9 @@ uses
   MainFrm in 'Forms\MainFrm.pas' {MainForm: TTntForm},
   IOProcs in 'IOProcs.pas',
   AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
-  VersesDb in 'Data\VersesDb.pas' {VerseListEngine: TDataModule},
   PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox},
-  StringProcs in 'StringProcs.pas';
+  StringProcs in 'StringProcs.pas',
+  TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule};
 
 {$R *.res}
 var
