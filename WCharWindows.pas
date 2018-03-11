@@ -17,7 +17,6 @@ implementation
 function WindowsUserName (const aDefault: WideString = 'default'): WideString;
 var
   dWBuffer: WideString;
-  dABuffer: String;
   dLength: Cardinal;
 begin
   dLength := 0;
@@ -36,7 +35,6 @@ end;
 function WindowsTempDirectory: WideString;
 var
   dWBuffer: WideString;
-  dABuffer: String;
   dLength: Cardinal;
 begin
   dLength := Windows.GetTempPathW (0, PWideChar (dWBuffer));
@@ -52,7 +50,6 @@ end;
 function WindowsDirectory: WideString;
 var
   dWBuffer: WideString;
-  dABuffer: String;
   dLength: Cardinal;
 begin
   dLength := Windows.GetWindowsDirectoryW (PWideChar (dWBuffer), 0);
@@ -66,17 +63,11 @@ begin
 end;
 
 function WStrMessageBox (aMessage: WideString; aTitle: WideString = 'Message'; aButtons: Cardinal = 0; aHWND: HWND = 0): Integer; overload;
-var
-  dAMessage: String;
-  dATitle: String;
 begin
     Result := Windows.MessageBoxW (aHWND, PWideChar (aMessage), PWideChar (aTitle), aButtons);
 end;
 
 function WStrMessageBox (aInteger: Integer; aTitle: WideString = 'Message'; aButtons: Cardinal = 0; aHWND: HWND = 0): Integer; overload;
-var
-  dAMessage: String;
-  dATitle: String;
 begin
   Result := Windows.MessageBoxW (aHWND, PWideChar (WideString (IntToStr (aInteger))), PWideChar (aTitle), aButtons);
 end;
@@ -89,7 +80,6 @@ begin
   dFile := nil;
 
   try
-    Result := 0;
     dFile := TFileStream.Create (aFileName, fmOpenRead);
     Result := dFile.Size;
   finally

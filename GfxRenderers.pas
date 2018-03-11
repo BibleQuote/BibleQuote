@@ -1,7 +1,7 @@
 unit GfxRenderers;
 
 interface
-uses TagsDb, Graphics, Windows, ICommandProcessor, WinUIServices, Htmlsubs;
+uses TagsDb, Graphics, Windows, ICommandProcessor, WinUIServices, Htmlsubs, System.UITypes;
 type TbqTagVersesContent=(tvcTag, tvcPlainTxt, tvcLink);
 TbqTagsRenderer=class(TObject)
 private
@@ -169,7 +169,6 @@ end;
 
 class function TbqTagsRenderer.RenderTagNode(canvas: TCanvas;
    nodeData: TVersesNodeData;const title:WideString; selected,calcOnly: boolean; var rect: TRect): Integer;
-var wsTitle:WideString;
 var h,hRectMargin, rectInflateValue:integer;
     flgs:Cardinal;
     tagNodeBorder,tagNodecolor,saveFontColor, savePenColor, saveBrushColor:TColor;
@@ -218,7 +217,7 @@ end;
 
 class function TbqTagsRenderer.RenderVerseNode(canvas: TCanvas;
   var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
-var  cmd, usedFont:string;
+var  usedFont:string;
 txt:UTF8String;
     scrollWidth, scrollHeight, curs:integer;
     renderer:TSectionList;

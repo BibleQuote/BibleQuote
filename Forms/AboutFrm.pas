@@ -25,7 +25,6 @@ type
     procedure pnlDownloadLatestClick(Sender: TObject);
 
   private
-    cnt: integer;
     { Private declarations }
   public
     { Public declarations }

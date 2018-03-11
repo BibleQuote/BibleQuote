@@ -157,7 +157,6 @@ begin
   FOnDeleteTab(self, tabIndex);
   if (saveTabIndex >= Tabs.Count) then
     saveTabIndex := Tabs.Count;
-  tabIndex := saveTabIndex;
 end;
 
 procedure TClosablePageControl.WMLButtonDblClk(var Message: TWMLButtonDblClk);
@@ -189,7 +188,6 @@ var
   tabSheet: TTabSheet;
   delta, oldRight, iconOffset: integer;
   iconHandle: HICON;
-  closeRect: TRect;
 begin
   inherited;
   if csDesigning in ComponentState then

@@ -14,7 +14,7 @@ interface
 
 uses
   Windows, SysUtils, Classes, Controls, ExtCtrls, Graphics, Forms, Messages,
-  ImgList, Math, Menus, Dialogs;
+  ImgList, Math, Menus, Dialogs, System.Types;
 
 const
   CM_POPREFRESH = WM_USER + 1299; // Custom Message...

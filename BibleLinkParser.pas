@@ -115,7 +115,6 @@ function TBibleLinkParser.AddTokens(const tkn1: WideString; const tkn2:
 var
   chk: boolean;
   save, vl: integer;
-  tst: boolean;
   suggestedBook,suggestedChapter:integer;
   chapterValidation:TChapterValidationResult;
 label tail;
@@ -126,7 +125,7 @@ begin
   if chk and (lpsBookEntered in mFlags) and ExprEndHardDelimiter(mLastDelim) then begin
     result := lmtFirst;
         // inc(mBibleLink.tokenEndOffset);
-    tst := SetupLink(mBook, mChapter, mV1, mV2, mBibleLink.tokenEndOffset, false);
+    SetupLink(mBook, mChapter, mV1, mV2, mBibleLink.tokenEndOffset, false);
     writeln('Hard delimiter', tkn1, ' setting link');
     Inc(mBibleLink.tokenStartOffset);
     mFlags := [lpsBookEntered];
@@ -329,8 +328,6 @@ function TBibleLinkParser.ValidateChapterAndBook(book, chapter: integer; explici
 var i, booksHisCount, curProbBookIx: integer;
   curProbIndex, probVal, distance: double;
   bne: TBibleBookNameEntry;
-  cvr: TChapterValidationResult;
-  saveOffs: integer;
   chapterInv, longdistance: boolean;
 begin
   result := cvrIsNOtChapter;
@@ -501,7 +498,6 @@ begin
 end;
 
 procedure TBibleLinkParser.FinalizeParse(var pBibleLnk: PBibleLink);
-var saveBl: TBibleLink;
 label tail;
 begin
   pBibleLnk := nil;
@@ -562,12 +558,11 @@ function TBibleLinkParser.BookNameParse(const tFirst,
   tSecond: WideString): TLinkMatchType;
 var
   iVal, ix, tokenLen: integer;
-  s1res, s2res, lowerCased, dotted: boolean;
+  lowerCased, dotted: boolean;
   tkn: WideString;
   bne: TBibleBookNameEntry;
 label Hit;
 begin
-  ival := 0;
   if (length(tFirst) = 1) then begin
 
 //    ival := Integer(tFirst[1]) - ord('0');
@@ -632,7 +627,7 @@ end;
 function TBibleLinkParser.ParseBuffer(const wsBuffer: WideString; lnks: TWideStrings): boolean;
 var sl: TWideStrings;
   c, i: integer;
-  first, second, bookTkn: WideString;
+  first, second: WideString;
   r: TLinkMatchType;
   pbl: PBibleLink;
 begin
@@ -725,7 +720,7 @@ end;
 
 function TBibleLinkParser.VerseAdd(const tkn: WideString): TLinkMatchType;
 var
-  vl, err: integer;
+  vl: integer;
   chk: boolean;
   saveparserstate: TLinkParserFlags;
 begin
@@ -751,20 +746,15 @@ begin
   end;
 
   saveparserstate := mFlags;
-  vl := mBook;
-  chk := mBookExpicitSet;
   if BookNameParse(tkn, '') <> lmtFirst then begin
     result := lmtNone;
     exit;
   end;
   mFlags := saveparserstate;
- // mBookExpicitSet:=chk;
-//  SetupLink(vl,mChapter,mV1,mV2,0);
+
   mBookExpicitSet := true;
-//  if chk then debugbreak();
   result := lmtSecond;
   mFlags := [lpsBookEntered];
-//  mBibleLink.tokenStartOffset:=1;
 end;
 
 function TBibleLinkParser.VerseStart(const tkn: WideString): TLinkMatchType;
@@ -774,7 +764,7 @@ end;
 
 function TBibleLinkParser.VerseTo(const tkn: WideString): TLinkMatchType;
 var
-  vl, err: integer;
+  vl: integer;
 begin
   //Val(tkn, vl, err);
   vl := VerseTokenValue(tkn, [lvroAllowPartialVerses]);
@@ -839,7 +829,6 @@ var err: integer;
   end;
 
 begin
-  result := -2;
   Val(tkn, result, err);
   if err = 0 then exit;
   result := -2;
@@ -941,12 +930,11 @@ end;
 
 function ResolveLnks(const txt: WideString;fuzzyLogic:boolean): WideString;
 var
-  pCurrent, pLastTag, pFirstToken, pSavedFirstToken, pSecondToken, pLinkStart, pNewLinkStart,
-    pWriteBuf, pWriteFence, pLastWrittenFrom, pLastTokenParsed,
-    pOldLastTokenParsed,
-    psFence, pLastLink, pTerm, pNewCurrent, pMoveOrg: PWideChar;
+  pCurrent, pLastTag, pFirstToken, pSavedFirstToken, pSecondToken, pLinkStart,
+    pWriteBuf, pWriteFence, pLastWrittenFrom,
+    psFence, pTerm, pNewCurrent, pMoveOrg: PWideChar;
   firstToken, secondToken: WideString;
-  state, writeCnt, sourceLen, ix, tknCounter, vl, patchDelta, dbg_tki: integer;
+  state, writeCnt, sourceLen, tknCounter, vl, patchDelta, dbg_tki: integer;
   saveChar: WideChar;
   extractLnks, firstTokenFound: boolean;
   lmt: TLinkMatchType;
@@ -954,7 +942,6 @@ var
   wsLinkCode: WideString;
   blIgnoreDelimiter, isTokenSeparator, delUsed: boolean;
   ctrLastTokensParsed, ctrLinkStarts: TBQHistoryContainer;
-  pf, pc1, pc2: int64;
   tc: integer;
 
   procedure ValidateBuffer(p: PAnsiChar);
@@ -1059,7 +1046,7 @@ var
   end;
 
   procedure AddTokenPos(lmt: TLinkMatchType; shrintToFirst: boolean = false);
-  var le, dbg:PWideChar;
+  var le: PWideChar;
     ln:integer;
   begin
   //detect the beginning of current hit
@@ -1144,7 +1131,6 @@ begin
     psFence := pCurrent + sourceLen;
     lparser.Init(fuzzyLogic);
     pLastWrittenFrom := pCurrent;
-    pTerm := nil;
     if pCurrent^ <> '<' then pFirstToken := pCurrent else pFirstToken := nil;
     pSecondToken := nil;
     pLinkStart := nil;
@@ -1160,19 +1146,16 @@ begin
       end
       else if (state = 0) then begin
         blIgnoreDelimiter := true;
-        patchDelta := 0;
         if (pCurrent^ = '&') and ((pCurrent + 1)^ = '#') then begin
           pNewCurrent := PWideChar2Int(pCurrent + 2, vl);
           patchDelta := pNewCurrent - pCurrent;
           if (pNewCurrent^ = ';') and (patchDelta > 2) then begin
             if vl = 151 then vl := 8212;
             if firstTokenFound then begin
-              pMoveOrg := pSavedFirstToken;
               Inc(pSavedFirstToken, patchDelta);
               if pSecondToken <> nil then Inc(pSecondToken, patchDelta);
             end
             else if pFirstToken <> nil then begin
-              pMoveOrg := pFirstToken;
               Inc(pFirstToken, patchDelta);
             end;
 //          InsertPatch(pCurrent,0,'');
@@ -1187,7 +1170,7 @@ begin
             ctrLinkStarts.OffsetTokens((patchDelta) * 2);
             Inc(pCurrent, patchDelta); ;
             pCurrent^ := WideChar(vl);
-          end else patchDelta := 0;
+          end;
         end;
 
         isTokenSeparator := bqIsDelimiter(pCurrent^, blIgnoreDelimiter);
@@ -1327,7 +1310,6 @@ begin
 
       if pCurrent^ = '<' then begin
         state := 1;
-        pLastTag := pCurrent;
       end;
       inc(pCurrent);
     until (pCurrent^ = #0) or (pCurrent >= psFence);
@@ -1383,7 +1365,6 @@ end;
 
 function TBibleBookNames.FromStrings(const sl: TStringList): boolean;
 var i, sli, slc, searchSlen, val, tokenIx, tokenCnt: integer;
-  notFnd: boolean;
   ws, ws2, ss: string;
   tokens: TStringList;
   pItem: TBibleBookNameEntry;
@@ -1394,13 +1375,12 @@ begin
     try
       Clear();
       tokens := TStringList.Create;
-      i := 1; sli := 0; slc := sl.Count;
+      sli := 0; slc := sl.Count;
       sorted := true; Duplicates := dupIgnore;
 
-      if slc <= 0 then begin result := false; exit end;
+      if slc <= 0 then exit;
 
       repeat
-        pItem := nil;
         ss := 'bqBibleBook';            //+inttoStr(i) ;
         searchSlen := length(ss);
         repeat

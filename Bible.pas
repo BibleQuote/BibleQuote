@@ -261,8 +261,6 @@ type
     mTraits:TbqModuleTraits;
     mCategories: TStringList;
     mChapterHead: string;
-//    mUseChapterHead: boolean;
-    mLoadedPath: string;
     mInstallFontNames:string;
     mDesiredUIFont:string;
     mUIServices:IBibleWinUIServices;
@@ -286,7 +284,7 @@ type
     function GetShortNameVars(bookIx:integer):WideString;
     procedure SetShortNameVars(bookIx:integer; const Name:WideString);
     procedure InstallFonts();
-    function GetVerse(i:Cardinal):WideString;
+    function GetVerse(i:Cardinal):string;
     function getTraitState(trait:TbqModuleTrait):boolean;
     procedure setTraitState(trait:TbqModuleTrait; state:boolean);
   public
@@ -344,7 +342,7 @@ type
     property RememberPlace: boolean read FRememberPlace write FRememberPlace;
 
     //property Lines: TWideStrings read FLines;
-    property Verses[i:Cardinal]:WideString read GetVerse;default;
+    property Verses[i:Cardinal]:string read GetVerse;default;
 
     property SoundDirectory: string read FSoundDir;
     property StrongsDirectory: string read FStrongsDir;
@@ -456,7 +454,6 @@ end;
 function TBible.AddressToInternal(const moduleRelatedAddr: TBibleLink;
   out independent: TBibleLink): integer;
 begin
-  result := -2;
   moduleRelatedAddr.AssignTo(independent);
   result := ord(AddressToInternal(moduleRelatedAddr.book, moduleRelatedAddr.chapter,
     moduleRelatedAddr.vstart, independent.book, independent.chapter, independent.vstart)) - 1;
@@ -468,7 +465,7 @@ end;
 
 
 function TBible.ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
-var obk, och, ovs, ove: integer;
+var obk, och, ovs: integer;
 begin
   if InternalAddr then begin
     if not InternalToAddress(bk, 1, 1, obk, och, ovs) then begin result := -1; exit; end;
@@ -567,10 +564,10 @@ begin
 result:=trait in mTraits;
 end;
 
-function TBible.GetVerse(i: Cardinal): WideString;
+function TBible.GetVerse(i: Cardinal): string;
 begin
 if (i<0) or (i>=FLines.Count) then begin
-g_ExceptionContext.Add(WideFormat('i=%d', [i]));
+g_ExceptionContext.Add(Format('i=%d', [i]));
 raise ERangeError.Create('Invalid verse Number');
 end;
 result:=FLines[i];
@@ -622,7 +619,6 @@ var
   dFirstPart: string;
   dSecondPart: string;
   isCompressed: boolean;
-  chapterCountDelta:integer;
 
   function ToBoolean(aValue: string): Boolean;
   begin
@@ -1115,7 +1111,7 @@ end;
 
 procedure TBible.SearchBook(words: TStrings; params: byte; book: integer);
 var
-  i, chapter, verse, curKeyWordIx, keywordStart, keywordCnt, compareIx, exchangeGlass, keyWrdPos, nextkwPos: integer;
+  i, chapter, verse: integer;
   btmp, tmpwords: TStringList;      // lines buffer from the book
   s, snew: string;
   newparams: byte;
@@ -1468,7 +1464,6 @@ end;
 
 function TBible.LinkValidnessStatus(path: string; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
 var effectiveLnk: TBibleLink;
-  r: integer;
   openchapter_res:boolean;
 begin
   result := 0;
@@ -1854,7 +1849,7 @@ end;
 function BookShortNamesToRussianBible(const shortNames:WideString; out book:integer):integer;
 var maxMatchValue, maxMatchIx, currentMatchValue,i:integer;
 begin
-maxMatchValue:=-1;currentMatchValue:=-1;  maxMatchIx:=-1;
+maxMatchValue:=-1; maxMatchIx:=-1;
 for i:=1 to 66 do begin
  currentMatchValue:= CompareTokenStrings( RussianShortNames[i],shortnames,' ');
  if currentMatchValue>maxMatchValue then
@@ -1956,7 +1951,6 @@ function TBible.InternalToAddress(inputLnk: TBibleLink;
 begin
   inputLnk.AssignTo(outLink);
   outLink.tokenEndOffset := outLink.tokenEndOffset;
-  result := -2;
   result := ord(InternalToAddress(inputLnk.book, inputLnk.chapter, inputLnk.vstart,
     outLink.book, outLink.chapter, outLink.vstart)) - 1;
   if result < 0 then begin result := -2; exit; end;
@@ -1980,7 +1974,7 @@ end;
 function RussianBibleBookToModuleBook(bookIx:integer; bibleModule:TBible;out  book:integer):integer;
 var maxMatchValue, maxMatchIx, currentMatchValue,i,modBookCount:integer;
 begin
-maxMatchValue:=-1;currentMatchValue:=-1;  maxMatchIx:=-1;
+maxMatchValue:=-1; maxMatchIx:=-1;
 modBookCount:=bibleModule.FBookQty;
 for i:=1 to modBookCount do begin
  currentMatchValue:= CompareTokenStrings( RussianShortNames[bookIx],bibleModule.ShortNamesVars[i] ,' ');
