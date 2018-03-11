@@ -54,7 +54,7 @@ end;
 
 procedure TBQIntfHistoryContainer.fromFile(path: WideString);
 var fHandle:THandle;
-    i,c, l, check:integer;
+    i, c, l, check:integer;
     w:WideString;
     pbl:PBibleLinkEx;
     buf:array[0..512] of WideChar;
@@ -63,8 +63,8 @@ fHandle:= CreateFileW(PWideChar(Pointer(path)),FILE_READ_DATA or STANDARD_RIGHTS
 OPEN_EXISTING,0,0);
 if fHandle=INVALID_HANDLE_VALUE then exit;
 try
-l:=GetFileSize(fHandle, nil);
-check:=FileRead(fHandle, buf[0], 512);
+GetFileSize(fHandle, nil);
+FileRead(fHandle, buf[0], 512);
 
 c:=EffectiveDepth()-1;
 for I := 0 to c do begin

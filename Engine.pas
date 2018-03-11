@@ -27,7 +27,7 @@ type
  public
  mLastUsedComment:WideString;
  function Finalize():HRESULT;
- function Initilize(const fromPath:WideString):HRESULT;
+ procedure Initilize(const fromPath: string);
  function LoadDictionaries(const Path:WideString;foreground:boolean):HRESULT;
  function InitDictionaryItemsList(foreground:boolean):HRESULT;
  function InitVerseListEngine(ui:IuiVerseOperations;foreground:boolean):HRESULT;
@@ -103,8 +103,6 @@ end;
 
 function TBibleQuoteEngine.InitDictionaryItemsList(foreground:boolean): HRESULT;
 begin
-//
-  result := S_FALSE;
   if not assigned(mDicList) then mDicList:=TBQStringList.Create();
   if (bqsDictionariesListCreating in mState)  then begin
   if foreground then begin
@@ -131,14 +129,11 @@ begin
 
 end;
 
-
-
-
-function TBibleQuoteEngine.Initilize(const fromPath: WideString): HRESULT;
+procedure TBibleQuoteEngine.Initilize(const fromPath: string);
 begin
-mBackOpsActive:=false;
-//LoadDictionaries('');
+  mBackOpsActive:=false;
 end;
+
 function TBibleQuoteEngine.Finalize():HRESULT;
 begin
   result:=S_OK;
@@ -167,10 +162,8 @@ end;
 
 function TBibleQuoteEngine.LoadDictionaries(const Path:WideString;foreground:boolean): HRESULT;
 var
-  c,cmpR: integer;
   blDicsLoaded:boolean;
 begin
-  result := S_FALSE;
   blDicsLoaded:=(bqsDictionariesLoaded in mState);
   if (blDicsLoaded)  then begin
    //cmpR:=CompareStringW($0007f, NORM_IGNORECASE,

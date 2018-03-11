@@ -58,7 +58,7 @@ type
   TMatchInfo=record
       ix:integer;
       matchSt:integer;
-      name:WideString;
+      name:string;
       rct:TRect;
   end;
   TMatchInfoArray=array of TMatchInfo;
@@ -67,9 +67,9 @@ type
    TbqItemStyle=(bqisExpanded);
    TbqItemStyles=set of TbqItemStyle ;
   TModuleEntry = class
-    wsFullName, wsShortName, wsShortPath, wsFullPath: Widestring;
+    wsFullName, wsShortName, wsShortPath, wsFullPath: string;
     modType: TModuleType;
-    modCats: WideString;
+    modCats: string;
     modBookNames: UTF8String;
 
     mRects: PRectArray;
@@ -282,7 +282,7 @@ function StrPosW(const Str, SubStr: PChar): PChar;
 function ExctractName(const wsFile: string): string;
 function IsDown(key: integer): boolean;
 function FileRemoveExtension(const Path: string): string;
-procedure CopyHTMLToClipBoard(const str: string; const htmlStr: AnsiString =
+procedure CopyHTMLToClipBoard(const str: string; const htmlStr: string =
   '');
 function OmegaCompareTxt(const str1, str2: string; len: integer = -1;
   strict: boolean = false): integer;
@@ -328,8 +328,6 @@ function OmegaCompareTxt(const str1, str2: string; len: integer = -1;
   strict: boolean = false): integer;
 var
   str1len, str2len, minLen: integer;
-  ptr: PCHAR;
-  ch: char;
 begin
 
   str1len := length(str1); str2len := Length(str2);
@@ -398,7 +396,7 @@ end;
 
 
 function StrTokenIx(const tknString:WideString; hitPos:integer):integer;
-var tknCnt, sl, si:integer;
+var sl, si:integer;
 begin
 sl:=Length(tknString);
 si:=1;result:=1;
@@ -709,7 +707,6 @@ function TPasswordPolicy.LoadFromFile(const fileName: WideString): boolean;
 var
   i, count: integer;
 begin
-  result := false;
   try
     if not assigned(mPasswordList) then mPasswordList := TWideStringList.Create()
     else mPasswordList.Clear();
@@ -949,16 +946,16 @@ begin
       if not assigned(ifi) then continue;// for fake installed font - long font names workaround
       
       if (ifi.mHandle <> 0) and assigned(G_RemoveFontMemResourceEx) then
-        test := G_RemoveFontMemResourceEx(ifi.mHandle)
+        G_RemoveFontMemResourceEx(ifi.mHandle)
       else begin
-        test := RemoveFontResourceW(PWideChar(Pointer(ifi.mPath)));
+        RemoveFontResourceW(PWideChar(Pointer(ifi.mPath)));
         if ifi.mFileNeedsCleanUp then begin
       { TODO -oAlekId -cQA : Добавить безопасное удаление файла шрифта }
     //пока ничего
         end;
       end;
     except end;
-    ifi.Free();
+    if (ifi <> nil) then ifi.Free();
   end; //for
   end;
  try G_InstalledFonts.Free(); except end;
@@ -1067,26 +1064,21 @@ begin
   Insert(S, HTML, I);
 end;
 
-procedure CopyHTMLToClipBoard(const str: string; const htmlStr: AnsiString =
+procedure CopyHTMLToClipBoard(const str: string; const htmlStr: string =
   '');
 var
   gMem: HGLOBAL;
   lp: PChar;
-  i, l: Integer;
+  l: Integer;
   astr: string;
   uf, hf: UINT;
 begin
-  gMem := 0;
   hf := RegisterClipboardFormat('HTML Format');
   clipboard.Open;
   try
      //most descriptive first as per api docs
 //     astr:=FormatHTMLClipboardHeader(htmlStr );
     astr := GetHeader(htmlStr);
-    uf := CF_UNICODETEXT;
-{$IFNDEF USEVCLCLIPBOARD}
-     //Win32Check(EmptyClipBoard);
-{$ENDIF}
     if length(htmlStr) > 0 then begin
        //an extra "1" for the null terminator
       l := Length(astr) + 1;
@@ -1103,24 +1095,6 @@ begin
       Win32Check(gmem <> 0);
       SetClipboardData(hf, gMEm);
       Win32Check(gmem <> 0);
-      gmem := 0;
-    end;
-    if false {length(str)>0} then begin
-      l := Length(str) * 2 + 2;
-      gMem := GlobalAlloc(GMEM_DDESHARE + GMEM_MOVEABLE, l);
-       {Succeeded, now read the stream contents into the memory the pointer points at}
-      try
-        Win32Check(gmem <> 0);
-        lp := GlobalLock(gMem);
-        Win32Check(lp <> nil);
-        CopyMemory(lp, Pointer(str), l);
-      finally
-        GlobalUnlock(gMem);
-      end;
-      Win32Check(gmem <> 0);
-      SetClipboardData(uf, gMEm);
-      Win32Check(gmem <> 0);
-      gmem := 0;
     end;
 
   finally
@@ -1212,7 +1186,7 @@ function TModuleEntry.Match(matchLst: TStringList;
 type TBQBookSet=set of Byte;
 
 var
-  listIx, listCnt,  fndPos: integer;
+  listIx, listCnt: integer;
   matchStrUp, strCatsUp, strNameUP, strBNamesUp: string;
   tagFullMatch, nameFullMatch, bookNameFullMatch, nameFound,tagFound, bookNameFound,
     partialMacthed, foundBookNameHits,searchBookNames, booksetInit: Boolean;
@@ -1229,7 +1203,7 @@ begin
   strCatsUp := LowerCase(modCats);
   strBNamesUp := LowerCase(UTF8Decode(modBookNames));
 
-  tagFullMatch := true; nameFullMatch := true; bookNameFullMatch:=true; partialMacthed := true;
+  tagFullMatch := true; nameFullMatch := true; partialMacthed := true;
   allHits:=[];
   //for newfndIx:=1 to 255 do include(allHits,newfndIx);
   searchBookNames:=not (modType in [modtypeBible, modtypeComment]);
@@ -1395,7 +1369,6 @@ end;
 procedure TCachedModules.Assign(source: TCachedModules);
 var
   i, cnt: integer;
-  me: TModuleEntry;
 begin
   cnt := source.Count - 1;
   Clear();
@@ -1461,7 +1434,7 @@ end;
 function TCachedModules.IndexOf(const name: WideString;
   fromix: integer): integer;
 var
-  cnt, i, newi, fin, r: integer;
+  cnt, i: integer;
 begin
   cnt := self.Count - 1;
   result := -1;
@@ -1512,7 +1485,7 @@ end;
 
 function TCachedModules.FindByFolder(const name:WideString):integer;
 var
-  cnt, i, newi, fin, r: integer;
+  cnt, i: integer;
 begin
   cnt := self.Count - 1;
   result := -1;
@@ -1527,7 +1500,7 @@ end;
 
 function TCachedModules.FindByFullPath(const wsFullPath: WideString): integer;
 var
-  cnt, i, newi, fin, r: integer;
+  cnt, i: integer;
 begin
   cnt := self.Count - 1;
   result := -1;
@@ -1591,7 +1564,7 @@ end;
 function TBQStringList.LocateLastStartedWith(const subString: string;
   startFromIx: integer = 0; strict: boolean = false): integer;
 var
-  l, fin, i, newi, cnt, bestMatchLen, matchLen,bestMatchLenIx,currentCompareLen,
+  l, fin, i, newi, cnt, bestMatchLen, matchLen,bestMatchLenIx,
     startIx,lenDifferenceMin, lenDifference: integer;
 begin
   cnt := Count;
@@ -1614,6 +1587,7 @@ begin
   startIx:=startFromIx;
 
   bestMatchLen:=-1;
+  bestMatchLenIx:=-1;
   lenDifferenceMin:=$FFFF;
   repeat
    i := newi;
@@ -1633,16 +1607,6 @@ begin
   until i=newi;
   if bestMatchLen<0 then result:=-1
   else Result:=bestMatchLenIx;
-
-//  if result <> 0 then result := -1
-//  else begin
-//    dec(i);
-//    while (i >= 0) and (OmegaCompareTxt(subString, strings[i], l) = 0) do
-//      dec(i);
-//    inc(i);
-//    result := i;
-//    if strict and (length(strings[i]) <> l) then result := -1;
-//  end;
 end;
 
 function StrMathTokens(const str: string; tkns: TStrings; fullMatch:
@@ -1654,7 +1618,6 @@ var
 begin
   c := tkns.Count - 1;
   if c < 0 then begin result := false; exit end;
-  result := true;
   s := LowerCase(str);
   for i := 0 to c do begin
     fnd := (Pos(LowerCase(tkns[i]), s) > 0);
@@ -1709,12 +1672,10 @@ fail:
 end;
 function CompareTokenStrings(const tokensCompare:string; const tokenCompareAgainst:string; delim:Char):integer;
 var pTokenCmp, pTokenCmpAg :PChar;
-    currentCmpCh,currentCmpChA:Char;
     cmpTokeLen,cmpTokeLenAdj, cmpAgTokeLen,cmpAgTokeLenAdj, matchCnt, compareCnt:integer;
     equal:boolean;
 
 begin
-result:=-1;
 pTokenCmp:=Pointer(tokensCompare);
 matchCnt:=0;compareCnt:=0;
 pTokenCmp:=GetTokenFromString(pTokenCmp, delim,cmpTokeLen);
@@ -1776,10 +1737,9 @@ end;
 
 procedure __init_vars();
 var buff:PChar;
-    wrtn:integer;
 begin
 GetMem(buff, 4096);
-wrtn:=Windows.GetModuleFileNameW(0, buff, 2047);
+Windows.GetModuleFileNameW(0, buff, 2047);
 __exe__path:=ExtractFilePath(  buff);
 
 FreeMem(buff);

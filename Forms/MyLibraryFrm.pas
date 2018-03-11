@@ -436,8 +436,6 @@ var
   pvn: PVirtualNode;
 var
   pNodeData: TModuleEntry;
-var
-  CellText: WideString;
 begin
 
   pvn := vdtBookList.GetFirstSelected();
@@ -625,8 +623,7 @@ end;
 procedure TMyLibraryForm.UpdateList(ml: TObjectList; ti: Integer = -1;
   selName: WideString = '');
 var
-  cnt, i, mIx: Integer;
-  name: string;
+  cnt, i: Integer;
   me, catMe: TModuleEntry;
   mt: TModMatchTypes;
   allMatch, doAdd, selFlag, foundCat: Boolean;
@@ -655,7 +652,6 @@ begin
     end;
     mods := ml;
     sel := nil;
-    selFlag := false;
     if length(selName) <= 0 then
     begin
       rt := vdtBookList.GetFirstSelected();
@@ -816,9 +812,7 @@ begin
     vdtBookList.EndUpdate;
   end;
 
-  // repeat
-  selFlag := vdtBookList.ScrollIntoView(sel, true);
-  // until selFlag;
+  vdtBookList.ScrollIntoView(sel, true);
 
 end;
 
@@ -1078,8 +1072,6 @@ procedure TMyLibraryForm.vdtBookListMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   me: TModuleEntry;
-  pt: TPoint;
-  i: Integer;
 var
   pn: PVirtualNode;
 
@@ -1138,7 +1130,6 @@ var
   pvn: PVirtualNode;
   me: TModuleEntry;
   i: Integer;
-  wbk: WideString;
   bk: AnsiString;
 begin
   if Button <> mbRight then
@@ -1180,13 +1171,7 @@ begin
 end;
 
 procedure TMyLibraryForm.vdtBookListDblClick(Sender: TObject);
-var
-  pt: TPoint;
-  pn: PVirtualNode;
-  me: TModuleEntry;
 begin
-  // pt:=vdtBookList.ScreenToClient(Mouse.CursorPos);
-
   SelAction();
 end;
 
@@ -1216,8 +1201,8 @@ var
   me: TModuleEntry;
   rct: TRect;
   h, dlt, flgs: Integer;
-  ws: WideString;
-  cl1, cl2: TColor;
+  ws: string;
+  cl1: TColor;
 begin
 
   if PaintInfo.Node = nil then

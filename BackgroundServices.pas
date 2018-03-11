@@ -123,7 +123,7 @@ end;
 
 function TbqWorker._InitDictionaryItemsList(lst: TBQStringList): HRESULT;
 var
-  dicCount, wordCount, dicIx, wordIx, c: integer;
+  dicCount, wordCount, dicIx, wordIx: integer;
   hr:HRESULT;
   engine:IbqEngineDicTraits;
   currentDic:TDict;
@@ -136,7 +136,6 @@ begin
   else lst.Clear();
   lst.Sorted:=true;
   dicCount:=engine.DictionariesCount()-1;
-  dicIx:=0;
   for dicIx := 0 to dicCount do begin
    currentDic:=engine.GetDictionary(dicIx);
    wordCount:=currentDic.Words.Count-1;
@@ -149,10 +148,8 @@ end;
 
 function TbqWorker._InitVerseListEngine(ui: IuiVerseOperations): HRESULT;
 begin
-result:=S_FALSE;
   try
     TagsDbEngine.InitVerseListEngine(ExePath + 'TagsDb.bqd',ui);
-    //TagsDbEngine.CreateDb(ExePath + 'TagsDb11.bqd');
     result:=S_OK;
   except on e: Exception do begin
    result:=-2;
@@ -161,7 +158,7 @@ end;
 end;
 
 function TbqWorker._LoadDictionaries(const fromPath: WideString): HRESULT;
-var ifindFirstResult:integer;
+var
     wsFileMask, wsFileName, wsDictHtmlFileName, wsPath:WideString;
     findHandle:THandle;
     findData:_WIN32_FIND_DATAW;

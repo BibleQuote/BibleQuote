@@ -329,13 +329,12 @@ begin
   tlbTagNames.Open();
   if tlbTagNames.Eof then
   begin
+    result := S_FALSE;
     exit;
   end;
   dbTagid := tlbTagNamesTAGID.Value;
   try
-    result := fdTagsConnection.ExecSQL
-      (Format('DELETE from [VTRelations] where ((TAGID=%d) AND (VERSEID=%d))',
-      [dbTagid, verseId]));
+    fdTagsConnection.ExecSQL(Format('DELETE from [VTRelations] where ((TAGID=%d) AND (VERSEID=%d))', [dbTagid, verseId]));
   except
     on e: Exception do
       BqShowException(e);
@@ -348,7 +347,7 @@ function TTagsDbEngine.InitNodeChildren(const vnd: TVersesNodeData;
   verse_tags_cache: TbqVerseTagsList): integer;
 var
   cVid: int64;
-  vndChild, parentTagVnd: TVersesNodeData;
+  vndChild: TVersesNodeData;
   ix: integer;
 begin
   result := 0;
@@ -377,14 +376,12 @@ end;
 
 procedure TTagsDbEngine.InitVerseListEngine(const fromPath: string;
   UI: IuiVerseOperations);
-var
-  re: integer;
 begin
   try
     mInitialized := true;
     mUI := UI;
     if not FileExists(fromPath) then
-      re := CreateDB(fromPath)
+      CreateDB(fromPath)
     else
     begin
       fdTagsConnection.Params.Values['Database'] := fromPath;
@@ -395,7 +392,7 @@ begin
 
       exit;
     end;
-    re := fdTagsConnection.ExecSQL('PRAGMA foreign_keys = true;');
+    fdTagsConnection.ExecSQL('PRAGMA foreign_keys = true;');
 
     tlbTagNames.Open();
     tlbTagNames.First();
@@ -410,20 +407,14 @@ end;
 function TTagsDbEngine.InternalAddLocation(loc: string;
   out dbLocId: int64): HRESULT;
 begin
-  result := fdTagsConnection.ExecSQL
-    (Format('INSERT or ignore into [VLocations] (LocStringID) values ("%s")',
-    [loc]));
+  fdTagsConnection.ExecSQL(Format('INSERT or ignore into [VLocations] (LocStringID) values ("%s")', [loc]));
 
   tlbVLocations.SQL.Text :=
     'SELECT * FROM [VLOCATIONS] WHERE LocStringID LIKE "' + loc + '"';
   tlbVLocations.Open();
   if tlbVLocations.Eof then
   begin
-    if result = 0 then
-      result := -1;
-
     raise Exception.Create('Cannot add location:' + loc);
-
   end;
   dbLocId := tlbVLocationsLOCID.Value;
   result := 0;
@@ -431,10 +422,7 @@ end;
 
 function TTagsDbEngine.InternalAddRelation(dbTagid, dbVerseId,
   relationId: int64; show: boolean): HRESULT;
-var
-  effectiveAdded: boolean;
 begin
-  effectiveAdded := true;
   result := fdTagsConnection.ExecSQL
     (Format('insert or ignore into [VTRelations] (TAGID, VERSEID, RELATIONID)' +
     'values (%d,%d,%d)', [dbTagid, dbVerseId, relationId]));
@@ -479,7 +467,7 @@ var
   locID: int64;
 begin
   dbVerseId := -1;
-  result := InternalAddLocation(loc, locID);
+  InternalAddLocation(loc, locID);
   result := fdTagsConnection.ExecSQL
     (Format('insert or ignore into [Verses] (LocId, BookIx,ChapterIx,VerseStart,VerseEnd)'
     + 'values (%d,%d,%d,%d,%d)', [locID, bk, ch, vs, ve]));
@@ -569,8 +557,8 @@ end;
 
 function TTagsDbEngine.SeedNodes(NodeLst: TObjectList): integer;
 var
-  cVid, cTid: integer;
-  ni, nt: TVersesNodeData;
+  cTid: integer;
+  ni: TVersesNodeData;
 begin
   NodeLst.Clear();
   result := 0;
@@ -662,9 +650,7 @@ end;
 
 function TVersesNodeData.getText: string;
 var
-  IdFieldName, tableName, TextFieldName: string;
   bl: TBibleLinkEx;
-  a1, a2: string;
 begin
   if length(cachedTxt) > 0 then
   begin
