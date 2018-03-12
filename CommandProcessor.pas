@@ -1,28 +1,25 @@
 unit CommandProcessor;
 
 interface
-type TbqCommandType=(bqctInvalid, bqctGoCommand);
-function GetCommandType(const cmd:WideString):TbqCommandType;  overload;
-function GetCommandType( cmd:UTF8String):TbqCommandType;  overload;
+
+type
+  TbqCommandType = (bqctInvalid, bqctGoCommand);
+function GetCommandType(const cmd: string): TbqCommandType;
+
 implementation
+
 uses sysutils;
 
-function GetCommandType(cmd:UTF8String):TbqCommandType;
+function GetCommandType(const cmd: string): TbqCommandType;
+var lowerCommand: string;
 begin
-cmd:=LowerCase(cmd);
-if pos('go ', cmd)=1 then begin
-  result:=bqctGoCommand;
-  exit;
-end;
-result:=bqctInvalid;
-end;
-
-
-function GetCommandType(const cmd:WideString):TbqCommandType;
-var ansicmd:UTF8String;
-begin
-result:=GetCommandType(UTF8String(cmd));
-
+  lowerCommand := LowerCase(cmd);
+  if pos('go ', lowerCommand) = 1 then
+  begin
+    result := bqctGoCommand;
+    exit;
+  end;
+  result := bqctInvalid;
 end;
 
 end.

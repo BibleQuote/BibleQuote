@@ -297,7 +297,7 @@ type
 
       // стандартное сокращение
     PathNames: array[1..MAX_BOOKQTY] of string;
-    function GetStucture(): AnsiString;
+    function GetStucture(): string;
     function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
     function LinkValidnessStatus(path: string; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
     function SyncToBible(const refBible:TBible;const bl:TBibleLink; out outBibleLink):integer;
@@ -534,7 +534,7 @@ result:=mShortNamesVars[bookIx];
 
 end;
 
-function TBible.GetStucture: AnsiString;
+function TBible.GetStucture: string;
 var
   bookIx, bookCnt: integer;
   s: string;
@@ -550,7 +550,7 @@ begin
 
   for bookIx := 1 to bookCnt do begin
     if not FBible then begin
-      s := UTF8Encode(FullNames[bookIx]);
+      s := FullNames[bookIx];
       bookNames.Add(s);
     end
     else bookNames.Add(

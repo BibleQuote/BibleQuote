@@ -70,7 +70,7 @@ type
     wsFullName, wsShortName, wsShortPath, wsFullPath: string;
     modType: TModuleType;
     modCats: string;
-    modBookNames: UTF8String;
+    modBookNames: string;
 
     mRects: PRectArray;
     mCatsCnt: integer;
@@ -79,24 +79,24 @@ type
     mMatchInfo:TMatchInfoArray;
   //  mBookBits:TbitBooks;
     constructor Create(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
-       modCats:    TWideStrings); overload;
+      awsShortPath, awsFullPath: string; awsBookNames: string;
+       modCats:    TStrings); overload;
     constructor Create(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
-       modCats:         WideString); overload;
+      awsShortPath, awsFullPath: string; awsBookNames: string;
+       modCats:         string); overload;
     constructor Create(me: TModuleEntry); overload;
     destructor Destroy; override;
     procedure Init(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
-        modCatsLst: TWideStrings); overload;
+      awsShortPath, awsFullPath: string; awsBookNames: string;
+        modCatsLst: TStrings); overload;
     procedure Init(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
-        amodCats:  WideString); overload;
+      awsShortPath, awsFullPath: string; awsBookNames: string;
+        amodCats:  string); overload;
     procedure Assign(source: TModuleEntry);
     function Match(matchLst: TWideStringList;var  mi:TMatchInfoArray; allMath: boolean
       = false): TModMatchTypes;
      function BookNameByIx(ix:integer):WideString;
-     function VisualSignature():WideString;
+     function VisualSignature():string;
      function BibleBookPresent(ix:integer):boolean;
 
      function getIniPath():WideString;
@@ -293,7 +293,7 @@ function TokensToStr(Lst: TStrings; delim: string; addlastDelim: boolean
 function StrMathTokens(const str: string; tkns: TStrings; fullMatch:
   boolean): boolean;
 function CompareTokenStrings(const tokensCompare:string; const tokenCompareAgainst:string; delim:Char):integer;
-function StrGetTokenByIx(tknString:AnsiString;tokenIx:integer):AnsiString;
+function StrGetTokenByIx(tknString:string;tokenIx:integer):string;
 function GetTokenFromString(pStr:Pchar;delim:Char; out len:integer):PChar;
 function PeekToken(pC:PChar; delim:Char):string;
 
@@ -408,7 +408,7 @@ until si>sl;
 if si>=sl then result:=0;
 end;
 
-function StrGetTokenByIx(tknString:AnsiString;tokenIx:integer):AnsiString;
+function StrGetTokenByIx(tknString:string;tokenIx:integer):string;
 var p, p2:integer;
 begin
 p:=1;
@@ -625,7 +625,7 @@ begin
     pwFormShowResult := MainForm.PassWordFormShowModal(aSender.SZFileName,
       aPassword, blSavePwd);
     if (pwFormShowResult = mrOk) and (length(aPassword) > 0) then begin
-      s := XorPassword(UTF8Encode(aPassword));
+      s := XorPassword(aPassword);
       Writeln(filename, ' ', s);
       mPasswordList.AddObject(WideFormat('%s=%s', [filename, s]),
         TObject(ord(blSavePwd)));
@@ -648,7 +648,7 @@ begin
     pwdEncoded := XorPassword(pwdEncoded, false);
     writeln('после ксора  ', pwdEncoded);
     Flush(output);
-    aPassword := UTF8Decode(pwdEncoded);
+    aPassword := pwdEncoded;
   end;
   result := true;
 end;
@@ -658,10 +658,8 @@ var
   userFolder: string;
   len: integer;
   data: int64;
-  userFolderW: WideString;
 begin
-  userFolderW := WideUpperCase(CreateAndGetConfigFolder());
-  userFolder := UTF8Encode(userFolderW);
+  userFolder := UpperCase(CreateAndGetConfigFolder());
   len := length(userFolder);
   if len <= 0 then begin result := 0; exit; end;
   FillChar(data, 8, 0);
@@ -931,7 +929,6 @@ procedure cleanUpInstalledFonts();
 var
   cnt, i: integer;
   ifi: TBQInstalledFontInfo;
-  test: BOOL;
   tf: array[0..1023] of WideChar;
   tempPathLen: integer;
 begin
@@ -1071,7 +1068,7 @@ var
   lp: PChar;
   l: Integer;
   astr: string;
-  uf, hf: UINT;
+  hf: UINT;
 begin
   hf := RegisterClipboardFormat('HTML Format');
   clipboard.Open;
@@ -1115,8 +1112,8 @@ end;
 
 constructor TModuleEntry.Create(amodType: TModuleType; awsFullName,
   awsShortName,
-  awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String;
-   modCats: TWideStrings);
+  awsShortPath, awsFullPath: string; awsBookNames: string;
+   modCats: TStrings);
 begin
   inherited Create;
 //  modType := amodType;
@@ -1158,16 +1155,16 @@ result:=MainFileExists(wsShortPath+'\'+C_ModuleIniName);
 end;
 
 constructor TModuleEntry.Create(amodType: TModuleType; awsFullName,
-  awsShortName, awsShortPath, awsFullPath: WideString; awsBookNames: UTF8String;
-    modCats: WideString);
+  awsShortName, awsShortPath, awsFullPath: string; awsBookNames: string;
+    modCats: string);
 begin
   Init(amodType, awsFullName, awsShortName, awsShortPath,
     awsFullPath, awsBookNames, modCats);
 end;
 
 procedure TModuleEntry.Init(amodType: TModuleType; awsFullName, awsShortName,
-  awsShortPath, awsFullPath: WideString; awsBookNames: UTF8String; amodCats:
-    WideString);
+  awsShortPath, awsFullPath: string; awsBookNames: string; amodCats:
+    string);
 begin
   modType := amodType;
   wsFullName := awsFullName;
@@ -1188,10 +1185,10 @@ type TBQBookSet=set of Byte;
 var
   listIx, listCnt: integer;
   matchStrUp, strCatsUp, strNameUP, strBNamesUp: string;
-  tagFullMatch, nameFullMatch, bookNameFullMatch, nameFound,tagFound, bookNameFound,
+  tagFullMatch, nameFullMatch, nameFound,tagFound, bookNameFound,
     partialMacthed, foundBookNameHits,searchBookNames, booksetInit: Boolean;
     p,pf:PWideChar;
-    curHits, allHits,saveHits:TBQBookSet;
+    curHits, allHits:TBQBookSet;
     pbs:^TBQBookSet;
     fndIx, newfndIx:byte;
     book_cnt, arrSz:integer;
@@ -1201,7 +1198,7 @@ begin
   if listCnt < 0 then exit;
   strNameUP := LowerCase(wsFullName);
   strCatsUp := LowerCase(modCats);
-  strBNamesUp := LowerCase(UTF8Decode(modBookNames));
+  strBNamesUp := LowerCase(modBookNames);
 
   tagFullMatch := true; nameFullMatch := true; partialMacthed := true;
   allHits:=[];
@@ -1328,13 +1325,13 @@ begin
 end;
 
 
-function TModuleEntry.VisualSignature():WideString;
+function TModuleEntry.VisualSignature():string;
 begin
   if length(wsShortName)>0 then result:=wsShortName
   else result:=wsShortPath;
 end;
 function TModuleEntry.BibleBookPresent(ix:integer):boolean;
-var r:ansistring;
+var r:string;
 begin
 result:=false;
 if not (modType in [modtypeBible,modtypeComment]) then exit;
@@ -1346,12 +1343,12 @@ end;
 function TModuleEntry.BookNameByIx(ix:integer): WideString;
 begin
 if (Ix<=0) then begin Result:=''; exit;end;
-Result:=UTF8Decode(StrGetTokenByIx(modBookNames, Ix));
+Result:=StrGetTokenByIx(modBookNames, Ix);
 end;
 
 procedure TModuleEntry.Init(amodType: TModuleType; awsFullName, awsShortName,
-  awsShortPath, awsFullPath: Widestring; awsBookNames: UTF8String; modCatsLst:
-    TWideStrings);
+  awsShortPath, awsFullPath: string; awsBookNames: string; modCatsLst:
+    TStrings);
 begin
   modType := amodType;
   wsFullName := awsFullName;

@@ -418,7 +418,7 @@ type
     procedure DoLogic;
     function getMarginHeight():integer;override;
     function getMarginWidth():integer;override;
-    procedure __SetFileName(const fn:Utf8String);
+    procedure __SetFileName(const fn:string);
     {/Alekid}
 
     constructor Create(AOwner: TComponent); OVERRIDE;
@@ -2832,7 +2832,7 @@ function THTMLViewer.getMarginHeight: Integer;
 begin
   result := FMarginHeight;
 end;
-procedure THTMLViewer.__SetFileName(const fn:Utf8String);
+procedure THTMLViewer.__SetFileName(const fn:string);
 begin
 FCurrentFile:=fn;
 end;
