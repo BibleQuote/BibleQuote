@@ -1130,7 +1130,7 @@ var
   pvn: PVirtualNode;
   me: TModuleEntry;
   i: Integer;
-  bk: AnsiString;
+  bk: string;
 begin
   if Button <> mbRight then
     exit;
@@ -1150,7 +1150,7 @@ begin
         if length(bk) <= 0 then
           break;
         me.mMatchInfo[i].ix := i + 1;
-        me.mMatchInfo[i].name := C_BulletChar + #32 + UTF8Decode(bk);
+        me.mMatchInfo[i].name := C_BulletChar + #32 + bk;
         inc(i)
       until i >= 255;
       SetLength(me.mMatchInfo, i);

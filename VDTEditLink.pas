@@ -5,8 +5,8 @@ uses Classes,Windows,messages, VirtualTrees,Graphics;
 type
   IVDTInfo=interface
     procedure GetTextInfo(tree:TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect;
-      var Text: UnicodeString);
-    procedure SetNodeText(tree:TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const Text: UnicodeString);
+      var Text: string);
+    procedure SetNodeText(tree:TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const Text: string);
   end;
   TbqVTEdit=class(TVTEdit)
   protected
@@ -145,7 +145,7 @@ function TbqVDTEditLink.PrepareEdit(Tree: TBaseVirtualTree; Node: PVirtualNode; 
 // Retrieves the true text bounds from the owner tree.
 
 var
-  Text: UnicodeString;
+  Text: string;
 
 begin
   Result := Tree is TVirtualDrawTree;

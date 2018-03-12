@@ -765,7 +765,7 @@ type
     procedure SaveTabsToFile(path: string);
     procedure LoadTabsFromFile(path: WideString);
     function NewViewTab(const command: WideString; const satellite: WideString;
-      const browserbase: Utf8String; state: TViewtabInfoState;
+      const browserbase: string; state: TViewtabInfoState;
       const Title: WideString; visual: Boolean): Boolean;
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
@@ -905,9 +905,9 @@ type
 
   procedure GetTextInfo(tree: TVirtualDrawTree; Node: PVirtualNode;
     Column: TColumnIndex; const AFont: TFont; var R: TRect;
-    var Text: UnicodeString);
+    var Text: string);
   procedure SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode;
-    Column: TColumnIndex; const Text: UnicodeString);
+    Column: TColumnIndex; const Text: string);
   procedure InitializeTaggedBookMarks();
   procedure ReCalculateTagTree();
   function GetTagFilterTimer(): TTimer;
@@ -2071,10 +2071,10 @@ end;
 
 procedure TMainForm.LoadUserMemos;
 var
-  oldPath, newpath: WideString;
+  oldPath, newpath: string;
   sl: TStringList;
   i, C: integer;
-  s: AnsiString;
+  s: string;
 begin
   try
     newpath := UserDir + 'UserMemos.mls';
@@ -2137,7 +2137,7 @@ begin
             Add(wsShortName);
             Add(wsShortPath);
             Add(wsFullPath);
-            Add(Utf8Decode(modBookNames));
+            Add(modBookNames);
             Add(modCats);
             Add('***');
           end; // with tabInfo, tabStringList
@@ -2685,6 +2685,7 @@ var
   status_GetModTxt: integer;
 
 begin
+  status_GetModTxt := 1;
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
@@ -2969,7 +2970,7 @@ end;
 
 procedure TMainForm.GetTextInfo(tree: TVirtualDrawTree; Node: PVirtualNode;
   Column: TColumnIndex; const AFont: TFont; var R: TRect;
-  var Text: UnicodeString);
+  var Text: string);
 var
   vnd: TVersesNodeData;
 begin
@@ -3649,7 +3650,7 @@ var
   viewTabState: TViewtabInfoState;
   Key: Char;
 begin
-  unicodeSRC := Utf8Decode(SRC);
+  unicodeSRC := SRC;
   iscontrolDown := IsDown(VK_CONTROL);
   if GetCommandType(SRC) = bqctGoCommand then
   { // гиперссылка на стих }
@@ -3808,7 +3809,7 @@ begin
   if Pos(br.LinkAttributes[2], 'CLASS=bqResolvedLink') <= 0 then
     Exit;
 
-  unicodeSRC := Utf8Decode(SRC);
+  unicodeSRC := SRC;
   wstr := PeekToken(Pointer(unicodeSRC), ' ');
   if SysUtils.WideCompareText(wstr, 'go') <> 0 then
     Exit;
@@ -4127,6 +4128,7 @@ begin
           modEntry := TModuleEntry.Create(mt, tempBook.Name, tempBook.ShortName,
             tempBook.ShortPath, EmptyWideStr, tempBook.GetStucture(),
             tempBook.Categories);
+
           S_cachedModules.Add(modEntry);
 
           { f } if not(background) then
@@ -4702,7 +4704,7 @@ begin
 end;
 
 procedure TMainForm.SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode;
-  Column: TColumnIndex; const Text: UnicodeString);
+  Column: TColumnIndex; const Text: string);
 var
   vnd: TVersesNodeData;
   rslt: HRESULT;
@@ -5143,7 +5145,7 @@ begin
       Browser.LoadFromString(dBrowserSource);
       value := '';
       if Trim(Browser.DocumentTitle) <> '' then
-        value := Utf8Decode(Browser.DocumentTitle)
+        value := Browser.DocumentTitle
       else
         value := ExtractFileName(path);
 
@@ -6803,7 +6805,7 @@ var
   modEntry: TModuleEntry;
   modType: TModuleType;
   cats: WideString;
-  bookNames: Utf8String;
+  bookNames: string;
   cachedModsFilePath: string;
 begin
   try
@@ -6836,7 +6838,7 @@ begin
 
           if cats = '***' then
             cats := '';
-          bookNames := UTF8Encode(cachedModulesList[i + 5]);
+          bookNames := cachedModulesList[i + 5];
           modEntry := TModuleEntry.Create(modType, cachedModulesList[i + 1],
             cachedModulesList[i + 2], cachedModulesList[i + 3],
             cachedModulesList[i + 4], bookNames, cats);
@@ -7364,7 +7366,7 @@ begin
   StrReplace(s, '  ', ' ', true);
   if (CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
   begin
-    mHTMLSelection := UTF8Encode(Result);
+    mHTMLSelection := Result;
     InsertDefaultFontInfo(mHTMLSelection, Browser.DefFontName,
       Browser.DefFontSize);
     // if CopyOptionsAddLineBreaksChecked then
@@ -8615,7 +8617,7 @@ var
   wsrc, satBible: WideString;
   ti: TViewTabInfo;
 begin
-  wsrc := Utf8Decode(SRC);
+  wsrc := SRC;
   Val(wsrc, i, code);
   if code = 0 then
     DisplaySearchResults(i)
@@ -8992,7 +8994,7 @@ var
 begin
   // AlekId
   // MainBook.IniFile := MainFileExists(mDefaultLocation + '\bibleqt.ini');
-  cmd := Utf8Decode(SRC);
+  cmd := SRC;
   Handled := true;
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
@@ -9011,7 +9013,7 @@ begin
   if not IsDown(VK_CONTROL) then
   begin
     if autoCmd then
-      G_XRefVerseCmd := UTF8Encode(ConcreteCmd)
+      G_XRefVerseCmd := ConcreteCmd
     else
       G_XRefVerseCmd := SRC;
     miOpenNewViewClick(Sender);
@@ -9022,7 +9024,7 @@ begin
       ProcessCommand(ConcreteCmd, hlDefault)
     else
     begin
-      edtGo.Text := Utf8Decode(SRC); // AlekId: и все дела!
+      edtGo.Text := SRC; // AlekId: и все дела!
       edtGoDblClick(nil);
     end
   end;
@@ -9037,7 +9039,7 @@ var
   status: integer;
 begin
   Handled := true;
-  cmd := Utf8Decode(SRC);
+  cmd := SRC;
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
@@ -9053,7 +9055,7 @@ begin
   if not IsDown(VK_CONTROL) then
   begin
     if autoCmd then
-      G_XRefVerseCmd := UTF8Encode(ConcreteCmd)
+      G_XRefVerseCmd := ConcreteCmd
     else
       G_XRefVerseCmd := SRC;
     miOpenNewViewClick(Sender);
@@ -9185,7 +9187,7 @@ var
   vnd: TVersesNodeData;
   pvn: PVirtualNode;
 begin
-  vnd := TVersesNodeData.Create(tagId, UTF8Encode(txt), bqvntTag);
+  vnd := TVersesNodeData.Create(tagId, txt, bqvntTag);
   mBqEngine.VersesTagsList.Add(vnd);
   pvn := vdtTagsVerses.AddChild(nil, vnd);
   vnd.Parents := TObjectList(pvn);
@@ -9229,7 +9231,6 @@ var
   pvn: PVirtualNode;
   ix: integer;
 begin
-  // vnd := TVersesNodeData.Create(tagId, UTF8Encode(txt), bqvntTag);
   ix := TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, tagId,
     bqvntTag, vnd);
   if ix < 0 then
@@ -9782,7 +9783,7 @@ var
   wsrc, satBible: WideString;
 
 begin
-  wsrc := Utf8Decode(SRC);
+  wsrc := SRC;
   if IsDown(VK_MENU) then
   begin
     ti := GetActiveTabInfo();
@@ -11417,7 +11418,7 @@ begin
 end;
 
 function TMainForm.NewViewTab(const command: WideString;
-  const satellite: WideString; const browserbase: Utf8String;
+  const satellite: WideString; const browserbase: string;
   state: TViewtabInfoState; const Title: WideString; visual: Boolean): Boolean;
 var
   Tab1: TTabSheet;
@@ -13133,7 +13134,7 @@ var
 begin
   //
   G_XRefVerseCmd := Trim(G_XRefVerseCmd);
-  addr := Utf8Decode(G_XRefVerseCmd);
+  addr := G_XRefVerseCmd;
   if Length(addr) <= 0 then
     Exit;
   ti := GetActiveTabInfo();

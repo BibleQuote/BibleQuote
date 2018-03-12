@@ -29,7 +29,6 @@ const
   C_opt_FullContextLinks='FullContextLinks';
   C_opt_HighlightVerseHits='HighlightVerseHits';
   C__bqAutoBible:string='_bqAutoBible';
-  C__Utf8BOM=#$EF#$BB#$BF;
 const
     C_TagRenameError:WideString= 'Cannot rename tag, another on with same name already exists';
     C_bqError:WideString='Error';

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics,
   Controls, Forms, Dialogs,
-  Htmlview, ShellAPI, StdCtrls, ExtCtrls, HTMLUn2;
+  Htmlview, ShellAPI, StdCtrls, ExtCtrls, HTMLUn2, HTMLEmbedInterfaces;
 
 type
   TCopyrightForm = class(TForm)
@@ -44,7 +44,7 @@ procedure TCopyrightForm.bwrCopyrightHotSpotClick(Sender: TObject;
 var
   wsrc: WideString;
 begin
-  wsrc := UTF8Decode(SRC);
+  wsrc := SRC;
   if Pos('editini=', SRC) = 1 then
   begin
     wsrc := Copy(wsrc, 9, $FFF);
