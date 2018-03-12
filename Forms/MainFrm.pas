@@ -263,11 +263,11 @@ type
     miPrintPreview: TMenuItem;
     miSave: TMenuItem;
     miOpen: TMenuItem;
-    N11: TMenuItem;
+    miFileSep1: TMenuItem;
     miOptions: TMenuItem;
     miFonts: TMenuItem;
     miColors: TMenuItem;
-    N15: TMenuItem;
+    miFileSep3: TMenuItem;
     miExit: TMenuItem;
     miFontConfig: TMenuItem;
     miRefFontConfig: TMenuItem;
@@ -285,10 +285,10 @@ type
     miComments: TMenuItem;
     miXref: TMenuItem;
     miNotepad: TMenuItem;
-    N19: TMenuItem;
+    miActionsSep1: TMenuItem;
     miCopy: TMenuItem;
     miCopyOptions: TMenuItem;
-    N22: TMenuItem;
+    miActionsSep2: TMenuItem;
     miSound: TMenuItem;
     miHotKey: TMenuItem;
     // s: TMenuItem;
@@ -330,7 +330,7 @@ type
     tbtnSatellite: TToolButton;
     tbtnNewTab: TToolButton;
     tbtnCloseTab: TToolButton;
-    N1: TMenuItem;
+    miFileSep2: TMenuItem;
     miNewTab: TMenuItem;
     miCloseTab: TMenuItem;
     mViewTabsPopup: TPopupMenu;
@@ -386,6 +386,7 @@ type
     tbtnSpace1: TToolButton;
     tbtnSpace2: TToolButton;
     miShowSignatures: TMenuItem;
+    miView: TMenuItem;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
