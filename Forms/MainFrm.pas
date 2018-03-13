@@ -789,7 +789,6 @@ type
     function ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
     function InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
     procedure SetFavouritesShortcuts();
-    function AddDictionaries(maxLoad: integer = maxInt): Boolean;
     function LoadDictionaries(foreGround: Boolean): Boolean;
     procedure UpdateDictionariesCombo();
     function LoadCachedModules(): Boolean;
@@ -891,7 +890,6 @@ type
     out ConcreteCmd: string): HRESULT;
   procedure DeferredReloadViewPages();
   procedure AppOnHintHandler(Sender: TObject);
-  procedure HintShowHideEvent(state: integer);
   procedure TagAdded(tagId: int64; const txt: string; Show: Boolean);
   procedure TagRenamed(tagId: int64; const newTxt: string);
   procedure TagDeleted(id: int64; const txt: string);
@@ -1186,12 +1184,6 @@ begin
     Items.EndUpdate;
     ItemIndex := MainBook.CurChapter - 1;
   end;
-end;
-
-procedure TMainForm.HintShowHideEvent(state: integer);
-begin
-  if state = SW_HIDE then
-    hint_expanded := 0;
 end;
 
 procedure TMainForm.HistoryAdd(s: WideString);
@@ -1557,57 +1549,6 @@ begin
     FindClose(sr);
   end;
 
-end;
-
-function TMainForm.AddDictionaries(maxLoad: integer): Boolean;
-
-begin
-  Result := false;
-  (* if not __searchInitialized then
-    begin
-
-    mIcn := TIcon.Create;
-    ilImages.GetIcon(17, mIcn);
-
-    imgLoadProgress.Picture.Graphic := mIcn;
-    imgLoadProgress.Show();
-    __r := FindFirst(ExePath + 'Dictionaries\*.idx', faAnyFile, __addModulesSR);
-    __searchInitialized := true;
-
-    end;
-    try
-    if (DicsCount > 0) and (not (Dics[DicsCount - 1].Initialized)) then begin
-    Dics[DicsCount - 1].Initialize('', '', true);
-    if Dics[DicsCount - 1].Initialized then
-    __r := FindNext(__addModulesSR);
-    exit
-    end;
-
-    if __r = 0 then begin
-
-    Dics[DicsCount] := TDict.Create;
-    Dics[DicsCount].Initialize(ExePath + 'Dictionaries\' +
-    __addModulesSR.Name,
-    Copy(ExePath + 'Dictionaries\' + __addModulesSR.Name, 1,
-    Length(ExePath + 'Dictionaries\' + __addModulesSR.Name) - 3) + 'htm',
-    true);
-    Inc(DicsCount);
-    if Dics[DicsCount - 1].Initialized then
-    __r := FindNext(__addModulesSR);
-    end
-    except on e: Exception do begin
-    g_ExceptionContext.Add('__addModulesSR.Name=' + __addModulesSR.Name);
-    BqShowException(e);
-    Dics[DicsCount].Free();
-    end end;
-
-    if (__r <> 0) then
-    begin
-    FindClose(__addModulesSR);
-    __searchInitialized := false;
-    result := true;
-
-    end *)
 end;
 
 function TMainForm.LoadModules(background: Boolean): Boolean;
@@ -6311,8 +6252,7 @@ begin
   Links := TStringList.Create;
   try
     StrToLinks(linktxt, Links);
-    // mBibleLinkParser.LazyLinks:=true;
-    // mBibleLinkParser.ParseBuffer(edtGo.Text, Links)   ;
+
     if Links.Count <= 0 then
     begin
       MessageBeep(MB_ICONERROR);

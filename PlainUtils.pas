@@ -75,10 +75,10 @@ begin
 end;
 
 function StrLimitToWordCnt(const ws:string; maxWordCount:integer;out actualWc:integer; out limited:boolean):string;
-var pwc,start:PWideChar;
+var pwc,start:PChar;
     wordStarted,charIsSeparator:boolean;
 begin
-start:=PWideChar(Pointer(ws));
+start:=PChar(Pointer(ws));
 pwc:=start;
 actualWc:=0;
 result:='';
@@ -87,7 +87,7 @@ if (pwc=nil) or (pwc^=#0) or limited then exit;
 wordStarted:=false;
 repeat
 //UnicodeIsPunctuation
-charIsSeparator := TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
+charIsSeparator := (pwc^).GetUnicodeCategory() in
     [TUnicodeCategory.ucConnectPunctuation,
      TUnicodeCategory.ucDashPunctuation,
      TUnicodeCategory.ucOpenPunctuation,
@@ -105,13 +105,13 @@ charIsSeparator := TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
    end;
  end
  else if not wordStarted then begin
-  if (TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
+  if ((pwc^).GetUnicodeCategory() in
     [TUnicodeCategory.ucUppercaseLetter,
      TUnicodeCategory.ucLowercaseLetter,
      TUnicodeCategory.ucTitlecaseLetter,
      TUnicodeCategory.ucModifierLetter,
      TUnicodeCategory.ucOtherLetter,
-     TUnicodeCategory.ucDecimalNumber]) or (TCharacter.IsDigit(Cardinal(pwc^))) then begin
+     TUnicodeCategory.ucDecimalNumber]) or ((pwc^).IsDigit()) then begin
   Inc(actualWc);
   wordStarted:=true;
   end;//alphanum
@@ -126,12 +126,12 @@ Result:= Copy(ws,1, (pwc-start));
 end;
 
 function NextWordIndex(const ws:string; startIx:integer):integer;
-var pwc,start:PWideChar;
+var pwc,start:PChar;
     charIsSeparator,separatorfound:boolean;
 
 
 begin
-start:=PWideChar(Pointer(ws));
+start:=PChar(Pointer(ws));
 pwc:=start;
 result:=0;
 if (pwc=nil) or (pwc^=#0)  then exit;
@@ -139,7 +139,7 @@ if (pwc=nil) or (pwc^=#0)  then exit;
 separatorfound:=false;
 repeat
 //UnicodeIsPunctuation
-charIsSeparator := TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
+charIsSeparator := (pwc^).GetUnicodeCategory() in
     [TUnicodeCategory.ucConnectPunctuation,
      TUnicodeCategory.ucDashPunctuation,
      TUnicodeCategory.ucOpenPunctuation,
@@ -153,13 +153,13 @@ charIsSeparator := TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
 
  if charIsSeparator and ( not separatorfound) then separatorfound:=true;
  if separatorfound then begin
-  if (TCharacter.GetUnicodeCategory(Cardinal(pwc^)) in
+  if ((pwc^).GetUnicodeCategory() in
     [TUnicodeCategory.ucUppercaseLetter,
      TUnicodeCategory.ucLowercaseLetter,
      TUnicodeCategory.ucTitlecaseLetter,
      TUnicodeCategory.ucModifierLetter,
      TUnicodeCategory.ucOtherLetter,
-     TUnicodeCategory.ucDecimalNumber]) or (TCharacter.IsDigit(Cardinal(pwc^))) then begin
+     TUnicodeCategory.ucDecimalNumber]) or ((pwc^).IsDigit()) then begin
   result:=pwc-start;
   exit;
   end;//alphanum
@@ -190,7 +190,7 @@ var strDate:string;
 fs:TFormatSettings;
 begin
   try
-  GetLocaleFormatSettings(GetSystemDefaultLCID(),fs);
+  fs := TFormatSettings.Create(GetSystemDefaultLCID());
 
   fs.DateSeparator:='/';
   fs.TimeSeparator:=':';
