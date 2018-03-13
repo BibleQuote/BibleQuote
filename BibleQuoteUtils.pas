@@ -1,5 +1,7 @@
 unit BibleQuoteUtils;
 
+{$WARN SYMBOL_PLATFORM OFF}
+
 interface
 uses SevenZipHelper,SevenZipVCL, MultiLanguage,
   Contnrs, JCLStrings, Windows, SysUtils, Classes, JCLDebug,
@@ -932,6 +934,7 @@ var
   tf: array[0..1023] of WideChar;
   tempPathLen: integer;
 begin
+  ifi := nil;
   if not (assigned(G_InstalledFonts) ) then exit;
   cnt := G_InstalledFonts.Count - 1;
   if cnt > 0 then begin
@@ -1100,6 +1103,7 @@ begin
 {$ENDIF}
   end;
 end;
+
 { TModuleEntry }
 
 procedure TModuleEntry.Assign(source: TModuleEntry);
