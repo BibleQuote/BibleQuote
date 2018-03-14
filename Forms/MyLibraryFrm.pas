@@ -305,15 +305,14 @@ begin
     if fh < 0 then
       fh := -fh;
 
-  end;
-  fi := 0;
-  for i := 0 to c do
-  begin
-    ws := tkns[i].name;
-    if calc then
+    fi := 0;
+
+    for i := 0 to c do
     begin
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct,
-        DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+      ws := tkns[i].name;
+
+      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+
       if (tkns[i].rct.Right > rct.Right) and (tkns[i].rct.Left > rct.Left) then
       begin
         AlignRects(fi, i - 1);
@@ -332,14 +331,20 @@ begin
         tkns[i + 1].rct.Right := rct.Right;
       end;
 
-    end
-    else
+    end;
+
+  end
+  else
+  begin
+    for i := 0 to c do
     begin
+      ws := tkns[i].name;
+
       Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct,
         DT_TOP or DT_SINGLELINE);
     end;
-
   end;
+
   Result := tkns[c].rct.Bottom;
 
 end;
@@ -1010,7 +1015,6 @@ begin
     if me.modType = modtypeBookHighlighted then
     begin
       inc(rct.Top, dlt);
-      dlt := TargetCanvas.Font.Height * 4 div 5;
       TargetCanvas.Font := mfntBook;
     end;
     inc(rct.Left, 4);
@@ -1306,21 +1310,12 @@ begin
   Sender.Selected[n] := true;
 end;
 
-procedure TMyLibraryForm.vdtBookListFreeNode(Sender: TBaseVirtualTree;
-  Node: PVirtualNode);
-var
-  me: TModuleEntry;
-
+procedure TMyLibraryForm.vdtBookListFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
 begin
   try
-    me := TModuleEntry((Sender.GetNodeData(Node))^);
     PPointer(Sender.GetNodeData(Node))^ := nil;
-    // if assigned(me) and (me.modType = modtypeBookHighlighted) then me.Free();
   except
-    on e: Exception do
-    begin
-      // BqShowException(e);
-    end;
+    // do nothing
   end;
 end;
 

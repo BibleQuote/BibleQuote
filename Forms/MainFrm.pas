@@ -618,8 +618,6 @@ type
     procedure FormDblClick(Sender: TObject);
     procedure dtsBibleClick(Sender: TObject);
     procedure pgcMainMouseLeave(Sender: TObject);
-    procedure SearchTabContextPopup(Sender: TObject; MousePos: TPoint;
-      var Handled: Boolean);
     procedure pgcViewTabsDblClick(Sender: TClosablePageControl; Index: integer);
     procedure miRecognizeBibleLinksClick(Sender: TObject);
     procedure lbBookMouseMove(Sender: TObject; Shift: TShiftState;
@@ -792,8 +790,6 @@ type
     function LoadDictionaries(foreGround: Boolean): Boolean;
     procedure UpdateDictionariesCombo();
     function LoadCachedModules(): Boolean;
-    // function CachedModuleIxFromFullname(const wsFullModuleName: WideString;
-    // searchFromIndex: integer = 0): integer;
 
     function UpdateFromCashed(): Boolean;
     procedure SaveCachedModules();
@@ -823,7 +819,7 @@ type
   procedure FontChanged(delta: integer);
   function DicScrollNode(nd: PVirtualNode): Boolean;
   procedure LoadUserMemos();
-  function LoadTaggedBookMarks(): HRESULT;
+  function LoadTaggedBookMarks(): Boolean;
   procedure LoadSecondBookByName(const wsName: WideString);
   // procedure SetStrongsAndNotesState(showStrongs, showNotes:boolean; ti:TViewTabInfo);
   (* AlekId:/Добавлено *)
@@ -859,7 +855,6 @@ type
 
   procedure GoRandomPlace;
   procedure HistoryAdd(s: WideString);
-  procedure HistoryAdjust(const loc: string; const cmt: string);
   procedure DisplayStrongs(num: integer; hebrew: Boolean);
   procedure DisplayDictionary(const s: WideString);
 
@@ -883,9 +878,6 @@ type
   procedure SetVScrollTracker(aBrwsr: THTMLViewer);
   procedure VSCrollTracker(Sender: TObject);
   procedure EnableMenus(aEnabled: Boolean);
-  function CachedModuleIxFromFullname(const wsFullModuleName: WideString;
-    searchFromIndex: integer): integer;
-  procedure MouseWheelHandler(var Message: TMessage); override;
   function PreProcessAutoCommand(const cmd: string; const prefModule: string;
     out ConcreteCmd: string): HRESULT;
   procedure DeferredReloadViewPages();
@@ -920,6 +912,7 @@ type
     mHandCur: TCursor;
 
     { Public declarations }
+    procedure MouseWheelHandler(var Message: TMessage); override;
     procedure SetCurPreviewPage(Val: integer);
     function PassWordFormShowModal(const aModule: WideString;
       out Pwd: WideString; out savePwd: Boolean): integer;
@@ -1202,41 +1195,6 @@ begin
   lbHistory.Items.Insert(0, Comment(s));
   lbHistory.ItemIndex := 0;
 end;
-
-procedure TMainForm.HistoryAdjust(const loc: string; const cmt: string);
-var
-  cnt, i: integer;
-  bl, nbl: TBibleLinkEx;
-  R: Boolean;
-  path: string;
-  likeness: TBibleLinkExLikeness;
-begin
-  R := nbl.FromBqStringLocation(loc);
-  if not R then
-    Exit;
-
-  cnt := History.Count - 1;
-  if cnt > 20 then
-    cnt := 20;
-
-  for i := 0 to cnt do
-  begin
-    R := bl.FromBqStringLocation(History[i]);
-    if not R then
-      continue;
-    likeness := nbl.GetLikeNess(bl);
-    if (bllModName in likeness) and (bllBook in likeness)
-    { and (bllChapter in likeness) } then
-    begin
-      path := nbl.VisualSig();
-      // path:=WideFormat('%s:%d', [path,nbl.vstart]);//just misusing var
-      lbHistory.Items[i] := path;
-      History[i] := loc + ' $$$' + path;
-      Exit;
-    end; // branch
-  end; // for
-
-end; // proc
 
 procedure TMainForm.GoRandomPlace;
 var
@@ -1929,11 +1887,12 @@ begin
       DefaultViewTabState(), true);
 end;
 
-function TMainForm.LoadTaggedBookMarks(): HRESULT;
+function TMainForm.LoadTaggedBookMarks(): Boolean;
 var
   i, j, pc, C: integer;
   nd, tn: TVersesNodeData;
-  failed: Boolean;
+  failed: boolean;
+
   procedure Fail();
   begin
     tbList.PageControl := nil;
@@ -1942,11 +1901,12 @@ var
   end;
 
 begin
-  Result := S_FALSE;
+  failed := false;
+  Result := false;
   try
     if mTaggedBookmarksLoaded then
     begin
-      Result := S_OK;
+      Result := true;
       Exit;
     end;
 
@@ -2002,12 +1962,13 @@ begin
     on E: Exception do
     begin
       Fail();
+      failed := true;
       BqShowException(E, 'LoadTaggedBookmarks failed');
     end;
   end;
   vdtTagsVerses.Sort(nil, -1, sdAscending);
   if not failed then
-    Result := S_OK;
+    Result := true;
 end;
 
 procedure TMainForm.LoadUserMemos;
@@ -2882,6 +2843,8 @@ var
 begin
   cnt := mFavorites.mModuleEntries.Count - 1;
   bi := 0;
+  me := nil;
+
   for i := 0 to cnt do
   begin
     me := mFavorites.mModuleEntries[i];
@@ -4222,7 +4185,6 @@ var
   s: string;
   fnt: TFont;
   menuHandle: HMenu;
-  checkR: BOOL;
 begin
 
   try
@@ -4270,19 +4232,17 @@ begin
       Lang.SayDefault('ConfigForm.lblFavourites.Caption', 'Избранные модули');
 
   end;
-  checkR := LockWindowUpdate(self.Handle);
+
+  LockWindowUpdate(self.Handle);
+
   try
     Lang.TranslateForm(MainForm);
 
     menuHandle := mmGeneral.Handle;
 
-    i := mmGeneral.Items.IndexOf(miLanguage);
-    // SET Help Menu Item Info
-    // menuitemInfo.fType := menuitemInfo.fType or MFT_RIGHTJUSTIFY;
-    checkR := ModifyMenuW(menuHandle, miLanguage.command,
+    ModifyMenuW(menuHandle, miLanguage.command,
       MF_STRING or MF_BYCOMMAND OR MF_RIGHTJUSTIFY, miLanguage.command,
       'UI Language');
-    // checkR:=SetMenuItemInfoW(menuHandle, miLanguage.Command, false, menuitemInfo) ;
     DrawMenuBar(self.Handle);
   finally
     LockWindowUpdate(0);
@@ -4943,10 +4903,6 @@ begin
           revertToOldLocation();
         end;
 
-      // try
-      /// /      HistoryAdjust(GetActiveTabInfo().mwsLocation,oldSignature );
-      // except end;
-
       try
         // читаем, отображаем адрес
 
@@ -5235,6 +5191,7 @@ var
 label
   exitlabel;
 begin
+  hotMenuItem := nil;
   if sbxPreview.Visible then
   begin
     if Key = VK_NEXT then
@@ -8105,7 +8062,7 @@ var
   delta, tm: integer;
 {$J+}
 const
-  lastWheelTime: Cardinal = 0;
+  lastWheelTime: integer = 0;
 {$J-}
 begin
   tm := GetTickCount();
@@ -8742,30 +8699,19 @@ end;
 procedure TMainForm.FormShow(Sender: TObject);
 var
   menuitemInfo: tagMENUITEMINFOW;
-  rslt: LongBool;
 begin
   // Application.ActivateHint(Mouse.CursorPos);
   if MainFormInitialized then
     Exit; // run only once...
   MainFormInitialized := true;
   menuitemInfo.cbSize := sizeof(menuitemInfo);
-  rslt := getMenuItemInfoW(mmGeneral.Handle, miLanguage.command, false,
+  getMenuItemInfoW(mmGeneral.Handle, miLanguage.command, false,
     menuitemInfo);
   FillChar(menuitemInfo, sizeof(menuitemInfo), 0);
 
-  // menuItemInfo.cbSize:=sizeof(menuItemInfo);
-  // menuItemInfo.fMask:=MIIM_FTYPE;
-  // menuItemInfo.fType:=MFT_RIGHTJUSTIFY OR menuItemInfo.fType;
-  // rslt:=SetMenuItemInfoW(mmGeneral.Handle,miLanguage.Command, FALSE,menuItemInfo);
-  // tbtnResolveLinks.Style:=tbsCheck;
   ilImages.GetBitmap(4, btnQuickSearchBack.Glyph);
-  // pnlSearch.Height := chkAll.Top; // hide search options
-
-  // ComplexLinksPanel.Visible := false;
-
   pgcHistoryBookmarks.ActivePage := tbHistory;
 
-  // cbLinks.Visible := false;
   tbLinksToolBar.Visible := false;
   cbQty.ItemIndex := 0;
 
@@ -8791,26 +8737,12 @@ begin
   splMainMoved(Sender);
   splGoMoved(Sender);
 
-  if SatelliteBible = '' then
-    // SatelliteMenuItemClick(SatelliteMenu.Items[0])
-  else
-  begin
-    // for i := 1 to SatelliteMenu.Items.Count - 1 do
-    // if SatelliteMenu.Items[i].Caption = SatelliteBible then
-    // begin
-    // //SatelliteMenu.Items[i].Checked := true;
-    // SatelliteMenuItemClick(SatelliteMenu.Items[i]);
-    // end;
-  end;
   try
     ActiveControl := Browser;
   except
     on E: Exception do
       BqShowException(E);
   end;
-
-  // russian keyboard activation
-  // ActivateKeyboardLayout(LoadKeyboardLayout('419', KLF_ACTIVATE), KLF_ACTIVATE);
 
 end;
 
@@ -10546,7 +10478,8 @@ procedure TMainForm.vdtTagsVersesInitNode(Sender: TBaseVirtualTree;
 var
   vnd: TVersesNodeData;
   pnd: Pointer;
-  searchIx, foundCnt: integer;
+  searchIx: integer;
+  foundCnt: Cardinal;
 begin
   if (Node = nil) or (Node = Sender.RootNode) then
     Exit;
@@ -10597,6 +10530,7 @@ var
   rct: TRect;
   h, dlt, vmarg: integer;
   ws: string;
+  right: integer;
   vdt: TVirtualDrawTree;
 begin
   if (Node = nil) or (csDestroying in self.ComponentState) then
@@ -10607,8 +10541,8 @@ begin
   try
     nd := TVersesNodeData((vdt.GetNodeData(Node))^);
     TargetCanvas.Font := vdt.Font;
-    rct := Rect(0, 0, vdt.ClientWidth - vdt.Indent * vdt.GetNodeLevel(Node)
-      { grace gap } , 500);
+    right := vdt.ClientWidth - integer(vdt.Indent * vdt.GetNodeLevel(Node));
+    rct := Rect(0, 0, right, 500);
 
     if (nd = nil) then Exit;
 
@@ -11184,44 +11118,6 @@ begin
   ActiveControl := cbSearch;
 end;
 
-procedure TMainForm.SearchTabContextPopup(Sender: TObject; MousePos: TPoint;
-  var Handled: Boolean);
-begin
-
-end;
-
-// function TMainForm.SelectSatelliteMenuItem(aItem: TMenuItem): TMenuItem;
-// var
-// i, itemIx, itemCount: integer;
-// begin
-// itemIx := -1;
-// itemCount := SatelliteMenu.Items.Count - 1;
-// for i := 0 to itemCount do
-// begin
-// if SatelliteMenu.Items[i] = aItem then
-// itemIx := i - 1;
-// SatelliteMenu.Items[i].Checked := false;
-// end;
-// Result := TMenuItem(SatelliteMenu.Items[itemIx + 1]);
-// Result.Checked := true;
-// end;
-
-function TMainForm.CachedModuleIxFromFullname(const wsFullModuleName
-  : WideString; searchFromIndex: integer): integer;
-var
-  i, cachedModuleListCount: integer;
-begin
-  Result := -1;
-  cachedModuleListCount := S_cachedModules.Count - 1;
-  for i := 0 to cachedModuleListCount do
-    if (TModuleEntry(S_cachedModules.Items[i]).wsFullName = wsFullModuleName)
-    then
-    begin
-      Result := i;
-      break
-    end;
-end;
-
 procedure TMainForm.cbTagsFilterChange(Sender: TObject);
 var
   timer: TTimer;
@@ -11465,6 +11361,7 @@ var
   bl, moduleEffectiveLink: TBibleLink;
   dp: string;
 begin
+  me := nil;
   try
     if Pos('go', Trim(cmd)) <> 1 then
       goto Fail;
@@ -11957,14 +11854,14 @@ end;
 
 function TMainForm.LocateDicItem: integer;
 var
-  s: WideString;
+  s: string;
   list_ix, len: integer;
   nd: PVirtualNode;
 begin
   { AlekId:добавлено }
   { это чтобы избежать ненужных "рывков" в списке при двойном щелчке }
   list_ix := DicSelectedItemIndex();
-  if (list_ix >= 0) and (list_ix < mBqEngine.DictionariesCount) and
+  if (list_ix >= 0) and (list_ix < integer(mBqEngine.DictionariesCount)) and
     (mBqEngine.DictionaryTokens[list_ix] = edtDic.Text) then
   begin
     Result := list_ix;

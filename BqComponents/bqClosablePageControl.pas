@@ -3,7 +3,7 @@
 interface
 
 uses Windows, Classes, ComCtrls, Graphics, Forms, Controls, ExtCtrls,
-  Messages, GraphUtil, System.UITypes, ImgList;
+  Messages, GraphUtil, System.UITypes;
 
 type
   TClosablePageControl = class;
@@ -125,7 +125,7 @@ end;
 procedure TClosablePageControl.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: integer);
 var
-  tabIndex, saveTabIndex: integer;
+  tabIndex: integer;
   tabRect: TRect;
   point: TPoint;
   imageWidth, imageHeight: integer;
@@ -140,7 +140,6 @@ begin
   TabCtrl_GetItemRect(Handle, tabIndex, tabRect);
   point.X := X;
   point.Y := Y;
-  saveTabIndex := tabIndex;
   imageWidth := 13;
   imageHeight := 13;
   if (imageWidth < 3) or (imageHeight < 3) then
@@ -155,8 +154,6 @@ begin
   if not assigned(FOnDeleteTab) then
     exit;
   FOnDeleteTab(self, tabIndex);
-  if (saveTabIndex >= Tabs.Count) then
-    saveTabIndex := Tabs.Count;
 end;
 
 procedure TClosablePageControl.WMLButtonDblClk(var Message: TWMLButtonDblClk);

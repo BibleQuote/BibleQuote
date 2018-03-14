@@ -16,7 +16,6 @@ uses
   Dict in 'Dict.pas',
   Bible in 'Bible.pas',
   BibleQuoteConfig in 'BibleQuoteConfig.pas',
-  XPTheme in 'XPTheme.pas',
   ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm},
   MyLibraryFrm in 'Forms\MyLibraryFrm.pas' {MyLibraryForm},
   HintTools in 'HintTools.pas',

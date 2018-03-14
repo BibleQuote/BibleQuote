@@ -10,8 +10,6 @@ type
 
   TbqWorkerRequiredOperation=(wroSleep,wroTerminated,wroLoadDictionaries, wroInitDicTokens, wroInitVerseListEngine);
   TbqWorker = class(TThread)
-  private
-    procedure SetName;
 
   protected
     mSection:TCriticalSection;
@@ -83,26 +81,6 @@ mSection.Release()
 end;
 
 end;
-
-procedure TbqWorker.SetName;
-{$IFDEF MSWINDOWS}
-var
-  ThreadNameInfo: TThreadNameInfo;
-{$ENDIF}
-begin
-{$IFDEF MSWINDOWS}
-  ThreadNameInfo.FType := $1000;
-  ThreadNameInfo.FName := 'bqWorker';
-  ThreadNameInfo.FThreadID := $FFFFFFFF;
-  ThreadNameInfo.FFlags := 0;
-
-  try
-    RaiseException( $406D1388, 0, sizeof(ThreadNameInfo) div sizeof(LongWord), @ThreadNameInfo );
-  except
-  end;
-{$ENDIF}
-end;
-
 
 procedure TbqWorker.Suspend;
 begin
