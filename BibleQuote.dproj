@@ -622,7 +622,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Dict.pas"/>
         <DCCReference Include="Bible.pas"/>
         <DCCReference Include="BibleQuoteConfig.pas"/>
-        <DCCReference Include="XPTheme.pas"/>
         <DCCReference Include="Forms\ExceptionFrm.pas">
             <Form>ExceptionForm</Form>
         </DCCReference>

@@ -246,12 +246,14 @@ begin
   end;
   InflateRect(rect, -hRectMargin, rectInflateValue);
 
+  saveFontColor := canvas.Font.Color;
+  savePenColor := canvas.Pen.Color;
+  saveBrushColor := canvas.Brush.Color;
+
   if not calcOnly then
   begin
-    saveFontColor := canvas.Font.Color;
-    savePenColor := canvas.Pen.Color;
-    saveBrushColor := canvas.Brush.Color;
     canvas.Font.Color := clBlack;
+
     if selected then
     begin
       tagNodeBorder := $0096C7F3;
@@ -262,10 +264,10 @@ begin
       tagNodecolor := $0D9EAFB;
       tagNodeBorder := $000A98ED;
     end;
+
     canvas.Brush.Color := tagNodecolor;
     canvas.Pen.Color := tagNodeBorder;
-    canvas.RoundRect(rect.Left, rect.Top, rect.Right, rect.Bottom, mCurveRadius,
-      mCurveRadius);
+    canvas.RoundRect(rect.Left, rect.Top, rect.Right, rect.Bottom, mCurveRadius, mCurveRadius);
   end;
 
   InflateRect(rect, -mHmargin, -mVmargin);
@@ -274,11 +276,13 @@ begin
     inc(rect.Top);
     inc(rect.Left, hRectMargin);
   end;
+
   result := rect.Top - result;
   flgs := DT_WORDBREAK or DT_VCENTER or (ord(calcOnly) * DT_CALCRECT);
   h := Windows.DrawTextW(canvas.Handle, PWideChar(Pointer(title)), -1,
     rect, flgs);
   result := h + result + result;
+
   if not calcOnly then
   begin
     canvas.Brush.Color := saveBrushColor;
@@ -296,6 +300,7 @@ var
   renderer: TSectionList;
   match: boolean;
 begin
+  result := 0;
   txt := EffectiveGetVerseNodeText(nodeData, usedFont);
   renderer := GetHTMLRenderer(nodeData.SelfId, match);
   try

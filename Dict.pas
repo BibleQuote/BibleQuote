@@ -21,7 +21,7 @@ type TDict = class(TObject)
     destructor Destroy(); override;
     function Initialize(IndexFile, DictFile: string; background:boolean=false): boolean;
     function Lookup(wrd: string): string; // lookup a word in dictionary...
-  published
+
     property Initialized:boolean read FInitialized;
     property Words: TStrings read FWords;
     property Name: string read FName;

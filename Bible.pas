@@ -566,7 +566,7 @@ end;
 
 function TBible.GetVerse(i: Cardinal): string;
 begin
-if (i<0) or (i>=FLines.Count) then begin
+if (i>=FLines.Count) then begin
 g_ExceptionContext.Add(Format('i=%d', [i]));
 raise ERangeError.Create('Invalid verse Number');
 end;
