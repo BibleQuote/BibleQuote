@@ -357,8 +357,10 @@ var
   sz: TSize;
 begin
   c := tkns.Count - 1;
+
   if c > 9 then
     c := 9;
+
   if calc then
   begin
 
@@ -372,21 +374,17 @@ begin
     if fh < 0 then
       fh := -fh;
 
-  end;
-
-  for i := 0 to c do
-  begin
-    ws := tkns[i];
-    if calc then
+    for i := 0 to c do
     begin
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i],
-        DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+      ws := tkns[i];
+
+      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+
       if (rects^[i].Right > rct.Right) and (rects^[i].Left > rct.Left) then
       begin
         rects^[i].Left := rct.Left;
         rects^[i].Top := rects^[i].Bottom + fh;
-        Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i],
-          DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+        Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
       end;
 
       if i < c then
@@ -397,16 +395,21 @@ begin
         rects^[i + 1].Right := rct.Right;
       end;
 
-    end
-    else
+    end;
+
+  end
+  else
+  begin
+
+    for i := 0 to c do
     begin
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i],
-        DT_TOP or DT_SINGLELINE);
+      ws := tkns[i];
+      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_SINGLELINE);
     end;
 
   end;
-  Result := rects[c].Bottom;
 
+  Result := rects[c].Bottom;
 end;
 
 procedure TMyLibraryForm.PrepareFonts;
