@@ -116,7 +116,7 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="Win32\Debug\BibleQuoteTests.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Output\BibleQuoteTests.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>BibleQuoteTests.exe</RemoteName>
                         <Overwrite>true</Overwrite>
