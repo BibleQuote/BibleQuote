@@ -11875,6 +11875,13 @@ begin
     vstDicList.Selected[nd] := true;
     DicScrollNode(nd);
   end;
+
+  if (mBqEngine.DictionaryTokens.Count = 0) then
+  begin
+    Result := -1;
+    Exit;
+  end;
+
   len := Length(s);
   repeat
     list_ix := mBqEngine.DictionaryTokens.LocateLastStartedWith(s, 0);
