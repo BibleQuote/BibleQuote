@@ -908,6 +908,7 @@ type
   function InstallModule(const path: string): integer;
   function FilterCommentariesCombo(): integer;
   function InstallFont(const specialPath: WideString): HRESULT;
+    procedure TranslateConfigForm;
   public
     mHandCur: TCursor;
 
@@ -920,6 +921,7 @@ type
     function DicSelectedItemIndex(): integer; overload;
     property CurPreviewPage: integer read FCurPreviewPage
       write SetCurPreviewPage;
+
   end;
 
 const
@@ -4205,33 +4207,7 @@ begin
     with miLanguage.Items[i] do
       Checked := LowerCase(Caption + '.lng') = LowerCase(inifile);
 
-  if Assigned(ConfigForm) then
-  begin
-    Lang.TranslateForm(ConfigForm);
-
-    ConfigForm.chkCopyVerseNumbers.Checked :=
-      CopyOptionsCopyVerseNumbersChecked;
-    ConfigForm.chkCopyFontParams.Checked := CopyOptionsCopyFontParamsChecked;
-    ConfigForm.chkAddReference.Checked := CopyOptionsAddReferenceChecked;
-    ConfigForm.rgAddReference.ItemIndex :=
-      CopyOptionsAddReferenceRadioItemIndex;
-    ConfigForm.chkAddLineBreaks.Checked := CopyOptionsAddLineBreaksChecked;
-    ConfigForm.chkAddModuleName.Checked := CopyOptionsAddModuleNameChecked;
-    ConfigForm.rgAddReference.Items[0] :=
-      Lang.Say('CopyOptionsAddReference_ShortAtBeginning');
-    ConfigForm.rgAddReference.Items[1] :=
-      Lang.Say('CopyOptionsAddReference_ShortAtEnd');
-    ConfigForm.rgAddReference.Items[2] :=
-      Lang.Say('CopyOptionsAddReference_FullAtEnd');
-
-    ConfigForm.tsFavouriteEx.Caption :=
-      Lang.SayDefault('ConfigForm.tsFavouriteEx.Caption', 'Любимые модули');
-    ConfigForm.lblAvailableModules.Caption :=
-      Lang.SayDefault('ConfigForm.lblAvailableModules.Caption', 'Модули');
-    ConfigForm.lblFavourites.Caption :=
-      Lang.SayDefault('ConfigForm.lblFavourites.Caption', 'Избранные модули');
-
-  end;
+  TranslateConfigForm;
 
   LockWindowUpdate(self.Handle);
 
@@ -8715,24 +8691,33 @@ begin
   tbLinksToolBar.Visible := false;
   cbQty.ItemIndex := 0;
 
+  try
+    if Assigned(ExceptionForm) then
+      Lang.TranslateForm(ExceptionForm);
+  except
+    on E: Exception do
+    begin
+      // Failed to translate exception form
+      // Suppress the exception
+    end
+  end;
+
+  try
+    if Assigned(AboutForm) then
+      Lang.TranslateForm(AboutForm);
+  except
+    on E: Exception do
+    begin
+      // Failed to translate about form
+      // Suppress the exception
+    end
+  end;
+
   ConfigForm.Font := MainForm.Font;
   ConfigForm.Font.CharSet := MainForm.Font.CharSet;
 
-  Lang.TranslateForm(ConfigForm);
+  TranslateConfigForm;
 
-  ConfigForm.chkCopyVerseNumbers.Checked := CopyOptionsCopyVerseNumbersChecked;
-  ConfigForm.chkCopyFontParams.Checked := CopyOptionsCopyFontParamsChecked;
-  ConfigForm.chkAddReference.Checked := CopyOptionsAddReferenceChecked;
-  ConfigForm.rgAddReference.ItemIndex := CopyOptionsAddReferenceRadioItemIndex;
-  ConfigForm.chkAddLineBreaks.Checked := CopyOptionsAddLineBreaksChecked;
-  ConfigForm.chkAddModuleName.Checked := CopyOptionsAddModuleNameChecked;
-
-  ConfigForm.rgAddReference.Items[0] :=
-    Lang.Say('CopyOptionsAddReference_ShortAtBeginning');
-  ConfigForm.rgAddReference.Items[1] :=
-    Lang.Say('CopyOptionsAddReference_ShortAtEnd');
-  ConfigForm.rgAddReference.Items[2] :=
-    Lang.Say('CopyOptionsAddReference_FullAtEnd');
   // InitHotModulesConfigPage(true);
   splMainMoved(Sender);
   splGoMoved(Sender);
@@ -8799,7 +8784,7 @@ begin
     end;
     if not Assigned(bibleModuleEntry) then
       raise Exception.Create
-        ('Не найдено ни одного библейского модуля! Проверьте правильность установки exe фалйла Ц.'
+        ('Не найдено ни одного библейского модуля! Проверьте правильность установки exe файла Ц.'
         + #13#10'Он должен быть в папке, содержащей вложенные в нее папки модулей');
 
     Result := bibleModuleEntry.wsShortPath;
@@ -9629,6 +9614,26 @@ var
   pn: PVirtualNode;
 begin
   Result := DicSelectedItemIndex(pn);
+end;
+
+procedure TMainForm.TranslateConfigForm;
+begin
+  if Assigned(ConfigForm) then
+  begin
+    Lang.TranslateForm(ConfigForm);
+    ConfigForm.chkCopyVerseNumbers.Checked := CopyOptionsCopyVerseNumbersChecked;
+    ConfigForm.chkCopyFontParams.Checked := CopyOptionsCopyFontParamsChecked;
+    ConfigForm.chkAddReference.Checked := CopyOptionsAddReferenceChecked;
+    ConfigForm.rgAddReference.ItemIndex := CopyOptionsAddReferenceRadioItemIndex;
+    ConfigForm.chkAddLineBreaks.Checked := CopyOptionsAddLineBreaksChecked;
+    ConfigForm.chkAddModuleName.Checked := CopyOptionsAddModuleNameChecked;
+    ConfigForm.rgAddReference.Items[0] := Lang.Say('CopyOptionsAddReference_ShortAtBeginning');
+    ConfigForm.rgAddReference.Items[1] := Lang.Say('CopyOptionsAddReference_ShortAtEnd');
+    ConfigForm.rgAddReference.Items[2] := Lang.Say('CopyOptionsAddReference_FullAtEnd');
+    ConfigForm.tsFavouriteEx.Caption := Lang.SayDefault('ConfigForm.tsFavouriteEx.Caption', 'Любимые модули');
+    ConfigForm.lblAvailableModules.Caption := Lang.SayDefault('ConfigForm.lblAvailableModules.Caption', 'Модули');
+    ConfigForm.lblFavourites.Caption := Lang.SayDefault('ConfigForm.lblFavourites.Caption', 'Избранные модули');
+  end;
 end;
 
 function TMainForm.DicSelectedItemIndex(out pn: PVirtualNode): integer;
@@ -11097,7 +11102,7 @@ var
   s: WideString;
 begin
   s := 'file ' + ExePath + 'help\' + HelpFileName + ' $$$' +
-    Lang.Say('MainForm.HelpButton.Hint');
+    Lang.Say('HelpDocumentation');
 
   ProcessCommand(s, hlFalse);
 end;
@@ -13148,14 +13153,14 @@ begin
       begin
         ws := GetActiveTabInfo().mSatelliteName;
         wcap := Lang.SayDefault('SelectParaBible', 'Select secondary bible');
-        wbtn := Lang.SayDefault('btnDeselectSec', 'Deselect');
+        wbtn := Lang.SayDefault('DeselectSec', 'Deselect');
         ws := SecondBook.Name;
       end;
     udMyLibrary:
       begin
         ws := MainBook.Name;
         wcap := Lang.SayDefault('MyLib', 'My Library');
-        wbtn := Lang.SayDefault('frmQNav.btnCollapse.Caption', 'Collapse all');
+        wbtn := Lang.SayDefault('CollapseAll', 'Collapse all');
       end;
   end;
 
