@@ -70,13 +70,13 @@ begin
 
 
   Application.Initialize;
+
   Application.CreateForm(TMainForm, MainForm);
+  Application.CreateForm(TExceptionForm, ExceptionForm);
   Application.CreateForm(TAboutForm, AboutForm);
   Application.CreateForm(TPasswordBox, PasswordBox);
-  //  Application.HintPause :=100;
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
-  Application.CreateForm(TExceptionForm, ExceptionForm);
 
   Application.Run;
   try
