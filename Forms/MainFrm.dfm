@@ -1346,7 +1346,7 @@ object MainForm: TMainForm
         Caption = 'Memos'
         ImageIndex = 29
         Style = tbsCheck
-        OnClick = miMemosToggleClick
+        OnClick = tbtnMemosClick
       end
       object tbtnLib: TToolButton
         Left = 254
@@ -1567,6 +1567,7 @@ object MainForm: TMainForm
       Caption = '-'
     end
     object miMemosToggle: TMenuItem
+      AutoCheck = True
       Caption = 'miMemosToggle'
       ShortCut = 16461
       OnClick = miMemosToggleClick
