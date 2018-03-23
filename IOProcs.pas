@@ -636,7 +636,7 @@ begin
       encoding := defaultEncoding;
 
     SetLength(dABuffer, aCount);
-    dReadedCount := dFile.Read(Pointer(dABuffer)^, aCount);
+    dReadedCount := dFile.Read(dABuffer, aCount);
     if length(dABuffer) <> dReadedCount then
       SetLength(dABuffer, dReadedCount);
 

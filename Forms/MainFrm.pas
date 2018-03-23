@@ -678,6 +678,8 @@ type
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure vdtTagsVersesIncrementalSearch(Sender: TBaseVirtualTree;
       Node: PVirtualNode; const SearchText: string; var Result: integer);
+    procedure tbtnMemosClick(Sender: TObject);
+    procedure SetMemosVisible(showMemos: Boolean);
     // procedure tbAddBibleLinkClick(Sender: TObject);
     // procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
     // Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -13320,18 +13322,28 @@ begin
   end;
 end;
 
-procedure TMainForm.miMemosToggleClick(Sender: TObject);
+procedure TMainForm.SetMemosVisible(showMemos: Boolean);
 var
   ti: TViewTabInfo;
 begin
-  miMemosToggle.Checked := not miMemosToggle.Checked;
-  MemosOn := miMemosToggle.Checked;
-  ti := GetActiveTabInfo();
-  ti[vtisShowNotes] := miMemosToggle.Checked;
+  miMemosToggle.Checked := showMemos;
+  tbtnMemos.Down := showMemos;
 
-  ProcessCommand(ti.mwsLocation,
-    TbqHLVerseOption(ord(ti[vtisHighLightVerses])));
-  // ProcessCommand(History[lbHistory.ItemIndex]);
+  MemosOn := showMemos;
+  ti := GetActiveTabInfo();
+  ti[vtisShowNotes] := showMemos;
+
+  ProcessCommand(ti.mwsLocation, TbqHLVerseOption(ord(ti[vtisHighLightVerses])));
+end;
+
+procedure TMainForm.tbtnMemosClick(Sender: TObject);
+begin
+  SetMemosVisible(tbtnMemos.Down);
+end;
+
+procedure TMainForm.miMemosToggleClick(Sender: TObject);
+begin
+  SetMemosVisible(miMemosToggle.Checked);
 end;
 
 procedure TMainForm.btbtnHelpClick(Sender: TObject);

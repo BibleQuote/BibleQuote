@@ -1498,7 +1498,7 @@ begin
     begin
       ValidateBuffer(PAnsiChar(pWriteBuf) + writeCnt + 2);
       move(pLastWrittenFrom^, pWriteBuf^, writeCnt);
-      PWideChar(PChar(pWriteBuf) + writeCnt)^ := #0;
+      PWideChar(PAnsiChar(pWriteBuf) + writeCnt)^ := #0;
 
       result := mLinkedTxtBuffer;
     end;
