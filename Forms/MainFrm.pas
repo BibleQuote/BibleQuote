@@ -19,7 +19,7 @@ uses
   Graphics, Controls,
   Forms, System.UITypes,
   ComCtrls,
-  Menus,
+  Menus, IOUtils,
   ExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
   VirtualTrees, ToolWin, StdCtrls, rkGlassButton, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
@@ -63,6 +63,9 @@ const
     #13#10 + '%TEXT%' + #13#10 + '</font>' + #13#10#13#10 + Skips20;
 
   DefaultSelTextColor = '#FF0000';
+
+  DefaultLanguage = 'Русский';
+  DefaultLanguageFile = 'Русский.lng';
 
 type
   TXRef = record
@@ -737,6 +740,9 @@ type
     mHTMLViewerSite: THTMLViewerSite;
     mFilterTagsTimer: TTimer;
     mBqEngine: TBibleQuoteEngine;
+
+    mTranslated: Boolean;
+
     // mBibleTabsWideHelper:TWideControlHelper;
     // mBookCategories: TObjectList;
     { AlekId: /добавлено }
@@ -832,7 +838,7 @@ type
   procedure GoPrevChapter;
   procedure GoNextChapter;
 
-  procedure TranslateInterface(inifile: string);
+  function TranslateInterface(locFile: string): Boolean;
 
   procedure LoadConfiguration;
   procedure SaveConfiguration;
@@ -910,7 +916,11 @@ type
   function InstallModule(const path: string): integer;
   function FilterCommentariesCombo(): integer;
   function InstallFont(const specialPath: WideString): HRESULT;
-    procedure TranslateConfigForm;
+  procedure TranslateConfigForm;
+  procedure FillLanguageMenu;
+  function GetLocalizationDirectory(): string;
+  function ApplyInitialTranslation(): Boolean;
+
   public
     mHandCur: TCursor;
 
@@ -2313,11 +2323,8 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
-  F: TSearchRec;
-  mi: TMenuItem;
   i { , b, c, v1, v2 } : integer; // AlekId:not used anymore
   viewTabState: TViewtabInfoState;
-  foundmenu: Boolean;
 begin
   // tbList.PageControl := nil;
   // tbList.Parent := self;
@@ -2467,37 +2474,9 @@ begin
       'background=' + TemplatePath, false);
   if not StrReplace(TextTemplate, 'src="', 'src="' + TemplatePath, false) then
     StrReplace(TextTemplate, 'src=', 'src=' + TemplatePath, false);
-  { why are we doing this: browser sets base to the module's directory, while
-    templates can contain references to their background or inline images... }
 
-  if FindFirst(ExePath + '*.lng', faAnyFile, F) = 0 then
-  begin
-    repeat { TODO -oAlekId -cqa : FindCLose }
-      mi := TMenuItem.Create(self);
-      mi.Caption := UpperCaseFirstLetter(Copy(F.Name, 1, Length(F.Name) - 4));
-      mi.OnClick := LanguageMenuClick;
-      miLanguage.Add(mi);
-    until FindNext(F) <> 0;
-    FindClose(F);
-  end;
-
-  if LastLanguageFile <> '' then
-    TranslateInterface(LastLanguageFile)
-  else
-  begin
-    foundmenu := false;
-    for i := 0 to miLanguage.Count - 1 do
-      if (miLanguage.Items[i]).Caption = 'Russian' then
-      begin
-        foundmenu := true;
-        break;
-      end;
-
-    if not foundmenu then
-      (miLanguage.Items[miLanguage.Count - 1]).Click // choose last file
-    else
-      TranslateInterface('Russian.lng');
-  end;
+  FillLanguageMenu();
+  mTranslated := ApplyInitialTranslation();
 
   MainMenuInit(false);
   // MAIN TABS INITIALIZATION
@@ -4183,17 +4162,25 @@ begin
     ShortCutToText(aMenuItem.ShortCut) + ')';
 end;
 
-procedure TMainForm.TranslateInterface(inifile: string);
+function TMainForm.TranslateInterface(locFile: string): Boolean;
 var
   i: integer;
   s: string;
   fnt: TFont;
-  menuHandle: HMenu;
+  locDirectory: string;
+  locFilePath: string;
 begin
+  result := false;
 
+  locDirectory := GetLocalizationDirectory();
+  locFilePath := TPath.Combine(locDirectory, locFile);
   try
-    if not Lang.LoadIniFile(ExePath + inifile) then
-      Lang.LoadIniFile(miLanguage.Items[0].Caption + '.lng');
+    result := Lang.LoadIniFile(locFilePath);
+    if (not result) and (miLanguage.Count > 0) then
+    begin
+      locFilePath := TPath.Combine(locDirectory, miLanguage.Items[0].Caption + '.lng');
+      result := Lang.LoadIniFile(locFilePath);
+    end;
   except
     on E: Exception do
     begin
@@ -4202,12 +4189,16 @@ begin
     end
   end;
 
+  if not result then
+    Exit;
+
   UpdateDictionariesCombo();
   if Assigned(MyLibraryForm) then
     Lang.TranslateForm(MyLibraryForm);
+
   for i := 0 to miLanguage.Count - 1 do
     with miLanguage.Items[i] do
-      Checked := LowerCase(Caption + '.lng') = LowerCase(inifile);
+      Checked := LowerCase(Caption + '.lng') = LowerCase(locFile);
 
   TranslateConfigForm;
 
@@ -4215,13 +4206,6 @@ begin
 
   try
     Lang.TranslateForm(MainForm);
-
-    menuHandle := mmGeneral.Handle;
-
-    ModifyMenuW(menuHandle, miLanguage.command,
-      MF_STRING or MF_BYCOMMAND OR MF_RIGHTJUSTIFY, miLanguage.command,
-      'UI Language');
-    DrawMenuBar(self.Handle);
   finally
     LockWindowUpdate(0);
   end;
@@ -4258,8 +4242,8 @@ begin
   if MainBook.inifile <> '' then
   begin
     with MainBook do
-      s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter,
-        CurFromVerse, CurToVerse);
+      s := ShortName + ' ' + FullPassageSignature(
+        CurBook, CurChapter, CurFromVerse, CurToVerse);
 
     if MainBook.Copyright <> '' then
       s := s + '; © ' + MainBook.Copyright
@@ -4272,8 +4256,6 @@ begin
       lblTitle.Caption := lblTitle.Hint
     else
       lblTitle.Caption := Copy(lblTitle.Hint, 1, 80) + '...';
-
-    lblTitle.Font.Style := [fsBold];
 
     tbtnCopyright.Hint := s;
 
@@ -6802,19 +6784,10 @@ begin
 end;
 
 procedure TMainForm.LanguageMenuClick(Sender: TObject);
-var
-  i: integer;
 begin
   LastLanguageFile := (Sender as TMenuItem).Caption + '.lng';
 
   TranslateInterface(LastLanguageFile);
-
-  for i := 0 to miLanguage.Count - 1 do
-    with miLanguage.Items[i] do
-      Checked := (LowerCase(Caption + '.lng')
-        = LowerCase(LastLanguageFile));
-  { TODO -oAlekId -cQA : Кажется, вызов MainMenuInit лишний }
-  // MainMenuInit(false);
 end;
 
 procedure TMainForm.GoModuleName(s: string);
@@ -8675,17 +8648,16 @@ begin
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
-var
-  menuitemInfo: tagMENUITEMINFOW;
 begin
   // Application.ActivateHint(Mouse.CursorPos);
   if MainFormInitialized then
     Exit; // run only once...
   MainFormInitialized := true;
-  menuitemInfo.cbSize := sizeof(menuitemInfo);
-  getMenuItemInfoW(mmGeneral.Handle, miLanguage.command, false,
-    menuitemInfo);
-  FillChar(menuitemInfo, sizeof(menuitemInfo), 0);
+
+  if (not mTranslated) then
+  begin
+    MessageDlg('No localization file.', mtWarning, [mbOk], 0);
+  end;
 
   ilImages.GetBitmap(4, btnQuickSearchBack.Glyph);
   pgcHistoryBookmarks.ActivePage := tbHistory;
@@ -9616,6 +9588,78 @@ var
   pn: PVirtualNode;
 begin
   Result := DicSelectedItemIndex(pn);
+end;
+
+function TMainForm.ApplyInitialTranslation(): Boolean;
+var
+  foundmenu: Boolean;
+  i: Integer;
+  locDirectory: string;
+  locFilePath: string;
+  translated: Boolean;
+begin
+  translated := false;
+
+  locDirectory := GetLocalizationDirectory();
+  locFilePath := TPath.Combine(locDirectory, LastLanguageFile);
+
+  if (LastLanguageFile <> '') and (TFile.Exists(locFilePath)) then
+    translated := TranslateInterface(LastLanguageFile);
+
+  if (not translated) then
+  begin
+    foundmenu := false;
+    for i := 0 to miLanguage.Count - 1 do
+    begin
+      if (miLanguage.Items[i]).Caption = DefaultLanguage then
+      begin
+        foundmenu := true;
+        break;
+      end;
+    end;
+
+    if foundmenu then
+    begin
+      translated := TranslateInterface(DefaultLanguageFile);
+    end;
+
+    if (not translated) and (miLanguage.Count > 0) then
+    begin
+      LastLanguageFile := miLanguage.Items[miLanguage.Count - 1].Caption + '.lng';
+
+      translated := TranslateInterface(LastLanguageFile);
+    end;
+
+  end;
+
+  result := translated;
+
+end;
+
+function TMainForm.GetLocalizationDirectory(): string;
+begin
+  result := TPath.Combine(ExePath, 'Localization');
+end;
+
+procedure TMainForm.FillLanguageMenu;
+var
+  F: TSearchRec;
+  mi: TMenuItem;
+  locDirectory, langPattern: string;
+begin
+  locDirectory := GetLocalizationDirectory;
+  langPattern := TPath.Combine(locDirectory, '*.lng');
+
+  if FindFirst(langPattern, faAnyFile, F) = 0 then
+  begin
+    repeat
+      mi := TMenuItem.Create(self);
+      mi.Caption := UpperCaseFirstLetter(Copy(F.Name, 1, Length(F.Name) - 4));
+      mi.OnClick := LanguageMenuClick;
+      miLanguage.Add(mi);
+    until FindNext(F) <> 0;
+    FindClose(F);
+  end;
 end;
 
 procedure TMainForm.TranslateConfigForm;

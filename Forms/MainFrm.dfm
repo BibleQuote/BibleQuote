@@ -1214,6 +1214,7 @@ object MainForm: TMainForm
       Transparent = True
       Layout = tlCenter
       ExplicitHeight = 14
+      Font.Style = [fsBold]
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True

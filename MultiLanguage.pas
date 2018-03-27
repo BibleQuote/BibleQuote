@@ -119,9 +119,8 @@ end;
 
 function TMultiLanguage.LoadIniFile(value: string): boolean;
 begin
-//  FIniFile := StrReplace (value, '&', '');
   FIniFile := value;
-  result:=false;
+  result := false;
   if not FileExists(value) then exit;
   try
     FLines.Free;
@@ -130,7 +129,7 @@ begin
     raise Exception.CreateFmt('TMultiLanguage.LoadIniFile: Error loading file %s',
       [value]);
   end;
-  result:=true;
+  result := true;
 end;
 
 function TMultiLanguage.Say(s: string): string;
