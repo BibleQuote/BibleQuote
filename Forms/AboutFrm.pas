@@ -19,7 +19,6 @@ type
     procedure pnlDownloadLatestMouseEnter(Sender: TObject);
     procedure pnlDownloadLatestMouseLeave(Sender: TObject);
 
-    procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure pnlForumClick(Sender: TObject);
     procedure pnlDownloadLatestClick(Sender: TObject);
@@ -68,18 +67,6 @@ begin
   memDevs.Lines.Add('');
   memDevs.Lines.Add('OS:' + WinInfoString());
 
-end;
-
-procedure TAboutForm.FormShow(Sender: TObject);
-begin
-  if Pos('Russian', LastLanguageFile) <> 0 then
-  begin
-    lblTitle.Caption := 'Цитата из Библии 6';
-  end
-  else
-  begin
-    lblTitle.Caption := 'BibleQuote 6';
-  end;
 end;
 
 end.
