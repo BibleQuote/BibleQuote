@@ -15,7 +15,6 @@ object AboutForm: TAboutForm
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  OnShow = FormShow
   DesignSize = (
     505
     333)
