@@ -302,6 +302,11 @@ ConfigForm.tsCopyOptions.Caption = Kopierparameter
 ConfigForm.tsFavouriteEx.Caption = Lieblingsmodule
 ConfigForm.tsOtherOptions.Caption = Andere Optionen
 
+MyLibraryForm.btnClear.Caption = Clear
+MyLibraryForm.btnCollapse.Caption = Collapse all
+MyLibraryForm.btnOK.Caption = OK
+MyLibraryForm.lblNavigate.Caption = Go to
+
 ExceptionForm.btnHalt.Caption = Abnormal end
 ExceptionForm.btnOK.Caption = OK
 ExceptionForm.lblLog.Caption = Das Protokol des Abbreches:
