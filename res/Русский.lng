@@ -301,6 +301,11 @@ ConfigForm.tsCopyOptions.Caption = Опции копирования
 ConfigForm.tsFavouriteEx.Caption = Избранные модули
 ConfigForm.tsOtherOptions.Caption = Другие опции
 
+MyLibraryForm.btnClear.Caption = Очистить
+MyLibraryForm.btnCollapse.Caption = Свернуть все
+MyLibraryForm.btnOK.Caption = OK
+MyLibraryForm.lblNavigate.Caption = Перейти
+
 ExceptionForm.btnHalt.Caption = Аварийный останов
 ExceptionForm.btnOK.Caption = OK
 ExceptionForm.lblLog.Caption = Протокол исключения:

@@ -300,6 +300,11 @@ ConfigForm.tsCopyOptions.Caption = Parameters of copying
 ConfigForm.tsFavouriteEx.Caption = Favorite modules
 ConfigForm.tsOtherOptions.Caption = Other options
 
+MyLibraryForm.btnClear.Caption = Clear
+MyLibraryForm.btnCollapse.Caption = Collapse all
+MyLibraryForm.btnOK.Caption = OK
+MyLibraryForm.lblNavigate.Caption = Go to
+
 ExceptionForm.btnHalt.Caption = Abnormal end
 ExceptionForm.btnOK.Caption = OK
 ExceptionForm.lblLog.Caption = The exception protocol:
