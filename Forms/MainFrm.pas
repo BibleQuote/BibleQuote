@@ -920,6 +920,7 @@ type
   procedure FillLanguageMenu;
   function GetLocalizationDirectory(): string;
   function ApplyInitialTranslation(): Boolean;
+  procedure TranslateForm(form: TForm);
 
   public
     mHandCur: TCursor;
@@ -4193,8 +4194,10 @@ begin
     Exit;
 
   UpdateDictionariesCombo();
-  if Assigned(MyLibraryForm) then
-    Lang.TranslateForm(MyLibraryForm);
+
+  TranslateForm(MyLibraryForm);
+  TranslateForm(ExceptionForm);
+  TranslateForm(AboutForm);
 
   for i := 0 to miLanguage.Count - 1 do
     with miLanguage.Items[i] do
@@ -8665,27 +8668,8 @@ begin
   tbLinksToolBar.Visible := false;
   cbQty.ItemIndex := 0;
 
-  try
-    if Assigned(ExceptionForm) then
-      Lang.TranslateForm(ExceptionForm);
-  except
-    on E: Exception do
-    begin
-      // Failed to translate exception form
-      // Suppress the exception
-    end
-  end;
-
-  try
-    if Assigned(AboutForm) then
-      Lang.TranslateForm(AboutForm);
-  except
-    on E: Exception do
-    begin
-      // Failed to translate about form
-      // Suppress the exception
-    end
-  end;
+  TranslateForm(ExceptionForm);
+  TranslateForm(AboutForm);
 
   ConfigForm.Font := MainForm.Font;
   ConfigForm.Font.CharSet := MainForm.Font.CharSet;
@@ -9588,6 +9572,20 @@ var
   pn: PVirtualNode;
 begin
   Result := DicSelectedItemIndex(pn);
+end;
+
+procedure TMainForm.TranslateForm(form: TForm);
+begin
+  try
+    if Assigned(form) then
+      Lang.TranslateForm(form);
+  except
+    on E: Exception do
+    begin
+      // Failed to translate exception form
+      // Suppress the exception
+    end;
+  end;
 end;
 
 function TMainForm.ApplyInitialTranslation(): Boolean;
@@ -13193,7 +13191,9 @@ var
 begin
   if not Assigned(MyLibraryForm) then
     MyLibraryForm := TMyLibraryForm.Create(self);
-  Lang.TranslateForm(MyLibraryForm);
+
+  TranslateForm(MyLibraryForm);
+
   case useDisposition of
     udParabibles:
       begin
