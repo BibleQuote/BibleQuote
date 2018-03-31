@@ -1,75 +1,65 @@
 unit VDTEditLink;
 
 interface
-uses Classes,Windows,messages, VirtualTrees,Graphics;
+
+uses Classes, Windows, messages, VirtualTrees, Graphics, Forms, Controls,
+  StdCtrls;
+
 type
-  IVDTInfo=interface
-    procedure GetTextInfo(tree:TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect;
-      var Text: string);
-    procedure SetNodeText(tree:TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const Text: string);
+  IVDTInfo = interface
+    procedure GetTextInfo(tree: TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect; var Text: string);
+    procedure SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const Text: string);
   end;
-  TbqVTEdit=class(TVTEdit)
+
+  TbqVTEdit = class(TVTEdit)
+  private
+    procedure DispatchToGrandparent(var Message: TMessage);
   protected
     procedure WMDestroy(var Message: TWMDestroy); message WM_DESTROY;
+    procedure CMExit(var Message: TMessage); message CM_EXIT;
   end;
+
   TbqVDTEditLink = class(TStringEditLink, IVTEditLink)
   private
-    //FEdit: TbqVTEdit;                  // A normal custom edit control.
     procedure SetEdit(const Value: TbqVTEdit);
   protected
-    mVDTInfo:IVDTInfo;
-//    FTree: TVirtualDrawTree; // A back reference to the tree calling.
-//    FNode: PVirtualNode;             // The node to be edited.
-//    FColumn: TColumnIndex;           // The column of the node.
-//    FAlignment: TAlignment;
-//    FTextBounds: TRect;              // Smallest rectangle around the text.
-//    FStopping: Boolean;              // Set to True when the edit link requests stopping the edit action.
+    mVDTInfo: IVDTInfo;
 
   public
-    constructor Create(vdtInfo:IVDTInfo);
+    constructor Create(vdtInfo: IVDTInfo);
     destructor Destroy; override;
 
     function BeginEdit: Boolean; override; stdcall;
     function CancelEdit: Boolean; override; stdcall;
-//    property Edit: TbqVTEdit read FEdit write SetEdit;
     function EndEdit: Boolean; override; stdcall;
     function GetBounds: TRect; override; stdcall;
-    function PrepareEdit(Tree: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex): Boolean; override; stdcall;
+    function PrepareEdit(tree: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex): Boolean; override; stdcall;
     procedure ProcessMessage(var Message: TMessage); override; stdcall;
     procedure SetBounds(R: TRect); override; stdcall;
   end;
 
-
 implementation
-uses Forms,Controls,StdCtrls;
-//----------------- TbqVDTEditLink ------------------------------------------------------------------------------------
 
-constructor TbqVDTEditLink.Create(vdtInfo:IVDTInfo);
- type PClass=^TClass;
+{ TbqVDTEditLink }
+constructor TbqVDTEditLink.Create(vdtInfo: IVDTInfo);
+type
+  PClass = ^TClass;
 begin
- inherited Create();
- PClass(Edit)^:=TbqVTEdit;
-  mVDTInfo:=vdtInfo;
-
-
+  inherited Create();
+  PClass(Edit)^ := TbqVTEdit;
+  mVDTInfo := vdtInfo;
 end;
-
-//----------------------------------------------------------------------------------------------------------------------
 
 destructor TbqVDTEditLink.Destroy;
 
 begin
-inherited;
-mVDTInfo:=nil;
+  inherited;
+  mVDTInfo := nil;
 end;
-
-//----------------------------------------------------------------------------------------------------------------------
-
-function TbqVDTEditLink.BeginEdit: Boolean;
 
 // Notifies the edit link that editing can start now. descendants may cancel node edit
 // by returning False.
-
+function TbqVDTEditLink.BeginEdit: Boolean;
 begin
   Result := not FStopping;
   if Result then
@@ -81,21 +71,14 @@ begin
   end;
 end;
 
-//----------------------------------------------------------------------------------------------------------------------
-
 procedure TbqVDTEditLink.SetEdit(const Value: TbqVTEdit);
-
 begin
   if Assigned(Edit) then
-   Edit.Free;
+    Edit.Free;
   Edit := Value;
 end;
 
-
-//----------------------------------------------------------------------------------------------------------------------
-
 function TbqVDTEditLink.CancelEdit: Boolean;
-
 begin
   Result := not FStopping;
   if Result then
@@ -108,60 +91,47 @@ begin
   end;
 end;
 
-//----------------------------------------------------------------------------------------------------------------------
-
 function TbqVDTEditLink.EndEdit: Boolean;
-
 begin
   Result := not FStopping;
   if Result then
-  try
-    FStopping := True;
-    if Edit.Modified then
-    ;
-    mVDTInfo.SetNodeText( TVirtualDrawTree(FTree) , FNode, FColumn, TbqVTEdit(Edit).Text);
-///      FTree.Text[FNode, FColumn] := FEdit.Text;
-    Edit.Hide;
-    TbqVTEdit(Edit).FLink := nil;
-    TbqVTEdit(Edit).FRefLink := nil;
-  except
-    FStopping := False;
-    raise;
-  end;
+    try
+      FStopping := True;
+      if Edit.Modified then;
+      mVDTInfo.SetNodeText(TVirtualDrawTree(FTree), FNode, FColumn, TbqVTEdit(Edit).Text);
+      Edit.Hide;
+      TbqVTEdit(Edit).FLink := nil;
+      TbqVTEdit(Edit).FRefLink := nil;
+    except
+      FStopping := False;
+      raise;
+    end;
 end;
 
-//----------------------------------------------------------------------------------------------------------------------
-
 function TbqVDTEditLink.GetBounds: TRect;
-
 begin
   Result := Edit.BoundsRect;
 end;
 
-//----------------------------------------------------------------------------------------------------------------------
-
-function TbqVDTEditLink.PrepareEdit(Tree: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex): Boolean;
-
 // Retrieves the true text bounds from the owner tree.
-
+function TbqVDTEditLink.PrepareEdit(tree: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex): Boolean;
 var
   Text: string;
-
 begin
-  Result := Tree is TVirtualDrawTree;
+  Result := tree is TVirtualDrawTree;
   if Result then
   begin
-    FTree := TCustomVirtualStringTree ( Tree );
+    FTree := TCustomVirtualStringTree(tree);
     FNode := Node;
     FColumn := Column;
     // Initial size, font and text of the node.
     mVDTInfo.GetTextInfo(TVirtualDrawTree(FTree), Node, Column, TbqVTEdit(Edit).Font, FTextBounds, Text);
-   TbqVTEdit(Edit).Font.Color := clWindowText;
-    Edit.Parent := Tree;
+    TbqVTEdit(Edit).Font.Color := clWindowText;
+    Edit.Parent := tree;
     TbqVTEdit(Edit).RecreateWnd;
     Edit.HandleNeeded;
     Edit.Text := Text;
-
     if Column <= NoColumn then
     begin
       Edit.BidiMode := FTree.BidiMode;
@@ -178,23 +148,15 @@ begin
   end;
 end;
 
-//----------------------------------------------------------------------------------------------------------------------
-
 procedure TbqVDTEditLink.ProcessMessage(var Message: TMessage);
-
 begin
   Edit.WindowProc(Message);
 end;
 
-//----------------------------------------------------------------------------------------------------------------------
-
-procedure TbqVDTEditLink.SetBounds(R: TRect);
-
 // Sets the outer bounds of the edit control and the actual edit area in the control.
-
+procedure TbqVDTEditLink.SetBounds(R: TRect);
 var
   lOffset: Integer;
-
 begin
   if not FStopping then
   begin
@@ -223,27 +185,51 @@ begin
       if tsUseThemes in FTree.TreeStates then
         Inc(lOffset);
       InflateRect(R, -TVirtualDrawTree(FTree).TextMargin + lOffset, lOffset);
-      if not (vsMultiline in FNode.States) then
+      if not(vsMultiline in FNode.States) then
         OffsetRect(R, 0, FTextBounds.Top - Edit.Top);
 
       SendMessage(Edit.Handle, EM_SETRECTNP, 0, Integer(@R));
     end;
   end;
 end;
+
 { TbqVTEdit }
 
-procedure TbqVTEdit.WMDestroy(var Message: TWMDestroy);
-var oldClass:TClass;
-type PClass=^TClass;
+procedure TbqVTEdit.DispatchToGrandparent(var Message: TMessage);
+var
+  oldClass: TClass;
+type
+  PClass = ^TClass;
 begin
-//
-try
-  oldClass := PClass(Self)^;
-  PClass(Self)^ := TCustomEdit;
-  Self.Dispatch(Message);
-finally
-  PClass(Self)^ := oldClass;
+  // prevent message handling in the base class
+  try
+    oldClass := PClass(Self)^;
+
+    // handle message in grandparent class (TCustomEdit)
+    PClass(Self)^ := TCustomEdit;
+    Self.Dispatch(Message);
+  finally
+    PClass(Self)^ := oldClass;
+  end;
 end;
+
+procedure TbqVTEdit.CMExit(var Message: TMessage);
+var
+  parentTree: TBaseVirtualTree;
+begin
+  DispatchToGrandparent(Message);
+
+  if (Parent is TBaseVirtualTree) then
+  begin
+    parentTree := TBaseVirtualTree(Parent);
+    if (parentTree.IsEditing) then
+      parentTree.EndEditNode();
+  end;
+end;
+
+procedure TbqVTEdit.WMDestroy(var Message: TWMDestroy);
+begin
+  DispatchToGrandparent(TMessage(Message));
 end;
 
 end.
