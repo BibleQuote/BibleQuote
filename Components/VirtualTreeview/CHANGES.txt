@@ -1,11 +1,28 @@
-V7.0: (Under development)
-  * Enhancement #735: Add event that is fired when a check state is needed. Updated code.
+﻿V7.0: (Under development)
+  * Fixed issue #752: HandleDrawSelection() does not correctly take horizontal scroll position into account
   * The support for Windows XP/2003 has been dropped (issue #707). This means:
     - We did not intentionally break XP support.
 	- We do no longer test on Windows XP/2003
 	- We may accept pull request for XP support if the code quality is sufficient.
 	- We recommend to use the V6 branch on Windows XP
+  * Fixed issue #783: TVirtualTreeColumns.HandleClick() may trigger sorting twice
+  * Fixed issue #781: "~" not working on German keyboard
+  * Fixed issue #779: Overlay Images with Index < 15 not drawn when OnGetImageIndexEx is used
+  * Fixed issue #777: Margin is applied right of tree lines, but should be applied left of them.
+  * Pull request #776: ScrollIntoView centers horizontally enen without Columns defined
+  * Fixed issue #764: When toAlwaysSelectNode is on, no node is auto-selected after the tree is cleared.
+  * Fixed issue #769: GetImageSize Fails if kind ikState and not assigned(StateImages)
+  * Fixed issue #766: Incorrect HotTrack with Touch-Scrolling
+  * Pull request #761: Add TBaseVirtualTree.OnAddHeaderPopupItem event and 'Size Column to Fit' menu item to TVTHeaderPopupMenu.
+  * Fixed issue #760: TVirtualTreeColumns.GetFirstVisibleColumn() cause AV if called between BeginUpdate() and EndUpdate()
+  * Fixed issue #759: TBaseVirtualTree.InitNode() overrides check state of top level nodes set in OnInitNode event handler
+  * Fixed issue #757: Header popup menu opens twice
+  * Fixed issue #758: The OnColumnVisibilityChanged event is not always fired
+  * Fixed issue #754: TBaseVirtualTree.InternalAddToSelection() may cause access violation. Thx@nminkov for the patch.
+  * Fixed issue #753: TVirtualTreeColumns.EndUpdate() resets column order 
+  * Fixed issue #750: Plus/Minus sizes are not scaled in DPI aware applications
   * Fixed issue #748: Per Monitor Dpi Scaling - Scrollbar Not Correct after Dpi Change
+  * Enhancement #735: Add event that is fired when a check state is needed.
   * Fixed issue #743: Ugly drawing of selection in report mode when VCL Styles are used
   * Fixed issue #742: TVTHeader.ParentFont should be True by default
   * Fixed issue #740: TVTHeaderPopupMenu should not delete menu items added at designtime 
