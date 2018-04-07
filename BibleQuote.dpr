@@ -41,7 +41,8 @@ uses
   AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
   PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox},
   StringProcs in 'StringProcs.pas',
-  TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule};
+  TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule},
+  ModuleProcs in 'ModuleProcs.pas';
 
 {$R *.res}
 var
