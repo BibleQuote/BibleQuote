@@ -24,9 +24,9 @@ uses
   VirtualTrees, ToolWin, StdCtrls, rkGlassButton, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
-  VdtEditlink, bqGradientPanel, bqClosablePageControl,
+  VdtEditlink, bqGradientPanel, bqClosablePageControl, ModuleProcs,
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
-  MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2,FireDAC.DatS;
+  MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS;
 
 const
   ConstBuildCode: WideString = '2011.09.08';
@@ -683,6 +683,12 @@ type
       Node: PVirtualNode; const SearchText: string; var Result: integer);
     procedure tbtnMemosClick(Sender: TObject);
     procedure SetMemosVisible(showMemos: Boolean);
+
+    procedure DictionariesLoading(Sender: TObject);
+    procedure DictionariesLoaded(Sender: TObject);
+    procedure ModulesScanDone(Sender: TObject);
+    procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
+
     // procedure tbAddBibleLinkClick(Sender: TObject);
     // procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
     // Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -712,10 +718,7 @@ type
     Zoom: double;
     { AlekId: добавлено }
     mBrowserDefaultFontName: string;
-    mFolderModulesScanned, mSecondFolderModulesScanned, mFolderCommentsScanned,
-      mArchivedBiblesScanned, mArchivedCommentsScanned, mAllBkScanDone,
-      mDictionariesFullyInitialized,
-      mTaggedBookmarksLoaded: Boolean;
+    mDictionariesFullyInitialized, mTaggedBookmarksLoaded: Boolean;
     mDefaultLocation: string;
     mBibleTabsInCtrlKeyDownState: Boolean;
     mHTMLSelection: string;
@@ -740,7 +743,7 @@ type
     mHTMLViewerSite: THTMLViewerSite;
     mFilterTagsTimer: TTimer;
     mBqEngine: TBibleQuoteEngine;
-
+    mModuleLoader: TModuleLoader;
     mTranslated: Boolean;
 
     // mBibleTabsWideHelper:TWideControlHelper;
@@ -775,12 +778,6 @@ type
       const Title: WideString; visual: Boolean): Boolean;
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
-    function AddArchivedModules(path: WideString; tempBook: TBible;
-      background: Boolean; addAsCommentaries: Boolean = false): Boolean;
-    function AddFolderModules(path: WideString; tempBook: TBible;
-      background: Boolean; addAsCommentaries: Boolean = false): Boolean;
-    // function GetHotModuleCount(): integer;
-    // function GetHotMenuItem(itemIndex: integer): TMenuItem;
     procedure InitBkScan();
     function LoadModules(background: Boolean): Boolean;
     function LoadHotModulesConfig(): Boolean;
@@ -795,12 +792,11 @@ type
     function ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
     function InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
     procedure SetFavouritesShortcuts();
-    function LoadDictionaries(foreGround: Boolean): Boolean;
+
     procedure UpdateDictionariesCombo();
-    function LoadCachedModules(): Boolean;
 
     function UpdateFromCashed(): Boolean;
-    procedure SaveCachedModules();
+
     procedure SaveMru();
     procedure LoadMru();
     procedure Idle(Sender: TObject; var Done: Boolean);
@@ -1103,10 +1099,6 @@ var
   UserDir: WideString;
   (* AlekId:/Добавлено *)
   PasswordPolicy: TPasswordPolicy;
-  S_cachedModules: TCachedModules;
-  __addModulesSR: TSearchRec;
-  __searchInitialized: Boolean;
-  __r: integer;
   __tmpBook: TBible = nil;
   G_XRefVerseCmd: string;
   (* AlekId:/Добавлено *)
@@ -1461,48 +1453,6 @@ begin
   end;
 end;
 
-{ :/AlekId:Добавлено }
-
-function TMainForm.LoadDictionaries(foreGround: Boolean): Boolean;
-begin
-  Result := mBqEngine[bqsDictionariesLoaded];
-  if not Result then
-  begin
-    if mBqEngine[bqsDictionariesLoading] then
-    begin
-      if not foreGround then
-        Exit; // just wait
-    end;
-
-    mIcn := TIcon.Create;
-    ilImages.GetIcon(17, mIcn);
-    imgLoadProgress.Picture.Graphic := mIcn;
-    imgLoadProgress.Show();
-
-    mBqEngine.LoadDictionaries(ExePath() + 'Dictionaries\', foreGround);
-    if not foreGround then
-      Exit;
-  end;
-  // init dic tokens list
-  Result := mBqEngine[bqsDictionariesListCreated];
-  if not Result then
-  begin
-    if mBqEngine[bqsDictionariesListCreating] and (not foreGround) then
-    begin
-      Exit; // just wait
-    end;
-    mBqEngine.InitDictionaryItemsList(foreGround);
-    if not foreGround then
-      Exit;
-  end;
-  UpdateDictionariesCombo();
-  DictionaryStartup();
-  mDictionariesFullyInitialized := true;
-  Result := mDictionariesFullyInitialized;
-  imgLoadProgress.Hide();
-  FreeAndNil(mIcn);
-end;
-
 procedure TMainForm.LoadFontFromFolder(awsFolder: WideString);
 var
   sr: TSearchRec;
@@ -1522,103 +1472,6 @@ begin
     FindClose(sr);
   end;
 
-end;
-
-function TMainForm.LoadModules(background: Boolean): Boolean;
-var
-  compressedModulesDir: WideString;
-  // done: boolean;
-  icn: TIcon;
-begin
-  Result := false;
-  try
-    if not Assigned(__tmpBook) then
-    begin
-      __tmpBook := TBible.Create(self, self);
-      icn := TIcon.Create;
-      ilImages.GetIcon(33, icn);
-      imgLoadProgress.Picture.Graphic := icn;
-      imgLoadProgress.Show();
-    end;
-    try
-      if not background then
-      begin
-        AddFolderModules(ExePath, __tmpBook, background);
-        compressedModulesDir := ExePath + C_CompressedModulesSubPath;
-        AddArchivedModules(compressedModulesDir, __tmpBook, background);
-        if (G_SecondPath <> '') and
-          (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ExePath)) then
-          AddFolderModules(G_SecondPath, __tmpBook, background);
-        AddArchivedModules(ExePath + C_CommentariesSubPath, __tmpBook,
-          background, true);
-        AddFolderModules(ExePath + 'Commentaries\', __tmpBook,
-          background, true);
-        mAllBkScanDone := true;
-        Result := true;
-      end
-      else
-      begin
-        if not(mFolderModulesScanned) then
-        begin
-          mFolderModulesScanned := AddFolderModules(ExePath, __tmpBook,
-            background);
-          Exit;
-        end;
-        if not mArchivedBiblesScanned then
-        begin
-          compressedModulesDir := ExePath + C_CompressedModulesSubPath;
-          mArchivedBiblesScanned := AddArchivedModules(compressedModulesDir,
-            __tmpBook, background);
-          Exit;
-        end;
-        if not mSecondFolderModulesScanned then
-        begin
-          if (G_SecondPath <> '') and
-            (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ExePath)) then
-          begin
-            mSecondFolderModulesScanned := AddFolderModules(G_SecondPath,
-              __tmpBook, background);
-            Exit;
-          end
-          else
-            mSecondFolderModulesScanned := true;
-        end; // sencond folder
-        if not mArchivedCommentsScanned then
-        begin
-          mArchivedCommentsScanned :=
-            AddArchivedModules(ExePath + C_CommentariesSubPath, __tmpBook,
-            background, true);
-          Exit;
-        end;
-        if not mFolderCommentsScanned then
-        begin
-          mFolderCommentsScanned := AddFolderModules(ExePath + 'Commentaries\',
-            __tmpBook, background, true);
-          Exit;
-        end
-        else
-        begin
-          mAllBkScanDone := true;
-          Result := true;
-        end;
-      end; // else --- background
-    finally
-      if mAllBkScanDone then
-      begin
-        S_cachedModules._Sort();
-        // imgLoadProgress.Hide();
-        if not Assigned(mModules) then
-          mModules := TCachedModules.Create(true);
-        mModules.Assign(S_cachedModules);; // FreeAndNil(__tmpBook);
-      end;
-
-    end;
-  except
-    on E: Exception do
-    begin
-      BqShowException(E);
-    end;
-  end;
 end;
 
 procedure TMainForm.LoadSecondBookByName(const wsName: WideString);
@@ -1682,6 +1535,62 @@ end;
 procedure TMainForm.SaveHotModulesConfig(aMUIEngine: TMultiLanguage);
 begin
   mFavorites.SaveModules(CreateAndGetConfigFolder + C_HotModulessFileName);
+end;
+
+function TMainForm.LoadModules(background: Boolean): Boolean;
+var
+  icn: TIcon;
+begin
+  Result := false;
+  try
+    if not Assigned(__tmpBook) then
+    begin
+      __tmpBook := TBible.Create(self, self);
+
+      icn := TIcon.Create;
+      ilImages.GetIcon(33, icn);
+      imgLoadProgress.Picture.Graphic := icn;
+      imgLoadProgress.Show();
+    end;
+
+    Result := mModuleLoader.LoadModules(__tmpBook, background);
+  except
+    on E: Exception do
+    begin
+      BqShowException(E);
+    end;
+  end;
+end;
+
+procedure TMainForm.DictionariesLoading(Sender: TObject);
+begin
+  mIcn := TIcon.Create;
+  ilImages.GetIcon(17, mIcn);
+  imgLoadProgress.Picture.Graphic := mIcn;
+  imgLoadProgress.Show();
+end;
+
+procedure TMainForm.DictionariesLoaded(Sender: TObject);
+begin
+  UpdateDictionariesCombo();
+  DictionaryStartup();
+  mDictionariesFullyInitialized := true;
+
+  imgLoadProgress.Hide();
+  FreeAndNil(mIcn);
+end;
+
+procedure TMainForm.ModulesScanDone(Sender: TObject);
+begin
+  if not Assigned(mModules) then
+    mModules := TCachedModules.Create(true);
+
+  mModules.Assign(mModuleLoader.CachedModules);
+end;
+
+procedure TMainForm.ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
+begin
+  MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
 end;
 
 procedure TMainForm.SaveMru;
@@ -2026,59 +1935,6 @@ begin
   end;
 end;
 
-(* AlekId:Добавлено *)
-
-procedure TMainForm.SaveCachedModules;
-var
-  modStringList: TStringList;
-  Count, i: integer;
-  moduleEntry: TModuleEntry;
-  wsFolder: string;
-begin
-
-  try
-    modStringList := TStringList.Create();
-    try
-      Count := S_cachedModules.Count - 1;
-      if Count <= 0 then
-        Exit;
-      modStringList.Add('v3');
-      for i := 0 to Count do
-      begin
-        try
-          moduleEntry := TModuleEntry(S_cachedModules[i]);
-          with modStringList, moduleEntry do
-          begin
-            Add(IntToStr(ord(modType)));
-            Add(wsFullName);
-            Add(wsShortName);
-            Add(wsShortPath);
-            Add(wsFullPath);
-            Add(modBookNames);
-            Add(modCats);
-            Add('***');
-          end; // with tabInfo, tabStringList
-        except
-          on E: Exception do
-          begin
-            BqShowException(E);
-          end;
-        end;
-      end; // for
-      wsFolder := GetCachedModulesListDir();
-      modStringList.SaveToFile(wsFolder + C_CachedModsFileName, TEncoding.UTF8);
-    finally
-      modStringList.Free()
-    end;
-  except
-    on E: Exception do
-    begin
-      BqShowException(E);
-    end;
-  end;
-
-end;
-
 (* AlekId:/Добавлено *)
 
 procedure TMainForm.SaveConfiguration;
@@ -2094,7 +1950,14 @@ begin
     writeln(bqNowDateTimeString(), ':SaveConfiguration, userdir:', UserDir);
     (* AlekId:Добавлено *)
     SaveTabsToFile(UserDir + 'viewtabs.cfg');
-    SaveCachedModules();
+    try
+      mModuleLoader.SaveCachedModules();
+    except
+      on E: Exception do
+      begin
+        BqShowException(E);
+      end;
+    end;
     PasswordPolicy.SaveToFile(UserDir + C_PasswordPolicyFileName);
     // SaveBookNodes();
     (* AlekId:/Добавлено *)
@@ -2331,6 +2194,13 @@ begin
   // tbList.Parent := self;
   // tbList.Visible := false;
   mBqEngine := TBibleQuoteEngine.Create(ExePath());
+  mModuleLoader := TModuleLoader.Create(mBqEngine);
+
+  mModuleLoader.OnDictionariesLoading := DictionariesLoading;
+  mModuleLoader.OnDictionariesLoaded := DictionariesLoaded;
+  mModuleLoader.OnScanDone := ModulesScanDone;
+  mModuleLoader.OnArchiveModuleLoadFailed := ArchiveModuleLoadFailed;
+
   MainFormInitialized := false; // prohibit re-entry into FormShow
   // InitEnvironment();
   CheckModuleInstall();
@@ -2366,14 +2236,7 @@ begin
   MainBook.OnSearchComplete := MainBookSearchComplete;
 
   InitHotkeysSupport();
-  // Bibles := TWideStringList.Create;
-  // Books := TWideStringList.Create;
-  // Bibles.Sorted := true;
-  // Books.Sorted := true;
 
-  // Comments := TWideStringList.Create;
-  // CommentsPaths := TWideStringList.Create;
-  S_cachedModules := TCachedModules.Create(true);
   Lang := TMultiLanguage.Create(self);
 
   LastAddress := '';
@@ -2382,15 +2245,6 @@ begin
 
   HelpFileName := 'indexrus.htm';
 
-  // BrowserSource := '';
-  // SearchBrowserSource := '';
-  // DicBrowserSource := '';
-  // StrongBrowserSource := '';
-  // CommentsBrowserSource := '';
-
-  // ModulesList := TWideStringList.Create();
-  // ModulesCodeList := TWideStringList.Create();
-  // S_ArchivedModuleList := TArchivedModules.Create();
   StrongNumbersOn := false;
 
   Memos := TStringList.Create;
@@ -3846,216 +3700,6 @@ begin
       TBQInstalledFontInfo.Create(wsArchive, fileNeedsCleanUp, fontHandle));
   end;
 end;
-
-// function TMainForm.ActiveSatteliteMenu(): TMenuItem;
-// var
-// i: integer;
-// found: boolean;
-// count: integer;
-// begin
-// Result := nil;
-// found := false;
-// try
-// count := SatelliteMenu.Items.Count - 1;
-// for i := 0 to count do
-// if (SatelliteMenu.Items[i].Checked) then
-// begin
-// Result := SatelliteMenu.Items[i] as TMenuItem;
-// found := true;
-// break;
-// end;
-// if (not found) then
-// begin
-// Result := SatelliteMenu.Items[0] as TMenuItem;
-// Result.Checked := true;
-// end;
-// except
-// end;
-//
-// end;
-
-{ function TMainForm.AddArchivedDictionaries(path: WideString): integer;
-  var F: TSearchRec;
-  wIdxPath, wHTMLPath: WideString;
-  begin
-  Result := 0;
-  if FindFirst(path + '\*.bqb', faAnyFile, F) = 0 then begin
-  repeat
-  try
-  wIdxPath := '?' + path + '\' + F.Name + '??' + Copy(F.Name, 1, length(F.Name) - 3);
-  wHTMLPath := wIdxPath + 'htm';
-  wIdxPath := wIdxPath + 'idx';
-  if (FileExistsEx(wIdxPath) >= 0) and (FileExistsEx(wHTMLPath) >= 0) then begin
-  Dics[Result] := TDict.Create;
-  Dics[Result].Initialize(wIdxPath, wHTMLPath);
-  Inc(Result);
-  end;
-  except
-  ;
-  end;
-  until FindNext(F) <> 0;
-  end;
-  FindClose(F);
-  end; }
-
-function TMainForm.AddArchivedModules(path: WideString; tempBook: TBible;
-  background: Boolean; addAsCommentaries: Boolean = false): Boolean;
-var
-  Count: integer;
-  mt: TModuleType;
-  modEntry: TModuleEntry;
-
-begin
-  // count - либо несколько либо все
-  Count := C_NumOfModulesToScan + (ord(not background) shl 12);
-  if not DirectoryExists(path) then
-  begin
-    __searchInitialized := false;
-    // на всякий случай сбросить флаг активного поиска
-    Result := true;
-    Exit // сканирование завершено
-  end;
-  if (not __searchInitialized) then
-  begin
-    // инициализация поиска, установка флага акт. поиска
-    __r := FindFirst(path + '\*.bqb', faAnyFile, __addModulesSR);
-    __searchInitialized := true;
-  end;
-
-  if __r = 0 then
-    repeat
-      try
-        tempBook.inifile := '?' + path + '\' + __addModulesSR.Name + '??' +
-          C_ModuleIniName;
-        // ТИП МОДУЛЯ
-        if (addAsCommentaries) then
-          mt := modtypeComment
-        else
-        begin
-          if tempBook.isBible then
-            mt := modtypeBible
-          else
-            mt := modtypeBook;
-        end;
-        modEntry := TModuleEntry.Create(mt, tempBook.Name, tempBook.ShortName,
-          tempBook.ShortPath, path + '\' + __addModulesSR.Name,
-          tempBook.GetStucture(), tempBook.Categories);
-        S_cachedModules.Add(modEntry);
-        if not background then
-        begin
-          // S_ArchivedModuleList.Names.Add(modEntry.wsFullName);
-          // S_ArchivedModuleList.Paths.Add(modEntry.wsFullPath);
-          // ModulesList.Add(tempBook.Name + ' $$$ ' + tempBook.ShortPath);
-          // ModulesCodeList.Add(tempBook.ShortName);
-          if addAsCommentaries then
-          begin
-            // Comments.Add(tempBook.Name);
-            // CommentsPaths.Add(tempBook.ShortPath);
-          end
-          else
-          begin
-            // if tempBook.isBible then
-            /// /              Bibles.Add(tempBook.Name)
-            // else
-            // //            Books.Add(tempBook.Name);
-          end;
-        end // not background
-      except
-        on E: TBQException do
-          MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil,
-            MB_ICONERROR or MB_OK);
-        else { подавить! }
-      end;
-      __r := FindNext(__addModulesSR);
-      Dec(Count);
-    until (__r <> 0) or (Count <= 0);
-  if __r <> 0 then
-  begin // если поиск завершен
-    FindClose(__addModulesSR);
-    __searchInitialized := false;
-    Result := true;
-  end
-  else
-    Result := false;
-end;
-
-function TMainForm.AddFolderModules(path: WideString; tempBook: TBible;
-  background: Boolean; addAsCommentaries: Boolean = false): Boolean;
-var
-  Count: integer;
-  modEntry: TModuleEntry;
-  mt: TModuleType;
-begin
-  // count - либо несколько либо все
-  Count := C_NumOfModulesToScan + (ord(not background) shl 12);
-  if not(__searchInitialized) then
-  begin // инициализация поиска
-    __r := FindFirst(path + '*.*', faDirectory, __addModulesSR);
-    __searchInitialized := true;
-  end;
-
-  if (__r = 0) then // если что-то найдено
-    repeat
-      if (__addModulesSR.Attr and faDirectory = faDirectory) and
-        ((__addModulesSR.Name <> '.') and (__addModulesSR.Name <> '..')) and
-        FileExists(path + __addModulesSR.Name + '\bibleqt.ini') then
-      begin
-        try
-          tempBook.inifile := path + __addModulesSR.Name + '\bibleqt.ini';
-          // ТИП МОДУЛЯ
-          if (addAsCommentaries) then
-            mt := modtypeComment
-          else
-          begin
-            if tempBook.isBible then
-              mt := modtypeBible
-            else
-              mt := modtypeBook;
-          end;
-
-          modEntry := TModuleEntry.Create(mt, tempBook.Name, tempBook.ShortName,
-            tempBook.ShortPath, EmptyWideStr, tempBook.GetStucture(),
-            tempBook.Categories);
-
-          S_cachedModules.Add(modEntry);
-
-          { f } if not(background) then
-          begin
-            // {o}ModulesList.Add(tempBook.Name + ' $$$ ' + tempBook.ShortPath);
-            // {r}ModulesCodeList.Add(tempBook.ShortName);
-            { e } if addAsCommentaries then
-            begin
-              // {g}Comments.Add(tempBook.Name);
-              // {r}CommentsPaths.Add(tempBook.ShortPath);
-              { o }
-            end
-            { u }
-            else
-            begin
-              // {n}if tempBook.isBible then
-              // Bibles.Add(tempBook.Name)
-              // {d}
-              // else
-              // Books.Add(tempBook.Name);
-              { }
-            end;
-          end; // if not background
-        except
-        end;
-      end; // if directory
-      Dec(Count);
-      __r := FindNext(__addModulesSR);
-    until (__r <> 0) or (Count <= 0);
-  if (__r <> 0) then
-  begin // если сканирование завершено
-    FindClose(__addModulesSR);
-    __searchInitialized := false;
-    Result := true // то есть сканирование завершено
-  end
-  else
-    Result := false; // нужен повторный проход
-end;
-(* AlekId:/Добавлено *)
 
 function TMainForm.AddHotModule(const modEntry: TModuleEntry; tag: integer;
   addBibleTab: Boolean = true): integer;
@@ -6024,11 +5668,11 @@ end;
 
 procedure TMainForm.ForceForegroundLoad;
 begin
-  if not mAllBkScanDone then
+  if not mModuleLoader.ScanDone then
   begin
     repeat
       LoadModules(false);
-    until mAllBkScanDone;
+    until mModuleLoader.ScanDone;
 
     Application.OnIdle := nil;
     self.UpdateFromCashed();
@@ -6038,7 +5682,7 @@ begin
 
   if not mDictionariesFullyInitialized then
   begin
-    mDictionariesFullyInitialized := LoadDictionaries(true);
+    mDictionariesFullyInitialized := mModuleLoader.LoadDictionaries(true);
   end;
 end;
 
@@ -6079,7 +5723,6 @@ begin
     FreeAndNil(SearchWords);
     FreeAndNil(StrongHebrew);
     FreeAndNil(StrongGreek);
-    FreeAndNil(S_cachedModules);
     _finalizeViewTabs();
     FreeAndNil(PasswordPolicy);
     FreeAndNil(mModules);
@@ -6327,10 +5970,10 @@ procedure TMainForm.Idle(Sender: TObject; var Done: Boolean);
 begin
   // фоновая загрузка модулей
 
-  if not mAllBkScanDone then
+  if not mModuleLoader.ScanDone then
   begin
     LoadModules(true);
-    if mAllBkScanDone then
+    if mModuleLoader.ScanDone then
     begin
       self.UpdateFromCashed();
       self.UpdateAllBooks();
@@ -6345,7 +5988,7 @@ begin
 
   if not mDictionariesFullyInitialized then
   begin
-    mDictionariesFullyInitialized := LoadDictionaries(false);
+    mDictionariesFullyInitialized := mModuleLoader.LoadDictionaries(false);
     Done := false;
     Exit;
   end;
@@ -6391,13 +6034,7 @@ end;
 
 procedure TMainForm.InitBkScan;
 begin
-  __searchInitialized := false;
-  mFolderModulesScanned := false;
-  mFolderCommentsScanned := false;
-  mSecondFolderModulesScanned := false;
-  mArchivedBiblesScanned := false;
-  mArchivedCommentsScanned := false;
-  mAllBkScanDone := false;
+  mModuleLoader.ScanDone := false;
 end;
 
 procedure TMainForm.InitHotkeysSupport;
@@ -6658,120 +6295,18 @@ begin
 
 end;
 
-function TMainForm.LoadCachedModules: Boolean;
-var
-  cachedModulesList: TWideStringList;
-  i, linecount, modIx: integer;
-  modEntry: TModuleEntry;
-  modType: TModuleType;
-  cats: WideString;
-  bookNames: string;
-  cachedModsFilePath: string;
-begin
-  try
-    cachedModulesList := TWideStringList.Create();
-    try
-      cachedModsFilePath := GetCachedModulesListDir() + C_CachedModsFileName;
-      if not FileExists(cachedModsFilePath) then begin
-        Result := false;
-        Exit;
-      end;
-
-      cachedModulesList.LoadFromFile(cachedModsFilePath);
-      S_cachedModules.Clear();
-      i := 1;
-      if cachedModulesList[0] <> 'v3' then
-      begin
-        Result := false;
-        Exit;
-      end;
-      linecount := cachedModulesList.Count - 1;
-      if linecount < 7 then
-        abort;
-      repeat
-        modIx := S_cachedModules.IndexOf(cachedModulesList[i + 1]);
-        if modIx < 0 then
-        begin
-{$R+}
-          modType := TModuleType(StrToInt(cachedModulesList[i]));
-          cats := cachedModulesList[i + 6];
-
-          if cats = '***' then
-            cats := '';
-          bookNames := cachedModulesList[i + 5];
-          modEntry := TModuleEntry.Create(modType, cachedModulesList[i + 1],
-            cachedModulesList[i + 2], cachedModulesList[i + 3],
-            cachedModulesList[i + 4], bookNames, cats);
-{$R-}
-          S_cachedModules.Add(modEntry);
-        end;
-        inc(i, 6);
-        while (i <= linecount) and (cachedModulesList[i] <> '***') do
-          inc(i);
-        inc(i);
-
-      until (i + 7) > linecount;
-      Result := true;
-      S_cachedModules._Sort();
-    finally
-      cachedModulesList.Free();
-    end;
-
-  except
-    S_cachedModules.Clear();
-    Result := false;
-  end;
-
-end;
-
-{ procedure TMainForm.InitHotModulesConfigPage(refreshModuleList: boolean);
-  var
-  cnt, i: integer;
-  pwc: PWideString;
-  favouriteMenuItem, hotItem: TMenuItem;
-  begin
-  if refreshModuleList then try
-  with config.ConfigForm do begin
-  cnt := Bibles.Count - 1;
-  for i := 0 to cnt do begin
-  New(pwc); pwc^ := bibles[i]; end;
-  cnt := Books.Count - 1;
-  for i := 0 to cnt do begin
-  New(pwc);
-  pwc^ := books[i];
-
-  end;
-
-  cnt := Comments.IndexOf('---------') - 1;
-  for i := 0 to cnt do begin
-  New(pwc); pwc^ := Comments[i];
-
-  end;
-  favouriteMenuItem := FindTaggedTopMenuItem(3333);
-  if not assigned(favouriteMenuItem) then exit;
-  cnt := favouriteMenuItem.Count - 1;
-  for i := 0 to cnt do begin
-  hotItem := favouriteMenuItem.Items[i] as TMenuItem;
-  if hotItem.Tag < 7000 then Continue;
-  New(pwc); pwc^ := hotItem.Caption;
-
-  end;
-  end; //with
-  except end;
-  end; }
-
 procedure TMainForm.MainMenuInit(cacheupdate: Boolean);
 var
   R: Boolean;
 begin
   if cacheupdate then
   begin
-    S_cachedModules.Clear();
+    mModuleLoader.CachedModules.Clear();
     LoadModules(false);
   end
   else
   begin
-    R := LoadCachedModules;
+    R := mModuleLoader.LoadCachedModules;
     if R then
       R := UpdateFromCashed();
     if not R then
@@ -6779,7 +6314,7 @@ begin
       LoadModules(false);
     end
     else
-      S_cachedModules.Clear();
+      mModuleLoader.CachedModules.Clear();
   end;
   mDefaultLocation := DefaultLocation();
   UpdateAllBooks();
@@ -7973,7 +7508,7 @@ var
 begin
   if not mDictionariesFullyInitialized then
   begin
-    LoadDictionaries(true);
+    mModuleLoader.LoadDictionaries(true);
   end;
 
   Val(Trim(Browser.SelText), num, code);
@@ -9412,31 +8947,6 @@ begin
     vstDicList.EndUpdate();
   end;
 
-  //
-  // try
-  // if __i <= __cnt then
-  // repeat
-  /// /      for i := 0 to c do
-  /// /        DicLB.Items.Add(__DicList[__i]);
-  //
-  // pvn := vstDicList.AddChild(nil, Pointer(__i));
-  // mDicList.Objects[__i] := TObject(pvn);
-  // Dec(maxAdd);
-  // inc(__i)
-  // until (maxAdd <= 0) or (__i > __cnt);
-  /// /      DicLB.Items.AddStrings(__DicList);
-  //
-  // except on e: Exception do
-  // begin __i := __cnt + 1; BqShowException(e); end; end;
-  // if __i > __cnt then begin
-  // vstDicList.EndUpdate();
-  // imgLoadProgress.Hide();
-  // FreeAndNil(mIcn);
-  // result := true;
-  // __searchInitialized := false;
-  // MessageBeep(MB_ICONHAND);
-  // end;
-
 end;
 
 procedure TMainForm.edtDicKeyUp(Sender: TObject; var Key: Word;
@@ -9987,7 +9497,7 @@ begin
   try
     if not Assigned(mModules) then
       mModules := TCachedModules.Create(true);
-    mModules.Assign(S_cachedModules);
+    mModules.Assign(mModuleLoader.CachedModules);
 
     if Assigned(MyLibraryForm) then
     begin
@@ -11475,7 +10985,7 @@ begin
     Screen.Cursor := crHourGlass;
     try
       // ForceForegroundLoad();
-      LoadDictionaries(true);
+      mModuleLoader.LoadDictionaries(true);
       // mDictionariesFullyInitialized := LoadDictionaries(maxInt);
     except
       on E: Exception do
