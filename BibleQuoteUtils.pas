@@ -4,7 +4,7 @@ unit BibleQuoteUtils;
 
 interface
 
-uses SevenZipHelper, SevenZipVCL, MultiLanguage,
+uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils,
   Contnrs, JCLStrings, Windows, SysUtils, Classes, JCLDebug,
   COperatingSystemInfo;
 
@@ -269,6 +269,7 @@ function PeekToken(pC: PChar; delim: Char): string;
 
 function MainFileExists(s: string): string;
 function ExePath(): string;
+function ModulesDirectory(): string;
 function OSinfo(): TOperatingSystemInfo;
 function WinInfoString(): string;
 function GetCallerEIP(): Pointer;
@@ -2008,6 +2009,11 @@ begin
   function ExePath(): string;
   begin
     result := __exe__path;
+  end;
+
+  function ModulesDirectory(): string;
+  begin
+    result := TPath.Combine(ExePath(), 'Modules');
   end;
 
   function CreateAndGetConfigFolder: string;

@@ -778,7 +778,7 @@ type
       const Title: WideString; visual: Boolean): Boolean;
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
-    procedure InitBkScan();
+    function LoadDictionaries(foreground: Boolean): Boolean;
     function LoadModules(background: Boolean): Boolean;
     function LoadHotModulesConfig(): Boolean;
     // procedure DeleteInvalidHotModules();
@@ -1099,7 +1099,7 @@ var
   UserDir: WideString;
   (* AlekId:/Добавлено *)
   PasswordPolicy: TPasswordPolicy;
-  __tmpBook: TBible = nil;
+  tempBook: TBible = nil;
   G_XRefVerseCmd: string;
   (* AlekId:/Добавлено *)
 {$R *.DFM}
@@ -1484,8 +1484,7 @@ begin
   begin
     ini := MainFileExists(mModules[ix].wsShortPath + '\bibleqt.ini');
     if ini <> SecondBook.inifile then
-      SecondBook.inifile := MainFileExists(mModules[ix].wsShortPath +
-        '\bibleqt.ini');
+      SecondBook.inifile := MainFileExists(mModules[ix].wsShortPath + '\bibleqt.ini');
   end;
 end;
 
@@ -1537,15 +1536,58 @@ begin
   mFavorites.SaveModules(CreateAndGetConfigFolder + C_HotModulessFileName);
 end;
 
+function TMainForm.LoadDictionaries(foreground: Boolean): Boolean;
+begin
+  Result := mBqEngine[bqsDictionariesLoaded];
+  if not Result then
+  begin
+    if mBqEngine[bqsDictionariesLoading] then
+    begin
+      if not foreground then
+        Exit; // just wait
+    end;
+
+    mIcn := TIcon.Create;
+    ilImages.GetIcon(17, mIcn);
+    imgLoadProgress.Picture.Graphic := mIcn;
+    imgLoadProgress.Show();
+
+    mBqEngine.LoadDictionaries(ExePath() + 'Dictionaries\', foreground);
+    if not foreground then
+      Exit;
+  end;
+  // init dic tokens list
+  Result := mBqEngine[bqsDictionariesListCreated];
+  if not Result then
+  begin
+    if mBqEngine[bqsDictionariesListCreating] and (not foreground) then
+    begin
+      Exit; // just wait
+    end;
+    mBqEngine.InitDictionaryItemsList(foreground);
+    if not foreground then
+      Exit;
+  end;
+
+  UpdateDictionariesCombo();
+  DictionaryStartup();
+
+  mDictionariesFullyInitialized := true;
+  Result := true;
+
+  imgLoadProgress.Hide();
+  FreeAndNil(mIcn);
+end;
+
 function TMainForm.LoadModules(background: Boolean): Boolean;
 var
   icn: TIcon;
 begin
   Result := false;
   try
-    if not Assigned(__tmpBook) then
+    if not Assigned(tempBook) then
     begin
-      __tmpBook := TBible.Create(self, self);
+      tempBook := TBible.Create(self, self);
 
       icn := TIcon.Create;
       ilImages.GetIcon(33, icn);
@@ -1553,7 +1595,7 @@ begin
       imgLoadProgress.Show();
     end;
 
-    Result := mModuleLoader.LoadModules(__tmpBook, background);
+    Result := mModuleLoader.LoadModules(tempBook, background);
   except
     on E: Exception do
     begin
@@ -2193,11 +2235,9 @@ begin
   // tbList.PageControl := nil;
   // tbList.Parent := self;
   // tbList.Visible := false;
-  mBqEngine := TBibleQuoteEngine.Create(ExePath());
-  mModuleLoader := TModuleLoader.Create(mBqEngine);
+  mBqEngine := TBibleQuoteEngine.Create();
+  mModuleLoader := TModuleLoader.Create();
 
-  mModuleLoader.OnDictionariesLoading := DictionariesLoading;
-  mModuleLoader.OnDictionariesLoaded := DictionariesLoaded;
   mModuleLoader.OnScanDone := ModulesScanDone;
   mModuleLoader.OnArchiveModuleLoadFailed := ArchiveModuleLoadFailed;
 
@@ -2216,7 +2256,6 @@ begin
   ilImages.GetBitmap(4, btnQuickSearchBack.Glyph);
   ilImages.GetBitmap(6, btnQuickSearchFwd.Glyph);
 
-  InitBkScan();
   InitializeTaggedBookMarks();
 
   // Application.OnShowHint := ShowHintEventHandler;
@@ -5682,7 +5721,7 @@ begin
 
   if not mDictionariesFullyInitialized then
   begin
-    mDictionariesFullyInitialized := mModuleLoader.LoadDictionaries(true);
+    mDictionariesFullyInitialized := LoadDictionaries(true);
   end;
 end;
 
@@ -5840,19 +5879,19 @@ begin
     if not openSuccess then
     begin
       fc := mFavorites.mModuleEntries.Count - 1;
-      if not Assigned(__tmpBook) then
-        __tmpBook := TBible.Create(self, self);
+      if not Assigned(tempBook) then
+        tempBook := TBible.Create(self, self);
       for i := 0 to fc do
       begin
         try
-          __tmpBook.inifile :=
+          tempBook.inifile :=
             MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i])
             .wsShortPath + '\bibleqt.ini');
-          openSuccess := __tmpBook.OpenAddress(edtGo.Text, book, chapter,
+          openSuccess := tempBook.OpenAddress(edtGo.Text, book, chapter,
             fromverse, toverse);
           if openSuccess then
           begin
-            MainBook.inifile := __tmpBook.inifile;
+            MainBook.inifile := tempBook.inifile;
             break;
           end;
         except
@@ -5873,12 +5912,12 @@ begin
             // pp := Pos(' $$$ ', mModules[ix]);
             // modPath := Copy(ModulesList[ix], pp + 5, Length(ModulesList[ix]));
             modPath := moduleEntry.wsShortPath;
-            __tmpBook.inifile := MainFileExists(modPath + '\bibleqt.ini');
-            openSuccess := __tmpBook.OpenAddress(edtGo.Text, book, chapter,
+            tempBook.inifile := MainFileExists(modPath + '\bibleqt.ini');
+            openSuccess := tempBook.OpenAddress(edtGo.Text, book, chapter,
               fromverse, toverse);
             if openSuccess then
             begin
-              MainBook.inifile := __tmpBook.inifile;
+              MainBook.inifile := tempBook.inifile;
               break;
             end;
           except
@@ -5988,7 +6027,7 @@ begin
 
   if not mDictionariesFullyInitialized then
   begin
-    mDictionariesFullyInitialized := mModuleLoader.LoadDictionaries(false);
+    mDictionariesFullyInitialized := LoadDictionaries(false);
     Done := false;
     Exit;
   end;
@@ -6031,11 +6070,6 @@ end;
   end; //for
   dtsBible.Tabs.AddObject('***', nil);
   end; }
-
-procedure TMainForm.InitBkScan;
-begin
-  mModuleLoader.ScanDone := false;
-end;
 
 procedure TMainForm.InitHotkeysSupport;
 begin
@@ -6386,16 +6420,16 @@ begin
   end;
 
   try
-    if not Assigned(__tmpBook) then
-      __tmpBook := TBible.Create(self, self);
-    __tmpBook.inifile := MainFileExists(commentpath + me.wsShortPath +
+    if not Assigned(tempBook) then
+      tempBook := TBible.Create(self, self);
+    tempBook.inifile := MainFileExists(commentpath + me.wsShortPath +
       '\bibleqt.ini');
   except
   end;
 
-  if __tmpBook.isBible and wasBible then
+  if tempBook.isBible and wasBible then
   begin
-    R := __tmpBook.InternalToAddress(obl, bl);
+    R := tempBook.InternalToAddress(obl, bl);
     if R <= -2 then
       hlVerses := hlFalse;
     try
@@ -6404,7 +6438,7 @@ begin
         firstVisibleVerse := ti.mFirstVisiblePara
       else
         firstVisibleVerse := -1;
-      ProcessCommand(bl.ToCommand(commentpath + __tmpBook.ShortPath), hlVerses);
+      ProcessCommand(bl.ToCommand(commentpath + tempBook.ShortPath), hlVerses);
       if firstVisibleVerse > 0 then
       begin
         ti.mHtmlViewer.PositionTo
@@ -6414,7 +6448,7 @@ begin
     end;
   end // both previuous and current are bibles
   else
-    SafeProcessCommand('go ' + commentpath + __tmpBook.ShortPath +
+    SafeProcessCommand('go ' + commentpath + tempBook.ShortPath +
       ' 1 1 0', hlFalse);
 end;
 
@@ -7508,7 +7542,7 @@ var
 begin
   if not mDictionariesFullyInitialized then
   begin
-    mModuleLoader.LoadDictionaries(true);
+    LoadDictionaries(true);
   end;
 
   Val(Trim(Browser.SelText), num, code);
@@ -10984,9 +11018,7 @@ begin
     saveCursor := self.Cursor;
     Screen.Cursor := crHourGlass;
     try
-      // ForceForegroundLoad();
-      mModuleLoader.LoadDictionaries(true);
-      // mDictionariesFullyInitialized := LoadDictionaries(maxInt);
+      LoadDictionaries(true);
     except
       on E: Exception do
       begin
