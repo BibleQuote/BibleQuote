@@ -1378,8 +1378,7 @@ begin
     end;
 end;
 
-function TBible.OpenTSKAddress(s: string; var book, chapter, fromverse,
-  toverse: integer): boolean;
+function TBible.OpenTSKAddress(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 var
   name: string;
   ibook, ichapter, ifromverse, itoverse: integer;
@@ -1392,10 +1391,10 @@ begin
 
   if not SplitValue(s, name, ichapter, ifromverse, itoverse) then Exit;
 
-  name := ' ' + WideLowerCase(name) + ' ';
+  name := ' ' + LowerCase(name) + ' ';
 
   for ibook := 1 to 66 do
-    if Pos(string(name), string(' ' + WideLowerCase(TSKShortNames[ibook]) + ' ')) <> 0 then
+    if Pos(string(name), string(' ' + LowerCase(TSKShortNames[ibook]) + ' ')) <> 0 then
     begin
       book := ibook;
       chapter := ichapter;

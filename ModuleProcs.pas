@@ -3,21 +3,16 @@
 interface
 
 uses
-  Classes, SysUtils, bible, BibleQuoteUtils, Engine, EngineInterfaces;
+  Classes, SysUtils, Contnrs, bible, BibleQuoteUtils, BibleQuoteConfig, Engine, EngineInterfaces;
 
 const
-  C_CompressedModulesSubPath = 'compressed\modules';
-  C_CommentariesSubPath = 'compressed\commentaries';
   C_NumOfModulesToScan = 5;
-  C_ModuleIniName = 'bibleqt.ini';
-  C_CachedModsFileName = 'cached.lst';
 
 type
   TArchiveModuleLoadFailedEvent = procedure(Sender: TObject; E: TBQException) of object;
 
   TModuleLoader = class
   private
-    mBqEngine: TBibleQuoteEngine;
     mSearchInitialized: Boolean;
 
     mCachedModules: TCachedModules;
@@ -30,17 +25,16 @@ type
     mArchivedCommentsScanned: Boolean;
     mScanDone: Boolean;
 
-    FOnDictionariesLoading: TNotifyEvent;
-    FOnDictionariesLoaded: TNotifyEvent;
-    FOnModulesLoading: TNotifyEvent;
+    mSearchRecord: TSearchRec;
+    mSearchResult: integer;
+
     FOnScanDone: TNotifyEvent;
     FOnArchiveModuleLoadFailed: TArchiveModuleLoadFailedEvent;
   public
-    constructor Create(BqEngine: TBibleQuoteEngine);
+    constructor Create();
     destructor Destroy(); override;
 
     function LoadModules(tmpBook: TBible; background: Boolean): Boolean;
-    function LoadDictionaries(foreground: Boolean): Boolean;
     function AddArchivedModules(path: string; tempBook: TBible; background: Boolean; addAsCommentaries: Boolean = false): Boolean;
     function AddFolderModules(path: string; tempBook: TBible; background: Boolean; addAsCommentaries: Boolean = false): Boolean;
 
@@ -53,18 +47,14 @@ type
     function GetScanDone: Boolean;
     property ScanDone: Boolean read GetScanDone;
 
-    property OnDictionariesLoading: TNotifyEvent read FOnDictionariesLoading write FOnDictionariesLoading;
-    property OnDictionariesLoaded: TNotifyEvent read FOnDictionariesLoaded write FOnDictionariesLoaded;
-    property OnModulesLoading: TNotifyEvent read FOnModulesLoading write FOnModulesLoading;
     property OnScanDone: TNotifyEvent read FOnScanDone write FOnScanDone;
     property OnArchiveModuleLoadFailed: TArchiveModuleLoadFailedEvent read FOnArchiveModuleLoadFailed write FOnArchiveModuleLoadFailed;
   end;
 
 implementation
 
-constructor TModuleLoader.Create(BqEngine: TBibleQuoteEngine);
+constructor TModuleLoader.Create();
 begin
-  mBqEngine := BqEngine;
   mSearchInitialized := false;
 
   mFolderCommentsScanned := false;
@@ -73,6 +63,7 @@ begin
   mSecondFolderModulesScanned := false;
   mArchivedCommentsScanned := false;
 
+  mScanDone := false;
   mCachedModules := TCachedModules.Create(true);
 end;
 
@@ -90,42 +81,6 @@ end;
 function TModuleLoader.GetCachedModules: TCachedModules;
 begin
   Result := mCachedModules;
-end;
-
-function TModuleLoader.LoadDictionaries(foreground: Boolean): Boolean;
-begin
-  Result := mBqEngine[bqsDictionariesLoaded];
-  if not Result then
-  begin
-    if mBqEngine[bqsDictionariesLoading] then
-    begin
-      if not foreground then
-        Exit; // just wait
-    end;
-
-    if Assigned(OnDictionariesLoading) then
-      OnDictionariesLoading(self);
-
-    mBqEngine.LoadDictionaries(ExePath() + 'Dictionaries\', foreground);
-    if not foreground then
-      Exit;
-  end;
-  // init dic tokens list
-  Result := mBqEngine[bqsDictionariesListCreated];
-  if not Result then
-  begin
-    if mBqEngine[bqsDictionariesListCreating] and (not foreground) then
-    begin
-      Exit; // just wait
-    end;
-    mBqEngine.InitDictionaryItemsList(foreground);
-    if not foreground then
-      Exit;
-  end;
-
-  Result := true;
-  if Assigned(OnDictionariesLoaded) then
-      OnDictionariesLoaded(self);
 end;
 
 function TModuleLoader.LoadModules(tmpBook: TBible; background: Boolean): Boolean;
@@ -150,7 +105,7 @@ begin
     end
     else
     begin
-      if not(mFolderModulesScanned) then
+      if not mFolderModulesScanned then
       begin
         mFolderModulesScanned := AddFolderModules(ExePath, tmpBook, background);
         Exit;
@@ -163,19 +118,17 @@ begin
       end;
       if not mSecondFolderModulesScanned then
       begin
-        if (G_SecondPath <> '') and
-          (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ExePath)) then
+        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ExePath)) then
         begin
           mSecondFolderModulesScanned := AddFolderModules(G_SecondPath, tmpBook, background);
           Exit;
         end
         else
           mSecondFolderModulesScanned := true;
-      end; // sencond folder
+      end; // second folder
       if not mArchivedCommentsScanned then
       begin
-        mArchivedCommentsScanned :=
-          AddArchivedModules(ExePath + C_CommentariesSubPath, tmpBook, background, true);
+        mArchivedCommentsScanned := AddArchivedModules(ExePath + C_CommentariesSubPath, tmpBook, background, true);
         Exit;
       end;
       if not mFolderCommentsScanned then
@@ -204,30 +157,25 @@ var
   Count: integer;
   mt: TModuleType;
   modEntry: TModuleEntry;
-  searchRecord: TSearchRec;
-  searchResult: integer;
 begin
-  // count - либо несколько либо все
   Count := C_NumOfModulesToScan + (ord(not background) shl 12);
   if not DirectoryExists(path) then
   begin
     mSearchInitialized := false;
-    // на всякий случай сбросить флаг активного поиска
     Result := true;
-    Exit // сканирование завершено
+    Exit;
   end;
   if (not mSearchInitialized) then
   begin
-    // инициализация поиска, установка флага акт. поиска
-    searchResult := FindFirst(path + '\*.bqb', faAnyFile, searchRecord);
+    // init search, set search initialized flag
+    mSearchResult := FindFirst(path + '\*.bqb', faAnyFile, mSearchRecord);
     mSearchInitialized := true;
   end;
 
-  if searchResult = 0 then
+  if mSearchResult = 0 then
     repeat
       try
-        tempBook.inifile := '?' + path + '\' + searchRecord.Name + '??' + C_ModuleIniName;
-        // ТИП МОДУЛЯ
+        tempBook.inifile := '?' + path + '\' + mSearchRecord.Name + '??' + C_ModuleIniName;
         if (addAsCommentaries) then
           mt := modtypeComment
         else
@@ -242,7 +190,7 @@ begin
           tempBook.Name,
           tempBook.ShortName,
           tempBook.ShortPath,
-          path + '\' + searchRecord.Name,
+          path + '\' + mSearchRecord.Name,
           tempBook.GetStucture(),
           tempBook.Categories
         );
@@ -256,12 +204,12 @@ begin
         end
         else { do nothing }
       end;
-      searchResult := FindNext(searchRecord);
+      mSearchResult := FindNext(mSearchRecord);
       Dec(Count);
-    until (searchResult <> 0) or (Count <= 0);
-  if searchResult <> 0 then
-  begin // если поиск завершен
-    FindClose(searchRecord);
+    until (mSearchResult <> 0) or (Count <= 0);
+  if mSearchResult <> 0 then
+  begin // seach complete
+    FindClose(mSearchRecord);
     mSearchInitialized := false;
     Result := true;
   end
@@ -274,26 +222,22 @@ var
   Count: integer;
   modEntry: TModuleEntry;
   mt: TModuleType;
-  searchRecord: TSearchRec;
-  searchResult: integer;
 begin
-  // count - либо несколько либо все
   Count := C_NumOfModulesToScan + (ord(not background) shl 12);
-  if not(mSearchInitialized) then
-  begin // инициализация поиска
-    searchResult := FindFirst(path + '*.*', faDirectory, searchRecord);
+  if not mSearchInitialized then
+  begin // init search
+    mSearchResult := FindFirst(path + '*.*', faDirectory, mSearchRecord);
     mSearchInitialized := true;
   end;
 
-  if (searchResult = 0) then // если что-то найдено
+  if (mSearchResult = 0) then // search results are not empty
     repeat
-      if (searchRecord.Attr and faDirectory = faDirectory) and
-        ((searchRecord.Name <> '.') and (searchRecord.Name <> '..')) and
-        FileExists(path + searchRecord.Name + '\bibleqt.ini') then
+      if (mSearchRecord.Attr and faDirectory = faDirectory) and
+        ((mSearchRecord.Name <> '.') and (mSearchRecord.Name <> '..')) and
+        FileExists(path + mSearchRecord.Name + '\bibleqt.ini') then
       begin
         try
-          tempBook.inifile := path + searchRecord.Name + '\bibleqt.ini';
-          // ТИП МОДУЛЯ
+          tempBook.inifile := path + mSearchRecord.Name + '\bibleqt.ini';
           if (addAsCommentaries) then
             mt := modtypeComment
           else
@@ -304,9 +248,15 @@ begin
               mt := modtypeBook;
           end;
 
-          modEntry := TModuleEntry.Create(mt, tempBook.Name, tempBook.ShortName,
-            tempBook.ShortPath, EmptyWideStr, tempBook.GetStucture(),
-            tempBook.Categories);
+          modEntry := TModuleEntry.Create(
+            mt,
+            tempBook.Name,
+            tempBook.ShortName,
+            tempBook.ShortPath,
+            EmptyWideStr,
+            tempBook.GetStucture(),
+            tempBook.Categories
+          );
 
           mCachedModules.Add(modEntry);
         except
@@ -314,17 +264,17 @@ begin
       end; // if directory
 
       Dec(Count);
-      searchResult := FindNext(searchRecord);
+      mSearchResult := FindNext(mSearchRecord);
 
-    until (searchResult <> 0) or (Count <= 0);
-  if (searchResult <> 0) then
-  begin // если сканирование завершено
-    FindClose(searchRecord);
+    until (mSearchResult <> 0) or (Count <= 0);
+  if (mSearchResult <> 0) then
+  begin // search compleate
+    FindClose(mSearchRecord);
     mSearchInitialized := false;
-    Result := true // то есть сканирование завершено
+    Result := true
   end
   else
-    Result := false; // нужен повторный проход
+    Result := false; // to repeat the search
 end;
 
 function TModuleLoader.LoadCachedModules: Boolean;
@@ -426,8 +376,8 @@ begin
         Add(modBookNames);
         Add(modCats);
         Add('***');
-      end; // with tabInfo, tabStringList
-    end; // for
+      end;
+    end;
     wsFolder := GetCachedModulesListDir();
     modStringList.SaveToFile(wsFolder + C_CachedModsFileName, TEncoding.UTF8);
   finally
