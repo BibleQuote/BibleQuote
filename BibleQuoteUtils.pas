@@ -270,6 +270,7 @@ function PeekToken(pC: PChar; delim: Char): string;
 function MainFileExists(s: string): string;
 function ExePath(): string;
 function ModulesDirectory(): string;
+function CompressedModulesDirectory(): string;
 function OSinfo(): TOperatingSystemInfo;
 function WinInfoString(): string;
 function GetCallerEIP(): Pointer;
@@ -1245,7 +1246,7 @@ end;
 
 function TModuleEntry.getIniPath: WideString;
 begin
-  result := MainFileExists(wsShortPath + '\' + C_ModuleIniName);
+  result := MainFileExists(TPath.Combine(wsShortPath, C_ModuleIniName));
 end;
 
 constructor TModuleEntry.Create(amodType: TModuleType;
@@ -1969,7 +1970,7 @@ begin
     // сжатые модули имеют приоритет над иными
     filePath := ExtractFilePath(s);
     modfolder := Copy(filePath, 1, Length(filePath) - 1);
-    fullPath := ExePath + C_CompressedModulesSubPath + '\' + modfolder + '.bqb';
+    fullPath := ExePath + '\' + modfolder + '.bqb';
     if FileExists(fullPath) then
       result := '?' + fullPath + '??' + C_ModuleIniName
     else if FileExists(ExePath + s) then
@@ -1978,19 +1979,17 @@ begin
       result := G_SecondPath + s
     else
     begin
-      fullPath := ExePath + 'compressed\' + Copy(filePath, 1,
-        Length(filePath) - 1) + '.bqb';
+      fullPath := ExePath + Copy(filePath, 1, Length(filePath) - 1) + '.bqb';
       if FileExists(fullPath) then
         result := '?' + fullPath + '??' + C_ModuleIniName
       else
       begin
         filePath := ExtractFilePath(s);
-        fullPath := ExePath + C_CommentariesSubPath + '\' +
-          Copy(filePath, 1, Length(filePath) - 1) + '.bqb';
+        fullPath := ExePath +  '\' + Copy(filePath, 1, Length(filePath) - 1) + '.bqb';
         if FileExists(fullPath) then
           result := '?' + fullPath + '??' + C_ModuleIniName
-        else if FileExists(ExePath + 'Commentaries\' + s) then
-          result := ExePath + 'Commentaries\' + s;
+        else if FileExists(ExePath + s) then
+          result := ExePath + s;
       end;
     end;
   end;
@@ -2014,6 +2013,11 @@ begin
   function ModulesDirectory(): string;
   begin
     result := TPath.Combine(ExePath(), 'Modules');
+  end;
+
+  function CompressedModulesDirectory(): string;
+  begin
+    result := TPath.Combine(ModulesDirectory(), 'Compressed');
   end;
 
   function CreateAndGetConfigFolder: string;

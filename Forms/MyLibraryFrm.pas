@@ -767,8 +767,7 @@ begin
             ci := mCatNodes.IndexOf(tagstr);
             if ci < 0 then
             begin
-              catMe := TModuleEntry.Create(modtypeTag, tagstr, '', '',
-                '', '', '');
+              catMe := TModuleEntry.Create(modtypeTag, tagstr, '', '', '', '', '');
 
               rt := vdtBookList.AddChild(nil, Pointer(catMe));
               if tagstr = selName then

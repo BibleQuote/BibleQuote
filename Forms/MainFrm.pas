@@ -1443,8 +1443,7 @@ begin
     ConfigFormHotKeyChoiceItemIndex :=
       StrToInt(MainCfgIni.SayDefault('ConfigFormHotKeyChoiceItemIndex', '0'));
 
-    trayIcon.MinimizeToTray := MainCfgIni.SayDefault('MinimizeToTray',
-      '0') = '1';
+    trayIcon.MinimizeToTray := MainCfgIni.SayDefault('MinimizeToTray', '0') = '1';
 
     // FreeAndNil(MainCfgIni);
   except
@@ -1482,9 +1481,9 @@ begin
   ix := mModules.FindByName(wsName);
   if ix >= 0 then
   begin
-    ini := MainFileExists(mModules[ix].wsShortPath + '\bibleqt.ini');
+    ini := MainFileExists(TPath.Combine(mModules[ix].wsShortPath, 'bibleqt.ini'));
     if ini <> SecondBook.inifile then
-      SecondBook.inifile := MainFileExists(mModules[ix].wsShortPath + '\bibleqt.ini');
+      SecondBook.inifile := MainFileExists(TPath.Combine(mModules[ix].wsShortPath, 'bibleqt.ini'));
   end;
 end;
 
@@ -1552,7 +1551,7 @@ begin
     imgLoadProgress.Picture.Graphic := mIcn;
     imgLoadProgress.Show();
 
-    mBqEngine.LoadDictionaries(ExePath() + 'Dictionaries\', foreground);
+    mBqEngine.LoadDictionaries(TPath.Combine(ModulesDirectory, C_DictionariesSubDirectory), foreground);
     if not foreground then
       Exit;
   end;
@@ -2308,8 +2307,6 @@ begin
 
   AddressFromMenus := true;
 
-  // ExePath := ExtractFilePath(Application.ExeName);
-
   /// ///////////////////////////////////////////
   //
   // LOADING CONFIGURATION
@@ -2421,16 +2418,8 @@ begin
   StrongsDir := 'Strongs';
   LoadFontFromFolder(ExePath + StrongsDir + '\');
   StrongHebrew := TDict.Create;
-  // if not (StrongHebrew.Initialize(
-  // ExePath + 'Strongs\hebrew.idx',
-  // ExePath + 'Strongs\hebrew.htm')) then
-  // WideShowMessage('Error in' + ExePath + 'Strongs\hebrew.*');
 
   StrongGreek := TDict.Create;
-  // if not (StrongGreek.Initialize(
-  // ExePath + 'Strongs\greek.idx',
-  // ExePath + 'Strongs\greek.htm')) then
-  // WideShowMessage('Error in' + ExePath + 'Strongs\greek.*');
 
   pgcMainChange(self);
 
@@ -2592,7 +2581,7 @@ begin
     if path <> C__bqAutoBible then
     begin
       // формируем путь к ini модуля
-      path := MainFileExists(path + '\bibleqt.ini');
+      path := MainFileExists(TPath.Combine(path, 'bibleqt.ini'));
       // пытаемся подгрузить модуль
       mRefenceBible.inifile := path;
     end
@@ -4481,7 +4470,7 @@ label
   begin
     if oldPath = '' then
     begin
-      oldPath := MainFileExists(mDefaultLocation + '\' + C_ModuleIniName);
+      oldPath := MainFileExists(TPath.Combine(mDefaultLocation, C_ModuleIniName));
       if Browser.GetTextLen() <= 0 then
       begin
         ProcessCommand(WideFormat('go %s 1 1 1', [mDefaultLocation]), hlFalse);
@@ -4575,8 +4564,9 @@ begin
             s := WideFormat('go %s %d %d %d %d $$$%s %s',
               [ShortPath, CurBook, CurChapter, bibleLink.vstart, bibleLink.vend,
               // history comment
-              ShortName, FullPassageSignature(CurBook, CurChapter,
-              bibleLink.vstart, bibleLink.vend)]);
+              ShortName,
+              FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, bibleLink.vend)]
+            );
 
         HistoryAdd(s);
         (* AlekId:Добавлено *)
@@ -4595,8 +4585,7 @@ begin
               else
                 ti[vtisHighLightVerses] := false;
               ti.mwsTitle := WideFormat('%.6s-%.6s:%d',
-                [ShortName, ShortNames[CurBook],
-                CurChapter - ord(Trait[bqmtZeroChapter])]);;
+                [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
               (ActivePage as TTabSheet).Caption := ti.mwsTitle;
 
             except
@@ -4616,14 +4605,12 @@ begin
         on E: TBQPasswordException do
         begin
           PasswordPolicy.InvalidatePassword(E.mArchive);
-          MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil,
-            MB_ICONERROR or MB_OK);
+          MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
           revertToOldLocation();
         end;
         on E: TBQException do
         begin
-          MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil,
-            MB_ICONERROR or MB_OK);
+          MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
           revertToOldLocation();
         end
         else
@@ -4642,7 +4629,7 @@ begin
       if i > 0 then
       begin
         j := Pos('$$$', dup);
-        value := MainFileExists(Copy(dup, i + 3, j - i - 4) + '\bibleqt.ini');
+        value := MainFileExists(TPath.Combine(Copy(dup, i + 3, j - i - 4), 'bibleqt.ini'));
         if MainBook.inifile <> value then
           MainBook.inifile := value;
         wasSearchHistory := true;
@@ -5912,9 +5899,8 @@ begin
             // pp := Pos(' $$$ ', mModules[ix]);
             // modPath := Copy(ModulesList[ix], pp + 5, Length(ModulesList[ix]));
             modPath := moduleEntry.wsShortPath;
-            tempBook.inifile := MainFileExists(modPath + '\bibleqt.ini');
-            openSuccess := tempBook.OpenAddress(edtGo.Text, book, chapter,
-              fromverse, toverse);
+            tempBook.inifile := MainFileExists(TPath.Combine(modPath, 'bibleqt.ini'));
+            openSuccess := tempBook.OpenAddress(edtGo.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin
               MainBook.inifile := tempBook.inifile;
@@ -6375,7 +6361,7 @@ var
   path: string;
   hlVerses: TbqHLVerseOption;
   R: integer;
-
+  iniPath: string;
 begin
 
   i := mModules.FindByName(s);
@@ -6386,10 +6372,6 @@ begin
     raise Exception.Create('Exception mModules.FindByName failed!');
   end;
   me := mModules.Items[i];
-  if me.modType = modtypeComment then
-    commentpath := 'Commentaries\'
-  else
-    commentpath := '';
 
   hlVerses := hlFalse;
   // remember old module's params
@@ -6422,8 +6404,10 @@ begin
   try
     if not Assigned(tempBook) then
       tempBook := TBible.Create(self, self);
-    tempBook.inifile := MainFileExists(commentpath + me.wsShortPath +
-      '\bibleqt.ini');
+
+    iniPath := TPath.Combine(me.wsShortPath, 'bibleqt.ini');
+
+    tempBook.inifile := MainFileExists(iniPath);
   except
   end;
 
@@ -6438,18 +6422,18 @@ begin
         firstVisibleVerse := ti.mFirstVisiblePara
       else
         firstVisibleVerse := -1;
-      ProcessCommand(bl.ToCommand(commentpath + tempBook.ShortPath), hlVerses);
+      ProcessCommand(bl.ToCommand(TPath.Combine(commentpath, tempBook.ShortPath)), hlVerses);
       if firstVisibleVerse > 0 then
       begin
-        ti.mHtmlViewer.PositionTo
-          ('bqverse' + IntToStr(firstVisibleVerse), false);
+        ti.mHtmlViewer.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
       end;
     except
     end;
   end // both previuous and current are bibles
   else
-    SafeProcessCommand('go ' + commentpath + tempBook.ShortPath +
-      ' 1 1 0', hlFalse);
+  begin
+    SafeProcessCommand('go ' + TPath.Combine(commentpath, tempBook.ShortPath) + ' 1 1 0', hlFalse);
+  end;
 end;
 
 procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word;
@@ -7052,6 +7036,7 @@ var
   slink: string;
   // was0: boolean;
   diff: integer;
+  path: string;
 begin
   if mModules.IndexOf(MainBook.Name) = -1 then
     Exit;
@@ -7074,17 +7059,22 @@ begin
 
   SecondBook.inifile := MainBook.inifile;
 
-  MainBook.AddressToEnglish(MainBook.CurBook, MainBook.CurChapter, tbXRef.tag,
-    book, chapter, verse);
+  MainBook.AddressToEnglish(MainBook.CurBook, MainBook.CurChapter, tbXRef.tag, book, chapter, verse);
   s := IntToStr(book);
 
   if Length(s) = 1 then
     s := '0' + s;
-  if FindFirst(ExePath + 'TSK\' + s + '_*.ini', faAnyFile, tf) <> 0 then
+
+  path := TPath.Combine(ModulesDirectory, 'TSK');
+  path := TPath.Combine(path, s + '_*.ini');
+
+  if FindFirst(path, faAnyFile, tf) <> 0 then
     Exit;
 
   ti := TMultiLanguage.Create(nil);
-  ti.inifile := ExePath + 'TSK\' + tf.Name;
+
+  path := TPath.Combine(ModulesDirectory, 'TSK');
+  ti.inifile := TPath.Combine(path, tf.Name);
 
   SecondBook.OpenChapter(MainBook.CurBook, MainBook.CurChapter);
 
@@ -7113,8 +7103,7 @@ begin
     // get xrefs
     for i := 0 to Links.Count - 1 do
     begin
-      if not SecondBook.OpenTSKAddress(Links[i], book, chapter, fromverse,
-        toverse) then
+      if not SecondBook.OpenTSKAddress(Links[i], book, chapter, fromverse, toverse) then
         continue;
 
       diff := toverse - fromverse;

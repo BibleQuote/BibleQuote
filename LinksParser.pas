@@ -174,8 +174,7 @@ begin
       if toverse = 0 then
         Links.Add(WideFormat('%s %d:%d', [ctxBook, chapter, fromverse]))
       else
-        Links.Add(WideFormat('%s %d:%d-%d', [ctxBook, chapter, fromverse,
-          toverse]));
+        Links.Add(WideFormat('%s %d:%d-%d', [ctxBook, chapter, fromverse, toverse]));
 
   until (ci >= list.Count) or (not pl);
 
