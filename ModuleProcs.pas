@@ -3,7 +3,8 @@
 interface
 
 uses
-  Classes, SysUtils, Contnrs, bible, BibleQuoteUtils, BibleQuoteConfig, Engine, EngineInterfaces;
+  Classes, SysUtils, IOUtils, Contnrs, bible, BibleQuoteUtils, BibleQuoteConfig,
+  Engine, EngineInterfaces;
 
 const
   C_NumOfModulesToScan = 5;
@@ -84,22 +85,20 @@ begin
 end;
 
 function TModuleLoader.LoadModules(tmpBook: TBible; background: Boolean): Boolean;
-var
-  compressedModulesDir: string;
 begin
   Result := false;
   try
     if not background then
     begin
-      AddFolderModules(ExePath, tmpBook, background);
-      compressedModulesDir := ExePath + C_CompressedModulesSubPath;
-      AddArchivedModules(compressedModulesDir, tmpBook, background);
+      AddFolderModules(ModulesDirectory, tmpBook, background);
+      AddArchivedModules(CompressedModulesDirectory, tmpBook, background);
 
-      if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ExePath)) then
+      if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ModulesDirectory)) then
         AddFolderModules(G_SecondPath, tmpBook, background);
 
-      AddArchivedModules(ExePath + C_CommentariesSubPath, tmpBook, background, true);
-      AddFolderModules(ExePath + 'Commentaries\', tmpBook, background, true);
+      AddArchivedModules(TPath.Combine(CompressedModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
+      AddFolderModules(TPath.Combine(ModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
+
       mScanDone := true;
       Result := true;
     end
@@ -107,18 +106,17 @@ begin
     begin
       if not mFolderModulesScanned then
       begin
-        mFolderModulesScanned := AddFolderModules(ExePath, tmpBook, background);
+        mFolderModulesScanned := AddFolderModules(ModulesDirectory, tmpBook, background);
         Exit;
       end;
       if not mArchivedBiblesScanned then
       begin
-        compressedModulesDir := ExePath + C_CompressedModulesSubPath;
-        mArchivedBiblesScanned := AddArchivedModules(compressedModulesDir, tmpBook, background);
+        mArchivedBiblesScanned := AddArchivedModules(CompressedModulesDirectory, tmpBook, background);
         Exit;
       end;
       if not mSecondFolderModulesScanned then
       begin
-        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ExePath)) then
+        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ModulesDirectory)) then
         begin
           mSecondFolderModulesScanned := AddFolderModules(G_SecondPath, tmpBook, background);
           Exit;
@@ -128,12 +126,12 @@ begin
       end; // second folder
       if not mArchivedCommentsScanned then
       begin
-        mArchivedCommentsScanned := AddArchivedModules(ExePath + C_CommentariesSubPath, tmpBook, background, true);
+        mArchivedCommentsScanned := AddArchivedModules(TPath.Combine(CompressedModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
         Exit;
       end;
       if not mFolderCommentsScanned then
       begin
-        mFolderCommentsScanned := AddFolderModules(ExePath + 'Commentaries\', tmpBook, background, true);
+        mFolderCommentsScanned := AddFolderModules(TPath.Combine(ModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
         Exit;
       end
       else
@@ -168,7 +166,7 @@ begin
   if (not mSearchInitialized) then
   begin
     // init search, set search initialized flag
-    mSearchResult := FindFirst(path + '\*.bqb', faAnyFile, mSearchRecord);
+    mSearchResult := FindFirst(TPath.Combine(path, '*.bqb'), faAnyFile, mSearchRecord);
     mSearchInitialized := true;
   end;
 
@@ -185,6 +183,7 @@ begin
           else
             mt := modtypeBook;
         end;
+
         modEntry := TModuleEntry.Create(
           mt,
           tempBook.Name,
@@ -222,22 +221,24 @@ var
   Count: integer;
   modEntry: TModuleEntry;
   mt: TModuleType;
+  modulePath: string;
 begin
   Count := C_NumOfModulesToScan + (ord(not background) shl 12);
   if not mSearchInitialized then
   begin // init search
-    mSearchResult := FindFirst(path + '*.*', faDirectory, mSearchRecord);
+    mSearchResult := FindFirst(TPath.Combine(path, '*.*'), faDirectory, mSearchRecord);
     mSearchInitialized := true;
   end;
 
   if (mSearchResult = 0) then // search results are not empty
     repeat
+      modulePath := TPath.Combine(path, mSearchRecord.Name) + '\bibleqt.ini';
       if (mSearchRecord.Attr and faDirectory = faDirectory) and
         ((mSearchRecord.Name <> '.') and (mSearchRecord.Name <> '..')) and
-        FileExists(path + mSearchRecord.Name + '\bibleqt.ini') then
+        FileExists(modulePath) then
       begin
         try
-          tempBook.inifile := path + mSearchRecord.Name + '\bibleqt.ini';
+          tempBook.inifile := modulePath;
           if (addAsCommentaries) then
             mt := modtypeComment
           else

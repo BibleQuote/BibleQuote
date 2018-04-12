@@ -355,10 +355,8 @@ type
 
     function OpenAddress(s: string; var book, chapter,
       fromverse, toverse: integer): boolean;
-    function OpenTSKAddress(s: string; var book, chapter, fromverse,
-      toverse: integer): boolean;
-    function OpenRussianAddress(s: string; var book, chapter, fromverse,
-      toverse: integer): boolean;
+    function OpenTSKAddress(s: string; var book, chapter, fromverse, toverse: integer): boolean;
+    function OpenRussianAddress(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 
     procedure Search(s: string; params: byte; bookset: TBibleSet);
     procedure StopSearching;
@@ -906,8 +904,8 @@ begin
   end
   else begin
     FPath := ExtractFilePath(fileName);
-    FShortPath := WideLowerCase(ExtractFileName(Copy(FPath, 1, Length(FPath) -
-      1)));
+    FShortPath := ExtractRelativePath(ExePath, FPath);
+    FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
   end;
 {  if isCompressed then begin
   FShortPath:=GetArchiveFromSpecial( ExtractFileName(FIniFile) );
