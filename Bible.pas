@@ -353,22 +353,22 @@ type
 
     function OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false):boolean;
 
-    function OpenAddress(s: string; var book, chapter,
+    function OpenReference(s: string; var book, chapter,
       fromverse, toverse: integer): boolean;
-    function OpenTSKAddress(s: string; var book, chapter, fromverse, toverse: integer): boolean;
-    function OpenRussianAddress(s: string; var book, chapter, fromverse, toverse: integer): boolean;
+    function OpenTSKReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
+    function OpenRussianReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 
     procedure Search(s: string; params: byte; bookset: TBibleSet);
     procedure StopSearching;
 
     procedure ClearBuffers;
 
-    function AddressToInternal(book, chapter, verse: integer;
+    function ReferenceToInternal(book, chapter, verse: integer;
       var ibook, ichapter, iverse: integer; checkShortNames:boolean=true): boolean; overload;
-    function AddressToInternal(const moduleRelatedAddr: TBibleLink; out independent: TBibleLink): integer; overload;
-    function InternalToAddress(ibook, ichapter, iverse: integer;
+    function ReferenceToInternal(const moduleRelatedRef: TBibleLink; out independent: TBibleLink): integer; overload;
+    function InternalToReference(ibook, ichapter, iverse: integer;
       var book, chapter, verse: integer; checkShortNames:boolean=true): boolean; overload;
-    function InternalToAddress(inputLnk: TBibleLink; out outLink: TBibleLink): integer; overload;
+    function InternalToReference(inputLnk: TBibleLink; out outLink: TBibleLink): integer; overload;
     function ShortPassageSignature(book, chapter, fromverse, toverse: integer):
       string;
     function FullPassageSignature(book, chapter, fromverse, toverse: integer):
@@ -383,9 +383,9 @@ type
     procedure RUS2ENG(book, chapter, verse: integer; var ebook, echapter,
       everse: integer);
 
-    function AddressToEnglish(book, chapter, verse: integer;
+    function ReferenceToEnglish(book, chapter, verse: integer;
       var ebook, echapter, everse: integer; checkShortNames:boolean=true): boolean;
-    function EnglishToAddress(ebook, echapter, everse: integer;
+    function EnglishToReference(ebook, echapter, everse: integer;
       var book, chapter, verse: integer): boolean;
 (*AlekId:Добавлено*)
     procedure _InternalSetContext(book, chapter: integer);
@@ -449,15 +449,15 @@ begin
   inherited Destroy;
 end;
 
-function TBible.AddressToInternal(const moduleRelatedAddr: TBibleLink;
+function TBible.ReferenceToInternal(const moduleRelatedRef: TBibleLink;
   out independent: TBibleLink): integer;
 begin
-  moduleRelatedAddr.AssignTo(independent);
-  result := ord(AddressToInternal(moduleRelatedAddr.book, moduleRelatedAddr.chapter,
-    moduleRelatedAddr.vstart, independent.book, independent.chapter, independent.vstart)) - 1;
+  moduleRelatedRef.AssignTo(independent);
+  result := ord(ReferenceToInternal(moduleRelatedRef.book, moduleRelatedRef.chapter,
+    moduleRelatedRef.vstart, independent.book, independent.chapter, independent.vstart)) - 1;
   if result < 0 then begin result := -2; exit; end;
-  Inc(result, ord(AddressToInternal(moduleRelatedAddr.book, moduleRelatedAddr.chapter,
-    moduleRelatedAddr.vend, independent.book, independent.chapter, independent.vend)) - 1);
+  Inc(result, ord(ReferenceToInternal(moduleRelatedRef.book, moduleRelatedRef.chapter,
+    moduleRelatedRef.vend, independent.book, independent.chapter, independent.vend)) - 1);
 end;
 
 
@@ -466,7 +466,7 @@ function TBible.ChapterCountForBook(bk: integer; internalAddr: boolean): integer
 var obk, och, ovs: integer;
 begin
   if InternalAddr then begin
-    if not InternalToAddress(bk, 1, 1, obk, och, ovs) then begin result := -1; exit; end;
+    if not InternalToReference(bk, 1, 1, obk, och, ovs) then begin result := -1; exit; end;
   end
   else obk := bk;
   if obk > BookQty then result := -1
@@ -899,7 +899,8 @@ begin
 
   if isCompressed then begin
     FPath := GetArchiveFromSpecial(fileName) + '??';
-    FShortPath := GetArchiveFromSpecial(ExtractFileName(fileName));
+    FShortPath := ExtractRelativePath('?' + ExePath, FPath);
+    FShortPath := GetArchiveFromSpecial(FShortPath);
     FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
   end
   else begin
@@ -1312,7 +1313,7 @@ result:=-1;
 //check if both modules are bibles
 if not (refBible.isBible and IsBible) then   exit;//if not then fail
 //get indendent address
-rslt:= refBible.AddressToInternal(bl,independentLink);
+rslt:= refBible.ReferenceToInternal(bl,independentLink);
 if rslt<=-2 then exit;
 
 
@@ -1347,7 +1348,7 @@ begin
   FBook := book; FChapter := chapter;
 end;
 
-function TBible.OpenRussianAddress(s: string; var book, chapter, fromverse,
+function TBible.OpenRussianReference(s: string; var book, chapter, fromverse,
   toverse: integer): boolean;
 var
   name: string;
@@ -1376,7 +1377,7 @@ begin
     end;
 end;
 
-function TBible.OpenTSKAddress(s: string; var book, chapter, fromverse, toverse: integer): boolean;
+function TBible.OpenTSKReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 var
   name: string;
   ibook, ichapter, ifromverse, itoverse: integer;
@@ -1414,7 +1415,7 @@ end;
 //end;
 //end;
 
-function TBible.OpenAddress(s: string; var book, chapter, fromverse,
+function TBible.OpenReference(s: string; var book, chapter, fromverse,
   toverse: integer): boolean;
 var
   name: string;
@@ -1467,7 +1468,7 @@ begin
   try
     if fpath <> path then LoadIniFile(path);
     if internalAddr then begin
-      result := InternalToAddress(bl, effectiveLnk);
+      result := InternalToReference(bl, effectiveLnk);
       if result < -1 then begin exit; end;
     end else bl.AssignTo(effectiveLnk);
     if checkverse then begin
@@ -1840,7 +1841,7 @@ PSA89=2+#1      PSA92=2+#1      PSA102=2+#1     PSA108=2+#1
 end;
 
 {
-   procedures to convert a Russian Bible address (which is stored in xref.dat)
+   procedures to convert a Russian Bible reference (which is stored in xref.dat)
    to equivalent in current module
 }
 function BookShortNamesToRussianBible(const shortNames:WideString; out book:integer):integer;
@@ -1855,7 +1856,7 @@ end;
 result:=maxMatchValue; book:=maxMatchIx;
 end;
 
-function TBible.AddressToInternal(book, chapter, verse: integer;
+function TBible.ReferenceToInternal(book, chapter, verse: integer;
   var ibook, ichapter, iverse: integer; checkShortNames:boolean=true): boolean;
 var
   newTestamentOnly, englishbible: boolean;
@@ -1943,15 +1944,15 @@ until (pc=nil) ;
 
 end;
 
-function TBible.InternalToAddress(inputLnk: TBibleLink;
+function TBible.InternalToReference(inputLnk: TBibleLink;
   out outLink: TBibleLink): integer;
 begin
   inputLnk.AssignTo(outLink);
   outLink.tokenEndOffset := outLink.tokenEndOffset;
-  result := ord(InternalToAddress(inputLnk.book, inputLnk.chapter, inputLnk.vstart,
+  result := ord(InternalToReference(inputLnk.book, inputLnk.chapter, inputLnk.vstart,
     outLink.book, outLink.chapter, outLink.vstart)) - 1;
   if result < 0 then begin result := -2; exit; end;
-  Inc(result, ord(InternalToAddress(inputLnk.book, inputLnk.chapter, inputLnk.vend,
+  Inc(result, ord(InternalToReference(inputLnk.book, inputLnk.chapter, inputLnk.vend,
     outLink.book, outLink.chapter, outLink.vend)) - 1);
 end;
 
@@ -1981,7 +1982,7 @@ end;
 result:=maxMatchValue; book:=maxMatchIx;
 end;
 
-function TBible.InternalToAddress(ibook, ichapter, iverse: integer;
+function TBible.InternalToReference(ibook, ichapter, iverse: integer;
   var book, chapter, verse: integer; checkShortNames:boolean=true): boolean;
 var
   newCovenantOnly, oldCovenantOnly,englishbible: boolean;
@@ -2074,9 +2075,7 @@ begin
   if (chapter = 0) and (not Trait[bqmtZeroChapter]) then chapter := 1;
 end;
 
-/// AddressToEnglish + EnglishToAddress is for TSK....s
-
-function TBible.AddressToEnglish(book, chapter, verse: integer;
+function TBible.ReferenceToEnglish(book, chapter, verse: integer;
   var ebook, echapter, everse: integer; checkShortNames:boolean=true): boolean;
 var
   newTestamentOnly, englishbible: boolean;
@@ -2137,7 +2136,7 @@ begin
   end;
 end;
 
-function TBible.EnglishToAddress(ebook, echapter, everse: integer;
+function TBible.EnglishToReference(ebook, echapter, everse: integer;
   var book, chapter, verse: integer): boolean;
 var
   newtestament, englishbible: boolean;

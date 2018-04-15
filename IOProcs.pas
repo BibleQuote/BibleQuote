@@ -106,8 +106,7 @@ begin
       if (getSevenZ().mPasswordProtected) and (getSevenZ().ErrCode = 2) then
       begin
         aFileName := Copy(GetArchiveFromSpecial(aFileName), 2, $FFFF);
-        raise TBQPasswordException.CreateFmt(getSevenZ().Password, aFileName,
-          '#1%s', [aFileName]);
+        raise TBQPasswordException.CreateFmt(getSevenZ().Password, aFileName, '#1%s', [aFileName]);
       end
       else
         abort;

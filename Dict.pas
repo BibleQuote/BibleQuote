@@ -2,8 +2,7 @@ unit Dict;
 
 interface
 
-uses Windows, Classes, SysUtils, IOProcs,
-  WCharWindows;
+uses Windows, Classes, SysUtils, IOProcs, WCharWindows;
 
 type TDict = class(TObject)
   private

@@ -1964,34 +1964,20 @@ begin
 
   function MainFileExists(s: string): string;
   var
-    filePath, fullPath, modfolder: WideString;
+    filePath, fullPath, modfolder: string;
   begin
     result := '';
     // сжатые модули имеют приоритет над иными
     filePath := ExtractFilePath(s);
     modfolder := Copy(filePath, 1, Length(filePath) - 1);
     fullPath := ExePath + '\' + modfolder + '.bqb';
+
     if FileExists(fullPath) then
       result := '?' + fullPath + '??' + C_ModuleIniName
-    else if FileExists(ExePath + s) then
-      result := ExePath + s
-    else if FileExists(G_SecondPath + s) then
-      result := G_SecondPath + s
-    else
-    begin
-      fullPath := ExePath + Copy(filePath, 1, Length(filePath) - 1) + '.bqb';
-      if FileExists(fullPath) then
-        result := '?' + fullPath + '??' + C_ModuleIniName
-      else
-      begin
-        filePath := ExtractFilePath(s);
-        fullPath := ExePath +  '\' + Copy(filePath, 1, Length(filePath) - 1) + '.bqb';
-        if FileExists(fullPath) then
-          result := '?' + fullPath + '??' + C_ModuleIniName
-        else if FileExists(ExePath + s) then
-          result := ExePath + s;
-      end;
-    end;
+    else if FileExists(TPath.Combine(ExePath, s)) then
+      result := TPath.Combine(ExePath, s)
+    else if FileExists(TPath.Combine(G_SecondPath, s)) then
+      result := TPath.Combine(G_SecondPath, s)
   end;
 
   procedure __init_vars();

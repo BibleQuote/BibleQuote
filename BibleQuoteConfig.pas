@@ -13,8 +13,8 @@ const
       C_CommentariesSubDirectory = 'Commentaries';
       C_DictionariesSubDirectory = 'Dictionaries';
       C_BooksSubDirectory = 'Books';
-      C_TSKSubDirectory = 'Dictionaries\TSK';
-      C_StrongsSubDirectory = 'Dictionaries';
+      C_TSKSubDirectory = 'Commentaries\Commentary-TSK';
+      C_StrongsSubDirectory = 'Strongs';
 
       C_ModuleIniName='bibleqt.ini';
       C_PasswordPolicyFileName= 'bq.pol';
