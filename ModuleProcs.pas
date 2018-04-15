@@ -19,11 +19,17 @@ type
     mCachedModules: TCachedModules;
 
     // track scanning process
+    mFolderBiblesScanned: Boolean;
+    mFolderBooksScanned: Boolean;
     mFolderCommentsScanned: Boolean;
-    mFolderModulesScanned: Boolean;
-    mArchivedBiblesScanned: Boolean;
-    mSecondFolderModulesScanned: Boolean;
+
+    mArchivedModulesScanned: Boolean;
     mArchivedCommentsScanned: Boolean;
+
+    mSecondFolderBiblesScanned: Boolean;
+    mSecondFolderBooksScanned: Boolean;
+    mSecondFolderCommentsScanned: Boolean;
+
     mScanDone: Boolean;
 
     mSearchRecord: TSearchRec;
@@ -37,7 +43,8 @@ type
 
     function LoadModules(tmpBook: TBible; background: Boolean): Boolean;
     function AddArchivedModules(path: string; tempBook: TBible; background: Boolean; addAsCommentaries: Boolean = false): Boolean;
-    function AddFolderModules(path: string; tempBook: TBible; background: Boolean; addAsCommentaries: Boolean = false): Boolean;
+    //function AddFolderModules(path: string; tempBook: TBible; background: Boolean; addAsCommentaries: Boolean = false): Boolean;
+    function AddFolderModules(path: string; tempBook: TBible; background: Boolean; modType: TModuleType): Boolean;
 
     function LoadCachedModules(): Boolean;
     procedure SaveCachedModules();
@@ -58,10 +65,15 @@ constructor TModuleLoader.Create();
 begin
   mSearchInitialized := false;
 
+  mFolderBiblesScanned := false;
+  mFolderBooksScanned := false;
   mFolderCommentsScanned := false;
-  mFolderModulesScanned := false;
-  mArchivedBiblesScanned := false;
-  mSecondFolderModulesScanned := false;
+
+  mSecondFolderBiblesScanned := false;
+  mSecondFolderBooksScanned := false;
+  mSecondFolderCommentsScanned := false;
+
+  mArchivedModulesScanned := false;
   mArchivedCommentsScanned := false;
 
   mScanDone := false;
@@ -90,55 +102,79 @@ begin
   try
     if not background then
     begin
-      AddFolderModules(ModulesDirectory, tmpBook, background);
+      AddFolderModules(TPath.Combine(ModulesDirectory, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
+      AddFolderModules(TPath.Combine(ModulesDirectory, C_BooksSubDirectory), tmpBook, background, modtypeBook);
+
       AddArchivedModules(CompressedModulesDirectory, tmpBook, background);
 
       if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ModulesDirectory)) then
-        AddFolderModules(G_SecondPath, tmpBook, background);
+      begin
+        AddFolderModules(TPath.Combine(G_SecondPath, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
+        AddFolderModules(TPath.Combine(G_SecondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
+      end;
 
+      AddFolderModules(TPath.Combine(ModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, modtypeComment);
       AddArchivedModules(TPath.Combine(CompressedModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
-      AddFolderModules(TPath.Combine(ModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
 
       mScanDone := true;
       Result := true;
     end
     else
     begin
-      if not mFolderModulesScanned then
+      if not mFolderBiblesScanned then
       begin
-        mFolderModulesScanned := AddFolderModules(ModulesDirectory, tmpBook, background);
+        mFolderBiblesScanned := AddFolderModules(TPath.Combine(ModulesDirectory, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
         Exit;
       end;
-      if not mArchivedBiblesScanned then
+
+      if not mFolderBooksScanned then
       begin
-        mArchivedBiblesScanned := AddArchivedModules(CompressedModulesDirectory, tmpBook, background);
+        mFolderBooksScanned := AddFolderModules(TPath.Combine(ModulesDirectory, C_BooksSubDirectory), tmpBook, background, modtypeBook);
         Exit;
       end;
-      if not mSecondFolderModulesScanned then
+
+      if not mArchivedModulesScanned then
+      begin
+        mArchivedModulesScanned := AddArchivedModules(CompressedModulesDirectory, tmpBook, background);
+        Exit;
+      end;
+
+      if not mSecondFolderBiblesScanned then
       begin
         if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ModulesDirectory)) then
         begin
-          mSecondFolderModulesScanned := AddFolderModules(G_SecondPath, tmpBook, background);
+          mSecondFolderBiblesScanned := AddFolderModules(TPath.Combine(G_SecondPath, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
           Exit;
         end
         else
-          mSecondFolderModulesScanned := true;
-      end; // second folder
-      if not mArchivedCommentsScanned then
-      begin
-        mArchivedCommentsScanned := AddArchivedModules(TPath.Combine(CompressedModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
-        Exit;
+          mSecondFolderBiblesScanned := true;
       end;
+
+      if not mSecondFolderBooksScanned then
+      begin
+        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ModulesDirectory)) then
+        begin
+          mSecondFolderBooksScanned := AddFolderModules(TPath.Combine(G_SecondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
+          Exit;
+        end
+        else
+          mSecondFolderBooksScanned := true;
+      end;
+
       if not mFolderCommentsScanned then
       begin
-        mFolderCommentsScanned := AddFolderModules(TPath.Combine(ModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
+        mFolderCommentsScanned := AddFolderModules(TPath.Combine(ModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, modtypeComment);
         Exit;
-      end
-      else
-      begin
-        mScanDone := true;
-        Result := true;
       end;
+
+      if not mArchivedCommentsScanned then
+      begin
+        mArchivedCommentsScanned := AddArchivedModules(TPath.Combine(CompressedModulesDirectory, C_CommentariesSubDirectory), tmpBook, background);
+        Exit;
+      end;
+
+      mScanDone := true;
+      Result := true;
     end;
   finally
     if mScanDone then
@@ -216,11 +252,10 @@ begin
     Result := false;
 end;
 
-function TModuleLoader.AddFolderModules(path: string; tempBook: TBible; background: Boolean; addAsCommentaries: Boolean = false): Boolean;
+function TModuleLoader.AddFolderModules(path: string; tempBook: TBible; background: Boolean; modType: TModuleType): Boolean;
 var
   Count: integer;
   modEntry: TModuleEntry;
-  mt: TModuleType;
   modulePath: string;
 begin
   Count := C_NumOfModulesToScan + (ord(not background) shl 12);
@@ -239,18 +274,9 @@ begin
       begin
         try
           tempBook.inifile := modulePath;
-          if (addAsCommentaries) then
-            mt := modtypeComment
-          else
-          begin
-            if tempBook.isBible then
-              mt := modtypeBible
-            else
-              mt := modtypeBook;
-          end;
 
           modEntry := TModuleEntry.Create(
-            mt,
+            modType,
             tempBook.Name,
             tempBook.ShortName,
             tempBook.ShortPath,

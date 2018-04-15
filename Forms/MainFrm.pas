@@ -593,7 +593,7 @@ type
     procedure bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
     procedure bwrHtmlMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
-    procedure LoadFontFromFolder(awsFolder: WideString);
+    procedure LoadFontFromFolder(awsFolder: string);
     procedure miOpenNewViewClick(Sender: TObject);
     procedure pmRefPopup(Sender: TObject);
     procedure miChooseSatelliteBibleClick(Sender: TObject);
@@ -1010,7 +1010,7 @@ var
   SearchPage: integer; // what page we are in
 
   StrongHebrew, StrongGreek: TDict;
-  StrongsDir: WideString;
+  StrongsDir: string;
 
   // DefaultModule: WideString;
   SatelliteBible: WideString;
@@ -1452,14 +1452,15 @@ begin
   end;
 end;
 
-procedure TMainForm.LoadFontFromFolder(awsFolder: WideString);
+procedure TMainForm.LoadFontFromFolder(awsFolder: string);
 var
   sr: TSearchRec;
   R: integer;
+  searchPath: string;
 begin
   try
-    R := FindFirst(awsFolder + '*.ttf', faArchive or faReadOnly or
-      faHidden, sr);
+    searchPath := TPath.Combine(awsFolder, '*.ttf');
+    R := FindFirst(searchPath, faArchive or faReadOnly or faHidden, sr);
     if R <> 0 then
       Exit; // abort;
     repeat
@@ -2415,10 +2416,10 @@ begin
     //ShowComments;
     end; }
   // LoadBookNodes();
-  StrongsDir := 'Strongs';
-  LoadFontFromFolder(ExePath + StrongsDir + '\');
-  StrongHebrew := TDict.Create;
+  StrongsDir := C_StrongsSubDirectory;
+  LoadFontFromFolder(TPath.Combine(ModulesDirectory, StrongsDir));
 
+  StrongHebrew := TDict.Create;
   StrongGreek := TDict.Create;
 
   pgcMainChange(self);
@@ -2596,7 +2597,7 @@ begin
     repeat
       if not(gmtEffectiveAddress in options) then
       begin
-        if mRefenceBible.InternalToAddress(ibl, effectiveLnk) < -1 then
+        if mRefenceBible.InternalToReference(ibl, effectiveLnk) < -1 then
           goto lblErrNotFnd;
       end
       else
@@ -3104,8 +3105,8 @@ begin
         try
           // синхронизация мест
           with MainBook do
-            AddressToInternal(CurBook, CurChapter, verse, B, C, V);
-          SecondBook.InternalToAddress(B, C, V, ib, ic, iv);
+            ReferenceToInternal(CurBook, CurChapter, verse, B, C, V);
+          SecondBook.InternalToReference(B, C, V, ib, ic, iv);
           if (ib <> SecondBook.CurBook) or (ic <> SecondBook.CurChapter) or
             (not opened) then
           begin
@@ -5250,7 +5251,7 @@ begin
   getAddress := bl.FromBqStringLocation(vti.mwsLocation);
   if getAddress then
   begin
-    linkValidStatus := MainBook.AddressToInternal(bl, ibl);
+    linkValidStatus := MainBook.ReferenceToInternal(bl, ibl);
     if linkValidStatus = -2 then
       getAddress := false;
   end;
@@ -5362,7 +5363,7 @@ var
     if (Pos('нз', wl) = 1) or (Pos('nt', wl) = 1) then
     begin
 
-      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToAddress(40, 1,
+      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(40, 1,
         1, book, chapter, v1) then
       begin
         s := s + [39 .. 65];
@@ -5371,7 +5372,7 @@ var
     end
     else if (Pos('вз', wl) = 1) or (Pos('ot', wl) = 1) then
     begin
-      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToAddress(1, 1, 1,
+      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToReference(1, 1, 1,
         book, chapter, v1) then
       begin
         s := s + [0 .. 38];
@@ -5381,7 +5382,7 @@ var
     else if (Pos('пят', wl) = 1) or (Pos('pent', wl) = 1) or
       (Pos('тор', wl) = 1) or (Pos('tor', wl) = 1) then
     begin
-      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToAddress(1, 1, 1,
+      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToReference(1, 1, 1,
         book, chapter, v1) then
       begin
         s := s + [0 .. 4];
@@ -5425,7 +5426,7 @@ var
       if MainBook.Trait[bqmtOldCovenant] then
       begin
         s := s + [22 .. 38];
-        if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToAddress(66, 1,
+        if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(66, 1,
           1, book, chapter, v1) then
         begin
           Include(s, 65);
@@ -5443,7 +5444,7 @@ var
     end
     else if (Pos('пав', wl) = 1) or (Pos('paul', wl) = 1) then
     begin
-      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToAddress(52, 1,
+      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(52, 1,
         1, book, chapter, v1) then
       begin
         s := s + [book - 1 .. book + 12];
@@ -5515,7 +5516,7 @@ begin
               books := books + FirstWord(lnks[i]) + ' ';
               continue
             end
-            else if MainBook.OpenAddress(lnks[i], book, chapter, v1, v2) and
+            else if MainBook.OpenReference(lnks[i], book, chapter, v1, v2) and
               (book > 0) and (book < 77) then
             begin
               Include(s, book - 1);
@@ -5861,7 +5862,7 @@ begin
 
     edtGo.Text := Links[0];
 
-    openSuccess := MainBook.OpenAddress(edtGo.Text, book, chapter,
+    openSuccess := MainBook.OpenReference(edtGo.Text, book, chapter,
       fromverse, toverse);
     if not openSuccess then
     begin
@@ -5874,7 +5875,7 @@ begin
           tempBook.inifile :=
             MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i])
             .wsShortPath + '\bibleqt.ini');
-          openSuccess := tempBook.OpenAddress(edtGo.Text, book, chapter,
+          openSuccess := tempBook.OpenReference(edtGo.Text, book, chapter,
             fromverse, toverse);
           if openSuccess then
           begin
@@ -5900,7 +5901,7 @@ begin
             // modPath := Copy(ModulesList[ix], pp + 5, Length(ModulesList[ix]));
             modPath := moduleEntry.wsShortPath;
             tempBook.inifile := MainFileExists(TPath.Combine(modPath, 'bibleqt.ini'));
-            openSuccess := tempBook.OpenAddress(edtGo.Text, book, chapter, fromverse, toverse);
+            openSuccess := tempBook.OpenReference(edtGo.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin
               MainBook.inifile := tempBook.inifile;
@@ -6389,7 +6390,7 @@ begin
   if blValidAddressExtracted then
   begin
     // if valid address
-    R := MainBook.AddressToInternal(bl, obl);
+    R := MainBook.ReferenceToInternal(bl, obl);
     if R <= -2 then
     begin
       obl.Build(1, 1, 0, 0);
@@ -6406,14 +6407,13 @@ begin
       tempBook := TBible.Create(self, self);
 
     iniPath := TPath.Combine(me.wsShortPath, 'bibleqt.ini');
-
     tempBook.inifile := MainFileExists(iniPath);
   except
   end;
 
   if tempBook.isBible and wasBible then
   begin
-    R := tempBook.InternalToAddress(obl, bl);
+    R := tempBook.InternalToReference(obl, bl);
     if R <= -2 then
       hlVerses := hlFalse;
     try
@@ -7059,13 +7059,13 @@ begin
 
   SecondBook.inifile := MainBook.inifile;
 
-  MainBook.AddressToEnglish(MainBook.CurBook, MainBook.CurChapter, tbXRef.tag, book, chapter, verse);
+  MainBook.ReferenceToEnglish(MainBook.CurBook, MainBook.CurChapter, tbXRef.tag, book, chapter, verse);
   s := IntToStr(book);
 
   if Length(s) = 1 then
     s := '0' + s;
 
-  path := TPath.Combine(ModulesDirectory, 'TSK');
+  path := TPath.Combine(ModulesDirectory, C_TSKSubDirectory);
   path := TPath.Combine(path, s + '_*.ini');
 
   if FindFirst(path, faAnyFile, tf) <> 0 then
@@ -7073,7 +7073,7 @@ begin
 
   ti := TMultiLanguage.Create(nil);
 
-  path := TPath.Combine(ModulesDirectory, 'TSK');
+  path := TPath.Combine(ModulesDirectory, C_TSKSubDirectory);
   ti.inifile := TPath.Combine(path, tf.Name);
 
   SecondBook.OpenChapter(MainBook.CurBook, MainBook.CurChapter);
@@ -7103,13 +7103,13 @@ begin
     // get xrefs
     for i := 0 to Links.Count - 1 do
     begin
-      if not SecondBook.OpenTSKAddress(Links[i], book, chapter, fromverse, toverse) then
+      if not SecondBook.OpenTSKReference(Links[i], book, chapter, fromverse, toverse) then
         continue;
 
       diff := toverse - fromverse;
       SecondBook.ENG2RUS(book, chapter, fromverse, book, chapter, fromverse);
 
-      if not SecondBook.InternalToAddress(book, chapter, fromverse, book,
+      if not SecondBook.InternalToReference(book, chapter, fromverse, book,
         chapter, fromverse) then
         continue; // if this module doesn't have the link...
 
@@ -7274,7 +7274,7 @@ begin
   if not MainBook.isBible then
     Exit;
 
-  MainBook.InternalToAddress(MainBook.CurBook, MainBook.CurChapter, 1, book,
+  MainBook.InternalToReference(MainBook.CurBook, MainBook.CurChapter, 1, book,
     chapter, verse);
 
   if MainBook.SoundDirectory = '' then
@@ -7720,6 +7720,7 @@ procedure TMainForm.DisplayStrongs(num: integer; hebrew: Boolean);
 var
   res, s, Copyright: string;
   i: integer;
+  fullDir: string;
 begin
   // if num = 0 then Exit;
 
@@ -7735,28 +7736,24 @@ begin
 
   StrongsDir := MainBook.StrongsDirectory;
   if StrongsDir = '' then
-    StrongsDir := 'Strongs';
+    StrongsDir := C_StrongsSubDirectory;
 
+  fullDir := TPath.Combine(ModulesDirectory, StrongsDir);
   if hebrew or (num = 0) then
   begin
-    if not(StrongHebrew.Initialize(ExePath + StrongsDir + '\hebrew.idx',
-      ExePath + StrongsDir + '\hebrew.htm')) then
-      ShowMessage('Error in' + ExePath + StrongsDir + '\hebrew.*');
+    if not(StrongHebrew.Initialize(TPath.Combine(fullDir, 'hebrew.idx'), TPath.Combine(fullDir, 'hebrew.htm'))) then
+      ShowMessage('Error in' + TPath.Combine(fullDir, 'hebrew.*'));
     res := StrongHebrew.Lookup(s);
     StrReplace(res, '<h4>', '<h4>H', false);
     Copyright := StrongHebrew.Name;
   end
   else
   begin
-    if not(StrongGreek.Initialize(ExePath + StrongsDir + '\greek.idx',
-      ExePath + StrongsDir + '\greek.htm')) then
-      ShowMessage('Error in' + ExePath + StrongsDir + '\greek.*')
-    else
-    begin
-      res := StrongGreek.Lookup(s);
-      StrReplace(res, '<h4>', '<h4>G', false);
-      Copyright := StrongGreek.Name;
-    end;
+    if not(StrongGreek.Initialize(TPath.Combine(fullDir, 'greek.idx'), TPath.Combine(fullDir, 'greek.htm'))) then
+      ShowMessage('Error in' + TPath.Combine(fullDir, 'greek.*'));
+    res := StrongGreek.Lookup(s);
+    StrReplace(res, '<h4>', '<h4>G', false);
+    Copyright := StrongGreek.Name;
   end;
 
   // end;
@@ -8034,7 +8031,7 @@ begin
   begin
     if (Copy(wsrc, 1, 3) <> 'go ') then
     begin
-      if MainBook.OpenAddress(wsrc, book, chapter, fromverse, toverse) then
+      if MainBook.OpenReference(wsrc, book, chapter, fromverse, toverse) then
         wsrc := WideFormat('go %s %d %d %d %d', [MainBook.ShortPath, book,
           chapter, fromverse, toverse])
       else
@@ -8149,10 +8146,10 @@ begin
       goto LoopTail;
 
     with MainBook do
-      AddressToInternal(CurBook, CurChapter, CurVerseNumber, book,
+      ReferenceToInternal(CurBook, CurChapter, CurVerseNumber, book,
         chapter, verse);
 
-    SecondBook.InternalToAddress(book, chapter, verse, ib, ic, iv);
+    SecondBook.InternalToReference(book, chapter, verse, ib, ic, iv);
 
     try
       openSuccess := SecondBook.OpenChapter(ib, ic);
@@ -8253,7 +8250,7 @@ var
 begin
   edtGo.Text := cbLinks.Items[cbLinks.ItemIndex];
 
-  if MainBook.OpenAddress(edtGo.Text, book, chapter, fromverse, toverse) then
+  if MainBook.OpenReference(edtGo.Text, book, chapter, fromverse, toverse) then
     ProcessCommand(WideFormat('go %s %d %d %d %d', [MainBook.ShortPath, book,
       chapter, fromverse, toverse]), hlDefault)
   else
@@ -8793,7 +8790,7 @@ begin
 
       me := dtsBible.Tabs.Objects[tabIx] as TModuleEntry;
 
-      R := ti.mBible.AddressToInternal(bl, common_lnk);
+      R := ti.mBible.ReferenceToInternal(bl, common_lnk);
       if R < -1 then
         Exit;
 
@@ -10528,9 +10525,9 @@ begin
   commentaryModule := mModules[commentaryIx];
   SecondBook.inifile := commentaryModule.getIniPath();
 
-  MainBook.AddressToInternal(MainBook.CurBook, MainBook.CurChapter, 1,
+  MainBook.ReferenceToInternal(MainBook.CurBook, MainBook.CurChapter, 1,
     ib, ic, iv);
-  blFailed := not SecondBook.InternalToAddress(ib, ic, iv, B, C, V);
+  blFailed := not SecondBook.InternalToReference(ib, ic, iv, B, C, V);
   if blFailed then
   begin
     Lines := FailedToLoadComment('Cannot find matching comment');
@@ -10925,7 +10922,7 @@ begin
   Result := FontExists(aFontName);
   if Result then
     Exit;
-  fontFullPath := aFontPath + aFontName;
+  fontFullPath := TPath.Combine(aFontPath, aFontName);
   if FileExistsEx(fontFullPath + '.otf') >= 0 then
     fontFullPath := fontFullPath + '.otf'
   else
@@ -10978,7 +10975,7 @@ begin
     end;
     if Result > -2 then
     begin
-      mRefenceBible.InternalToAddress(bl, moduleEffectiveLink);
+      mRefenceBible.InternalToReference(bl, moduleEffectiveLink);
       if (me <> nil) then
         ConcreteCmd := moduleEffectiveLink.ToCommand(me.wsShortPath);
       Exit;
