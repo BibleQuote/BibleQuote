@@ -7728,17 +7728,12 @@ begin
   for i := Length(s) to 4 do
     s := '0' + s;
 
-  // if ((MainBook.StrongsDirectory = '') and (StrongsDir <> 'Strongs'))
-  // or ((MainBook.StrongsDirectory <> '') and (StrongsDir <>
-  // MainBook.StrongsDirectory)) then
-  // begin
-  // re-initialize Strongs ....
-
   StrongsDir := MainBook.StrongsDirectory;
-  if StrongsDir = '' then
-    StrongsDir := C_StrongsSubDirectory;
 
-  fullDir := TPath.Combine(ModulesDirectory, StrongsDir);
+  fullDir := TPath.Combine(ModulesDirectory, C_StrongsSubDirectory);
+  if StrongsDir <> '' then
+    fullDir := TPath.Combine(fullDir, StrongsDir);
+
   if hebrew or (num = 0) then
   begin
     if not(StrongHebrew.Initialize(TPath.Combine(fullDir, 'hebrew.idx'), TPath.Combine(fullDir, 'hebrew.htm'))) then
