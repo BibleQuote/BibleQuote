@@ -7730,9 +7730,10 @@ begin
 
   StrongsDir := MainBook.StrongsDirectory;
 
-  fullDir := TPath.Combine(ModulesDirectory, C_StrongsSubDirectory);
-  if StrongsDir <> '' then
-    fullDir := TPath.Combine(fullDir, StrongsDir);
+  if StrongsDir = '' then
+    StrongsDir := C_StrongsSubDirectory;
+
+  fullDir := TPath.Combine(ModulesDirectory, StrongsDir);
 
   if hebrew or (num = 0) then
   begin
