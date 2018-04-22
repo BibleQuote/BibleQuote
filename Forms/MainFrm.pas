@@ -390,6 +390,7 @@ type
     tbtnSpace2: TToolButton;
     miShowSignatures: TMenuItem;
     miView: TMenuItem;
+    tlbViewPage: TToolBar;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
@@ -754,11 +755,8 @@ type
 
     procedure DrawMetaFile(PB: TPaintBox; mf: TMetaFile);
     function ProcessCommand(s: string; hlVerses: TbqHLVerseOption): Boolean;
-    (* AlekId:Добавлено *)
-    function _CreateNewBrowserInstanse(aBrowser: THTMLViewer;
-      aOwner: TComponent; aParent: TWinControl): THTMLViewer;
-    function _CreateNewBibleInstance(aBible: TBible;
-      aOwner: TComponent): TBible;
+    function AddNewBrowserInstanse(aParent: TWinControl): THTMLViewer;
+    function CreateNewBibleInstance(aBible: TBible; aOwner: TComponent): TBible;
     function GetActiveTabInfo(): TViewTabInfo;
     function TabInfoFromBrowser(Browser: THTMLViewer): TViewTabInfo;
     procedure AdjustBibleTabs(awsNewModuleName: WideString = '');
@@ -773,9 +771,9 @@ type
     // function SatelliteMenuItemFromModuleName(aName: WideString): TMenuItem;
     procedure SaveTabsToFile(path: string);
     procedure LoadTabsFromFile(path: WideString);
-    function NewViewTab(const command: WideString; const satellite: WideString;
+    function NewViewTab(const command: string; const satellite: string;
       const browserbase: string; state: TViewtabInfoState;
-      const Title: WideString; visual: Boolean): Boolean;
+      const Title: string; visual: Boolean): Boolean;
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
     function LoadDictionaries(foreground: Boolean): Boolean;
@@ -917,6 +915,7 @@ type
   function GetLocalizationDirectory(): string;
   function ApplyInitialTranslation(): Boolean;
   procedure TranslateForm(form: TForm);
+  procedure ToggleViewPageMenu(enable: Boolean);
 
   public
     mHandCur: TCursor;
@@ -2265,6 +2264,7 @@ begin
   Browser := bwrHtml;
   Browser.Align := alClient;
   SetVScrollTracker(Browser);
+ 
   MainBook := TBible.Create(tbInitialViewPage, self);
   // AlekId: библия принадлежит табу
   SecondBook := TBible.Create(self, self);
@@ -9100,6 +9100,22 @@ begin
   Result := DicSelectedItemIndex(pn);
 end;
 
+procedure TMainForm.ToggleViewPageMenu(enable: Boolean);
+begin
+  if (enable) then
+  begin
+    // display tab menu and move it to active tab
+    tlbViewPage.Visible := true;
+    tlbViewPage.Parent := pgcViewTabs.ActivePage;
+  end
+  else
+  begin
+    // hide tab menu and move it to tab control avoid disposal
+    tlbViewPage.Visible := false;
+    tlbViewPage.Parent := pgcViewTabs;
+  end;
+end;
+
 procedure TMainForm.TranslateForm(form: TForm);
 begin
   try
@@ -10774,51 +10790,6 @@ begin
   HistoryOn := true;
 end;
 
-{ function TMainForm.NewTab(const location: WideString): boolean;
-  var
-  Tab1: TTabSheet;
-  newBrowser, saveBrowser: THtmlViewer;
-  tabInfo: TViewTabInfo;
-  newBible, saveMainBible: TBible;
-  begin
-  Tab1 := nil;
-  newBrowser := nil;
-  newBible := nil;
-  saveBrowser := Browser;
-  saveMainBible := MainBook;
-  result := false;
-  try
-  Tab1 := TTabSheet.Create(MainForm);
-  Tab1.OnContextPopup := tbInitialViewPageContextPopup;
-  newBrowser := _CreateNewBrowserInstanse(Browser, Tab1, Tab1);
-  if not Assigned(newBrowser) then abort;
-  Tab1.PageControl := pgcViewTabs;
-  Browser := newBrowser;
-  (*AlekId:Добавлено*)
-  //конструируем TBible
-  newBible := _CreateNewBibleInstance(MainBook, Tab1);
-  if not Assigned(newBible) then abort;
-
-  tabInfo := TViewTabInfo.Create(newBrowser, newBible, '', TMenuItem(SatelliteMenu.Items[0]),
-  miStrong.Checked, miMemosToggle.Checked);
-  Tab1.Tag := Integer(tabInfo);
-  //какждой вкладке по броузеру
-  MainBook := newBible;
-  pgcViewTabs.ActivePageIndex := pgcViewTabs.PageCount - 1;
-  SelectSatelliteMenuItem(tabInfo.mSatelliteMenuItem);
-
-  SafeProcessCommand(location);
-  UpdateUI();
-  result := true;
-  except
-  Browser := saveBrowser;
-  MainBook := saveMainBible;
-  newBible.Free();
-  newBrowser.Free();
-  Tab1.Free();
-  end;
-  end; }
-
 function TMainForm.NavigateToInterfaceValues: Boolean;
 begin
   /// offset := 1;
@@ -10828,9 +10799,9 @@ begin
 
 end;
 
-function TMainForm.NewViewTab(const command: WideString;
-  const satellite: WideString; const browserbase: string;
-  state: TViewtabInfoState; const Title: WideString; visual: Boolean): Boolean;
+function TMainForm.NewViewTab(
+  const command: string; const satellite: string;
+  const browserbase: string; state: TViewtabInfoState; const Title: string; visual: Boolean): Boolean;
 var
   Tab1: TTabSheet;
   tabInfo: TViewTabInfo;
@@ -10854,13 +10825,14 @@ begin
     Tab1.OnContextPopup := tbInitialViewPageContextPopup;
     Tab1.Caption := Title;
 
-    newBrowser := _CreateNewBrowserInstanse(Browser, Tab1, Tab1);
+    //AddMenuPanel(Tab1);
+    newBrowser := AddNewBrowserInstanse(Tab1);
     newBrowser.Base := browserbase;
     if not Assigned(newBrowser) then
       abort;
     Browser := newBrowser;
     // конструируем TBible
-    newBible := _CreateNewBibleInstance(MainBook, Tab1);
+    newBible := CreateNewBibleInstance(MainBook, Tab1);
     if not Assigned(newBible) then
       abort;
     // satelliteMenuItem := SatelliteMenuItemFromModuleName(satellite);
@@ -10877,7 +10849,6 @@ begin
     MainBook := newBible;
     if visual then
     begin
-
       pgcViewTabs.ActivePage := Tab1;
       StrongNumbersOn := vtisShowStrongs in state;
       MainBook.RecognizeBibleLinks := vtisResolveLinks in state;
@@ -10885,6 +10856,9 @@ begin
       MemosOn := vtisShowNotes in state;
       // SelectSatelliteMenuItem(satelliteMenuItem);
       SafeProcessCommand(command, hlDefault);
+
+      ToggleViewPageMenu(true);
+
       UpdateUI();
     end
     else
@@ -11300,9 +11274,9 @@ end;
 
 procedure TMainForm.pgcViewTabsChange(Sender: TObject);
 begin
-  try // this does
-    // переключение контекста
-    // обновить
+  try
+    ToggleViewPageMenu(true);
+
     try
       GetActiveTabInfo().mHtmlViewer.NoScollJump := true;
       UpdateUI();
@@ -11323,8 +11297,7 @@ end;
 
 { AlekId:добавлено }
 
-procedure TMainForm.pgcViewTabsDblClick(Sender: TClosablePageControl;
-  Index: integer);
+procedure TMainForm.pgcViewTabsDblClick(Sender: TClosablePageControl; Index: integer);
 var
   ti: TViewTabInfo;
 begin
@@ -11478,8 +11451,7 @@ end;
 
 (* AlekId:Добавлено *)
 
-function TMainForm._CreateNewBibleInstance(aBible: TBible;
-  aOwner: TComponent): TBible;
+function TMainForm.CreateNewBibleInstance(aBible: TBible; aOwner: TComponent): TBible;
 begin
   Result := nil;
   try
@@ -11496,20 +11468,18 @@ begin
   end;
 end;
 
-function TMainForm._CreateNewBrowserInstanse(aBrowser: THTMLViewer;
-  aOwner: TComponent; aParent: TWinControl): THTMLViewer;
+function TMainForm.AddNewBrowserInstanse(aParent: TWinControl): THTMLViewer;
 begin
   Result := nil;
   try
-    Result := THTMLViewer.Create(aOwner); // AlekId
+    Result := THTMLViewer.Create(aParent);
     Result.Parent := aParent;
     Result.Scrollbars := ssBoth;
     with Result do
     begin
-      DefFontName := mBrowserDefaultFontName { Browser.DefFontName };
+      DefFontName := mBrowserDefaultFontName;
       DefFontSize := Browser.DefFontSize;
       DefFontColor := Browser.DefFontColor;
-      // DefaultCharset := Browser.DefaultCharset;
       DefBackGround := Browser.DefBackGround;
       DefHotSpotColor := Browser.DefHotSpotColor;
       BorderStyle := Browser.BorderStyle;
@@ -11549,7 +11519,7 @@ procedure TMainForm.miNewTabClick(Sender: TObject);
 var
   // newBrowser, saveBrowser: THtmlViewer;
   activeTabInfo: TViewTabInfo;
-  satBibleName: WideString;
+  satBibleName: string;
 begin
   { newBrowser := nil;
     newBible := nil; }
@@ -11566,50 +11536,7 @@ begin
     end;
 
     satBibleName := activeTabInfo.mSatelliteName;
-    NewViewTab(activeTabInfo.mwsLocation, satBibleName, '', activeTabInfo.state,
-      '', true);
-    (* Tab1 := TTabSheet.Create(MainForm);
-      Tab1.PageControl := pgcViewTabs;
-      Tab1.OnContextPopup := tbInitialViewPageContextPopup;
-      newBrowser := _CreateNewBrowserInstanse(Browser, Tab1, Tab1);
-      if not Assigned(newBrowser) then abort;
-      Browser := newBrowser;
-      //конструируем TBible
-      newBible := _CreateNewBibleInstance(MainBook, Tab1);
-      if not Assigned(newBible) then
-      abort;
-      {with ActiveTabInfo.mBible do
-      begin
-      if IniFile = '' then
-      newBible.IniFile := MainFileExists(mDefaultLocation + '\' +
-      C_ModuleIniName)
-      else
-      begin
-      newBible.IniFile := IniFile;
-      //newBible.OpenChapter(CurBook, CurChapter);//AlekId: по видимому, ни к чему
-      // так как далее следует ProcessCommand
-      end;
-      end;}
-
-      tabInfo := TViewTabInfo.Create(newBrowser, newBible, ActiveTabInfo.mwsLocation,
-      ActiveTabInfo.mSatelliteMenuItem, ActiveTabInfo.mShowStrongs, ActiveTabInfo.mShowNotes);
-      Tab1.Tag := Integer(tabInfo);
-      //какждой вкладке по броузеру
-      MainBook := newBible;
-      pgcViewTabs.ActivePageIndex := pgcViewTabs.PageCount - 1;
-      SelectSatelliteMenuItem(ActiveTabInfo.mSatelliteMenuItem);
-      StrongNumbersOn:=ActiveTabInfo.mShowStrongs;
-      MemosOn:=ActiveTabInfo.mShowNotes;
-      SafeProcessCommand(ActiveTabInfo.mwsLocation);
-      UpdateUI();
-      except
-      Browser := saveBrowser;
-      MainBook := saveMainBible;
-      newBible.Free();
-      newBrowser.Free();
-      Tab1.Free();
-      end; *)
-    (* AlekId:/Добавлено *)
+    NewViewTab(activeTabInfo.mwsLocation, satBibleName, '', activeTabInfo.state, '', true);
   except
   end;
 end;
@@ -11736,6 +11663,9 @@ begin
       tabInfo := TObject(tab.tag) as TViewTabInfo;
       FreeAndNil(tabInfo.mBible);
       FreeAndNil(tabInfo.mHtmlViewer);
+
+      ToggleViewPageMenu(false);
+
       tab.Free();
       if tabIx = pgcViewTabs.PageCount then
         pgcViewTabs.ActivePageIndex := tabIx - 1;
