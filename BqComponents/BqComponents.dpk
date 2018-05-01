@@ -33,7 +33,7 @@ requires
 
 contains
   bqGradientPanel in 'bqGradientPanel.pas',
-  bqClosablePageControl in 'bqClosablePageControl.pas',
+  bqClosableTabControl in 'bqClosableTabControl.pas',
   rkGlassButton in 'rkGlassButton.pas';
 
 end.

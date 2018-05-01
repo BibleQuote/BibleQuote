@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 488
+  ClientHeight = 448
   ClientWidth = 814
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 24
     Width = 8
-    Height = 464
+    Height = 424
     AutoSnap = False
     MinSize = 100
     OnMoved = splMainMoved
@@ -52,20 +52,18 @@ object MainForm: TMainForm
     Left = 298
     Top = 24
     Width = 516
-    Height = 464
+    Height = 424
     Align = alClient
     Caption = 'pnlMain'
     TabOrder = 0
-    object pgcViewTabs: TClosablePageControl
-      AlignWithMargins = True
-      Left = 4
-      Top = 30
-      Width = 511
-      Height = 412
+    object pgcViewTabs: TClosableTabControl
+      Left = 1
+      Top = 1
+      Width = 514
+      Height = 401
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
-      ActivePage = tbInitialViewPage
       Align = alClient
       DoubleBuffered = True
       Images = ilImages
@@ -78,24 +76,34 @@ object MainForm: TMainForm
       OnContextPopup = tbInitialViewPageContextPopup
       OnDragDrop = pgcViewTabsDragDrop
       OnDragOver = pgcViewTabsDragOver
+      OnGetImageIndex = pgcViewTabsGetImageIndex
       OnMouseDown = pgcViewTabsMouseDown
       OnStartDrag = pgcViewTabsStartDrag
       CloseButtonIndex = 35
       OnDeleteTab = pgcViewTabsDeleteTab
       OnTabDoubleClick = pgcViewTabsDblClick
-      ExplicitTop = 1
-      ExplicitHeight = 441
-      object tbInitialViewPage: TTabSheet
-        ImageIndex = -1
+      ExplicitLeft = 4
+      ExplicitWidth = 511
+      object viewPanel: TPanel
+        Left = 4
+        Top = 6
+        Width = 506
+        Height = 391
+        Align = alClient
+        Caption = 'viewPanel'
         PopupMenu = mViewTabsPopup
+        TabOrder = 0
         OnContextPopup = tbInitialViewPageContextPopup
-        ExplicitHeight = 411
+        ExplicitTop = 26
+        ExplicitWidth = 503
+        ExplicitHeight = 371
         object bwrHtml: THTMLViewer
-          Left = 140
-          Top = 98
-          Width = 360
-          Height = 249
+          Left = 1
+          Top = 30
+          Width = 504
+          Height = 360
           TabOrder = 0
+          Align = alClient
           PopupMenu = pmBrowser
           BorderStyle = htSingle
           CharSet = DEFAULT_CHARSET
@@ -119,12 +127,89 @@ object MainForm: TMainForm
           OnHotSpotCovered = bwrHtmlHotSpotCovered
           OnImageRequest = bwrHtmlImageRequest
           OnMouseDouble = bwrHtmlMouseDouble
+          ExplicitWidth = 501
+          ExplicitHeight = 340
+        end
+        object tlbViewPage: TToolBar
+          Left = 1
+          Top = 1
+          Width = 504
+          Height = 29
+          Caption = 'View page menu'
+          Color = clBtnFace
+          Images = ilImages
+          ParentColor = False
+          TabOrder = 1
+          ExplicitWidth = 501
+          object tbtnBack: TToolButton
+            Left = 0
+            Top = 0
+            Caption = 'Back'
+            ImageIndex = 4
+            OnClick = tbtnBackClick
+          end
+          object tbtnForward: TToolButton
+            Left = 23
+            Top = 0
+            Caption = 'Forward'
+            ImageIndex = 6
+            OnClick = tbtnForwardClick
+          end
+          object tbtnSep02: TToolButton
+            Left = 46
+            Top = 0
+            Width = 6
+            Style = tbsSeparator
+          end
+          object tbtnPrevChapter: TToolButton
+            Left = 52
+            Top = 0
+            Caption = 'Minus'
+            ImageIndex = 25
+            OnClick = tbtnPrevChapterClick
+          end
+          object tbtnNextChapter: TToolButton
+            Left = 75
+            Top = 0
+            Caption = 'Plus'
+            ImageIndex = 26
+            OnClick = tbtnNextChapterClick
+          end
+          object tbtnSep03: TToolButton
+            Left = 98
+            Top = 0
+            Width = 6
+            Style = tbsSeparator
+          end
+          object tbtnCopy: TToolButton
+            Left = 104
+            Top = 0
+            Caption = 'Copy'
+            ImageIndex = 15
+            OnClick = CopySelectionClick
+          end
+          object tbtnStrongNumbers: TToolButton
+            Left = 127
+            Top = 0
+            Caption = 'Strong'
+            ImageIndex = 18
+            Style = tbsCheck
+            OnClick = miStrongClick
+          end
+          object tbtnMemos: TToolButton
+            Left = 150
+            Top = 0
+            Caption = 'Memos'
+            ImageIndex = 29
+            Style = tbsCheck
+            OnClick = tbtnMemosClick
+          end
         end
       end
     end
     object pnlPaint: TPanel
       Left = 1
-      Top = 442
+      Top = 402
       Width = 514
       Height = 21
       Align = alBottom
@@ -177,84 +262,6 @@ object MainForm: TMainForm
         DockSite = False
       end
     end
-    object tlbViewPage: TToolBar
-      Left = 1
-      Top = 1
-      Width = 514
-      Height = 29
-      Caption = 'ViewPageMenuTemplate'
-      Color = clBtnFace
-      Images = ilImages
-      ParentColor = False
-      TabOrder = 2
-      Visible = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 503
-      object tbtnBack: TToolButton
-        Left = 0
-        Top = 0
-        Caption = 'Back'
-        ImageIndex = 4
-        OnClick = tbtnBackClick
-      end
-      object tbtnForward: TToolButton
-        Left = 23
-        Top = 0
-        Caption = 'Forward'
-        ImageIndex = 6
-        OnClick = tbtnForwardClick
-      end
-      object tbtnSep02: TToolButton
-        Left = 46
-        Top = 0
-        Width = 6
-        Style = tbsSeparator
-      end
-      object tbtnPrevChapter: TToolButton
-        Left = 52
-        Top = 0
-        Caption = 'Minus'
-        ImageIndex = 25
-        OnClick = tbtnPrevChapterClick
-      end
-      object tbtnNextChapter: TToolButton
-        Left = 75
-        Top = 0
-        Caption = 'Plus'
-        ImageIndex = 26
-        OnClick = tbtnNextChapterClick
-      end
-      object tbtnSep03: TToolButton
-        Left = 98
-        Top = 0
-        Width = 6
-        Style = tbsSeparator
-      end
-      object tbtnCopy: TToolButton
-        Left = 104
-        Top = 0
-        Caption = 'Copy'
-        ImageIndex = 15
-        OnClick = CopySelectionClick
-      end
-      object tbtnStrongNumbers: TToolButton
-        Left = 127
-        Top = 0
-        Caption = 'Strong'
-        ImageIndex = 18
-        Style = tbsCheck
-        OnClick = miStrongClick
-      end
-      object tbtnMemos: TToolButton
-        Left = 150
-        Top = 0
-        Caption = 'Memos'
-        ImageIndex = 29
-        Style = tbsCheck
-        OnClick = tbtnMemosClick
-      end
-    end
   end
   object sbxPreview: TScrollBox
     Left = 299
@@ -301,7 +308,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 24
     Width = 290
-    Height = 464
+    Height = 424
     Hint = 'Memos'
     ActivePage = tbXRef
     Align = alLeft
@@ -444,7 +451,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 179
+        Height = 139
         ActivePage = tbQuickSearch
         Align = alClient
         TabOrder = 1
@@ -454,7 +461,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 149
+            Height = 109
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -474,7 +481,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 39
+            Height = 19
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -486,7 +493,7 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = 39
+            Top = -1
             Width = 274
             Height = 110
             Align = alBottom
@@ -571,7 +578,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 255
+        Height = 215
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -728,7 +735,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 200
+        Height = 160
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -854,7 +861,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 221
+        Height = 181
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -938,7 +945,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 404
+        Height = 364
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -1022,7 +1029,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 25
         Width = 282
-        Height = 380
+        Height = 340
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1038,7 +1045,7 @@ object MainForm: TMainForm
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 405
+        Top = 365
         Width = 282
         Height = 29
         Align = alBottom
@@ -1147,7 +1154,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 282
-        Height = 434
+        Height = 394
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -1198,7 +1205,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 53
         Width = 282
-        Height = 381
+        Height = 341
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1968,7 +1975,7 @@ object MainForm: TMainForm
     Left = 472
     Top = 416
     Bitmap = {
-      494C01012C006800C40010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01012C006800D00010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000C0000000010020000000000000C0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3594,7 +3601,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 417
     Bitmap = {
-      494C010102000300580018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000300640018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

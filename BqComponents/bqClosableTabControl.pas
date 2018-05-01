@@ -1,4 +1,4 @@
-﻿unit bqClosablePageControl;
+﻿unit bqClosableTabControl;
 
 interface
 
@@ -6,13 +6,13 @@ uses Windows, Classes, ComCtrls, Graphics, Forms, Controls, ExtCtrls,
   Messages, GraphUtil, System.UITypes;
 
 type
-  TClosablePageControl = class;
-  TDeleteTab = procedure(sender: TClosablePageControl; index: integer)
+  TClosableTabControl = class;
+  TDeleteTab = procedure(sender: TClosableTabControl; index: integer)
     of object;
-  TTabDoubleClick = procedure(sender: TClosablePageControl; index: integer)
+  TTabDoubleClick = procedure(sender: TClosableTabControl; index: integer)
     of object;
 
-  TClosablePageControl = class(TPageControl)
+  TClosableTabControl = class(TTabControl)
   private
 
   protected
@@ -30,7 +30,6 @@ type
       message WM_LBUTTONDBLCLK;
     procedure CMMouseWheel(var Message: TCMMouseWheel); message CM_MOUSEWHEEL;
     procedure SetCloseButtonIndex(const Value: TImageIndex);
-    procedure UpdateActivePage; override;
   published
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -49,16 +48,10 @@ uses SysUtils, CommCtrl, Types;
 
 procedure Register();
 begin
-  RegisterComponents('BqComponents', [TClosablePageControl]);
+  RegisterComponents('BqComponents', [TClosableTabControl]);
 end;
 
-procedure TClosablePageControl.UpdateActivePage;
-begin
-  inherited;
-  InvalidateRect(Handle, ClientRect, TRUE);
-end;
-
-procedure TClosablePageControl.CMMouseWheel(var Message: TCMMouseWheel);
+procedure TClosableTabControl.CMMouseWheel(var Message: TCMMouseWheel);
 begin
   inherited;
   Inc(mWheelAcc, Message.WheelDelta);
@@ -69,13 +62,13 @@ begin
   end;
 end;
 
-constructor TClosablePageControl.Create(AOwner: TComponent);
+constructor TClosableTabControl.Create(AOwner: TComponent);
 begin
   inherited;
   FCloseButtonIndex := -1;
 end;
 
-procedure TClosablePageControl.SetCloseButtonIndex(const Value: TImageIndex);
+procedure TClosableTabControl.SetCloseButtonIndex(const Value: TImageIndex);
 begin
   if Value <> FCloseButtonIndex then
   begin
@@ -84,12 +77,12 @@ begin
   end;
 end;
 
-destructor TClosablePageControl.Destroy;
+destructor TClosableTabControl.Destroy;
 begin
   inherited;
 end;
 
-procedure TClosablePageControl.MouseDown(Button: TMouseButton;
+procedure TClosableTabControl.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 var
   tabIndex: integer;
@@ -122,7 +115,7 @@ default_processing:
   inherited;
 end;
 
-procedure TClosablePageControl.MouseUp(Button: TMouseButton; Shift: TShiftState;
+procedure TClosableTabControl.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: integer);
 var
   tabIndex: integer;
@@ -156,7 +149,7 @@ begin
   FOnDeleteTab(self, tabIndex);
 end;
 
-procedure TClosablePageControl.WMLButtonDblClk(var Message: TWMLButtonDblClk);
+procedure TClosableTabControl.WMLButtonDblClk(var Message: TWMLButtonDblClk);
 var
   ix: integer;
 begin
@@ -166,7 +159,7 @@ begin
     exit
   end;
   ix := IndexOfTabAt(message.XPos, message.YPos);
-  if (ix < 0) or (ix >= PageCount) then
+  if (ix < 0) or (ix >= Tabs.Count) then
   begin
     inherited;
     exit
@@ -174,7 +167,7 @@ begin
   FOnTabDoubleClick(self, ix);
 end;
 
-procedure TClosablePageControl.WMPaint(var Message: TWMPaint);
+procedure TClosableTabControl.WMPaint(var Message: TWMPaint);
 var
   i, cnt, aix: integer;
   r2: TRect;
@@ -182,7 +175,6 @@ var
   imageWidth, textLength, fontHeight: integer;
   textRect, saveRect: TRect;
   caption: string;
-  tabSheet: TTabSheet;
   delta, oldRight, iconOffset: integer;
   iconHandle: HICON;
 begin
@@ -191,8 +183,8 @@ begin
     exit;
   Inc(mDelLocked);
   try
-    aix := ActivePageIndex;
-    cnt := PageCount - 1;
+    aix := TabIndex;
+    cnt := Tabs.Count - 1;
     if cnt <= 0 then
       exit;
     imageWidth := 13;
@@ -231,9 +223,8 @@ begin
         Bottom := r2.Bottom;
       end;
       saveRect := textRect;
-      tabSheet := TTabSheet(Pages[i]);
 
-      caption := tabSheet.caption;
+      caption := Tabs[i];
 
       textLength := length(TrimRight(caption));
 
@@ -245,8 +236,8 @@ begin
       end;
 
       Canvas.TextFlags := 0;
-      DrawText(Canvas.Handle, caption, textLength, textRect,
-        DT_CALCRECT or DT_CENTER or DT_VCENTER);
+      DrawText(Canvas.Handle, caption, textLength, textRect, DT_CALCRECT or DT_CENTER or DT_VCENTER);
+
       delta := (r2.Right - textRect.Right - imageWidth - 7);
       oldRight := textRect.Right;
       while delta + textRect.Right - oldRight <= 0 do
@@ -257,8 +248,8 @@ begin
           DT_CALCRECT or DT_CENTER or DT_VCENTER);
 
       end;
-      if length(tabSheet.caption) <> length(caption) then
-        tabSheet.caption := caption;
+      if length(Tabs[i]) <> length(caption) then
+        Tabs[i] := caption;
     end;
   finally
     Dec(mDelLocked);
