@@ -18,13 +18,13 @@ uses
   ShlObj, contnrs, Clipbrd,
   Graphics, Controls,
   Forms, System.UITypes,
-  ComCtrls,
+  ComCtrls, Generics.Collections,
   Menus, IOUtils,
   ExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
   VirtualTrees, ToolWin, StdCtrls, rkGlassButton, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
-  VdtEditlink, bqGradientPanel, bqClosablePageControl, ModuleProcs,
+  VdtEditlink, bqGradientPanel, bqClosableTabControl, ModuleProcs,
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
   MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS;
 
@@ -348,8 +348,7 @@ type
     edtSearch: TEdit;
     btnQuickSearchFwd: TBitBtn;
     cbLinks: TComboBox;
-    pgcViewTabs: TClosablePageControl;
-    tbInitialViewPage: TTabSheet;
+    pgcViewTabs: TClosableTabControl;
     bwrHtml: THTMLViewer;
     miDeteleBibleTab: TMenuItem;
     tbLinksToolBar: TToolBar;
@@ -391,6 +390,7 @@ type
     miShowSignatures: TMenuItem;
     miView: TMenuItem;
     tlbViewPage: TToolBar;
+    viewPanel: TPanel;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
@@ -569,7 +569,7 @@ type
       Shift: TShiftState);
     procedure pgcViewTabsStartDrag(Sender: TObject;
       var DragObject: TDragObject);
-    procedure pgcViewTabsDeleteTab(Sender: TClosablePageControl; Index: integer);
+    procedure pgcViewTabsDeleteTab(Sender: TClosableTabControl; Index: integer);
     procedure pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure dtsBibleDrawTab(Sender: TObject; TabCanvas: TCanvas; R: TRect;
@@ -622,7 +622,7 @@ type
     procedure FormDblClick(Sender: TObject);
     procedure dtsBibleClick(Sender: TObject);
     procedure pgcMainMouseLeave(Sender: TObject);
-    procedure pgcViewTabsDblClick(Sender: TClosablePageControl; Index: integer);
+    procedure pgcViewTabsDblClick(Sender: TClosableTabControl; Index: integer);
     procedure miRecognizeBibleLinksClick(Sender: TObject);
     procedure lbBookMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
@@ -689,6 +689,8 @@ type
     procedure DictionariesLoaded(Sender: TObject);
     procedure ModulesScanDone(Sender: TObject);
     procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
+    procedure pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: Integer;
+      var ImageIndex: Integer);
 
     // procedure tbAddBibleLinkClick(Sender: TObject);
     // procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -755,8 +757,7 @@ type
 
     procedure DrawMetaFile(PB: TPaintBox; mf: TMetaFile);
     function ProcessCommand(s: string; hlVerses: TbqHLVerseOption): Boolean;
-    function AddNewBrowserInstanse(aParent: TWinControl): THTMLViewer;
-    function CreateNewBibleInstance(aBible: TBible; aOwner: TComponent): TBible;
+    function CreateNewBibleInstance(aBible: TBible): TBible;
     function GetActiveTabInfo(): TViewTabInfo;
     function TabInfoFromBrowser(Browser: THTMLViewer): TViewTabInfo;
     procedure AdjustBibleTabs(awsNewModuleName: WideString = '');
@@ -915,7 +916,6 @@ type
   function GetLocalizationDirectory(): string;
   function ApplyInitialTranslation(): Boolean;
   procedure TranslateForm(form: TForm);
-  procedure ToggleViewPageMenu(enable: Boolean);
 
   public
     mHandCur: TCursor;
@@ -1586,7 +1586,7 @@ begin
   try
     if not Assigned(tempBook) then
     begin
-      tempBook := TBible.Create(self, self);
+      tempBook := TBible.Create(self);
 
       icn := TIcon.Create;
       ilImages.GetIcon(33, icn);
@@ -1761,8 +1761,7 @@ begin
     try
       if (not FileExists(path)) then
       begin
-        SetFirstTabInitialLocation(LastAddress, '', '',
-          DefaultViewTabState(), true);
+        SetFirstTabInitialLocation(LastAddress, '', '', DefaultViewTabState(), true);
         Exit;
       end;
       tabStringList := TWideStringList.Create();
@@ -1834,9 +1833,9 @@ begin
             inc(i);
         until (i >= linesCount);
 
-        if (activeTabIx < 0) or (activeTabIx >= pgcViewTabs.PageCount) then
+        if (activeTabIx < 0) or (activeTabIx >= pgcViewTabs.Tabs.Count) then
           activeTabIx := 0;
-        pgcViewTabs.ActivePageIndex := activeTabIx;
+        pgcViewTabs.TabIndex := activeTabIx;
         pgcViewTabsChange(self);
       end; // with
     finally
@@ -2195,17 +2194,17 @@ begin
   tabStringList := nil;
   try
     tabStringList := TStringList.Create();
-    tabCount := pgcViewTabs.PageCount - 1;
-    activeTabInfo := TObject(pgcViewTabs.ActivePage.tag) as TViewTabInfo;
-
+    tabCount := pgcViewTabs.Tabs.Count - 1;
+    activeTabInfo := TViewTabInfo(pgcViewTabs.Tabs.Objects[pgcViewTabs.TabIndex]);
     for i := 0 to tabCount do
     begin
       try
-        tabInfo := TObject(pgcViewTabs.Pages[i].tag) as TViewTabInfo;
+        tabInfo := TViewTabInfo(pgcViewTabs.Tabs.Objects[i]);
         with tabStringList do
         begin
           if tabInfo = activeTabInfo then
             Add('+');
+
           viewTabsEncoded := EncodeToValue(tabInfo);
           Add(tabInfo.mwsLocation);
           Add(tabInfo.mSatelliteName);
@@ -2230,6 +2229,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
 var
   i { , b, c, v1, v2 } : integer; // AlekId:not used anymore
   viewTabState: TViewtabInfoState;
+  tabInfo: TViewTabInfo;
 begin
   // tbList.PageControl := nil;
   // tbList.Parent := self;
@@ -2265,10 +2265,10 @@ begin
   Browser.Align := alClient;
   SetVScrollTracker(Browser);
  
-  MainBook := TBible.Create(tbInitialViewPage, self);
+  MainBook := TBible.Create(self);
   // AlekId: библия принадлежит табу
-  SecondBook := TBible.Create(self, self);
-  mRefenceBible := TBible.Create(self, self);
+  SecondBook := TBible.Create(self);
+  mRefenceBible := TBible.Create(self);
 
   MainBook.OnVerseFound := MainBookVerseFound;
   MainBook.OnChangeModule := MainBookChangeModule;
@@ -2395,10 +2395,9 @@ begin
   // pgcViewTabs.CloseTabImage.LoadFromResourceID(MainInstance, 1233);
   // pgcViewTabs.CloseTabImage.TransparentColor := 0;
   viewTabState := DefaultViewTabState();
-  tbInitialViewPage.tag := integer(TViewTabInfo.Create(bwrHtml, MainBook, '',
-    SatelliteBible, '', viewTabState));
+  tabInfo := TViewTabInfo.Create(bwrHtml, MainBook, '', SatelliteBible, '', viewTabState);
+  pgcViewTabs.Tabs.AddObject(MainBook.Name, tabInfo);
 
-  bwrHtml := nil;
   (* AlekId:/Добавлено *)
 
   LoadTabsFromFile(UserDir + 'viewtabs.cfg');
@@ -2437,7 +2436,7 @@ end;
 function TMainForm.GetActiveTabInfo(): TViewTabInfo;
 begin
   try
-    Result := (TObject(pgcViewTabs.ActivePage.tag) as TViewTabInfo);
+    Result := TViewTabInfo(pgcViewTabs.Tabs.Objects[pgcViewTabs.TabIndex]);
   except
     // just eat everything wrong
     Result := nil
@@ -4217,12 +4216,13 @@ begin
     LastAddress := wsCommand;
 
   ClearVolatileStateData(state);
-  vti := (TObject(pgcViewTabs.Pages[0].tag) as TViewTabInfo);
+  vti := TViewTabInfo(pgcViewTabs.Tabs.Objects[0]);
   vti.mSatelliteName := wsSecondaryView;
   vti.mState := state;
   vti.mwsTitle := Title;
   vti.mwsLocation := LastAddress;
-  pgcViewTabs.Pages[0].Caption := Title;
+  pgcViewTabs.Tabs[0] := Title;
+  pgcViewTabs.Tabs.Objects[0] := vti;
   if visual then
   begin
 
@@ -4556,13 +4556,13 @@ begin
             // выглядит как
             // "go module_folder book_no Chapter_no verse_start_no 0 mod_shortname
 
-            s := WideFormat('go %s %d %d %d 0 $$$%s %s',
+            s := Format('go %s %d %d %d 0 $$$%s %s',
               [ShortPath, CurBook, CurChapter, focusVerse,
               // history comment
               ShortName, FullPassageSignature(CurBook, CurChapter,
               bibleLink.vstart, 0)])
           else
-            s := WideFormat('go %s %d %d %d %d $$$%s %s',
+            s := Format('go %s %d %d %d %d $$$%s %s',
               [ShortPath, CurBook, CurChapter, bibleLink.vstart, bibleLink.vend,
               // history comment
               ShortName,
@@ -4574,7 +4574,7 @@ begin
         // here we set proper name to tab
         with MainBook, pgcViewTabs do
         begin
-          if Assigned(ActivePage) then
+          if pgcViewTabs.TabIndex >= 0 then
             try
 
               ti := GetActiveTabInfo();
@@ -4585,9 +4585,8 @@ begin
                 ti[vtisHighLightVerses] := hlVerses = hlTrue
               else
                 ti[vtisHighLightVerses] := false;
-              ti.mwsTitle := WideFormat('%.6s-%.6s:%d',
-                [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
-              (ActivePage as TTabSheet).Caption := ti.mwsTitle;
+              ti.mwsTitle := WideFormat('%.6s-%.6s:%d', [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
+              pgcViewTabs.Tabs[pgcViewTabs.TabIndex] := ti.mwsTitle;
 
             except
               on E: Exception do
@@ -4650,7 +4649,7 @@ begin
 
       if not FileExists(path) then
       begin
-        ShowMessage(WideFormat(Lang.Say('FileNotFound'), [path]));
+        ShowMessage(Format(Lang.Say('FileNotFound'), [path]));
         goto exitlabel;
       end;
 
@@ -4662,8 +4661,7 @@ begin
 
       if wasSearchHistory then
       begin
-        StrReplace(dBrowserSource, '<*>', '<font color="' + SelTextColor +
-          '">', true);
+        StrReplace(dBrowserSource, '<*>', '<font color="' + SelTextColor + '">', true);
         StrReplace(dBrowserSource, '</*>', '</font>', true);
 
       end;
@@ -4710,8 +4708,8 @@ begin
         Browser.tag := bsFile;
       (* AlekId:Добавлено *)
       ti := GetActiveTabInfo();
-      ti.mwsTitle := WideFormat('%.12s', [value]);
-      pgcViewTabs.ActivePage.Caption := ti.mwsTitle;
+      ti.mwsTitle := Format('%.12s', [value]);
+      pgcViewTabs.Tabs[pgcViewTabs.TabIndex] := ti.mwsTitle;
       ti.mwsLocation := s;
       ti.mLocationType := vtlFile;
 
@@ -4724,8 +4722,8 @@ begin
         Browser.LoadFromFile(Browser.Base + dup);
         (* AlekId:Добавлено *)
         ti := GetActiveTabInfo();
-        ti.mwsTitle := WideFormat('%.12s', [s]);
-        pgcViewTabs.ActivePage.Caption := ti.mwsTitle;
+        ti.mwsTitle := Format('%.12s', [s]);
+        pgcViewTabs.Tabs[pgcViewTabs.TabIndex] := ti.mwsTitle;
         ti.mwsLocation := s;
         ti.mLocationType := vtlFile;
 
@@ -5719,10 +5717,11 @@ procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
   var
     i, C: integer;
   begin
-    C := pgcViewTabs.PageCount - 1;
+    C := pgcViewTabs.Tabs.Count - 1;
     for i := 0 to C do
-      (TObject(pgcViewTabs.Pages[i].tag) as TViewTabInfo).Free();
-
+    begin
+      (TObject(pgcViewTabs.Tabs.Objects[i]) as TViewTabInfo).Free();
+    end;
   end;
 
 begin
@@ -5868,7 +5867,7 @@ begin
     begin
       fc := mFavorites.mModuleEntries.Count - 1;
       if not Assigned(tempBook) then
-        tempBook := TBible.Create(self, self);
+        tempBook := TBible.Create(self);
       for i := 0 to fc do
       begin
         try
@@ -6404,7 +6403,7 @@ begin
 
   try
     if not Assigned(tempBook) then
-      tempBook := TBible.Create(self, self);
+      tempBook := TBible.Create( self);
 
     iniPath := TPath.Combine(me.wsShortPath, 'bibleqt.ini');
     tempBook.inifile := MainFileExists(iniPath);
@@ -6526,15 +6525,16 @@ begin
 
   if FontDialog.Execute then
   begin
-    browserCount := pgcViewTabs.PageCount - 1;
+    browserCount := pgcViewTabs.Tabs.Count - 1;
     for i := 0 to browserCount do
     begin
       try
-        ViewTabInfo := TObject(pgcViewTabs.Pages[i].tag) as TViewTabInfo;
+        ViewTabInfo := pgcViewTabs.Tabs.Objects[i] as TViewTabInfo;
         with ViewTabInfo, ViewTabInfo.mHtmlViewer do
         begin
-          if i <> pgcViewTabs.ActivePageIndex then
+          if i <> pgcViewTabs.TabIndex then
             StateEntryStatus[vtisPendingReload] := true;
+
           DefFontName := FontDialog.Font.Name;
           mBrowserDefaultFontName := DefFontName;
           DefFontColor := FontDialog.Font.color;
@@ -6575,14 +6575,14 @@ var
 begin
   Browser.DefBackGround := ChooseColor(Browser.DefBackGround);
   Browser.Refresh;
-  browserCount := pgcViewTabs.PageCount - 1;
+  browserCount := pgcViewTabs.Tabs.Count - 1;
   for i := 0 to browserCount do
   begin
     try
-      ViewTabInfo := TObject(pgcViewTabs.Pages[i].tag) as TViewTabInfo;
+      ViewTabInfo := pgcViewTabs.Tabs.Objects[i] as TViewTabInfo;
       with ViewTabInfo, ViewTabInfo.mHtmlViewer do
       begin
-        if i <> pgcViewTabs.ActivePageIndex then
+        if i <> pgcViewTabs.TabIndex then
         begin
           DefBackGround := Browser.DefBackGround;
           Refresh();
@@ -6633,14 +6633,14 @@ begin
   ViewTabInfo := GetActiveTabInfo();
   ProcessCommand(ViewTabInfo.mwsLocation,
     TbqHLVerseOption(ord(ViewTabInfo[vtisHighLightVerses])));
-  browserCount := pgcViewTabs.PageCount - 1;
+  browserCount := pgcViewTabs.Tabs.Count - 1;
   for i := 0 to browserCount do
   begin
     try
-      ViewTabInfo := TObject(pgcViewTabs.Pages[i].tag) as TViewTabInfo;
+      ViewTabInfo := pgcViewTabs.Tabs.Objects[i] as TViewTabInfo;
       with ViewTabInfo, ViewTabInfo.mHtmlViewer do
       begin
-        if i <> pgcViewTabs.ActivePageIndex then
+        if i <> pgcViewTabs.TabIndex then
         begin
           DefHotSpotColor := Browser.DefHotSpotColor;
           StateEntryStatus[vtisPendingReload] := true;
@@ -8043,8 +8043,7 @@ begin
         else
           satBible := '------';
 
-        NewViewTab(wsrc, satBible, Browser.Base, GetActiveTabInfo().state,
-          '', true);
+        NewViewTab(wsrc, satBible, Browser.Base, GetActiveTabInfo().state, '', true);
 
       end
       else
@@ -8232,7 +8231,8 @@ begin
   splGoMoved(Sender);
 
   try
-    ActiveControl := Browser;
+    if (Browser <> nil) then
+      ActiveControl := Browser
   except
     on E: Exception do
       BqShowException(E);
@@ -8312,11 +8312,11 @@ var
   ti, cti: TViewTabInfo;
 begin
   ti := GetActiveTabInfo();
-  C := pgcViewTabs.PageCount - 1;
+  C := pgcViewTabs.Tabs.Count - 1;
   for i := 0 to C do
   begin
     try
-      cti := TViewTabInfo(TObject(pgcViewTabs.Pages[i].tag) as TViewTabInfo);
+      cti := pgcViewTabs.Tabs.Objects[i] as TViewTabInfo;
       if cti <> ti then
         cti[vtisPendingReload] := true;
     except
@@ -8533,10 +8533,10 @@ var
   vti: TViewTabInfo;
 begin
   Result := nil;
-  PageCount := pgcViewTabs.PageCount - 1;
+  PageCount := pgcViewTabs.Tabs.Count - 1;
   for i := 0 to PageCount do
     try
-      vti := TObject(pgcViewTabs.ActivePage.tag) as TViewTabInfo;
+      vti := pgcViewTabs.Tabs.Objects[pgcViewTabs.TabIndex] as TViewTabInfo;
       if vti.mHtmlViewer = Browser then
       begin
         Result := vti;
@@ -9098,22 +9098,6 @@ var
   pn: PVirtualNode;
 begin
   Result := DicSelectedItemIndex(pn);
-end;
-
-procedure TMainForm.ToggleViewPageMenu(enable: Boolean);
-begin
-  if (enable) then
-  begin
-    // display tab menu and move it to active tab
-    tlbViewPage.Visible := true;
-    tlbViewPage.Parent := pgcViewTabs.ActivePage;
-  end
-  else
-  begin
-    // hide tab menu and move it to tab control avoid disposal
-    tlbViewPage.Visible := false;
-    tlbViewPage.Parent := pgcViewTabs;
-  end;
 end;
 
 procedure TMainForm.TranslateForm(form: TForm);
@@ -10803,36 +10787,18 @@ function TMainForm.NewViewTab(
   const command: string; const satellite: string;
   const browserbase: string; state: TViewtabInfoState; const Title: string; visual: Boolean): Boolean;
 var
-  Tab1: TTabSheet;
   tabInfo: TViewTabInfo;
-  newBrowser, saveBrowser: THTMLViewer;
   newBible: TBible;
 
   saveMainBook: TBible;
 begin
-  //
-  Tab1 := nil;
-  newBrowser := nil;
   newBible := nil;
-  saveBrowser := Browser;
   saveMainBook := MainBook;
   ClearVolatileStateData(state);
   Result := true;
   try
-    Tab1 := TTabSheet.Create(MainForm);
-    Tab1.PageControl := pgcViewTabs;
-    Tab1.ImageIndex := -1;
-    Tab1.OnContextPopup := tbInitialViewPageContextPopup;
-    Tab1.Caption := Title;
-
-    //AddMenuPanel(Tab1);
-    newBrowser := AddNewBrowserInstanse(Tab1);
-    newBrowser.Base := browserbase;
-    if not Assigned(newBrowser) then
-      abort;
-    Browser := newBrowser;
     // конструируем TBible
-    newBible := CreateNewBibleInstance(MainBook, Tab1);
+    newBible := CreateNewBibleInstance(MainBook);
     if not Assigned(newBible) then
       abort;
     // satelliteMenuItem := SatelliteMenuItemFromModuleName(satellite);
@@ -10841,23 +10807,20 @@ begin
     // satelliteMenuItem := SatelliteMenu.Items[0] as TMenuItem
     // else abort;
 
-    tabInfo := TViewTabInfo.Create(newBrowser, newBible, command, satellite,
-      Title, state);
-    Tab1.tag := integer(tabInfo);
+    tabInfo := TViewTabInfo.Create(bwrHtml, newBible, command, satellite, Title, state);
 
     // какждой вкладке по броузеру
     MainBook := newBible;
     if visual then
     begin
-      pgcViewTabs.ActivePage := Tab1;
+      pgcViewTabs.Tabs.AddObject(Title, tabInfo);
+
       StrongNumbersOn := vtisShowStrongs in state;
       MainBook.RecognizeBibleLinks := vtisResolveLinks in state;
       MainBook.FuzzyResolve := vtisFuzzyResolveLinks in state;
       MemosOn := vtisShowNotes in state;
       // SelectSatelliteMenuItem(satelliteMenuItem);
       SafeProcessCommand(command, hlDefault);
-
-      ToggleViewPageMenu(true);
 
       UpdateUI();
     end
@@ -10871,10 +10834,7 @@ begin
       BqShowException(E);
       Result := false;
       MainBook := saveMainBook;
-      Browser := saveBrowser;
-      newBrowser.Free();
       newBible.Free();
-      Tab1.Free();
     end;
   end;
 
@@ -11273,15 +11233,16 @@ end;
 // set Browser to currently active browser
 
 procedure TMainForm.pgcViewTabsChange(Sender: TObject);
+var
+  viewPage: TViewTabInfo;
 begin
   try
-    ToggleViewPageMenu(true);
-
+    viewPage := GetActiveTabInfo();
     try
-      GetActiveTabInfo().mHtmlViewer.NoScollJump := true;
+      viewPage.mHtmlViewer.NoScollJump := true;
       UpdateUI();
     finally
-      GetActiveTabInfo().mHtmlViewer.NoScollJump := false;
+      viewPage.mHtmlViewer.NoScollJump := false;
     end;
   except
     on E: Exception do
@@ -11297,18 +11258,17 @@ end;
 
 { AlekId:добавлено }
 
-procedure TMainForm.pgcViewTabsDblClick(Sender: TClosablePageControl; Index: integer);
+procedure TMainForm.pgcViewTabsDblClick(Sender: TClosableTabControl; Index: integer);
 var
   ti: TViewTabInfo;
 begin
-  ti := TObject(pgcViewTabs.Pages[index].tag) as TViewTabInfo;
+  ti := pgcViewTabs.Tabs.Objects[index] as TViewTabInfo;
   if not Assigned(ti) then
     Exit;
   NewViewTab(ti.mwsLocation, ti.mSatelliteName, '', ti.state, '', true)
 end;
 
-procedure TMainForm.pgcViewTabsDeleteTab(Sender: TClosablePageControl;
-  Index: integer);
+procedure TMainForm.pgcViewTabsDeleteTab(Sender: TClosableTabControl; Index: integer);
 begin
   //
   pgcViewTabs.tag := index;
@@ -11318,26 +11278,28 @@ end;
 procedure TMainForm.pgcViewTabsDragDrop(Sender, Source: TObject; X, Y: integer);
 var
   dropTix: integer;
-  dragTs: TTabSheet;
+  dragTs: TViewTabInfo;
 begin
   dropTix := pgcViewTabs.IndexOfTabAt(X, Y);
   if dropTix < 0 then
     Exit;
-  dragTs := TObject(pgcViewTabs.tag) as TTabSheet;
-
-  dragTs.PageIndex := dropTix;
+  pgcViewTabs.TabIndex := dropTix;
 end;
 
-procedure TMainForm.pgcViewTabsDragOver(Sender, Source: TObject; X, Y: integer;
-  state: TDragState; var Accept: Boolean);
+procedure TMainForm.pgcViewTabsDragOver(Sender, Source: TObject; X, Y: integer; state: TDragState; var Accept: Boolean);
 begin
   if Source <> pgcViewTabs then
     Exit;
   Accept := true;
 end;
 
-procedure TMainForm.pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+procedure TMainForm.pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: Integer; var ImageIndex: Integer);
+begin
+  // disable tab icons
+  ImageIndex := -1;
+end;
+
+procedure TMainForm.pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
   if Button = mbLeft then
     pgcViewTabs.BeginDrag(false, 10);
@@ -11345,8 +11307,7 @@ end;
 
 { /AlekId:добавлено }
 
-procedure TMainForm.pgcViewTabsStartDrag(Sender: TObject;
-  var DragObject: TDragObject);
+procedure TMainForm.pgcViewTabsStartDrag(Sender: TObject; var DragObject: TDragObject);
 var
   MousePos: TPoint;
 var
@@ -11359,12 +11320,12 @@ begin
     begin
       MousePos := ScreenToClient(MousePos);
       ix := IndexOfTabAt(MousePos.X, MousePos.Y);
-      if ((ix < 0) or (ix >= PageCount)) then
+      if ((ix < 0) or (ix >= Tabs.Count)) then
       begin
         CancelDrag();
         Exit;
       end;
-      pgcViewTabs.tag := integer(Pages[ix]);
+      pgcViewTabs.tag := integer(Tabs.Objects[ix]);
     end;
   except
     on E: Exception do
@@ -11384,7 +11345,7 @@ begin
   ix := pgcViewTabs.IndexOfTabAt(MousePos.X, MousePos.Y);
   try
     if ix >= 0 then
-      ix := integer(pgcViewTabs.Pages[ix])
+      ix := integer(pgcViewTabs.Tabs.Objects[ix])
     else
       ix := 0;
   except
@@ -11451,11 +11412,11 @@ end;
 
 (* AlekId:Добавлено *)
 
-function TMainForm.CreateNewBibleInstance(aBible: TBible; aOwner: TComponent): TBible;
+function TMainForm.CreateNewBibleInstance(aBible: TBible): TBible;
 begin
   Result := nil;
   try
-    Result := TBible.Create(aOwner, self);
+    Result := TBible.Create(self);
     with Result do
     begin
       OnVerseFound := MainBook.OnVerseFound;
@@ -11467,45 +11428,6 @@ begin
     Result.Free();
   end;
 end;
-
-function TMainForm.AddNewBrowserInstanse(aParent: TWinControl): THTMLViewer;
-begin
-  Result := nil;
-  try
-    Result := THTMLViewer.Create(aParent);
-    Result.Parent := aParent;
-    Result.Scrollbars := ssBoth;
-    with Result do
-    begin
-      DefFontName := mBrowserDefaultFontName;
-      DefFontSize := Browser.DefFontSize;
-      DefFontColor := Browser.DefFontColor;
-      DefBackGround := Browser.DefBackGround;
-      DefHotSpotColor := Browser.DefHotSpotColor;
-      BorderStyle := Browser.BorderStyle;
-      Align := alClient;
-      htOptions := Browser.htOptions;
-      OnKeyDown := bwrHtmlKeyDown;
-      OnKeyPress := bwrHtmlKeyPress;
-      OnKeyUp := bwrHtmlKeyUp;
-      OnMouseDouble := bwrHtmlMouseDouble;
-      OnImageRequest := bwrHtmlImageRequest;
-      PopupMenu := pmBrowser;
-      OnHotSpotClick := bwrHtmlHotSpotClick;
-      OnHotSpotCovered := bwrHtmlHotSpotCovered;
-      OnMouseWheel := bwrHtmlMouseWheel;
-      VScrollBar.OnChange := self.VSCrollTracker;
-    end;
-
-  except
-    on E: Exception do
-    begin
-      Result.Free();
-      BqShowException(E)
-    end
-  end;
-end;
-(* AlekId:/Добавлено *)
 
 procedure TMainForm.miDicClick(Sender: TObject);
 begin
@@ -11527,8 +11449,7 @@ begin
   try
     try
       if pgcViewTabs.tag >= 64 * 1024 then
-        activeTabInfo := TObject((TObject(pgcViewTabs.tag) as TTabSheet).tag)
-          as TViewTabInfo
+        activeTabInfo := TObject(pgcViewTabs.tag) as TViewTabInfo
       else
         activeTabInfo := GetActiveTabInfo();
     except
@@ -11573,107 +11494,83 @@ end;
 
 procedure TMainForm.miCloseAllOtherTabsClick(Sender: TObject);
 var
-  savetab, curTab: TTabSheet;
-  tabInfo: TViewTabInfo;
+  saveTabIndex: integer;
+  saveTab, curTab: TViewTabInfo;
   C: integer;
 begin
   try
-    integer(savetab) := -1;
-    if (pgcViewTabs.PageCount <= 1) then
+    if (pgcViewTabs.Tabs.Count <= 1) then
     begin
       MessageBeep(MB_ICONEXCLAMATION);
       Exit;
     end;
     if (pgcViewTabs.tag < 65536) then
-      savetab := TTabSheet(pgcViewTabs.ActivePage)
+      saveTabIndex := pgcViewTabs.TabIndex
     else
 
       try
-        savetab := TObject(pgcViewTabs.tag) as TTabSheet;
+        savetab := TObject(pgcViewTabs.tag) as TViewTabInfo;
       finally
         pgcViewTabs.tag := 0; // now is done
       end; // finally
-    // if Integer(savetab) = -1 then exit;
 
-    pgcViewTabs.ActivePage := savetab;
-    C := pgcViewTabs.PageCount - 1;
+    C := pgcViewTabs.Tabs.Count - 1;
     try
       repeat
-        curTab := TTabSheet(pgcViewTabs.Pages[C]);
+        curTab := pgcViewTabs.Tabs.Objects[C] as TViewTabInfo;
         Dec(C);
-        if curTab = savetab then
-          continue;
-        tabInfo := TObject(curTab.tag) as TViewTabInfo;
         curTab.Free();
-        tabInfo.Free();
-      until C < 0;
+      until C > saveTabIndex;
+
+      C := 0;
+      repeat
+        curTab := pgcViewTabs.Tabs.Objects[C] as TViewTabInfo;
+        Inc(C);
+        curTab.Free();
+      until C < saveTabIndex;
+
     finally
       pgcViewTabsChange(nil);
       pgcViewTabs.Repaint();
     end;
   except
     on E: Exception do
-      BqShowException(E, WideFormat('pgcViewTabs.Tag:%d', [pgcViewTabs.tag]));
+      BqShowException(E, Format('pgcViewTabs.Tag:%d', [pgcViewTabs.tag]));
   end; // except
 end;
 
 procedure TMainForm.miCloseTabClick(Sender: TObject);
 var
   tabInfo: TViewTabInfo;
-  tab: TTabSheet;
   tabIx: integer;
 begin
-  // AlekId: закомментировано
-  { if mMainViewTabs.PageCount > 1 then
-    try
-    i := mMainViewTabs.ActivePageIndex;
-    mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Destroy;
-    if i > mMainViewTabs.PageCount - 1 then
-    mMainViewTabs.ActivePageIndex := mMainViewTabs.PageCount - 1
-    else
-    mMainViewTabs.ActivePageIndex := i;
-    finally
-    // find the browser component on the current tab
-    for i := 0 to mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].ComponentCount - 1 do begin
-    if mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Components[i].ClassName = 'THtmlViewer' then begin
-    Browser := Pointer(mMainViewTabs.Pages[mMainViewTabs.ActivePageIndex].Components[i]);
-    break;
-    end;
-    end;
-    end; }
-
-  (* AlekId:Добавлено *)
-  if pgcViewTabs.PageCount > 1 then
+  if pgcViewTabs.Tabs.Count > 1 then
     try
       if (Sender = miCloseViewTab) and (pgcViewTabs.tag <> 0) then
       begin
         // close tab under cursor
         try
-          tab := TObject(pgcViewTabs.tag) as TTabSheet;
+          tabInfo := TObject(pgcViewTabs.tag) as TViewTabInfo;
           pgcViewTabs.tag := 0; // now is done
         except // some goes wrong
-          tab := TTabSheet(pgcViewTabs.ActivePage);
+          tabInfo := pgcViewTabs.Tabs.Objects[pgcViewTabs.TabIndex] as TViewTabInfo;
         end;
       end // if (Sender=mmiCloseViewTab)
       else
       begin // close active tab
-        tab := TTabSheet(pgcViewTabs.ActivePage);
+        tabInfo := pgcViewTabs.Tabs.Objects[pgcViewTabs.TabIndex] as TViewTabInfo;
       end;
-      tabIx := tab.TabIndex;
-      tabInfo := TObject(tab.tag) as TViewTabInfo;
+      tabIx := pgcViewTabs.TabIndex;
       FreeAndNil(tabInfo.mBible);
       FreeAndNil(tabInfo.mHtmlViewer);
 
-      ToggleViewPageMenu(false);
-
-      tab.Free();
-      if tabIx = pgcViewTabs.PageCount then
-        pgcViewTabs.ActivePageIndex := tabIx - 1;
+      if tabIx = pgcViewTabs.Tabs.Count then
+        pgcViewTabs.TabIndex := tabIx - 1;
       // if active tab is being closed, another one is activated, but on OnChange
       // event of TPageControl is NOT triggered
       pgcViewTabsChange(nil);
       tabInfo.Free();
-      if pgcViewTabs.PageCount <= 1 then
+      if pgcViewTabs.Tabs.Count <= 1 then
         pgcViewTabs.Repaint();
     except { do nothing,eat }
     end;
@@ -11887,11 +11784,11 @@ begin
   if (TabIndex < 0) or (TabIndex >= dtsBible.Tabs.Count) then
     Exit;
 
-  if Source is TClosablePageControl then
+  if Source is TClosableTabControl then
   begin
     try
-      ViewTabInfo := TObject((TObject((Source as TClosablePageControl).tag)
-        as TTabSheet).tag) as TViewTabInfo;
+      // TODO: fix this
+      ViewTabInfo := TObject((TObject((Source as TClosableTabControl).tag) as TTabSheet).tag) as TViewTabInfo;
       if TabIndex = dtsBible.Tabs.Count - 1 then
       begin
         // drop on *** - last tab, adding new tab

@@ -190,7 +190,7 @@ type
   TbqModuleType=( bqmBible, bqmCommentary, bqmBook);
   TbqModuleTrait=(bqmtOldCovenant, bqmtNewCovenant,bqmtApocrypha, bqmtEnglishPsalms,bqmtStrongs, bqmtIncludeChapterHead, bqmtZeroChapter,bqmtNoForcedLineBreaks);
   TbqModuleTraits=set of TbqModuleTrait;
-  TBible = class(TComponent)
+  TBible = class
   private
     { Private declarations }
     FIniFile: string;
@@ -348,7 +348,7 @@ type
     property StrongsDirectory: string read FStrongsDir;
     property StrongsPrefixed: boolean read FStrongsPrefixed;
 
-    constructor Create(AOwner: TComponent; uiServices:IBibleWinUIServices);reintroduce;
+    constructor Create(uiServices:IBibleWinUIServices);reintroduce;
     destructor Destroy; override;
 
     function OpenChapter(book, chapter: integer; forceResolveLinks: boolean = false):boolean;
@@ -415,8 +415,6 @@ type
 
   end;
 
-procedure Register;
-
 implementation
 uses PlainUtils, bibleLinkParser, ExceptionFrm;
 
@@ -425,14 +423,8 @@ begin
   if a < b then Result := b - a else Result := a - b;
 end;
 
-procedure Register;
+constructor TBible.Create(uiServices:IBibleWinUIServices);
 begin
-  RegisterComponents('Samples', [TBible]);
-end;
-
-constructor TBible.Create(AOwner: TComponent; uiServices:IBibleWinUIServices);
-begin
-  inherited Create(AOwner);
   FLines := TStringList.Create;
   BookLines := TStringList.Create;
   mCategories := TStringList.Create();
