@@ -9,6 +9,9 @@
         <Projects Include="Tests\BibleQuoteTests.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="BqComponents\BqComponents.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="BibleQuoteTests:Make">
         <MSBuild Projects="Tests\BibleQuoteTests.dproj" Targets="Make"/>
     </Target>
+    <Target Name="BqComponents">
+        <MSBuild Projects="BqComponents\BqComponents.dproj"/>
+    </Target>
+    <Target Name="BqComponents:Clean">
+        <MSBuild Projects="BqComponents\BqComponents.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BqComponents:Make">
+        <MSBuild Projects="BqComponents\BqComponents.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="BibleQuote;BibleQuoteTests"/>
+        <CallTarget Targets="BibleQuote;BibleQuoteTests;BqComponents"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="BibleQuote:Clean;BibleQuoteTests:Clean"/>
+        <CallTarget Targets="BibleQuote:Clean;BibleQuoteTests:Clean;BqComponents:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="BibleQuote:Make;BibleQuoteTests:Make"/>
+        <CallTarget Targets="BibleQuote:Make;BibleQuoteTests:Make;BqComponents:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

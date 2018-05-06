@@ -631,13 +631,12 @@ begin
   inherited;
 end;
 
-function TPasswordPolicy.GetPassword(aSender: TSevenZip;
-  out aPassword: WideString): boolean;
+function TPasswordPolicy.GetPassword(aSender: TSevenZip; out aPassword: WideString): boolean;
 var
   filename: string;
   ix, pwFormShowResult, pwdLength: integer;
   blSavePwd: boolean;
-  s: WideString;
+  s: string;
   pwdEncoded: string;
 
   function HexDigitVal(d: Char): byte;
@@ -658,8 +657,7 @@ begin
   ix := mPasswordList.IndexOfName(filename);
   if (ix < 0) then
   begin // запрошенный пароль не найден в кэше...
-    pwFormShowResult := MainForm.PassWordFormShowModal(aSender.SZFileName,
-      aPassword, blSavePwd);
+    pwFormShowResult := MainForm.PassWordFormShowModal(aSender.SZFileName, aPassword, blSavePwd);
     if (pwFormShowResult = mrOk) and (Length(aPassword) > 0) then
     begin
       s := XorPassword(aPassword);
