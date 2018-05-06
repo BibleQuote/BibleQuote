@@ -10630,9 +10630,8 @@ function TMainForm.NewViewTab(
   const command: string; const satellite: string;
   const browserbase: string; state: TViewtabInfoState; const Title: string; visual: Boolean): Boolean;
 var
-  tabInfo: TViewTabInfo;
+  curTabInfo, newTabInfo: TViewTabInfo;
   newBible: TBible;
-
   saveMainBook: TBible;
 begin
   newBible := nil;
@@ -10645,10 +10644,20 @@ begin
     if not Assigned(newBible) then
       abort;
 
-    tabInfo := TViewTabInfo.Create(newBible, command, satellite, Title, state);
+    if (pgcViewTabs.TabIndex >= 0) then
+    begin
+      // save current tab state
+      curTabInfo := pgcViewTabs.Tabs.Objects[pgcViewTabs.TabIndex] as TViewTabInfo;
+      if (Assigned(curTabInfo)) then
+      begin
+         curTabInfo.SaveBrowserState(bwrHtml);
+      end;
+    end;
+
+    newTabInfo := TViewTabInfo.Create(newBible, command, satellite, Title, state);
 
     MainBook := newBible;
-    pgcViewTabs.Tabs.AddObject(Title, tabInfo);
+    pgcViewTabs.Tabs.AddObject(Title, newTabInfo);
 
     if visual then
     begin
@@ -10665,7 +10674,7 @@ begin
     end
     else
     begin
-      Include(tabInfo.mState, vtisPendingReload);
+      Include(newTabInfo.mState, vtisPendingReload);
     end;
   except
     on E: Exception do
