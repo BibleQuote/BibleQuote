@@ -409,6 +409,7 @@ type
     miView: TMenuItem;
     tlbViewPage: TToolBar;
     viewPanel: TPanel;
+    pnlViewPageToolbar: TPanel;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
