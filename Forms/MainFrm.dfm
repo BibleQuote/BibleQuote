@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 426
+  ClientHeight = 386
   ClientWidth = 852
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 24
     Width = 8
-    Height = 402
+    Height = 362
     AutoSnap = False
     MinSize = 100
     OnMoved = splMainMoved
@@ -52,17 +52,15 @@ object MainForm: TMainForm
     Left = 298
     Top = 24
     Width = 554
-    Height = 402
+    Height = 362
     Align = alClient
     Caption = 'pnlMain'
     TabOrder = 0
-    ExplicitWidth = 531
-    ExplicitHeight = 374
     object pgcViewTabs: TClosableTabControl
       Left = 1
       Top = 1
       Width = 552
-      Height = 379
+      Height = 339
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -84,13 +82,11 @@ object MainForm: TMainForm
       CloseButtonIndex = 35
       OnDeleteTab = pgcViewTabsDeleteTab
       OnTabDoubleClick = pgcViewTabsDblClick
-      ExplicitWidth = 529
-      ExplicitHeight = 351
-      object viewPanel: TPanel
+      object pnlMainView: TPanel
         Left = 4
         Top = 6
         Width = 544
-        Height = 369
+        Height = 329
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pnlView'
@@ -99,13 +95,11 @@ object MainForm: TMainForm
         PopupMenu = mViewTabsPopup
         TabOrder = 0
         OnContextPopup = tbInitialViewPageContextPopup
-        ExplicitWidth = 521
-        ExplicitHeight = 341
         object bwrHtml: THTMLViewer
           Left = 0
-          Top = 26
+          Top = 28
           Width = 544
-          Height = 343
+          Height = 301
           TabOrder = 0
           Align = alClient
           PopupMenu = pmBrowser
@@ -131,31 +125,29 @@ object MainForm: TMainForm
           OnHotSpotCovered = bwrHtmlHotSpotCovered
           OnImageRequest = bwrHtmlImageRequest
           OnMouseDouble = bwrHtmlMouseDouble
-          ExplicitTop = 24
-          ExplicitWidth = 521
-          ExplicitHeight = 317
         end
         object pnlViewPageToolbar: TPanel
           Left = 0
           Top = 0
           Width = 544
-          Height = 26
+          Height = 28
           Align = alTop
+          AutoSize = True
           Caption = 'View page toolbar'
+          Padding.Left = 1
+          Padding.Top = 1
+          Padding.Right = 1
+          Padding.Bottom = 2
           TabOrder = 1
-          ExplicitWidth = 521
           object tlbViewPage: TToolBar
-            Left = 1
-            Top = 1
-            Width = 542
-            Height = 24
-            Align = alClient
+            Left = 2
+            Top = 2
+            Width = 540
+            Height = 23
             Caption = 'View page menu'
             GradientEndColor = clWindow
             Images = ilImages
             TabOrder = 0
-            ExplicitWidth = 519
-            ExplicitHeight = 22
             object tbtnBack: TToolButton
               Left = 0
               Top = 0
@@ -219,20 +211,86 @@ object MainForm: TMainForm
               Style = tbsCheck
               OnClick = tbtnMemosClick
             end
+            object tbtnSep07: TToolButton
+              Left = 173
+              Top = 0
+              Width = 6
+              Style = tbsSeparator
+            end
+            object tbtnQuickSearch: TToolButton
+              Left = 179
+              Top = 0
+              Caption = 'Quick search'
+              ImageIndex = 44
+              Style = tbsCheck
+              OnClick = tbtnQuickSearchClick
+            end
+          end
+        end
+        object pnlQuickSearch: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 31
+          Width = 208
+          Height = 34
+          BevelKind = bkSoft
+          BorderWidth = 1
+          Caption = 'Quick search'
+          Padding.Left = 1
+          Padding.Top = 1
+          Padding.Right = 1
+          Padding.Bottom = 1
+          TabOrder = 2
+          Visible = False
+          object tlbQuickSearch: TToolBar
+            Left = 3
+            Top = 3
+            Width = 198
+            Height = 24
+            Align = alClient
+            AutoSize = True
+            ButtonHeight = 23
+            Caption = 'Quick search'
+            EdgeInner = esNone
+            EdgeOuter = esNone
+            Images = ilImages
+            TabOrder = 0
+            Transparent = True
+            Visible = False
+            object tbtnQuickSearchPrev: TToolButton
+              Left = 0
+              Top = 0
+              Caption = 'Previous match'
+              ImageIndex = 45
+              OnClick = tbtnQuickSearchPrevClick
+            end
+            object tedtQuickSeach: TEdit
+              Left = 23
+              Top = 0
+              Width = 155
+              Height = 23
+              TabOrder = 0
+              OnKeyUp = edtSearchKeyUp
+            end
+            object tbtnQuickSearchNext: TToolButton
+              Left = 178
+              Top = 0
+              Caption = 'tbtnQuickSearchNext'
+              ImageIndex = 46
+              OnClick = tbtnQuickSearchNextClick
+            end
           end
         end
       end
     end
     object pnlPaint: TPanel
       Left = 1
-      Top = 380
+      Top = 340
       Width = 552
       Height = 21
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 352
-      ExplicitWidth = 529
       object imgLoadProgress: TImage
         Tag = 1
         AlignWithMargins = True
@@ -278,7 +336,6 @@ object MainForm: TMainForm
         OnMouseMove = dtsBibleMouseMove
         OnMouseUp = dtsBibleMouseUp
         DockSite = False
-        ExplicitWidth = 510
       end
     end
   end
@@ -327,20 +384,22 @@ object MainForm: TMainForm
     Left = 0
     Top = 24
     Width = 290
-    Height = 402
+    Height = 362
     Hint = 'Memos'
-    ActivePage = tbXRef
+    ActivePage = tbDic
     Align = alLeft
     Images = ilImages
     TabOrder = 2
     TabWidth = 27
     OnChange = pgcMainChange
     OnMouseLeave = pgcMainMouseLeave
-    ExplicitHeight = 374
     object tbGo: TTabSheet
       Hint = 'Navigate'
       ImageIndex = 5
-      ExplicitHeight = 344
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object splGo: TSplitter
         Left = 0
         Top = 242
@@ -472,19 +531,22 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 117
-        ActivePage = tbQuickSearch
+        Height = 77
+        ActivePage = tbHistory
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 89
+        ExplicitHeight = 97
         object tbHistory: TTabSheet
           Caption = 'tbHistory'
-          ExplicitHeight = 59
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object lbHistory: TListBox
             Left = 0
             Top = 0
             Width = 274
-            Height = 87
+            Height = 67
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -495,13 +557,15 @@ object MainForm: TMainForm
             OnClick = lbHistoryClick
             OnDblClick = lbHistoryDblClick
             OnKeyUp = lbHistoryKeyUp
-            ExplicitHeight = 59
           end
         end
         object tbBookmarks: TTabSheet
           Caption = 'tbBookmarks'
           ImageIndex = 1
-          ExplicitHeight = 59
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object lbBookmarks: TListBox
             Left = 0
             Top = 0
@@ -518,79 +582,22 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = -23
+            Top = -63
             Width = 274
             Height = 110
             Align = alBottom
             BevelOuter = bvNone
             BorderWidth = 10
             TabOrder = 1
-            ExplicitTop = -51
+            ExplicitTop = -43
             object lblBookmark: TLabel
               Left = 10
               Top = 10
-              Width = 254
-              Height = 90
+              Width = 59
+              Height = 15
               Align = alClient
               Caption = 'lblBookmark'
               WordWrap = True
-              ExplicitWidth = 59
-              ExplicitHeight = 15
-            end
-          end
-        end
-        object tbQuickSearch: TTabSheet
-          Caption = #1041#1099#1089#1090#1088#1099#1081' '#1087#1086#1080#1089#1082
-          ExplicitHeight = 59
-          object lblSearchInWindow: TLabel
-            Left = 0
-            Top = 0
-            Width = 274
-            Height = 15
-            Align = alTop
-            Caption = #1053#1072#1081#1090#1080' '#1074' '#1101#1090#1086#1084' '#1086#1082#1085#1077
-            Layout = tlCenter
-            ExplicitWidth = 94
-          end
-          object pnlQuickSearch: TPanel
-            Left = 0
-            Top = 15
-            Width = 274
-            Height = 106
-            Align = alTop
-            BevelOuter = bvNone
-            TabOrder = 0
-            DesignSize = (
-              274
-              106)
-            object btnQuickSearchBack: TBitBtn
-              Left = 4
-              Top = 16
-              Width = 26
-              Height = 26
-              Style = bsNew
-              TabOrder = 0
-              OnClick = SearchBackwardClick
-            end
-            object edtSearch: TEdit
-              Left = 39
-              Top = 17
-              Width = 190
-              Height = 23
-              Hint = ' '
-              Anchors = [akLeft, akTop, akRight]
-              TabOrder = 1
-              OnKeyUp = edtSearchKeyUp
-            end
-            object btnQuickSearchFwd: TBitBtn
-              Left = 237
-              Top = 16
-              Width = 29
-              Height = 26
-              Anchors = [akTop, akRight]
-              Style = bsNew
-              TabOrder = 2
-              OnClick = btnQuickSearchFwdClick
             end
           end
         end
@@ -601,12 +608,15 @@ object MainForm: TMainForm
       ImageIndex = 1
       ParentShowHint = False
       ShowHint = True
-      ExplicitHeight = 344
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object bwrSearch: THTMLViewer
         Left = 0
         Top = 179
         Width = 282
-        Height = 193
+        Height = 173
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -625,7 +635,6 @@ object MainForm: TMainForm
         OnKeyDown = bwrSearchKeyDown
         OnKeyUp = bwrSearchKeyUp
         OnHotSpotClick = bwrSearchHotSpotClick
-        ExplicitHeight = 165
       end
       object pnlSearch: TPanel
         Left = 0
@@ -760,12 +769,11 @@ object MainForm: TMainForm
     object tbDic: TTabSheet
       Hint = 'Dictionaries'
       ImageIndex = 17
-      ExplicitHeight = 344
       object bwrDic: THTMLViewer
         Left = 0
         Top = 234
         Width = 282
-        Height = 138
+        Height = 98
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -785,7 +793,6 @@ object MainForm: TMainForm
         OnHotSpotClick = bwrDicHotSpotClick
         OnHotSpotCovered = bwrHtmlHotSpotCovered
         OnMouseDouble = bwrDicMouseDouble
-        ExplicitHeight = 110
       end
       object pnlDic: TPanel
         Left = 0
@@ -887,13 +894,16 @@ object MainForm: TMainForm
     object tbStrong: TTabSheet
       Hint = 'Strong'#39's Dictionary'
       ImageIndex = 18
-      ExplicitHeight = 344
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object bwrStrong: THTMLViewer
         AlignWithMargins = True
         Left = 3
         Top = 210
         Width = 276
-        Height = 159
+        Height = 139
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -912,7 +922,6 @@ object MainForm: TMainForm
         ScrollBars = ssVertical
         OnHotSpotClick = bwrStrongHotSpotClick
         OnMouseDouble = bwrStrongMouseDouble
-        ExplicitHeight = 131
       end
       object pnlStrong: TPanel
         Left = 0
@@ -974,12 +983,15 @@ object MainForm: TMainForm
     end
     object tbComments: TTabSheet
       Hint = 'Commentaries'
-      ExplicitHeight = 344
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object bwrComments: THTMLViewer
         Left = 0
         Top = 30
         Width = 282
-        Height = 342
+        Height = 322
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -997,7 +1009,6 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrCommentsHotSpotClick
         OnHotSpotCovered = bwrHtmlHotSpotCovered
-        ExplicitHeight = 314
       end
       object pnlComments: TPanel
         Left = 0
@@ -1060,12 +1071,15 @@ object MainForm: TMainForm
     object tbMemo: TTabSheet
       Hint = 'Memos'
       ImageIndex = 2
-      ExplicitHeight = 344
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object reMemo: TRichEdit
         Left = 0
         Top = 25
         Width = 282
-        Height = 318
+        Height = 298
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1078,17 +1092,16 @@ object MainForm: TMainForm
         TabOrder = 0
         Zoom = 100
         OnChange = reMemoChange
-        ExplicitHeight = 290
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 343
+        Top = 303
         Width = 282
         Height = 29
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 315
+        ExplicitTop = 323
         object lblMemo: TLabel
           Left = 4
           Top = 4
@@ -1188,12 +1201,15 @@ object MainForm: TMainForm
     object tbXRef: TTabSheet
       Hint = 'TSK'
       ImageIndex = 19
-      ExplicitHeight = 344
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object bwrXRef: THTMLViewer
         Left = 0
         Top = 0
         Width = 282
-        Height = 372
+        Height = 352
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -1210,12 +1226,14 @@ object MainForm: TMainForm
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrXRefHotSpotClick
-        ExplicitHeight = 344
       end
     end
     object tbList: TTabSheet
       ImageIndex = 39
-      ExplicitHeight = 344
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object tlbTags: TToolBar
         Left = 0
         Top = 0
@@ -1246,7 +1264,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 53
         Width = 282
-        Height = 319
+        Height = 299
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1299,7 +1317,6 @@ object MainForm: TMainForm
         OnResize = vdtTagsVersesResize
         OnShowScrollBar = vdtTagsVersesShowScrollBar
         OnStateChange = vdtTagsVersesStateChange
-        ExplicitHeight = 291
         Columns = <>
       end
       object cbTagsFilter: TComboBox
@@ -1327,7 +1344,6 @@ object MainForm: TMainForm
     GradientDirection = gdVertical
     GradientStartColor = clWindow
     GradientEndColor = clBtnFace
-    ExplicitWidth = 829
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 433
@@ -1560,7 +1576,7 @@ object MainForm: TMainForm
   end
   object reClipboard: TRichEdit
     Left = 304
-    Top = 70
+    Top = 89
     Width = 95
     Height = 129
     Font.Charset = ANSI_CHARSET
@@ -1589,7 +1605,7 @@ object MainForm: TMainForm
     AutoHotkeys = maManual
     OnPopup = pmBrowserPopup
     Left = 550
-    Top = 63
+    Top = 119
     object miSearchWord: TMenuItem
       Caption = 'miSearchWord'
       OnClick = miSearchWordClick
@@ -1669,7 +1685,7 @@ object MainForm: TMainForm
     AutoHotkeys = maManual
     OnPopup = pmRefPopup
     Left = 550
-    Top = 109
+    Top = 165
     object miRefCopy: TMenuItem
       Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
       OnClick = miRefCopyClick
@@ -1686,7 +1702,7 @@ object MainForm: TMainForm
   object pmMemo: TPopupMenu
     AutoHotkeys = maManual
     Left = 509
-    Top = 109
+    Top = 165
     object miMemoCopy: TMenuItem
       Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ShortCut = 16451
@@ -1705,11 +1721,11 @@ object MainForm: TMainForm
   end
   object pmHistory: TPopupMenu
     Left = 588
-    Top = 105
+    Top = 161
   end
   object pmEmpty: TPopupMenu
-    Left = 628
-    Top = 107
+    Left = 620
+    Top = 163
     object miDeteleBibleTab: TMenuItem
       Caption = #1059#1076#1072#1083#1080#1090#1100
       OnClick = miDeteleBibleTabClick
@@ -1771,7 +1787,7 @@ object MainForm: TMainForm
     AutoHotkeys = maManual
     Images = ilImages
     Left = 621
-    Top = 62
+    Top = 118
     object miFile: TMenuItem
       Caption = #1060#1072#1081#1083
       object miPrint: TMenuItem
@@ -2018,8 +2034,8 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C01012C006800F80010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
-      000000000000360000002800000040000000C0000000010020000000000000C0
+      494C010130006800480110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2142,6 +2158,134 @@ object MainForm: TMainForm
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000F4CEA772E99F47F4E89944F2F9E4CE3F0000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000F3D1
+      A872E8A449F6EAA148FFF2C863FCE7A048F20000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FFFFFF0DFFFFFF01000000000000
+      00000000000000000000FFFFFF07000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000F3D4AA72E8A9
+      4EF6EAA149FFF3C56CFFFCEAA5FFEAAF56F40000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FEFEFE19FEFEFE19FEFEFE0FFEFE
+      FE030000000000000000FEFEFE11FEFEFE16FEFEFE0600000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000F3D7AC72E8AE54F6EAA2
+      4CFFF4C871FFFCE9A4FFEBB861F5F4DBB5660000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FBFBFB199FA3A2BDF3F4F430FCFB
+      FC18FDFDFD0EFEFEFE03FDFDFD119FA3A2BDF3F4F331FDFDFD11FEFEFE020000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000FCF6EB1CE7B45AF6EAA24EFFF6CD
+      78FFFCEAA6FFEABE66F5F4DFB766000000000000000000000000000000000000
+      00000000000000000000D4D4D44CB2B3B38A000000000000000000000000FDFD
+      FD02C2C5C477C3C5C56800000000000000000000000000000000C6C7C65ABDBF
+      BF86FAFAFA05000000000000000000000000B9BBBA7FCFD1D056000000000000
+      000000000000000000000000000000000000F9F9F9197F8482F899A09EF9D0D3
+      D18CF6F7F620F9F9F919FAFAFA179BA19EF499A09EF9B5B9B7A4F7F7F720FCFC
+      FC0CFEFEFE010000000000000000000000000000000000000000F8F8F70EC7C7
+      BF729E9E91C4888878F2A1A194BFCACAC26CF5EBD440EAC167F6F7D17FFEFDEB
+      A7FFEAC569F5F4E1B96600000000000000000000000000000000000000000000
+      0000FAFAFA05BBC0BE8AD2DAD6F7C0C3C2A20000000000000000ECECEC1AB7BC
+      B9B0DEE6E3FFC8CBC97000000000000000000000000000000000C5C7C761DFE7
+      E4FFB6BBBBBCE5E5E5260000000000000000C4C8C793D4DAD7F9B9BCBB94F6F6
+      F60900000000000000000000000000000000F7F7F719818684F7F9FAF9FFAEB2
+      B1F8909794EED7D9D865F7F7F719838886F7F9FAF9FFC8CCCAF6939897EFBBBD
+      BC88F8F8F816FCFCFC08000000000000000000000000D3D3CD5B8C8C7CF2B7B7
+      A8F8D8D8C9FDEAEADCFFD5D5C7FCB5B5A6F88B8B7CF2787878FFEBCD71F6EACA
+      6CF5F3E4BA66000000000000000000000000000000000000000000000000E3E3
+      E329B9BDBABFDCE4E0FFDEE5E2FFC0C4C4A700000000D0D2D050C0C6C2DCDEE6
+      E2FFE0E7E4FFC5C8C87000000000000000000000000000000000C4C5C561DFE6
+      E3FFDBE3E0FFC1C7C4E4CBCCCB5E00000000C4C8C796DDE5E2FFDAE2DEFFB7BB
+      BAC7E0E1E131000000000000000000000000F4F4F419777D7AF7FEFEFEFFF9FA
+      FAFFEDEFEEFF949A99F6919593D6777D7BFAFEFEFEFFF9FAF9FFEFF1F0FFACB2
+      AFF1929594D9C2C3C36EF8F8F812FEFEFE02F5F5F4148F8F80F2D8D8C9FCECEC
+      DEFFECECDEFFECECDEFFECECDEFFECECDEFFD4D4C6FC8F8F7FF2F4EDD73EFCF9
+      EF17000000000000000000000000000000000000000000000000C9CDCB62C6CD
+      CAE6DCE5E1FFD9E2DEFFE4E9E7FFBFC1C1ADBDBEBD8DD0D8D4F8DBE3E0FFDBE2
+      DFFFE7EBEAFFC5C5C57000000000000000000000000000000000C2C4C261E6EA
+      E8FFDAE1DDFFD6DEDBFFCED8D3FCB9BCB99BC0C3C09DE5E9E7FFD8DFDBFFD7DF
+      DCFFC4C9C7EBC4C7C66DFEFEFE0100000000F2F2F2196E7271F7FBFCFCFFDDE2
+      E0FFE6EAE8FFF0F3F2FFCED1CFFA727675FBFBFCFCFFDDE2DFFFE4E9E7FFF0F2
+      F1FFD3D6D4FA818584F5949897BDF3F3F319C8C8C178BFBFB1F8EEEEE1FFEEEE
+      E1FFEEEEE1FFEEEEE1FFEEEEE1FFEEEEE1FFEEEEE1FFBCBCAFF8CBCBC4720000
+      0000000000000000000000000000000000000000000000000000BCBFBD80D1D6
+      D5F3E3E9E7FFE9EDEBFFEBEEEDFFBDC1BFB3B9BCBC9BD8E0DCFBE5EAE7FFE9ED
+      ECFFECEFEDFFC1C5C47000000000000000000000000000000000C2C2C261EAED
+      ECFFECEFEDFFE6EAE8FFDCE2DFFEB7BABAAABCBEBEA2ECEFEEFFEBEEEDFFE4E9
+      E7FFD3D8D6F8B7B9B98CFDFDFD0200000000F0F0F019646866F7FBFBFBFFF0F1
+      F1FFF1F4F2FFF9FAFAFFE6E7E6FB646867FDFBFBFBFFF0F1F1FFF1F4F2FFFAFA
+      FAFFEAECEBFB7C7F7EF0979A99ADF0F0F019A0A093D8E6E6DBFEF0F0E5FFF0F0
+      E5FFF0F0E5FFF0F0E5FFF0F0E5FFF0F0E5FFF0F0E5FFE4E4D9FDA3A395D30000
+      000000000000000000000000000000000000000000000000000000000000D5D6
+      D640BDC0BFD7E9ECEBFFF0F2F1FFC1C3C3B300000000CBCCCC5AC6CCCAE8EBEE
+      EDFFF1F3F2FFC1C1C17000000000000000000000000000000000BFC2C061F0F2
+      F1FFF1F3F2FFCFD2CFF0C2C5C36BFEFEFE01C1C2C29EF3F5F4FFEFF1F0FFC3C6
+      C5E0CFCFCF4A000000000000000000000000EDEDED195A5D5CF7FBFBFBFFFCFD
+      FCFFEAEBEBFE696D6BF37E8180C25A5D5CFAFBFBFBFFFCFDFCFFEEEFEEFE7679
+      78ED7B7E7BCCC1C2C155D7D7D72FF3F3F3119A9A8CF2F2F2E8FFF2F2E8FFF2F2
+      E8FFF2F2E8FFF2F2E8FFF2F2E8FFF2F2E8FFF2F2E8FFF0F0E6FF9B9B8EEC0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000F1F2F110B1B3B3A4E2E5E3FDC1C4C2B70000000000000000E7E7E720B6B7
+      B7BDEBEDECFFBDC0BE7000000000000000000000000000000000BFBFBF61EFF1
+      F0FFB7BAB9CCDFDFDF2C0000000000000000C0C2C0A0ECEDEDFFB2B4B2AFEEEE
+      EE1500000000000000000000000000000000EBEBEB19505352F7F8F9F9FF6F72
+      70F35D5E5EE4ADAEAE68D5D5D52F525654F6FCFCFCFF787C7BF15C5E5DE8A9A9
+      A971D5D5D52FF2F2F210FDFDFD0200000000A7A79BD8EBEBE2FEF4F4ECFFF4F4
+      ECFFF4F4ECFFF4F4ECFFF4F4ECFFF4F4ECFFF4F4ECFFE9E9E0FDA9A99DD30000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000C3C4C45FA3A6A696000000000000000000000000FBFB
+      FB04B6B7B77DB9BBBB6900000000000000000000000000000000C0C0C05AB1B3
+      B28BF9F9F906000000000000000000000000ADAEAE89BBBDBB6BFEFEFE010000
+      000000000000000000000000000000000000E9E9E9194F5251F44C4F4EF79394
+      948CD0D0D032D5D5D52DE3E3E31F515352F14D504FF690929190D1D1D133ECEC
+      EC16F9F9F906000000000000000000000000CFCFC87ACCCCC2F9F6F6F0FFF6F6
+      F0FFF6F6F0FFF6F6F0FFF6F6F0FFF6F6F0FFF6F6F0FFC8C8BEF8D2D2CC720000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000FDFDFD020000000000000000000000000000
+      000000000000FEFEFE0100000000000000000000000000000000FEFEFE010000
+      000000000000000000000000000000000000FDFDFD0200000000000000000000
+      000000000000000000000000000000000000E6E7E71991929292C6C6C63FD0D0
+      D02FE4E4E41BF7F7F708EFEFEF1091929292C6C6C640EAEAEA16F7F7F708FEFE
+      FE0100000000000000000000000000000000F6F6F517A6A699F2E6E6DFFCF8F8
+      F3FFF8F8F3FFF8F8F3FFF8F8F3FFF8F8F3FFE3E3DCFCA5A598F2F9F9F90E0000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000E6E6E619E6E6E619E8E8E817F8F8
+      F8070000000000000000EFEFEF10E7E7E718F2F2F20DFDFDFD02000000000000
+      00000000000000000000000000000000000000000000DEDED95BA9A99DF2D0D0
+      C7F8ECECE6FDFAFAF5FFEBEBE5FDCDCDC4F8A8A89CF2E1E1DC53000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000F1F1F10EFDFDFD02000000000000
+      00000000000000000000F6F6F609FDFDFD020000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000F8F8F714D5D5
+      CF78B8B8AECAAAAA9EF2B9B9AFC7D8D8D26FFBFBFA0B00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3557,12 +3701,16 @@ object MainForm: TMainForm
       7300D6A57300E7BDA50000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000424D3E000000000000003E000000
-      2800000040000000C00000000100010000000000000600000000000000000000
+      2800000040000000D00000000100010000000000800600000000000000000000
       000000000000000000000000FFFFFF0000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000FFFF81FF81FF81FFFFFF00FF00FF00FF
+      00000000000000000000000000000000FFF0FFFFFFFFFFFFFFE0FFFFFFFF3DFF
+      FFC0FFFFFFFF0C7FFF80FFFFFFFF001FFF01FCE3C73F0007C003F0C3C30F0003
+      8007E083C1070000000FC003C0010000001FC003C0010000001FE083C0070000
+      001FF0C3C30F0001001FFCE3C71F0007001FFEFBDF7F000F001FFFFFFFFF0C3F
+      803FFFFFFFFF3CFFC07FFFFFFFFFFFFFFFFF81FF81FF81FFFFFF00FF00FF00FF
       C7FF007F007F007F83FF183F183F183F99FF1C3F103F103F90FF0E3F003F003F
       C87F070700070007E43F838380038003C21FC1C1C001C001E10FE0E0E000E000
       F027FC60FC00FC00F867FC18FC18FC18FCE7FC18FC18FC18FE0FFE00FE00FE00
@@ -3612,7 +3760,7 @@ object MainForm: TMainForm
   object mViewTabsPopup: TPopupMenu
     Images = ilImages
     Left = 512
-    Top = 64
+    Top = 120
     object miNewViewTab: TMenuItem
       Caption = #1053#1086#1074#1072#1103' '#1074#1082#1083#1072#1076#1082#1072
       ImageIndex = 30
@@ -3631,12 +3779,12 @@ object MainForm: TMainForm
   object appEvents: TApplicationEvents
     OnException = appEventsException
     Left = 691
-    Top = 67
+    Top = 115
   end
   object tmCommon: TTimer
     OnTimer = tmCommonTimer
     Left = 432
-    Top = 88
+    Top = 120
   end
   object ilPictures24: TImageList
     Height = 24
@@ -3644,7 +3792,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C0101020003008C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000300940018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3952,7 +4100,7 @@ object MainForm: TMainForm
     Images = ilImages
     OnChange = pmRecLinksOptionsChange
     Left = 584
-    Top = 62
+    Top = 118
     object miStrictLogic: TMenuItem
       AutoCheck = True
       Caption = 'Use only strict logic'

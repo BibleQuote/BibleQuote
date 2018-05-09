@@ -358,13 +358,7 @@ type
     miNewViewTab: TMenuItem;
     miCloseViewTab: TMenuItem;
     tbtnLastSeparator: TToolButton;
-    tbQuickSearch: TTabSheet;
-    lblSearchInWindow: TLabel;
     lblSearch: TLabel;
-    pnlQuickSearch: TPanel;
-    btnQuickSearchBack: TBitBtn;
-    edtSearch: TEdit;
-    btnQuickSearchFwd: TBitBtn;
     cbLinks: TComboBox;
     pgcViewTabs: TClosableTabControl;
     bwrHtml: THTMLViewer;
@@ -408,8 +402,15 @@ type
     miShowSignatures: TMenuItem;
     miView: TMenuItem;
     tlbViewPage: TToolBar;
-    viewPanel: TPanel;
+    pnlMainView: TPanel;
     pnlViewPageToolbar: TPanel;
+    tlbQuickSearch: TToolBar;
+    tbtnQuickSearchPrev: TToolButton;
+    tedtQuickSeach: TEdit;
+    tbtnQuickSearchNext: TToolButton;
+    tbtnSep07: TToolButton;
+    tbtnQuickSearch: TToolButton;
+    pnlQuickSearch: TPanel;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
@@ -553,12 +554,8 @@ type
     procedure bwrStrongHotSpotClick(Sender: TObject; const SRC: string;
       var Handled: Boolean);
     procedure lbBookmarksClick(Sender: TObject);
-    procedure lbBookmarksKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure lbHistoryKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure SearchBackwardClick(Sender: TObject);
-    procedure btnQuickSearchFwdClick(Sender: TObject);
+    procedure lbBookmarksKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure lbHistoryKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure miSearchWindowClick(Sender: TObject);
     procedure pnlFindStrongNumberMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: integer);
@@ -709,8 +706,10 @@ type
     procedure DictionariesLoaded(Sender: TObject);
     procedure ModulesScanDone(Sender: TObject);
     procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
-    procedure pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: Integer;
-      var ImageIndex: Integer);
+    procedure pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: Integer; var ImageIndex: Integer);
+    procedure tbtnQuickSearchClick(Sender: TObject);
+    procedure tbtnQuickSearchPrevClick(Sender: TObject);
+    procedure tbtnQuickSearchNextClick(Sender: TObject);
 
     // procedure tbAddBibleLinkClick(Sender: TObject);
     // procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -933,6 +932,7 @@ type
   function GetLocalizationDirectory(): string;
   function ApplyInitialTranslation(): Boolean;
   procedure TranslateForm(form: TForm);
+  procedure ToggleQuickSearchPanel(const enable: Boolean);
 
   public
     mHandCur: TCursor;
@@ -2258,8 +2258,6 @@ begin
   Screen.Cursors[crHandPoint] := LoadCursor(0, IDC_HAND);
   Application.HintHidePause := 1000 * 60;
   Application.OnHint := AppOnHintHandler;
-  ilImages.GetBitmap(4, btnQuickSearchBack.Glyph);
-  ilImages.GetBitmap(6, btnQuickSearchFwd.Glyph);
 
   InitializeTaggedBookMarks();
 
@@ -3939,9 +3937,6 @@ begin
     SearchListInit;
   end;
 
-  if Copy(lblSearchInWindow.Caption, 1, 4) <> '    ' then
-    lblSearchInWindow.Caption := '    ' + lblSearchInWindow.Caption;
-
   fnt := TFont.Create;
   fnt.Name := MainForm.Font.Name;
   fnt.Size := MainForm.Font.Size;
@@ -3979,6 +3974,76 @@ begin
   with PrintDialog do
     if Execute then
       bwrHtml.Print(MinPage, MaxPage);
+end;
+
+procedure TMainForm.tbtnQuickSearchClick(Sender: TObject);
+begin
+  ToggleQuickSearchPanel(tbtnQuickSearch.Down);
+end;
+
+procedure TMainForm.tbtnQuickSearchNextClick(Sender: TObject);
+var
+  i, dx, dy: integer;
+  X, Y: Longint;
+begin
+  if BrowserSearchPosition = 0 then
+  begin
+    BrowserSearchPosition := Pos('</title>', string(bwrHtml.DocumentSource));
+    if BrowserSearchPosition > 0 then
+      inc(BrowserSearchPosition, Length('</title>'));
+  end;
+
+  i := Pos(LowerCase(tedtQuickSeach.Text),
+    LowerCase(Copy(bwrHtml.DocumentSource, BrowserSearchPosition + 1,
+    Length(bwrHtml.DocumentSource))));
+
+  if i > 0 then
+  begin
+    i := BrowserSearchPosition + i;
+    dx := bwrHtml.FindDisplayPos(i, true);
+    dy := bwrHtml.FindDisplayPos(i + Length(tedtQuickSeach.Text), true);
+
+    bwrHtml.SelStart := dx - 1;
+    bwrHtml.SelLength := dy - dx;
+
+    BrowserSearchPosition := i;
+
+    bwrHtml.DisplayPosToXY(dx, X, Y);
+    if (Y > pnlQuickSearch.Height + 10) then
+      bwrHtml.VScrollBarPosition := Y - pnlQuickSearch.Height - 10
+    else
+      bwrHtml.VScrollBarPosition := Y;
+  end
+  else
+    BrowserSearchPosition := 0;
+end;
+
+procedure TMainForm.tbtnQuickSearchPrevClick(Sender: TObject);
+var
+  i, dx, dy: integer;
+  X, Y: Longint;
+begin
+  i := LastPos(LowerCase(tedtQuickSeach.Text), LowerCase(Copy(bwrHtml.DocumentSource, 1, BrowserSearchPosition - 1)));
+
+  if i > 0 then
+  begin
+    dx := bwrHtml.FindDisplayPos(i, true);
+    dy := bwrHtml.FindDisplayPos(i + Length(tedtQuickSeach.Text), true);
+
+    bwrHtml.SelStart := dx - 1;
+    bwrHtml.SelLength := dy - dx;
+
+    BrowserSearchPosition := i;
+
+    bwrHtml.DisplayPosToXY(dx, X, Y);
+
+    if (Y > pnlQuickSearch.Height + 10) then
+      bwrHtml.VScrollBarPosition := Y - pnlQuickSearch.Height - 10
+    else
+      bwrHtml.VScrollBarPosition := Y;
+  end
+  else
+    BrowserSearchPosition := 0;
 end;
 
 // --------- preview begin
@@ -5101,13 +5166,11 @@ end;
 
 { Alek }(* AlekId:Добавлено *)
 
-procedure TMainForm.edtSearchKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.edtSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = 13 then
   begin
-    ActiveControl := btnQuickSearchFwd;
-    btnQuickSearchFwd.Click();
+    tbtnQuickSearchNext.Click();
   end;
 end;
 (* AlekId:/Добавлено *)
@@ -8126,7 +8189,6 @@ begin
     MessageDlg('No localization file.', mtWarning, [mbOk], 0);
   end;
 
-  ilImages.GetBitmap(4, btnQuickSearchBack.Glyph);
   pgcHistoryBookmarks.ActivePage := tbHistory;
 
   tbLinksToolBar.Visible := false;
@@ -8972,6 +9034,13 @@ var
   pn: PVirtualNode;
 begin
   Result := DicSelectedItemIndex(pn);
+end;
+
+procedure TMainForm.ToggleQuickSearchPanel(const enable: Boolean);
+begin
+  tbtnQuickSearch.Down := enable;
+  pnlQuickSearch.Visible := enable;
+  tlbQuickSearch.Visible := enable;
 end;
 
 procedure TMainForm.TranslateForm(form: TForm);
@@ -12049,34 +12118,6 @@ begin
   end;
 end;
 
-procedure TMainForm.SearchBackwardClick(Sender: TObject);
-var
-  i, dx, dy: integer;
-  X, Y: Longint;
-begin
-  i := LastPos(WideLowerCase(edtSearch.Text), LowerCase(Copy(bwrHtml.DocumentSource, 1, BrowserSearchPosition - 1)));
-
-  if i > 0 then
-  begin
-    dx := bwrHtml.FindDisplayPos(i, true);
-    dy := bwrHtml.FindDisplayPos(i + Length(edtSearch.Text), true);
-
-    bwrHtml.SelStart := dx - 1;
-    bwrHtml.SelLength := dy - dx;
-
-    BrowserSearchPosition := i;
-
-    bwrHtml.DisplayPosToXY(dx, X, Y);
-
-    if Y > 10 then
-      bwrHtml.VScrollBarPosition := Y - 10
-    else
-      bwrHtml.VScrollBarPosition := Y;
-  end
-  else
-    BrowserSearchPosition := 0;
-end;
-
 procedure TMainForm.btnOnlyMeaningfulClick(Sender: TObject);
 var
   btn: TrkGlassButton;
@@ -12084,43 +12125,6 @@ begin
   btn := Sender as TrkGlassButton;
   btn.Down := not btn.Down;
   FilterCommentariesCombo();
-end;
-
-procedure TMainForm.btnQuickSearchFwdClick(Sender: TObject);
-var
-  i, dx, dy: integer;
-  X, Y: Longint;
-begin
-  if BrowserSearchPosition = 0 then
-  begin
-    BrowserSearchPosition := Pos('</title>', string(bwrHtml.DocumentSource));
-    if BrowserSearchPosition > 0 then
-      inc(BrowserSearchPosition, Length('</title>'));
-  end;
-
-  i := Pos(LowerCase(edtSearch.Text),
-    LowerCase(Copy(bwrHtml.DocumentSource, BrowserSearchPosition + 1,
-    Length(bwrHtml.DocumentSource))));
-
-  if i > 0 then
-  begin
-    i := BrowserSearchPosition + i;
-    dx := bwrHtml.FindDisplayPos(i, true);
-    dy := bwrHtml.FindDisplayPos(i + Length(edtSearch.Text), true);
-
-    bwrHtml.SelStart := dx - 1;
-    bwrHtml.SelLength := dy - dx;
-
-    BrowserSearchPosition := i;
-
-    bwrHtml.DisplayPosToXY(dx, X, Y);
-    if Y > 10 then
-      bwrHtml.VScrollBarPosition := Y - 10
-    else
-      bwrHtml.VScrollBarPosition := Y;
-  end
-  else
-    BrowserSearchPosition := 0; // AlekId:??
 end;
 
 procedure TMainForm.miSearchWindowClick(Sender: TObject);
@@ -12134,13 +12138,13 @@ begin
   pgcMain.ActivePageIndex := 0; // на первую вкладку
   pgcHistoryBookmarks.ActivePageIndex := 2;
   // на вкладку быстрого поиска
-  ActiveControl := edtSearch;
+  ActiveControl := tedtQuickSeach;
   (* AlekId:/Добавлено *)
 
   if bwrHtml.SelLength <> 0 then
   begin
-    edtSearch.Text := Trim(bwrHtml.SelText);
-    btnQuickSearchFwd.Click;
+    tedtQuickSeach.Text := Trim(bwrHtml.SelText);
+    tbtnQuickSearchNext.Click;
   end;
 end;
 
@@ -12440,16 +12444,13 @@ begin
     pgcMain.ActivePage := tbGo;
     pgcMainChange(self);
   end;
-  if pgcHistoryBookmarks.ActivePage <> tbQuickSearch then
-  begin
-    pgcHistoryBookmarks.ActivePage := tbQuickSearch;
-  end;
+  ToggleQuickSearchPanel(true);
   try
-    FocusControl(edtSearch);
+    FocusControl(tedtQuickSeach);
   except
   end;
-  if Length(edtSearch.Text) > 0 then
-    edtSearch.SelectAll();
+  if Length(tedtQuickSeach.Text) > 0 then
+    tedtQuickSeach.SelectAll();
 end;
 
 procedure TMainForm.ShowSearchTab;
