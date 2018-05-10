@@ -406,7 +406,7 @@ type
     pnlViewPageToolbar: TPanel;
     tlbQuickSearch: TToolBar;
     tbtnQuickSearchPrev: TToolButton;
-    tedtQuickSeach: TEdit;
+    tedtQuickSearch: TEdit;
     tbtnQuickSearchNext: TToolButton;
     tbtnSep07: TToolButton;
     tbtnQuickSearch: TToolButton;
@@ -3993,7 +3993,7 @@ begin
       inc(BrowserSearchPosition, Length('</title>'));
   end;
 
-  i := Pos(LowerCase(tedtQuickSeach.Text),
+  i := Pos(LowerCase(tedtQuickSearch.Text),
     LowerCase(Copy(bwrHtml.DocumentSource, BrowserSearchPosition + 1,
     Length(bwrHtml.DocumentSource))));
 
@@ -4001,7 +4001,7 @@ begin
   begin
     i := BrowserSearchPosition + i;
     dx := bwrHtml.FindDisplayPos(i, true);
-    dy := bwrHtml.FindDisplayPos(i + Length(tedtQuickSeach.Text), true);
+    dy := bwrHtml.FindDisplayPos(i + Length(tedtQuickSearch.Text), true);
 
     bwrHtml.SelStart := dx - 1;
     bwrHtml.SelLength := dy - dx;
@@ -4023,12 +4023,12 @@ var
   i, dx, dy: integer;
   X, Y: Longint;
 begin
-  i := LastPos(LowerCase(tedtQuickSeach.Text), LowerCase(Copy(bwrHtml.DocumentSource, 1, BrowserSearchPosition - 1)));
+  i := LastPos(LowerCase(tedtQuickSearch.Text), LowerCase(Copy(bwrHtml.DocumentSource, 1, BrowserSearchPosition - 1)));
 
   if i > 0 then
   begin
     dx := bwrHtml.FindDisplayPos(i, true);
-    dy := bwrHtml.FindDisplayPos(i + Length(tedtQuickSeach.Text), true);
+    dy := bwrHtml.FindDisplayPos(i + Length(tedtQuickSearch.Text), true);
 
     bwrHtml.SelStart := dx - 1;
     bwrHtml.SelLength := dy - dx;
@@ -12138,12 +12138,12 @@ begin
   pgcMain.ActivePageIndex := 0; // на первую вкладку
   pgcHistoryBookmarks.ActivePageIndex := 2;
   // на вкладку быстрого поиска
-  ActiveControl := tedtQuickSeach;
+  ActiveControl := tedtQuickSearch;
   (* AlekId:/Добавлено *)
 
   if bwrHtml.SelLength <> 0 then
   begin
-    tedtQuickSeach.Text := Trim(bwrHtml.SelText);
+    tedtQuickSearch.Text := Trim(bwrHtml.SelText);
     tbtnQuickSearchNext.Click;
   end;
 end;
@@ -12446,11 +12446,11 @@ begin
   end;
   ToggleQuickSearchPanel(true);
   try
-    FocusControl(tedtQuickSeach);
+    FocusControl(tedtQuickSearch);
   except
   end;
-  if Length(tedtQuickSeach.Text) > 0 then
-    tedtQuickSeach.SelectAll();
+  if Length(tedtQuickSearch.Text) > 0 then
+    tedtQuickSearch.SelectAll();
 end;
 
 procedure TMainForm.ShowSearchTab;
