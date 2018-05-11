@@ -410,7 +410,6 @@ type
     tbtnQuickSearchNext: TToolButton;
     tbtnSep07: TToolButton;
     tbtnQuickSearch: TToolButton;
-    pnlQuickSearch: TPanel;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
@@ -4009,8 +4008,8 @@ begin
     BrowserSearchPosition := i;
 
     bwrHtml.DisplayPosToXY(dx, X, Y);
-    if (Y > pnlQuickSearch.Height + 10) then
-      bwrHtml.VScrollBarPosition := Y - pnlQuickSearch.Height - 10
+    if (Y > 10) then
+      bwrHtml.VScrollBarPosition := Y - 10
     else
       bwrHtml.VScrollBarPosition := Y;
   end
@@ -4037,13 +4036,16 @@ begin
 
     bwrHtml.DisplayPosToXY(dx, X, Y);
 
-    if (Y > pnlQuickSearch.Height + 10) then
-      bwrHtml.VScrollBarPosition := Y - pnlQuickSearch.Height - 10
+    if (Y > 10) then
+      bwrHtml.VScrollBarPosition := Y - 10
     else
       bwrHtml.VScrollBarPosition := Y;
   end
   else
-    BrowserSearchPosition := 0;
+  begin
+    if (Length(bwrHtml.DocumentSource) > 0) then
+      BrowserSearchPosition := bwrHtml.DocumentSource.Length - 1;
+  end;
 end;
 
 // --------- preview begin
@@ -9039,8 +9041,12 @@ end;
 procedure TMainForm.ToggleQuickSearchPanel(const enable: Boolean);
 begin
   tbtnQuickSearch.Down := enable;
-  pnlQuickSearch.Visible := enable;
   tlbQuickSearch.Visible := enable;
+  tlbQuickSearch.Height := IfThen(enable, tlbViewPage.Height, 0);
+
+  if (enable) then
+    ActiveControl := tedtQuickSearch;
+
 end;
 
 procedure TMainForm.TranslateForm(form: TForm);
