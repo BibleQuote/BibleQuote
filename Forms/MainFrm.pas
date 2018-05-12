@@ -410,6 +410,9 @@ type
     tbtnQuickSearchNext: TToolButton;
     tbtnSep07: TToolButton;
     tbtnQuickSearch: TToolButton;
+    tbtnSep08: TToolButton;
+    tbtnMatchCase: TToolButton;
+    tbtnMatchWholeWord: TToolButton;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
@@ -932,6 +935,8 @@ type
   function ApplyInitialTranslation(): Boolean;
   procedure TranslateForm(form: TForm);
   procedure ToggleQuickSearchPanel(const enable: Boolean);
+  procedure SearchForward();
+  procedure SearchBackward();
 
   public
     mHandCur: TCursor;
@@ -3981,71 +3986,13 @@ begin
 end;
 
 procedure TMainForm.tbtnQuickSearchNextClick(Sender: TObject);
-var
-  i, dx, dy: integer;
-  X, Y: Longint;
 begin
-  if BrowserSearchPosition = 0 then
-  begin
-    BrowserSearchPosition := Pos('</title>', string(bwrHtml.DocumentSource));
-    if BrowserSearchPosition > 0 then
-      inc(BrowserSearchPosition, Length('</title>'));
-  end;
-
-  i := Pos(LowerCase(tedtQuickSearch.Text),
-    LowerCase(Copy(bwrHtml.DocumentSource, BrowserSearchPosition + 1,
-    Length(bwrHtml.DocumentSource))));
-
-  if i > 0 then
-  begin
-    i := BrowserSearchPosition + i;
-    dx := bwrHtml.FindDisplayPos(i, true);
-    dy := bwrHtml.FindDisplayPos(i + Length(tedtQuickSearch.Text), true);
-
-    bwrHtml.SelStart := dx - 1;
-    bwrHtml.SelLength := dy - dx;
-
-    BrowserSearchPosition := i;
-
-    bwrHtml.DisplayPosToXY(dx, X, Y);
-    if (Y > 10) then
-      bwrHtml.VScrollBarPosition := Y - 10
-    else
-      bwrHtml.VScrollBarPosition := Y;
-  end
-  else
-    BrowserSearchPosition := 0;
+  SearchForward();
 end;
 
 procedure TMainForm.tbtnQuickSearchPrevClick(Sender: TObject);
-var
-  i, dx, dy: integer;
-  X, Y: Longint;
 begin
-  i := LastPos(LowerCase(tedtQuickSearch.Text), LowerCase(Copy(bwrHtml.DocumentSource, 1, BrowserSearchPosition - 1)));
-
-  if i > 0 then
-  begin
-    dx := bwrHtml.FindDisplayPos(i, true);
-    dy := bwrHtml.FindDisplayPos(i + Length(tedtQuickSearch.Text), true);
-
-    bwrHtml.SelStart := dx - 1;
-    bwrHtml.SelLength := dy - dx;
-
-    BrowserSearchPosition := i;
-
-    bwrHtml.DisplayPosToXY(dx, X, Y);
-
-    if (Y > 10) then
-      bwrHtml.VScrollBarPosition := Y - 10
-    else
-      bwrHtml.VScrollBarPosition := Y;
-  end
-  else
-  begin
-    if (Length(bwrHtml.DocumentSource) > 0) then
-      BrowserSearchPosition := bwrHtml.DocumentSource.Length - 1;
-  end;
+  SearchBackward();
 end;
 
 // --------- preview begin
@@ -5172,7 +5119,7 @@ procedure TMainForm.edtSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShift
 begin
   if Key = 13 then
   begin
-    tbtnQuickSearchNext.Click();
+    SearchForward();
   end;
 end;
 (* AlekId:/Добавлено *)
@@ -9038,6 +8985,86 @@ begin
   Result := DicSelectedItemIndex(pn);
 end;
 
+procedure TMainForm.SearchBackward();
+var
+  searchText: string;
+  searchOptions: TStringSearchOptions;
+  i: Integer;
+  dx, dy: Integer;
+  X, Y: Integer;
+begin
+  searchText := tedtQuickSearch.Text;
+
+  searchOptions := [];
+  if (tbtnMatchCase.Down) then
+    Include(searchOptions, soMatchCase);
+  if (tbtnMatchWholeWord.Down) then
+    Include(searchOptions, soWholeWord);
+
+  i := FindPosition(bwrHtml.DocumentSource, searchText, BrowserSearchPosition - 1, searchOptions);
+  if i > 0 then
+  begin
+    BrowserSearchPosition := i;
+    dx := bwrHtml.FindDisplayPos(i, true);
+    dy := bwrHtml.FindDisplayPos(i + Length(searchText), true);
+    bwrHtml.SelStart := dx - 1;
+    bwrHtml.SelLength := dy - dx;
+    bwrHtml.DisplayPosToXY(dx, X, Y);
+    if (Y > 10) then
+      bwrHtml.VScrollBarPosition := Y - 10
+    else
+      bwrHtml.VScrollBarPosition := Y;
+  end
+  else
+  begin
+    if (Length(bwrHtml.DocumentSource) > 0) then
+      BrowserSearchPosition := bwrHtml.DocumentSource.Length - 1
+    else
+      BrowserSearchPosition := 0;
+  end;
+end;
+
+procedure TMainForm.SearchForward();
+var
+  searchText: string;
+  searchOptions: TStringSearchOptions;
+  i: Integer;
+  dx, dy: Integer;
+  X, Y: Integer;
+begin
+  searchText := tedtQuickSearch.Text;
+
+  searchOptions := [soDown];
+  if (tbtnMatchCase.Down) then
+    Include(searchOptions, soMatchCase);
+  if (tbtnMatchWholeWord.Down) then
+    Include(searchOptions, soWholeWord);
+
+  if BrowserSearchPosition = 0 then
+  begin
+    BrowserSearchPosition := Pos('</title>', string(bwrHtml.DocumentSource));
+    if BrowserSearchPosition > 0 then
+      inc(BrowserSearchPosition, Length('</title>'));
+  end;
+
+  i := FindPosition(bwrHtml.DocumentSource, searchText, BrowserSearchPosition + 1, searchOptions);
+  if i > 0 then
+  begin
+    BrowserSearchPosition := i;
+    dx := bwrHtml.FindDisplayPos(i, true);
+    dy := bwrHtml.FindDisplayPos(i + Length(searchText), true);
+    bwrHtml.SelStart := dx - 1;
+    bwrHtml.SelLength := dy - dx;
+    bwrHtml.DisplayPosToXY(dx, X, Y);
+    if (Y > 10) then
+      bwrHtml.VScrollBarPosition := Y - 10
+    else
+      bwrHtml.VScrollBarPosition := Y;
+  end
+  else
+    BrowserSearchPosition := 0;
+end;
+
 procedure TMainForm.ToggleQuickSearchPanel(const enable: Boolean);
 begin
   tbtnQuickSearch.Down := enable;
@@ -12150,7 +12177,7 @@ begin
   if bwrHtml.SelLength <> 0 then
   begin
     tedtQuickSearch.Text := Trim(bwrHtml.SelText);
-    tbtnQuickSearchNext.Click;
+    SearchForward();
   end;
 end;
 
