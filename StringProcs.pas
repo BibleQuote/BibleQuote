@@ -10,9 +10,10 @@ uses
   Classes,
   WideStrings,
   Windows,
+  StrUtils,
   Graphics;
 
-   function GetMyDocuments: string;
+function GetMyDocuments: string;
 
 function UpperCaseFirstLetter(s: string): string;
 
@@ -35,8 +36,7 @@ function Comment(s: string): string; // retrieves a comment from a command line
 
 function DumpFileName(s: string): string;
 
-function SplitValue(s: string; var strname: string;
-         var chapter, fromverse, toverse: integer): boolean;
+function SplitValue(s: string; var strname: string; var chapter, fromverse, toverse: integer): boolean;
 
 function Hex2Color(s: string): TColor;
 function Color2Hex(col: TColor): string;
@@ -44,67 +44,73 @@ function Color2Hex(col: TColor): string;
 function ParseHTML(s, HTML: string): string;
 
 function Get_ANAME_VerseNumber(const s: string; start, iPos: integer): integer;
-function Get_AHREF_VerseCommand(const s: string;  iPos: integer): string;
+function Get_AHREF_VerseCommand(const s: string; iPos: integer): string;
 
 function DeleteStrongNumbers(s: string): string;
 function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
 
-function LastPos(SubS, S: string): integer;
+function LastPos(SubS, s: string): integer;
 
 function FindString(List: TStringList; s: string): integer;
 // find string in SORTED list, maybe partial match
 
-procedure AddLine (var rResult: string; const aLine: string);
+procedure AddLine(var rResult: string; const aLine: string);
 
-function PosCIL (aSubString: AnsiString; const aString: AnsiString; aStartPos: Integer = 1): Integer; overload;
-function PosCIL (aSubString: string; const aString: string; aStartPos: Integer = 1): Integer; overload;
+function PosCIL(aSubString: AnsiString; const aString: AnsiString; aStartPos: integer = 1): integer; overload;
+function PosCIL(aSubString: string; const aString: string; aStartPos: integer = 1): integer; overload;
 
-procedure TrimNullTerminatedString (var aString: String);
+procedure TrimNullTerminatedString(var aString: String);
+function FindPosition(const sourceString, findString: string; const startPos: integer; options: TStringSearchOptions): integer;
 
 const
-  DefaultHTMLFilter: string = '<b></b><i></i><u></u><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6>';
+  DefaultHTMLFilter
+    : string =
+    '<b></b><i></i><u></u><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6>';
 
 implementation
-uses StrUtils ;
+
 // find string in SORTED list, maybe partial match
 function FindString(List: TStringList; s: string): integer;
 var
-  b,e,len: integer;
+  b, e, len: integer;
 begin
   Result := -1;
   b := 0;
-  e := List.Count-1;
+  e := List.Count - 1;
   len := Length(s);
 
-  while (b < e-1) and (Result < 0) do
+  while (b < e - 1) and (Result < 0) do
   begin
-    if Copy (List[(b+e) div 2],1,len) < s then
+    if Copy(List[(b + e) div 2], 1, len) < s then
       b := (b + e) div 2
-    else if Copy(List[(b+e) div 2],1,len) > s then
+    else if Copy(List[(b + e) div 2], 1, len) > s then
       e := (b + e) div 2
     else
       Result := (b + e) div 2;
   end;
 
-  if (b=e) and (Copy(List[b],1,len) = s) then Result := b;
-  if (b=e-1) and (Copy(List[b],1,len) = s) then Result := b;
-  if (b=e-1) and (Copy(List[e],1,len) = s) then Result := e;
+  if (b = e) and (Copy(List[b], 1, len) = s) then
+    Result := b;
+  if (b = e - 1) and (Copy(List[b], 1, len) = s) then
+    Result := b;
+  if (b = e - 1) and (Copy(List[e], 1, len) = s) then
+    Result := e;
 end;
 
-function LastPos(SubS, S: string): integer;
+function LastPos(SubS, s: string): integer;
 var
   offset, i, len: integer;
 begin
   Result := 0;
-  len := Length(S);
+  len := Length(s);
   offset := 0;
   repeat
-    i := Pos(SubS, Copy(S, offset+1, len));
-    if i > 0 then Result := i + offset;
+    i := Pos(SubS, Copy(s, offset + 1, len));
+    if i > 0 then
+      Result := i + offset;
     offset := offset + Length(SubS);
   until i = 0;
 end;
-
 
 function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
 var
@@ -116,41 +122,50 @@ begin
   len := Length(s);
   isNum := false;
 
-  for i:=1 to len do
+  for i := 1 to len do
   begin
-    if (
-      (Integer (s[i]) >= Integer ('0')) and
-      (Integer (s[i]) <= Integer ('9'))
-    ) then
+    if ((integer(s[i]) >= integer('0')) and (integer(s[i]) <= integer('9')))
+    then
     begin
       if isNum then // если сейчас идет число, то удлин€ем ссылку
         link := link + s[i]
-      else begin
+      else
+      begin
         isNum := true;
         link := s[i]; // start the number link
       end;
-    end else begin // not digit now
+    end
+    else
+    begin // not digit now
       if isNum then // if there was link
       begin
-        if (link = 'H') or (link = 'G') then begin // stop
+        if (link = 'H') or (link = 'G') then
+        begin // stop
           isNum := false;
           Result := Result + link;
-        end else begin
+        end
+        else
+        begin
           isNum := false;
-          //if link <> '0' then
-          //begin
-            //if hebrew and (link <> '0') then link := '0' + link;
-            if supercase then
-              Result := Result + '<SUP><font size=0><a href=s' + link + '>' + link + '</a></font></SUP>'
-            else
-              Result := Result + '<a href=s' + link + '>' + link + '</a>'
-          //end;
+          // if link <> '0' then
+          // begin
+          // if hebrew and (link <> '0') then link := '0' + link;
+          if supercase then
+            Result := Result + '<SUP><font size=0><a href=s' + link + '>' + link
+              + '</a></font></SUP>'
+          else
+            Result := Result + '<a href=s' + link + '>' + link + '</a>'
+            // end;
         end;
         Result := Result + s[i];
-      end else if (integer(s[i]) = integer('H')) or (integer(s[i]) = integer('G')) then begin
+      end
+      else if (integer(s[i]) = integer('H')) or (integer(s[i]) = integer('G'))
+      then
+      begin
         isNum := true;
         link := s[i];
-      end else
+      end
+      else
         // finish the link, draw the symbol
         Result := Result + s[i];
     end;
@@ -159,7 +174,8 @@ begin
   if isNum then // если шла ссылка то в конце надо ее завершить....
   begin
     if supercase then
-      Result := Result + '<font size=1><a href=s' + link + '>' + link + '</a></font> '
+      Result := Result + '<font size=1><a href=s' + link + '>' + link +
+        '</a></font> '
     else
       Result := Result + '<a href=s' + link + '>' + link + '</a> '
   end;
@@ -172,31 +188,19 @@ var
 begin
   Result := '';
   len := Length(s);
-  for i:=1 to len do
+  for i := 1 to len do
   begin
-    if (
-        (Integer (s[i]) >= Integer ('0')) and
-        (Integer (s[i]) <= Integer ('9'))
-      )
-      or (
-      (i < len) and
-      (s[i] = ' ') and
-      ((Integer (s[i+1]) >= Integer ('0')) and
-      (Integer (s[i+1]) <= Integer ('9')))
-    )
-    then continue;
+    if ((integer(s[i]) >= integer('0')) and (integer(s[i]) <= integer('9'))) or
+      ((i < len) and (s[i] = ' ') and ((integer(s[i + 1]) >= integer('0')) and
+      (integer(s[i + 1]) <= integer('9')))) then
+      continue;
 
-    if (
-        (Integer (s[i]) = Integer ('G')) or
-        (Integer (s[i]) = Integer ('H'))
-      )
-      and (
-      (i < len) and
-      //(s[i] = ' ') and
-      ((Integer (s[i+1]) >= Integer ('0')) and
-      (Integer (s[i+1]) <= Integer ('9')))
-    )
-    then continue;
+    if ((integer(s[i]) = integer('G')) or (integer(s[i]) = integer('H'))) and
+      ((i < len) and
+      // (s[i] = ' ') and
+      ((integer(s[i + 1]) >= integer('0')) and
+      (integer(s[i + 1]) <= integer('9')))) then
+      continue;
 
     Result := Result + s[i];
   end;
@@ -210,9 +214,10 @@ begin
   Result := '';
   s1 := Trim(s);
   i := Pos(' ', s1);
-  if i > 0
-  then Result := Copy(s1, 1, i-1)
-  else Result := s1;
+  if i > 0 then
+    Result := Copy(s1, 1, i - 1)
+  else
+    Result := s1;
 end;
 
 function DeleteFirstWord(var s: string): string;
@@ -224,11 +229,13 @@ begin
 
   s1 := Trim(s);
   i := Pos(' ', s1);
-  if i > 0 then begin
-    Result := Copy(s, 1, i-1);
-    s := Copy(s1, i+1, Length(s1));
+  if i > 0 then
+  begin
+    Result := Copy(s, 1, i - 1);
+    s := Copy(s1, i + 1, Length(s1));
   end
-  else s := '';
+  else
+    s := '';
 end;
 
 function IniStringFirstPart(s: string): string;
@@ -236,9 +243,10 @@ var
   i: integer;
 begin
   i := Pos('=', s);
-  if i > 0
-  then Result := Trim(Copy(s,1,i-1))
-  else Result := Trim(s);
+  if i > 0 then
+    Result := Trim(Copy(s, 1, i - 1))
+  else
+    Result := Trim(s);
 end;
 
 function IniStringSecondPart(s: string): string;
@@ -246,9 +254,10 @@ var
   i: integer;
 begin
   i := Pos('=', s);
-  if i > 0
-  then Result := Trim(Copy(s,i+1,Length(s)))
-  else Result := '';
+  if i > 0 then
+    Result := Trim(Copy(s, i + 1, Length(s)))
+  else
+    Result := '';
 end;
 
 function StrColorUp(var s: string; const wrd, c1, c2: string; casesensitive: boolean): boolean;
@@ -261,7 +270,8 @@ begin
     slow := WideLowerCase(s);
     wrdlow := WideLowerCase(wrd);
   end
-  else begin
+  else
+  begin
     slow := s;
     wrdlow := wrd;
   end;
@@ -279,20 +289,20 @@ begin
 
   res := '';
   repeat
-    res := res + Copy(s,1,i-1) + c1 + Copy(s,i,Length(wrdlow)) + c2;
+    res := res + Copy(s, 1, i - 1) + c1 + Copy(s, i, Length(wrdlow)) + c2;
 
-    s := Copy(s,i+len1,Length(s));
-    slow := Copy(slow,i+len1,Length(slow));
+    s := Copy(s, i + len1, Length(s));
+    slow := Copy(slow, i + len1, Length(slow));
 
     i := Pos(wrdlow, slow);
-  until i=0;
+  until i = 0;
 
   s := res + s;
 end;
 
 function StrReplace(var s: string; const substr1, substr2: string; recurse: boolean): boolean;
 var
-  i,len1: integer;
+  i, len1: integer;
   res: string;
 begin
   Result := true;
@@ -309,18 +319,18 @@ begin
   res := '';
 
   repeat
-    res := res + Copy(s,1,i-1) + substr2;
-    s := Copy(s,i+len1,Length(s));
+    res := res + Copy(s, 1, i - 1) + substr2;
+    s := Copy(s, i + len1, Length(s));
 
     i := Pos(substr1, s);
-  until (not recurse) or (i=0);
+  until (not recurse) or (i = 0);
 
   s := res + s;
 end;
 
 function StrGetFirstNumber(s: string): string;
 var
-  i,len: integer;
+  i, len: integer;
   ok: boolean;
 begin
   len := Length(s);
@@ -331,26 +341,33 @@ begin
     ok := (s[i] >= '0') and (s[i] <= '9');
   until (not ok) or (i = len);
 
-  Result := Copy(s,1,i-1);
+  Result := Copy(s, 1, i - 1);
 end;
 
 function StrDeleteFirstNumber(var s: string): string;
 var
-  i,len,nums: integer;
+  i, len, nums: integer;
   ok: boolean;
 begin
   len := Length(s);
-  if len<1 then begin result:='' ; exit;end;
+  if len < 1 then
+  begin
+    Result := '';
+    Exit;
+  end;
   i := 0;
-  repeat inc(i); until (s[i]<>#32) or (i>=len);
-  nums:=i; dec(i);
+  repeat
+    Inc(i);
+  until (s[i] <> #32) or (i >= len);
+  nums := i;
+  dec(i);
   repeat
     Inc(i);
     ok := (s[i] >= '0') and (s[i] <= '9');
   until (not ok) or (i = len);
 
-  Result := Copy(s,nums,i-nums);
-  s := Trim(Copy(s,i,len));
+  Result := Copy(s, nums, i - nums);
+  s := Trim(Copy(s, i, len));
 end;
 
 function Comment(s: string): string; // retrieves a comment from a command line
@@ -358,9 +375,10 @@ var
   i: integer;
 begin
   i := Pos('$$$', s);
-  if i > 0
-  then Result := Trim(Copy(s, i+3, Length(s)))
-  else Result := '';
+  if i > 0 then
+    Result := Trim(Copy(s, i + 3, Length(s)))
+  else
+    Result := '';
 end;
 
 function DumpFileName(s: string): string;
@@ -382,14 +400,14 @@ end;
 
 function UpperCaseFirstLetter(s: string): string;
 begin
-  Result := WideUpperCase(Copy(s,1,1)) + WideLowerCase(Copy(s,2,Length(s)));
+  Result := WideUpperCase(Copy(s, 1, 1)) + WideLowerCase(Copy(s, 2, Length(s)));
 end;
 
 // разбор записей типа Ѕыт. 1 : 1- 25 дл€ получени€ адреса отрывка
 // дл€ модул€ bookmarks адреса выгл€д€т так: 40.1:2-34
 
 function SplitValue(s: string; var strname: string;
-         var chapter, fromverse, toverse: integer): boolean;
+  var chapter, fromverse, toverse: integer): boolean;
 var
   scopy: string;
   colonpos, dashpos, spacepos, pointpos, commapos: integer;
@@ -401,25 +419,30 @@ begin
   scopy := Trim(s);
 
   pointpos := Pos('.', scopy);
-  if (pointpos > 0) and (Pos('.', Copy(scopy, pointpos+1, Length(scopy))) > 0)
-  then pointpos := pointpos + Pos('.', Copy(scopy, pointpos+1, Length(scopy)));
+  if (pointpos > 0) and (Pos('.', Copy(scopy, pointpos + 1, Length(scopy))) > 0)
+  then
+    pointpos := pointpos + Pos('.', Copy(scopy, pointpos + 1, Length(scopy)));
   // в некоторых книгах две точки в сокращении имени, напр. ѕрем.—ол.
 
   spacepos := Pos(' ', scopy);
-  if (pointpos = 0) or (spacepos > pointpos+1) then pointpos := spacepos;
+  if (pointpos = 0) or (spacepos > pointpos + 1) then
+    pointpos := spacepos;
 
   strname := Trim(Copy(scopy, 1, pointpos));
 
   colonpos := Pos(':', scopy);
-  dashpos  := Pos('-', scopy);
+  dashpos := Pos('-', scopy);
   commapos := Pos(',', scopy);
-  if dashpos = 0 then dashpos := commapos; // Ѕыт.12:2,3
+  if dashpos = 0 then
+    dashpos := commapos; // Ѕыт.12:2,3
 
   try
     if colonpos <> 0 then
-      chapter := StrToInt(Trim(Copy(scopy, pointpos+1, colonpos-pointpos-1)))
-    else begin
-      chapter := StrToInt(Trim(Copy(scopy, pointpos+1, Length(scopy))));
+      chapter := StrToInt(Trim(Copy(scopy, pointpos + 1,
+        colonpos - pointpos - 1)))
+    else
+    begin
+      chapter := StrToInt(Trim(Copy(scopy, pointpos + 1, Length(scopy))));
 
       fromverse := 0;
       toverse := 0;
@@ -430,11 +453,13 @@ begin
 
     if dashpos <> 0 then
     begin
-      fromverse := StrToInt(Trim(Copy(scopy, colonpos+1, dashpos-colonpos-1)));
-      toverse := StrToInt(Trim(Copy(scopy, dashpos+1, Length(scopy))));
-    end else
+      fromverse := StrToInt(Trim(Copy(scopy, colonpos + 1,
+        dashpos - colonpos - 1)));
+      toverse := StrToInt(Trim(Copy(scopy, dashpos + 1, Length(scopy))));
+    end
+    else
     begin
-      fromverse := StrToInt(Trim(Copy(scopy, colonpos+1, Length(scopy))));
+      fromverse := StrToInt(Trim(Copy(scopy, colonpos + 1, Length(scopy))));
       toverse := 0;
     end;
 
@@ -446,7 +471,6 @@ begin
 
 end;
 
-
 function SingleLetterDelete(var s: string): boolean;
 var
   snew, sword: string;
@@ -457,9 +481,10 @@ begin
   while s <> '' do
   begin
     sword := DeleteFirstWord(s);
-    if Length(sword) > 1
-    then snew := snew + sword + ' '
-    else Result := true;
+    if Length(sword) > 1 then
+      snew := snew + sword + ' '
+    else
+      Result := true;
   end;
 
   s := Trim(snew);
@@ -467,57 +492,60 @@ end;
 
 function Char2Hex(c: Char): integer;
 begin
-  result:=0;
-  if (c <= '9') and (c>='0') then Result := Integer (c) - Integer ('0')
-  else if (c>='A') and  (c<='F') then Result := Integer (c) - Integer ('A') + 10;
+  Result := 0;
+  if (c <= '9') and (c >= '0') then
+    Result := integer(c) - integer('0')
+  else if (c >= 'A') and (c <= 'F') then
+    Result := integer(c) - integer('A') + 10;
 end;
 
 function Hex2Color(s: string): TColor; // #xxyyzz -> TColor
 var
   snew: string;
-  l:integer;
+  l: integer;
 begin
-  result:=0;
+  Result := 0;
 
   snew := WideUpperCase(Trim(s));
-  l:=length(snew);
-  if l>=7 then begin
-  Result := Char2Hex(snew[6]) * 16 + Char2Hex(snew[7]);
-  Result := Result * 256;
+  l := Length(snew);
+  if l >= 7 then
+  begin
+    Result := Char2Hex(snew[6]) * 16 + Char2Hex(snew[7]);
+    Result := Result * 256;
   end;
-  if l>=5 then begin
+  if l >= 5 then
+  begin
 
-  Result := Result + Char2Hex(snew[4]) * 16 + Char2Hex(snew[5]);
-  Result := Result * 256;
+    Result := Result + Char2Hex(snew[4]) * 16 + Char2Hex(snew[5]);
+    Result := Result * 256;
   end;
-  if l>3 then
-  Result := Result + Char2Hex(snew[2]) * 16 + Char2Hex(snew[3]);
+  if l > 3 then
+    Result := Result + Char2Hex(snew[2]) * 16 + Char2Hex(snew[3]);
 end;
 
 function Color2Hex(col: TColor): string;
 begin
-  Result := Format('#%.2x%.2x%.2x',
-    [ColorToRGB(col) and $FF,
-    (ColorToRGB(col) and $FF00) shr 8,
-    (ColorToRGB(col) and $FF0000) shr 16]);
+  Result := Format('#%.2x%.2x%.2x', [ColorToRGB(col) and $FF,
+    (ColorToRGB(col) and $FF00) shr 8, (ColorToRGB(col) and $FF0000) shr 16]);
 end;
 
-//!!!   оптимизации: последовательное наращивание длинной строки.
+// !!!   оптимизации: последовательное наращивание длинной строки.
 function ParseHTML(s, HTML: string): string;
 var
   Tokens: TStrings;
-  i, minCharCode, s_length, tmp_max, tmp_ix{, tc}: integer;
+  i, minCharCode, s_length, tmp_max, tmp_ix { , tc } : integer;
   charArrayAccumullator: array of Char;
   useDefaultFilter: boolean;
-  wstr:string;
+  wstr: string;
   procedure grow_tmp();
   begin
-  Inc(tmp_max);
-  tmp_max:=tmp_max*2;
-  SetLength(charArrayAccumullator, tmp_max);
-  dec(tmp_max);
-  //FillChar(tmp[tmp_ix+1], tmp_max, 0);
+    Inc(tmp_max);
+    tmp_max := tmp_max * 2;
+    SetLength(charArrayAccumullator, tmp_max);
+    dec(tmp_max);
+    // FillChar(tmp[tmp_ix+1], tmp_max, 0);
   end;
+
 begin
   useDefaultFilter := (HTML = DefaultHTMLFilter);
 
@@ -529,79 +557,99 @@ begin
 
   Tokens := TStringList.Create;
   try
-  i := 0;
-  tmp_max:=1024;
-  tmp_ix:=0;
-  SetLength(charArrayAccumullator, tmp_max);
-  Dec(tmp_max);
-//  FillChar(Pointer(tmp)^, tmp_max*2, 0);
-  minCharCode := 65535;
-  s_length:=Length(s);
-  //tc:=GetTickCount();
-  repeat
-    Inc(i);
+    i := 0;
+    tmp_max := 1024;
+    tmp_ix := 0;
+    SetLength(charArrayAccumullator, tmp_max);
+    dec(tmp_max);
+    // FillChar(Pointer(tmp)^, tmp_max*2, 0);
+    minCharCode := 65535;
+    s_length := Length(s);
+    // tc:=GetTickCount();
+    repeat
+      Inc(i);
 
-    if s[i] = '<' then
-    begin
-      charArrayAccumullator[tmp_ix]:=#0; inc(tmp_ix);
-      if tmp_ix>=tmp_max then grow_tmp();
-      wstr:=PWideChar(Pointer(charArrayAccumullator));
-      Tokens.AddObject(wstr, Pointer(0));
+      if s[i] = '<' then
+      begin
+        charArrayAccumullator[tmp_ix] := #0;
+        Inc(tmp_ix);
+        if tmp_ix >= tmp_max then
+          grow_tmp();
+        wstr := PWideChar(Pointer(charArrayAccumullator));
+        Tokens.AddObject(wstr, Pointer(0));
 
-      minCharCode := 65535;
-      tmp_ix:=0;
-      charArrayAccumullator[tmp_ix] := '<';
-      Inc(tmp_ix);
-      if tmp_ix>=tmp_max then grow_tmp();
-      continue;
-    end;
-
-    if s[i] = '>' then
-    begin
-      charArrayAccumullator[tmp_ix]:='>'; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
-      charArrayAccumullator[tmp_ix]:=#0; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
-      if charArrayAccumullator[0]<>#0 then begin
-        wstr:=PWideChar(@charArrayAccumullator[0]);
-        if (minCharCode <= Integer ('z'))
-        then Tokens.AddObject(wstr, Pointer(1))
-        else Tokens.AddObject('&lt;' + Copy(wstr,2,Length(wstr)-2) + '&gt;', Pointer(0));
+        minCharCode := 65535;
+        tmp_ix := 0;
+        charArrayAccumullator[tmp_ix] := '<';
+        Inc(tmp_ix);
+        if tmp_ix >= tmp_max then
+          grow_tmp();
+        continue;
       end;
-      // <русское слово> преобразовываетс€ в [русское слово]
-      // компонента браузера не показывает текст типа <русское слово>
 
-      minCharCode := 65535;
-      //tmp := '';
-      tmp_ix:=0;
-      continue;
-    end else
+      if s[i] = '>' then
+      begin
+        charArrayAccumullator[tmp_ix] := '>';
+        Inc(tmp_ix);
+        if tmp_ix >= tmp_max then
+          grow_tmp();
+        charArrayAccumullator[tmp_ix] := #0;
+        Inc(tmp_ix);
+        if tmp_ix >= tmp_max then
+          grow_tmp();
+        if charArrayAccumullator[0] <> #0 then
+        begin
+          wstr := PWideChar(@charArrayAccumullator[0]);
+          if (minCharCode <= integer('z')) then
+            Tokens.AddObject(wstr, Pointer(1))
+          else
+            Tokens.AddObject('&lt;' + Copy(wstr, 2, Length(wstr) - 2) + '&gt;',
+              Pointer(0));
+        end;
+        // <русское слово> преобразовываетс€ в [русское слово]
+        // компонента браузера не показывает текст типа <русское слово>
 
-    if (s[i] <> ' ') and (s[i] <> #9) and (Integer (s[i]) < minCharCode) then
-      minCharCode := Integer (s[i]);
+        minCharCode := 65535;
+        // tmp := '';
+        tmp_ix := 0;
+        continue;
+      end
+      else
 
-    charArrayAccumullator[tmp_ix] :=s[i]; //Copy(s,i,1);
-    inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
-  until i >=s_length ;
+        if (s[i] <> ' ') and (s[i] <> #9) and (integer(s[i]) < minCharCode) then
+          minCharCode := integer(s[i]);
 
-  charArrayAccumullator[tmp_ix]:=#0; inc(tmp_ix); if tmp_ix>=tmp_max then grow_tmp();
-  wstr:=PWideChar(@charArrayAccumullator[0]);
-  Tokens.AddObject(wstr, Pointer(0));
-//  tc:=Integer(GetTickCount())-tc;
-  Result := '';
-//   tc:=GetTickCount();
+      charArrayAccumullator[tmp_ix] := s[i]; // Copy(s,i,1);
+      Inc(tmp_ix);
+      if tmp_ix >= tmp_max then
+        grow_tmp();
+    until i >= s_length;
 
-  for i := 0 to Tokens.Count-1 do
-  begin
-    if useDefaultFilter then
-      wstr := WideLowerCase(Tokens[i])
-    else
-      wstr := FirstWord(WideLowerCase(Tokens[i]));
+    charArrayAccumullator[tmp_ix] := #0;
+    Inc(tmp_ix);
+    if tmp_ix >= tmp_max then
+      grow_tmp();
+    wstr := PWideChar(@charArrayAccumullator[0]);
+    Tokens.AddObject(wstr, Pointer(0));
+    // tc:=Integer(GetTickCount())-tc;
+    Result := '';
+    // tc:=GetTickCount();
 
-    if (Integer(Tokens.Objects[i]) <> 1)
-    or (Pos(wstr,HTML) <> 0)
-    then Result := Result + Tokens[i];
+    for i := 0 to Tokens.Count - 1 do
+    begin
+      if useDefaultFilter then
+        wstr := WideLowerCase(Tokens[i])
+      else
+        wstr := FirstWord(WideLowerCase(Tokens[i]));
+
+      if (integer(Tokens.Objects[i]) <> 1) or (Pos(wstr, HTML) <> 0) then
+        Result := Result + Tokens[i];
+    end;
+    // tc:=Integer(GetTickCount())-tc;
+  finally
+    SetLength(charArrayAccumullator, 0);
+    Tokens.Free;
   end;
-//  tc:=Integer(GetTickCount())-tc;
-  finally  SetLength(charArrayAccumullator,0); Tokens.Free; end;
 end;
 
 function Get_ANAME_VerseNumber(const s: string; start, iPos: integer): integer;
@@ -616,43 +664,58 @@ begin
     len := Length(sign);
 
     anamepos := Pos(sign, s);
-    if (anamepos = 0) or (anamepos >= iPos-len) then break;
+    if (anamepos = 0) or (anamepos >= iPos - len) then
+      break;
     Inc(i);
   until false;
 
-  Result := i-1;
-  if Result < 1 then Result := 1;
+  Result := i - 1;
+  if Result < 1 then
+    Result := 1;
 end;
- {AlekId}
-function Get_AHREF_VerseCommand(const s: string;  iPos: integer): string;
+
+{ AlekId }
+function Get_AHREF_VerseCommand(const s: string; iPos: integer): string;
 var
-  anamepos,  i, searchpos: integer;
+  anamepos, i, searchpos: integer;
   sign: string;
-  label found;
+label found;
 begin
-  searchpos:=1;
+  searchpos := 1;
   sign := '<a href="';
 
   repeat
 
-    anamepos := PosEx (sign, s, searchpos);
-    if anamepos>0 then begin
-    if (anamepos > iPos) then break
-    else if anamepos=iPos then begin searchpos:=anamepos+1; break; end;
-    searchpos:=anamepos+1;
+    anamepos := PosEx(sign, s, searchpos);
+    if anamepos > 0 then
+    begin
+      if (anamepos > iPos) then
+        break
+      else if anamepos = iPos then
+      begin
+        searchpos := anamepos + 1;
+        break;
+      end;
+      searchpos := anamepos + 1;
     end;
 
-  until (anamepos=0);
-if  (searchpos=0) then begin result:=''; exit; end;
+  until (anamepos = 0);
+  if (searchpos = 0) then
+  begin
+    Result := '';
+    Exit;
+  end;
 
-    i:=PosEx('">',s, searchpos);
-    if i>0 then begin
-      result:=copy(s,searchpos+8,i-searchpos-8);
-      exit;
-    end;
+  i := PosEx('">', s, searchpos);
+  if i > 0 then
+  begin
+    Result := Copy(s, searchpos + 8, i - searchpos - 8);
+    Exit;
+  end;
 end;
-{/ALekID}
-procedure AddLine (var rResult: string; const aLine: string);
+
+{ /ALekID }
+procedure AddLine(var rResult: string; const aLine: string);
 begin
   if rResult = '' then
     rResult := aLine
@@ -660,28 +723,28 @@ begin
     rResult := rResult + #13#10 + aLine;
 end;
 
-function LatCharToLower (aChar: AnsiChar): AnsiChar; overload;
+function LatCharToLower(aChar: AnsiChar): AnsiChar; overload;
 begin
   if (aChar >= 'A') and (aChar <= 'Z') then
-    Result := AnsiChar (Byte (aChar) + 32)
+    Result := AnsiChar(Byte(aChar) + 32)
   else
     Result := aChar;
 end;
 
-function LatCharToLower (aChar: Char): Char; overload;
+function LatCharToLower(aChar: Char): Char; overload;
 begin
   if (aChar >= 'A') and (aChar <= 'Z') then
-    Result := Char (Word (aChar) + 32)
+    Result := Char(Word(aChar) + 32)
   else
     Result := aChar;
 end;
 
-function PosCIL (aSubString: AnsiString; const aString: AnsiString; aStartPos: Integer = 1): Integer; overload;
+function PosCIL(aSubString: AnsiString; const aString: AnsiString; aStartPos: integer = 1): integer; overload;
 var
-  dLength: Integer;
-  dSubLength: Integer;
-  dPos: Integer;
-  dPos2: Integer;
+  dLength: integer;
+  dSubLength: integer;
+  dPos: integer;
+  dPos2: integer;
   dFirstChar: AnsiChar;
 
 label
@@ -689,23 +752,25 @@ label
 begin
   Result := 0;
 
-  dSubLength := Length (aSubString);
-  dLength := Length (aString);
-  if dSubLength = 0 then Exit;
-  if aStartPos + dSubLength - 1 > dLength then Exit;
+  dSubLength := Length(aSubString);
+  dLength := Length(aString);
+  if dSubLength = 0 then
+    Exit;
+  if aStartPos + dSubLength - 1 > dLength then
+    Exit;
 
   for dPos := 1 to dSubLength do
-    aSubString [dPos] := LatCharToLower (aSubString [dPos]);
+    aSubString[dPos] := LatCharToLower(aSubString[dPos]);
 
-  dFirstChar := aSubString [1];
+  dFirstChar := aSubString[1];
 
   dLength := dLength - dSubLength + 1;
   for dPos := aStartPos to dLength do
   begin
-    if LatCharToLower (aString [dPos]) = dFirstChar then
+    if LatCharToLower(aString[dPos]) = dFirstChar then
     begin
       for dPos2 := 2 to dSubLength do
-        if LatCharToLower (aString [dPos + dPos2 - 1]) <> aSubString [dPos2] then
+        if LatCharToLower(aString[dPos + dPos2 - 1]) <> aSubString[dPos2] then
           Goto NextFirstChar;
 
       Result := dPos;
@@ -713,17 +778,17 @@ begin
 
     end;
 
-NextFirstChar:
+  NextFirstChar:
   end;
 
 end;
 
-function PosCIL (aSubString: string; const aString: string; aStartPos: Integer = 1): Integer; overload;
+function PosCIL(aSubString: string; const aString: string; aStartPos: integer = 1): integer; overload;
 var
-  dLength: Integer;
-  dSubLength: Integer;
-  dPos: Integer;
-  dPos2: Integer;
+  dLength: integer;
+  dSubLength: integer;
+  dPos: integer;
+  dPos2: integer;
   dFirstChar: Char;
 
 label
@@ -731,23 +796,25 @@ label
 begin
   Result := 0;
 
-  dSubLength := Length (aSubString);
-  dLength := Length (aString);
-  if dSubLength = 0 then Exit;
-  if aStartPos + dSubLength - 1 > dLength then Exit;
+  dSubLength := Length(aSubString);
+  dLength := Length(aString);
+  if dSubLength = 0 then
+    Exit;
+  if aStartPos + dSubLength - 1 > dLength then
+    Exit;
 
   for dPos := 1 to dSubLength do
-    aSubString [dPos] := LatCharToLower (aSubString [dPos]);
+    aSubString[dPos] := LatCharToLower(aSubString[dPos]);
 
-  dFirstChar := aSubString [1];
+  dFirstChar := aSubString[1];
 
   dLength := dLength - dSubLength + 1;
   for dPos := aStartPos to dLength do
   begin
-    if LatCharToLower (aString [dPos]) = dFirstChar then
+    if LatCharToLower(aString[dPos]) = dFirstChar then
     begin
       for dPos2 := 2 to dSubLength do
-        if LatCharToLower (aString [dPos + dPos2 - 1]) <> aSubString [dPos2] then
+        if LatCharToLower(aString[dPos + dPos2 - 1]) <> aSubString[dPos2] then
           Goto NextFirstChar;
 
       Result := dPos;
@@ -755,30 +822,41 @@ begin
 
     end;
 
-NextFirstChar:
+  NextFirstChar:
   end;
 
 end;
 
-procedure TrimNullTerminatedString (var aString: string);
+procedure TrimNullTerminatedString(var aString: string);
 var
-  dPos: Integer;
+  dPos: integer;
 begin
-  dPos := Pos (#0, aString);
+  dPos := Pos(#0, aString);
   if dPos > 0 then
-    SetLength (aString, dPos - 1);  
+    SetLength(aString, dPos - 1);
 end;
 
- function GetMyDocuments: string;
- var
-    r: Bool;
-    path: array[0..Max_Path] of Char;
- begin
-    r := ShGetSpecialFolderPath(0, path, CSIDL_Personal, False) ;
-    if not r then
-      Result :='C:\TEMP'
-    else
-    Result := Path;
- end;
+function GetMyDocuments: string;
+var
+  r: Bool;
+  path: array [0 .. Max_Path] of Char;
+begin
+  r := ShGetSpecialFolderPath(0, path, CSIDL_Personal, false);
+  if not r then
+    Result := 'C:\TEMP'
+  else
+    Result := path;
+end;
+
+function FindPosition(const sourceString, findString: string; const startPos: integer; options: TStringSearchOptions): integer;
+var
+  pResult, buf: PChar;
+begin
+  Result := 0;
+  buf := PChar(sourceString);
+  pResult := SearchBuf(buf, Length(sourceString), startPos, Length(findString), findString, options);
+  if pResult <> nil then
+    Result := (pResult - PChar(sourceString)) + 1;
+end;
 
 end.
