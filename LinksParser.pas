@@ -87,9 +87,9 @@ var
   begin
     result := false;
     needAdd := true;
-    defbook:=false;
+    defbook := false;
     try
-      firstComma:=list[ci] = ',';
+      firstComma := list[ci] = ',';
       if (list[ci] = ';') or firstComma then inc(ci);
       Val(list[ci], ival, code);
       if code = 0 then begin
@@ -98,8 +98,7 @@ var
           defBook:=true;
         end else begin
           inc(ci);
-          if (code = 0) or (list[ci] = ':') or (list[ci] = '.') or ((list[ci] =
-            ',')) then begin //second token also digit
+          if (code = 0) or (list[ci] = ':') or (list[ci] = '.') or ((list[ci] = ',')) then begin //second token also digit
             dec(ci, 1);
             if (length(ctxBook) = 0) then exit
             else defBook:=true;
@@ -111,11 +110,13 @@ var
         end
       end else begin ctxBook := list[ci]; inc(ci) end;
 
-       fromverse := 1; toverse := 0; colonUsed := false; commaUsed
-        := false;
+      fromverse := 1;
+      toverse := 0;
+      colonUsed := false;
+      commaUsed := false;
       result := true;
       if not (firstComma and defBook) then begin
-        chapter:=1;
+        chapter := 1;
         chapter := StrToIntDef(list[ci], -1);
         if chapter = -1 then chapter := 1
         else begin inc(ci);
@@ -135,17 +136,21 @@ var
           fromverse := ival;
           result := true;
           needAdd := true;
-          commaUsed := list[ci] = ',';
-          if commaUsed then begin
-            Links.Add(WideFormat('%s %d:%d', [ctxBook, chapter, fromverse]));
+          commaUsed := (ci < list.Count) and (list[ci] = ',');
+          if commaUsed then
+          begin
+            Links.Add(Format('%s %d:%d', [ctxBook, chapter, fromverse]));
             inc(ci);
             needAdd := false;
-     //result:=false;
           end
-          else begin
+          else
+          begin
             needAdd := true;
-            if (list[ci] = '-') then inc(ci);
-            fset := true; end;
+            if ((ci < list.Count) and (list[ci] = '-')) then
+              inc(ci);
+
+            fset := true;
+          end;
         end
         else begin
           if ival <= fromverse then begin
@@ -155,7 +160,7 @@ var
           toverse := ival; break;
 
         end;
-      until (list[ci] = ';');
+      until ((ci >= list.Count) or (list[ci] = ';'));
 
     except end;
   end;
@@ -172,9 +177,9 @@ begin
     pl := parselink(addRslt);
     if pl and addRslt then
       if toverse = 0 then
-        Links.Add(WideFormat('%s %d:%d', [ctxBook, chapter, fromverse]))
+        Links.Add(Format('%s %d:%d', [ctxBook, chapter, fromverse]))
       else
-        Links.Add(WideFormat('%s %d:%d-%d', [ctxBook, chapter, fromverse, toverse]));
+        Links.Add(Format('%s %d:%d-%d', [ctxBook, chapter, fromverse, toverse]));
 
   until (ci >= list.Count) or (not pl);
 

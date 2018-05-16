@@ -222,7 +222,6 @@ type
     btnFind: TButton;
     tbGo: TTabSheet;
     pnlGo: TPanel;
-    edtGo: TEdit;
     chkAll: TCheckBox;
     chkPhrase: TCheckBox;
     chkParts: TCheckBox;
@@ -248,7 +247,6 @@ type
     splMain: TSplitter;
     lbBook: TListBox;
     lbChapter: TListBox;
-    btnAddressOK: TButton;
     miMemoPaste: TMenuItem;
     pgcHistoryBookmarks: TPageControl;
     tbHistory: TTabSheet;
@@ -386,7 +384,6 @@ type
     miCloseAllOtherTabs: TMenuItem;
     tmCommon: TTimer;
     miVerseHighlightBG: TMenuItem;
-    btbtnHelp: TBitBtn;
     ilPictures24: TImageList;
     miMyLibrary: TMenuItem;
     cbTagsFilter: TComboBox;
@@ -413,6 +410,10 @@ type
     tbtnSep08: TToolButton;
     tbtnMatchCase: TToolButton;
     tbtnMatchWholeWord: TToolButton;
+    tbtnSep09: TToolButton;
+    tedtReference: TEdit;
+    tbtnReference: TToolButton;
+    tbtnReferenceInfo: TToolButton;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
     procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
       state: TDragState; var Accept: Boolean);
@@ -712,6 +713,12 @@ type
     procedure tbtnQuickSearchClick(Sender: TObject);
     procedure tbtnQuickSearchPrevClick(Sender: TObject);
     procedure tbtnQuickSearchNextClick(Sender: TObject);
+    procedure tbtnReferenceInfoClick(Sender: TObject);
+    procedure tedtReferenceDblClick(Sender: TObject);
+    procedure tbtnReferenceClick(Sender: TObject);
+    procedure tedtReferenceChange(Sender: TObject);
+    procedure tedtReferenceEnter(Sender: TObject);
+    procedure tedtReferenceKeyPress(Sender: TObject; var Key: Char);
 
     // procedure tbAddBibleLinkClick(Sender: TObject);
     // procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -937,6 +944,8 @@ type
   procedure ToggleQuickSearchPanel(const enable: Boolean);
   procedure SearchForward();
   procedure SearchBackward();
+  procedure ShowReferenceInfo();
+  procedure GoReference();
 
   public
     mHandCur: TCursor;
@@ -3369,7 +3378,7 @@ begin
   if not pgcMain.Visible then
     tbtnToggle.Click;
   pgcMain.ActivePage := tbGo;
-  ActiveControl := edtGo;
+  ActiveControl := tedtReference;
 end;
 
 procedure TMainForm.CopySelectionClick(Sender: TObject);
@@ -3767,7 +3776,7 @@ end;
 
 procedure TMainForm.btnAddressOKClick(Sender: TObject);
 begin
-  edtGoDblClick(Sender);
+  GoReference();
 end;
 
 procedure TMainForm.GoPrevChapter;
@@ -5139,7 +5148,7 @@ begin
       else
       begin
         // exit from edtGo (F2) or cbSearch (F3) to Browser
-        if (ActiveControl = edtGo) or (ActiveControl = cbSearch) then
+        if (ActiveControl = tedtReference) or (ActiveControl = cbSearch) then
           ActiveControl := bwrHtml;
 
         // Application.Minimize;
@@ -5815,115 +5824,14 @@ begin
 end;
 
 procedure TMainForm.edtGoDblClick(Sender: TObject);
-var
-  book, chapter, fromverse, toverse: integer;
-  linktxt: string;
-  Links: TStrings;
-  i, fc: integer;
-  openSuccess: Boolean;
-  modName, modPath: string;
-  moduleEntry: TModuleEntry;
-label lblTail;
 begin
-  if Trim(edtGo.Text) = '' then
-    Exit;
-
-  linktxt := edtGo.Text;
-  StrReplace(linktxt, '(', '', true);
-  StrReplace(linktxt, ')', '', true);
-  StrReplace(linktxt, '[', '', true);
-  StrReplace(linktxt, ']', '', true);
-  StrReplace(linktxt, '!', '', true);
-
-  Links := TStringList.Create;
-  try
-    StrToLinks(linktxt, Links);
-
-    if Links.Count <= 0 then
-    begin
-      MessageBeep(MB_ICONERROR);
-      goto lblTail
-    end
-    else if Links.Count > 1 then
-    begin
-
-      cbLinks.Items.Clear;
-      for i := 0 to Links.Count - 1 do
-        cbLinks.Items.Add(Links[i]);
-      cbLinks.ItemIndex := 0;
-    end;
-
-    // ComplexLinksPanel.Visible := (Links.Count > 1);
-    tbLinksToolBar.Visible { cbLinks.Visible } := (Links.Count > 1);
-
-    edtGo.Text := Links[0];
-
-    openSuccess := MainBook.OpenReference(edtGo.Text, book, chapter,
-      fromverse, toverse);
-    if not openSuccess then
-    begin
-      fc := mFavorites.mModuleEntries.Count - 1;
-      if not Assigned(tempBook) then
-        tempBook := TBible.Create(self);
-      for i := 0 to fc do
-      begin
-        try
-          tempBook.inifile :=
-            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i])
-            .wsShortPath + '\bibleqt.ini');
-          openSuccess := tempBook.OpenReference(edtGo.Text, book, chapter,
-            fromverse, toverse);
-          if openSuccess then
-          begin
-            MainBook.inifile := tempBook.inifile;
-            break;
-          end;
-        except
-        end;
-
-      end;
-      if not openSuccess then
-      begin
-        // fc := mModules.Mo //Bibles.Count - 1;
-        moduleEntry := mModules.ModTypedAsFirst(modtypeBible);
-        while Assigned(moduleEntry) do
-        // for i := 0 to fc do
-        begin
-          try
-
-            modName := moduleEntry.wsFullName;
-
-            // pp := Pos(' $$$ ', mModules[ix]);
-            // modPath := Copy(ModulesList[ix], pp + 5, Length(ModulesList[ix]));
-            modPath := moduleEntry.wsShortPath;
-            tempBook.inifile := MainFileExists(TPath.Combine(modPath, 'bibleqt.ini'));
-            openSuccess := tempBook.OpenReference(edtGo.Text, book, chapter, fromverse, toverse);
-            if openSuccess then
-            begin
-              MainBook.inifile := tempBook.inifile;
-              break;
-            end;
-          except
-          end;
-          moduleEntry := mModules.ModTypedAsNext(modtypeBible);
-        end;
-
-      end;
-    end;
-    if openSuccess then
-      SafeProcessCommand(Format('go %s %d %d %d %d', [MainBook.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
-    else
-      SafeProcessCommand(edtGo.Text, hlDefault);
-  lblTail:
-  finally
-    Links.Free;
-  end;
+  GoReference();
 end;
 
 procedure TMainForm.edtGoEnter(Sender: TObject);
 begin
   // edtGo.SelectAll();
-  PostMessageW(edtGo.Handle, EM_SETSEL, 0, -1);
+  PostMessageW(tedtReference.Handle, EM_SETSEL, 0, -1);
 end;
 
 procedure TMainForm.edtGoChange(Sender: TObject);
@@ -8169,12 +8077,12 @@ procedure TMainForm.cbLinksChange(Sender: TObject);
 var
   book, chapter, fromverse, toverse: integer;
 begin
-  edtGo.Text := cbLinks.Items[cbLinks.ItemIndex];
+  tedtReference.Text := cbLinks.Items[cbLinks.ItemIndex];
 
-  if MainBook.OpenReference(edtGo.Text, book, chapter, fromverse, toverse) then
+  if MainBook.OpenReference(tedtReference.Text, book, chapter, fromverse, toverse) then
     ProcessCommand(Format('go %s %d %d %d %d', [MainBook.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
   else
-    ProcessCommand(edtGo.Text, hlDefault);
+    ProcessCommand(tedtReference.Text, hlDefault);
 end;
 
 function TMainForm.DefaultLocation: string;
@@ -8312,7 +8220,7 @@ begin
       ProcessCommand(ConcreteCmd, hlDefault)
     else
     begin
-      edtGo.Text := SRC; // AlekId: и все дела!
+      tedtReference.Text := SRC; // AlekId: и все дела!
       edtGoDblClick(nil);
     end
   end;
@@ -8354,7 +8262,7 @@ begin
       ProcessCommand(ConcreteCmd, hlDefault)
     else
     begin
-      edtGo.Text := cmd; // AlekId: и все дела!
+      tedtReference.Text := cmd; // AlekId: и все дела!
       edtGoDblClick(nil);
     end;
   end;
@@ -8632,6 +8540,16 @@ begin
   ShowQNav();
 end;
 
+procedure TMainForm.tbtnReferenceClick(Sender: TObject);
+begin
+  GoReference();
+end;
+
+procedure TMainForm.tbtnReferenceInfoClick(Sender: TObject);
+begin
+  ShowReferenceInfo();
+end;
+
 procedure TMainForm.tbtnResolveLinksClick(Sender: TObject);
 begin
   miRecognizeBibleLinks.Click();
@@ -8717,6 +8635,30 @@ end;
 procedure TMainForm.tbtnToggleClick(Sender: TObject);
 begin
   pgcMain.Visible := not pgcMain.Visible;
+end;
+
+procedure TMainForm.tedtReferenceChange(Sender: TObject);
+begin
+  AddressFromMenus := false;
+end;
+
+procedure TMainForm.tedtReferenceDblClick(Sender: TObject);
+begin
+  GoReference();
+end;
+
+procedure TMainForm.tedtReferenceEnter(Sender: TObject);
+begin
+  PostMessageW(tedtReference.Handle, EM_SETSEL, 0, -1);
+end;
+
+procedure TMainForm.tedtReferenceKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    Key := #0;
+    edtGoDblClick(Sender);
+  end;
 end;
 
 procedure TMainForm.cbModulesChange(Sender: TObject);
@@ -8983,6 +8925,143 @@ var
   pn: PVirtualNode;
 begin
   Result := DicSelectedItemIndex(pn);
+end;
+
+procedure TMainForm.GoReference();
+  var
+  book, chapter, fromverse, toverse: integer;
+  linktxt: string;
+  Links: TStrings;
+  i, fc: integer;
+  openSuccess: Boolean;
+  modName, modPath: string;
+  moduleEntry: TModuleEntry;
+label lblTail;
+begin
+  if Trim(tedtReference.Text) = '' then
+    Exit;
+
+  linktxt := tedtReference.Text;
+  StrReplace(linktxt, '(', '', true);
+  StrReplace(linktxt, ')', '', true);
+  StrReplace(linktxt, '[', '', true);
+  StrReplace(linktxt, ']', '', true);
+  StrReplace(linktxt, '!', '', true);
+
+  Links := TStringList.Create;
+  try
+    StrToLinks(linktxt, Links);
+
+    if Links.Count <= 0 then
+    begin
+      MessageBeep(MB_ICONERROR);
+      goto lblTail
+    end
+    else if Links.Count > 1 then
+    begin
+
+      cbLinks.Items.Clear;
+      for i := 0 to Links.Count - 1 do
+        cbLinks.Items.Add(Links[i]);
+      cbLinks.ItemIndex := 0;
+    end;
+
+    tbLinksToolBar.Visible := (Links.Count > 1);
+    tedtReference.Text := Links[0];
+    openSuccess := MainBook.OpenReference(tedtReference.Text, book, chapter, fromverse, toverse);
+
+    if not openSuccess then
+    begin
+      fc := mFavorites.mModuleEntries.Count - 1;
+
+      if not Assigned(tempBook) then
+        tempBook := TBible.Create(self);
+
+      for i := 0 to fc do
+      begin
+        try
+          tempBook.inifile :=
+            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).wsShortPath + '\bibleqt.ini');
+
+          openSuccess := tempBook.OpenReference(tedtReference.Text, book, chapter, fromverse, toverse);
+
+          if openSuccess then
+          begin
+            MainBook.inifile := tempBook.inifile;
+            break;
+          end;
+        except
+        end;
+
+      end;
+      if not openSuccess then
+      begin
+        moduleEntry := mModules.ModTypedAsFirst(modtypeBible);
+        while Assigned(moduleEntry) do
+        begin
+          try
+
+            modName := moduleEntry.wsFullName;
+
+            modPath := moduleEntry.wsShortPath;
+            tempBook.inifile := MainFileExists(TPath.Combine(modPath, 'bibleqt.ini'));
+            openSuccess := tempBook.OpenReference(tedtReference.Text, book, chapter, fromverse, toverse);
+            if openSuccess then
+            begin
+              MainBook.inifile := tempBook.inifile;
+              break;
+            end;
+          except
+          end;
+          moduleEntry := mModules.ModTypedAsNext(modtypeBible);
+        end;
+
+      end;
+    end;
+    if openSuccess then
+      SafeProcessCommand(Format('go %s %d %d %d %d', [MainBook.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
+    else
+      SafeProcessCommand(tedtReference.Text, hlDefault);
+  lblTail:
+  finally
+    Links.Free;
+  end;
+end;
+
+procedure TMainForm.ShowReferenceInfo;
+var
+  Lines: string;
+  cc: Integer;
+  i: Integer;
+begin
+  Lines := '<body bgcolor=#EBE8E2>';
+  AddLine(Lines, '<h2>' + MainBook.Name + '</h2>');
+  cc := MainBook.Categories.Count - 1;
+
+  if cc >= 0 then
+  begin
+    AddLine(Lines, '<font Size=-1><b>Метки:</b><br><i>' + TokensToStr(MainBook.Categories, '<br>     ', false) + '</i></font><br>');
+  end;
+
+  AddLine(Lines, '<b>Location:</b> ' + Copy(MainBook.path, 1, Length(MainBook.path) - 1) + ' <a href="editini=' + MainBook.path + 'bibleqt.ini">ini</a><br>');
+
+  for i := 1 to MainBook.BookQty do
+    AddLine(Lines, '<b>' + MainBook.FullNames[i] + ':</b> ' + MainBook.ShortNamesVars[i] + '<br>');
+  AddLine(Lines, '<br><br><br>');
+
+  if not Assigned(CopyrightForm) then
+    CopyrightForm := TCopyrightForm.Create(self);
+  CopyrightForm.lblModName.Caption := MainBook.Name;
+
+  if Length(Trim(MainBook.Copyright)) = 0 then
+    CopyrightForm.lblCopyRightNotice.Caption := Lang.Say('PublicDomainText')
+  else
+    CopyrightForm.lblCopyRightNotice.Caption := MainBook.Copyright;
+
+  CopyrightForm.Caption := MainBook.Name;
+  CopyrightForm.bwrCopyright.LoadFromString(Lines);
+  CopyrightForm.ActiveControl := CopyrightForm.bwrCopyright;
+  CopyrightForm.ShowModal;
 end;
 
 procedure TMainForm.SearchBackward();
@@ -10916,7 +10995,7 @@ begin
 
   case pgcMain.ActivePageIndex of
     0:
-      pmMemo.PopupComponent := edtGo;
+      pmMemo.PopupComponent := tedtReference;
     1:
       begin
         pmMemo.PopupComponent := cbSearch;
@@ -11883,19 +11962,20 @@ begin
   InputForm.tag := 0; // use TEdit
   InputForm.Caption := miQuickNav.Caption;
   InputForm.Font := MainForm.Font;
+
   with MainBook do
     if CurFromVerse > 1 then
-      InputForm.edtValue.Text := ShortPassageSignature(CurBook, CurChapter,
-        CurFromVerse, CurToVerse)
+      InputForm.edtValue.Text := ShortPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse)
     else
-      InputForm.edtValue.Text := ShortPassageSignature(CurBook,
-        CurChapter, 1, 0);
+      InputForm.edtValue.Text := ShortPassageSignature(CurBook, CurChapter, 1, 0);
+
   InputForm.edtValue.SelectAll();
+
   if InputForm.ShowModal = mrOk then
   begin
-    edtGo.Text := InputForm.edtValue.Text;
+    tedtReference.Text := InputForm.edtValue.Text;
     InputForm.edtValue.Text := '';
-    btnAddressOK.Click;
+    GoReference();
     ActiveControl := bwrHtml;
   end;
 end;
@@ -12269,7 +12349,7 @@ begin
   NewViewTab(addr, satBible, '', ti.state, '', true);
   if GetCommandType(G_XRefVerseCmd) = bqctInvalid then
   begin
-    edtGo.Text := addr;
+    tedtReference.Text := addr;
     edtGoDblClick(nil);
   end;
 
@@ -12618,42 +12698,9 @@ begin
 end;
 
 procedure TMainForm.btbtnHelpClick(Sender: TObject);
-var
-  Lines: string;
-  i, cc: integer;
 
 begin
-  Lines := '<body bgcolor=#EBE8E2>';
-
-  AddLine(Lines, '<h2>' + MainBook.Name + '</h2>');
-  cc := MainBook.Categories.Count - 1;
-  if cc >= 0 then
-  begin
-    AddLine(Lines, '<font Size=-1><b>Метки:</b><br><i>' +
-      TokensToStr(MainBook.Categories, '<br>     ', false) + '</i></font><br>');
-  end;
-
-  AddLine(Lines, '<b>Location:</b> ' + Copy(MainBook.path, 1,
-    Length(MainBook.path) - 1) + ' <a href="editini=' + MainBook.path +
-    'bibleqt.ini">ini</a><br>');
-  for i := 1 to MainBook.BookQty do
-    AddLine(Lines, '<b>' + MainBook.FullNames[i] + ':</b> ' +
-      MainBook.ShortNamesVars[i] + '<br>');
-
-  AddLine(Lines, '<br><br><br>');
-  if not Assigned(CopyrightForm) then
-    CopyrightForm := TCopyrightForm.Create(self);
-  CopyrightForm.lblModName.Caption := MainBook.Name;
-  if Length(Trim(MainBook.Copyright)) = 0 then
-    CopyrightForm.lblCopyRightNotice.Caption := Lang.Say('PublicDomainText')
-  else
-    CopyrightForm.lblCopyRightNotice.Caption := MainBook.Copyright;
-
-  CopyrightForm.Caption := MainBook.Name;
-  CopyrightForm.bwrCopyright.LoadFromString(Lines);
-  CopyrightForm.ActiveControl := CopyrightForm.bwrCopyright;
-  CopyrightForm.ShowModal;
-
+  ShowReferenceInfo;
 end;
 
 procedure TMainForm.JCRU_HomeClick(Sender: TObject);
