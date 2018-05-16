@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 473
+  ClientHeight = 453
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 24
     Width = 8
-    Height = 449
+    Height = 429
     AutoSnap = False
     MinSize = 100
     OnMoved = splMainMoved
@@ -52,7 +52,7 @@ object MainForm: TMainForm
     Left = 298
     Top = 24
     Width = 583
-    Height = 449
+    Height = 429
     Align = alClient
     Caption = 'pnlMain'
     TabOrder = 0
@@ -60,7 +60,7 @@ object MainForm: TMainForm
       Left = 1
       Top = 1
       Width = 581
-      Height = 426
+      Height = 406
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -86,7 +86,7 @@ object MainForm: TMainForm
         Left = 4
         Top = 6
         Width = 573
-        Height = 416
+        Height = 396
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pnlView'
@@ -99,7 +99,7 @@ object MainForm: TMainForm
           Left = 0
           Top = 54
           Width = 573
-          Height = 362
+          Height = 342
           TabOrder = 0
           Align = alClient
           PopupMenu = pmBrowser
@@ -125,8 +125,6 @@ object MainForm: TMainForm
           OnHotSpotCovered = bwrHtmlHotSpotCovered
           OnImageRequest = bwrHtmlImageRequest
           OnMouseDouble = bwrHtmlMouseDouble
-          ExplicitTop = 55
-          ExplicitHeight = 361
         end
         object pnlViewPageToolbar: TPanel
           Left = 0
@@ -253,13 +251,14 @@ object MainForm: TMainForm
             object tbtnReference: TToolButton
               Left = 329
               Top = 0
-              Caption = 'tbtnReference'
+              Caption = 'Go reference'
               ImageIndex = 50
               OnClick = tbtnReferenceClick
             end
             object tbtnReferenceInfo: TToolButton
               Left = 352
               Top = 0
+              Caption = 'Reference info'
               ImageIndex = 49
               OnClick = tbtnReferenceInfoClick
             end
@@ -332,7 +331,7 @@ object MainForm: TMainForm
     end
     object pnlPaint: TPanel
       Left = 1
-      Top = 427
+      Top = 407
       Width = 581
       Height = 21
       Align = alBottom
@@ -431,7 +430,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 24
     Width = 290
-    Height = 449
+    Height = 429
     Hint = 'Memos'
     ActivePage = tbGo
     Align = alLeft
@@ -512,7 +511,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 165
+        Height = 145
         ActivePage = tbHistory
         Align = alClient
         TabOrder = 1
@@ -522,7 +521,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 136
+            Height = 116
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -542,7 +541,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 26
+            Height = 6
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -554,7 +553,7 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = 26
+            Top = 6
             Width = 274
             Height = 110
             Align = alBottom
@@ -585,7 +584,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 241
+        Height = 221
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -742,7 +741,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 186
+        Height = 166
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -868,7 +867,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 207
+        Height = 187
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -952,7 +951,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 390
+        Height = 370
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -1036,7 +1035,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 25
         Width = 282
-        Height = 366
+        Height = 346
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1052,7 +1051,7 @@ object MainForm: TMainForm
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 391
+        Top = 371
         Width = 282
         Height = 29
         Align = alBottom
@@ -1161,7 +1160,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 282
-        Height = 420
+        Height = 400
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -1210,9 +1209,9 @@ object MainForm: TMainForm
       end
       object vdtTagsVerses: TVirtualDrawTree
         Left = 0
-        Top = 53
+        Top = 52
         Width = 282
-        Height = 367
+        Height = 348
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1982,7 +1981,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800300310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800340310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3740,7 +3739,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C010102000300B40018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000300B80018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
