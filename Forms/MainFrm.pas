@@ -421,9 +421,7 @@ type
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
     procedure CopySelectionClick(Sender: TObject);
-    procedure bwrHtmlHotSpotClick(Sender: TObject; const SRC: string;
-      var Handled: Boolean);
-    procedure btnAddressOKClick(Sender: TObject);
+    procedure bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure ChapterComboBoxKeyPress(Sender: TObject; var Key: Char);
     procedure tbtnPrintClick(Sender: TObject);
     procedure HistoryButtonClick(Sender: TObject);
@@ -431,18 +429,14 @@ type
     procedure OpenButtonClick(Sender: TObject);
     procedure SearchButtonClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure edtGoKeyPress(Sender: TObject; var Key: Char);
     procedure btnFindClick(Sender: TObject);
     procedure MainBookSearchComplete(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure edtGoDblClick(Sender: TObject);
-    procedure edtGoChange(Sender: TObject);
     procedure ChapterComboBoxChange(Sender: TObject);
     procedure bwrHtmlKeyPress(Sender: TObject; var Key: Char);
     procedure miExitClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure bwrHtmlKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure bwrHtmlKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure miFontConfigClick(Sender: TObject);
     procedure miBGConfigClick(Sender: TObject);
     procedure miHrefConfigClick(Sender: TObject);
@@ -571,7 +565,6 @@ type
     procedure trayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
     procedure miMemosToggleClick(Sender: TObject);
-    procedure btbtnHelpClick(Sender: TObject);
     procedure JCRU_HomeClick(Sender: TObject);
     procedure tbtnMemoPrintClick(Sender: TObject);
     procedure splGoMoved(Sender: TObject);
@@ -652,7 +645,6 @@ type
     procedure tmCommonTimer(Sender: TObject);
     procedure miVerseHighlightBGClick(Sender: TObject);
     procedure cbListDropDown(Sender: TObject);
-    procedure edtGoEnter(Sender: TObject);
     procedure tbtnDelNodeClick(Sender: TObject);
     procedure cbSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure vdtTagsVersesCollapsed(Sender: TBaseVirtualTree;
@@ -3774,11 +3766,6 @@ begin
 end;
 (* AlekId:/Добавлено *)
 
-procedure TMainForm.btnAddressOKClick(Sender: TObject);
-begin
-  GoReference();
-end;
-
 procedure TMainForm.GoPrevChapter;
 var
   cmd: string;
@@ -5184,15 +5171,6 @@ begin
   end;
 end;
 
-procedure TMainForm.edtGoKeyPress(Sender: TObject; var Key: Char);
-begin
-  if Key = #13 then
-  begin
-    Key := #0;
-    edtGoDblClick(Sender);
-  end;
-end;
-
 function TMainForm.FavouriteItemFromModEntry(const me: TModuleEntry): TMenuItem;
 var
   favouriteMenuItem: TMenuItem;
@@ -5821,22 +5799,6 @@ begin
     Items.EndUpdate;
     ItemIndex := 0;
   end;
-end;
-
-procedure TMainForm.edtGoDblClick(Sender: TObject);
-begin
-  GoReference();
-end;
-
-procedure TMainForm.edtGoEnter(Sender: TObject);
-begin
-  // edtGo.SelectAll();
-  PostMessageW(tedtReference.Handle, EM_SETSEL, 0, -1);
-end;
-
-procedure TMainForm.edtGoChange(Sender: TObject);
-begin
-  AddressFromMenus := false;
 end;
 
 procedure TMainForm.ChapterComboBoxChange(Sender: TObject);
@@ -8221,7 +8183,7 @@ begin
     else
     begin
       tedtReference.Text := SRC; // AlekId: и все дела!
-      edtGoDblClick(nil);
+      GoReference();
     end
   end;
 end;
@@ -8263,7 +8225,7 @@ begin
     else
     begin
       tedtReference.Text := cmd; // AlekId: и все дела!
-      edtGoDblClick(nil);
+      GoReference();
     end;
   end;
 end;
@@ -8657,7 +8619,7 @@ begin
   if Key = #13 then
   begin
     Key := #0;
-    edtGoDblClick(Sender);
+    GoReference();
   end;
 end;
 
@@ -12350,7 +12312,7 @@ begin
   if GetCommandType(G_XRefVerseCmd) = bqctInvalid then
   begin
     tedtReference.Text := addr;
-    edtGoDblClick(nil);
+    GoReference();
   end;
 
 end;
@@ -12695,12 +12657,6 @@ end;
 procedure TMainForm.miMemosToggleClick(Sender: TObject);
 begin
   SetMemosVisible(miMemosToggle.Checked);
-end;
-
-procedure TMainForm.btbtnHelpClick(Sender: TObject);
-
-begin
-  ShowReferenceInfo;
 end;
 
 procedure TMainForm.JCRU_HomeClick(Sender: TObject);
