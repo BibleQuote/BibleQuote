@@ -8,7 +8,23 @@ uses
 const
   cRussianCodePage = 1251;
 
-  // Read html file with automatic encoding recognition
+type
+  TUTF8EncodingNoBOM = class(TUTF8Encoding)
+  public
+    function GetPreamble: TBytes; override;
+  end;
+
+ type
+  TEncodingNoBOM = class
+  strict private
+    class var
+      FUTF8EncodingNoBOM: TEncoding;
+    class function GetUTF8: TEncoding; static;
+  public
+    class property UTF8: TEncoding read GetUTF8;
+  end;
+
+// Read html file with automatic encoding recognition
 procedure ReadHtmlTo(const aFileName: string; var rResult: TStrings; defaultEncoding: TEncoding); overload;
 procedure ReadHtmlTo(const aFileName: string; var rResult: string; defaultEncoding: TEncoding); overload;
 function ReadHtml(const aFileName: string; defaultEncoding: TEncoding): TStrings;
@@ -42,12 +58,32 @@ function GetEncodingByWinCharSet(aCharSet: Integer): Integer;
 
 function FindEncodingMetatag(const ansiText: string; out rBeginPos: Integer; out rLength: Integer): TEncoding;
 
-function LoadBibleqtIniFileEncoding(const aFileName: string;
-  defaultEncoding: TEncoding): TEncoding;
+function LoadBibleqtIniFileEncoding(const aFileName: string; defaultEncoding: TEncoding): TEncoding;
 
 implementation
 
 uses SevenZipVCL, sevenZipHelper, BibleQuoteUtils;
+
+class function TEncodingNoBOM.GetUTF8: TEncoding;
+var
+  LEncoding: TEncoding;
+begin
+  if FUTF8EncodingNoBOM = nil then
+  begin
+    LEncoding := TUTF8EncodingNoBOM.Create;
+    if AtomicCmpExchange(Pointer(FUTF8EncodingNoBOM), Pointer(LEncoding), nil) <> nil then
+      LEncoding.Free;
+{$IFDEF AUTOREFCOUNT}
+    FUTF8EncodingNoBOM.__ObjAddRef;
+{$ENDIF AUTOREFCOUNT}
+  end;
+  Result := FUTF8EncodingNoBOM;
+end;
+
+function TUTF8EncodingNoBOM.GetPreamble: TBytes;
+begin
+  SetLength(Result, 0);
+end;
 
 function ParseArchived(filename: string; out fileIx, fileSz: Integer): boolean;
 var
@@ -173,7 +209,7 @@ begin
 
   dName := LowerCase(aName);
 
-  if dName = 'utf-8'        then result := TEncoding.UTF8 else
+  if dName = 'utf-8'        then result := TEncodingNoBOM.UTF8 else
   if dName = 'utf-16'       then result := TEncoding.Unicode else
   if dName = 'windows-1251' then codePage := 1251 else
   if dName = 'windows-1252' then codePage := 1252 else
@@ -191,8 +227,7 @@ begin
   if dName = 'iso-8859-7'   then codePage := 28597 else
   if dName = 'iso-8859-8'   then codePage := 28598 else
   if dName = 'iso-8859-9'   then codePage := 28599 else
-  if dName = 'iso-8859-15'  then codePage := 28605 else
-  result := nil;
+  if dName = 'iso-8859-15'  then codePage := 28605;
 
   if result <> nil then
     exit;
@@ -284,7 +319,7 @@ begin
     dPos := dPos2 + 6; // Length ('<meta ')
 
     dLexem := GetLexem(dLCBuffer, dPos);
-    if dLexem <> 'http-equiv' then
+    if CompareText(dLexem, 'http-equiv') <> 0 then
       goto SkipThisTag;
 
     dLexem := GetLexem(dLCBuffer, dPos);
@@ -292,12 +327,12 @@ begin
       goto SkipThisTag;
 
     dLexem := GetLexem(dLCBuffer, dPos);
-    if (dLexem <> '''content-type''') and (dLexem <> '"content-type"') and
-      (dLexem <> 'content-type') then
+    if (CompareText(dLexem, '''content-type''') <> 0) and (CompareText(dLexem, '"content-type"') <> 0)  and
+      (CompareText(dLexem, 'content-type') <> 0) then
       goto SkipThisTag;
 
     dLexem := GetLexem(dLCBuffer, dPos);
-    if dLexem <> 'content' then
+    if CompareText(dLexem, 'content') <> 0 then
       goto SkipThisTag;
 
     dLexem := GetLexem(dLCBuffer, dPos);
@@ -340,7 +375,7 @@ begin
   while (dPos <= dLength) do
   begin
     dLexem := GetLexem(dContentTypeValue, dPos);
-    if dLexem <> 'charset' then
+    if CompareText(dLexem, 'charset') <> 0 then
       Continue;
 
     dLexem := GetLexem(dContentTypeValue, dPos);
@@ -592,13 +627,13 @@ end;
 
 procedure WriteTextFile(const aFileName: string; aContent: TStrings); overload;
 begin
-  TFile.WriteAllLines(aFileName, StringsToArray(aContent), TEncoding.UTF8);
+  TFile.WriteAllLines(aFileName, StringsToArray(aContent), TEncodingNoBOM.UTF8);
 end;
 
 procedure WriteTextFile(const aFileName: string;
   const aContent: string); overload;
 begin
-  TFile.WriteAllText(aFileName, aContent, TEncoding.UTF8);
+  TFile.WriteAllText(aFileName, aContent, TEncodingNoBOM.UTF8);
 end;
 
 procedure WriteHtml(const aFileName: string; const aContent: string);
@@ -607,7 +642,7 @@ var
 begin
   htmlCopy := aContent;
   WriteEncodingMetatagToHtml(htmlCopy);
-  TFile.WriteAllText(aFileName, htmlCopy, TEncoding.UTF8);
+  TFile.WriteAllText(aFileName, htmlCopy, TEncodingNoBOM.UTF8);
 end;
 
 function ReadDictFragment(const aFileName: string; aOffset: Integer; aCount: Integer; defaultEncoding: TEncoding): string;
