@@ -298,6 +298,7 @@ type
       // стандартное сокращение
     PathNames: array[1..MAX_BOOKQTY] of string;
     function GetStucture(): string;
+    function GetDefaultEncoding(): TEncoding;
     function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
     function LinkValidnessStatus(path: string; bl: TBibleLink; internalAddr: boolean = true;checkverse:boolean=true): integer;
     function SyncToBible(const refBible:TBible;const bl:TBibleLink; out outBibleLink):integer;
@@ -326,7 +327,7 @@ type
     property ChapterSign: string read FChapterSign;
     property VerseSign: string read FVerseSign;
 
-    property DefaultEncoding: TEncoding read FDefaultEncoding;
+    property DefaultEncoding: TEncoding read GetDefaultEncoding;
     property DesiredCharset: integer read FDesiredFontCharset;
     property DesiredUIFont:string read mDesiredUIFont;
     property UseRightAlignment: boolean read FUseRightAlignment;
@@ -549,6 +550,14 @@ begin
   result := StringReplace(bookNames.Text, #$D#$A, '|', [rfReplaceAll]);
 end;
 
+function TBible.GetDefaultEncoding(): TEncoding;
+begin
+  if Assigned(FDefaultEncoding) then
+    Result := FDefaultEncoding
+  else
+    Result := TEncoding.GetEncoding(1251);
+end;
+
 function TBible.getTraitState(trait: TbqModuleTrait): boolean;
 begin
 result:=trait in mTraits;
@@ -621,7 +630,7 @@ begin
 
   try
     FDefaultEncoding := LoadBibleqtIniFileEncoding(fileName, TEncoding.GetEncoding(1251));
-    s := ReadTextFileLines(fileName, FDefaultEncoding);
+    s := ReadTextFileLines(fileName, DefaultEncoding);
 
   except
     on ex: TBQException do begin
@@ -946,7 +955,7 @@ begin
   if (book<=0) or (book>BookQty) or (chapter<=0) or (chapter>ChapterQtys[book]) then begin
   result:=false; exit;
   end;
-  ReadHtmlTo(FPath + PathNames[book], BookLines, TEncoding.GetEncoding(1251));
+  ReadHtmlTo(FPath + PathNames[book], BookLines, DefaultEncoding);
 
   ichapter := 0;
 
@@ -1140,7 +1149,7 @@ begin
     tmpwords.AddStrings(words);
   end;
 
-  ReadHtmlTo(FPath + PathNames[book], BookLines, FDefaultEncoding);
+  ReadHtmlTo(FPath + PathNames[book], BookLines, DefaultEncoding);
 
   // if the whole book doesn't have matches, just skip it
   if not SearchOK(BookLines.Text, tmpwords, newparams or $F0) then Exit;
@@ -1548,7 +1557,7 @@ begin
 
   slines := nil;
   try
-    slines := ReadHtml(FPath + PathNames[book], FDefaultEncoding);
+    slines := ReadHtml(FPath + PathNames[book], DefaultEncoding);
 
     i := 0;
     count := 0;

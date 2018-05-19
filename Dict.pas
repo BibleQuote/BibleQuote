@@ -18,7 +18,7 @@ type TDict = class(TObject)
   public
     constructor Create;
     destructor Destroy(); override;
-    function Initialize(IndexFile, DictFile: string; background:boolean=false): boolean;
+    function Initialize(IndexFile, DictFile: string; background: boolean = false): boolean;
     function Lookup(wrd: string): string; // lookup a word in dictionary...
 
     property Initialized:boolean read FInitialized;
@@ -51,9 +51,7 @@ begin
   inherited;
 end;
 
-function TDict.Initialize(IndexFile, DictFile: string; background:boolean=false): boolean;
-
-
+function TDict.Initialize(IndexFile, DictFile: string; background: boolean = false): boolean;
 begin
 try
 

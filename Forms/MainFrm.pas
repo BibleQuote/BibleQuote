@@ -3471,14 +3471,12 @@ begin
   begin
     if WStrMessageBox(Format(Lang.Say('GoingOnline'), [unicodeSRC]), 'WWW',
       MB_OKCancel + MB_DEFBUTTON1) = ID_OK then
-      ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil,
-        SW_NORMAL);
+      ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil, SW_NORMAL);
     Handled := true;
   end
   else if Pos('mailto:', unicodeSRC) = 1 then
   begin
-    ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil,
-      SW_NORMAL);
+    ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil, SW_NORMAL);
     Handled := true;
   end
   else if Pos('verse ', unicodeSRC) = 1 then
@@ -4462,7 +4460,6 @@ end;
 function TMainForm.ProcessCommand(s: string; hlVerses: TbqHLVerseOption): Boolean;
 var
   value, dup, path, oldPath, ConcreteCmd: string;
-  // book, chapter, fromverse, toverse, focusVerse: integer;
   focusVerse: integer;
   i, j, oldbook, oldchapter, status: integer;
   wasSearchHistory, wasFile: Boolean;
@@ -4659,7 +4656,6 @@ begin
       end;
 
       bwrHtml.Base := ExtractFilePath(path);
-
       ReadHtmlTo(path, dBrowserSource, TEncoding.GetEncoding(1251));
 
       if wasSearchHistory then
@@ -6045,8 +6041,7 @@ end;
   end;//if sz
   end; }
 
-function TMainForm.LoadAnchor(wb: THTMLViewer;
-  SRC, current, loc: string): Boolean;
+function TMainForm.LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
 var
   i: integer;
   dest: string;
@@ -6075,7 +6070,7 @@ begin
       wb.PositionTo(dest)
     else
     begin
-      ext := WideUpperCase(ExtractFileExt(SRC));
+      ext := UpperCase(ExtractFileExt(SRC));
       if (ext = '.HTM') or (ext = '.HTML') then
       begin { an html file }
         if Assigned(ti) and ti[vtisResolveLinks] then
@@ -6084,10 +6079,9 @@ begin
             Exit;
           try
 
-            wstrings := ReadHtml(SRC, TEncoding.GetEncoding(1251));
+            wstrings := ReadHtml(SRC, ti.mBible.DefaultEncoding);
 
-            wsResolvedTxt := ResolveLnks(wstrings.Text,
-              ti[vtisFuzzyResolveLinks]);
+            wsResolvedTxt := ResolveLnks(wstrings.Text, ti[vtisFuzzyResolveLinks]);
             wb.LoadFromString(wsResolvedTxt);
             wb.PositionTo(dest);
             wb.__SetFileName(SRC);
@@ -6102,8 +6096,7 @@ begin
 
       end
       // wb.AddVisitedLink(S+Dest);
-      else if (ext = '.BMP') or (ext = '.GIF') or (ext = '.JPG') or
-        (ext = '.JPEG') or (ext = '.PNG') then
+      else if (ext = '.BMP') or (ext = '.GIF') or (ext = '.JPG') or (ext = '.JPEG') or (ext = '.PNG') then
         wb.LoadImageFile(SRC);
     end;
     Result := true;
