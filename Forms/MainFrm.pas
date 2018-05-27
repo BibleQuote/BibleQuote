@@ -542,13 +542,8 @@ type
     procedure tbtnNextChapterClick(Sender: TObject);
     procedure tbtnPrevChapterClick(Sender: TObject);
     procedure pgcMainChange(Sender: TObject);
-    // procedure bwrXRefMainHotSpotClick(Sender: TObject;
-    // const SRC: string; var Handled: Boolean);
     procedure miDicClick(Sender: TObject);
     procedure miCommentsClick(Sender: TObject);
-    procedure lbBookClick(Sender: TObject);
-    procedure lbChapterClick(Sender: TObject);
-    procedure splMainMoved(Sender: TObject);
     procedure miMemoPasteClick(Sender: TObject);
     procedure cbQtyChange(Sender: TObject);
     procedure miRefFontConfigClick(Sender: TObject);
@@ -578,7 +573,6 @@ type
     procedure miMemosToggleClick(Sender: TObject);
     procedure JCRU_HomeClick(Sender: TObject);
     procedure tbtnMemoPrintClick(Sender: TObject);
-    procedure splGoMoved(Sender: TObject);
     procedure tbtnSatelliteClick(Sender: TObject);
     procedure SelectSatelliteBibleByName(const bibleName: string);
     procedure edtDicChange(Sender: TObject);
@@ -7998,10 +7992,6 @@ begin
 
   TranslateConfigForm;
 
-  // InitHotModulesConfigPage(true);
-  splMainMoved(Sender);
-  splGoMoved(Sender);
-
   try
     if (bwrHtml <> nil) then
       ActiveControl := bwrHtml
@@ -11707,18 +11697,6 @@ begin
   pgcMain.ActivePage := tbComments;
 end;
 
-procedure TMainForm.lbBookClick(Sender: TObject);
-begin
-  AddressFromMenus := true;
-  OpenChapter();
-end;
-
-procedure TMainForm.lbChapterClick(Sender: TObject);
-begin
-  AddressFromMenus := true;
-  OpenChapter();
-end;
-
 procedure TMainForm.CheckModuleInstall;
 var
   pCommandLine, pCurrent: PChar;
@@ -11787,70 +11765,6 @@ begin
       BqShowException(E);
   end;
   Result := true;
-end;
-
-{ procedure TMainForm.DeleteInvalidHotModules();
-  var
-  i, favouriteCount, moduleIndex, hotIndex: integer;
-  favouriteMenuItem, mi: TMenuItem;
-  begin
-  favouriteCount := GetHotModuleCount() - 1;
-  hotIndex := 0;
-  favouriteMenuItem := FindTaggedTopMenuItem(3333);
-  for i := 0 to favouriteCount do
-  begin
-  mi := GetHotMenuItem(i);
-  moduleIndex := ModuleIndexByName(mi.Caption);
-  if moduleIndex < 0 then
-  begin
-  favouriteMenuItem.Remove(mi);
-  end
-  else
-  begin
-  mi.Tag := 7000 + hotIndex; Inc(hotIndex); end;
-
-  end;
-  SetFavouritesShortcuts();
-  InitBibleTabs();
-  end; }
-
-procedure TMainForm.splGoMoved(Sender: TObject);
-begin
-  // GroupBox1.Height := pnlGo.Height;
-  // lbBook.Height := pnlGo.Height - edtGo.Height - BooksCB.Height - 26;
-  // lbChapter.Height := lbBook.Height;
-end;
-
-procedure TMainForm.splMainMoved(Sender: TObject);
-begin
-  // Navigation Tab elements
-
-  // GroupBox1.Width := pgcMain.Width - 10;
-  // BooksCB.Width := GroupBox1.Width - 10;
-  // lbBook.Width := BooksCB.Width - lbChapter.Width - 5;
-  // lbChapter.Left := lbBook.Width + 10;
-  //
-  // edtGo.Width := lbBook.Width - HelperButton.Width;
-  // HelperButton.Left := edtGo.Left + edtGo.Width + 3;
-  // btnAddressOK.Left := lbChapter.Left;
-
-  // Search Tab elements
-
-  // cbSearch.Width := tbSearch.Width - cbQty.Width - 10;
-  // cbQty.Left := cbSearch.Width + 7;
-  // CBList.Width := cbSearch.Width - 22;
-  // btnFind.Left := cbQty.Left;
-
-  // Dic Tab & Strong Tab
-
-  // edtDic.Width := tbDic.Width - 10;
-  // vstDicList.Width := edtDic.Width;
-  // cbDic.Width := edtDic.Width;
-  // cbDicFilter.Width := edtDic.Width;
-  // edtStrong.Width := tbStrong.Width - 10;
-  // lbStrong.Width := edtStrong.Width;
-
-  // cbComments.Width := edtDic.Width + 5;
 end;
 
 procedure TMainForm.BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);

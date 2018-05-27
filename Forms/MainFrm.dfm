@@ -45,7 +45,6 @@ object MainForm: TMainForm
     Height = 505
     AutoSnap = False
     MinSize = 100
-    OnMoved = splMainMoved
     ExplicitHeight = 553
   end
   object pnlMain: TPanel
@@ -461,7 +460,6 @@ object MainForm: TMainForm
         Beveled = True
         Color = clBtnFace
         ParentColor = False
-        OnMoved = splGoMoved
         ExplicitWidth = 283
       end
       object pnlGo: TPanel
