@@ -208,7 +208,6 @@ type
 
 //    FEnglishPsalms: boolean;
       // Psalms have "English" order (some module contains only OT)
-    mEngPsalmsSet: boolean;
 //    FEnglishNT: boolean; // some Russian modules have "English" order in NT
 
 //    FStrongNumbers: boolean;            // Strong numbers?
@@ -243,6 +242,7 @@ type
     FBook, FChapter, FVerseQty: integer;
     FRememberPlace: boolean;
 
+    FChapterString, FChapterStringPs, FChapterZeroString: string;
 //    FZeroChapter: boolean; // commentaries or special modules may have chapter 0 (intro) for each book
 
     {FLasTBible, FLastChapter, FLastVerse: integer;}//AlekId:QA
@@ -309,6 +309,9 @@ type
     property Name: string read FName;
     property ShortName: string read FShortName;
     property Categories: TStringList read mCategories;
+    property ChapterString: string read FChapterString;
+    property ChapterStringPs: string read FChapterStringPs;
+    property ChapterZeroString: string read FChapterZeroString;
 
     property ShortNamesVars[ix:integer]:Widestring read GetShortNameVars;
     property Copyright: string read FCopyright;
@@ -662,7 +665,6 @@ begin
 
   //FNoForcedLineBreaks := false;
   mCategories.Clear();
-  mEngPsalmsSet := false;
   FFiltered := true;
   FHTML := DefaultHTMLFilter;
   FDefaultFilter := true;
@@ -718,75 +720,73 @@ begin
     if dFirstPart = 'BibleName' then
     begin
       FName := dSecondPart;
-
     end else
       if dFirstPart = 'BibleShortName' then
     begin
       FShortName := dSecondPart;
-
     end else
       if dFirstPart = 'Copyright' then
     begin
       FCopyright := dSecondPart;
-
     end else
       if dFirstPart = 'Bible' then
     begin
       FBible := ToBoolean(dSecondPart);
-
     end else
-{
-    if dFirstPart = 'ShowVerseNumbers' then
-    begin
-      ShowVerseNumbers := ToBoolean (dSecondPart);
-      continue;
-    end else
-}
       if dFirstPart = 'OldTestament' then
     begin
-      setTraitState(bqmtOldCovenant,ToBoolean(dSecondPart) );
+      setTraitState(bqmtOldCovenant, ToBoolean(dSecondPart));
     end else
       if dFirstPart = 'NewTestament' then
     begin
-      setTraitState(bqmtNewCovenant,ToBoolean(dSecondPart) );
+      setTraitState(bqmtNewCovenant, ToBoolean(dSecondPart));
     end else
       if dFirstPart = 'Apocrypha' then
     begin
-      setTraitState(bqmtApocrypha,ToBoolean(dSecondPart) );
+      setTraitState(bqmtApocrypha, ToBoolean(dSecondPart));
     end else
       if dFirstPart = 'ChapterZero' then
     begin
-      setTraitState(bqmtZeroChapter,ToBoolean(dSecondPart) );
+      setTraitState(bqmtZeroChapter, ToBoolean(dSecondPart));
+    end else
+      if dFirstPart = 'ChapterString' then
+    begin
+      FChapterString := dSecondPart;
+    end else
+      if dFirstPart = 'ChapterStringPs' then
+    begin
+      FChapterStringPs := dSecondPart;
+    end else
+      if dFirstPart = 'ChapterZeroString' then
+    begin
+      FChapterZeroString := dSecondPart;
     end else
       if dFirstPart = 'EnglishPsalms' then
     begin
-      mEngPsalmsSet := true;
-      setTraitState(bqmtEnglishPsalms,ToBoolean(dSecondPart));
+      setTraitState(bqmtEnglishPsalms, ToBoolean(dSecondPart));
     end else
       if dFirstPart = 'StrongNumbers' then
     begin
       setTraitState(bqmtStrongs, ToBoolean(dSecondPart));
-   end else
+    end else
       if dFirstPart = 'NoForcedLineBreaks' then
     begin
-      setTraitState(bqmtNoForcedLineBreaks,ToBoolean(dSecondPart));
+      setTraitState(bqmtNoForcedLineBreaks, ToBoolean(dSecondPart));
     end else
       if dFirstPart = 'HTMLFilter' then
     begin
       HTMLFilter := dSecondPart;
-
     end else
       if dFirstPart = 'Alphabet' then
     begin
       FAlphabet := dSecondPart;
-
     end else
       if dFirstPart = 'InstallFonts' then
     begin
       mInstallFontNames := dSecondPart;
       Include(mModuleState,bqmsFontsInstallPending);
     end else
-   if dFirstPart = 'DesiredUIFont' then
+      if dFirstPart = 'DesiredUIFont' then
     begin
       mDesiredUIFont := dSecondPart;
     end else
@@ -798,26 +798,9 @@ begin
     begin
       StrToTokens(dSecondPart, '|', mCategories);
     end else
-
-{
-    if dFirstPart = 'DesiredFontPath' then
-    begin
-      DesiredFontPath := dSecondPart;
-      continue;
-    end else
-}
-{    if dFirstPart = 'DefaultEncoding' then
-    begin
-      FDefaultEncoding := GetEncodingByName (dSecondPart);
-      if FDefaultEncoding = -1 then
-        FDefaultEncoding := cRussianCodePage;
-
-    end else}
       if dFirstPart = 'DesiredFontCharset' then
     begin
       FDesiredFontCharset := StrToInt(dSecondPart); //AlekId
-//AlekId:      FDefaultEncoding := GetEncodingByWinCharSet (dTempInt);
-
     end else
       if dFirstPart = 'UseRightAlignment' then begin
       FUseRightAlignment := ToBoolean(dSecondPart)
@@ -825,14 +808,6 @@ begin
       if dFirstPart = 'UseChapterHead' then begin
         setTraitState(bqmtIncludeChapterHead,ToBoolean(dSecondPart));
     end else
-
-{
-    if dFirstPart = 'ParagraphSkips' then
-    begin
-      ParaSkip := StrToInt(dSecondPart);
-
-    end else
-}
       if dFirstPart = 'ChapterSign' then
     begin
       FChapterSign := dSecondPart;
@@ -841,27 +816,22 @@ begin
       if dFirstPart = 'VerseSign' then
     begin
       FVerseSign := dSecondPart;
-
     end else
       if dFirstPart = 'BookQty' then
     begin
       FBookQty := StrToInt(dSecondPart);
-
     end else
       if dFirstPart = 'SoundDirectory' then
     begin
       FSoundDir := dSecondPart;
-
     end else
       if dFirstPart = 'StrongsDirectory' then
     begin
       FStrongsDir := dSecondPart;
-
     end else
       if dFirstPart = 'StrongsPrefixed' then
     begin
       FStrongsPrefixed := ToBoolean(dSecondPart);
-
     end else
       if dFirstPart = 'PathName' then
     begin
@@ -872,13 +842,11 @@ begin
       if dFirstPart = 'FullName' then
     begin
       FullNames[i] := dSecondPart;
-
     end else
       if dFirstPart = 'ShortName' then
     begin
       SetShortNameVars(i, dSecondPart);
       //VarShortNames[i] := dSecondPart;
-
     end else
     begin
       if i <= 0 then continue;          //alekid:!!!
@@ -894,9 +862,6 @@ begin
   until false;
 
   FIniFile := fileName;
-  if not mEngPsalmsSet then begin
-//    if FHasOT and (ChapterQtys[19]=150) then FEnglishPsalms:=true;
-  end;
 
   if isCompressed then begin
     FPath := GetArchiveFromSpecial(fileName) + '??';

@@ -626,6 +626,7 @@ type
     procedure NavigateToMainBookNode();
     function GetChildNodeByIndex(parentNode: PVirtualNode; index : Integer): PVirtualNode;
     function GetCurrentBookNode(): PVirtualNode;
+    function IsPsalms(bookNodeIndex: integer): Boolean;
     procedure pgcMainMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure pgcViewTabsChanging(Sender: TObject; var AllowChange: Boolean);
     procedure tbtnAddTagClick(Sender: TObject);
@@ -9845,7 +9846,8 @@ procedure TMainForm.vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode, Nod
 var
   Data: PBookNodeData;
   Level: Integer;
-  offset: Cardinal;
+  chapterIndex: integer;
+  chapterString: string;
 begin
   with Sender do
   begin
@@ -9862,11 +9864,26 @@ begin
     end
     else
     begin
-      offset := 1;
-      if MainBook.Trait[bqmtZeroChapter] then
-        offset := 0;
+      chapterIndex := Integer(Node.Index) + IfThen(MainBook.Trait[bqmtZeroChapter], 0, 1);
 
-      Data.Caption := 'Глава ' + IntToStr(Node.Index + offset);
+      if (chapterIndex = 0) and (Length(Trim(MainBook.ChapterZeroString)) > 0) then
+      begin
+        chapterString := Trim(MainBook.ChapterZeroString);
+      end
+      else
+      begin
+        if (IsPsalms(Node.Parent.Index + 1)) then
+          chapterString := Trim(MainBook.ChapterStringPs)
+        else
+          chapterString := Trim(MainBook.ChapterString);
+
+        if (Length(chapterString) > 0) then
+          chapterString := chapterString + ' ';
+
+        chapterString := chapterString + IntToStr(chapterIndex);
+      end;
+
+      Data.Caption := chapterString;
       Data.NodeType := btChapter;
     end;
   end;
@@ -10569,8 +10586,7 @@ begin
       on E: TBQPasswordException do
       begin
         PasswordPolicy.InvalidatePassword(E.mArchive);
-        MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil,
-          MB_ICONERROR or MB_OK);
+        MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
       end
     end;
     if not blFailed then
@@ -10610,8 +10626,7 @@ begin
     on E: TBQPasswordException do
     begin
       PasswordPolicy.InvalidatePassword(E.mArchive);
-      MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil,
-        MB_ICONERROR or MB_OK);
+      MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
     end
   end;
   if blFailed then
@@ -10831,6 +10846,21 @@ begin
     begin
       Result := currentNodes[0].Parent;
     end;
+  end;
+end;
+
+function TMainForm.IsPsalms(bookNodeIndex: integer): Boolean;
+var
+  totalPsalms: integer;
+begin
+  try
+    totalPsalms := 150;
+    if (MainBook.Trait[bqmtZeroChapter]) then
+      totalPsalms := totalPsalms + 1; // extra introduction chapter
+
+    Result := (bookNodeIndex = 19) and (MainBook.ChapterQtys[19] = totalPsalms);
+  except
+    Result := False;
   end;
 end;
 
