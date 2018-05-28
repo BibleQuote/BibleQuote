@@ -500,6 +500,7 @@ object MainForm: TMainForm
           TabOrder = 1
           TreeOptions.AnimationOptions = [toAnimatedToggle]
           TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toUseBlendedImages]
+          TreeOptions.SelectionOptions = [toFullRowSelect]
           OnAddToSelection = vdtModulesAddToSelection
           OnFreeNode = vdtModulesFreeNode
           OnGetText = vdtModulesGetText
