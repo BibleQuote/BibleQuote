@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 509
+  ClientHeight = 489
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 24
     Width = 8
-    Height = 485
+    Height = 465
     AutoSnap = False
     MinSize = 100
     ExplicitHeight = 553
@@ -51,7 +51,7 @@ object MainForm: TMainForm
     Left = 298
     Top = 24
     Width = 583
-    Height = 485
+    Height = 465
     Align = alClient
     Caption = 'pnlMain'
     TabOrder = 0
@@ -59,7 +59,7 @@ object MainForm: TMainForm
       Left = 1
       Top = 1
       Width = 581
-      Height = 462
+      Height = 442
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -85,7 +85,7 @@ object MainForm: TMainForm
         Left = 4
         Top = 6
         Width = 573
-        Height = 452
+        Height = 432
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pnlView'
@@ -98,7 +98,7 @@ object MainForm: TMainForm
           Left = 0
           Top = 55
           Width = 573
-          Height = 397
+          Height = 377
           TabOrder = 0
           Align = alClient
           PopupMenu = pmBrowser
@@ -152,6 +152,7 @@ object MainForm: TMainForm
             GradientEndColor = clWindow
             Images = ilImages
             TabOrder = 0
+            ExplicitLeft = -2
             object tbtnBack: TToolButton
               Left = 0
               Top = 0
@@ -332,7 +333,7 @@ object MainForm: TMainForm
     end
     object pnlPaint: TPanel
       Left = 1
-      Top = 463
+      Top = 443
       Width = 581
       Height = 21
       Align = alBottom
@@ -431,7 +432,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 24
     Width = 290
-    Height = 485
+    Height = 465
     Hint = 'Memos'
     ActivePage = tbGo
     Align = alLeft
@@ -506,7 +507,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 200
+        Height = 180
         ActivePage = tbHistory
         Align = alClient
         TabOrder = 1
@@ -516,7 +517,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 170
+            Height = 150
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -536,7 +537,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 60
+            Height = 40
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -548,7 +549,7 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = 60
+            Top = 40
             Width = 274
             Height = 110
             Align = alBottom
@@ -579,7 +580,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 276
+        Height = 256
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -736,7 +737,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 221
+        Height = 201
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -862,7 +863,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 242
+        Height = 222
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -946,7 +947,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 425
+        Height = 405
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -1030,7 +1031,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 25
         Width = 282
-        Height = 401
+        Height = 381
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1043,10 +1044,12 @@ object MainForm: TMainForm
         TabOrder = 0
         Zoom = 100
         OnChange = reMemoChange
+        ExplicitLeft = -2
+        ExplicitTop = 28
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 426
+        Top = 406
         Width = 282
         Height = 29
         Align = alBottom
@@ -1155,7 +1158,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 282
-        Height = 455
+        Height = 435
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -1172,6 +1175,7 @@ object MainForm: TMainForm
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrXRefHotSpotClick
+        ExplicitLeft = -2
       end
     end
     object tbList: TTabSheet
@@ -1206,7 +1210,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 53
         Width = 282
-        Height = 402
+        Height = 382
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1976,7 +1980,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800680310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101330068006C0310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3734,7 +3738,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C010102000300E00018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000300E40018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

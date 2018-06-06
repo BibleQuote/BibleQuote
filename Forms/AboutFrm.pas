@@ -11,17 +11,10 @@ type
   TAboutForm = class(TForm)
     shpHeader: TShape;
     lblTitle: TLabel;
-    imgLogo: TImage;
     memDevs: TMemo;
     btnOK: TButton;
-    pnlForum: TPanel;
-    pnlDownloadLatest: TPanel;
-    procedure pnlDownloadLatestMouseEnter(Sender: TObject);
-    procedure pnlDownloadLatestMouseLeave(Sender: TObject);
 
     procedure FormCreate(Sender: TObject);
-    procedure pnlForumClick(Sender: TObject);
-    procedure pnlDownloadLatestClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -29,6 +22,7 @@ type
     { Public declarations }
   end;
 
+function GetAppVersionStr: string;
 var
   AboutForm: TAboutForm;
 
@@ -37,36 +31,33 @@ implementation
 uses MainFrm, BibleQuoteUtils, BibleQuoteConfig;
 {$R *.DFM}
 
-procedure TAboutForm.pnlDownloadLatestClick(Sender: TObject);
-begin
-  MainForm.JCRU_HomeClick(MainForm.miDownloadLatest);
-end;
-
-procedure TAboutForm.pnlDownloadLatestMouseEnter(Sender: TObject);
-begin
-  Screen.Cursor := crHandPoint;
-end;
-
-procedure TAboutForm.pnlDownloadLatestMouseLeave(Sender: TObject);
-begin
-  Screen.Cursor := crDefault;
-end;
-
-procedure TAboutForm.pnlForumClick(Sender: TObject);
-begin
-  MainForm.JCRU_HomeClick(MainForm.miTechnoForum);
-end;
-
 procedure TAboutForm.FormCreate(Sender: TObject);
 begin
-  // DrawIconEx(Image1.Picture.Bitmap.Canvas.Handle, 0,0, Application.Icon.Handle,
-  // 32,32,0,0,DI_NORMAL);
-  // Image1.Picture.Icon.Assign(Application.Icon);
-  memDevs.Lines.Insert(0, WideFormat('Версия %s (%s) BETA',
-    [C_bqVersion, C_bqDate]));
-  memDevs.Lines.Add('');
-  memDevs.Lines.Add('OS:' + WinInfoString());
+  memDevs.Lines.Insert(0, 'Версия ' + GetAppVersionStr);
+end;
 
+
+function GetAppVersionStr: string;
+var
+  Exe: string;
+  Size, Handle: DWORD;
+  Buffer: TBytes;
+  FixedPtr: PVSFixedFileInfo;
+begin
+  Exe := ParamStr(0);
+  Size := GetFileVersionInfoSize(PChar(Exe), Handle);
+  if Size = 0 then
+    RaiseLastOSError;
+  SetLength(Buffer, Size);
+  if not GetFileVersionInfo(PChar(Exe), Handle, Size, Buffer) then
+    RaiseLastOSError;
+  if not VerQueryValue(Buffer, '\', Pointer(FixedPtr), Size) then
+    RaiseLastOSError;
+  Result := Format('%d.%d.%d.%d',
+    [LongRec(FixedPtr.dwFileVersionMS).Hi,  //major
+     LongRec(FixedPtr.dwFileVersionMS).Lo,  //minor
+     LongRec(FixedPtr.dwFileVersionLS).Hi,  //release
+     LongRec(FixedPtr.dwFileVersionLS).Lo]) //build
 end;
 
 end.
