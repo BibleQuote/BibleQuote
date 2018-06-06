@@ -22,20 +22,14 @@ type
     { Public declarations }
   end;
 
-function GetAppVersionStr: string;
 var
   AboutForm: TAboutForm;
+  function GetAppVersionStr: string;
 
 implementation
 
 uses MainFrm, BibleQuoteUtils, BibleQuoteConfig;
 {$R *.DFM}
-
-procedure TAboutForm.FormCreate(Sender: TObject);
-begin
-  memDevs.Lines.Insert(0, 'Версия ' + GetAppVersionStr);
-end;
-
 
 function GetAppVersionStr: string;
 var
@@ -58,6 +52,11 @@ begin
      LongRec(FixedPtr.dwFileVersionMS).Lo,  //minor
      LongRec(FixedPtr.dwFileVersionLS).Hi,  //release
      LongRec(FixedPtr.dwFileVersionLS).Lo]) //build
+end;
+
+procedure TAboutForm.FormCreate(Sender: TObject);
+begin
+  memDevs.Lines.Insert(0, 'Версия ' + GetAppVersionStr);
 end;
 
 end.

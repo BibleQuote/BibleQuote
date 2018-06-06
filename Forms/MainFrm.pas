@@ -287,7 +287,6 @@ type
     miFavorites: TMenuItem;
     miHelpMenu: TMenuItem;
     miLanguage: TMenuItem;
-    miWebSites: TMenuItem;
     miPrint: TMenuItem;
     miPrintPreview: TMenuItem;
     miSave: TMenuItem;
@@ -320,10 +319,7 @@ type
     miActionsSep2: TMenuItem;
     miSound: TMenuItem;
     miHotKey: TMenuItem;
-    // s: TMenuItem;
-    miHelp: TMenuItem;
     miAbout: TMenuItem;
-    JCRU_Home: TMenuItem;
     ilImages: TImageList;
     tlbMemo: TToolBar;
     tbtnMemoOpen: TToolButton;
@@ -374,13 +370,11 @@ type
     tbLinksToolBar: TToolBar;
     lblTitle: TLabel;
     lblCopyRightNotice: TLabel;
-    miTechnoForum: TMenuItem;
     miOpenNewView: TMenuItem;
     miChooseSatelliteBible: TMenuItem;
     appEvents: TApplicationEvents;
     tbList: TTabSheet;
     miAddBookmarkTagged: TMenuItem;
-    miDownloadLatest: TMenuItem;
     tbtnLib: TToolButton;
     pnlPaint: TPanel;
     reClipboard: TRichEdit;
@@ -534,7 +528,6 @@ type
     procedure miMemoCopyClick(Sender: TObject);
     procedure miNotepadClick(Sender: TObject);
     procedure cbCommentsChange(Sender: TObject);
-    procedure miHelpClick(Sender: TObject);
     procedure btnSearchOptionsClick(Sender: TObject);
     procedure chkExactPhraseClick(Sender: TObject);
     procedure cbDicChange(Sender: TObject);
@@ -571,7 +564,6 @@ type
     procedure trayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
     procedure miMemosToggleClick(Sender: TObject);
-    procedure JCRU_HomeClick(Sender: TObject);
     procedure tbtnMemoPrintClick(Sender: TObject);
     procedure tbtnSatelliteClick(Sender: TObject);
     procedure SelectSatelliteBibleByName(const bibleName: string);
@@ -5018,8 +5010,8 @@ begin
   OldKey := Key;
   case OldKey of
 
-    VK_F1:
-      miHelp.Click;
+//    VK_F1:
+//      miHelp.Click;
     VK_F2:
       miOpenPassage.Click;
     VK_F3:
@@ -10690,16 +10682,6 @@ begin
   FilterCommentariesCombo();
 end;
 
-procedure TMainForm.miHelpClick(Sender: TObject);
-var
-  s: WideString;
-begin
-  s := 'file ' + ExePath + 'help\' + HelpFileName + ' $$$' +
-    Lang.Say('HelpDocumentation');
-
-  ProcessCommand(s, hlFalse);
-end;
-
 procedure TMainForm.btnSearchOptionsClick(Sender: TObject);
 begin
   if pnlSearch.Height > chkCase.Top + chkCase.Height then
@@ -12702,27 +12684,6 @@ end;
 procedure TMainForm.miMemosToggleClick(Sender: TObject);
 begin
   SetMemosVisible(miMemosToggle.Checked);
-end;
-
-procedure TMainForm.JCRU_HomeClick(Sender: TObject);
-var
-  s: string;
-begin
-  s := (Sender as TMenuItem).Name;
-  if s = 'JCRU_Home' then
-    s := 'http://jesuschrist.ru/'
-  else if s = 'miTechnoForum' then
-    s := C_BQTechnoForumAddr
-  else if s = 'miDownloadLatest' then
-    s := C_BQQuickLoad
-  else
-    s := 'http://jesuschrist.ru/' + LowerCase(Copy(s, 6, Length(s))) + '/';
-
-  if WStrMessageBox(Format(Lang.Say('GoingOnline'), [s]), 'JesusChrist.ru',
-    MB_OKCancel + MB_DEFBUTTON1) <> ID_OK then
-    Exit;
-
-  ShellExecute(Application.Handle, nil, PChar(s), nil, nil, SW_NORMAL);
 end;
 
 procedure TMainForm.tbtnMemoPrintClick(Sender: TObject);

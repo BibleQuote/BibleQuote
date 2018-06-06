@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 489
+  ClientHeight = 469
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 24
     Width = 8
-    Height = 465
+    Height = 445
     AutoSnap = False
     MinSize = 100
     ExplicitHeight = 553
@@ -51,7 +51,7 @@ object MainForm: TMainForm
     Left = 298
     Top = 24
     Width = 583
-    Height = 465
+    Height = 445
     Align = alClient
     Caption = 'pnlMain'
     TabOrder = 0
@@ -59,7 +59,7 @@ object MainForm: TMainForm
       Left = 1
       Top = 1
       Width = 581
-      Height = 442
+      Height = 422
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
@@ -85,7 +85,7 @@ object MainForm: TMainForm
         Left = 4
         Top = 6
         Width = 573
-        Height = 432
+        Height = 412
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pnlView'
@@ -98,7 +98,7 @@ object MainForm: TMainForm
           Left = 0
           Top = 55
           Width = 573
-          Height = 377
+          Height = 357
           TabOrder = 0
           Align = alClient
           PopupMenu = pmBrowser
@@ -152,7 +152,6 @@ object MainForm: TMainForm
             GradientEndColor = clWindow
             Images = ilImages
             TabOrder = 0
-            ExplicitLeft = -2
             object tbtnBack: TToolButton
               Left = 0
               Top = 0
@@ -333,7 +332,7 @@ object MainForm: TMainForm
     end
     object pnlPaint: TPanel
       Left = 1
-      Top = 443
+      Top = 423
       Width = 581
       Height = 21
       Align = alBottom
@@ -432,7 +431,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 24
     Width = 290
-    Height = 465
+    Height = 445
     Hint = 'Memos'
     ActivePage = tbGo
     Align = alLeft
@@ -507,7 +506,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 180
+        Height = 160
         ActivePage = tbHistory
         Align = alClient
         TabOrder = 1
@@ -517,7 +516,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 150
+            Height = 130
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -537,7 +536,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 40
+            Height = 20
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -549,23 +548,22 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = 40
+            Top = 20
             Width = 274
             Height = 110
             Align = alBottom
             BevelOuter = bvNone
             BorderWidth = 10
             TabOrder = 1
+            ExplicitTop = 40
             object lblBookmark: TLabel
               Left = 10
               Top = 10
-              Width = 254
-              Height = 90
+              Width = 59
+              Height = 15
               Align = alClient
               Caption = 'lblBookmark'
               WordWrap = True
-              ExplicitWidth = 59
-              ExplicitHeight = 15
             end
           end
         end
@@ -580,7 +578,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 256
+        Height = 236
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -599,6 +597,7 @@ object MainForm: TMainForm
         OnKeyDown = bwrSearchKeyDown
         OnKeyUp = bwrSearchKeyUp
         OnHotSpotClick = bwrSearchHotSpotClick
+        ExplicitHeight = 256
       end
       object pnlSearch: TPanel
         Left = 0
@@ -737,7 +736,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 201
+        Height = 181
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -757,6 +756,7 @@ object MainForm: TMainForm
         OnHotSpotClick = bwrDicHotSpotClick
         OnHotSpotCovered = bwrHtmlHotSpotCovered
         OnMouseDouble = bwrDicMouseDouble
+        ExplicitHeight = 201
       end
       object pnlDic: TPanel
         Left = 0
@@ -863,7 +863,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 222
+        Height = 202
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -882,6 +882,7 @@ object MainForm: TMainForm
         ScrollBars = ssVertical
         OnHotSpotClick = bwrStrongHotSpotClick
         OnMouseDouble = bwrStrongMouseDouble
+        ExplicitHeight = 222
       end
       object pnlStrong: TPanel
         Left = 0
@@ -947,7 +948,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 405
+        Height = 385
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -965,6 +966,7 @@ object MainForm: TMainForm
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrCommentsHotSpotClick
         OnHotSpotCovered = bwrHtmlHotSpotCovered
+        ExplicitHeight = 405
       end
       object pnlComments: TPanel
         Left = 0
@@ -1031,7 +1033,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 25
         Width = 282
-        Height = 381
+        Height = 361
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1044,17 +1046,16 @@ object MainForm: TMainForm
         TabOrder = 0
         Zoom = 100
         OnChange = reMemoChange
-        ExplicitLeft = -2
-        ExplicitTop = 28
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 406
+        Top = 386
         Width = 282
         Height = 29
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitTop = 406
         object lblMemo: TLabel
           Left = 4
           Top = 4
@@ -1154,6 +1155,10 @@ object MainForm: TMainForm
     object tbXRef: TTabSheet
       Hint = 'TSK'
       ImageIndex = 19
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object bwrXRef: THTMLViewer
         Left = 0
         Top = 0
@@ -1210,7 +1215,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 53
         Width = 282
-        Height = 382
+        Height = 362
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1263,6 +1268,7 @@ object MainForm: TMainForm
         OnResize = vdtTagsVersesResize
         OnShowScrollBar = vdtTagsVersesShowScrollBar
         OnStateChange = vdtTagsVersesStateChange
+        ExplicitHeight = 382
         Columns = <>
       end
       object cbTagsFilter: TComboBox
@@ -1950,26 +1956,6 @@ object MainForm: TMainForm
     end
     object miHelpMenu: TMenuItem
       Caption = #1057#1087#1088#1072#1074#1082#1072
-      object miHelp: TMenuItem
-        Caption = #1050#1072#1082' '#1088#1072#1073#1086#1090#1072#1090#1100' '#1089' "'#1062#1080#1090#1072#1090#1086#1081'"'
-        ShortCut = 112
-        OnClick = miHelpClick
-      end
-      object miWebSites: TMenuItem
-        Caption = 'JesusChrist.ru'
-        object JCRU_Home: TMenuItem
-          Caption = 'JesusChrist.ru'
-          OnClick = JCRU_HomeClick
-        end
-        object miTechnoForum: TMenuItem
-          Caption = #1054#1073#1089#1091#1078#1076#1077#1085#1080#1077' 6-'#1081' '#1074#1077#1088#1089#1080#1080' "'#1062#1080#1090#1072#1090#1099'"'
-          OnClick = JCRU_HomeClick
-        end
-      end
-      object miDownloadLatest: TMenuItem
-        Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1087#1086#1089#1083#1077#1076#1085#1102#1102' '#1074#1077#1088#1089#1080#1102
-        OnClick = JCRU_HomeClick
-      end
       object miAbout: TMenuItem
         Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
         OnClick = miAboutClick
@@ -1980,7 +1966,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C0101330068006C0310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800700310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3738,7 +3724,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C010102000300E40018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000300E80018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
