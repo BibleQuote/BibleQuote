@@ -4,9 +4,6 @@ interface
 
 
 const
-      C_bqVersion='6.0.20120312';
-      C_bqDate='12.03.2012';
-
       C_ModulesDirectory = 'Modules';
       C_CompressedModulesDirectory = 'Modules\Compressed';
       C_BiblesSubDirectory = 'Bibles';

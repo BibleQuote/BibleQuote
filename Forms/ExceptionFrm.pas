@@ -81,7 +81,7 @@ begin
       lns.Insert(0, addInfo);
     ExceptionForm.btnOK.Enabled := not nonContinuable;
     lns.Add('OS info:' + WinInfoString());
-    lns.Add('bqVersion: ' + C_bqVersion + ' (' + C_bqDate + ')');
+//    lns.Add('bqVersion: ' + C_bqVersion + ' (' + C_bqDate + ')');
     ExceptionForm.memError.Lines.AddStrings(lns);
     exceptionLog.WriteUnicodeLine(bqNowDateTimeString() + ':');
     exceptionLog.WriteUnicodeLine(lns.Text);

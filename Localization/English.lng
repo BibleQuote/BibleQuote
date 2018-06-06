@@ -271,7 +271,6 @@ MainForm.trayIcon.Hint = BibleQuote
 
 AboutForm.Caption = About
 AboutForm.btnOK.Caption = OK
-AboutForm.lblTitle.Caption = BibleQuote 6
 AboutForm.pnlDownloadLatest.Caption = Download the latest version
 AboutForm.pnlForum.Caption = Discuss the program on the forum
 

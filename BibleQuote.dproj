@@ -53,18 +53,19 @@
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;WinAPI.UI;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
-        <VerInfo_MajorVer>6</VerInfo_MajorVer>
+        <VerInfo_MajorVer>7</VerInfo_MajorVer>
         <VerInfo_Release>1</VerInfo_Release>
         <VerInfo_Build>1347</VerInfo_Build>
         <VerInfo_Private>true</VerInfo_Private>
         <VerInfo_Locale>1049</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=DevAlek;FileDescription=BibleQuote 6 - Bible Research and Study Tool;FileVersion=6.0.1.1347;InternalName=BibleQuote;LegalCopyright=GNU GPL v2;LegalTrademarks=;OriginalFilename=BibleQuote;ProductName=BibleQuote 6;ProductVersion=6.0.1.10;Comments=Bible Research and Study Tool;PrivateBuild=Yes</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=DevAlek;FileDescription=BibleQuote - Bible Research and Study Tool;FileVersion=7.0.1.1347;InternalName=BibleQuote;LegalCopyright=GNU GPL v2;LegalTrademarks=;OriginalFilename=BibleQuote;ProductName=BibleQuote;ProductVersion=7.0.1.10;Comments=Bible Research and Study Tool;PrivateBuild=Yes</VerInfo_Keys>
         <DCC_ExeOutput>.\Output\</DCC_ExeOutput>
         <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\BqComponents;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PostBuildEvent><![CDATA[xcopy "$(PROJECTDIR)\Localization\*.lng" "$(OUTPUTDIR)Localization\" /d /s /y
 xcopy "$(PROJECTDIR)\Libs\*.dll" "$(OUTPUTDIR)" /d /s /y
 xcopy "$(PROJECTDIR)\Modules\*.*" "$(OUTPUTDIR)Modules\" /d /s /y
 $(PostBuildEvent)]]></PostBuildEvent>
+        <VerInfo_Debug>true</VerInfo_Debug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -101,11 +102,13 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Build>0</VerInfo_Build>
+        <VerInfo_Build>1</VerInfo_Build>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <VerInfo_MajorVer>1</VerInfo_MajorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Version>7.0</Version>
