@@ -42,7 +42,8 @@ uses
   PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox},
   StringProcs in 'StringProcs.pas',
   TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule},
-  ModuleProcs in 'ModuleProcs.pas';
+  ModuleProcs in 'ModuleProcs.pas',
+  AppInfo in 'AppInfo.pas';
 
 {$R *.res}
 var
@@ -78,7 +79,6 @@ begin
   Application.CreateForm(TPasswordBox, PasswordBox);
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
-
   Application.Run;
   try
     Close(Output);

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, WideStrings, AboutFrm;
+  Dialogs, StdCtrls, WideStrings;
 
 type
   TExceptionForm = class(TForm)
@@ -29,7 +29,7 @@ var
 
 implementation
 
-uses JclDebug, BibleQuoteUtils, BibleQuoteConfig, PlainUtils;
+uses JclDebug, BibleQuoteUtils, PlainUtils, AppInfo;
 {$R *.dfm}
 
 var
@@ -81,7 +81,7 @@ begin
       lns.Insert(0, addInfo);
     ExceptionForm.btnOK.Enabled := not nonContinuable;
     lns.Add('OS info:' + WinInfoString());
-    lns.Add('bqVersion: ' + AboutFrm.GetAppVersionStr);
+    lns.Add('bqVersion: ' + GetAppVersionStr());
     ExceptionForm.memError.Lines.AddStrings(lns);
     exceptionLog.WriteUnicodeLine(bqNowDateTimeString() + ':');
     exceptionLog.WriteUnicodeLine(lns.Text);

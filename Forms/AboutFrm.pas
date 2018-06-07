@@ -24,39 +24,15 @@ type
 
 var
   AboutForm: TAboutForm;
-  function GetAppVersionStr: string;
 
 implementation
 
-uses MainFrm, BibleQuoteUtils, BibleQuoteConfig;
+uses AppInfo;
 {$R *.DFM}
-
-function GetAppVersionStr: string;
-var
-  Exe: string;
-  Size, Handle: DWORD;
-  Buffer: TBytes;
-  FixedPtr: PVSFixedFileInfo;
-begin
-  Exe := ParamStr(0);
-  Size := GetFileVersionInfoSize(PChar(Exe), Handle);
-  if Size = 0 then
-    RaiseLastOSError;
-  SetLength(Buffer, Size);
-  if not GetFileVersionInfo(PChar(Exe), Handle, Size, Buffer) then
-    RaiseLastOSError;
-  if not VerQueryValue(Buffer, '\', Pointer(FixedPtr), Size) then
-    RaiseLastOSError;
-  Result := Format('%d.%d.%d.%d',
-    [LongRec(FixedPtr.dwFileVersionMS).Hi,  //major
-     LongRec(FixedPtr.dwFileVersionMS).Lo,  //minor
-     LongRec(FixedPtr.dwFileVersionLS).Hi,  //release
-     LongRec(FixedPtr.dwFileVersionLS).Lo]) //build
-end;
 
 procedure TAboutForm.FormCreate(Sender: TObject);
 begin
-  memDevs.Lines.Insert(0, 'Версия ' + GetAppVersionStr);
+  memDevs.Lines.Insert(0, 'Версия ' + GetAppVersionStr());
 end;
 
 end.
