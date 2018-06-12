@@ -43,7 +43,9 @@ uses
   StringProcs in 'StringProcs.pas',
   TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule},
   ModuleProcs in 'ModuleProcs.pas',
-  AppInfo in 'AppInfo.pas';
+  AppInfo in 'AppInfo.pas',
+  TabData in 'TabData.pas',
+  Favorites in 'Favorites.pas';
 
 {$R *.res}
 var
