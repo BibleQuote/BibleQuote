@@ -45,7 +45,8 @@ uses
   ModuleProcs in 'ModuleProcs.pas',
   AppInfo in 'AppInfo.pas',
   TabData in 'TabData.pas',
-  Favorites in 'Favorites.pas';
+  Favorites in 'Favorites.pas',
+  SystemInfo in 'SystemInfo.pas';
 
 {$R *.res}
 var

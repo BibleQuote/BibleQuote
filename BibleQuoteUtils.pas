@@ -6,7 +6,7 @@ interface
 
 uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils,
   Contnrs, JCLStrings, Windows, SysUtils, Classes, JCLDebug,
-  COperatingSystemInfo;
+  COperatingSystemInfo, SystemInfo;
 
 type
   TBibleModuleSecurity = class
