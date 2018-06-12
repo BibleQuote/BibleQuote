@@ -125,7 +125,7 @@ begin
 
   end else
   begin
-    dDictSize := ReadFileSize (FDict);
+    dDictSize := ReadFileSize(FDict);
     dOffset := Integer (FWords.Objects [i]);
 
     if i < FWords.Count - 1 then

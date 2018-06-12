@@ -24,6 +24,8 @@ type
     class property UTF8: TEncoding read GetUTF8;
   end;
 
+function ReadFileSize(const aFileName: string): Cardinal;
+
 // Read html file with automatic encoding recognition
 procedure ReadHtmlTo(const aFileName: string; var rResult: TStrings; defaultEncoding: TEncoding); overload;
 procedure ReadHtmlTo(const aFileName: string; var rResult: string; defaultEncoding: TEncoding); overload;
@@ -83,6 +85,20 @@ end;
 function TUTF8EncodingNoBOM.GetPreamble: TBytes;
 begin
   SetLength(Result, 0);
+end;
+
+function ReadFileSize(const aFileName: string): Cardinal;
+var
+  dFile: TFileStream;
+begin
+  dFile := nil;
+
+  try
+    dFile := TFileStream.Create(aFileName, fmOpenRead);
+    Result := dFile.Size;
+  finally
+    dFile.Free;
+  end;
 end;
 
 function ParseArchived(filename: string; out fileIx, fileSz: Integer): boolean;
