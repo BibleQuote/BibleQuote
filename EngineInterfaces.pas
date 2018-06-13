@@ -5,10 +5,15 @@ interface
 uses Dict;
 
 type
-  TBibleQuoteStateEntries = (bqsDictionariesLoading, bqsDictionariesLoaded,
-    bqsDictionariesListCreating, bqsDictionariesListCreated,
-    bqsVerseListEngineInitializing, bqsVerseListEngineInitialized,
+  TBibleQuoteStateEntries = (
+    bqsDictionariesLoading,
+    bqsDictionariesLoaded,
+    bqsDictionariesListCreating,
+    bqsDictionariesListCreated,
+    bqsVerseListEngineInitializing,
+    bqsVerseListEngineInitialized,
     bqsTaggedBookmarksCached);
+
   TBibleQuoteState = set of TBibleQuoteStateEntries;
 
   IbqEngineDicTraits = interface

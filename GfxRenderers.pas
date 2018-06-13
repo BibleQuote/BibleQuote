@@ -16,39 +16,51 @@ type
     class var mVmargin, mHmargin, mCurveRadius: integer;
     class var mSaveBrush: TBrush;
     class var mTagFont, mDefaultVerseFont: TFont;
-    class function EffectiveGetVerseNodeText(var nd: TVersesNodeData;
-      var usedFnt: string): string; static;
-    class function GetHTMLRenderer(id: int64; out match: boolean)
-      : TSectionList; static;
-    class procedure ResetRendererStyles(renderer: TSectionList;
-      prefFnt: Widestring);
-    class function BuildVerseHTML(const verseTxt: Widestring;
-      const verseCommand: Widestring; const verseSignature: Widestring)
-      : string; static;
+
+    class function EffectiveGetVerseNodeText(var nd: TVersesNodeData; var usedFnt: string): string; static;
+    class function GetHTMLRenderer(id: int64; out match: boolean): TSectionList; static;
+    class procedure ResetRendererStyles(renderer: TSectionList; prefFnt: string);
+
+    class function BuildVerseHTML(
+      const verseTxt: string;
+      const verseCommand: string;
+      const verseSignature: string): string; static;
+
     class procedure SetVMargin(value: integer); static;
     class procedure SetHMargin(value: integer); static;
   public
-    class procedure Init(ICommandProcessor: IBibleQuoteCommandProcessor;
-      iUIServices: IBibleWinUIServices; tagFont, verseFont: TFont);
+    class procedure Init(
+      ICommandProcessor: IBibleQuoteCommandProcessor;
+      iUIServices: IBibleWinUIServices;
+      tagFont, verseFont: TFont);
+
     class procedure Done();
-    // class function RenderNode(canvas:TCanvas;var nodeData:TVersesNodeData;calcOnly:boolean; var rect:TRect):Integer; static;
-    class function RenderTagNode(canvas: TCanvas; nodeData: TVersesNodeData;
-      const title: Widestring; selected, calcOnly: boolean; var rect: TRect)
-      : integer; static;
-    class function RenderVerseNode(canvas: TCanvas;
-      var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect)
-      : integer; static;
+
+    class function RenderTagNode(
+      canvas: TCanvas;
+      nodeData: TVersesNodeData;
+      const title: string;
+      selected, calcOnly: boolean; var rect: TRect): integer; static;
+
+    class function RenderVerseNode(
+      canvas: TCanvas;
+      var nodeData: TVersesNodeData;
+      calcOnly: boolean; var rect: TRect): integer; static;
 
     class function CurrentRenderer(): TSectionList; static;
     class procedure InvalidateRenderers(); static;
-    class function GetContentTypeAt(x, y: integer; canvas: TCanvas;
-      var nodeData: TVersesNodeData; rect: TRect): TbqTagVersesContent; static;
+
+    class function GetContentTypeAt(
+      x, y: integer;
+      canvas: TCanvas;
+      var nodeData: TVersesNodeData;
+      rect: TRect): TbqTagVersesContent; static;
+
     class property VMargin: integer read mVmargin write SetVMargin;
     class property HMargin: integer read mHmargin write SetHMargin;
     class property CurveRadius: integer read mCurveRadius write mCurveRadius;
     class property tagFont: TFont read mTagFont write mTagFont;
-    class property DefaultVerseFont: TFont read mDefaultVerseFont
-      write mDefaultVerseFont;
+    class property DefaultVerseFont: TFont read mDefaultVerseFont write mDefaultVerseFont;
   end;
 
 implementation
@@ -66,8 +78,10 @@ type
 var
   _rendererPair: TRendererPair;
 
-class function TbqTagsRenderer.BuildVerseHTML(const verseTxt: Widestring;
-  const verseCommand: Widestring; const verseSignature: Widestring): string;
+class function TbqTagsRenderer.BuildVerseHTML(
+  const verseTxt: string;
+  const verseCommand: string;
+  const verseSignature: string): string;
 begin
   result := Format('<HTML><BODY><a href="%s">%s</a> %s</BODY></HTML>',
     [verseCommand, verseSignature, verseTxt]);
@@ -86,13 +100,11 @@ begin
   mCurrentRenderer := nil;
 end;
 
-class function TbqTagsRenderer.EffectiveGetVerseNodeText
-  (var nd: TVersesNodeData; var usedFnt: string): string;
+class function TbqTagsRenderer.EffectiveGetVerseNodeText(var nd: TVersesNodeData; var usedFnt: string): string;
 var
   cmd, verseSig, verseText: string;
   commandType: TbqCommandType;
   hr: HRESULT;
-
 begin
   cmd := nd.getText();
 
@@ -117,8 +129,11 @@ begin
   result := BuildVerseHTML(verseText, cmd, verseSig);
 end;
 
-class function TbqTagsRenderer.GetContentTypeAt(x, y: integer; canvas: TCanvas;
-  var nodeData: TVersesNodeData; rect: TRect): TbqTagVersesContent;
+class function TbqTagsRenderer.GetContentTypeAt(
+  x, y: integer;
+  canvas: TCanvas;
+  var nodeData: TVersesNodeData;
+  rect: TRect): TbqTagVersesContent;
 var
   renderer: TSectionList;
   match: boolean;
@@ -145,13 +160,13 @@ begin
       txt := EffectiveGetVerseNodeText(nodeData, usedFnt);
       ResetRendererStyles(renderer, usedFnt);
       ParseHTMLString(txt, renderer, nil, nil, nil, nil);
-      renderer.DoLogic(canvas, rect.Top + VMargin, rect.Right - rect.Left -
-        HMargin - HMargin, 500, 0, sw, cur);
+      renderer.DoLogic(canvas, rect.Top + VMargin, rect.Right - rect.Left - HMargin - HMargin, 500, 0, sw, cur);
     end;
+
     UrlTarget := nil;
     formControl := nil;
-    gur := renderer.GetURL(canvas, x - HMargin, y + renderer.YOff, UrlTarget,
-      formControl, title);
+    gur := renderer.GetURL(canvas, x - HMargin, y + renderer.YOff, UrlTarget, formControl, title);
+
     if guUrl in gur then
       result := tvcLink
     else
@@ -161,9 +176,8 @@ begin
   end;
 end;
 
-class function TbqTagsRenderer.GetHTMLRenderer(id: int64; out match: boolean)
-  : TSectionList;
-var // iviewer:IViewerBase;
+class function TbqTagsRenderer.GetHTMLRenderer(id: int64; out match: boolean): TSectionList;
+var
   ihtmlViewer: IHtmlViewerBase;
   isite: IHTMLViewerSite;
   r: HRESULT;
@@ -171,11 +185,11 @@ begin
   if not assigned(_rendererPair.renderer) then
   begin
     ihtmlViewer := miUIServices.GetIViewerBase();
-    _rendererPair.renderer := TSectionList.Create(ihtmlViewer,
-      miUIServices.GetMainWindow());
+    _rendererPair.renderer := TSectionList.Create(ihtmlViewer, miUIServices.GetMainWindow());
     r := ihtmlViewer.QueryInterface(IHTMLViewerSite, isite);
     if r <> S_OK then
       raise Exception.Create('Wrong ihtmlviewersite passed');
+
     isite.Init(_rendererPair.renderer);
     match := false;
   end
@@ -193,8 +207,9 @@ begin
   _rendererPair.id := id;
 end;
 
-class procedure TbqTagsRenderer.Init(ICommandProcessor
-  : IBibleQuoteCommandProcessor; iUIServices: IBibleWinUIServices;
+class procedure TbqTagsRenderer.Init(
+  ICommandProcessor: IBibleQuoteCommandProcessor;
+  iUIServices: IBibleWinUIServices;
   tagFont, verseFont: TFont);
 begin
   miCommandProcessor := ICommandProcessor;
@@ -211,23 +226,16 @@ begin
     _rendererPair.renderer.Clear();
 end;
 
-// class function TbqTagsRenderer.RenderNode(canvas: TCanvas;
-// var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): Integer;
-// begin
-// case nodeData.nodeType of
-// bqvntTag:result:=RenderTagNode(canvas,nodeData,calcOnly, rect);
-// bqvntVerse:result:=RenderVerseNode(canvas,nodeData,calcOnly, rect);
-// end;//case
-// end;
-
-class function TbqTagsRenderer.RenderTagNode(canvas: TCanvas;
-  nodeData: TVersesNodeData; const title: Widestring;
-  selected, calcOnly: boolean; var rect: TRect): integer;
+class function TbqTagsRenderer.RenderTagNode(
+  canvas: TCanvas;
+  nodeData: TVersesNodeData;
+  const title: string;
+  selected, calcOnly: boolean;
+  var rect: TRect): integer;
 var
   h, hRectMargin, rectInflateValue: integer;
   flgs: Cardinal;
-  tagNodeBorder, tagNodecolor, saveFontColor, savePenColor,
-    saveBrushColor: TColor;
+  tagNodeBorder, tagNodecolor, saveFontColor, savePenColor, saveBrushColor: TColor;
 const
   smallMarg = 2;
 begin
@@ -279,8 +287,7 @@ begin
 
   result := rect.Top - result;
   flgs := DT_WORDBREAK or DT_VCENTER or (ord(calcOnly) * DT_CALCRECT);
-  h := Windows.DrawTextW(canvas.Handle, PWideChar(Pointer(title)), -1,
-    rect, flgs);
+  h := Windows.DrawText(canvas.Handle, PChar(Pointer(title)), -1, rect, flgs);
   result := h + result + result;
 
   if not calcOnly then
@@ -291,8 +298,11 @@ begin
   end;
 end;
 
-class function TbqTagsRenderer.RenderVerseNode(canvas: TCanvas;
-  var nodeData: TVersesNodeData; calcOnly: boolean; var rect: TRect): integer;
+class function TbqTagsRenderer.RenderVerseNode(
+  canvas: TCanvas;
+  var nodeData: TVersesNodeData;
+  calcOnly: boolean;
+  var rect: TRect): integer;
 var
   usedFont: string;
   txt: string;
@@ -305,10 +315,6 @@ begin
   renderer := GetHTMLRenderer(nodeData.SelfId, match);
   try
     mCurrentRenderer := renderer;
-    // if nodeData.SelfId=4 then begin
-    // TraceFmt('match %d, calcOnly:%d rect.l:%d rect.r:%d;scrollWidth:%d',[ord(match),ord(calcOnly),
-    // rect.Left, rect.Right,scrollWidth ]);
-    // end;
 
     if calcOnly or (not match) then
     begin
@@ -320,23 +326,20 @@ begin
         ParseHTMLString(txt, renderer, nil, nil, nil, nil);
       end;
 
-      scrollHeight := renderer.DoLogic(canvas, VMargin, rect.Right - rect.Left -
-        HMargin - HMargin, rect.Bottom, 0, scrollWidth, curs);
+      scrollHeight := renderer.DoLogic(
+        canvas, VMargin, rect.Right - rect.Left - HMargin - HMargin,
+        rect.Bottom, 0, scrollWidth, curs);
+
       result := scrollHeight + VMargin;
     end;
     if not calcOnly then
     begin
 
-      // dec(rect.bottom,10);
-      // renderer.SetYOffset(40);
       mSaveBrush.Assign(canvas.Brush);
-      // savePen:=TPen.Create();
-      // savePen.Assign( canvas.Pen);
+
       canvas.Brush.Color := clWhite;
-      renderer.Draw(canvas, rect, rect.Right - rect.Left,
-        rect.Left + HMargin, 0, 0, 0);
+      renderer.Draw(canvas, rect, rect.Right - rect.Left, rect.Left + HMargin, 0, 0, 0);
       canvas.Brush.Assign(mSaveBrush);
-      // canvas.Pen.Assign(savepen);
 
     end;
 
@@ -345,8 +348,7 @@ begin
   end;
 end;
 
-class procedure TbqTagsRenderer.ResetRendererStyles(renderer: TSectionList;
-  prefFnt: Widestring);
+class procedure TbqTagsRenderer.ResetRendererStyles(renderer: TSectionList; prefFnt: string);
 
 begin
   renderer.Clear();
@@ -354,8 +356,7 @@ begin
   begin
     prefFnt := mDefaultVerseFont.Name;
   end;
-  renderer.SetFonts(prefFnt, prefFnt, mDefaultVerseFont.Size, $0, $5122A3, $0,
-    $0, $00, true, false, 0, 10, 10);
+  renderer.SetFonts(prefFnt, prefFnt, mDefaultVerseFont.Size, $0, $5122A3, $0, $0, $00, true, false, 0, 10, 10);
 
 end;
 

@@ -114,8 +114,7 @@ begin
 end;
 
 // Retrieves the true text bounds from the owner tree.
-function TbqVDTEditLink.PrepareEdit(tree: TBaseVirtualTree; Node: PVirtualNode;
-  Column: TColumnIndex): Boolean;
+function TbqVDTEditLink.PrepareEdit(tree: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex): Boolean;
 var
   Text: string;
 begin
