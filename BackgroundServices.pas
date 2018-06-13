@@ -8,15 +8,19 @@ uses
 
 type
 
-  TbqWorkerRequiredOperation = (wroSleep, wroTerminated, wroLoadDictionaries,
-    wroInitDicTokens, wroInitVerseListEngine);
+  TbqWorkerRequiredOperation = (
+    wroSleep,
+    wroTerminated,
+    wroLoadDictionaries,
+    wroInitDicTokens,
+    wroInitVerseListEngine);
 
   TbqWorker = class(TThread)
 
   protected
     mSection: TCriticalSection;
     mEvent, mDoneOperationEvent: TSimpleEvent;
-    mDictionariesPath: WideString;
+    mDictionariesPath: string;
     mDictionaryTokens: TBQStringList;
     mUI: IuiVerseOperations;
     mOperation: TbqWorkerRequiredOperation;
@@ -33,12 +37,9 @@ type
     procedure SetBusy(aVal: boolean);
 
   public
-    function LoadDictionaries(const fromPath: WideString;
-      foreground: boolean): HRESULT;
-    function InitDictionaryItemsList(lst: TBQStringList;
-      foreground: boolean = false): HRESULT;
-    function InitVerseListEngine(ui: IuiVerseOperations;
-      foreground: boolean): HRESULT;
+    function LoadDictionaries(const fromPath: string; foreground: boolean): HRESULT;
+    function InitDictionaryItemsList(lst: TBQStringList; foreground: boolean = false): HRESULT;
+    function InitVerseListEngine(ui: IuiVerseOperations; foreground: boolean): HRESULT;
     function WaitUntilDone(dwTime: DWORD): TWaitResult;
     constructor Create(iEngine: IInterface);
     procedure Finalize();
@@ -332,8 +333,7 @@ begin
   result := S_OK;
 end;
 
-function TbqWorker.LoadDictionaries(const fromPath: WideString;
-  foreground: boolean): HRESULT;
+function TbqWorker.LoadDictionaries(const fromPath: string; foreground: boolean): HRESULT;
 begin
   result := S_FALSE;
   if foreground then

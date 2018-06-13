@@ -3222,9 +3222,14 @@ begin
 
   else if Pos('http://', unicodeSRC) = 1 then { // WWW }
   begin
-    if WStrMessageBox(Format(Lang.Say('GoingOnline'), [unicodeSRC]), 'WWW',
-      MB_OKCancel + MB_DEFBUTTON1) = ID_OK then
-      ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil, SW_NORMAL);
+    if (Application.MessageBox(
+      PChar(Format(Lang.Say('GoingOnline'), [unicodeSRC])),
+      'WWW',
+      MB_OKCancel Or MB_DEFBUTTON1) = ID_OK) then
+    begin
+      ShellExecute(Application.Handle, nil, PChar(unicodeSRC), nil, nil, SW_NORMAL);
+    end;
+
     Handled := true;
   end
   else if Pos('mailto:', unicodeSRC) = 1 then

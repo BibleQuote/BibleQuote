@@ -13,7 +13,7 @@ implementation
 //  Separators = [',', '.', ':', '-', ';'];
 //  Digits = ['0'..'9'];
 
-function IsSeparator(aChar: WideChar): Boolean;
+function IsSeparator(aChar: Char): Boolean;
 begin
   case aChar of
     ',', '.', ':', '-', ';': Result := true;
@@ -28,7 +28,7 @@ end;
 
 procedure Tokenize(sourcestr: string; var Tokens: TStrings);
 var
-  s, wrd: WideString;
+  s, wrd: string;
   len, i: integer;
 begin
   s := Trim(sourcestr);

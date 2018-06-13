@@ -4,7 +4,7 @@ interface
 
 uses JCLWideStrings, WideStrings, SysUtils, Windows, Classes, Character;
 
-function PWideChar2Int(pwc: PWideChar; out val: integer): PWideChar;
+function PChar2Int(pwc: PWideChar; out val: integer): PChar;
 function StrToTokens(const str: string; const delim: string; strLst: TStrings;
   useQuotes: boolean = false): integer;
 function StrLimitToWordCnt(const ws: string; maxWordCount: integer;
@@ -27,7 +27,7 @@ uses BibleQuoteConfig, JclUnicode;
 function FindFirstFileExW; external kernel32 name 'FindFirstFileExW';
 function FindNextFileW; external kernel32 name 'FindNextFileW';
 
-function PWideChar2Int(pwc: PWideChar; out val: integer): PWideChar;
+function PChar2Int(pwc: PChar; out val: integer): PChar;
 
 var
   vl: integer;

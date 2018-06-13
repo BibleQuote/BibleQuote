@@ -1,92 +1,91 @@
 unit HTMLViewerSite;
 
 interface
-uses HTMLEmbedInterfaces, controls, classes,Htmlsubs;
+
+uses HTMLEmbedInterfaces, controls, classes, Htmlsubs;
+
 type
-  IHTMLViewerSite =interface
- ['{14ED0EC0-45FE-1FD6-F1F0-41345DE47A64}']
-  procedure Init(sectionList:TSectionList);
+  IHTMLViewerSite = interface
+    ['{14ED0EC0-45FE-1FD6-F1F0-41345DE47A64}']
+    procedure Init(sectionList: TSectionList);
   end;
 
-  THTMLViewerSite=class(THtmlViewerBase,IViewerBase, IHTMLViewerBase,IHTMLViewerSite )
+  THTMLViewerSite = class(THtmlViewerBase, IViewerBase, IHTMLViewerBase, IHTMLViewerSite)
   protected
-  mSectionList:TSectionList;
-  mSite:TWinControl;
+    mSectionList: TSectionList;
+    mSite: TWinControl;
   public
-    function getMarginHeight():integer;override;
-    function getMarginWidth():integer;override;
-    function GetLinkList(): TList;override;
-    procedure htProgress(Percent: Integer);override;
-    procedure ControlMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer); override;
+    function getMarginHeight(): integer; override;
+    function getMarginWidth(): integer; override;
+    function GetLinkList(): TList; override;
+    procedure htProgress(Percent: integer); override;
+    procedure ControlMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer); override;
     function HtmlExpandFilename(const Filename: string): string; override;
-    function ShowFocusRect(): Boolean;  override;
-    function GetComponent():TComponent;override;
-    function GetControl():TControl;override;
-    procedure Init(sectionList:TSectionList);
-    constructor Create(aOwner:TComponent;site:TWinControl);reintroduce;
+    function ShowFocusRect(): Boolean; override;
+    function GetComponent(): TComponent; override;
+    function GetControl(): TControl; override;
+    procedure Init(sectionList: TSectionList);
+    constructor Create(aOwner: TComponent; site: TWinControl); reintroduce;
   end;
 
 implementation
 
 { THTMLViewerSite }
 
-procedure THTMLViewerSite.ControlMouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: Integer);
+procedure THTMLViewerSite.ControlMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
 begin
   // nothing
-
 end;
 
-constructor THTMLViewerSite.Create(aOwner: TComponent; site:TWinControl);
+constructor THTMLViewerSite.Create(aOwner: TComponent; site: TWinControl);
 begin
-inherited Create(aOwner);
-mSite:=site;
+  inherited Create(aOwner);
+  mSite := site;
 end;
 
 function THTMLViewerSite.GetComponent: TComponent;
 begin
-result:=mSite;
+  result := mSite;
 end;
 
 function THTMLViewerSite.GetControl: TControl;
 begin
-result:=mSite;
+  result := mSite;
 end;
 
 function THTMLViewerSite.GetLinkList: TList;
 begin
-Result := mSectionList.LinkList;
+  result := mSectionList.LinkList;
 end;
 
 function THTMLViewerSite.getMarginHeight: integer;
 begin
-result:=0;
+  result := 0;
 end;
 
 function THTMLViewerSite.getMarginWidth: integer;
 begin
-result:=0;
+  result := 0;
 end;
 
 function THTMLViewerSite.HtmlExpandFilename(const Filename: string): string;
 begin
-result:=filename;
+  result := Filename;
 end;
 
-procedure THTMLViewerSite.htProgress(Percent: Integer);
+procedure THTMLViewerSite.htProgress(Percent: integer);
 begin
-  //
-
+  // nothing
 end;
 
 procedure THTMLViewerSite.Init(sectionList: TSectionList);
 begin
-  mSectionList:=sectionList;
+  mSectionList := sectionList;
 end;
 
 function THTMLViewerSite.ShowFocusRect: Boolean;
 begin
-   result:=false;
+  result := false;
 end;
 
 end.

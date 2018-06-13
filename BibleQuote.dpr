@@ -5,7 +5,6 @@ program BibleQuote;
 uses
   BibleQuoteUtils in 'BibleQuoteUtils.pas',
   Forms,
-  WCharWindows in 'WCharWindows.pas',
   Classes,
   WideStrings,
   SysUtils,
@@ -32,7 +31,6 @@ uses
   CommandProcessor in 'CommandProcessor.pas',
   HTMLViewerSite in 'HTMLViewerSite.pas',
   VDTEditLink in 'VDTEditLink.pas',
-  Settings in 'Settings.pas',
   BackgroundServices in 'BackgroundServices.pas',
   Engine in 'Engine.pas',
   EngineInterfaces in 'EngineInterfaces.pas',

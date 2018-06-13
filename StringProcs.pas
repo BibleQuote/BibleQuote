@@ -1,4 +1,4 @@
-unit StringProcs;
+п»їunit StringProcs;
 
 // some string procedures
 
@@ -8,7 +8,6 @@ uses
   ShlObj,
   SysUtils,
   Classes,
-  WideStrings,
   Windows,
   StrUtils,
   Graphics;
@@ -51,8 +50,8 @@ function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): st
 
 function LastPos(SubS, s: string): integer;
 
-function FindString(List: TStringList; s: string): integer;
 // find string in SORTED list, maybe partial match
+function FindString(List: TStringList; s: string): integer;
 
 procedure AddLine(var rResult: string; const aLine: string);
 
@@ -127,7 +126,7 @@ begin
     if ((integer(s[i]) >= integer('0')) and (integer(s[i]) <= integer('9')))
     then
     begin
-      if isNum then // если сейчас идет число, то удлиняем ссылку
+      if isNum then // РµСЃР»Рё СЃРµР№С‡Р°СЃ РёРґРµС‚ С‡РёСЃР»Рѕ, С‚Рѕ СѓРґР»РёРЅРµРј СЃСЃС‹Р»РєСѓ
         link := link + s[i]
       else
       begin
@@ -171,7 +170,7 @@ begin
     end;
   end;
 
-  if isNum then // если шла ссылка то в конце надо ее завершить....
+  if isNum then // РµСЃР»Рё С€Р»Р° СЃСЃС‹Р»РєР° С‚Рѕ РІ РєРѕРЅС†Рµ РЅР°РґРѕ РµРµ Р·Р°РІРµСЂС€РёС‚СЊ....
   begin
     if supercase then
       Result := Result + '<font size=1><a href=s' + link + '>' + link +
@@ -222,7 +221,7 @@ end;
 
 function DeleteFirstWord(var s: string): string;
 var
-  s1: WideString;
+  s1: string;
   i: integer;
 begin
   Result := s;
@@ -267,8 +266,8 @@ var
 begin
   if not casesensitive then
   begin
-    slow := WideLowerCase(s);
-    wrdlow := WideLowerCase(wrd);
+    slow := LowerCase(s);
+    wrdlow := LowerCase(wrd);
   end
   else
   begin
@@ -400,11 +399,11 @@ end;
 
 function UpperCaseFirstLetter(s: string): string;
 begin
-  Result := WideUpperCase(Copy(s, 1, 1)) + WideLowerCase(Copy(s, 2, Length(s)));
+  Result := UpperCase(Copy(s, 1, 1)) + LowerCase(Copy(s, 2, Length(s)));
 end;
 
-// разбор записей типа Быт. 1 : 1- 25 для получения адреса отрывка
-// для модуля bookmarks адреса выглядят так: 40.1:2-34
+// СЂР°Р·Р±РѕСЂ Р·Р°РїРёСЃРµР№ С‚РёРїР° Р…С‹С‚. 1 : 1- 25 РґР»СЏ РїРѕР»СѓС‡РµРЅРёВ¤ Р°РґСЂРµСЃР° РѕС‚СЂС‹РІРєР°
+// РґР»СЏ РјРѕРґСѓР»СЏ bookmarks Р°РґСЂРµСЃР° РІС‹РіР»СЏРґСЏС‚ С‚Р°Рє: 40.1:2-34
 
 function SplitValue(s: string; var strname: string;
   var chapter, fromverse, toverse: integer): boolean;
@@ -422,7 +421,7 @@ begin
   if (pointpos > 0) and (Pos('.', Copy(scopy, pointpos + 1, Length(scopy))) > 0)
   then
     pointpos := pointpos + Pos('.', Copy(scopy, pointpos + 1, Length(scopy)));
-  // в некоторых книгах две точки в сокращении имени, напр. Прем.Сол.
+  // РІ РЅРµРєРѕС‚РѕСЂС‹С… РєРЅРёРіР°С… РґРІРµ С‚РѕС‡РєРё РІ СЃРѕРєСЂР°С‰РµРЅРёРё РёРјРµРЅРё, РЅР°РїСЂ. С•СЂРµРј.вЂ”РѕР».
 
   spacepos := Pos(' ', scopy);
   if (pointpos = 0) or (spacepos > pointpos + 1) then
@@ -434,7 +433,7 @@ begin
   dashpos := Pos('-', scopy);
   commapos := Pos(',', scopy);
   if dashpos = 0 then
-    dashpos := commapos; // Быт.12:2,3
+    dashpos := commapos; // Р…С‹С‚.12:2,3
 
   try
     if colonpos <> 0 then
@@ -506,7 +505,7 @@ var
 begin
   Result := 0;
 
-  snew := WideUpperCase(Trim(s));
+  snew := UpperCase(Trim(s));
   l := Length(snew);
   if l >= 7 then
   begin
@@ -529,14 +528,14 @@ begin
     (ColorToRGB(col) and $FF00) shr 8, (ColorToRGB(col) and $FF0000) shr 16]);
 end;
 
-// !!! К оптимизации: последовательное наращивание длинной строки.
+// !!! В  РѕРїС‚РёРјРёР·Р°С†РёРё: РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕРµ РЅР°СЂР°С‰РёРІР°РЅРёРµ РґР»РёРЅРЅРѕР№ СЃС‚СЂРѕРєРё.
 function ParseHTML(s, HTML: string): string;
 var
   Tokens: TStrings;
   i, minCharCode, s_length, tmp_max, tmp_ix { , tc } : integer;
   charArrayAccumullator: array of Char;
   useDefaultFilter: boolean;
-  wstr: string;
+  str: string;
   procedure grow_tmp();
   begin
     Inc(tmp_max);
@@ -575,8 +574,8 @@ begin
         Inc(tmp_ix);
         if tmp_ix >= tmp_max then
           grow_tmp();
-        wstr := PWideChar(Pointer(charArrayAccumullator));
-        Tokens.AddObject(wstr, Pointer(0));
+        str := PChar(Pointer(charArrayAccumullator));
+        Tokens.AddObject(str, Pointer(0));
 
         minCharCode := 65535;
         tmp_ix := 0;
@@ -599,15 +598,15 @@ begin
           grow_tmp();
         if charArrayAccumullator[0] <> #0 then
         begin
-          wstr := PWideChar(@charArrayAccumullator[0]);
+          str := PChar(@charArrayAccumullator[0]);
           if (minCharCode <= integer('z')) then
-            Tokens.AddObject(wstr, Pointer(1))
+            Tokens.AddObject(str, Pointer(1))
           else
-            Tokens.AddObject('&lt;' + Copy(wstr, 2, Length(wstr) - 2) + '&gt;',
+            Tokens.AddObject('&lt;' + Copy(str, 2, Length(str) - 2) + '&gt;',
               Pointer(0));
         end;
-        // <русское слово> преобразовывается в [русское слово]
-        // компонента браузера не показывает текст типа <русское слово>
+        // <СЂСѓСЃСЃРєРѕРµ СЃР»РѕРІРѕ> РїСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°РµС‚СЃВ¤ РІ [СЂСѓСЃСЃРєРѕРµ СЃР»РѕРІРѕ]
+        // РєРѕРјРїРѕРЅРµРЅС‚Р° Р±СЂР°СѓР·РµСЂР° РЅРµ РїРѕРєР°Р·С‹РІР°РµС‚ С‚РµРєСЃС‚ С‚РёРїР° <СЂСѓСЃСЃРєРѕРµ СЃР»РѕРІРѕ>
 
         minCharCode := 65535;
         // tmp := '';
@@ -627,25 +626,24 @@ begin
 
     charArrayAccumullator[tmp_ix] := #0;
     Inc(tmp_ix);
+
     if tmp_ix >= tmp_max then
       grow_tmp();
-    wstr := PWideChar(@charArrayAccumullator[0]);
-    Tokens.AddObject(wstr, Pointer(0));
-    // tc:=Integer(GetTickCount())-tc;
+
+    str := PChar(@charArrayAccumullator[0]);
+    Tokens.AddObject(str, Pointer(0));
     Result := '';
-    // tc:=GetTickCount();
 
     for i := 0 to Tokens.Count - 1 do
     begin
       if useDefaultFilter then
-        wstr := WideLowerCase(Tokens[i])
+        str := LowerCase(Tokens[i])
       else
-        wstr := FirstWord(WideLowerCase(Tokens[i]));
+        str := FirstWord(LowerCase(Tokens[i]));
 
-      if (integer(Tokens.Objects[i]) <> 1) or (Pos(wstr, HTML) <> 0) then
+      if (integer(Tokens.Objects[i]) <> 1) or (Pos(str, HTML) <> 0) then
         Result := Result + Tokens[i];
     end;
-    // tc:=Integer(GetTickCount())-tc;
   finally
     SetLength(charArrayAccumullator, 0);
     Tokens.Free;
@@ -860,3 +858,4 @@ begin
 end;
 
 end.
+

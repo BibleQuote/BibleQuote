@@ -2,7 +2,7 @@ unit Settings;
 
 interface
 uses Classes;
-type TBibleQouteSettings=class(TPersistent)
+type TBibleQouteSettings = class(TPersistent)
 
 end;
 implementation
