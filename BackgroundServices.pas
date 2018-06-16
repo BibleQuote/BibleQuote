@@ -90,14 +90,7 @@ end;
 
 procedure TbqWorker.Suspend;
 begin
-
-  // mSection.Acquire;
-  // try
-  // self.Synchronize(self,TThread(self).Suspend );
-
   TThread(self).Suspend();
-
-  // finally mSection.Release(); end;
 end;
 
 function TbqWorker.WaitUntilDone(dwTime: DWORD): TWaitResult;
