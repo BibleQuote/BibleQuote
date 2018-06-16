@@ -2,30 +2,18 @@ unit PlainUtils;
 
 interface
 
-uses JCLWideStrings, WideStrings, SysUtils, Windows, Classes, Character;
+uses SysUtils, Windows, Classes, Character, JclUnicode;
 
-function PChar2Int(pwc: PWideChar; out val: integer): PChar;
-function StrToTokens(const str: string; const delim: string; strLst: TStrings;
-  useQuotes: boolean = false): integer;
-function StrLimitToWordCnt(const ws: string; maxWordCount: integer;
-  out actualWc: integer; out limited: boolean): string;
+function PChar2Int(pwc: PChar; out val: integer): PChar;
+function StrToTokens(const str: string; const delim: string; strLst: TStrings; useQuotes: boolean = false): integer;
+function StrLimitToWordCnt(const ws: string; maxWordCount: integer; out actualWc: integer; out limited: boolean): string;
 function NextWordIndex(const ws: string; startIx: integer): integer;
-function WideIsSpaceEndedString(const ws: string): boolean;
-function bqWidePosCI(const substr: string; str: string): integer;
-function FindFirstFileExW(lpFileName: PWideChar;
-  fInfoLevelId: _FINDEX_INFO_LEVELS; lpFindFileData: Pointer;
-  fSearchOp: _FINDEX_SEARCH_OPS; lpSearchFilter: Pointer;
-  dwAdditionalFlags: DWORD): THANDLE; stdcall;
-function FindNextFileW(hFindFile: THANDLE;
-  var lpFindFileData: _WIN32_FIND_DATAW): BOOL; stdcall;
-function bqNowDateTimeString(): WideString;
+function IsSpaceEndedString(const ws: string): boolean;
+function UpperPosCI(const substr: string; str: string): integer;
+function NowDateTimeString(): string;
 function ParamStartedWith(const token: string; out param: string): boolean;
 
 implementation
-
-uses BibleQuoteConfig, JclUnicode;
-function FindFirstFileExW; external kernel32 name 'FindFirstFileExW';
-function FindNextFileW; external kernel32 name 'FindNextFileW';
 
 function PChar2Int(pwc: PChar; out val: integer): PChar;
 
@@ -44,26 +32,26 @@ begin
   result := pwc;
 end;
 
-function StrToTokens(const str: string; const delim: string; strLst: TStrings;
-  useQuotes: boolean = false): integer;
+function StrToTokens(const str: string; const delim: string; strLst: TStrings; useQuotes: boolean = false): integer;
 var
   dl: integer;
-
-  dlp, prevPos, curPos: PWideChar;
-  ws: WideString;
+  dlp, prevPos, curPos: PChar;
+  ws: string;
 begin
   result := 0;
   dl := Length(delim);
   strLst.Clear;
-  dlp := PWideChar(Pointer(delim));
-  prevPos := PWideChar(Pointer(str));
+  dlp := PChar(Pointer(delim));
+  prevPos := PChar(Pointer(str));
   curPos := StrPos(prevPos, dlp);
+
   if not assigned(curPos) then
   begin
     if Length(str) > 0 then
       strLst.Add(str);
     exit;
   end;
+
   repeat
     if curPos - prevPos > 0 then
     begin
@@ -75,8 +63,10 @@ begin
     end
     else
       inc(prevPos, dl);
+
     curPos := StrPos(prevPos, dlp);
   until curPos = nil;
+
   if prevPos <> nil then
   begin
     ws := prevPos;
@@ -90,8 +80,7 @@ begin
 
 end;
 
-function StrLimitToWordCnt(const ws: string; maxWordCount: integer;
-  out actualWc: integer; out limited: boolean): string;
+function StrLimitToWordCnt(const ws: string; maxWordCount: integer; out actualWc: integer; out limited: boolean): string;
 var
   pwc, start: PChar;
   wordStarted, charIsSeparator: boolean;
@@ -184,23 +173,17 @@ begin
   until pwc^ = #0;
 end;
 
-function WideIsSpaceEndedString(const ws: string): boolean;
+function IsSpaceEndedString(const ws: string): boolean;
 begin
   result := UnicodeIsSpace(Cardinal(ws[Length(ws) - 1]));
 end;
 
-function bqWidePosCI(const substr: string; str: string): integer;
-var
-  strUpper, subStrUpper: string;
+function UpperPosCI(const substr: string; str: string): integer;
 begin
-  subStrUpper := SysUtils.UpperCase(substr);
-  strUpper := UpperCase(str);
-
-  result := Pos(subStrUpper, strUpper);
-
+  result := Pos(UpperCase(substr), UpperCase(str));
 end;
 
-function bqNowDateTimeString(): WideString;
+function NowDateTimeString(): string;
 var
   strDate: string;
   fs: TFormatSettings;

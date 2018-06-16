@@ -62,7 +62,7 @@ begin
      end;
     Assign(Output, fn);
     Rewrite(Output);
-    writeln(bqNowDateTimeString(), 'BibleQuote dbg log started' );
+    writeln(NowDateTimeString(), 'BibleQuote dbg log started' );
     Flush(Output);
     if ParamStartedWith('/memcheck',param) then begin
       ReportMemoryLeaksOnShutdown:=true;

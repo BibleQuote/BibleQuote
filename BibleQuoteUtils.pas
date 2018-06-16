@@ -4,57 +4,61 @@ unit BibleQuoteUtils;
 
 interface
 
-uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils,
-  Contnrs, JCLStrings, Windows, SysUtils, Classes, JCLDebug,
-  COperatingSystemInfo, SystemInfo;
+uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils, JCLDebug,
+  Contnrs, Windows, SysUtils, Classes, COperatingSystemInfo, SystemInfo;
 
 type
   TBibleModuleSecurity = class
-    path, folder: WideString;
-    pwd: WideString;
+    path, folder: string;
+    pwd: string;
   end;
 
   TPasswordPolicy = class
   protected
-    mPasswordList: TWideStrings;
-    mPath: WideString;
+    mPasswordList: TStrings;
+    mPath: string;
     mUserHash: int64;
     function GetUserHash(): int64;
     function XorPassword(aPwd: string; produceHex: boolean = true): string;
   public
-    function LoadFromFile(const filename: WideString): boolean;
-    procedure SaveToFile(const filename: WideString);
+    function LoadFromFile(const filename: string): boolean;
+    procedure SaveToFile(const filename: string);
     function GetPassword(aSender: TSevenZip; out aPassword: WideString) : boolean;
-    procedure InvalidatePassword(const aFile: WideString);
-    constructor Create(wsString: WideString);
+    procedure InvalidatePassword(const aFile: string);
+    constructor Create(wsString: string);
     destructor Destroy(); override;
   end;
 
   TBQException = class(Exception)
     mErrCode: Cardinal;
-    mWideMsg: WideString;
+    mMessage: string;
     constructor CreateFmt(const Msg: string; const Args: array of const);
   end;
 
   TbqHLVerseOption = (hlFalse, hlTrue, hlDefault);
 
   TBQPasswordException = class(TBQException)
-    mArchive: WideString;
-    mWrongPassword: WideString;
-    constructor CreateFmt(const password, module: WideString; const Msg: string;
+    mArchive: string;
+    mWrongPassword: string;
+    constructor CreateFmt(const password, module: string; const Msg: string;
       const Args: array of const);
   end;
 
   TBQInstalledFontInfo = class
-    mPath: WideString;
+    mPath: string;
     mFileNeedsCleanUp: boolean;
     mHandle: HFont;
-    constructor Create(const aPath: WideString; afileNeedsCleanUp: boolean;
-      aHandle: HFont);
+    constructor Create(const aPath: string; afileNeedsCleanUp: boolean; aHandle: HFont);
 
   end;
 
-  TModuleType = (modtypeBible, modtypeBook, modtypeComment, modtypeTag, modtypeBookHighlighted);
+  TModuleType = (
+    modtypeBible,
+    modtypeBook,
+    modtypeComment,
+    modtypeTag,
+    modtypeBookHighlighted);
+
   TModMatchType = (mmtName, mmtBookName, mmtCat, mmtPartial);
   TModMatchTypes = set of TModMatchType;
 
@@ -69,13 +73,11 @@ type
   end;
 
   TMatchInfoArray = array of TMatchInfo;
-  // TBooksRange=1..77;
-  // TbitBooks=packed array[TBooksRange] of boolean;
   TbqItemStyle = (bqisExpanded);
   TbqItemStyles = set of TbqItemStyle;
 
   TModuleEntry = class
-    wsFullName, wsShortName, wsShortPath, wsFullPath: string;
+    mFullName, mShortName, mShortPath, mFullPath: string;
     modType: TModuleType;
     modCats: string;
     modBookNames: string;
@@ -85,31 +87,45 @@ type
     mNode: Pointer;
     mStyle: TbqItemStyles;
     mMatchInfo: TMatchInfoArray;
-    // mBookBits:TbitBooks;
-    constructor Create(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: string; awsBookNames: string;
+
+    constructor Create(
+      amodType: TModuleType;
+      aFullName, aShortName, aShortPath, aFullPath: string;
+      aBookNames: string;
       modCats: TStrings); overload;
-    constructor Create(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: string; awsBookNames: string;
+
+    constructor Create(
+      amodType: TModuleType;
+      aFullName, aShortName, aShortPath, aFullPath:
+      string; aBookNames: string;
       modCats: string); overload;
+
     constructor Create(me: TModuleEntry); overload;
     destructor Destroy; override;
-    procedure Init(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: string; awsBookNames: string;
+
+    procedure Init(
+      amodType: TModuleType;
+      aFullName, aShortName, aShortPath, aFullPath: string;
+      aBookNames: string;
       modCatsLst: TStrings); overload;
-    procedure Init(amodType: TModuleType; awsFullName, awsShortName,
-      awsShortPath, awsFullPath: string; awsBookNames: string;
+
+    procedure Init(
+      amodType: TModuleType;
+      aFullName, aShortName, aShortPath, aFullPath: string;
+      aBookNames: string;
       amodCats: string); overload;
+
     procedure Assign(source: TModuleEntry);
-    function Match(matchLst: TWideStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
-    function BookNameByIx(ix: integer): WideString;
+    function Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
+
+    function BookNameByIx(ix: integer): string;
     function VisualSignature(): string;
     function BibleBookPresent(ix: integer): boolean;
 
-    function getIniPath(): WideString;
+    function getIniPath(): string;
   protected
 
-    function DefaultModCats(): WideString;
+    function DefaultModCats(): string;
   end;
 
   TCachedModules = class(TObjectList)
@@ -121,11 +137,11 @@ type
     function GetArchivedCount(): integer;
   public
     procedure Assign(source: TCachedModules);
-    function FindByName(const name: WideString; fromix: integer = 0): integer;
-    function ResolveModuleByNames(const modName, modShortName: WideString) : TModuleEntry;
-    function IndexOf(const name: WideString; fromix: integer = 0) : integer; overload;
-    function FindByFolder(const name: WideString): integer;
-    function FindByFullPath(const wsFullPath: WideString): integer;
+    function FindByName(const name: string; fromix: integer = 0): integer;
+    function ResolveModuleByNames(const modName, modShortName: string) : TModuleEntry;
+    function IndexOf(const name: string; fromix: integer = 0) : integer; overload;
+    function FindByFolder(const name: string): integer;
+    function FindByFullPath(const wsFullPath: string): integer;
     function GetModTypedAsCount(modType: TModuleType): integer;
     function ModTypedAsFirst(modType: TModuleType): TModuleEntry;
     function ModTypedAsNext(modType: TModuleType): TModuleEntry;
@@ -149,15 +165,15 @@ type
     function LocateLastStartedWith(const subString: string; startFromIx: integer = 0; strict: boolean = false): integer;
   end;
 
-  TbqExceptionContext = class(TWideStringList)
+  TbqExceptionContext = class(TStringList)
   end;
 
   TbqTextFileWriter = class(TObject)
   protected
     mHandle: THandle;
   public
-    constructor Create(const aFileName: WideString);
-    function WriteUnicodeLine(const line: WideString): HRESULT;
+    constructor Create(const aFileName: string);
+    function WriteUnicodeLine(const line: string): HRESULT;
     function Close(): HRESULT;
     destructor Destroy(); override;
   end;
@@ -213,52 +229,38 @@ resourcestring
     'margin-bottom : 0;'#13#10 +
     'margin-left : 0.8ex;'#13#10 +
     'margin-right : 0.8ex;'#13#10 +
-  //  'text-align:%s;'#13#10 +
-  'font-size:x-large;'#13#10 +
-//    '%s'#13#10 +
-  'text-indent:40px;'#13#10 +
+    'font-size:x-large;'#13#10 +
+    'text-indent:40px;'#13#10 +
     '}'#13#10 +
 
     'A.OmegaVerseNumber {'#13#10 +
-//    color: brown;'#13#10 +
     'font-family:Helvetica;'#13#10 +
     '}'#13#10 +
-//use    'A.OmegaStrongNumber {color: green}'#13#10 +
-//use    'A.BQNote {color: green}'#13#10 +
-//    'sup{font-size:70%%;}'#13#10+
-//    'A:visited {color: brown}'#13#10 +
   '-->'#13#10 +
   'A.bqResolvedLink {'#13#10 +
-//  color: Sienna;'#13#10 +
     'font-family:''Times New Roman'';'#13#10 +
     'font-style:italic;'#13#10 +
     'font-weight:lighter;'#13#10 +
     '}'#13#10 +
-//use    'A.OmegaStrongNumber {color: green}'#13#10 +
-//    'sup{font-size:70%%;}'#13#10+
-//    'A:visited {color: brown}'#13#10 +
   '-->'#13#10 +
     '</STYLE>';
 
 function GetArchiveFromSpecial(const aSpecial: string): string; overload;
-function GetArchiveFromSpecial(const aSpecial: string; out filename: string)
-  : string; overload;
+function GetArchiveFromSpecial(const aSpecial: string; out filename: string): string; overload;
 function GetCachedModulesListDir(): string;
 function FileExistsEx(aPath: string): integer;
-function ArchiveFileSize(wsPath: string): integer;
-function SpecialIO(const wsFileName: string; wsStrings: TStrings; obf: int64; read: boolean = true): boolean;
-function FontExists(const wsFontName: string): boolean;
-function FontFromCharset(aHDC: HDC; charset: integer; wsDesiredFont: string = ''): string;
-function GetCRC32(pData: PByteArray; count: integer; Crc: Cardinal = 0)
-  : Cardinal;
+function ArchiveFileSize(path: string): integer;
+function SpecialIO(const fileName: string; strings: TStrings; obf: int64; read: boolean = true): boolean;
+function FontExists(const fontName: string): boolean;
+function FontFromCharset(aHDC: HDC; charset: integer; desiredFont: string = ''): string;
+function GetCRC32(pData: PByteArray; count: integer; Crc: Cardinal = 0): Cardinal;
 function ExtractModuleName(aModuleSignature: string): string;
 function StrPosW(const Str, SubStr: PChar): PChar;
-function ExctractName(const wsFile: string): string;
+function ExctractName(const filename: string): string;
 function IsDown(key: integer): boolean;
 function FileRemoveExtension(const path: string): string;
 procedure CopyHTMLToClipBoard(const Str: string; const htmlStr: string = '');
-function OmegaCompareTxt(const str1, str2: string; len: integer = -1;
-  strict: boolean = false): integer;
+function OmegaCompareTxt(const str1, str2: string; len: integer = -1; strict: boolean = false): integer;
 procedure InsertDefaultFontInfo(var html: string; fontName: string; fontSz: integer);
 function TokensToStr(Lst: TStrings; delim: string; addlastDelim: boolean = true): string;
 function StrMathTokens(const Str: string; tkns: TStrings; fullMatch: boolean): boolean;
@@ -279,8 +281,7 @@ procedure cleanUpInstalledFonts();
 function CreateAndGetConfigFolder: string;
 
 type
-  PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector;
-    p4: LPDWORD): THandle; stdcall;
+  PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector; p4: LPDWORD): THandle; stdcall;
 
 type
   PfnRemoveFontMemResourceEx = function(p1: THandle): BOOL; stdcall;
@@ -290,23 +291,22 @@ var
   G_RemoveFontMemResourceEx: PfnRemoveFontMemResourceEx;
 
 var
-  G_InstalledFonts: TWideStringList;
+  G_InstalledFonts: TStringList;
   Lang: TMultiLanguage;
   G_DebugEx: integer;
-  G_NoCategoryStr: WideString = 'Без категории';
+  G_NoCategoryStr: string = 'Без категории';
   MainCfgIni: TMultiLanguage;
-  G_SecondPath: WideString;
+  G_SecondPath: string;
 
 implementation
 
 uses JclSysInfo, MainFrm, Controls, Forms, Clipbrd, StrUtils, BibleQuoteConfig,
-  WCharWindows, StringProcs, JclBase;
+  StringProcs, JclBase;
 
 var
-  __exe__path: WideString;
+  __exe__path: string;
 
-function OmegaCompareTxt(const str1, str2: string; len: integer = -1;
-  strict: boolean = false): integer;
+function OmegaCompareTxt(const str1, str2: string; len: integer = -1; strict: boolean = false): integer;
 var
   str1len, str2len, minLen: integer;
 begin
@@ -316,9 +316,9 @@ begin
   if len > minLen then len := minlen;
 
 {$IFDEF MSWINDOWS}
-  Result := CompareStringW(LANG_INVARIANT, NORM_IGNORECASE,
-    PWideChar(Pointer(str1)), len,
-    PWideChar(Pointer(str2)), len) - CSTR_EQUAL;
+  Result := CompareString(LANG_INVARIANT, NORM_IGNORECASE,
+    PChar(Pointer(str1)), len,
+    PChar(Pointer(str2)), len) - CSTR_EQUAL;
 {$ENDIF}
 {$IFDEF POSIX}
   Result := AnsiStrLIComp(PWideChar(Pointer(str1)), PWideChar(Pointer(str2)), len);
@@ -331,10 +331,10 @@ function GetArchiveFromSpecial(const aSpecial: string): string; overload;
 var
   pz: integer;
 begin
-  // строки типа rststrong.bqb??bibleqt.ini в rststrong.bqb
+  // string like rststrong.bqb??bibleqt.ini in rststrong.bqb
   pz := Pos('??', aSpecial);
   if pz <= 0 then
-    result := EmptyWideStr
+    result := EmptyStr
   else
     result := Copy(aSpecial, 1, pz - 1);
 end;
@@ -351,16 +351,15 @@ begin
     result := path;
 end;
 
-function GetArchiveFromSpecial(const aSpecial: string; out filename: string)
-  : string; overload;
+function GetArchiveFromSpecial(const aSpecial: string; out filename: string): string; overload;
 var
   pz: integer;
   correct: integer;
 begin
-  // строки типа rststrong.bqb??bibleqt.ini в rststrong.bqb и bibleqt.ini
+  // string like rststrong.bqb??bibleqt.ini in rststrong.bqb and bibleqt.ini
   pz := Pos('??', aSpecial);
   if pz <= 0 then
-    result := EmptyWideStr
+    result := EmptyStr
   else
   begin
     correct := Ord(aSpecial[1] = '?') + 1;
@@ -385,7 +384,7 @@ begin
     result := result + delim;
 end;
 
-function StrTokenIx(const tknString: WideString; hitPos: integer): integer;
+function StrTokenIx(const tknString: string; hitPos: integer): integer;
 var
   sl, si: integer;
 begin
@@ -438,27 +437,27 @@ begin
 
     __cachedModulesListFolder := CreateAndGetConfigFolder();
     __cachedModulesListFolder := ExtractFilePath(
-		Copy(__cachedModulesListFolder,
-      	1,
-		Length(__cachedModulesListFolder) - 1));
+  		Copy(__cachedModulesListFolder,
+     	1,
+		  Length(__cachedModulesListFolder) - 1));
   end;
   result := __cachedModulesListFolder;
 end;
 
-function ArchiveFileSize(wsPath: string): integer;
+function ArchiveFileSize(path: string): integer;
 var
-  wsArchive, wsFile: string;
+  archive, aFile: string;
 begin
   result := -1;
   try
-    wsArchive := GetArchiveFromSpecial(wsPath, wsFile);
-    getSevenZ().SZFileName := wsArchive;
-    if getSevenZ().GetIndexByFilename(wsFile, @result) < 0 then
+    archive := GetArchiveFromSpecial(path, aFile);
+    getSevenZ().SZFileName := archive;
+    if getSevenZ().GetIndexByFilename(aFile, @result) < 0 then
       result := -1;
   except
     on e: Exception do
     begin
-      g_ExceptionContext.Add('BibleQuoteUtils.ArchiveFileSize.wsPath' + wsPath);
+      g_ExceptionContext.Add('BibleQuoteUtils.ArchiveFileSize.wsPath' + path);
     end;
   end;
 
@@ -466,7 +465,7 @@ end;
 
 function FileExistsEx(aPath: string): integer;
 var
-  wsArchive, wsFile: string;
+  archive, aFile: string;
 begin
   result := -1;
   if Length(aPath) < 1 then
@@ -476,12 +475,12 @@ begin
     result := Ord(FileExists(aPath)) - 1;
     exit;
   end;
-  wsArchive := GetArchiveFromSpecial(aPath, wsFile);
-  if (Length(wsArchive) <= 0) or (Length(wsFile) < 0) then
+  archive := GetArchiveFromSpecial(aPath, aFile);
+  if (Length(archive) <= 0) or (Length(aFile) < 0) then
     exit;
   try
-    getSevenZ().SZFileName := wsArchive;
-    result := getSevenZ().GetIndexByFilename(wsFile);
+    getSevenZ().SZFileName := archive;
+    result := getSevenZ().GetIndexByFilename(aFile);
   except
     g_ExceptionContext.Add('FileExistsEx.aPath=' + aPath);
     raise;
@@ -489,16 +488,15 @@ begin
 
 end;
 
-function SpecialIO(const wsFileName: string; wsStrings: TStrings; obf: int64; read: boolean = true): boolean;
+function SpecialIO(const fileName: string; strings: TStrings; obf: int64; read: boolean = true): boolean;
 var
   fileHandle: THandle;
   fileSz, readed: Cardinal;
   crcExpected, crcCalculated: Cardinal;
-  // rslt:LongBool;
   buf: PChar;
-  ws: string;
+  str: string;
 
-  procedure _EncodeDecode(); // простое 64bit xor шифрование
+  procedure _EncodeDecode(); // simple 64bit xor encoding
   var
     I, count: Cardinal;
     pC: PCardinal;
@@ -507,7 +505,7 @@ var
     count := (fileSz shr 3) - 1;
     f := Cardinal(obf);
     s := PCardinal(PChar(@obf) + 4)^;
-    pC := PCardinal(PChar(buf)); // если цикл не сработает
+    pC := PCardinal(PChar(buf));
     for I := 0 to count do
     begin
       pC := PCardinal(PChar(buf) + I * 8);
@@ -522,11 +520,13 @@ var
 
   end;
 
-begin //
+begin
   if read then
   begin
-    fileHandle := CreateFileW(PWideChar(Pointer(wsFileName)), GENERIC_READ, 0,
+    fileHandle := CreateFile(
+      PChar(Pointer(fileName)), GENERIC_READ, 0,
       nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
     if fileHandle = INVALID_HANDLE_VALUE then
     begin
       result := false;
@@ -555,27 +555,29 @@ begin //
           result := false;
           exit;
         end;
-        wsStrings.SetText(buf);
+        strings.SetText(buf);
 
       end;
-    finally (* чтобы не было утечки *)
+    finally
       CloseHandle(fileHandle);
       FreeMem(buf);
     end;
   end
   else
-  begin // запись
-    fileHandle := CreateFileW(PWideChar(Pointer(wsFileName)), GENERIC_WRITE, 0,
+  begin // write
+    fileHandle := CreateFile(PChar(Pointer(fileName)),
+      GENERIC_WRITE, 0,
       nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+
     if fileHandle = INVALID_HANDLE_VALUE then
     begin
       result := false;
       exit;
     end;
     try
-      ws := wsStrings.Text;
-      fileSz := Length(ws) * 2;
-      buf := Pointer(PWideChar(ws));
+      str := strings.Text;
+      fileSz := Length(str) * 2;
+      buf := Pointer(PChar(str));
       crcCalculated := GetCRC32(PByteArray(buf), fileSz);
       _EncodeDecode();
       result := WriteFile(fileHandle, crcCalculated, 4, readed, nil);
@@ -612,14 +614,13 @@ end;
 
 { TPasswordPolicy }
 
-constructor TPasswordPolicy.Create(wsString: WideString);
+constructor TPasswordPolicy.Create(wsString: string);
 
 begin
-  mPasswordList := TWideStringList.Create();
+  mPasswordList := TStringList.Create();
   LoadFromFile(wsString);
   mUserHash := GetUserHash();
   writeln('TPasswordPolicy.Create хэш: ', mUserHash);
-  // getSevenZ().OnGetPassword := GetPassword;
   _S_SevenZipGetPasswordProc := GetPassword;
 end;
 
@@ -656,14 +657,13 @@ begin
   filename := aSender.SZFileName;
   ix := mPasswordList.IndexOfName(filename);
   if (ix < 0) then
-  begin // запрошенный пароль не найден в кэше...
+  begin // requested password was not found in the cache
     pwFormShowResult := MainForm.PassWordFormShowModal(aSender.SZFileName, aPassword, blSavePwd);
     if (pwFormShowResult = mrOk) and (Length(aPassword) > 0) then
     begin
       s := XorPassword(aPassword);
       writeln(filename, ' ', s);
-      mPasswordList.AddObject(WideFormat('%s=%s', [filename, s]),
-        TObject(Ord(blSavePwd)));
+      mPasswordList.AddObject(Format('%s=%s', [filename, s]), TObject(Ord(blSavePwd)));
     end
     else if (pwFormShowResult = mrCancel) then
     begin
@@ -673,7 +673,7 @@ begin
 
   end
   else
-  begin // если найден в кэше
+  begin // password is in the cache
     s := mPasswordList[ix];
     ix := Pos('=', s);
     s := Copy(s, ix + 1, $FFFF);
@@ -683,9 +683,9 @@ begin
     begin
       pwdEncoded[ix] := chr(HexDigitVal(Char(s[(ix - 1) * 2 + 1])) * 16 + HexDigitVal(Char(s[ix * 2])));
     end;
-    writeln('найден  ', pwdEncoded);
+    writeln('found  ', pwdEncoded);
     pwdEncoded := XorPassword(pwdEncoded, false);
-    writeln('после ксора  ', pwdEncoded);
+    writeln('after xor  ', pwdEncoded);
     Flush(output);
     aPassword := pwdEncoded;
   end;
@@ -736,7 +736,7 @@ begin
   result := data;
 end;
 
-procedure TPasswordPolicy.InvalidatePassword(const aFile: WideString);
+procedure TPasswordPolicy.InvalidatePassword(const aFile: string);
 var
   ix: integer;
 begin
@@ -745,13 +745,13 @@ begin
     mPasswordList.Delete(ix);
 end;
 
-function TPasswordPolicy.LoadFromFile(const filename: WideString): boolean;
+function TPasswordPolicy.LoadFromFile(const filename: string): boolean;
 var
   I, count: integer;
 begin
   try
     if not assigned(mPasswordList) then
-      mPasswordList := TWideStringList.Create()
+      mPasswordList := TStringList.Create()
     else
       mPasswordList.Clear();
     mPath := ExtractFilePath(filename);
@@ -769,7 +769,7 @@ begin
 
 end; // func LoadFile
 
-procedure TPasswordPolicy.SaveToFile(const filename: WideString);
+procedure TPasswordPolicy.SaveToFile(const filename: string);
 var
   I, recordCount: integer;
 begin
@@ -791,8 +791,7 @@ begin
   SpecialIO(filename, mPasswordList, $1F6D35AC138E5311, false);
 end;
 
-function TPasswordPolicy.XorPassword(aPwd: string;
-  produceHex: boolean = true): string;
+function TPasswordPolicy.XorPassword(aPwd: string; produceHex: boolean = true): string;
 var
   I, j, pwdLength: integer;
   charByte: byte;
@@ -818,22 +817,20 @@ end;
 
 { TBQException }
 
-constructor TBQException.CreateFmt(const Msg: string;
-  const Args: array of const);
+constructor TBQException.CreateFmt(const Msg: string; const Args: array of const);
 begin
-  mWideMsg := 'Ошибка!';
+  mMessage := 'Error!';
   if assigned(Lang) then
   begin
-    mWideMsg := Lang.SayDefault(Msg, mWideMsg);
-    mWideMsg := WideFormat(mWideMsg, Args);
+    mMessage := Lang.SayDefault(Msg, mMessage);
+    mMessage := Format(mMessage, Args);
   end; // if assigned
-  inherited CreateFmt(mWideMsg, Args);
+  inherited CreateFmt(mMessage, Args);
 end;
 
 { TBQPasswordException }
 
-constructor TBQPasswordException.CreateFmt(const password, module: WideString;
-  const Msg: string; const Args: array of const);
+constructor TBQPasswordException.CreateFmt(const password, module: string; const Msg: string; const Args: array of const);
 begin
   mArchive := module;
   mWrongPassword := password;
@@ -846,13 +843,14 @@ var
 	const lastPrec: integer = 0;
 {$J-}
 
-function EnumFontFamExProc(lpelfe: PENUMLOGFONTEXW; // logical-font data
-  lpntme: PEnumTextMetricW; // physical-font data
+function EnumFontFamExProc(
+  lpelfe: PEnumLogFontEx; // logical-font data
+  lpntme: PEnumTextMetric; // physical-font data
   FontType: DWORD; // type of font
   lParam: lParam // application-defined data
   ): integer; stdcall;
 var
-  ws: WideString;
+  str: string;
 begin
   result := 1;
   if (lpelfe^.elfLogFont.lfOutPrecision < OUT_STROKE_PRECIS) and (lParam <> 0)
@@ -860,37 +858,36 @@ begin
     exit;
 
   inc(__hitCount);
-  if (lParam <> 0) and ((PWideChar(lParam)^ = #0) or
+  if (lParam <> 0) and ((PChar(lParam)^ = #0) or
     (lpelfe^.elfLogFont.lfOutPrecision > lastPrec)) then
   begin
-    ws := lpelfe^.elfFullName;
-    Move(lpelfe^.elfFullName, PWideChar(lParam)^, 64);
+    str := lpelfe^.elfFullName;
+    Move(lpelfe^.elfFullName, PChar(lParam)^, 64);
     lastPrec := lpelfe^.elfLogFont.lfOutPrecision;
   end;
 end;
 
-function FontFromCharset(aHDC: HDC; charset: integer;
-  wsDesiredFont: string = ''): string;
+function FontFromCharset(aHDC: HDC; charset: integer; desiredFont: string = ''): string;
 var
-  logFont: tagLOGFONTW;
+  logFont: tagLOGFONT;
   fontNameLength: integer;
-  fontName: array [0 .. 64] of WideChar;
+  fontName: array [0 .. 64] of Char;
 begin
   __hitCount := 0;
   FillChar(logFont, sizeof(logFont), 0);
   FillChar(fontName, 64, 0);
   logFont.lfCharSet := charset;
-  // logFont.lfOutPrecision:=OUT_TT_ONLY_PRECIS;
-  fontNameLength := Length(wsDesiredFont);
+  fontNameLength := Length(desiredFont);
   if fontNameLength > 0 then
   begin
     if (fontNameLength > 31) then
       fontNameLength := 31;
-    Move(Pointer(wsDesiredFont)^, logFont.lfFaceName, fontNameLength * 2);
-    EnumFontFamiliesExW(aHDC, logFont, @EnumFontFamExProc, 0, 0);
+
+    Move(Pointer(desiredFont)^, logFont.lfFaceName, fontNameLength * 2);
+    EnumFontFamiliesEx(aHDC, logFont, @EnumFontFamExProc, 0, 0);
     if __hitCount > 0 then
     begin
-      result := wsDesiredFont;
+      result := desiredFont;
       exit;
     end;
   end;
@@ -899,42 +896,31 @@ begin
   FillChar(logFont, sizeof(logFont), 0);
   FillChar(fontName, 64, 0);
   logFont.lfCharSet := charset;
-  EnumFontFamiliesExW(aHDC, logFont, @EnumFontFamExProc, integer(@fontName), 0);
+  EnumFontFamiliesEx(aHDC, logFont, @EnumFontFamExProc, integer(@fontName), 0);
   if (__hitCount > 0) and (fontName[0] <> #0) then
   begin
-    result := PWideChar(@fontName);
+    result := PChar(@fontName);
     G_InstalledFonts.Add(result); // long font names workaround
   end
   else
-    result := EmptyWideStr;
+    result := EmptyStr;
 end;
 
-function FontExists(const wsFontName: string): boolean;
+function FontExists(const fontName: string): boolean;
 begin
-  if G_InstalledFonts.IndexOf(wsFontName) >= 0 then
+  if G_InstalledFonts.IndexOf(fontName) >= 0 then
   begin
     result := true;
     exit;
   end;
-  (* закоменнтированыый код надежнее: он использует
-    unicode, а альтернативный - быстрее *)
-  { __hitCount := 0;
-    FillChar(logFont, sizeof(logFont), 0);
-    fontNameLength := Length(wsFontName);
-    logFont.lfCharSet := DEFAULT_CHARSET;
-    if (fontNameLength > 31) then fontNameLength := 31;
-    Move(Pointer(wsFontName)^, logFont.lfFaceName, fontNameLength * 2);
-    EnumFontFamiliesExW(aHDC, logFont, @EnumFontFamExProc, 0, 0);
-    result := __hitCount > 0; }
-  result := Screen.Fonts.IndexOf(wsFontName) >= 0;
-
+  result := Screen.Fonts.IndexOf(fontName) >= 0;
 end;
 
-function ExctractName(const wsFile: string): string;
+function ExctractName(const filename: string): string;
 var
   pC, pLastDot: PChar;
 begin
-  pC := PChar(Pointer(wsFile));
+  pC := PChar(Pointer(filename));
   if (pC = nil) or (pC^ = #0) then
   begin
     result := '';
@@ -947,9 +933,9 @@ begin
     inc(pC);
   until (pC^ = #0);
   if pLastDot <> nil then
-    result := Copy(wsFile, 1, pLastDot - PWideChar(Pointer(wsFile)))
+    result := Copy(filename, 1, pLastDot - PChar(Pointer(filename)))
   else
-    result := wsFile;
+    result := filename;
 end;
 
 function ExtractModuleName(aModuleSignature: string): string;
@@ -965,9 +951,9 @@ begin
   result := Copy(aModuleSignature, 1, ipos - 1);
 end;
 
-function StrPosW(const Str, SubStr: PWideChar): PWideChar;
+function StrPosW(const Str, SubStr: PChar): PChar;
 var
-  p: PWideChar;
+  p: PChar;
   I: integer;
 begin
   result := nil;
@@ -998,8 +984,10 @@ end;
 
 { TBQInstalledFontInfo }
 
-constructor TBQInstalledFontInfo.Create(const aPath: WideString;
-  afileNeedsCleanUp: boolean; aHandle: HFont);
+constructor TBQInstalledFontInfo.Create(
+  const aPath: string;
+  afileNeedsCleanUp: boolean;
+  aHandle: HFont);
 begin
   mHandle := aHandle;
   mFileNeedsCleanUp := afileNeedsCleanUp;
@@ -1015,7 +1003,7 @@ procedure cleanUpInstalledFonts();
 var
   cnt, I: integer;
   ifi: TBQInstalledFontInfo;
-  tf: array [0 .. 1023] of WideChar;
+  tf: array [0 .. 1023] of Char;
   tempPathLen: integer;
 begin
   ifi := nil;
@@ -1024,7 +1012,7 @@ begin
   cnt := G_InstalledFonts.count - 1;
   if cnt > 0 then
   begin
-    tempPathLen := GetTempPathW(1023, tf);
+    tempPathLen := GetTempPath(1023, tf);
     if tempPathLen < 1024 then
       for I := 0 to cnt do
       begin
@@ -1037,11 +1025,10 @@ begin
             G_RemoveFontMemResourceEx(ifi.mHandle)
           else
           begin
-            RemoveFontResourceW(PWideChar(Pointer(ifi.mPath)));
+            RemoveFontResource(PChar(Pointer(ifi.mPath)));
             if ifi.mFileNeedsCleanUp then
             begin
-              { TODO -oAlekId -cQA : Добавить безопасное удаление файла шрифта }
-              // пока ничего
+              { Add the safe disposal of the font file }
             end;
           end;
         except
@@ -1071,8 +1058,7 @@ function FormatHTMLClipboardHeader(HTMLText: string): string;
 const
   CrLf = #13#10;
 begin
-  HTMLText := '<!--StartFragment-->' + #13#10 + HTMLText + #13#10 +
-    '<!--EndFragment -->' + #13#10;
+  HTMLText := '<!--StartFragment-->' + #13#10 + HTMLText + #13#10 + '<!--EndFragment -->' + #13#10;
   result := 'Version:0.9' + CrLf;
   result := result + 'StartHTML:-1' + CrLf;
   result := result + 'EndHTML:-1' + CrLf;
@@ -1107,21 +1093,19 @@ var
 begin
   Insert(StartFrag, html, 1);
   html := DocType + html;
-  { Append the EndFrag string }
   html := html + EndFrag;
-  { Add the header to start }
 
   URLString := 'about:blank';
   StartHTMLIndex := PreliminaryLength + Length(URLString);
   EndHTMLIndex := StartHTMLIndex + Length(html);
-  StartFragmentIndex := StartHTMLIndex + Pos(StartFrag, html) +
-    Length(StartFrag) - 1;
+  StartFragmentIndex := StartHTMLIndex + Pos(StartFrag, html) + Length(StartFrag) - 1;
   EndFragmentIndex := StartHTMLIndex + Pos(EndFrag, html) - 1;
 
-  result := Version + SysUtils.Format('%s%.8d', [StartHTML, StartHTMLIndex]) +
-    #13#10 + SysUtils.Format('%s%.8d', [EndHTML, EndHTMLIndex]) + #13#10 +
-    SysUtils.Format('%s%.8d', [StartFragment, StartFragmentIndex]) + #13#10 +
-    SysUtils.Format('%s%.8d', [EndFragment, EndFragmentIndex]) + #13#10 +
+  result := Version + SysUtils.Format(
+    '%s%.8d', [StartHTML, StartHTMLIndex]) + #13#10 +
+    Format('%s%.8d', [EndHTML, EndHTMLIndex]) + #13#10 +
+    Format('%s%.8d', [StartFragment, StartFragmentIndex]) + #13#10 +
+    Format('%s%.8d', [EndFragment, EndFragmentIndex]) + #13#10 +
     URLString + #13#10 + html;
 end;
 
@@ -1132,8 +1116,7 @@ end;
 // (and clipboard.open, clipboard.close).
 // Code from http://www.lorriman.com
 
-procedure InsertDefaultFontInfo(var html: string; fontName: string;
-  fontSz: integer);
+procedure InsertDefaultFontInfo(var html: string; fontName: string; fontSz: integer);
 var
   I: integer;
   s, L: string;
@@ -1197,22 +1180,20 @@ end;
 
 procedure TModuleEntry.Assign(source: TModuleEntry);
 begin
-  Init(source.modType, source.wsFullName, source.wsShortName,
-    source.wsShortPath, source.wsFullPath, source.modBookNames, source.modCats);
+  Init(source.modType, source.mFullName, source.mShortName,
+    source.mShortPath, source.mFullPath, source.modBookNames, source.modCats);
   mMatchInfo := source.mMatchInfo;
 end;
 
-constructor TModuleEntry.Create(amodType: TModuleType;
-  awsFullName, awsShortName, awsShortPath, awsFullPath: string;
-  awsBookNames: string; modCats: TStrings);
+constructor TModuleEntry.Create(
+  amodType: TModuleType;
+  aFullName, aShortName, aShortPath, aFullPath: string;
+  aBookNames: string;
+  modCats: TStrings);
 begin
   inherited Create;
-  // modType := amodType;
-  // wsFullName := awsFullName;
-  // wsShortPath := awsShortPath;
-  // wsShortName := awsShortName;
-  // wsFullPath := awsFullPath;
-  Init(amodType, awsFullName, awsShortName, awsShortPath, awsFullPath, awsBookNames, modCats);
+
+  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats);
 end;
 
 constructor TModuleEntry.Create(me: TModuleEntry);
@@ -1220,7 +1201,7 @@ begin
   Assign(me);
 end;
 
-function TModuleEntry.DefaultModCats(): WideString;
+function TModuleEntry.DefaultModCats(): string;
 begin
 
   case modType of
@@ -1232,7 +1213,6 @@ begin
       result := Lang.SayDefault('CommentCat', 'BibleCommentaries');
 
   end; // case
-
 end;
 
 destructor TModuleEntry.Destroy;
@@ -1242,58 +1222,39 @@ begin
   inherited;
 end;
 
-function TModuleEntry.getIniPath: WideString;
+function TModuleEntry.getIniPath: string;
 begin
-  result := MainFileExists(TPath.Combine(wsShortPath, C_ModuleIniName));
+  result := MainFileExists(TPath.Combine(mShortPath, C_ModuleIniName));
 end;
 
-constructor TModuleEntry.Create(amodType: TModuleType;
-  awsFullName, awsShortName, awsShortPath, awsFullPath: string;
-  awsBookNames: string; modCats: string);
+constructor TModuleEntry.Create(
+  amodType: TModuleType;
+  aFullName, aShortName, aShortPath, aFullPath: string;
+  aBookNames: string;
+  modCats: string);
 begin
-  Init(amodType, awsFullName, awsShortName, awsShortPath, awsFullPath, awsBookNames, modCats);
+  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats);
 end;
 
-procedure TModuleEntry.Init(amodType: TModuleType;
-  awsFullName, awsShortName, awsShortPath, awsFullPath: string;
-  awsBookNames: string; amodCats: string);
+procedure TModuleEntry.Init(
+  amodType: TModuleType;
+  aFullName, aShortName, aShortPath, aFullPath: string;
+  aBookNames: string;
+  amodCats: string);
 begin
   modType := amodType;
-  wsFullName := awsFullName;
-  wsShortPath := awsShortPath;
-  wsShortName := awsShortName;
-  wsFullPath := awsFullPath;
+  mFullName := aFullName;
+  mShortPath := aShortPath;
+  mShortName := aShortName;
+  mFullPath := aFullPath;
   mRects := nil;
-  modBookNames := awsBookNames;
+  modBookNames := aBookNames;
   if Length(amodCats) <= 0 then
   begin
     modCats := DefaultModCats();
   end
   else
     modCats := amodCats;
-end;
-
-function GetAppVersionStr: string;
-var
-  Exe: string;
-  Size, Handle: DWORD;
-  Buffer: TBytes;
-  FixedPtr: PVSFixedFileInfo;
-begin
-  Exe := ParamStr(0);
-  Size := GetFileVersionInfoSize(PChar(Exe), Handle);
-  if Size = 0 then
-    RaiseLastOSError;
-  SetLength(Buffer, Size);
-  if not GetFileVersionInfo(PChar(Exe), Handle, Size, Buffer) then
-    RaiseLastOSError;
-  if not VerQueryValue(Buffer, '\', Pointer(FixedPtr), Size) then
-    RaiseLastOSError;
-  Result := Format('%d.%d.%d.%d',
-    [LongRec(FixedPtr.dwFileVersionMS).Hi,  //major
-     LongRec(FixedPtr.dwFileVersionMS).Lo,  //minor
-     LongRec(FixedPtr.dwFileVersionLS).Hi,  //release
-     LongRec(FixedPtr.dwFileVersionLS).Lo]) //build
 end;
 
 function TModuleEntry.Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
@@ -1304,8 +1265,8 @@ var
   listIx, listCnt: integer;
   matchStrUp, strCatsUp, strNameUP, strBNamesUp: string;
   tagFullMatch, nameFullMatch, nameFound, tagFound, bookNameFound,
-    partialMacthed, foundBookNameHits, searchBookNames, booksetInit: boolean;
-  p, pf: PWideChar;
+  partialMacthed, foundBookNameHits, searchBookNames, booksetInit: boolean;
+  p, pf: PChar;
   curHits, allHits: TBQBookSet;
   pbs: ^TBQBookSet;
   fndIx, newfndIx: byte;
@@ -1315,7 +1276,7 @@ begin
   result := [];
   if listCnt < 0 then
     exit;
-  strNameUP := LowerCase(wsFullName);
+  strNameUP := LowerCase(mFullName);
   strCatsUp := LowerCase(modCats);
   strBNamesUp := LowerCase(modBookNames);
 
@@ -1355,7 +1316,7 @@ begin
       tagFullMatch := false;
     end;
 
-    p := PWideChar(Pointer(strBNamesUp));
+    p := PChar(Pointer(strBNamesUp));
     pf := p + Length(strBNamesUp);
     foundBookNameHits := false;
     if searchBookNames
@@ -1363,28 +1324,21 @@ begin
     begin
 
       repeat
-        p := StrPosW(p, PWideChar(Pointer(matchStrUp)));
+        p := StrPosW(p, PChar(Pointer(matchStrUp)));
         bookNameFound := p <> nil;
         if bookNameFound then
         begin
           foundBookNameHits := true;
-          newfndIx := StrTokenIx(strBNamesUp,
-            p - PWideChar(Pointer(strBNamesUp)) + 1);
+          newfndIx := StrTokenIx(strBNamesUp, p - PChar(Pointer(strBNamesUp)) + 1);
           if newfndIx > 0 then
             Include(curHits, newfndIx);
+
           inc(p, Length(matchStrUp));
 
           if not allMath then
           begin
             Include(result, mmtBookName);
-          end
-          else { all match }
-          begin
-
-            // if fndIx=-2 then fndIx:=newfndIx//first hit
-            // else if (newfndIx<>fndIx) then bookNameFullMatch:=false;
-
-          end // all match
+          end;
         end
 
         until (p > pf) or (not bookNameFound);
@@ -1393,10 +1347,10 @@ begin
           // if foundBookNameHits then begin
           if foundBookNameHits then
           begin
-            // если книги найдены
+            // if books found
             if booksetInit then
             begin
-              // если это первая запись книг
+              // if it's the first book entry
               allHits := allHits + curHits;
               booksetInit := false;
             end
@@ -1414,15 +1368,6 @@ begin
       end; // if search books
       if allMath then
       begin
-        // if foundBookNameHits then begin
-        // if tagFound or nameFound or booksetInit then begin
-        // allHits:=allHits+curHits;
-        // booksetInit:=false;
-        // end
-        // else    allHits:=allHits*curHits;
-        // foundBookNameHits:=allHits<>[];
-        // end;
-
         if (not nameFound) and (not tagFound) and (not foundBookNameHits) then
         begin
           partialMacthed := false;
@@ -1485,10 +1430,10 @@ begin
 
   function TModuleEntry.VisualSignature(): string;
   begin
-    if Length(wsShortName) > 0 then
-      result := wsShortName
+    if Length(mShortName) > 0 then
+      result := mShortName
     else
-      result := wsShortPath;
+      result := mShortPath;
   end;
 
   function TModuleEntry.BibleBookPresent(ix: integer): boolean;
@@ -1502,7 +1447,7 @@ begin
     result := (r = '1');
   end;
 
-  function TModuleEntry.BookNameByIx(ix: integer): WideString;
+  function TModuleEntry.BookNameByIx(ix: integer): string;
   begin
     if (ix <= 0) then
     begin
@@ -1512,16 +1457,18 @@ begin
     result := StrGetTokenByIx(modBookNames, ix);
   end;
 
-  procedure TModuleEntry.Init(amodType: TModuleType;
-    awsFullName, awsShortName, awsShortPath, awsFullPath: string;
-    awsBookNames: string; modCatsLst: TStrings);
+  procedure TModuleEntry.Init(
+    amodType: TModuleType;
+    aFullName, aShortName, aShortPath, aFullPath: string;
+    aBookNames: string;
+    modCatsLst: TStrings);
   begin
     modType := amodType;
-    wsFullName := awsFullName;
-    wsShortPath := awsShortPath;
-    wsShortName := awsShortName;
-    wsFullPath := awsFullPath;
-    modBookNames := awsBookNames;
+    mFullName := aFullName;
+    mShortPath := aShortPath;
+    mShortName := aShortName;
+    mFullPath := aFullPath;
+    modBookNames := aBookNames;
     mRects := nil;
     if modCatsLst.count <= 0 then
       modCats := DefaultModCats()
@@ -1543,11 +1490,10 @@ begin
 
   function __ModEntryCmp(Item1, Item2: TModuleEntry): integer;
   begin
-    result := OmegaCompareTxt(Item1.wsFullName, Item2.wsFullName, -1, true);
+    result := OmegaCompareTxt(Item1.mFullName, Item2.mFullName, -1, true);
   end;
 
-  function TCachedModules.FindByName(const name: WideString;
-    fromix: integer): integer;
+  function TCachedModules.FindByName(const name: string; fromix: integer): integer;
   var
     cnt, I, newi, fin, r: integer;
   begin
@@ -1561,7 +1507,7 @@ begin
     newi := I;
     repeat
       I := newi;
-      r := OmegaCompareTxt(name, TModuleEntry(Items[I]).wsFullName);
+      r := OmegaCompareTxt(name, TModuleEntry(Items[I]).mFullName);
       if r = 0 then
         break;
       if r < 0 then
@@ -1577,7 +1523,7 @@ begin
     end;
     dec(I);
     while (I >= fromix) and
-      (OmegaCompareTxt(name, TModuleEntry(Items[I]).wsFullName) = 0) do
+      (OmegaCompareTxt(name, TModuleEntry(Items[I]).mFullName) = 0) do
       dec(I);
     inc(I);
     result := I;
@@ -1591,7 +1537,7 @@ begin
     result := 0;
     for I := c downto 0 do
     begin
-      if Items[I].wsFullPath[1] = '?' then
+      if Items[I].mFullPath[1] = '?' then
         inc(result);
     end;
   end;
@@ -1614,7 +1560,7 @@ begin
     end
   end;
 
-  function TCachedModules.IndexOf(const name: WideString;
+  function TCachedModules.IndexOf(const name: string;
     fromix: integer): integer;
   var
     cnt, I: integer;
@@ -1625,7 +1571,7 @@ begin
       exit;
     for I := 0 to cnt do
     begin
-      result := OmegaCompareTxt(name, TModuleEntry(Items[I]).wsFullName, -1, true);
+      result := OmegaCompareTxt(name, TModuleEntry(Items[I]).mFullName, -1, true);
       if result = 0 then
       begin
         result := I;
@@ -1685,7 +1631,7 @@ begin
 
   end;
 
-  function TCachedModules.FindByFolder(const name: WideString): integer;
+  function TCachedModules.FindByFolder(const name: string): integer;
   var
     cnt, I: integer;
   begin
@@ -1695,7 +1641,7 @@ begin
       exit;
     for I := 0 to cnt do
     begin
-      result := WideCompareText(name, TModuleEntry(Items[I]).wsShortPath);
+      result := CompareText(name, TModuleEntry(Items[I]).mShortPath);
       if result = 0 then
       begin
         result := I;
@@ -1705,7 +1651,7 @@ begin
     result := -1;
   end;
 
-  function TCachedModules.FindByFullPath(const wsFullPath: WideString): integer;
+  function TCachedModules.FindByFullPath(const wsFullPath: string): integer;
   var
     cnt, I: integer;
   begin
@@ -1715,7 +1661,7 @@ begin
       exit;
     for I := 0 to cnt do
     begin
-      result := WideCompareText(wsFullPath, Items[I].wsFullPath);
+      result := CompareText(wsFullPath, Items[I].mFullPath);
       if result = 0 then
       begin
         result := I;
@@ -1732,8 +1678,7 @@ begin
     mSorted := true;
   end;
 
-  function TCachedModules.ResolveModuleByNames(const modName,
-    modShortName: WideString): TModuleEntry;
+  function TCachedModules.ResolveModuleByNames(const modName, modShortName: string): TModuleEntry;
   var
     foundIx, c: integer;
   begin
@@ -1743,22 +1688,22 @@ begin
       if (foundIx < 0) then
         exit;
       result := TModuleEntry(Items[foundIx]);
-      if result.wsShortName = modShortName then
+      if result.mShortName = modShortName then
         exit;
       c := count;
 
       repeat
         result := TModuleEntry(Items[foundIx]);
         inc(foundIx);
-      until (foundIx > c) or (OmegaCompareTxt(result.wsFullName, modName, -1,
-        true) <> 0) or (result.wsShortName <> modShortName); // until
+      until (foundIx > c) or (OmegaCompareTxt(result.mFullName, modName, -1,
+        true) <> 0) or (result.mShortName <> modShortName); // until
 
       result := TModuleEntry(Items[foundIx - 1]);
     except
       on e: Exception do
       begin
         g_ExceptionContext.Add
-          (WideFormat
+          (Format
           ('TCachedModules.ResolveModuleByNames: modName=%s | modShortName=%s ',
           [modName, modShortName]));
       end;
@@ -1777,8 +1722,10 @@ begin
     result := OmegaCompareTxt(S1, S2);
   end;
 
-  function TBQStringList.LocateLastStartedWith(const subString: string;
-    startFromIx: integer = 0; strict: boolean = false): integer;
+  function TBQStringList.LocateLastStartedWith(
+    const subString: string;
+    startFromIx: integer = 0;
+    strict: boolean = false): integer;
   var
     L, fin, I, newi, cnt, bestMatchLen, matchLen, bestMatchLenIx, startIx,
       lenDifferenceMin, lenDifference: integer;
@@ -1882,10 +1829,9 @@ begin
     result := fullMatch;
   end;
 
-  function GetTokenFromString(pStr: PWideChar; delim: WideChar;
-    out len: integer): PWideChar;
+  function GetTokenFromString(pStr: PChar; delim: Char; out len: integer): PChar;
   var
-    currentCmpCh: WideChar;
+    currentCmpCh: Char;
   label endfail;
   begin
 
@@ -1988,7 +1934,7 @@ begin
     filePath, fullPath, modfolder: string;
   begin
     result := '';
-    // сжатые модули имеют приоритет над иными
+    // compressed modules take precedence over other modules
     filePath := ExtractFilePath(s);
     modfolder := Copy(filePath, 1, Length(filePath) - 1);
     fullPath := ExePath + '\' + modfolder + '.bqb';
@@ -2006,7 +1952,7 @@ begin
     buff: PChar;
   begin
     GetMem(buff, 4096);
-    Windows.GetModuleFileNameW(0, buff, 2047);
+    Windows.GetModuleFileName(0, buff, 2047);
     __exe__path := ExtractFilePath(buff);
 
     FreeMem(buff);
@@ -2043,10 +1989,6 @@ begin
     result := ExePath + 'users\' + DumpFileName(dUserName) + '\';
     if ForceDirectories(result) then
       exit;
-    // AlekId:Weird
-    // Result := WindowsDirectory + 'biblequote\' + DumpFileName(dUserName) + '\';
-    // if ForceDirectories(Result) then
-    // Exit;
 
     dPath := GetAppDataFolder;
     if dPath <> '' then
@@ -2055,7 +1997,7 @@ begin
       if ForceDirectories(result) then
         exit;
     end;
-    MessageBoxW(0, 'Cannot Found BibleQute data folder', 'BibleQute Error', MB_OK or MB_ICONERROR);
+    MessageBox(0, 'Cannot Found BibleQute data folder', 'BibleQute Error', MB_OK or MB_ICONERROR);
     result := '';
 
   end;
@@ -2155,10 +2097,6 @@ begin
 
 {$REGION  TbqOldObjectList }
 
-  /// <summary>Конвертирует дату-время из отчёта в TDateTime.</summary>
-  /// <param name="AValue">Строка, представляющая дату из отчёта. Имеет формат вида 'Sun, 25 Jan 2009 12:48:15 +0300'.<param>
-  /// <returns>Значение TDateTime (по местному времени), которое соответствует параметру AValue, или 0, если AValue не содержит корректного представления даты.</returns>
-  /// <seealso cref="GetDate">GetDate</seealso>
   procedure TbqOldObjectList.Notify(Ptr: Pointer; Action: TListNotification);
   begin
     if Action = lnDeleted then
@@ -2176,11 +2114,11 @@ begin
     mHandle := 0;
   end;
 
-  constructor TbqTextFileWriter.Create(const aFileName: WideString);
+  constructor TbqTextFileWriter.Create(const aFileName: string);
   var
     writePos: integer;
   begin
-    mHandle := CreateFileW(Pointer(aFileName), GENERIC_WRITE, FILE_SHARE_READ, nil, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+    mHandle := CreateFile(Pointer(aFileName), GENERIC_WRITE, FILE_SHARE_READ, nil, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
     if mHandle = INVALID_HANDLE_VALUE then
       RaiseLastOSError();
     writePos := FileSeek(mHandle, 0, soFromEnd);
@@ -2194,7 +2132,7 @@ begin
     inherited;
   end;
 
-  function TbqTextFileWriter.WriteUnicodeLine(const line: WideString): HRESULT;
+  function TbqTextFileWriter.WriteUnicodeLine(const line: string): HRESULT;
   var
     bytesWritten: Cardinal;
     boolWrite: BOOL;
@@ -2220,13 +2158,14 @@ initialization
 // Enable raw mode (default mode uses stack frames which aren't always generated by the compiler)
 Include(JclStackTrackingOptions, stRawMode);
 Include(JclStackTrackingOptions, stStack);
+
 // Disable stack tracking in dynamically loaded modules (it makes stack tracking code a bit faster)
 // Include(JclStackTrackingOptions, stStaticModuleList);
 // Initialize Exception tracking
 g_ExceptionContext := TbqExceptionContext.Create();
 JclStartExceptionTracking;
 __init_vars();
-G_InstalledFonts := TWideStringList.Create;
+G_InstalledFonts := TStringList.Create;
 G_InstalledFonts.Sorted := true;
 G_InstalledFonts.Duplicates := dupIgnore;
 load_proc();

@@ -39,8 +39,7 @@ end;
 
 procedure TPasswordBox.FormCreate(Sender: TObject);
 begin
-  // lblPasswordNeeded:= Lang.SayDefault('PasswordNeeded',
-  // 'Для открытия данного модуля нужно ввести пароль');
+  //
 end;
 
 end.

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes,
   Graphics,
   Controls, Forms, Dialogs,
-  Htmlview, ShellAPI, StdCtrls, ExtCtrls, HTMLUn2, HTMLEmbedInterfaces;
+  Htmlview, ShellAPI, StdCtrls, ExtCtrls, HTMLEmbedInterfaces;
 
 type
   TCopyrightForm = class(TForm)
@@ -18,13 +18,11 @@ type
     shpFooter: TShape;
     lblCopyrightNotice: TLabel;
     imgCopyRight: TImage;
-    procedure bwrCopyrightHotSpotClick(Sender: TObject; const SRC: String;
-      var Handled: Boolean);
+    procedure bwrCopyrightHotSpotClick(Sender: TObject; const SRC: String; var Handled: Boolean);
     procedure FormShow(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
-    procedure bwrCopyrightKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure bwrCopyrightKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -39,22 +37,19 @@ implementation
 uses MainFrm;
 {$R *.DFM}
 
-procedure TCopyrightForm.bwrCopyrightHotSpotClick(Sender: TObject;
-  const SRC: String; var Handled: Boolean);
+procedure TCopyrightForm.bwrCopyrightHotSpotClick(Sender: TObject; const SRC: String; var Handled: Boolean);
 var
-  wsrc: WideString;
+  wsrc: string;
 begin
   wsrc := SRC;
   if Pos('editini=', SRC) = 1 then
   begin
     wsrc := Copy(wsrc, 9, $FFF);
-    ShellExecuteW(Application.Handle, nil, PWideChar(wsrc), nil, nil,
-      SW_NORMAL);
+    ShellExecute(Application.Handle, nil, PChar(wsrc), nil, nil, SW_NORMAL);
   end
   else if Pos('http://', SRC) = 1 then // WWW
   begin
-    ShellExecuteW(Application.Handle, nil, PWideChar(wsrc), nil, nil,
-      SW_NORMAL);
+    ShellExecute(Application.Handle, nil, PChar(wsrc), nil, nil, SW_NORMAL);
     Handled := true;
   end
 
@@ -69,8 +64,7 @@ begin
   end;
 end;
 
-procedure TCopyrightForm.bwrCopyrightKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TCopyrightForm.bwrCopyrightKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   case Key of
     VK_INSERT, $43:

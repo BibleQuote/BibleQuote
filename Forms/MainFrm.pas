@@ -53,17 +53,23 @@ const
 type
   TBookNodeType = (btChapter, btBook);
   PBookNodeData = ^TBookNodeData;
+
   TBookNodeData = record
     Caption: string;
     NodeType: TBookNodeType;
   end;
 
-  TNavigateResult = (nrSuccess, nrEndVerseErr, nrStartVerseErr, nrChapterErr, nrBookErr, nrModuleFail);
+  TNavigateResult = (
+    nrSuccess,
+    nrEndVerseErr,
+    nrStartVerseErr,
+    nrChapterErr,
+    nrBookErr,
+    nrModuleFail);
 
   TgmtOption = (gmtBulletDelimited, gmtEffectiveAddress, gmtLookupRefBibles);
   TgmtOptions = set of TgmtOption;
 
-  (* AlekId:/Добавлено *)
 type
   TMainForm = class(TForm, IBibleQuoteCommandProcessor, IBibleWinUIServices, IuiVerseOperations, IVDTInfo)
     OpenDialog: TOpenDialog;
@@ -289,8 +295,7 @@ type
     tbtnReferenceInfo: TToolButton;
     vdtModules: TVirtualStringTree;
     procedure BibleTabsDragDrop(Sender, Source: TObject; X, Y: integer);
-    procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
-      state: TDragState; var Accept: Boolean);
+    procedure BibleTabsDragOver(Sender, Source: TObject; X, Y: integer; state: TDragState; var Accept: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -317,51 +322,32 @@ type
     procedure miFoundTextConfigClick(Sender: TObject);
     procedure miCopyVerseClick(Sender: TObject);
     procedure pmBrowserPopup(Sender: TObject);
-
     procedure miXrefClick(Sender: TObject);
     procedure tbtnSoundClick(Sender: TObject);
     procedure miHotkeyClick(Sender: TObject);
-    // procedure miAddPassageBookmarkClick(Sender: TObject);
     procedure miDialogFontConfigClick(Sender: TObject);
     procedure miCopyPassageClick(Sender: TObject);
-
     procedure tbtnPreviewClick(Sender: TObject);
     procedure sbxPreviewResize(Sender: TObject);
     procedure pbPreviewPaint(Sender: TObject);
-    procedure pbPreviewMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
-
-    {
-      procedure BrowserPrintHeader(Sender: TObject; Canvas: TCanvas; NumPage,
-      W, H: Integer; var StopPrinting: Boolean);
-      procedure BrowserPrintFooter(Sender: TObject; Canvas: TCanvas; NumPage,
-      W, H: Integer; var StopPrinting: Boolean);
-    }
-    procedure MainBookVerseFound(Sender: TObject; NumVersesFound, book, chapter,
-      verse: integer; s: string);
+    procedure pbPreviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+    procedure MainBookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string);
     procedure MainBookChangeModule(Sender: TObject);
-    procedure bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+    procedure bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    // procedure BookmarkLBKeyDown(Sender: TObject; var Key: Word;
-    // Shift: TShiftState);
     procedure miPrintPreviewClick(Sender: TObject);
     procedure lbHistoryDblClick(Sender: TObject);
     procedure miStrongClick(Sender: TObject);
 
-    procedure bwrSearchHotSpotClick(Sender: TObject; const SRC: string;
-      var Handled: Boolean);
+    procedure bwrSearchHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure miSearchWordClick(Sender: TObject);
 
     procedure miCompareClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure cbLinksChange(Sender: TObject);
-    procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string;
-      var Handled: Boolean);
-    procedure bwrCommentsHotSpotClick(Sender: TObject; const SRC: string;
-      var Handled: Boolean);
-    procedure bwrStrongMouseDouble(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+    procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
+    procedure bwrCommentsHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
+    procedure bwrStrongMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure DicLBDblClick(Sender: TObject);
     procedure SplitterMoved(Sender: TObject);
     procedure edtDicKeyPress(Sender: TObject; var Key: Char);
@@ -370,20 +356,14 @@ type
     procedure cbModulesChange(Sender: TObject);
     procedure lbStrongDblClick(Sender: TObject);
     procedure miAboutClick(Sender: TObject);
-    procedure bwrSearchKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure bwrSearchKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure bwrSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure bwrSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure tbtnBackClick(Sender: TObject);
     procedure tbtnForwardClick(Sender: TObject);
     procedure DicLBKeyPress(Sender: TObject; var Key: Char);
-    procedure bwrDicMouseDouble(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
-    procedure bwrXRefHotSpotClick(Sender: TObject; const SRC: string;
-      var Handled: Boolean);
-    // procedure BrowserMouseUp(Sender: TObject; Button: TMouseButton;
-    // Shift: TShiftState; X, Y: Integer);
+    procedure bwrDicMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+    procedure bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
     procedure tbtnMemoOpenClick(Sender: TObject);
@@ -416,16 +396,13 @@ type
     procedure cbDicFilterChange(Sender: TObject);
     procedure miAddBookmarkClick(Sender: TObject);
     procedure lbBookmarksDblClick(Sender: TObject);
-    procedure bwrStrongHotSpotClick(Sender: TObject; const SRC: string;
-      var Handled: Boolean);
+    procedure bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure lbBookmarksClick(Sender: TObject);
     procedure lbBookmarksKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure lbHistoryKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure miSearchWindowClick(Sender: TObject);
-    procedure pnlFindStrongNumberMouseDown(Sender: TObject;
-      Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure pnlFindStrongNumberMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+    procedure pnlFindStrongNumberMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+    procedure pnlFindStrongNumberMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pnlFindStrongNumberClick(Sender: TObject);
     procedure miCopyOptionsClick(Sender: TObject);
     procedure miOptionsClick(Sender: TObject);
@@ -441,43 +418,31 @@ type
     procedure miNewTabClick(Sender: TObject);
     procedure miCloseTabClick(Sender: TObject);
     procedure pgcViewTabsChange(Sender: TObject);
-    procedure tbInitialViewPageContextPopup(Sender: TObject; MousePos: TPoint;
-      var Handled: Boolean);
-    procedure edtSearchKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure pgcViewTabsStartDrag(Sender: TObject;
-      var DragObject: TDragObject);
+    procedure tbInitialViewPageContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+    procedure edtSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure pgcViewTabsStartDrag(Sender: TObject; var DragObject: TDragObject);
     procedure pgcViewTabsDeleteTab(Sender: TClosableTabControl; Index: integer);
-    procedure pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
-    procedure dtsBibleDrawTab(Sender: TObject; TabCanvas: TCanvas; R: TRect;
-      Index: integer; Selected: Boolean);
-    procedure dtsBibleChange(Sender: TObject; NewTab: integer;
-      var AllowChange: Boolean);
-    procedure dtsBibleMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+    procedure pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+    procedure dtsBibleDrawTab(Sender: TObject; TabCanvas: TCanvas; R: TRect; Index: integer; Selected: Boolean);
+    procedure dtsBibleChange(Sender: TObject; NewTab: integer; var AllowChange: Boolean);
+    procedure dtsBibleMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure miDeteleBibleTabClick(Sender: TObject);
 
-    procedure dtsBibleMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
-    procedure dtsBibleMouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: integer);
+    procedure dtsBibleMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+    procedure dtsBibleMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure FormDeactivate(Sender: TObject);
     procedure bwrHtmlFileBrowse(Sender, Obj: TObject; var s: string);
-    procedure bwrHtmlImageRequest(Sender: TObject; const SRC: string;
-      var Stream: TMemoryStream);
+    procedure bwrHtmlImageRequest(Sender: TObject; const SRC: string; var Stream: TMemoryStream);
     procedure cbModulesCloseUp(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure cbCommentsCloseUp(Sender: TObject);
     procedure bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
-    procedure bwrHtmlMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
+    procedure bwrHtmlMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
     procedure LoadFontFromFolder(awsFolder: string);
     procedure miOpenNewViewClick(Sender: TObject);
     procedure pmRefPopup(Sender: TObject);
     procedure miChooseSatelliteBibleClick(Sender: TObject);
-    procedure bwrHtmlMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+    procedure bwrHtmlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure appEventsException(Sender: TObject; E: Exception);
     procedure cbModulesKeyPress(Sender: TObject; var Key: Char);
     procedure InitQNavList();
@@ -485,20 +450,22 @@ type
     procedure tbtnLibClick(Sender: TObject);
     function OpenChapter(): Boolean;
     procedure NavigateToMainBookNode();
-    function GetChildNodeByIndex(parentNode: PVirtualNode; index : Integer): PVirtualNode;
+    function GetChildNodeByIndex(parentNode: PVirtualNode; Index: integer): PVirtualNode;
     function GetCurrentBookNode(): PVirtualNode;
     function IsPsalms(bookNodeIndex: integer): Boolean;
     procedure pgcMainMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure pgcViewTabsChanging(Sender: TObject; var AllowChange: Boolean);
     procedure tbtnAddTagClick(Sender: TObject);
-    procedure vdtTagsVersesMeasureItem(Sender: TBaseVirtualTree;
-      TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: integer);
-    function PaintTokens(canv: TCanvas; rct: TRect; tkns: TObjectList;
-      calc: Boolean): integer;
-    procedure vdtTagsVersesDrawNode(Sender: TBaseVirtualTree;
-      const PaintInfo: TVTPaintInfo);
-    procedure pgcViewTabsDragOver(Sender, Source: TObject; X, Y: integer;
-      state: TDragState; var Accept: Boolean);
+
+    procedure vdtTagsVersesMeasureItem(
+    Sender: TBaseVirtualTree;
+      TargetCanvas: TCanvas;
+      Node: PVirtualNode;
+      var NodeHeight: integer);
+
+    function PaintTokens(canv: TCanvas; rct: TRect; tkns: TObjectList; calc: Boolean): integer;
+    procedure vdtTagsVersesDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
+    procedure pgcViewTabsDragOver(Sender, Source: TObject; X, Y: integer; state: TDragState; var Accept: Boolean);
     function LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
     procedure FormDblClick(Sender: TObject);
     procedure dtsBibleClick(Sender: TObject);
@@ -506,60 +473,68 @@ type
     procedure pgcViewTabsDblClick(Sender: TClosableTabControl; Index: integer);
     procedure miRecognizeBibleLinksClick(Sender: TObject);
     procedure pgcViewTabsDragDrop(Sender, Source: TObject; X, Y: integer);
-    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
     procedure miCloseAllOtherTabsClick(Sender: TObject);
     procedure tmCommonTimer(Sender: TObject);
     procedure miVerseHighlightBGClick(Sender: TObject);
     procedure cbListDropDown(Sender: TObject);
     procedure tbtnDelNodeClick(Sender: TObject);
     procedure cbSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure vdtTagsVersesCollapsed(Sender: TBaseVirtualTree;
-      Node: PVirtualNode);
+    procedure vdtTagsVersesCollapsed(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vdtTagsVersesResize(Sender: TObject);
-    procedure vdtTagsVersesMouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: integer);
-    procedure vdtTagsVersesShowScrollBar(Sender: TBaseVirtualTree; Bar: integer;
-      Show: Boolean);
+    procedure vdtTagsVersesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
+    procedure vdtTagsVersesShowScrollBar(Sender: TBaseVirtualTree; Bar: integer; Show: Boolean);
     procedure vdtTagsVersesDblClick(Sender: TObject);
-    /// procedure vdtTagsVersesInitChildren(Sender: TBaseVirtualTree;
-    // Node: PVirtualNode; var ChildCount: Cardinal);
-    procedure vdtTagsVersesInitNode(Sender: TBaseVirtualTree;
-      ParentNode, Node: PVirtualNode;
+    procedure vdtTagsVersesInitNode(
+      Sender: TBaseVirtualTree;
+      parentNode, Node: PVirtualNode;
       var InitialStates: TVirtualNodeInitStates);
-    procedure vdtTagsVersesScroll(Sender: TBaseVirtualTree;
-      DeltaX, DeltaY: integer);
-    procedure vdtTagsVersesStateChange(Sender: TBaseVirtualTree;
-      Enter, Leave: TVirtualTreeStates);
-    procedure vdtTagsVersesEditing(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Column: TColumnIndex; var Allowed: Boolean);
-    procedure vdtTagsVersesCreateEditor(Sender: TBaseVirtualTree;
-      Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
-    procedure vdtTagsVersesGetNodeWidth(Sender: TBaseVirtualTree;
-      HintCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+
+    procedure vdtTagsVersesScroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: integer);
+    procedure vdtTagsVersesStateChange(Sender: TBaseVirtualTree; Enter, Leave: TVirtualTreeStates);
+    procedure vdtTagsVersesEditing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+    procedure vdtTagsVersesCreateEditor(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
+
+    procedure vdtTagsVersesGetNodeWidth(
+      Sender: TBaseVirtualTree;
+      HintCanvas: TCanvas;
+      Node: PVirtualNode;
+      Column: TColumnIndex;
       var NodeWidth: integer);
-    procedure vdtTagsVersesEdited(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Column: TColumnIndex);
-    // TODO procedure vdtTagsVersesIncrementalSearch1(Sender: TBaseVirtualTree;
-    // Node: PVirtualNode; const SearchText: WideString; var Result: Integer);
+
+    procedure vdtTagsVersesEdited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
+
     procedure cbTagsFilterChange(Sender: TObject);
     procedure btnOnlyMeaningfulClick(Sender: TObject);
     procedure tbtnResolveLinksClick(Sender: TObject);
     procedure miChooseLogicClick(Sender: TObject);
-    procedure pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem;
-      Rebuild: Boolean);
+    procedure pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
     procedure tbtnSatelliteMouseEnter(Sender: TObject);
     procedure imgLoadProgressClick(Sender: TObject);
     procedure cbCommentsDropDown(Sender: TObject);
-    procedure vdtTagsVersesCompareNodes(Sender: TBaseVirtualTree;
-      Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: integer);
-    procedure vstDicListAddToSelection(Sender: TBaseVirtualTree;
-      Node: PVirtualNode);
+
+    procedure vdtTagsVersesCompareNodes(
+      Sender: TBaseVirtualTree;
+      Node1, Node2: PVirtualNode;
+      Column: TColumnIndex;
+      var Result: integer);
+
+    procedure vstDicListAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure miShowSignaturesClick(Sender: TObject);
-    procedure vstDicListGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
-    procedure vdtTagsVersesIncrementalSearch(Sender: TBaseVirtualTree;
-      Node: PVirtualNode; const SearchText: string; var Result: integer);
+
+    procedure vstDicListGetText(
+      Sender: TBaseVirtualTree;
+      Node: PVirtualNode;
+      Column: TColumnIndex;
+      TextType: TVSTTextType;
+      var CellText: string);
+
+    procedure vdtTagsVersesIncrementalSearch(
+      Sender: TBaseVirtualTree;
+      Node: PVirtualNode;
+      const SearchText: string;
+      var Result: integer);
+
     procedure tbtnMemosClick(Sender: TObject);
     procedure SetMemosVisible(showMemos: Boolean);
 
@@ -568,7 +543,7 @@ type
     procedure DictionariesLoaded(Sender: TObject);
     procedure ModulesScanDone(Sender: TObject);
     procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
-    procedure pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: Integer; var ImageIndex: Integer);
+    procedure pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: integer; var ImageIndex: integer);
     procedure tbtnQuickSearchClick(Sender: TObject);
     procedure tbtnQuickSearchPrevClick(Sender: TObject);
     procedure tbtnQuickSearchNextClick(Sender: TObject);
@@ -578,34 +553,24 @@ type
     procedure tedtReferenceChange(Sender: TObject);
     procedure tedtReferenceEnter(Sender: TObject);
     procedure tedtReferenceKeyPress(Sender: TObject; var Key: Char);
-    procedure vdtModulesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
-    procedure vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode,
-      Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+
+    procedure vdtModulesGetText(
+      Sender: TBaseVirtualTree;
+      Node: PVirtualNode;
+      Column: TColumnIndex;
+      TextType: TVSTTextType;
+      var CellText: string);
+
+    procedure vdtModulesInitNode(
+      Sender: TBaseVirtualTree;
+      parentNode, Node: PVirtualNode;
+      var InitialStates: TVirtualNodeInitStates);
+
     procedure vdtModulesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
-    procedure vdtModulesInitChildren(Sender: TBaseVirtualTree;
-      Node: PVirtualNode; var ChildCount: Cardinal);
-    procedure vdtModulesAddToSelection(Sender: TBaseVirtualTree;
-      Node: PVirtualNode);
+    procedure vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
+    procedure vdtModulesAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
 
-    // procedure tbAddBibleLinkClick(Sender: TObject);
-    // procedure vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
-    // Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
-    // procedure vstBooksInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode;
-    // var ChildCount: Cardinal);
-    // procedure vstBooksGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-    // Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
-    // procedure tbtnAddCategoryClick(Sender: TObject);
-    // procedure vstBooksNewText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-    // Column: TColumnIndex; NewText: WideString);
-
-    // procedure BrowserMouseMove(Sender: TObject; Shift: TShiftState; X,
-    // Y: Integer);
-    // procedure CommBrowserHotSpotClick(Sender: TObject; const SRC: String;
-    // var Handled: Boolean);
   private
-    { Private declarations }
-
     MainBook: TBible;
     SecondBook: TBible;
 
@@ -614,7 +579,7 @@ type
     FCurPreviewPage: integer;
     ZoomIndex: integer;
     Zoom: double;
-    { AlekId: добавлено }
+
     mBrowserDefaultFontName: string;
     mDictionariesFullyInitialized, mTaggedBookmarksLoaded: Boolean;
     mDefaultLocation: string;
@@ -625,12 +590,8 @@ type
     mIcn: TIcon;
     mFavorites: TFavoriteModules;
     mInterfaceLock: Boolean;
-    // mBibleLinkParser:TBibleLinkParser;
     mXRefMisUsed: Boolean;
-    // mBibleLinkParserAvail: boolean;
     mRefenceBible: TBible;
-    // mHotBibles: TCachedModules;
-    // mFirstVisibleVerse: integer;
     hint_expanded: integer; // 0 -not set, 1-short , 2-expanded
     mblSearchBooksDDAltered: Boolean;
     mslSearchBooksCache: TStringList;
@@ -643,9 +604,6 @@ type
     mModuleLoader: TModuleLoader;
     mTranslated: Boolean;
 
-    // mBibleTabsWideHelper:TWideControlHelper;
-    // mBookCategories: TObjectList;
-    { AlekId: /добавлено }
     procedure WMQueryEndSession(var Message: TWMQueryEndSession);
       message WM_QUERYENDSESSION;
 
@@ -654,25 +612,32 @@ type
     function CreateNewBibleInstance(aBible: TBible): TBible;
     function GetActiveTabInfo(): TViewTabInfo;
     procedure AdjustBibleTabs(awsNewModuleName: string = '');
-    // при перемене модуля: навигация или смена таба
+
     procedure SafeProcessCommand(wsLocation: string; hlOption: TbqHLVerseOption);
     procedure UpdateUI();
-    // function ActiveSatteliteMenu(): TMenuItem;
-    // function SelectSatelliteMenuItem(aItem: TMenuItem): TMenuItem;
-    procedure SetFirstTabInitialLocation(wsCommand, wsSecondaryView: string;
-      const Title: string; state: TViewTabInfoState; visual: Boolean);
-    // function SatelliteMenuItemFromModuleName(aName: WideString): TMenuItem;
+
+    procedure SetFirstTabInitialLocation(
+      wsCommand, wsSecondaryView: string;
+      const Title: string;
+      state: TViewTabInfoState;
+      visual: Boolean);
+
     procedure SaveTabsToFile(path: string);
     procedure LoadTabsFromFile(path: string);
-    function NewViewTab(const command: string; const satellite: string;
-      const browserbase: string; state: TViewTabInfoState;
-      const Title: string; visual: Boolean): Boolean;
+
+    function NewViewTab(
+      const command: string;
+      const satellite: string;
+      const browserbase: string;
+      state: TViewTabInfoState;
+      const Title: string;
+      visual: Boolean): Boolean;
+
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
     function LoadDictionaries(foreground: Boolean): Boolean;
     function LoadModules(background: Boolean): Boolean;
     function LoadHotModulesConfig(): Boolean;
-    // procedure DeleteInvalidHotModules();
     procedure SaveHotModulesConfig(aMUIEngine: TMultiLanguage);
     function AddHotModule(const modEntry: TModuleEntry; tag: integer;
       addBibleTab: Boolean = true): integer;
@@ -693,143 +658,127 @@ type
     procedure Idle(Sender: TObject; var Done: Boolean);
     procedure ForceForegroundLoad();
     procedure UpdateAllBooks();
-    // function ModuleIndexByName(const awsModule: Widestring): integer;
     function DefaultLocation(): string;
-    // procedure LoadBookNodes();
-    // procedure SaveBookNodes();
     function ActivateFont(const fontPath: string): DWORD;
     function PrepareFont(const aFontName, aFontPath: string): Boolean;
     function SuggestFont(const desiredFontName, desiredFontPath: string;
       desiredCharset: integer): string;
 
-  function GetModuleText(cmd: string; out fontName: string; out bl: TBibleLink;
-    out txt: string; out passageSignature: string; options: TgmtOptions = [];
-    maxWords: integer = 0): integer;
-  function RefBiblesCount(): integer;
-  function GetRefBible(ix: integer): TModuleEntry;
-  procedure FontChanged(delta: integer);
-  function DicScrollNode(nd: PVirtualNode): Boolean;
-  procedure LoadUserMemos();
-  function LoadTaggedBookMarks(): Boolean;
-  procedure LoadSecondBookByName(const wsName: string);
-  // procedure SetStrongsAndNotesState(showStrongs, showNotes:boolean; ti:TViewTabInfo);
-  (* AlekId:/Добавлено *)
-  function GoAddress(var book, chapter, fromverse, toverse: integer;
-    var hlVerses: TbqHLVerseOption): TNavigateResult;
-  procedure SearchListInit;
+    function GetModuleText(cmd: string; out fontName: string;
+      out bl: TBibleLink; out txt: string; out passageSignature: string;
+      options: TgmtOptions = []; maxWords: integer = 0): integer;
+    function RefBiblesCount(): integer;
+    function GetRefBible(ix: integer): TModuleEntry;
+    procedure FontChanged(delta: integer);
+    function DicScrollNode(nd: PVirtualNode): Boolean;
+    procedure LoadUserMemos();
+    function LoadTaggedBookMarks(): Boolean;
+    procedure LoadSecondBookByName(const wsName: string);
+    function GoAddress(var book, chapter, fromverse, toverse: integer;
+      var hlVerses: TbqHLVerseOption): TNavigateResult;
+    procedure SearchListInit;
 
-  procedure GoPrevChapter;
-  procedure GoNextChapter;
+    procedure GoPrevChapter;
+    procedure GoNextChapter;
 
-  function TranslateInterface(locFile: string): Boolean;
+    function TranslateInterface(locFile: string): Boolean;
 
-  procedure LoadConfiguration;
-  procedure SaveConfiguration;
-  // procedure InitHotModulesConfigPage(refreshModuleList: boolean = false);
-  // procedure InitBibleTabs;
-  procedure SetBibleTabsHintsState(showHints: Boolean = true);
-  procedure MainMenuInit(cacheupdate: Boolean);
-  procedure GoModuleName(s: string);
+    procedure LoadConfiguration;
+    procedure SaveConfiguration;
+    procedure SetBibleTabsHintsState(showHints: Boolean = true);
+    procedure MainMenuInit(cacheupdate: Boolean);
+    procedure GoModuleName(s: string);
 
-  procedure UpdateBooksAndChaptersBoxes;
+    procedure UpdateBooksAndChaptersBoxes;
 
-  procedure LanguageMenuClick(Sender: TObject);
+    procedure LanguageMenuClick(Sender: TObject);
 
-  function ChooseColor(color: TColor): TColor;
-  function LoadBibleToXref(cmd: string; const id: string = ''): Boolean;
-  // function LocateMemo(book,chapter,verse: integer; var cursor: integer): boolean;
-  // function MainFileExists(s: WideString): WideString;
+    function ChooseColor(color: TColor): TColor;
+    function LoadBibleToXref(cmd: string; const id: string = ''): Boolean;
 
-  procedure HotKeyClick(Sender: TObject);
+    procedure HotKeyClick(Sender: TObject);
 
-  function CopyPassage(fromverse, toverse: integer): string;
+    function CopyPassage(fromverse, toverse: integer): string;
 
-  procedure GoRandomPlace;
-  procedure HistoryAdd(s: string);
-  procedure DisplayStrongs(num: integer; hebrew: Boolean);
-  procedure DisplayDictionary(const s: string);
+    procedure GoRandomPlace;
+    procedure HistoryAdd(s: string);
+    procedure DisplayStrongs(num: integer; hebrew: Boolean);
+    procedure DisplayDictionary(const s: string);
 
-  procedure ConvertClipboard;
+    procedure ConvertClipboard;
 
-  procedure DisplaySearchResults(page: integer);
+    procedure DisplaySearchResults(page: integer);
 
-  function DictionaryStartup(maxAdd: integer = maxInt): Boolean;
+    function DictionaryStartup(maxAdd: integer = maxInt): Boolean;
 
-  procedure ShowXref;
-  procedure ShowComments;
-  procedure ShowSearchTab();
-  procedure ShowTagsTab();
-  function LocateDicItem: integer;
-  // finds the closest match for a word in merged
-  // dictionary word list
+    procedure ShowXref;
+    procedure ShowComments;
+    procedure ShowSearchTab();
+    procedure ShowTagsTab();
 
-  procedure ShowConfigDialog;
-  procedure ShowQNav(useDisposition: TBQUseDisposition = udMyLibrary);
-  procedure ShowQuickSearch();
-  procedure SetVScrollTracker(aBrwsr: THTMLViewer);
-  procedure VSCrollTracker(Sender: TObject);
-  procedure EnableMenus(aEnabled: Boolean);
-  function PreProcessAutoCommand(const cmd: string; const prefModule: string;
-    out ConcreteCmd: string): HRESULT;
-  procedure DeferredReloadViewPages();
-  procedure AppOnHintHandler(Sender: TObject);
-  procedure TagAdded(tagId: int64; const txt: string; Show: Boolean);
-  procedure TagRenamed(tagId: int64; const newTxt: string);
-  procedure TagDeleted(id: int64; const txt: string);
-  procedure VerseAdded(verseId, tagId: int64; const cmd: string;
-    Show: Boolean);
-  procedure VerseDeleted(verseId, tagId: int64);
-  function GetAutoTxt(const cmd: string; maxWords: integer; out fnt: string;
-    out passageSignature: string): string;
-  function GetMainWindow(): TForm; // IbibleQuoteWinUIServices
-  function GetIViewerBase(): IHtmlViewerBase; // IbibleQuoteWinUIServices
+    // finds the closest match for a word in merged
+    // dictionary word list
+    function LocateDicItem: integer;
 
-  procedure GetTextInfo(tree: TVirtualDrawTree; Node: PVirtualNode;
-    Column: TColumnIndex; const AFont: TFont; var R: TRect;
-    var Text: string);
-  procedure SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode;
-    Column: TColumnIndex; const Text: string);
-  procedure InitializeTaggedBookMarks();
-  procedure ReCalculateTagTree();
-  function GetTagFilterTimer(): TTimer;
-  procedure TagFilterTimerProc(Sender: TObject);
-  procedure FilterTags(const FilterText: string);
-  procedure InitHotkeysSupport();
-  procedure CheckModuleInstall();
-  function InstallModule(const path: string): integer;
-  function FilterCommentariesCombo(): integer;
-  function InstallFont(const specialPath: string): HRESULT;
-  procedure TranslateConfigForm;
-  procedure FillLanguageMenu;
-  function GetLocalizationDirectory(): string;
-  function ApplyInitialTranslation(): Boolean;
-  procedure TranslateForm(form: TForm);
-  procedure ToggleQuickSearchPanel(const enable: Boolean);
-  procedure SearchForward();
-  procedure SearchBackward();
-  procedure ShowReferenceInfo();
-  procedure GoReference();
+    procedure ShowConfigDialog;
+    procedure ShowQNav(useDisposition: TBQUseDisposition = udMyLibrary);
+    procedure ShowQuickSearch();
+    procedure SetVScrollTracker(aBrwsr: THTMLViewer);
+    procedure VSCrollTracker(Sender: TObject);
+    procedure EnableMenus(aEnabled: Boolean);
+    function PreProcessAutoCommand(const cmd: string; const prefModule: string;
+      out ConcreteCmd: string): HRESULT;
+    procedure DeferredReloadViewPages();
+    procedure AppOnHintHandler(Sender: TObject);
+    procedure TagAdded(tagId: int64; const txt: string; Show: Boolean);
+    procedure TagRenamed(tagId: int64; const newTxt: string);
+    procedure TagDeleted(id: int64; const txt: string);
+    procedure VerseAdded(verseId, tagId: int64; const cmd: string;
+      Show: Boolean);
+    procedure VerseDeleted(verseId, tagId: int64);
+    function GetAutoTxt(const cmd: string; maxWords: integer; out fnt: string;
+      out passageSignature: string): string;
+    function GetMainWindow(): TForm; // IbibleQuoteWinUIServices
+    function GetIViewerBase(): IHtmlViewerBase; // IbibleQuoteWinUIServices
+
+    procedure GetTextInfo(tree: TVirtualDrawTree; Node: PVirtualNode;
+      Column: TColumnIndex; const AFont: TFont; var R: TRect; var Text: string);
+    procedure SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode;
+      Column: TColumnIndex; const Text: string);
+    procedure InitializeTaggedBookMarks();
+    procedure ReCalculateTagTree();
+    function GetTagFilterTimer(): TTimer;
+    procedure TagFilterTimerProc(Sender: TObject);
+    procedure FilterTags(const FilterText: string);
+    procedure InitHotkeysSupport();
+    procedure CheckModuleInstall();
+    function InstallModule(const path: string): integer;
+    function FilterCommentariesCombo(): integer;
+    function InstallFont(const specialPath: string): HRESULT;
+    procedure TranslateConfigForm;
+    procedure FillLanguageMenu;
+    function GetLocalizationDirectory(): string;
+    function ApplyInitialTranslation(): Boolean;
+    procedure TranslateForm(form: TForm);
+    procedure ToggleQuickSearchPanel(const enable: Boolean);
+    procedure SearchForward();
+    procedure SearchBackward();
+    procedure ShowReferenceInfo();
+    procedure GoReference();
 
   public
     mHandCur: TCursor;
 
-    { Public declarations }
     procedure MouseWheelHandler(var Message: TMessage); override;
     procedure SetCurPreviewPage(Val: integer);
-    function PassWordFormShowModal(const aModule: WideString; out Pwd: WideString; out savePwd: Boolean): integer;
+    function PassWordFormShowModal(const aModule: WideString;
+      out Pwd: WideString; out savePwd: Boolean): integer;
     function DicSelectedItemIndex(out pn: PVirtualNode): integer; overload;
     function DicSelectedItemIndex(): integer; overload;
     property CurPreviewPage: integer read FCurPreviewPage
       write SetCurPreviewPage;
 
   end;
-
-const
-  oleaut32 = 'oleaut32.dll';
-function SysAllocStringLen(psz: PWideChar; len: integer): PWideChar; stdcall;
-  external oleaut32 name 'SysAllocString';
-procedure SysFreeString(bstr: PWideChar); stdcall;
-  external oleaut32 name 'SysFreeString';
 
 var
   MainForm: TMainForm;
@@ -839,40 +788,18 @@ var
 
 implementation
 
-uses jclUnicode, CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
+uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
   BibleQuoteConfig,
   ExceptionFrm, AboutFrm, ShellAPI,
   StrUtils, CommCtrl,
 
   HintTools, sevenZipHelper,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
-  EngineInterfaces, StringProcs, WCharWindows, LinksParser;
+  EngineInterfaces, StringProcs, LinksParser;
 
 
 var
-  // Bibles, Books,
-  // Comments, CommentsPaths {,
-  // CacheModPaths, CacheDicPaths,
-  // CacheModTitles, CacheDicTitles // new for 24.07.2002 - cache for module and dictionary titles}
-  // : WideStrings.TWideStringList;                    // global module names
   mModules: TCachedModules;
-
-  { Не найдено ни одного разумного объяснения,
-    зачем вместо банальной строки используется
-    столь сложный класс, как TStrings.
-    Текст из *Source загружается и выгружается
-    только целиком, без доступа к конкретным строкам.
-    Короче, решено заменить эти переменные на WideString. }
-  // BrowserSource: TWideStrings;
-  // SearchBrowserSource: TWideStrings;
-  // DicBrowserSource: TWideStrings;
-  // StrongBrowserSource: TWideStrings;
-  // CommentsBrowserSource: TWideStrings;
-  // BrowserSource: WideString;
-  // SearchBrowserSource: WideString;
-  // DicBrowserSource: WideString;
-  // StrongBrowserSource: WideString;
-  // CommentsBrowserSource: WideString;
 
   BrowserSearchPosition: Longint;
 
@@ -883,7 +810,6 @@ var
   StrongHebrew, StrongGreek: TDict;
   StrongsDir: string;
 
-  // DefaultModule: WideString;
   SatelliteBible: string;
 
   // FLAGS
@@ -912,23 +838,14 @@ var
 
   LastAddress: string;
 
-  // DefaultEncoding: Integer;
-
   History: TStrings;
   SearchResults: TStrings;
   SearchWords: TStrings;
 
   LastSearchResultsPage: integer; // to show/hide page results (Ctrl-F3)
 
-  // ModulesList: TWideStrings;            // list of all available modules -- loaded ONCE
-  // ModulesCodeList: TWideStrings;        // codes like KJV, NIV, RST...
-  { AlekId: добавлено }
-  // S_ArchivedModuleList: TArchivedModules;
-  { AlekId:/добавлено }
-
   HelpFileName: string;
 
-  // TempDir: string; // temporary file storage -- should be emptied on exit
   TemplatePath: string;
   SelTextColor: string; // color strings after search
   g_VerseBkHlColor: string;
@@ -937,42 +854,29 @@ var
 
   PrevButtonHint, NextButtonHint: string;
 
-  { CBPartsCaptions: array[0..1] of WideString;
-    CBAllCaptions: array[0..1] of WideString;
-    CBPhraseCaptions: array[0..1] of WideString;
-    CBCaseCaptions: array[0..1] of WideString; }
-
   MainShiftState: TShiftState;
 
   CurVerseNumber, CurSelStart, CurSelEnd: integer;
 
   CurFromVerse, CurToVerse, VersePosition: integer;
-  // positionto(...) when changing modules you need to know which verse it was
 
   // config
-  MainFormLeft, MainFormTop, MainFormWidth, MainFormHeight, MainPagesWidth,
-    Panel2Height: integer;
-
-  { MainFormTempHeight: integer; }// AlekId:QA
-
-  // MainBookFontName: WideString;
+  MainFormLeft, MainFormTop, MainFormWidth, MainFormHeight, MainPagesWidth,  Panel2Height: integer;
 
   miHrefUnderlineChecked, CopyOptionsCopyVerseNumbersChecked,
     CopyOptionsCopyFontParamsChecked, CopyOptionsAddModuleNameChecked,
     CopyOptionsAddReferenceChecked, CopyOptionsAddLineBreaksChecked: Boolean;
+
   mFlagFullcontextLinks: Boolean;
   mFlagHighlightVerses: Boolean;
   mFlagCommonProfile: Boolean;
   CopyOptionsAddReferenceRadioItemIndex: integer;
 
   ConfigFormHotKeyChoiceItemIndex: integer;
-  (* AlekId:Добавлено *)
   UserDir: string;
-  (* AlekId:/Добавлено *)
   PasswordPolicy: TPasswordPolicy;
   tempBook: TBible = nil;
   G_XRefVerseCmd: string;
-  (* AlekId:/Добавлено *)
 {$R *.DFM}
 
 function GetAppDataFolder: string;
@@ -1052,9 +956,7 @@ var
 begin
   Randomize();
   book := Random(MainBook.BookQty) + 1;
-  // Randomize;// AlekId: ни к чему
   chapter := Random(MainBook.ChapterQtys[book]) + 1;
-  // Randomize;// AlekId: ни к чему
   verse := Random(MainBook.CountVerses(book, chapter)) + 1;
 
   ProcessCommand(Format('go %s %d %d %d', [MainBook.ShortPath, book, chapter, verse]), hlTrue);
@@ -1091,25 +993,18 @@ begin
         BqShowException(E, 'Cannot Load Configuration file!');
     end;
 
-    MainFormWidth := (StrToInt(MainCfgIni.SayDefault('MainFormWidth', '0')) *
-      Screen.Width) div MAXWIDTH;
-    MainFormHeight := (StrToInt(MainCfgIni.SayDefault('MainFormHeight', '0')) *
-      Screen.Height) div MAXHEIGHT;
-    MainFormLeft := (StrToInt(MainCfgIni.SayDefault('MainFormLeft', '0')) *
-      Screen.Width) div MAXWIDTH;
-    MainFormTop := (StrToInt(MainCfgIni.SayDefault('MainFormTop', '0')) *
-      Screen.Height) div MAXHEIGHT;
+    MainFormWidth := (StrToInt(MainCfgIni.SayDefault('MainFormWidth', '0')) * Screen.Width) div MAXWIDTH;
+    MainFormHeight := (StrToInt(MainCfgIni.SayDefault('MainFormHeight', '0')) * Screen.Height) div MAXHEIGHT;
+    MainFormLeft := (StrToInt(MainCfgIni.SayDefault('MainFormLeft', '0')) * Screen.Width) div MAXWIDTH;
+    MainFormTop := (StrToInt(MainCfgIni.SayDefault('MainFormTop', '0')) * Screen.Height) div MAXHEIGHT;
     MainFormMaximized := MainCfgIni.SayDefault('MainFormMaximized', '0') = '1';
 
-    MainPagesWidth := (StrToInt(MainCfgIni.SayDefault('MainPagesWidth', '0')) *
-      Screen.Height) div MAXHEIGHT;
-    Panel2Height := (StrToInt(MainCfgIni.SayDefault('Panel2Height', '0')) *
-      Screen.Height) div MAXHEIGHT;
+    MainPagesWidth := (StrToInt(MainCfgIni.SayDefault('MainPagesWidth', '0')) * Screen.Height) div MAXHEIGHT;
+    Panel2Height := (StrToInt(MainCfgIni.SayDefault('Panel2Height', '0')) * Screen.Height) div MAXHEIGHT;
 
     fnt := TFont.Create;
-    fnt.Name := MainCfgIni.SayDefault('MainFormFontName',
-      'Microsoft Sans Serif');
-    // fnt.Charset := StrToInt(ini.SayDefault('MainFormFontCharset', '204'));
+    fnt.Name := MainCfgIni.SayDefault('MainFormFontName', 'Microsoft Sans Serif');
+
     fnt.Size := StrToInt(MainCfgIni.SayDefault('MainFormFontSize', '9'));
 
     miRecognizeBibleLinks.Enabled := true;
@@ -1134,38 +1029,18 @@ begin
       DefFontName := MainCfgIni.SayDefault('DefFontName', 'Microsoft Sans Serif');
       mBrowserDefaultFontName := DefFontName;
       DefFontSize := StrToInt(MainCfgIni.SayDefault('DefFontSize', '12'));
-      DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor',
-        Color2Hex(clWindowText))); // '#000000'
+      DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor', Color2Hex(clWindowText))); // '#000000'
+      DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
+      DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
 
-      // ShowMessage(IntToStr(ColorToRGB(clWindow)));
-      // ShowMessage(IntToStr(ColorToRGB(clWhite)));
-      // ShowMessage('clWindowText = ' + Color2Hex(clWindowText));
-      // ShowMessage('clWindow = ' + Color2Hex(clWindow));
-      // ShowMessage('clWhite = ' + Color2Hex(clWhite));
-      // ShowMessage('clBlack = ' + Color2Hex(clBlack));
-
-      // DefaultCharset := 1251;
-      // DefaultCharset := StrToInt(ini.SayDefault('Charset', '204'));
-
-      DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground',
-        Color2Hex(clWindow))); // '#EBE8E2'
-      DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor',
-        Color2Hex(clHotLight))); // '#0000FF'
-      // try
-      g_VerseBkHlColor :=
-        Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor',
-        Color2Hex(clInfoBk)))); // '#F5F5DC'
-      // except g_VerseBkHlColor := '#F5F5DC';
-      // end;
+      g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor', Color2Hex(clInfoBk)))); // '#F5F5DC'
     end;
 
     with bwrSearch do
     begin
-      DefFontName := MainCfgIni.SayDefault('RefFontName',
-        'Microsoft Sans Serif');
+      DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
       DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
-      DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor',
-        Color2Hex(clWindowText)));
+      DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
 
       DefBackGround := bwrHtml.DefBackGround;
       DefHotSpotColor := bwrHtml.DefHotSpotColor;
@@ -1231,16 +1106,12 @@ begin
     miHrefUnderlineChecked := MainCfgIni.SayDefault('HrefUnderline', '0') = '1';
     mFlagFullcontextLinks := MainCfgIni.SayDefault(C_opt_FullContextLinks, '1') = '1';
     mFlagHighlightVerses := MainCfgIni.SayDefault(C_opt_HighlightVerseHits, '1') = '1';
-    // miCopyVerseNum.Checked := ini.SayDefault('CopyVerseNum', '0') = '1';
-    // miCopyRTF.Checked := ini.SayDefault('CopyRTF', '0') = '1';
 
     if miHrefUnderlineChecked then
       bwrHtml.htOptions := bwrHtml.htOptions - [htNoLinkUnderline]
     else
       bwrHtml.htOptions := bwrHtml.htOptions + [htNoLinkUnderline];
 
-    // if ini.SayDefault('LargeToolbarButtons', '1') = '1'
-    // then miLargeButtons.Click;
     try
       fname := UserDir + 'bibleqt_bookmarks.ini';
       if FileExists(fname) then
@@ -1252,9 +1123,7 @@ begin
     LoadUserMemos();
     mslSearchBooksCache := TStringList.Create();
     LoadMru();
-    { fname := UserDir + 'bibleqt_memos.ini';
-      if FileExists(fname) then
-      Memos.LoadFromFile(fname); }
+
     try
       fname := UserDir + 'bibleqt_history.ini';
       if FileExists(fname) then
@@ -1281,8 +1150,6 @@ begin
       StrToInt(MainCfgIni.SayDefault('ConfigFormHotKeyChoiceItemIndex', '0'));
 
     trayIcon.MinimizeToTray := MainCfgIni.SayDefault('MinimizeToTray', '0') = '1';
-
-    // FreeAndNil(MainCfgIni);
   except
     on E: Exception do
       BqShowException(E)
@@ -1319,13 +1186,11 @@ begin
   ix := mModules.FindByName(wsName);
   if ix >= 0 then
   begin
-    ini := MainFileExists(TPath.Combine(mModules[ix].wsShortPath, 'bibleqt.ini'));
+    ini := MainFileExists(TPath.Combine(mModules[ix].mShortPath, 'bibleqt.ini'));
     if ini <> SecondBook.inifile then
-      SecondBook.inifile := MainFileExists(TPath.Combine(mModules[ix].wsShortPath, 'bibleqt.ini'));
+      SecondBook.inifile := MainFileExists(TPath.Combine(mModules[ix].mShortPath, 'bibleqt.ini'));
   end;
 end;
-
-// fn
 
 function TMainForm.LoadHotModulesConfig(): Boolean;
 var
@@ -1469,7 +1334,7 @@ end;
 
 procedure TMainForm.ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
 begin
-  MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
+  MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
 end;
 
 procedure TMainForm.SaveMru;
@@ -1590,7 +1455,7 @@ var
   linesCount, tabIx, i, activeTabIx, valErr: integer;
   strongs_notes_code: UInt64;
   location, second_bible, Title: string;
-  addTabResult, firstTabInitialized { , viewNotes, viewStrongs } : Boolean;
+  addTabResult, firstTabInitialized: Boolean;
   tabViewState: TViewTabInfoState;
 begin
   tabStringList := nil;
@@ -1810,8 +1675,6 @@ begin
   end;
 end;
 
-(* AlekId:/Добавлено *)
-
 procedure TMainForm.SaveConfiguration;
 var
   ini: TMultiLanguage;
@@ -1821,8 +1684,8 @@ begin
   try
 
     UserDir := CreateAndGetConfigFolder;
-    writeln(bqNowDateTimeString(), ':SaveConfiguration, userdir:', UserDir);
-    (* AlekId:Добавлено *)
+    writeln(NowDateTimeString(), ':SaveConfiguration, userdir:', UserDir);
+
     SaveTabsToFile(UserDir + 'viewtabs.cfg');
     try
       mModuleLoader.SaveCachedModules();
@@ -1833,8 +1696,7 @@ begin
       end;
     end;
     PasswordPolicy.SaveToFile(UserDir + C_PasswordPolicyFileName);
-    // SaveBookNodes();
-    (* AlekId:/Добавлено *)
+
     ini := TMultiLanguage.Create(self);
     ini.inifile := UserDir + C_ModuleIniName;
 
@@ -1842,24 +1704,19 @@ begin
       ini.Learn('MainFormMaximized', '1')
     else
     begin
-      ini.Learn('MainFormWidth',
-        IntToStr((MainForm.Width * MAXWIDTH) div Screen.Width));
-      ini.Learn('MainFormHeight', IntToStr((MainForm.Height * MAXHEIGHT)
-        div Screen.Height));
-      ini.Learn('MainFormLeft',
-        IntToStr((MainForm.Left * MAXWIDTH) div Screen.Width));
-      ini.Learn('MainFormTop', IntToStr((MainForm.Top * MAXHEIGHT)
-        div Screen.Height));
+      ini.Learn('MainFormWidth', IntToStr((MainForm.Width * MAXWIDTH) div Screen.Width));
+      ini.Learn('MainFormHeight', IntToStr((MainForm.Height * MAXHEIGHT) div Screen.Height));
+      ini.Learn('MainFormLeft', IntToStr((MainForm.Left * MAXWIDTH) div Screen.Width));
+      ini.Learn('MainFormTop', IntToStr((MainForm.Top * MAXHEIGHT) div Screen.Height));
 
       ini.Learn('MainFormMaximized', '0');
     end;
 
     // width of nav window
-    ini.Learn('MainPagesWidth', IntToStr((pgcMain.Width * MAXHEIGHT)
-      div Screen.Height));
+    ini.Learn('MainPagesWidth', IntToStr((pgcMain.Width * MAXHEIGHT) div Screen.Height));
+
     // height of nav window, above the history box
-    ini.Learn('Panel2Height', IntToStr((pnlGo.Height * MAXHEIGHT)
-      div Screen.Height));
+    ini.Learn('Panel2Height', IntToStr((pnlGo.Height * MAXHEIGHT) div Screen.Height));
 
     ini.Learn('DefFontName', mBrowserDefaultFontName);
     ini.Learn('DefFontSize', IntToStr(bwrHtml.DefFontSize));
@@ -1869,7 +1726,6 @@ begin
 
     if (g_VerseBkHlColor <> Color2Hex(clHighlight)) then
       ini.Learn('VerseBkHLColor', g_VerseBkHlColor);
-    // ini.Learn('Charset', IntToStr(DefaultCharset));
 
     ini.Learn('RefFontName', bwrSearch.DefFontName);
     ini.Learn('RefFontSize', IntToStr(bwrSearch.DefFontSize));
@@ -1885,26 +1741,13 @@ begin
     if (SelTextColor <> Color2Hex(clRed)) then
       ini.Learn('SelTextColor', SelTextColor);
 
-    { ini.Learn('HotAddress1', miHot1.Caption);
-      ini.Learn('HotAddress2', miHot2.Caption);
-      ini.Learn('HotAddress3', miHot3.Caption);
-      ini.Learn('HotAddress4', miHot4.Caption);
-      ini.Learn('HotAddress5', miHot5.Caption);
-      ini.Learn('HotAddress6', miHot6.Caption);
-      ini.Learn('HotAddress7', miHot7.Caption);
-      ini.Learn('HotAddress8', miHot8.Caption);
-      ini.Learn('HotAddress9', miHot9.Caption);
-      ini.Learn('HotAddress0', miHot0.Caption); }
-    { AlekId:Добавлено }
     try
-      SaveHotModulesConfig(ini); { /AlekId:Добавлено }
+      SaveHotModulesConfig(ini);
     except
       on E: Exception do
         BqShowException(E)
     end;
     ini.Learn('HrefUnderline', IntToStr(ord(miHrefUnderlineChecked)));
-    // ini.Learn('CopyVerseNum', IntToStr(Ord(miCopyVerseNum.Checked)));
-    // ini.Learn('CopyRTF', IntToStr(Ord(miCopyRTF.Checked)));
 
     ini.Learn('CopyOptionsCopyVerseNumbers',
       IntToStr(ord(ConfigForm.chkCopyVerseNumbers.Checked)));
@@ -1924,27 +1767,12 @@ begin
 
     ini.Learn('MinimizeToTray', IntToStr(ord(trayIcon.MinimizeToTray)));
 
-    // for i := 0 to SatelliteMenu.Items.Count - 1 do
-    // if SatelliteMenu.Items[i].Checked then
-    // begin
-    // if i > 0 then
-    // ini.Learn('SatelliteBible', SatelliteMenu.Items[i].Caption)
-    // else
-    // ini.Learn('SatelliteBible', '');
-    // break;
-    // end;
-
-    // if miLargeButtons.Checked
-    // then ini.Learn('LargeToolbarButtons', '1')
-    // else ini.Learn('LargeToolbarButtons', '0');
-
     ini.Learn('LastAddress', LastAddress);
     ini.Learn('LastLanguageFile', LastLanguageFile);
     ini.Learn('SecondPath', G_SecondPath);
 
     ini.Learn('MainFormFontName', MainForm.Font.Name);
     ini.Learn('MainFormFontSize', IntToStr(MainForm.Font.Size));
-    // ini.Learn('MainFormFontCharset', IntToStr(MainForm.Font.Charset));
 
     ini.Learn('SaveDirectory', SaveFileDialog.InitialDir);
     if Assigned(MyLibraryForm) then
@@ -2061,13 +1889,11 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 var
-  i { , b, c, v1, v2 } : integer; // AlekId:not used anymore
+  i: integer;
   viewTabState: TViewTabInfoState;
   tabInfo: TViewTabInfo;
 begin
-  // tbList.PageControl := nil;
-  // tbList.Parent := self;
-  // tbList.Visible := false;
+
   mBqEngine := TBibleQuoteEngine.Create();
   mModuleLoader := TModuleLoader.Create();
 
@@ -2075,29 +1901,25 @@ begin
   mModuleLoader.OnArchiveModuleLoadFailed := ArchiveModuleLoadFailed;
 
   MainFormInitialized := false; // prohibit re-entry into FormShow
-  // InitEnvironment();
   CheckModuleInstall();
 
   pgcMain.DoubleBuffered := true;
   pgcHistoryBookmarks.DoubleBuffered := true;
   pgcViewTabs.DoubleBuffered := true;
-  // mBibleLinkParser:=TBibleLinkParser.Create();
-  // mBibleLinkParser.PrepareBookNames();
+
   Screen.Cursors[crHandPoint] := LoadCursor(0, IDC_HAND);
   Application.HintHidePause := 1000 * 60;
   Application.OnHint := AppOnHintHandler;
 
   InitializeTaggedBookMarks();
 
-  // Application.OnShowHint := ShowHintEventHandler;
   HintWindowClass := HintTools.TbqHintWindow;
-  // TrayIcon.Visible := true;
 
   bwrHtml.Align := alClient;
   SetVScrollTracker(bwrHtml);
  
   MainBook := TBible.Create(self);
-  // AlekId: библия принадлежит табу
+
   SecondBook := TBible.Create(self);
   mRefenceBible := TBible.Create(self);
 
@@ -2124,7 +1946,6 @@ begin
   miMemosToggle.Checked := MemosOn;
 
   Bookmarks := TStringList.Create;
-  // Bookmarks.Sorted := true;
 
   History := TStringList.Create;
   HistoryOn := true;
@@ -2139,14 +1960,9 @@ begin
 
   AddressFromMenus := true;
 
-  /// ///////////////////////////////////////////
-  //
   // LOADING CONFIGURATION
-  //
   LoadConfiguration;
-  //
-  //
-  /// ///////////////////////////////////////////
+
   pnlMain.Align := alClient;
 
   if MainPagesWidth <> 0 then
@@ -2158,12 +1974,6 @@ begin
   if MainFormWidth = 0 then
   begin
     MainForm.WindowState := wsMaximized;
-
-    // with MainForm do
-    // begin
-    // Left := (Screen.Width - Width) div 2;
-    // Top := (Screen.Height - Height) div 2;
-    // end;
   end
   else
   begin
@@ -2176,25 +1986,16 @@ begin
       MainForm.WindowState := wsMaximized;
   end;
 
-  // MainForm.WindowState := wsMaximized;
-
   TemplatePath := ExePath + 'templates\default\';
-
-  // TempDir := WindowsTempDirectory + 'BibleQuote\';
-  // if not FileExists(TempDir) then
-  // ForceDirectories(TempDir);
 
   if FileExists(TemplatePath + 'text.htm') then
     TextTemplate := TextFromFile(TemplatePath + 'text.htm')
   else
     TextTemplate := DefaultTextTemplate;
 
-  // TextTemplate := TextTemplate + '<A NAME="#endofchapterNMFHJAHSTDGF123">';
+  if not StrReplace(TextTemplate, 'background="', 'background="' + TemplatePath,false) then
+    StrReplace(TextTemplate, 'background=', 'background=' + TemplatePath, false);
 
-  if not StrReplace(TextTemplate, 'background="', 'background="' + TemplatePath,
-    false) then
-    StrReplace(TextTemplate, 'background=',
-      'background=' + TemplatePath, false);
   if not StrReplace(TextTemplate, 'src="', 'src="' + TemplatePath, false) then
     StrReplace(TextTemplate, 'src=', 'src=' + TemplatePath, false);
 
@@ -2202,8 +2003,8 @@ begin
   mTranslated := ApplyInitialTranslation();
 
   MainMenuInit(false);
-  // MAIN TABS INITIALIZATION
 
+  // MAIN TABS INITIALIZATION
   lbHistory.Items.BeginUpdate;
   for i := 0 to History.Count - 1 do
     lbHistory.Items.Add(Comment(History[i]));
@@ -2221,31 +2022,13 @@ begin
   if Bookmarks.Count > 0 then
     lblBookmark.Caption := Comment(Bookmarks[0]);
 
-  (* AlekId:Добавлено *)
-  //pgcViewTabs.CloseTabImage := LoadIcon(MainInstance, PChar(1233));
-  // pgcViewTabs.CloseTabImage.LoadFromResourceID(MainInstance, 1233);
-  // pgcViewTabs.CloseTabImage.TransparentColor := 0;
   viewTabState := DefaultViewTabState();
   tabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', viewTabState);
   pgcViewTabs.Tabs.AddObject(MainBook.Name, tabInfo);
 
-  (* AlekId:/Добавлено *)
-
   LoadTabsFromFile(UserDir + 'viewtabs.cfg');
   LoadHotModulesConfig();
-  { if LastAddress = '' then begin
-    GoModuleName(miHot1.Caption);
-    b := 1; c := 1; v1 := 1; v2 := 0;
-    //MainForm.
-    GoAddress(b, c, v1, v2);
-    end
-    else begin
-    ProcessCommand(LastAddress);
-    BooksCB.ItemIndex := BooksCB.Items.IndexOf(MainBook.Name);
 
-    //ShowComments;
-    end; }
-  // LoadBookNodes();
   StrongsDir := C_StrongsSubDirectory;
   LoadFontFromFolder(TPath.Combine(ModulesDirectory, StrongsDir));
 
@@ -2255,7 +2038,7 @@ begin
   pgcMainChange(self);
 
   mslSearchBooksCache.Duplicates := dupIgnore;
-  // AlekId: чтобы правильно присвоит memoPopup
+
   Application.OnIdle := self.Idle;
   Application.OnActivate := self.OnActivate;
   Application.OnDeactivate := self.OnDeactivate;
@@ -2264,8 +2047,6 @@ begin
   // Let the tree know how much data space we need.
   vdtModules.NodeDataSize := SizeOf(TBookNodeData);
 end;
-
-(* AlekId:Добавлено *)
 
 function TMainForm.GetActiveTabInfo(): TViewTabInfo;
 var
@@ -2290,7 +2071,6 @@ var
   prefBible, txt: string;
   bl: TBibleLink;
   status_GetModTxt: integer;
-
 begin
   status_GetModTxt := 1;
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
@@ -2306,7 +2086,8 @@ begin
   else
     Result := cmd;
   if status_GetModTxt > -2 then
-    status_GetModTxt := GetModuleText(Result, fnt, bl, txt, passageSignature,
+    status_GetModTxt := GetModuleText(
+      Result, fnt, bl, txt, passageSignature,
       [gmtBulletDelimited, gmtEffectiveAddress, gmtLookupRefBibles], maxWords);
 
   if status_GetModTxt >= 0 then
@@ -2331,55 +2112,19 @@ begin
 
 end;
 
-// proc   GetActiveTabInfo
-
-{ function TMainForm.GetHotMenuItem(itemIndex: integer): TMenuItem;
-  var
-  favouriteMenuItem: TMenuItem;
-  itemCount, i: integer;
-  begin
-  result := nil;
-  try
-  favouriteMenuItem := FindTaggedTopMenuItem(3333);
-  if (favouriteMenuItem = nil) then
-  exit;
-  itemCount := favouriteMenuItem.Count - 1;
-  for I := 0 to itemCount do
-  if (favouriteMenuItem[i].Tag = itemIndex + 7000) then
-  begin
-  result := favouriteMenuItem[i] as TMenuItem;
-  break
-  end;
-  except //just to be safe
-  end;
-  end; }
-
-{ function TMainForm.GetHotModuleCount: integer;
-  var
-  favouriteMenuItem: TMenuItem;
-  itemCount, i: integer;
-  begin
-  result := 0;
-  try
-  favouriteMenuItem := FindTaggedTopMenuItem(3333);
-  if (favouriteMenuItem = nil) then
-  exit;
-  itemCount := favouriteMenuItem.Count - 1;
-  for I := 0 to itemCount do
-  if (favouriteMenuItem[i].Tag >= 7000) then
-  Inc(result);
-  except on e:Exception do begin BqShowException(e) end end;
-
-  end; }
-
 function TMainForm.GetMainWindow: TForm;
 begin
   Result := self;
 end;
 
-function TMainForm.GetModuleText(cmd: string; out fontName: string;
-  out bl: TBibleLink; out txt: string; out passageSignature: string;
-  options: TgmtOptions = []; maxWords: integer = 0): integer;
+function TMainForm.GetModuleText(
+  cmd: string;
+  out fontName: string;
+  out bl: TBibleLink;
+  out txt: string;
+  out passageSignature: string;
+  options: TgmtOptions = [];
+  maxWords: integer = 0): integer;
 var
   i, verseCount, C, status_valid: integer;
   path: string;
@@ -2407,9 +2152,6 @@ label lblErrNotFnd;
 begin
   Result := -1;
   try
-    // txt := '';
-
-    // HintWindowClass := bqHintTools.TbqHintWindow;
     linkValid := ibl.FromBqStringLocation(cmd, path);
     if not linkValid then
     begin
@@ -2419,14 +2161,14 @@ begin
 
     if path <> C__bqAutoBible then
     begin
-      // формируем путь к ini модуля
+      // form the path to the ini module
       path := MainFileExists(TPath.Combine(path, 'bibleqt.ini'));
-      // пытаемся подгрузить модуль
+      // try to load the module
       mRefenceBible.inifile := path;
     end
     else
-      raise Exception.Create
-        ('Неверный аргумент GetModuleText:не указан модуль');
+      raise Exception.Create('Неверный аргумент GetModuleText:не указан модуль');
+
     if gmtLookupRefBibles in options then
     begin
       currentBibleIx := 0;
@@ -2448,9 +2190,14 @@ begin
         goto lblErrNotFnd;
       mRefenceBible.SetHTMLFilterX('', true);
       mRefenceBible.OpenChapter(effectiveLnk.book, effectiveLnk.chapter);
+
       // already opened?
-      passageSignature := mRefenceBible.ShortPassageSignature(effectiveLnk.book,
-        effectiveLnk.chapter, effectiveLnk.vstart, effectiveLnk.vend);
+      passageSignature := mRefenceBible.ShortPassageSignature(
+        effectiveLnk.book,
+        effectiveLnk.chapter,
+        effectiveLnk.vstart,
+        effectiveLnk.vend);
+
       verseCount := mRefenceBible.verseCount();
       if effectiveLnk.vstart = 0 then
         effectiveLnk.vstart := 1;
@@ -2462,7 +2209,7 @@ begin
         Exit;
       if (effectiveLnk.vend > verseCount) then
         effectiveLnk.vend := verseCount;
-      // if (bl.vend < bl.vstart) then   bl.vend := bl.vstart;
+
       if gmtBulletDelimited in options then
         delimiter := C_BulletChar + #32
       else
@@ -2480,13 +2227,13 @@ begin
       for i := effectiveLnk.vstart to C do
       begin
         if maxWords = 0 then
-          txt := txt + DeleteStrongNumbers(mRefenceBible.Verses[i - 1]) +
-            delimiter
+          txt := txt + DeleteStrongNumbers(mRefenceBible.Verses[i - 1]) + delimiter
         else
         begin
-          line := StrLimitToWordCnt
-            (DeleteStrongNumbers(mRefenceBible.Verses[i - 1]),
+          line := StrLimitToWordCnt(
+            DeleteStrongNumbers(mRefenceBible.Verses[i - 1]),
             maxWords - wordCounter, wordsAdded, limited);
+
           inc(wordCounter, wordsAdded);
 
           txt := txt + line;
@@ -2502,8 +2249,10 @@ begin
       begin
         if not limited then
         begin
-          line := StrLimitToWordCnt(DeleteStrongNumbers(mRefenceBible.Verses[C]
-            ), maxWords - wordCounter, wordsAdded, limited);
+          line := StrLimitToWordCnt(
+            DeleteStrongNumbers(mRefenceBible.Verses[C]),
+            maxWords - wordCounter, wordsAdded, limited);
+
           txt := txt + line;
         end;
         addEllipsis := limited;
@@ -2518,10 +2267,10 @@ begin
       end
       else
         fontFound := false;
-      (* если предподчтительного шрифта нет или он не найден и указана кодировка *)
+      // if there is no preferred font or it is not found, and encoding is specified
       if not fontFound and (mRefenceBible.desiredCharset >= 2) then
       begin
-        { находим шрифт с нужной кодировкой учитывая предподчтительный и дефолтный }
+        // find the font with the desired encoding, take into account default font
         if Length(mRefenceBible.fontName) > 0 then
           fontName := mRefenceBible.fontName
         else
@@ -2531,7 +2280,6 @@ begin
       if Length(fontName) = 0 then
         fontName := mBrowserDefaultFontName;
       Result := 0;
-      // effectiveLnk.AssignTo(bl);
       break;
     lblErrNotFnd:
 
@@ -2558,7 +2306,8 @@ begin
     begin
       break
     end;
-  end; // for
+  end;
+
   if bi > ix then
     Result := me
   else
@@ -2576,8 +2325,12 @@ begin
   Result := mFilterTagsTimer;
 end;
 
-procedure TMainForm.GetTextInfo(tree: TVirtualDrawTree; Node: PVirtualNode;
-  Column: TColumnIndex; const AFont: TFont; var R: TRect;
+procedure TMainForm.GetTextInfo(
+  tree: TVirtualDrawTree;
+  Node: PVirtualNode;
+  Column: TColumnIndex;
+  const AFont: TFont;
+  var R: TRect;
   var Text: string);
 var
   vnd: TVersesNodeData;
@@ -2592,10 +2345,7 @@ begin
   Text := vnd.getText();
 end;
 
-(* AlekId:/Добавлено *)
-
-function TMainForm.GoAddress(var book, chapter, fromverse, toverse: integer;
-  var hlVerses: TbqHLVerseOption): TNavigateResult;
+function TMainForm.GoAddress(var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
 var
   paragraph, hlParaStart, hlParaEnd, hlstyle, Title, head, Text, s,
     strVerseNumber, ss: string;
@@ -2604,7 +2354,7 @@ var
   i, ipos, B, C, V, ib, ic, iv, chapterCount: integer;
   UseParaBible, opened, multiHl, isCommentary, showStrongs: Boolean;
   dBrowserSource, wsMemoTxt: string;
-  activeInfo: TViewTabInfo; // AlekId:добавлено
+  activeInfo: TViewTabInfo;
   fontName, uiFontName: string;
   fistBookCell, SecondbookCell: string;
   mainbook_right_aligned, secondbook_right_aligned, hlCurrent: Boolean;
@@ -2613,13 +2363,14 @@ var
   modEntry: TModuleEntry;
 
 begin
-  // провека и коррекция номера книги
+  // check and correction of the book number
   highlight_verse := Point(fromverse, toverse);
   UseParaBible := false;
   Result := nrSuccess;
   locVerseStart := fromverse;
   locVerseEnd := toverse;
-  // проверка и коррекция книги
+
+  // check and correction of the book
   if book < 1 then
   begin
     Result := nrBookErr;
@@ -2631,7 +2382,7 @@ begin
     Result := nrBookErr;
   end;
 
-  // проверка и коррекция номера главы
+  // check and correct chapter number
   if chapter < 0 then
   begin
     Result := nrChapterErr;
@@ -2653,7 +2404,6 @@ begin
     locVerseEnd := 0;
   end;
 
-  // загружаем главу
   try
     opened := MainBook.OpenChapter(book, chapter);
     if not opened then
@@ -2684,7 +2434,8 @@ begin
   mainbook_right_aligned := MainBook.UseRightAlignment;
 
   activeInfo := GetActiveTabInfo();
-  // Поиск вторичной Библии, если первый модуль библейский
+
+  // search for a secondary Bible if the first module is bible
   if MainBook.isBible then
   begin
     isCommentary := MainBook.isCommentary;
@@ -2694,14 +2445,14 @@ begin
       UseParaBible := false
     else
     begin
-      // поиск в списке модулей
+      // search in the list of modules
       try
         modEntry := mModules.ResolveModuleByNames(s, '');
       except
         on E: Exception do
         begin
-          BqShowException(E, Format('GoAddress err: mod=%s | book=%d | chapter=%d',
-            [MainBook.Name, book, chapter]));
+          BqShowException(E,
+            Format('GoAddress err: mod=%s | book=%d | chapter=%d', [MainBook.Name, book, chapter]));
         end;
       end;
       if Assigned(modEntry) then
@@ -2712,21 +2463,23 @@ begin
 
         secondbook_right_aligned := SecondBook.UseRightAlignment;
         UseParaBible := SecondBook.ModuleType = bqmBible;
-        // если первичный модуль показыввает ВЗ, а второй не содержит ВЗ
+
+        // if the primary module displays an NT, and the second one does not contain an NT
         if (((MainBook.CurBook < 40) and (MainBook.Trait[bqmtOldCovenant])) and
           (not SecondBook.Trait[bqmtOldCovenant])) or
-        // или если в первичном модуль НЗ а второй не содержит НЗ
+        // or if in the primary OT module and the second one does not contain OT
           (((MainBook.CurBook > 39) or (MainBook.Trait[bqmtNewCovenant] and
           (not MainBook.Trait[bqmtOldCovenant]))) and
           (not SecondBook.Trait[bqmtNewCovenant])) then
-          UseParaBible := false; // отменить отображение
-      end; // if UseParaBible- если найден в списке  модулей
-    end; // если выбрана вторичная Библия
-  end // если модуль Библейский
+          UseParaBible := false; // cancel display
+      end; // if UseParaBible is found in the list of modules
+    end; // if a secondary Bible is selected
+  end // if the module is bible
 
   else
     isCommentary := false;
-  // проверка и коррекция начального стиха
+
+  // check and correct start verse
   if fromverse > MainBook.VerseQty then
   begin
     fromverse := 0;
@@ -2735,7 +2488,8 @@ begin
     if Result = nrSuccess then
       Result := nrStartVerseErr;
   end;
-  // проверка и коррекция конечного стиха стиха
+
+  // check and correct target verse
   if (toverse > MainBook.VerseQty) or (toverse < fromverse) then
   begin
     if (toverse < fromverse) and (toverse <= MainBook.VerseQty) then
@@ -2750,7 +2504,7 @@ begin
     locVerseEnd := 0;
     if Result = nrSuccess then
       Result := nrEndVerseErr;
-  end; // если конечный стих больше количества
+  end;
 
   if (highlight_verse.X <= 0) and (highlight_verse.Y > 0) then
     highlight_verse.X := highlight_verse.Y;
@@ -2764,25 +2518,22 @@ begin
   begin
     if (MainBook.isBible) then
       paragraph := ' <BR>'
-    else { AlekId }
-      // paragraph := '<P style="background-color:beige">';
+    else
       paragraph := '<P>';
   end;
 
-  // ??
   if toverse = 0 then
-  begin // если отображать всю главу??
-    (* если в книге только одна глава *)
+  begin // display the entire chapter
+    // if only one chapter in the book
     if MainBook.ChapterQtys[book] = 1 then
       head := MainBook.FullNames[book]
     else
       head := MainBook.FullPassageSignature(book, chapter, 1, 0);
-  end // если отображать всю главу
+  end
   else
     head := MainBook.FullPassageSignature(book, chapter, fromverse, toverse);
 
-  Title := '<head>'#13#10'<title>' + head + '</title>'#13#10 + bqPageStyle +
-    #13#10'</head>';
+  Title := '<head>'#13#10'<title>' + head + '</title>'#13#10 + bqPageStyle + #13#10'</head>';
   if Length(MainBook.DesiredUIFont) > 0 then
     uiFontName := MainBook.DesiredUIFont
   else
@@ -2790,23 +2541,19 @@ begin
   head := '<font face="' + uiFontName + '">' + head + '</font>';
 
   Text := '';
-  // коррекция начального стиха
   if locVerseStart = 0 then
   begin
     locVerseStart := 1;
   end;
-  // else if highlight_verse <> 0 then highlight_verse := 1;
 
   bverse := 1;
   if (locVerseStart > 0) and (not mFlagFullcontextLinks) then
     bverse := locVerseStart;
 
-  // everse := toverse; AlekId: неразумно
   if (locVerseEnd = 0) or (mFlagFullcontextLinks) then
     everse := MainBook.VerseQty
-    (* AlekId: добавлено *)
   else
-    everse := locVerseEnd; { AlekId:/добавлено }
+    everse := locVerseEnd;
 
   CurFromVerse := bverse;
   CurToVerse := everse;
@@ -2816,7 +2563,7 @@ begin
   if UseParaBible then
   begin
     if MainBook.Trait[bqmtZeroChapter] and (chapter = 1) then
-      { если нулевая глава в первичном виде }
+      // in chapter zero in primary view
       UseParaBible := false;
   end;
 
@@ -2831,23 +2578,16 @@ begin
     bwrHtml.DefFontName := fontName;
   end;
 
-  // Обработка текста по стихам
   Text := MainBook.ChapterHead;
 
-  // if (not MainBook.isBible) or (not UseParaBible) then
   for verse := bverse to everse do
   begin
     s := MainBook.Verses[verse - 1];
-    if (highlight_verse.X > 0) and (highlight_verse.Y > 0) and
-      (mFlagHighlightVerses) then
+    if (highlight_verse.X > 0) and (highlight_verse.Y > 0) and (mFlagHighlightVerses) then
     begin
-      hlCurrent := (verse <= highlight_verse.Y) and
-        (verse >= highlight_verse.X);
-      hlVerseStyle := ord(verse = highlight_verse.X) +
-        (ord(verse = highlight_verse.Y) shl 1);
+      hlCurrent := (verse <= highlight_verse.Y) and (verse >= highlight_verse.X);
+      hlVerseStyle := ord(verse = highlight_verse.X) + (ord(verse = highlight_verse.Y) shl 1);
     end
-    // else if highlight_verse.x>0 then hlCurrent:=verse=highlight_verse.x
-    // else if highlight_verse.y>0 then hlCurrent:=verse=highlight_verse.y
     else
     begin
       hlCurrent := false;
@@ -2878,9 +2618,6 @@ begin
 
     strVerseNumber := StrDeleteFirstNumber(s);
 
-    // if (verse = fromverse) and (verse <> 1) then
-    // s0 := '<font color=' + SelTextColor + '>&gt;&gt;&gt;' + s0 + '</font>';
-
     if (MainBook.isBible) and (not isCommentary) then
     begin // if bible display verse numbers
 
@@ -2891,12 +2628,12 @@ begin
         ss := '';
 
       strVerseNumber := '<a href="verse ' + strVerseNumber
-      // + '">'
         + '" CLASS=OmegaVerseNumber>' +
-      // style="font-family:' + 'Helvetica">' +
         ss + strVerseNumber + '</a>';
+
       if MainBook.Trait[bqmtNoForcedLineBreaks] then
         strVerseNumber := '<sup>' + strVerseNumber + '</sup>';
+
       if MainBook.Trait[bqmtStrongs] then
       begin
         if (not showStrongs) then
@@ -2906,7 +2643,7 @@ begin
             (MainBook.Trait[bqmtOldCovenant]), true);
       end;
     end;
-    // если модуль НЕбиблейский или нет вторичной Библии
+    // if the module is non bible or there is no secondary Bible
     if (not MainBook.isBible) or (not UseParaBible) then
     begin // no satellite text
       if mainbook_right_aligned then
@@ -2932,12 +2669,13 @@ begin
     else
     begin
       if UseParaBible then
-      begin // если найден подходящий текст во вторичной Библии
+      begin // if text is found in the secondary Bible
         try
-          // синхронизация мест
           with MainBook do
             ReferenceToInternal(CurBook, CurChapter, verse, B, C, V);
+
           SecondBook.InternalToReference(B, C, V, ib, ic, iv);
+
           if (ib <> SecondBook.CurBook) or (ic <> SecondBook.CurChapter) or
             (not opened) then
           begin
@@ -2947,7 +2685,7 @@ begin
         except
           UseParaBible := false;
         end;
-        // коррекция номера стиха снизу
+
         if iv <= 0 then
           iv := 1;
         if mainbook_right_aligned then
@@ -2962,8 +2700,9 @@ begin
             '<tr style="' + hlstyle + '"><td valign=top width=50% align=left>' +
             Format(#13#10'<a name="bqverse%d">%s<F> %s</F></a>',
             [verse, strVerseNumber, s]);
+
         SecondbookCell := '';
-        // если номер стиха в во вторичной библии не более кол-ва стихов
+
         if iv <= SecondBook.verseCount() then
         begin
           ss := SecondBook.Verses[iv - 1];
@@ -2995,23 +2734,22 @@ begin
 
     // memos...
     if MemosOn then
-    begin // если всключены заметки
+    begin // if notes are enabled
       with MainBook do // search for 'RST Быт.1:1 $$$' in Memos.
-        i := FindString(Memos, ShortName + ' ' + ShortPassageSignature(CurBook,
-          CurChapter, verse, verse) + ' $$$');
+        i := FindString(
+          Memos,
+          ShortName + ' ' + ShortPassageSignature(CurBook, CurChapter, verse, verse) + ' $$$');
 
       if i > -1 then
       begin // found memo
-        wsMemoTxt := '<font color=' + SelTextColor + '>' + Comment(Memos[i]) +
-          '</font>' + paragraph;
+        wsMemoTxt := '<font color=' + SelTextColor + '>' + Comment(Memos[i]) + '</font>' + paragraph;
         if activeInfo[vtisResolveLinks] then
-          wsMemoTxt := ResolveLnks(wsMemoTxt,
-            activeInfo[vtisFuzzyResolveLinks]);
+          wsMemoTxt := ResolveLnks(wsMemoTxt, activeInfo[vtisFuzzyResolveLinks]);
 
         Text := Text + wsMemoTxt;
       end;
-    end; // если включены заметки
-  end; // цикл итерации по стихам
+    end; // if notes are enabled
+  end;
   if not UseParaBible then
   begin
     if mainbook_right_aligned then
@@ -3023,12 +2761,14 @@ begin
   dBrowserSource := TextTemplate;
   StrReplace(dBrowserSource, '%HEAD%', head, false);
   StrReplace(dBrowserSource, '%TEXT%', Text, false);
+
   if ((Length(MainBook.fontName) > 0) and
     (MainBook.fontName = bwrHtml.DefFontName)) then
     fontName := MainBook.fontName
   else
     fontName := '';
-  // если указан шрифт и он еще не выбран в свойвах браузера или указана кодировка
+
+  // if a font is specified, but is not yet selected in browser properties or encoding is specified
   if (Length(fontName) <= 0) and ((Length(MainBook.fontName) > 0) or
     (MainBook.desiredCharset > 2)) then
     fontName := SuggestFont(MainBook.fontName, MainBook.path,
@@ -3038,8 +2778,8 @@ begin
   bwrHtml.DefFontName := fontName;
   StrReplace(dBrowserSource, '<F>', '<font face="' + fontName + '">', true);
   StrReplace(dBrowserSource, '</F>', '</font>', true);
-  { */Обработка шрифтов* }
 
+  // fonts processing
   dBrowserSource := '<HTML>' + Title + dBrowserSource + '</HTML>';
   bwrHtml.Base := MainBook.path;
 
@@ -3143,9 +2883,10 @@ begin
           if bwrHtml.tag <= bsText then
           begin
             s := Clipboard.AsText;
-            // StrReplace(s, #13#10, ' ', true);
+
             // carriage returns are replaced by space
             StrReplace(s, '  ', ' ', true);
+
             // double spaces are replaced by single space
             Clipboard.AsText := s;
           end
@@ -3159,7 +2900,6 @@ begin
       sleep(100);
     end;
   until trCount <= 0;
-  // ConvertClipboard;
 end;
 
 procedure TMainForm.bwrHtmlFileBrowse(Sender, Obj: TObject; var s: string);
@@ -3182,7 +2922,7 @@ begin
   unicodeSRC := SRC;
   iscontrolDown := IsDown(VK_CONTROL);
   if GetCommandType(SRC) = bqctGoCommand then
-  { // гиперссылка на стих }
+  // verse hyperlink
   begin
     if iscontrolDown then
     begin
@@ -3234,18 +2974,13 @@ begin
   end
   else if Pos('mailto:', unicodeSRC) = 1 then
   begin
-    ShellExecuteW(Application.Handle, nil, PWideChar(unicodeSRC), nil, nil, SW_NORMAL);
+    ShellExecute(Application.Handle, nil, PChar(unicodeSRC), nil, nil, SW_NORMAL);
     Handled := true;
   end
   else if Pos('verse ', unicodeSRC) = 1 then
   begin
     tbXRef.tag := StrToInt(Copy(unicodeSRC, 7, Length(unicodeSRC) - 6));
     tbComments.tag := tbXRef.tag;
-
-    // MainBook.KJV2RST(MainBook.CurBook, MainBook.CurChapter, tbXRef.Tag, tb,tc,tv);
-
-    // ShowMessage('This verse can be RST ' + IntToStr(tb) + ' ' +
-    // IntToStr(tc) + ' ' + IntToStr(tv));
 
     with MainBook do
       HistoryAdd(Format('go %s %d %d %d %d $$$%s %s', [ShortPath, CurBook,
@@ -3277,12 +3012,7 @@ begin
   else if Pos('s', unicodeSRC) = 1 then
   begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
-    (* *
-      Val(scode, num, code);
-      if code = 0 then
-      DisplayStrongs(num, (MainBook.CurBook < 40) and
-      (MainBook.Trait[bqmtOldCovenant]));
-      * *)
+
     edtStrong.Text := scode;
     Key := #13;
     edtStrongKeyPress(Sender, Key);
@@ -3318,7 +3048,7 @@ begin
       end;
     end;
   end // else
-  // во всех остальных случаях ссылка обрабатывается по правилам HTML :-)
+  // in all other cases, the link is processed according to HTML rules :-)
 end;
 
 procedure TMainForm.bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
@@ -3343,7 +3073,7 @@ begin
 
   unicodeSRC := SRC;
   wstr := PeekToken(Pointer(unicodeSRC), ' ');
-  if SysUtils.WideCompareText(wstr, 'go') <> 0 then
+  if SysUtils.CompareText(wstr, 'go') <> 0 then
     Exit;
 
   if Length(wstr) <= 0 then
@@ -3357,7 +3087,7 @@ begin
     modIx := mModules.FindByName(ti.SatelliteName);
     if modIx >= 0 then
     begin
-      replaceModPath := mModules[modIx].wsShortPath;
+      replaceModPath := mModules[modIx].mShortPath;
     end;
   end;
   status := PreProcessAutoCommand(unicodeSRC, replaceModPath, ConcreteCmd);
@@ -3415,8 +3145,6 @@ begin
   end;
 end;
 
-(* AlekId:Добавлено *)
-
 function TMainForm.ActivateFont(const fontPath: string): DWORD;
 var
   tf: array [0 .. 1023] of Char;
@@ -3449,20 +3177,21 @@ begin
         fontHandle := G_AddFontMemResourceEx(pFile, fileSz, nil, @Result);
       end;
       if Result = 0 then
-      begin // старая ось или не удалось в память
-        tempPathLen := GetTempPathW(1023, tf);
+      begin // failed to load in memory
+        tempPathLen := GetTempPath(1023, tf);
         if tempPathLen > 1024 then
           Exit;
         wsArchive := tf + wsFile;
         if not FileExists(wsArchive) then
         begin
-          fileHandle := CreateFileW(PWideChar(Pointer(wsArchive)),
+          fileHandle := CreateFile(
+            PChar(Pointer(wsArchive)),
             GENERIC_WRITE, 0, nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+
           if fileHandle = INVALID_HANDLE_VALUE then
             Exit;
           try
-            writeResult := WriteFile(fileHandle, pFile^, fileSz,
-              bytesWritten, nil);
+            writeResult := WriteFile(fileHandle, pFile^, fileSz, bytesWritten, nil);
           finally
             CloseHandle(fileHandle);
           end;
@@ -3470,20 +3199,19 @@ begin
           if not writeResult then
             Exit;
         end;
-      end // если старая ось или не удалось в память
+      end
 
     finally
       FreeMem(pFile);
     end;
-  end // если в архиве
+  end
   else
     wsFile := FileRemoveExtension(ExtractFileName(fontPath));
   if Result = 0 then
-    Result := AddFontResourceW(PWideChar(Pointer(wsArchive)));
+    Result := AddFontResource(PChar(Pointer(wsArchive)));
 
   if Result <> 0 then
   begin
-    // SendMessage(HWND_BROADCAST, WM_FONTCHANGE,0,0);
     Screen.Fonts.Add(ExctractName(wsFile));
     G_InstalledFonts.AddObject(ExctractName(wsFile),
       TBQInstalledFontInfo.Create(wsArchive, fileNeedsCleanUp, fontHandle));
@@ -3503,7 +3231,7 @@ begin
       Exit;
     hotMenuItem := TMenuItem.Create(self);
     hotMenuItem.tag := tag;
-    hotMenuItem.Caption := modEntry.wsFullName;
+    hotMenuItem.Caption := modEntry.mFullName;
     hotMenuItem.OnClick := HotKeyClick;
     favouriteMenuItem.Add(hotMenuItem);
     if not addBibleTab then
@@ -3512,7 +3240,6 @@ begin
 
     dtsBible.Tabs.Insert(ix, modEntry.VisualSignature());
     dtsBible.Tabs.Objects[ix] := modEntry;
-    // dtsBible.WideTabs.Objects[tag] :=modEntry;
   except
     on E: Exception do
     begin
@@ -3520,7 +3247,6 @@ begin
     end;
   end;
 end;
-(* AlekId:/Добавлено *)
 
 procedure TMainForm.GoPrevChapter;
 var
@@ -3644,12 +3370,7 @@ begin
 
   // initialize Toolbar
   SetButtonHint(tbtnToggle, miToggle);
-
-  // SetButtonHint(tbtnPrevChapter, miPrevChapter);
-  // SetButtonHint(tbtnNextChapter, miNextChapter);
   SetButtonHint(tbtnCopy, miCopy);
-  // SetButtonHint(BookmarkButton, miBookmark);
-  // SetButtonHint(HistoryButton, miHistory);
   SetButtonHint(tbtnPrint, miPrint);
   SetButtonHint(tbtnPreview, miPrintPreview);
   SetButtonHint(tbtnSound, miSound);
@@ -3697,22 +3418,10 @@ begin
   fnt.Name := MainForm.Font.Name;
   fnt.Size := MainForm.Font.Size;
 
-  // s := Lang.Say('Charset');
-  // if s = 'Charset' then s:='204';
-  // fnt.Charset := StrToInt(s);
-
   MainForm.Font := fnt;
 
   Update;
   fnt.Free;
-  // MainMenu := Self.Menu.Handle;
-
-  // GET Help Menu Item Info
-
-
-  // i:=mmGeneral.Items.IndexOf(miLanguage);
-  // ModifyMenuW(mmGeneral.Handle, i, MF_BYPOSITION or MF_RIGHTJUSTIFY,
-  // i, 'UI Language');
 
 end;
 
@@ -3746,8 +3455,6 @@ procedure TMainForm.tbtnQuickSearchPrevClick(Sender: TObject);
 begin
   SearchBackward();
 end;
-
-// --------- preview begin
 
 var
   refvisible: Boolean;
@@ -3943,8 +3650,6 @@ begin
   pbPreview.Invalidate;
 end;
 
-{ AlekId: добавлено }{ назначение горячих клавиш любимым модулям }
-
 procedure TMainForm.SetFavouritesShortcuts();
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
@@ -3959,7 +3664,6 @@ begin
       hotMenuItem := favouriteMenuItem.Items[i] as TMenuItem;
       if hotMenuItem.tag < 7000 then
         continue;
-      // hotMenuItem.Tag := 7000 + j;
       if j < 9 then
         hotMenuItem.ShortCut := ShortCut($31 + j, [ssCtrl])
       else if j = 9 then
@@ -3970,11 +3674,14 @@ begin
     end;
 
   except
+    // do nothing
   end;
 end;
 
-procedure TMainForm.SetFirstTabInitialLocation(wsCommand, wsSecondaryView
-  : string; const Title: string; state: TViewTabInfoState;
+procedure TMainForm.SetFirstTabInitialLocation(
+  wsCommand, wsSecondaryView: string;
+  const Title: string;
+  state: TViewTabInfoState;
   visual: Boolean);
 var
   vti: TViewTabInfo;
@@ -4007,8 +3714,7 @@ begin
 
 end;
 
-procedure TMainForm.SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode;
-  Column: TColumnIndex; const Text: string);
+procedure TMainForm.SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const Text: string);
 var
   vnd: TVersesNodeData;
   rslt: HRESULT;
@@ -4022,13 +3728,17 @@ begin
   if rslt <> 0 then
   begin
     if rslt = -1 then
-      MessageBoxW(self.Handle, Pointer(Lang.SayDefault('bqVerseTagNotUnique',
-        C_TagRenameError)), Pointer(Lang.SayDefault('bqError', 'Error')),
+      MessageBox(
+        self.Handle,
+        Pointer(Lang.SayDefault('bqVerseTagNotUnique', C_TagRenameError)),
+        Pointer(Lang.SayDefault('bqError', 'Error')),
         MB_OK or MB_ICONERROR)
 
     else if rslt = -2 then
-      MessageBoxW(self.Handle, Pointer(Lang.SayDefault('bqErrorUnknown',
-        'Unknown Error')), Pointer(Lang.SayDefault('bqError', 'Error')),
+      MessageBox(
+        self.Handle,
+        Pointer(Lang.SayDefault('bqErrorUnknown', 'Unknown Error')),
+        Pointer(Lang.SayDefault('bqError', 'Error')),
         MB_OK or MB_ICONERROR);
 
   end;
@@ -4044,22 +3754,6 @@ begin
       BqShowException(E)
   end;
 end;
-{ procedure TMainForm.SetStrongsAndNotesState(showStrongs, showNotes: boolean;
-  ti: TViewTabInfo);
-  begin
-  ti.mShowStrongs:=showStrongs;
-  ti.mShowNotes:=showNotes;
-  StrongNumbersOn:=showStrongs;
-  MemosOn:=showNotes;
-  {cti:= GetActiveTabInfo();
-  if assigned(cti) and cti=ti then begin
-
-  tbtnStrongNumbers.Down:=showStrongs;
-  miStrong.Checked:=showStrongs;
-  miMemosToggle.Checked:=showNotes;
-  tbtnMemos.Down:=showNotes;
-  end;
-  end; }
 
 procedure TMainForm.DrawMetaFile(PB: TPaintBox; mf: TMetaFile);
 begin
@@ -4078,25 +3772,20 @@ begin
   page := CurPreviewPage;
 
   SetMapMode(PB.Canvas.Handle, MM_ANISOTROPIC);
-  SetWindowExtEx(PB.Canvas.Handle, MFPrinter.PaperWidth,
-    MFPrinter.PaperHeight, nil);
+  SetWindowExtEx(PB.Canvas.Handle, MFPrinter.PaperWidth, MFPrinter.PaperHeight, nil);
   SetViewportExtEx(PB.Canvas.Handle, PB.Width, PB.Height, nil);
   SetWindowOrgEx(PB.Canvas.Handle, -MFPrinter.OffsetX, -MFPrinter.OffsetY, nil);
+
   if Draw then
     DrawMetaFile(PB, MFPrinter.MetaFiles[page]);
 end;
 
-procedure TMainForm.pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem;
-  Rebuild: Boolean);
+procedure TMainForm.pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
 begin
-
+  //
 end;
 
-{ AlekId:добавлено - функция отображения диалога ввода пароля }
-
-function TMainForm.PaintTokens(canv: TCanvas; rct: TRect; tkns: TObjectList;
-  calc: Boolean): integer;
-
+function TMainForm.PaintTokens(canv: TCanvas; rct: TRect; tkns: TObjectList; calc: Boolean): integer;
 var
   i, C, fw, fh: integer;
   ws: string;
@@ -4120,14 +3809,12 @@ begin
   for i := 0 to C do
   begin
     ws := TVersesNodeData(tkns[i]).getText;
-    Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects[i],
-      DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+    Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, rects[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
     if (rects[i].Right > rct.Right) and (rects[i].Left > rct.Left) then
     begin
       rects[i].Left := rct.Left;
       rects[i].Top := rects[i].Bottom + fh;
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects[i],
-        DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+      Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, rects[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
     end;
 
     if i < C then
@@ -4141,17 +3828,16 @@ begin
 
   if not calc then
     for i := 0 to C do
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects[i],
-        DT_TOP or DT_SINGLELINE);
+      Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, rects[i], DT_TOP or DT_SINGLELINE);
 
   Result := rects[C].Bottom;
 
 end;
 
 function TMainForm.PassWordFormShowModal(const aModule: WideString; out Pwd: WideString; out savePwd: Boolean): integer;
-var { modPath: WideString; }
+var
   modName: string;
-  i { , arcCount } : integer;
+  i: integer;
   modShortPath: string;
 begin
   Result := mrCancel;
@@ -4162,15 +3848,15 @@ begin
     if (i < 0) then
       modName := ' '
     else
-      modName := mModules[i].wsFullName;
+      modName := mModules[i].mFullName;
     if not Assigned(PasswordBox) then
       PasswordBox := TPasswordBox.Create(self);
     with PasswordBox do
     begin
       Font.Assign(self.Font);
       lblPasswordNeeded.Caption :=
-        Format(Lang.SayDefault('lblPasswordNeeded',
-        'Для открытия модуля нужно ввести пароль (%s)'), [modName]);
+        Format(Lang.SayDefault('lblPasswordNeeded', 'Для открытия модуля нужно ввести пароль (%s)'), [modName]);
+
       lblEnterPassword.Caption := Lang.SayDefault('lblPassword', 'Пароль:');
       chkSavePwd.Caption := Lang.SayDefault('chkSavePwd', 'Сохранить пароль');
       btnCancel.Caption := Lang.SayDefault('btnCancel', 'Отмена');
@@ -4188,10 +3874,8 @@ begin
   end;
 
 end;
-{ AlekId:/добавлено }
 
-procedure TMainForm.pbPreviewMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+procedure TMainForm.pbPreviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 var
   sx, sy: single;
   nx, ny: integer;
@@ -4212,8 +3896,6 @@ begin
   sbxPreview.HorzScrollBar.Position := nx - sbxPreview.Width div 2;
   sbxPreview.VertScrollBar.Position := ny - sbxPreview.Height div 2;
 end;
-
-// --------- preview end
 
 function TMainForm.ProcessCommand(s: string; hlVerses: TbqHLVerseOption): Boolean;
 var
@@ -4254,7 +3936,8 @@ begin
   Result := false;
 
   if s = '' then
-    Exit; // выйти, если команда пустая
+    Exit; // exit, the command is empty
+
   Screen.Cursor := crHourGlass;
   mInterfaceLock := true;
   try
@@ -4266,13 +3949,11 @@ begin
     oldbook := MainBook.CurBook;
     oldchapter := MainBook.CurChapter;
 
-    dup := s; // копия команды
+    dup := s; // command copy
 
     if bibleLink.FromBqStringLocation(dup) then
     begin
-      // AlekId : search #0001
-
-      // формируем путь к ini модуля
+      // make path to module's ini
       if bibleLink.IsAutoBible() then
       begin
         if MainBook.isBible then
@@ -4289,25 +3970,23 @@ begin
 
       path := MainFileExists(bibleLink.GetIniFileShortPath());
 
-      // ??! никогда ветвление это не сработает
       if Length(path) < 1 then
         goto exitlabel;
 
       oldSignature := MainBook.FullPassageSignature(MainBook.CurBook, MainBook.CurChapter, 0, 0);
 
-      // пытаемся подгрузить модуль
+      // try to load module
       if path <> MainBook.inifile then
         try
           MainBook.inifile := path;
-        except // если что-то не так -- откат
+        except // revert to old location if something goes wrong
           revertToOldLocation();
         end;
 
       try
-        // читаем, отображаем адрес
-
+        // read and display
         navRslt := GoAddress(bibleLink.book, bibleLink.chapter, bibleLink.vstart, bibleLink.vend, hlVerses);
-        // записываем историю
+        // save history
         if navRslt > nrEndVerseErr then
         begin
           focusVerse := 0;
@@ -4315,8 +3994,8 @@ begin
 
         with MainBook do
           if (bibleLink.vstart = 0) or (navRslt > nrEndVerseErr) then
-            // если конечный стих не указан
-            // выглядит как
+            // if the final verse is not specified
+            // looks like
             // "go module_folder book_no Chapter_no verse_start_no 0 mod_shortname
 
             s := Format('go %s %d %d %d 0 $$$%s %s',
@@ -4332,7 +4011,7 @@ begin
             );
 
         HistoryAdd(s);
-        (* AlekId:Добавлено *)
+
         // here we set proper name to tab
         with MainBook, pgcViewTabs do
         begin
@@ -4340,7 +4019,7 @@ begin
             try
 
               ti := GetActiveTabInfo();
-              // сохранить контекст
+              // save the context
               ti.Location := s;
               ti.LocationType := vtlModule;
 
@@ -4365,16 +4044,16 @@ begin
         on E: TBQPasswordException do
         begin
           PasswordPolicy.InvalidatePassword(E.mArchive);
-          MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
+          MessageBox(self.Handle, PChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
           revertToOldLocation();
         end;
         on E: TBQException do
         begin
-          MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
+          MessageBox(self.Handle, PChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
           revertToOldLocation();
         end
         else
-          revertToOldLocation(); // в любом случае
+          revertToOldLocation(); // in any case
       end;
 
       goto exitlabel;
@@ -4442,17 +4121,6 @@ begin
           on E: Exception do
             BqShowException(E);
         end;
-      {
-        if wasSearchHistory then
-        MainTabs.Tabs[MainTabs.TabIndex] := value
-        else
-        MainTabs.Tabs[MainTabs.TabIndex] := ExtractFileName(path);
-      }
-      // MainForm.Caption := Application.Title + ' — ' +
-      // TitleLabel.Caption := '  ' + value;
-      // TitleLabel.Font.Style := [fsBold];
-
-      // TabBuffers[MainTabs.TabIndex] := s;
 
       if (History.Count > 0) and (History[0] = s) then
         bwrHtml.Position := browserpos;
@@ -4462,7 +4130,7 @@ begin
         bwrHtml.tag := bsSearch
       else
         bwrHtml.tag := bsFile;
-      (* AlekId:Добавлено *)
+
       ti := GetActiveTabInfo();
       ti.Title := Format('%.12s', [value]);
       pgcViewTabs.Tabs[pgcViewTabs.TabIndex] := ti.Title;
@@ -4472,14 +4140,12 @@ begin
       ti.IsCompareTranslation := false;
       ti.CompareTranslationText := '';
 
-      (* AlekId:/Добавлено *)
       goto exitlabel;
     end; // first word is "file"
 
     if ExtractFileName(dup) = dup then
       try
         bwrHtml.LoadFromFile(bwrHtml.Base + dup);
-        (* AlekId:Добавлено *)
         ti := GetActiveTabInfo();
         ti.Title := Format('%.12s', [s]);
         pgcViewTabs.Tabs[pgcViewTabs.TabIndex] := ti.Title;
@@ -4489,17 +4155,12 @@ begin
 
         ti.IsCompareTranslation := false;
         ti.CompareTranslationText := '';
-
-        (* AlekId:/Добавлено *)
       except
         on E: Exception do
           BqShowException(E);
       end;
 
   exitlabel:
-
-    // ActiveControl := Browser;
-    // miStrong.Enabled := MainBook.StrongNumbers;
     if Length(path) <= 0 then
       Exit;
     Result := true;
@@ -4554,11 +4215,9 @@ procedure TMainForm.HistoryButtonClick(Sender: TObject);
 begin
   if History.Count = 0 then
     Exit;
-  // ResultPages.ActivePage := tbHistory;
 end;
 
-procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   OldKey: Word;
   hotMenuItem: TMenuItem;
@@ -4843,8 +4502,7 @@ begin
   ShowSearchTab();
 end;
 
-procedure TMainForm.cbSearchKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.cbSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   s: TComboBox;
 begin
@@ -4857,8 +4515,6 @@ begin
   end;
 end;
 
-{ Alek }(* AlekId:Добавлено *)
-
 procedure TMainForm.edtSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = 13 then
@@ -4866,7 +4522,6 @@ begin
     SearchForward();
   end;
 end;
-(* AlekId:/Добавлено *)
 
 procedure TMainForm.FormKeyPress(Sender: TObject; var Key: Char);
 begin
@@ -4885,20 +4540,6 @@ begin
         // exit from edtGo (F2) or cbSearch (F3) to Browser
         if (ActiveControl = tedtReference) or (ActiveControl = cbSearch) then
           ActiveControl := bwrHtml;
-
-        // Application.Minimize;
-        { wrap to title bar like KDE/Linux
-          if MainForm.Height > 100 then
-          begin
-          MainFormTempHeight := MainForm.Height;
-          MainForm.Height := 0;
-          //          MainForm.FormStyle := fsStayOnTop;
-          end else
-          begin
-          MainForm.Height := MainFormTempHeight;
-          //          MainForm.FormStyle := fsNormal;
-          end;
-        }
       end;
     end;
     Exit;
@@ -5001,8 +4642,8 @@ begin
           ibl, true, false);
         if (linkValidStatus > -2) or (not getAddress) or (not doFilter) then
         begin
-          addIndex := cbComments.Items.Add(commentaryModule.wsFullName);
-          if OmegaCompareTxt(commentaryModule.wsFullName, lastCmt, -1, true) = 0
+          addIndex := cbComments.Items.Add(commentaryModule.mFullName);
+          if OmegaCompareTxt(commentaryModule.mFullName, lastCmt, -1, true) = 0
           then
             selIndex := addIndex;
 
@@ -5052,7 +4693,7 @@ begin
         prevFiltered := tree.IsFiltered[pvn];
         if isNotEmptyFilterStr then
         begin
-          ix := bqWidePosCI(FilterText, vnd.getText());
+          ix := UpperPosCI(FilterText, vnd.getText());
           filterNode := (ix <= 0);
           tree.IsFiltered[pvn] := filterNode;
           if expanded then
@@ -5093,8 +4734,7 @@ var
     if (Pos('нз', wl) = 1) or (Pos('nt', wl) = 1) then
     begin
 
-      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(40, 1,
-        1, book, chapter, v1) then
+      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(40, 1, 1, book, chapter, v1) then
       begin
         s := s + [39 .. 65];
       end;
@@ -5102,8 +4742,7 @@ var
     end
     else if (Pos('вз', wl) = 1) or (Pos('ot', wl) = 1) then
     begin
-      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToReference(1, 1, 1,
-        book, chapter, v1) then
+      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToReference(1, 1, 1, book, chapter, v1) then
       begin
         s := s + [0 .. 38];
       end;
@@ -5112,8 +4751,7 @@ var
     else if (Pos('пят', wl) = 1) or (Pos('pent', wl) = 1) or
       (Pos('тор', wl) = 1) or (Pos('tor', wl) = 1) then
     begin
-      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToReference(1, 1, 1,
-        book, chapter, v1) then
+      if MainBook.Trait[bqmtOldCovenant] and MainBook.InternalToReference(1, 1, 1, book, chapter, v1) then
       begin
         s := s + [0 .. 4];
       end;
@@ -5156,8 +4794,7 @@ var
       if MainBook.Trait[bqmtOldCovenant] then
       begin
         s := s + [22 .. 38];
-        if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(66, 1,
-          1, book, chapter, v1) then
+        if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(66, 1, 1, book, chapter, v1) then
         begin
           Include(s, 65);
         end;
@@ -5174,8 +4811,7 @@ var
     end
     else if (Pos('пав', wl) = 1) or (Pos('paul', wl) = 1) then
     begin
-      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(52, 1,
-        1, book, chapter, v1) then
+      if MainBook.Trait[bqmtNewCovenant] and MainBook.InternalToReference(52, 1, 1, book, chapter, v1) then
       begin
         s := s + [book - 1 .. book + 12];
       end;
@@ -5208,13 +4844,11 @@ begin
 
     s := [];
 
-    if (not MainBook.isBible) { or
-      (not MainBook.Trait[bqmtOldCovenant]) or (not MainBook.Trait[bqmtNewCovenant]) }
+    if (not MainBook.isBible)
     then
     begin
       if (cbList.ItemIndex <= 0) then
         s := [0 .. MainBook.BookQty - 1]
-        // for i := 1 to MainBook.BookQty do s := s + [i-1];
       else
         s := [cbList.ItemIndex - 1];
     end
@@ -5308,19 +4942,13 @@ begin
     StrReplace(data, '?', ' ', true);
     StrReplace(data, '"', ' ', true);
     data := Trim(data);
-    // cbSearch.Text := data;
 
     if data <> '' then
     begin
-      // if SingleLetterDelete(data) then
-      // ShowMessage(Lang.Say('OneLetterWordsDeleted'));
-
-      // cbSearch.Text := data;
       if cbSearch.Items.IndexOf(data) < 0 then
         cbSearch.Items.Insert(0, data);
 
       SearchResults.Clear;
-      // SearchLB.Items.Clear;
 
       SearchWords.Clear;
       wrd := cbSearch.Text;
@@ -5331,22 +4959,12 @@ begin
         begin
           wrdnew := DeleteFirstWord(wrd);
 
-          // if not chkCase.Checked then
-          // begin
-          // SearchWords.Add(UpperCaseFirstLetter(wrdnew)); // Господь
-          // SearchWords.Add(WideLowerCase(wrdnew)); // господь
-          // SearchWords.Add(WideUpperCase(wrdnew)); // LORD OF LORDS, in English :-)
-          // end
-          // else
           SearchWords.Add(wrdnew);
         end;
       end
       else
       begin
         wrdnew := Trim(wrd);
-        // SearchWords.Add(UpperCaseFirstLetter(wrdnew)); // Господь
-        // SearchWords.Add(WideLowerCase(wrdnew)); // господь
-        // SearchWords.Add(WideUpperCase(wrdnew)); // LORD OF LORDS, in English :-)
         SearchWords.Add(wrdnew);
       end;
 
@@ -5372,8 +4990,6 @@ begin
   SearchTime := GetTickCount - SearchTime;
   lblSearch.Caption := lblSearch.Caption + ' (' + IntToStr(SearchTime) + ')';
   DisplaySearchResults(1);
-  // ProcessCommand(History[lbHistory.Count-1]);
-  // ProcessCommand(History[0]);
 end;
 
 procedure TMainForm.FontChanged(delta: integer);
@@ -5460,19 +5076,13 @@ begin
   if MainForm.Height < 100 then
     MainForm.Height := 420;
 
-  writeln(bqNowDateTimeString(), 'FormClose entered');
+  writeln(NowDateTimeString(), 'FormClose entered');
   SaveConfiguration;
   Flush(Output);
-  // mBqEngine.Free();
-  // mBqEngine.Free();
   mBqEngine.Finalize();
   mBqEngine := nil;
   BibleLinkParser.FinalizeParser();
-  (* AlekId:Добавлено *)
   try
-    { CacheDicPaths.Free(); CacheDicTitles.Free(); CacheModPaths.Free();
-      CacheModTitles.Free(); }// ModulesList.Free();
-    // ModulesCodeList.Free();
     GfxRenderers.TbqTagsRenderer.Done();
     FreeAndNil(Memos);
     FreeAndNil(Bookmarks);
@@ -5535,9 +5145,7 @@ begin
     if MainBook.Trait[bqmtNewCovenant] then
       Items.AddObject(Lang.Say('SearchGA'), TObject(-6)); // Gospels and Acts
     if MainBook.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchER'), TObject(-7));
-    // Epistles and Revelation
-
+      Items.AddObject(Lang.Say('SearchER'), TObject(-7)); // Epistles and Revelation
     if MainBook.Trait[bqmtApocrypha] then
       Items.AddObject(Lang.Say('SearchAP'), TObject(-8)); // Apocrypha
 
@@ -5566,7 +5174,6 @@ begin
     Key := #0;
     FontChanged(-1);
   end;
-
 end;
 
 procedure TMainForm.miExitClick(Sender: TObject);
@@ -5576,8 +5183,7 @@ end;
 
 procedure TMainForm.Idle(Sender: TObject; var Done: Boolean);
 begin
-  // фоновая загрузка модулей
-
+  // background modules loading
   if not mModuleLoader.ScanDone then
   begin
     LoadModules(true);
@@ -5613,32 +5219,8 @@ end;
 
 procedure TMainForm.imgLoadProgressClick(Sender: TObject);
 begin
-
+  //
 end;
-
-{ procedure TMainForm.InitBibleTabs;
-  var
-  i, j, bibleTabsCount: integer;
-  s: WideString;
-  hotModuleMenuItem: TMenuItem;
-  begin
-  bibleTabsCount := GetHotModuleCount() - 1;
-  dtsBible.Tabs.Clear();
-  for i := 0 to bibleTabsCount do
-  begin
-  hotModuleMenuItem := GetHotMenuItem(i);
-  if not Assigned(hotModuleMenuItem) then
-  continue;
-  s := hotModuleMenuItem.Caption;
-  if length(s) <= 0 then
-  continue;
-  j := ModuleIndexByName(s);
-  if j >= 0 then
-  dtsBible.Tabs.AddObject(ModulesCodeList[j],
-  hotModuleMenuItem);
-  end; //for
-  dtsBible.Tabs.AddObject('***', nil);
-  end; }
 
 procedure TMainForm.InitHotkeysSupport;
 begin
@@ -5691,7 +5273,7 @@ begin
 
     hotMenuItem := TMenuItem.Create(self);
     hotMenuItem.tag := integer(newMe);
-    hotMenuItem.Caption := newMe.wsFullName;
+    hotMenuItem.Caption := newMe.mFullName;
     hotMenuItem.OnClick := HotKeyClick;
 
     favouriteMenuItem.Insert(ix + i, hotMenuItem);
@@ -5741,58 +5323,6 @@ begin
   end;
 end;
 
-{ procedure TMainForm.LoadBookNodes;
-  var
-  usrPath: WideString;
-  bc: TBookCategory;
-  fileHandle:THandle;
-  pn:PVirtualNode;
-  sz, byteRead:Cardinal;
-  pMemory, pCurrent, pFence:PWideChar;
-
-  procedure AddChild(_pn:PVirtualNode);
-  var pWc: PWideChar;
-  strsz:integer;
-  pCurNode:PVirtualNode;
-  begin
-  repeat
-  pWc:=StrPosW(pCurrent, C_crlf);
-  if not assigned(pWc) then abort;
-  strsz:=pWc-pCurrent;
-  bc:=TBookCategory.Create(Copy(pCurrent, 1, strsz));
-  pCurNode:= vstBooks.AddChild(_pn, bc);
-  Inc(pCurrent, strsz+2);
-  if (pCurrent>=pFence) then exit;
-  if pCurrent^='+' then begin Inc(pCurrent); AddChild(pCurNode); end;
-  if pCurrent^='-' then begin Inc(pCurrent); exit end;
-  until (pCurrent>=pFence);
-
-  end;
-
-  begin
-  {  bc := TBookCategory.Create('Книги');
-  mBookCategories.Add(bc);
-  pn:=vstBooks.AddChild(vstBooks.RootNode, bc); }
-{ pn:=nil;
-  usrPath := CreateAndGetConfigFolder() + C_CategoriesFile;
-  fileHandle := CreateFileW(PWideChar(Pointer(usrPath)), GENERIC_READ, 0,
-  nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-  if fileHandle = INVALID_HANDLE_VALUE then begin exit end;
-  sz:=GetFileSize(fileHandle, nil);
-  if sz>0 then begin
-
-  GetMem(pMemory,sz);
-  ReadFile(fileHandle, pMemory^, sz,byteRead,nil);
-  pCurrent:=pMemory; pFence:=pMemory+ (sz div 2);
-  try
-  try
-  AddChild(pn);
-  finally FreeMemory(pMemory); end;
-  except end;
-  CloseHandle(fileHandle);
-  end;//if sz
-  end; }
-
 function TMainForm.LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
 var
   i: integer;
@@ -5837,7 +5367,7 @@ begin
             wb.LoadFromString(wsResolvedTxt);
             wb.PositionTo(dest);
             wb.__SetFileName(SRC);
-            // wb.DefVisitedLinkColor
+
           finally
             FreeAndNil(wstrings);
             wsResolvedTxt := '';
@@ -5847,7 +5377,7 @@ begin
           wb.LoadFromFile(SRC + dest);
 
       end
-      // wb.AddVisitedLink(S+Dest);
+
       else if (ext = '.BMP') or (ext = '.GIF') or (ext = '.JPG') or (ext = '.JPEG') or (ext = '.PNG') then
         wb.LoadImageFile(SRC);
     end;
@@ -5865,21 +5395,20 @@ var
   fn, ws, psg, doc, ConcreteCmd: string;
   bl: TBibleLink;
   status_load: integer;
-
 begin
   Result := false;
   status_load := PreProcessAutoCommand(cmd, SecondBook.ShortPath, ConcreteCmd);
+
   if status_load <= -2 then
     Exit;
-  status_load := GetModuleText(ConcreteCmd, fn, bl, ws, psg,
-    [gmtLookupRefBibles]);
+
+  status_load := GetModuleText(ConcreteCmd, fn, bl, ws, psg, [gmtLookupRefBibles]);
   if status_load < 0 then
   begin
     MessageBeep(MB_ICONEXCLAMATION);
     Exit;
   end;
 
-  // psg := SecondBook.ShortPassageSignature(bl.book, bl.chapter, bl.vstart, bl.vend);
   doc := bwrXRef.DocumentSource;
 
   ws := Format('%s '#13#10'<a href="bqnavMw:bqResLnk%s">%s</a><br><hr align=left width=80%%>', [ws, id, psg]);
@@ -5906,7 +5435,7 @@ begin
     if R then
       R := UpdateFromCashed();
     if not R then
-    begin // не удалось загрузить или обновиться
+    begin // failed to load and update
       LoadModules(false);
     end
     else
@@ -5981,7 +5510,7 @@ begin
     if not Assigned(tempBook) then
       tempBook := TBible.Create( self);
 
-    iniPath := TPath.Combine(me.wsShortPath, 'bibleqt.ini');
+    iniPath := TPath.Combine(me.mShortPath, 'bibleqt.ini');
     tempBook.inifile := MainFileExists(iniPath);
   except
   end;
@@ -6011,8 +5540,7 @@ begin
   end;
 end;
 
-procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   MainShiftState := Shift;
   if (Key = VK_CONTROL) then
@@ -6037,8 +5565,7 @@ begin
 
 end;
 
-procedure TMainForm.bwrHtmlKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.bwrHtmlKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   BrowserPosition := bwrHtml.Position;
 
@@ -6072,18 +5599,6 @@ begin
     end;
 
   end;
-
-  // if ((Key = VK_BACK) and (Shift = []))
-  // or ((Key = VK_LEFT) and (Shift = [ssAlt])) then
-  // begin
-  // Key := 0;
-  // tbtnBack.Click;
-  // end
-  // else if ((Key = VK_RIGHT) and (Shift = [ssAlt])) then
-  // begin
-  // Key := 0;
-  // ForwardButton.Click;
-  // end;
 end;
 
 procedure TMainForm.miFontConfigClick(Sender: TObject);
@@ -6096,7 +5611,6 @@ begin
     Font.Name := mBrowserDefaultFontName;
     Font.color := bwrHtml.DefFontColor;
     Font.Size := bwrHtml.DefFontSize;
-    // Font.Charset := DefaultCharset;
   end;
 
   if FontDialog.Execute then
@@ -6274,7 +5788,7 @@ begin
       end
       else
       begin
-        if not WideIsSpaceEndedString(s) then
+        if not IsSpaceEndedString(s) then
           s := s + ' ';
 
         s := IntToStr(i) + ' ' + s;
@@ -6309,11 +5823,9 @@ begin
 
     with MainBook do
       if CopyOptionsAddReferenceRadioItemIndex = 1 then
-        Result := Result + ShortPassageSignature(CurBook, CurChapter, fromverse,
-          toverse) + ')'
+        Result := Result + ShortPassageSignature(CurBook, CurChapter, fromverse, toverse) + ')'
       else
-        Result := Result + FullPassageSignature(CurBook, CurChapter, fromverse,
-          toverse) + ')';
+        Result := Result + FullPassageSignature(CurBook, CurChapter, fromverse, toverse) + ')';
   end;
 
   s := ParseHTML(Result, '');
@@ -6328,12 +5840,10 @@ begin
   begin
     mHTMLSelection := Result;
     InsertDefaultFontInfo(mHTMLSelection, bwrHtml.DefFontName, bwrHtml.DefFontSize);
-    // if CopyOptionsAddLineBreaksChecked then
-    // StringReplace(mHTMLSelection, #13#10, '<br>', [rfReplaceAll]);
   end
   else
     mHTMLSelection := '';
-  // CopyHTMLToClipBoard(s, result);
+
   Result := s;
 end;
 
@@ -6358,11 +5868,6 @@ procedure TMainForm.pmBrowserPopup(Sender: TObject);
 var
   s, scap: string;
   i: integer;
-
-  // dMessage: WideString;
-  // dSrcPos: Integer;
-  // dPrevText: WideString;
-
 begin
   if bwrHtml.tag <> bsText then
   begin
@@ -6376,25 +5881,16 @@ begin
     miCopyVerse.Visible := true;
   end;
 
-  { dSrcPos := bwrHtml.FindSourcePos (bwrHtml.RightMouseClickPos);
-    if dSrcPos > 500 then
-    dPrevText := Copy (BrowserSource, dSrcPos - 500, 500)
-    else
-    dPrevText := Copy (BrowserSource, 1, dSrcPos);
-
-    dMessage := IntToStr (bwrHtml.RightMouseClickPos) + ', ' +
-    IntToStr (dSrcPos) + #13 +
-    dPrevText + '|' + #13 +
-    Copy (BrowserSource, dSrcPos+1, 500);
-
-    WStrMessageBox (dMessage); }
-  CurVerseNumber := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, CurFromVerse,
+  CurVerseNumber := Get_ANAME_VerseNumber(
+    bwrHtml.DocumentSource, CurFromVerse,
     bwrHtml.FindSourcePos(bwrHtml.RightMouseClickPos, true));
 
-  CurSelStart := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, CurFromVerse,
+  CurSelStart := Get_ANAME_VerseNumber(
+    bwrHtml.DocumentSource, CurFromVerse,
     bwrHtml.FindSourcePos(bwrHtml.SelStart, true));
 
-  CurSelEnd := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, CurFromVerse,
+  CurSelEnd := Get_ANAME_VerseNumber(
+    bwrHtml.DocumentSource, CurFromVerse,
     bwrHtml.FindSourcePos(bwrHtml.SelStart + bwrHtml.SelLength, true));
 
   if CurSelStart > CurSelEnd then
@@ -6416,36 +5912,25 @@ begin
     begin
       if miCopyPassage.Visible then
         miCopyPassage.Caption := Format('%s  "%s"',
-          [FirstWord(miCopyVerse.Caption), FullPassageSignature(CurBook,
-          CurChapter, CurSelStart, CurSelEnd)]);
+          [FirstWord(miCopyVerse.Caption), FullPassageSignature(CurBook, CurChapter, CurSelStart, CurSelEnd)]);
 
       miCopyVerse.Caption := Format('%s  "%s"',
-        [FirstWord(miCopyVerse.Caption), FullPassageSignature(CurBook,
-        CurChapter, CurVerseNumber, CurVerseNumber)]);
+        [FirstWord(miCopyVerse.Caption), FullPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber)]);
 
       scap := miAddBookmark.Caption;
       s := DeleteFirstWord(scap);
       s := s + ' ' + FirstWord(scap);
+
       miAddBookmark.Caption := Format('%s  "%s"',
-        [s, FullPassageSignature(CurBook, CurChapter, CurVerseNumber,
-        CurVerseNumber)]);
+        [s, FullPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber)]);
 
       scap := miAddMemo.Caption;
       s := DeleteFirstWord(scap);
       s := s + ' ' + FirstWord(scap);
-      miAddMemo.Caption := Format('%s  "%s"',
-        [s, FullPassageSignature(CurBook, CurChapter, CurVerseNumber,
-        CurVerseNumber)]);
-      {
-        scap := miGoBack.Caption;
-        s := DeleteFirstWord(scap);
-        s := s + ' ' + FirstWord(scap);
 
-        miGoBack.Enabled := History.Count > 1;
-
-        if miGoBack.Enabled then
-        miGoBack.Caption := s + ' ' + Comment(History[History.Count-2]);
-      }
+      miAddMemo.Caption := Format(
+        '%s  "%s"',
+        [s, FullPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber)]);
     end;
 end;
 
@@ -6458,35 +5943,6 @@ begin
   pgcMain.ActivePage := tbXRef;
   ShowXref;
 end;
-
-// function TMainForm.ModuleIndexByName(const awsModule: Widestring): integer;
-// var
-// i, modulecount: integer;
-// begin
-// result := -1;
-//
-// modulecount := mModules.Count-1;
-// for i := 0 to modulecount do
-// begin
-// if Pos(awsModule, ModulesList[i].) = 1 then
-// begin
-// result := i;
-// break;
-// end;
-// end;
-//
-// end;
-
-(*
-  Report #:  82143     	 Status:  Open
-  TWinControl.ControlAtPos doesn't work with nested TWinControl descendant child controls
-  Project:  Delphi 	Build #:  21218
-  Version:    12.3 	Submitted By:   Ondrej Kelle
-  Report Type:  Basic functionality failure 	Date Reported:  2/15/2010 4:39:25 AM
-  Severity:    Commonly encountered problem 	Last Updated: 2/15/2010 6:46:38 PM
-  Platform:    All platforms 	Internal Tracking #:   275027
-  Resolution: None (Resolution Comments) 	Resolved in Build: : None
-*)
 
 function CustomControlAtPos(ParentControl: TWinControl; const Pos: TPoint;
   AllowDisabled, AllowWinControls, AllLevels: Boolean): TControl;
@@ -6546,15 +6002,10 @@ begin
 
   if ctrl is TWinControl then
   begin
-    // focusHwnd:=GetFocus();
-    // if (focusHwnd<>0) and (focusHwnd <> TWinControl(ctrl).handle) then begin
     focusHwnd := WindowFromPoint(screenPt);
     if (focusHwnd <> 0) and (focusHwnd <> TWinControl(ctrl).Handle) then
     begin
 
-      // if GetWindowRect(focusHWnd,focusedRect) and
-      // PtInRect(focusedRect, screenPt) then begin
-      // ooops
       inherited MouseWheelHandler(Message);
       goto tail;
     end;
@@ -6568,10 +6019,8 @@ begin
       message.Result := 1;
       goto tail;
     end;
-    // SetFocusedControl();
-    // message.Result:=SendMessage(TWinControl(ctrl).Handle,Message.Msg, Message.WParam, Message.LParam)
   end;
-  // else message.Result:=ctrl.Perform(CM_MOUSEWHEEL, message.WParam, message.LParam);
+
   inherited;
 tail:
   oneEntry := false;
@@ -6583,20 +6032,17 @@ var
   tf: TSearchRec;
   s, snew, passageSig: string;
   verse, tmpverse, book, chapter, fromverse, toverse,
-  // rb,rc,rv,
   i, j: integer;
   RefLines: string;
   RefText: string;
   Links: TStrings;
   slink: string;
-  // was0: boolean;
   diff: integer;
   path: string;
 begin
   if mModules.IndexOf(MainBook.Name) = -1 then
     Exit;
-  // if Bibles.IndexOf(MainBook.Name) = -1 then
-  // Exit;
+
   if not pgcMain.Visible then
     Exit;
 
@@ -6608,9 +6054,6 @@ begin
 
   RefLines := '';
   Links := TStringList.Create;
-
-  // with MainBook do
-  // RefLines.Add('<font size=-1>');
 
   SecondBook.inifile := MainBook.inifile;
 
@@ -6650,7 +6093,6 @@ begin
   slink := ti.ReadString(IntToStr(chapter), IntToStr(verse), '');
   if slink = '' then
     AddLine(RefLines, RefText + '<b>.............</b>')
-    // RefLines.Add(RefText + '<hr>')
   else
   begin
     StrToLinks(slink, Links);
@@ -6719,98 +6161,12 @@ begin
 
   AddLine(RefLines, '</font><br><br>');
 
-  // bwrXRef.CharSet := MainBook.FontCharset;
   bwrXRef.DefFontName := bwrHtml.DefFontName;
   mXRefMisUsed := false;
   bwrXRef.LoadFromString(RefLines);
 
-  // bwrXRef.PositionTo(IntToStr(tbXRef.Tag));
-
   Links.Free;
 end;
-
-{
-  procedure TMainForm.ShowXref;
-  var
-  book,chapter,verse,ibook,ichapter,iverse,rbook,rchapter,rverse: integer;
-  XrefCur: integer;
-  foundxref: boolean;
-  RefLines: TWideStrings;
-  s, RefText: WideString;
-  begin
-  if not MainBook.isBible then Exit;
-
-  if tbXRef.Tag = 0 then tbXRef.Tag := 1;
-
-  RefLines := TWideStringList.Create;
-
-  with MainBook do
-  RefLines.Add('<font size=-1>');
-
-  XRefCur := 1;
-
-  SecondBook.IniFile := MainBook.IniFile;
-
-  book := MainBook.CurBook;
-  chapter := MainBook.CurChapter;
-  //numverses := MainBook.CountVerses(book, chapter);
-  verse := tbXRef.Tag;
-
-  //  for verse := 1 to numverses do
-  //  begin
-  foundxref := MainBook.isBible
-  and MainBook.InternalToAddress(book,chapter,verse,ibook,ichapter,iverse)
-  and LocateXref(ibook,ichapter,iverse,XRefCur);
-  // delphi check boolean values from left to right :-)
-
-  SecondBook.OpenChapter(book,chapter);
-  if verse > SecondBook.Lines.Count then verse := SecondBook.Lines.Count;
-  s := SecondBook.Lines[verse-1];
-  StrDeleteFirstNumber(s);
-  s := DeleteStrongNumbers(s);
-
-  RefText := Format('<a name=%d><a href="go %s %d %d %d">%s%d:%d</a><br><font face="%s">%s</font><p>',
-  [verse,MainBook.ShortPath,
-  book,chapter,verse,MainBook.ShortNames[book],chapter,verse,
-  MainBook.FontName, s]);
-
-  if foundxref then
-  begin
-  repeat
-  if MainBook.AddressToInternal(
-  XRef[XRefCur].RB, XRef[XRefCur].RC, XRef[XRefCur].RV,
-  rbook,rchapter,rverse) then
-
-  SecondBook.OpenChapter(rbook,rchapter);
-  if rverse > SecondBook.Lines.Count then rverse := SecondBook.Lines.Count;
-  s := SecondBook.Lines[rverse-1];
-  StrDeleteFirstNumber(s);
-  s := DeleteStrongNumbers(s);
-
-  RefText := RefText + Format('<a href="go %s %d %d %d">%s%d:%d</a> <font face="%s">%s</font><br>',
-  [MainBook.ShortPath,
-  rbook,rchapter,rverse,MainBook.ShortNames[rbook],rchapter,rverse,
-  MainBook.FontName, s]);
-
-  Inc(XRefCur);
-  until (XRefCur > XRefQty) or not ((XRef[XRefCur].B = ibook)
-  and (XRef[XRefCur].C = ichapter)
-  and (XRef[XRefCur].V = iverse));
-
-  //RefText := Copy(RefText,1,Length(RefText)-6) + '</a>'; // delete last ', ' combination
-  RefLines.Add(RefText);               ыв
-  end
-  else RefLines.Add(RefText + '<b>.............</b>');
-  //  end;
-
-  RefLines.Add('</font><br><br>');
-
-  bwrXRef.LoadStrings(RefLines);
-  bwrXRef.CharSet := MainBook.FontCharset;
-
-  bwrXRef.PositionTo(IntToStr(tbXRef.Tag));
-  end;
-}
 
 procedure TMainForm.tbtnSoundClick(Sender: TObject);
 var
@@ -6818,14 +6174,7 @@ var
   fname3, fname2: WideString;
   find: string;
 begin
-  {
-    find := '';
-    for chapter := 1 to 150 do
-    find := find + IntToStr(MainBook.CountVerses(19, chapter)) + ', ';
-    BrowserSource.Text := find;
-    bwrHtml.LoadStrings(BrowserSource);
-    Exit;
-  }
+
   if not MainBook.isBible then
     Exit;
 
@@ -6859,7 +6208,6 @@ begin
   else
   begin
     ShellExecute(Application.Handle, nil, PChar(find), nil, nil, SW_MINIMIZE);
-    // ActiveControl := Browser;
   end;
 end;
 
@@ -6867,38 +6215,7 @@ procedure TMainForm.miHotkeyClick(Sender: TObject);
 begin
   ConfigForm.pgcOptions.ActivePageIndex := 1;
   ShowConfigDialog;
-  // ShowMessage('Просто перетащите корешок закладки той страницы,'
-  // +#13#10' на которой отображается нужный модуль на закладку панели Любимых Модулей');
 end;
-
-{ TODO -oAlekId -cQA : проверить зачем закомментирована функция }{
-  procedure TMainForm.miAddPassageBookmarkClick(Sender: TObject);
-  var
-  s,s1: WideString;
-  begin
-  CurVerseNumber := VersePosition;
-
-  s := miAddBookmark.Caption;
-  s1 := DeleteFirstWord(s);
-  s := s1 + ' ' + FirstWord(s);
-
-  with MainBook do
-  if CurToVerse - CurFromVerse + 1 = VerseQty then
-  miAddBookmark.Caption :=
-  Format('%s  "%s"', [s,
-  ShortName + ' ' + ShortPassageSignature(CurBook, CurChapter, VersePosition, 0)]
-  )
-  else
-  miAddBookmark.Caption :=
-  Format('%s  "%s"', [s,
-  ShortName + ' ' + ShortPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse)]
-  );
-
-  //  miAddBookmarkClick(Sender);
-  end;
-}
-
-(* AlekId: добавлено *)
 
 procedure TMainForm.miDeteleBibleTabClick(Sender: TObject);
 var
@@ -6912,7 +6229,6 @@ begin
   except
   end;
 end;
-(* AlekId:/добавлено *)
 
 procedure TMainForm.miDialogFontConfigClick(Sender: TObject);
 var
@@ -6939,8 +6255,10 @@ begin
         dtsBible.Font.Assign(fnt);
         Screen.HintFont := fnt;
         h := fnt.Height;
+
         if h < 0 then
           h := -h;
+
         dtsBible.Height := h + 13;
         Update;
         lblTitle.Font.Assign(fnt);
@@ -6949,12 +6267,12 @@ begin
         vstDicList.ReinitNode(vstDicList.RootNode, true);
         vstDicList.Invalidate();
         vstDicList.Repaint();
+
         if Assigned(MyLibraryForm) then
         begin
           MyLibraryForm.Font.Assign(Font);
           MyLibraryForm.Font.Height := MyLibraryForm.Font.Height * 5 div 4;
           MyLibraryForm.Refresh();
-
         end;
 
       finally
@@ -6982,55 +6300,6 @@ begin
   until trCount <= 0;
 end;
 
-{
-  procedure TMainForm.BrowserPrintHeader(Sender: TObject; Canvas: TCanvas;
-  NumPage, W, H: Integer; var StopPrinting: Boolean);
-  var
-  AFont: TFont;
-  begin
-  if (NumPage = 1) or (Pos('file ', History[0]) = 1) then Exit;
-
-  AFont := TFont.Create;
-  AFont.Name := bwrHtml.DefFontName;
-  AFont.Charset := bwrHtml.Charset;
-  AFont.Size := 10;
-  with Canvas do
-  begin
-  Font.Assign(AFont);
-  SetBkMode(Handle, Transparent);
-  SetTextAlign(Handle, TA_Top or TA_RIGHT);
-  TextOut(W-50, 20, bwrHtml.DocumentTitle);
-  end;
-  AFont.Free;
-  end;
-
-  procedure TMainForm.BrowserPrintFooter(Sender: TObject; Canvas: TCanvas;
-  NumPage, W, H: Integer; var StopPrinting: Boolean);
-  var
-  AFont: TFont;
-  begin
-  if NumPage = 1 then Exit;
-
-  AFont := TFont.Create;
-  AFont.Name := bwrHtml.DefFontName;
-  AFont.Charset := bwrHtml.Charset;
-  AFont.Size := 10;
-  with Canvas do
-  begin
-  Font.Assign(AFont);
-  SetTextAlign(Handle, TA_Bottom or TA_Center);
-  TextOut(W div 2, 20, IntToStr(NumPage));
-
-  if PrintFootNote and (NumPage = 2) or (NumPage = 17) then
-  begin
-  SetTextAlign(Handle, TA_Bottom or TA_Right);
-  TextOut(W-50, 20, 'http://biblerussia.org/freeware');
-  end;
-  end;
-  AFont.Free;
-  end;
-}
-
 procedure TMainForm.MainBookVerseFound(Sender: TObject;
   NumVersesFound, book, chapter, verse: integer; s: string);
 var
@@ -7047,7 +6316,6 @@ begin
     StrDeleteFirstNumber(s);
 
     // color search result!!!
-
     for i := 0 to SearchWords.Count - 1 do
       StrColorUp(s, SearchWords[i], '<*>', '</*>', chkCase.Checked);
 
@@ -7067,17 +6335,16 @@ begin
   UpdateBooksAndChaptersBoxes();
   tbtnStrongNumbers.Enabled := MainBook.Trait[bqmtStrongs];
   SearchListInit;
-  // ReCalculateTagTree();
+
   if pgcMain.ActivePage = tbComments then
   begin
     // FilterCommentariesCombo();
   end;
-  Caption := MainBook.Name + ' — BibleQuote';
 
+  Caption := MainBook.Name + ' — BibleQuote';
 end;
 
-procedure TMainForm.bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+procedure TMainForm.bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 var
   num, code: integer;
 begin
@@ -7101,8 +6368,7 @@ begin
     tbtnToggle.Click;
 end;
 
-procedure TMainForm.bwrHtmlMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+procedure TMainForm.bwrHtmlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 var
   section: TSectionBase;
   topPos, Index: integer;
@@ -7118,8 +6384,12 @@ begin
 
 end;
 
-procedure TMainForm.bwrHtmlMouseWheel(Sender: TObject; Shift: TShiftState;
-  WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
+procedure TMainForm.bwrHtmlMouseWheel(
+  Sender: TObject;
+  Shift: TShiftState;
+  WheelDelta: integer;
+  MousePos: TPoint;
+  var Handled: Boolean);
 var
   fontSize: integer;
   delta, tm: integer;
@@ -7182,14 +6452,11 @@ begin
   if WheelDelta < 0 then
     delta := -delta;
   FontChanged(delta);
-  // ProcessCommand(History[lbHistory.ItemIndex]);
 end;
 
 procedure TMainForm.DisplayDictionary(const s: string);
 var
-  res: WideString;
-  // Key: Word;
-  // KeyChar: Char;
+  res: string;
   i, j: integer;
   dc_ix: integer;
   dicCount: integer;
@@ -7237,8 +6504,6 @@ begin
   finally
     cbDic.Items.EndUpdate;
   end;
-  // cbDic.Enabled := not (cbDic.Items.Count = 1);
-  // pnlSelectDic.Visible := not (cbDic.Items.Count = 1);
 
   cbDic.Enabled := not(cbDic.Items.Count = 1);
 
@@ -7249,22 +6514,6 @@ begin
 
   if cbDic.Items.Count > 0 then
     cbDicChange(self) // invoke showing first dictionary result
-    {
-      else
-      begin
-      repeat
-      edtDicKeyUp(nil, Key, []);
-      if (edtDic.Text <> '') and
-      (WideLowerCase(edtDic.Text) <> WideLowerCase(DicLB.Items[0])) and
-      (DicLB.ItemIndex = 0) then
-      edtDic.Text := Copy(edtDic.Text,1,Length(edtDic.Text)-1);
-      until (edtDic.Text = '') or (DicLB.ItemIndex <> 0);
-
-      //ActiveControl := edtDic;
-      KeyChar := #13;
-      edtDicKeyPress(nil, KeyChar);
-      end;
-    }
 end;
 
 procedure TMainForm.DisplayStrongs(num: integer; hebrew: Boolean);
@@ -7273,8 +6522,6 @@ var
   i: integer;
   fullDir: string;
 begin
-  // if num = 0 then Exit;
-
   s := IntToStr(num);
   for i := Length(s) to 4 do
     s := '0' + s;
@@ -7302,8 +6549,6 @@ begin
     StrReplace(res, '<h4>', '<h4>G', false);
     Copyright := StrongGreek.Name;
   end;
-
-  // end;
 
   pgcMain.ActivePage := tbStrong;
 
@@ -7419,8 +6664,6 @@ begin
   lbHistory.Items.Delete(lbHistory.ItemIndex);
 
   ProcessCommand(s, hlDefault);
-  // ComplexLinksPanel.Visible := false;
-  { cbLinks.Visible := false; }
   tbLinksToolBar.Visible := false;
 end;
 
@@ -7466,9 +6709,7 @@ procedure TMainForm.ConvertClipboard;
 begin
   if not(CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
     Exit;
-  // reClipboard.SelectAll;
-  // reClipboard.ClearSelection;
-  // reClipboard.Lines.Clear;
+
   if MainBook.fontName <> '' then
     reClipboard.Font.Name := MainBook.fontName
   else
@@ -7509,12 +6750,6 @@ begin
   limit := SearchResults.Count div SearchPageSize + 1;
   if SearchPageSize * (limit - 1) = SearchResults.Count then
     limit := limit - 1;
-  {
-    if page > 2 then s := s + Format('<a href="%d">-200</a>', [page-2]);
-    if page > 1 then s := s + Format('<a href="%d">-100</a>', [page-1]);
-    if page < limit-1 then s := s + Format('<a href="%d">+100</a>', [page+1]);
-    if page < limit then s := s + Format('<a href="%d">+200</a>', [page+2]);
-  }
 
   s := '';
   for i := 1 to limit - 1 do
@@ -7533,8 +6768,6 @@ begin
   else
     s := s + Format('%d-%d ', [SearchPageSize * (limit - 1) + 1,
       SearchResults.Count]);
-
-  // SearchBrowserSource.Add(s + '<p>');
 
   limit := SearchPageSize * page - 1;
   if limit >= SearchResults.Count then
@@ -7672,7 +6905,6 @@ begin
     SecondBook.inifile := s;
 
     // don't display New Testament mixed with Old Testament...
-
     if (MainBook.CurBook < 40) and (MainBook.Trait[bqmtOldCovenant]) and (not SecondBook.Trait[bqmtOldCovenant]) then
       goto LoopTail;
 
@@ -7708,10 +6940,10 @@ begin
     end
     else
       fontFound := false;
-    (* если предподчтительного шрифта нет или он не найден и указана кодировка *)
+    // if there is no preferred font or it is not found and the encoding is specified
     if not fontFound and (SecondBook.desiredCharset >= 2) then
     begin
-      { находим шрифт с нужной кодировкой учитывая предподчтительный и дефолтный }
+      // find the font with the desired encoding
       if Length(SecondBook.fontName) > 0 then
         fontName := SecondBook.fontName
       else
@@ -7743,7 +6975,6 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 begin
-  // Application.ActivateHint(Mouse.CursorPos);
   if MainFormInitialized then
     Exit; // run only once...
   MainFormInitialized := true;
@@ -7796,10 +7027,6 @@ var
 begin
   Result := '';
   try
-
-    // if Bibles.Count = 0 then
-    // raise
-    // Exception.Create('Не найдено ни одного библейского модуля!');
     bibleModuleEntry := nil;
     fc := mFavorites.mModuleEntries.Count - 1;
     for i := 0 to fc do
@@ -7810,17 +7037,7 @@ begin
         bibleModuleEntry := mFavorites.mModuleEntries[i];
         break;
       end;
-      // bible := TModuleEntry(mFavorites.mModuleEntries[i]).wsFullName;
-      // bi := Bibles.IndexOf(bible);
-      // if bi >= 0 then break;
     end;
-    // if bi < 0 then begin
-    // bi := 0;
-    // bible := Bibles[0];
-    // end;
-    /// ix := mModules.FindByName(bible);
-    // if ix < 0 then begin raise TBQException.Create('Cannot Find Bible');
-    // end;
 
     if not Assigned(bibleModuleEntry) then
     begin
@@ -7831,7 +7048,7 @@ begin
         ('Не найдено ни одного библейского модуля! Проверьте правильность установки exe файла Ц.'
         + #13#10'Он должен быть в папке, содержащей вложенные в нее папки модулей');
 
-    Result := bibleModuleEntry.wsShortPath;
+    Result := bibleModuleEntry.mShortPath;
   except
     on E: Exception do
     begin
@@ -7891,8 +7108,6 @@ var
   currentModule: TBible;
   status: integer;
 begin
-  // AlekId
-  // MainBook.IniFile := MainFileExists(mDefaultLocation + '\bibleqt.ini');
   cmd := SRC;
   Handled := true;
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
@@ -7923,14 +7138,13 @@ begin
       ProcessCommand(ConcreteCmd, hlDefault)
     else
     begin
-      tedtReference.Text := SRC; // AlekId: и все дела!
+      tedtReference.Text := SRC;
       GoReference();
     end
   end;
 end;
 
-procedure TMainForm.bwrCommentsHotSpotClick(Sender: TObject; const SRC: string;
-  var Handled: Boolean);
+procedure TMainForm.bwrCommentsHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
   cmd, prefBible, ConcreteCmd: string;
   autoCmd: Boolean;
@@ -7965,7 +7179,7 @@ begin
       ProcessCommand(ConcreteCmd, hlDefault)
     else
     begin
-      tedtReference.Text := cmd; // AlekId: и все дела!
+      tedtReference.Text := cmd;
       GoReference();
     end;
   end;
@@ -8007,8 +7221,6 @@ begin
   if Key = #13 then
   begin
     Key := #0;
-    // if (Length(edtDic.Text) > 0) and (DicLB.ItemIndex > -1) then
-    // DisplayDictionary(DicLB.Items[DicLB.ItemIndex]);
     DisplayDictionary(edtDic.Text);
   end;
 end;
@@ -8054,14 +7266,13 @@ end;
 procedure TMainForm.WMQueryEndSession(var Message: TWMQueryEndSession);
 begin
   inherited;
-  writeln(bqNowDateTimeString(), ': Close Query-WMQueryEndSession');
+  writeln(NowDateTimeString(), ': Close Query-WMQueryEndSession');
   Flush(Output);
   MainForm.Close();
   Message.Result := 1;
 end;
 
-procedure TMainForm.TagAdded(tagId: int64; const txt: string;
-  Show: Boolean);
+procedure TMainForm.TagAdded(tagId: int64; const txt: string; Show: Boolean);
 var
   vnd: TVersesNodeData;
   pvn: PVirtualNode;
@@ -8094,14 +7305,12 @@ begin
   end;
   pvn := PVirtualNode(vnd.Parents);
   vdtTagsVerses.DeleteNode(pvn);
-
 end;
 
 procedure TMainForm.TagFilterTimerProc(Sender: TObject);
 begin
   GetTagFilterTimer().Enabled := false;
   FilterTags(cbTagsFilter.Text);
-
 end;
 
 procedure TMainForm.TagRenamed(tagId: int64; const newTxt: string);
@@ -8110,41 +7319,13 @@ var
   pvn: PVirtualNode;
   ix: integer;
 begin
-  ix := TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, tagId,
-    bqvntTag, vnd);
+  ix := TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, tagId, bqvntTag, vnd);
   if ix < 0 then
     Exit;
   vnd.cachedTxt := newTxt;
   pvn := PVirtualNode(vnd.Parents);
   vdtTagsVerses.InvalidateNode(pvn);
-  // vdtTagsVerses.Sort(nil,-1,sdAscending);
 end;
-
-{ function _escallback(dwCookie: Longint; pbBuff: PByte;
-  cb: Longint; var pcb: Longint): Longint; stdcall;
-  begin
-
-  end; }
-
-{ procedure TMainForm.tbAddBibleLinkClick(Sender: TObject);
-  var es:TEditStream;
-  begin
-  //es.dwCookie=0;
-  //es.pfnCallback:=_escallback;
-  //SendMessage(reMemo.Handle, EM_STREAMIN,SF_RTF, SFF_SELECTION, Longint(@es));
-  end;
-
-  {procedure TMainForm.tbtnAddCategoryClick(Sender: TObject);
-  var
-  pvn, pnewNode: PVirtualNode;
-  cat: TBookCategory;
-  begin
-  cat := TBookCategory.Create('');
-  mBookCategories.Add(cat);
-  pvn := vstBooks.GetFirstSelected();
-  pNewNode := vstBooks.AddChild(pvn, cat);
-  vstBooks.EditNode(pNewNode, -1);
-  end; }
 
 procedure TMainForm.FormActivate(Sender: TObject);
 var
@@ -8176,11 +7357,14 @@ begin
   end
 end;
 
-procedure TMainForm.FormMouseWheel(Sender: TObject; Shift: TShiftState;
-  WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
+procedure TMainForm.FormMouseWheel(
+  Sender: TObject;
+  Shift: TShiftState;
+  WheelDelta: integer;
+  MousePos: TPoint;
+  var Handled: Boolean);
 begin
   //
-  // self.ControlAtPos
 end;
 
 procedure TMainForm.tbtnAddTagClick(Sender: TObject);
@@ -8197,8 +7381,6 @@ begin
   if not mTaggedBookmarksLoaded then
     LoadTaggedBookMarks();
   TagsDb.TagsDbEngine.AddTag(InputForm.edtValue.Text, dummyTag);
-  /// LoadTaggedBookMarks();
-
 end;
 
 procedure TMainForm.tbtnDelNodeClick(Sender: TObject);
@@ -8265,19 +7447,16 @@ var
   hit: Boolean;
   it, tabIx, R: integer;
   chk: LongBool;
-  // hint_hwnd: HWND;
   ti: TViewTabInfo;
   bl, common_lnk: TBibleLink;
-  modPath, fontName, txt, wstr, psg: string;
+  modPath, fontName, txt, str, psg: string;
   me: TModuleEntry;
 begin
   Exit;
   try
     if hint_expanded <> 1 then
       Exit;
-    // hint_hwnd := THintWindow.;
-    // if not IsWindow(hint_hwnd) then exit;
-    // if not IsWindowVisible(hint_hwnd) then exit;
+
     pt := Mouse.CursorPos;
     chk := GetWindowRect(dtsBible.Handle, rct);
     if not chk then
@@ -8313,26 +7492,22 @@ begin
       if R < -1 then
         Exit;
 
-      if GetModuleText(common_lnk.ToCommand(me.wsShortPath), fontName, bl, txt,
+      if GetModuleText(common_lnk.ToCommand(me.mShortPath), fontName, bl, txt,
         psg, [gmtBulletDelimited]) < 0 then
       begin
         Exit;
       end;
 
     end;
-    wstr := psg + ' (' + mRefenceBible.ShortName + ')'#13#10;
-    wstr := wstr + txt;
+    str := psg + ' (' + mRefenceBible.ShortName + ')'#13#10;
+    str := str + txt;
 
     HintWindowClass := HintTools.TbqHintWindow;
-    dtsBible.Hint := wstr;
+    dtsBible.Hint := str;
     Application.CancelHint();
     hint_expanded := 2;
   except
   end;
-
-  //
-  // if Application.Hint then
-
 end;
 
 procedure TMainForm.tbtnToggleClick(Sender: TObject);
@@ -8421,30 +7596,28 @@ begin
   end;
 end;
 
-function TMainForm.SuggestFont(const desiredFontName, desiredFontPath: string;
-  desiredCharset: integer): string;
+function TMainForm.SuggestFont(const desiredFontName, desiredFontPath: string; desiredCharset: integer): string;
 begin
   if Length(desiredFontName) > 0 then
     if PrepareFont(desiredFontName, desiredFontPath) then
     begin
-      // если шрифт установлен или его удалось подгрузить
+      // load font if installed
       Result := desiredFontName;
       Exit;
     end;
-  // (*если предподчтительного шрифта нет или он не найден и указана кодировка*)
+  // if there is no preferred font or it is not found and the encoding is specified
   if (desiredCharset >= 2) then
   begin
-    { находим шрифт с нужной кодировкой учитывая предподчтительный и дефолтный }
+    // find the font with the desired encoding
     if Length(desiredFontName) > 0 then
       Result := desiredFontName
     else
       Result := mBrowserDefaultFontName;
     Result := FontFromCharset(self.Canvas.Handle, desiredCharset, Result);
   end;
-  // если все еще не найден шрифт то берем исходный из настроек программы
+  // if the font is still not found, take the font from the app settings
   if (Length(Result) <= 0) then
     Result := mBrowserDefaultFontName;
-
 end;
 
 procedure TMainForm.miAboutClick(Sender: TObject);
@@ -8454,8 +7627,7 @@ begin
   AboutForm.ShowModal();
 end;
 
-procedure TMainForm.bwrSearchKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.bwrSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if (Key = VK_NEXT) and (bwrSearch.Position = SearchBrowserPosition) then
     DisplaySearchResults(SearchPage + 1);
@@ -8469,18 +7641,9 @@ begin
   end;
 end;
 
-procedure TMainForm.bwrSearchKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.bwrSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   SearchBrowserPosition := bwrSearch.Position;
-end;
-
-var
-  __i, __j, __cnt: integer;
-
-function __lstSort(List: TStringList; Index1, Index2: integer): integer;
-begin
-  Result := OmegaCompareTxt(List[Index1], List[Index2], -1, true);
 end;
 
 function TMainForm.DictionaryStartup(maxAdd: integer = maxInt): Boolean;
@@ -8493,8 +7656,6 @@ begin
 
   vstDicList.BeginUpdate();
 
-  // __i := 0;
-  // __cnt := mDicList.Count - 1;
   try
     tokens := mBqEngine.DictionaryTokens;
     wordCount := tokens.Count - 1;
@@ -8512,28 +7673,10 @@ begin
 
 end;
 
-procedure TMainForm.edtDicKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  { len := Length(edtDic.Text);
-
-    if len > 0 then
-    for i := 0 to DicLB.Items.Count - 1 do
-    begin
-    if WideLowerCase(Copy(DicLB.Items[i], 1, len))
-    = WideLowerCase(edtDic.Text) then
-    begin
-    DicLB.ItemIndex := i;
-    //DicLBClick(Sender);
-    Exit;
-    end;
-    end;
-
-    DicLB.ItemIndex := 0; }
+  //
 end;
-
-(* AlekId:Добавлено *)
-// при перемене модуля: навигация или смена таба
 
 procedure TMainForm.AdjustBibleTabs(awsNewModuleName: string = '');
 var
@@ -8548,7 +7691,7 @@ begin
   for i := 0 to tabCount do
   begin
     ws := dtsBible.Tabs.Strings[i];
-    if CompareStringW(LOCALE_SYSTEM_DEFAULT, 0,PWideChar(Pointer(awsNewModuleName)), -1, PWideChar(Pointer(ws)) + offset,-1) = CSTR_EQUAL then
+    if CompareString(LOCALE_SYSTEM_DEFAULT, 0, PChar(Pointer(awsNewModuleName)), -1, PChar(Pointer(ws)) + offset,-1) = CSTR_EQUAL then
     begin
       tabIx := i;
       break;
@@ -8559,6 +7702,7 @@ begin
     dtsBible.TabIndex := tabIx
   else
     dtsBible.TabIndex := dtsBible.Tabs.Count - 1;
+
   // not a favorite book
   dtsBible.OnChange := dtsBibleChange;
 end;
@@ -8566,7 +7710,6 @@ end;
 procedure TMainForm.AppOnHintHandler(Sender: TObject);
 begin
   //
-  // hint_expanded:=0;
 end;
 
 procedure TMainForm.appEventsException(Sender: TObject; E: Exception);
@@ -8684,7 +7827,7 @@ begin
       begin
         try
           tempBook.inifile :=
-            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).wsShortPath + '\bibleqt.ini');
+            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).mShortPath + '\bibleqt.ini');
 
           openSuccess := tempBook.OpenReference(tedtReference.Text, book, chapter, fromverse, toverse);
 
@@ -8704,9 +7847,9 @@ begin
         begin
           try
 
-            modName := moduleEntry.wsFullName;
+            modName := moduleEntry.mFullName;
 
-            modPath := moduleEntry.wsShortPath;
+            modPath := moduleEntry.mShortPath;
             tempBook.inifile := MainFileExists(TPath.Combine(modPath, 'bibleqt.ini'));
             openSuccess := tempBook.OpenReference(tedtReference.Text, book, chapter, fromverse, toverse);
             if openSuccess then
@@ -8975,8 +8118,7 @@ begin
   Result := integer(vstDicList.GetNodeData(pn)^);
 end;
 
-procedure TMainForm.bwrDicMouseDouble(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+procedure TMainForm.bwrDicMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
   DisplayDictionary(Trim(bwrDic.SelText));
 end;
@@ -8984,7 +8126,7 @@ end;
 procedure TMainForm.bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
   ti: TViewTabInfo;
-  wsrc, satBible: WideString;
+  wsrc, satBible: string;
 
 begin
   wsrc := SRC;
@@ -8995,11 +8137,13 @@ begin
       satBible := ti.SatelliteName
     else
       satBible := '------';
+
     NewViewTab(wsrc, satBible, bwrHtml.Base, GetActiveTabInfo().State, '', true)
 
   end
   else
     ProcessCommand(wsrc, hlDefault);
+
   Handled := true;
 end;
 
@@ -9019,7 +8163,6 @@ begin
   nV := miRecognizeBibleLinks.Checked;
   vti := GetActiveTabInfo();
   vti[vtisResolveLinks] := nV;
-  // tbtnResolveLinks.Down:=nV;
 
   if nV then
   begin
@@ -9038,8 +8181,7 @@ begin
     browserpos := bwrHtml.Position;
     MainBook.FuzzyResolve := vti[vtisFuzzyResolveLinks];
     MainBook.RecognizeBibleLinks := nV;
-    SafeProcessCommand(vti.Location,
-      TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
+    SafeProcessCommand(vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
     vti[vtisPendingReload] := false;
     bwrHtml.Position := browserpos;
   end;
@@ -9063,8 +8205,6 @@ begin
       sleep(100);
     end;
   until trCount <= 0;
-  // (pmRef.PopupComponent as THTMLViewer).SelStart
-  // ConvertClipboard;
 end;
 
 procedure TMainForm.tbtnMemoOpenClick(Sender: TObject);
@@ -9157,7 +8297,6 @@ procedure TMainForm.reMemoChange(Sender: TObject);
 begin
   reMemo.tag := 1;
 end;
-(* AlekId:Добавлено *)
 
 procedure TMainForm.UpdateAllBooks;
 var
@@ -9172,16 +8311,15 @@ begin
     moduleEntry := mModules.ModTypedAsFirst(modtypeBible);
     while Assigned(moduleEntry) do
     begin
-      // for i := 0 to Bibles.Count - 1 do begin
-      cbModules.Items.Add(moduleEntry.wsFullName);
+      cbModules.Items.Add(moduleEntry.mFullName);
       moduleEntry := mModules.ModTypedAsNext(modtypeBible);
     end;
     cbModules.Items.Add('——— ' + Lang.Say('StrBooks') + ' ———');
     moduleEntry := mModules.ModTypedAsFirst(modtypeBook);
-    // for i := 0 to Books.Count - 1 do
+
     while Assigned(moduleEntry) do
     begin
-      cbModules.Items.Add(moduleEntry.wsFullName);
+      cbModules.Items.Add(moduleEntry.mFullName);
       moduleEntry := mModules.ModTypedAsNext(modtypeBook);
     end;
 
@@ -9189,8 +8327,7 @@ begin
     moduleEntry := mModules.ModTypedAsFirst(modtypeComment);
     while Assigned(moduleEntry) do
     begin
-      // for i := 0 to ModulesList.Count - Bibles.Count - Books.Count - 1 do
-      cbModules.Items.Add(moduleEntry.wsFullName);
+      cbModules.Items.Add(moduleEntry.mFullName);
       moduleEntry := mModules.ModTypedAsNext(modtypeComment);
     end;
 
@@ -9206,8 +8343,7 @@ begin
     moduleEntry := mModules.ModTypedAsFirst(modtypeComment);
     while Assigned(moduleEntry) do
     begin
-      // for i := 0 to Comments.Count - 1 do
-      cbComments.Items.Add(moduleEntry.wsFullName);
+      cbComments.Items.Add(moduleEntry.mFullName);
       moduleEntry := mModules.ModTypedAsNext(modtypeComment);
     end;
 
@@ -9216,15 +8352,6 @@ begin
   end;
 
   cbComments.ItemIndex := 0;
-
-  // for i := 0 to Bibles.Count - 1 do
-  // begin
-  // MI := TMenuItem.Create(Self);
-  // MI.Caption := Bibles[i];
-  // MI.OnClick := SatelliteMenuItemClick;
-  // MI.Checked := false;
-  // SatelliteMenu.Items.Add(MI);
-  // end;
 end;
 
 procedure TMainForm.UpdateDictionariesCombo;
@@ -9244,8 +8371,6 @@ begin
   finally
     cbDicFilter.Items.EndUpdate;
   end;
-
-  // cbDicFilterChange(Self);
 end;
 
 function TMainForm.UpdateFromCashed(): Boolean;
@@ -9322,12 +8447,11 @@ begin
     else
       cbList.Style := csDropDown;
 
-    // комбо модулей
     with cbModules do
     begin
       ItemIndex := Items.IndexOf(MainBook.Name);
     end;
-    UpdateBooksAndChaptersBoxes(); // заполняем списки
+    UpdateBooksAndChaptersBoxes(); // fill lists
     SearchListInit();
 
     lblTitle.Font.Name := tabInfo.TitleFont;
@@ -9346,14 +8470,16 @@ begin
   end;
 end;
 
-procedure TMainForm.vstDicListAddToSelection(Sender: TBaseVirtualTree;
-  Node: PVirtualNode);
+procedure TMainForm.vstDicListAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
 begin
   //
 end;
 
-procedure TMainForm.vstDicListGetText(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
+procedure TMainForm.vstDicListGetText(
+  Sender: TBaseVirtualTree;
+  Node: PVirtualNode;
+  Column: TColumnIndex;
+  TextType: TVSTTextType;
   var CellText: string);
 var
   ix: integer;
@@ -9369,7 +8495,6 @@ begin
       BqShowException(E)
     end
   end;
-  //
 end;
 
 procedure TMainForm.VerseAdded(verseId, tagId: int64; const cmd: string;
@@ -9380,15 +8505,13 @@ var
   pvnTag, pvnVerse: PVirtualNode;
 
 begin
-  ix := TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, tagId,
-    bqvntTag, vnd);
+  ix := TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, tagId, bqvntTag, vnd);
   if ix < 0 then
     Exit;
   pvnTag := PVirtualNode(vnd.Parents);
   if not Assigned(pvnTag) then
     Exit;
-  if TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, verseId, bqvntVerse,
-    vnd_verse) < 0 then
+  if TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, verseId, bqvntVerse, vnd_verse) < 0 then
   begin
     vnd_verse := TVersesNodeData.Create(verseId, '', bqvntVerse);
     vnd_verse.Parents.Add(vnd);
@@ -9416,11 +8539,11 @@ var
   pvnVerse: PVirtualNode;
   fndNode: Boolean;
 begin
-  ix := TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, verseId,
-    bqvntVerse, vnd);
+  ix := TVersesNodeData.FindNodeById(mBqEngine.VersesTagsList, verseId, bqvntVerse, vnd);
+
   if ix < 0 then
     Exit;
-  // vnd:=TVersesNodeData( mBqEngine.VersesTagsList.Items[ix]);
+
   if vnd.nodeType <> bqvntVerse then
     raise Exception.Create('Invalid data(nodetype ) in VerseDeleted!');
   tagIx := TVersesNodeData.FindNodeById(vnd.Parents, tagId, bqvntTag, tag_vnd);
@@ -9470,8 +8593,10 @@ var
     i: integer;
   begin
     Result := -1;
-    pfind := searchbuf(PChar(Pointer(ds)), sourcePos - 1, sourcePos - 1, 0,
+    pfind := searchbuf(
+      PChar(Pointer(ds)), sourcePos - 1, sourcePos - 1, 0,
       '<a name="bqverse', [soMatchCase]);
+
     if not Assigned(pfind) then
       Exit;
     i := Length('<a name="bqverse');
@@ -9522,7 +8647,6 @@ begin
         // try to find first fully visible section
 
         sectionIx := positionLst.IndexOf(scte);
-        // sectionCnt:=positionLst.Count-1;
         repeat
           Dec(sectionIx);
         until (sectionIx < 0) or (TSectionBase(positionLst[sectionIx]).YPosition
@@ -9558,7 +8682,6 @@ begin
       if bl.FromBqStringLocation(activeTabInfo.Location, path) then
       begin
         bl.vstart := vn;
-        // activeTabinfo.mwsLocation := bl.ToCommand(path, [blpLimitChapterTxt]);
       end;
     end;
     if (ve > 0) and (ve >= vn) then
@@ -9571,8 +8694,7 @@ begin
     if (vn > 0) and (ve > 0) then
 
       lblTitle.Caption := MainBook.ShortName + ' ' +
-        MainBook.FullPassageSignature(MainBook.CurBook,
-        MainBook.CurChapter, vn, ve);
+        MainBook.FullPassageSignature(MainBook.CurBook, MainBook.CurChapter, vn, ve);
 
   except
     on E: EAccessViolation do
@@ -9691,8 +8813,11 @@ begin
 
 end;
 
-procedure TMainForm.vdtTagsVersesCompareNodes(Sender: TBaseVirtualTree;
-  Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: integer);
+procedure TMainForm.vdtTagsVersesCompareNodes(
+  Sender: TBaseVirtualTree;
+  Node1, Node2: PVirtualNode;
+  Column: TColumnIndex;
+  var Result: integer);
 var
   vnd1, vnd2: TVersesNodeData;
   ble1, ble2: TBibleLinkEx;
@@ -9727,14 +8852,14 @@ begin
 
   except
   end;
-  //
 end;
 
-procedure TMainForm.vdtTagsVersesCreateEditor(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
-
+procedure TMainForm.vdtTagsVersesCreateEditor(
+  Sender: TBaseVirtualTree;
+  Node: PVirtualNode;
+  Column: TColumnIndex;
+  out EditLink: IVTEditLink);
 begin
-  //
   EditLink := TbqVDTEditLink.Create(self);
 end;
 
@@ -9756,6 +8881,7 @@ begin
   vdt := TVirtualDrawTree(Sender);
   pt := vdt.ScreenToClient(Mouse.CursorPos);
   pvn := vdt.GetNodeAt(pt.X, pt.Y, true, nodeTop);
+
   if not Assigned(pvn) or (pvn = vdt.RootNode) then
   begin
     Exit;
@@ -9764,24 +8890,25 @@ begin
   nd := TVersesNodeData(vdt.GetNodeData(pvn)^);
   if nd.nodeType <> bqvntVerse then
     Exit;
+
   levelIndent := (vdt.Indent * vdt.GetNodeLevel(pvn));
-  rct := Rect(0, 0, vdt.ClientWidth - levelIndent - vdt.Margin -
-    vdt.TextMargin, 500);
+  rct := Rect(0, 0, vdt.ClientWidth - levelIndent - vdt.Margin - vdt.TextMargin, 500);
   vdt.Canvas.Font := vdt.Font;
+
   R := GfxRenderers.TbqTagsRenderer.GetContentTypeAt
     (pt.X - vdt.Margin - levelIndent, pt.Y - nodeTop, vdt.Canvas, nd, rct);
+
   if R <> tvcPlainTxt then
     Exit;
+
   ble := nd.getBibleLinkEx();
   ProcessCommand(ble.ToCommand(), hlTrue);
 end;
 
-procedure TMainForm.vdtTagsVersesEdited(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex);
+procedure TMainForm.vdtTagsVersesEdited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
 var
   nodedata: TVersesNodeData;
 begin
-  //
   if Node = nil then
     Exit;
   nodedata := TObject(Sender.GetNodeData(Node)^) as TVersesNodeData;
@@ -9790,49 +8917,38 @@ begin
   Sender.Sort(nil, -1, sdAscending);
 end;
 
-procedure TMainForm.vdtTagsVersesEditing(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+procedure TMainForm.vdtTagsVersesEditing(
+  Sender: TBaseVirtualTree;
+  Node: PVirtualNode;
+  Column: TColumnIndex;
+  var Allowed: Boolean);
 begin
   Allowed := Sender.NodeParent[Node] = nil;
-
-  //
 end;
 
-procedure TMainForm.vdtTagsVersesGetNodeWidth(Sender: TBaseVirtualTree;
-  HintCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+procedure TMainForm.vdtTagsVersesGetNodeWidth(
+  Sender: TBaseVirtualTree;
+  HintCanvas: TCanvas;
+  Node: PVirtualNode;
+  Column: TColumnIndex;
   var NodeWidth: integer);
 var
-  ws: WideString;
+  str: string;
   nd: TVersesNodeData;
   rct: TRect;
 begin
-  //
   nd := TVersesNodeData((Sender.GetNodeData(Node))^);
   HintCanvas.Font := Sender.Font;
-  ws := Format('%s (%d)', [nd.getText(), vdtTagsVerses.ChildCount[Node]]);
-  rct := Rect(0, 0, Sender.ClientWidth - mscrollbarX - vdtTagsVerses.TextMargin
-    * 2 - 5, 40);
-  // Windows.DrawTextW(HintCanvas.Handle,
-  // PWideChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
+  str := Format('%s (%d)', [nd.getText(), vdtTagsVerses.ChildCount[Node]]);
+  rct := Rect(0, 0, Sender.ClientWidth - mscrollbarX - vdtTagsVerses.TextMargin * 2 - 5, 40);
   NodeWidth := rct.Right;
 end;
 
-// procedure TMainForm.vdtTagsVersesInitChildren(Sender: TBaseVirtualTree;
-// Node: PVirtualNode; var ChildCount: Cardinal);
-// var vnd:TVersesNodeData;
-// firstChildCacheIx:integer;
-// begin
-// if (Node=nil) or (Node=Sender.RootNode) then
-// exit;
-// if childCount>0 then exit;
-//
-// vnd:=TVersesNodeData(sender.GetNodeData(Node)^);
-// childcount:=VersesDb.VerseListEngine.InitNode(vnd,mBqEngine.VersesTagsList,firstChildCacheIx );
-//
-// end;
-
-procedure TMainForm.vdtTagsVersesIncrementalSearch(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; const SearchText: string; var Result: integer);
+procedure TMainForm.vdtTagsVersesIncrementalSearch(
+  Sender: TBaseVirtualTree;
+  Node: PVirtualNode;
+  const SearchText:
+  string; var Result: integer);
 var
   vnd: TVersesNodeData;
   posIx: integer;
@@ -9843,14 +8959,16 @@ begin
   vnd := TVersesNodeData(Sender.GetNodeData(Node)^);
   if (vnd = nil) or (vnd.nodeType <> bqvntTag) then
     Exit;
-  posIx := bqWidePosCI(SearchText, vnd.getText());
+  posIx := UpperPosCI(SearchText, vnd.getText());
   if posIx > 0 then
     Result := 0;
 
 end;
 
-procedure TMainForm.vdtTagsVersesInitNode(Sender: TBaseVirtualTree;
-  ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+procedure TMainForm.vdtTagsVersesInitNode(
+  Sender: TBaseVirtualTree;
+  ParentNode, Node: PVirtualNode;
+  var InitialStates: TVirtualNodeInitStates);
 var
   vnd: TVersesNodeData;
   pnd: Pointer;
@@ -9869,8 +8987,6 @@ begin
   if not Assigned(vnd) then
   begin
     // here come not initialized children =verse nodes
-
-    // if parentnode=nil then exit; //alredy checked in next call
     pnd := Sender.GetNodeData(ParentNode);
     if pnd = nil then
       Exit;
@@ -9886,21 +9002,22 @@ begin
         begin
           TVersesNodeData(Sender.GetNodeData(Node)^) :=
             TVersesNodeData(mBqEngine.VersesTagsList[searchIx]);
+
           Exit; // break;
         end;
         inc(searchIx);
         inc(foundCnt);
-        searchIx := mBqEngine.VersesTagsList.FindItemByTagPointer(vnd,
-          searchIx);
+        searchIx := mBqEngine.VersesTagsList.FindItemByTagPointer(vnd, searchIx);
       until (searchIx < 0);
     Exit;
   end;
-  // if (vnd.nodeType=bqvntTag) and (not (vsHasChildren in node.States) ) then include(InitialStates,ivsHasChildren);
-
 end;
 
-procedure TMainForm.vdtTagsVersesMeasureItem(Sender: TBaseVirtualTree;
-  TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: integer);
+procedure TMainForm.vdtTagsVersesMeasureItem(
+  Sender: TBaseVirtualTree;
+  TargetCanvas: TCanvas;
+  Node: PVirtualNode;
+  var NodeHeight: integer);
 var
   nd: TVersesNodeData;
   rct: TRect;
@@ -9925,8 +9042,7 @@ begin
     if (nd.nodeType = bqvntVerse) then
     begin
       TargetCanvas.Font := vdt.Font;
-      NodeHeight := TbqTagsRenderer.RenderVerseNode(TargetCanvas, nd,
-        true, rct);
+      NodeHeight := TbqTagsRenderer.RenderVerseNode(TargetCanvas, nd, true, rct);
       Exit;
     end
     else
@@ -9945,12 +9061,10 @@ begin
     rct.Left := 0;
     rct.Top := 0;
     rct.Bottom := 200;
-    rct.Right := vdtTagsVerses.ClientWidth - mscrollbarX -
-      vdtTagsVerses.TextMargin * 2 - 5;
-    // NodeHeight:=TbqTagsRenderer.RenderVerseNode(TargetCanvas,nd, true, rct);
+    rct.Right := vdtTagsVerses.ClientWidth - mscrollbarX - vdtTagsVerses.TextMargin * 2 - 5;
 
-    h := Windows.DrawTextW(TargetCanvas.Handle, PWideChar(Pointer(ws)), -1, rct,
-      DT_CALCRECT or DT_WORDBREAK);
+    h := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
+
     NodeHeight := h;
     vmarg := dlt;
     if (nd.nodeType = bqvntTag) then
@@ -9961,8 +9075,7 @@ begin
     end;
 
     rct.Left := vdtTagsVerses.TextMargin;
-    rct.Right := vdtTagsVerses.Width - GetSystemMetrics(SM_CXVSCROLL) -
-      vdtTagsVerses.TextMargin - 2;
+    rct.Right := vdtTagsVerses.Width - GetSystemMetrics(SM_CXVSCROLL) - vdtTagsVerses.TextMargin - 2;
 
     dlt := TargetCanvas.Font.Height * 4 div 5;
     TargetCanvas.Font.Height := dlt;
@@ -9974,13 +9087,13 @@ begin
     rct.Bottom := rct.Top + 300;
 
     NodeHeight := PaintTokens(TargetCanvas, rct, nd.Parents, true) + (vmarg);
-  except { on e:Exception do BqShowException(e); }
+  except
+    // do nothing
   end;
 
 end;
 
-procedure TMainForm.vdtTagsVersesDrawNode(Sender: TBaseVirtualTree;
-  const PaintInfo: TVTPaintInfo);
+procedure TMainForm.vdtTagsVersesDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
 var
   nd: TVersesNodeData;
   rct: TRect;
@@ -9992,8 +9105,10 @@ begin
 
   if PaintInfo.Node = nil then
     Exit;
+
   if not(Sender is TVirtualDrawTree) then
     Exit;
+
   vdt := TVirtualDrawTree(Sender);
   nd := TVersesNodeData((Sender.GetNodeData(PaintInfo.Node))^);
 
@@ -10003,10 +9118,7 @@ begin
   if (nd.nodeType = bqvntVerse) then
   begin
     rct := PaintInfo.CellRect;
-    // Inc(rct.Left,vdt.TextMargin );
-    // Dec(rct.Right );
-    // rct:=Rect(0,0,vdtTagsVerses.Width - GetSystemMetrics(SM_CXVSCROLL) -
-    // vdtTagsVerses.TextMargin * 2 - 5,500);
+
     PaintInfo.Canvas.Font := vdt.Font;
     TbqTagsRenderer.RenderVerseNode(PaintInfo.Canvas, nd, false, rct);
     PaintInfo.Canvas.Brush.color := save_brushColor;
@@ -10067,8 +9179,7 @@ begin
 
     PaintInfo.Canvas.Brush.color := TagNodeColor;
     PaintInfo.Canvas.Pen.color := TagNodeBorder;
-    PaintInfo.Canvas.RoundRect(rct.Left, rct.Top, rct.Right, rct.Bottom,
-      rectCurveRadius, rectCurveRadius);
+    PaintInfo.Canvas.RoundRect(rct.Left, rct.Top, rct.Right, rct.Bottom, rectCurveRadius, rectCurveRadius);
     inc(rct.Left, vdt.TextMargin);
     Dec(rct.Right, vdt.TextMargin);
   end
@@ -10082,16 +9193,14 @@ begin
   end;
   PaintInfo.Canvas.Font.color := clWindowText;
 
-  Windows.DrawTextW(PaintInfo.Canvas.Handle, PWideChar(Pointer(ws)), -1,
-    rct, flgs);
+  Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(ws)), -1, rct, flgs);
   PaintInfo.Canvas.Brush.color := save_brushColor;
   PaintInfo.Canvas.Pen.color := savePenColor;
 
   Exit;
 end;
 
-procedure TMainForm.vdtTagsVersesMouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: integer);
+procedure TMainForm.vdtTagsVersesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
 var
   vdt: TVirtualDrawTree;
   nodeTop, levelIndent: integer;
@@ -10099,7 +9208,6 @@ var
   nd: TVersesNodeData;
   R: TbqTagVersesContent;
   rct: TRect;
-
 begin
   if not(Sender is TVirtualDrawTree) then
   begin
@@ -10114,9 +9222,8 @@ begin
 
   nd := TVersesNodeData(vdt.GetNodeData(pvn)^);
   levelIndent := (vdt.Indent * vdt.GetNodeLevel(pvn));
-  rct := Rect(0, 0, vdt.ClientWidth - levelIndent - vdt.Margin -
-    vdt.TextMargin, 500);
-  // rct:=Rect(vdt.Indent,0,vdt.Width-vdt.Indent, 500);
+  rct := Rect(0, 0, vdt.ClientWidth - levelIndent - vdt.Margin - vdt.TextMargin, 500);
+
   vdt.Canvas.Font := vdt.Font;
   R := GfxRenderers.TbqTagsRenderer.GetContentTypeAt
     (X - vdt.Margin - levelIndent, Y - nodeTop, vdt.Canvas, nd, rct);
@@ -10126,19 +9233,17 @@ begin
 
   else
     vdt.Cursor := crDefault;
-
   end;
 
 end;
 
 procedure TMainForm.vdtTagsVersesResize(Sender: TObject);
 begin
-  //
   ReCalculateTagTree();
-
 end;
 
-procedure TMainForm.vdtTagsVersesScroll(Sender: TBaseVirtualTree;
+procedure TMainForm.vdtTagsVersesScroll(
+  Sender: TBaseVirtualTree;
   DeltaX, DeltaY: integer);
 var
   Node: PVirtualNode;
@@ -10193,55 +9298,6 @@ begin
   //
 end;
 
-{ procedure TMainForm.vstBooksGetText(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
-  var
-  p: Pointer;
-  cat: TBookCategory;
-  begin
-  if Node = nil then
-  exit;
-  p := Sender.GetNodeData(Node);
-  if (p = nil) then
-  exit;
-  try
-  cat := TObject(p^) as TBookCategory;
-  CellText := cat.name;
-  except end;
-  end;
-
-  procedure TMainForm.vstBooksInitChildren(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; var ChildCount: Cardinal);
-  begin
-  //
-  end;
-
-  procedure TMainForm.vstBooksInitNode(Sender: TBaseVirtualTree; ParentNode,
-  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
-  begin
-  //
-  end;
-
-  procedure TMainForm.vstBooksNewText(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; NewText: WideString);
-  var
-  p: Pointer;
-  cat: TBookCategory;
-  begin
-  if Node = nil then
-  exit;
-  p := Sender.GetNodeData(Node);
-  if (p = nil) then
-  exit;
-  try
-  cat := TObject(p^) as TBookCategory;
-  cat.name := NewText;
-  except end;
-  end; }
-
-(* AlekId:/Добавлено *)
-
 procedure TMainForm.tbtnMemoPainterClick(Sender: TObject);
 begin
   ColorDialog.color := reMemo.Font.color;
@@ -10265,7 +9321,6 @@ begin
   if not pgcMain.Visible then
     tbtnToggle.Click;
   pgcMain.ActivePage := tbMemo;
-
 end;
 
 procedure TMainForm.ShowComments;
@@ -10282,7 +9337,6 @@ var
       '<br>' + Lang.Say(strReason);
   end;
 
-// offset: integer;
 label lblSetOutput;
 begin
 
@@ -10327,17 +9381,7 @@ begin
     goto lblSetOutput;
   end;
 
-
-  // offset := 0;
-  // if SecondBook.ChapterQtys[ib] > MainBook.ChapterQtys[MainBook.CurBook] then
-  // offset := 1;
-
   iscomm := commentaryModule.modType = modtypeComment;
-  // (cbComments.ItemIndex < CommentsPaths.Count);
-  {
-    If this is a commentary, we 1) SHOW verse numbers
-    2) add HIDDEN links to uncommented verses...
-  }
 
   // if it's a commentary or it has chapter zero (introduction to book)
   // and it's chapter 1, show chapter 0, too :-)
@@ -10359,7 +9403,7 @@ begin
       on E: TBQPasswordException do
       begin
         PasswordPolicy.InvalidatePassword(E.mArchive);
-        MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
+        MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
       end
     end;
     if not blFailed then
@@ -10369,7 +9413,7 @@ begin
       for verseIx := 0 to verseCount do
       begin
         s := SecondBook.Verses[verseIx];
-        // StrReplace(s, '<b>', '<br><b>', false); // add spaces
+
         if not iscomm then
         begin
           StrDeleteFirstNumber(s);
@@ -10389,7 +9433,7 @@ begin
         end;
       end;
     end;
-    // Lines.Add('<p>');
+
     AddLine(Lines, '<hr>');
   end;
   blFailed := true;
@@ -10399,7 +9443,7 @@ begin
     on E: TBQPasswordException do
     begin
       PasswordPolicy.InvalidatePassword(E.mArchive);
-      MessageBoxW(self.Handle, PWideChar(Pointer(E.mWideMsg)), nil, MB_ICONERROR or MB_OK);
+      MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
     end
   end;
   if blFailed then
@@ -10407,7 +9451,6 @@ begin
     Lines := FailedToLoadComment('Failed to open chapter');
     goto lblSetOutput;
   end;
-  // Lines.Add('<b>' + SecondBook.FullPassageSignature(ib,ic,0,0) + '</b><p>');
 
   verseCount := SecondBook.verseCount() - 1;
   for verseIx := 0 to verseCount do
@@ -10459,7 +9502,6 @@ end;
 
 procedure TMainForm.cbCommentsDropDown(Sender: TObject);
 begin
-  //
   FilterCommentariesCombo();
 end;
 
@@ -10545,8 +9587,6 @@ begin
 
   bwrDic.LoadFromString(tt);
   pgcMain.ActivePage := tbDic;
-
-  // DicLB.ItemIndex := DicLB.Items.IndexOf(edtDic.Text);
 end;
 
 procedure TMainForm.lbHistoryClick(Sender: TObject);
@@ -10688,8 +9728,12 @@ begin
 end;
 
 function TMainForm.NewViewTab(
-  const command: string; const satellite: string;
-  const browserbase: string; state: TViewTabInfoState; const Title: string; visual: Boolean): Boolean;
+  const command: string;
+  const satellite: string;
+  const browserbase: string;
+  state: TViewTabInfoState;
+  const Title: string;
+  visual: Boolean): Boolean;
 var
   curTabInfo, newTabInfo: TViewTabInfo;
   newBible: TBible;
@@ -10728,7 +9772,7 @@ begin
       MainBook.RecognizeBibleLinks := vtisResolveLinks in state;
       MainBook.FuzzyResolve := vtisFuzzyResolveLinks in state;
       MemosOn := vtisShowNotes in state;
-      // SelectSatelliteMenuItem(satelliteMenuItem);
+
       SafeProcessCommand(command, hlDefault);
 
       UpdateUI();
@@ -10770,8 +9814,7 @@ begin
   Result := ActivateFont(fontFullPath) > 0;
 end;
 
-function TMainForm.PreProcessAutoCommand(const cmd: string;
-  const prefModule: string; out ConcreteCmd: string): HRESULT;
+function TMainForm.PreProcessAutoCommand(const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
 label Fail;
 var
   ps, refCnt, refIx, prefModIx: integer;
@@ -10816,7 +9859,7 @@ begin
     begin
       mRefenceBible.InternalToReference(bl, moduleEffectiveLink);
       if (me <> nil) then
-        ConcreteCmd := moduleEffectiveLink.ToCommand(me.wsShortPath);
+        ConcreteCmd := moduleEffectiveLink.ToCommand(me.mShortPath);
       Exit;
     end;
   Fail:
@@ -10861,16 +9904,12 @@ begin
       on E: Exception do
         BqShowException(E)
     end;
-    // vdtTagsVersesScroll(vdtTagsVerses,0,0);
   end
   else if pgcMain.ActivePage = tbSearch then
   begin
     if Length(cbSearch.Text) > 0 then
       cbSearch.SelectAll();
   end;
-
-  // if (pgcMain.ActivePage = tbComments) and (CommentsBrowserSource.Count = 0)
-  // then ShowComments;
 
   case pgcMain.ActivePageIndex of
     0:
@@ -10990,7 +10029,7 @@ begin
         Exit;
       end;
       me := dtsBible.Tabs.Objects[NewTab] as TModuleEntry;
-      GoModuleName(me.wsFullName);
+      GoModuleName(me.mFullName);
     end;
   except
     on E: Exception do
@@ -11034,14 +10073,14 @@ begin
   me := dtsBible.Tabs.Objects[it] as TModuleEntry;
   if IsDown(VK_SHIFT) then
   begin
-    SelectSatelliteBibleByName(me.wsFullName);
+    SelectSatelliteBibleByName(me.mFullName);
     Exit;
   end;
   if IsDown(VK_MENU) then
   begin
     ti := GetActiveTabInfo();
     s := ti.Location;
-    StrReplace(s, MainBook.ShortPath, me.wsShortPath, false);
+    StrReplace(s, MainBook.ShortPath, me.mShortPath, false);
     NewViewTab(s, ti.SatelliteName, '', ti.State, '', true);
     Exit;
   end;
@@ -11049,14 +10088,11 @@ end;
 
 procedure TMainForm.dtsBibleDrawTab(Sender: TObject; TabCanvas: TCanvas;
   R: TRect; Index: integer; Selected: Boolean);
-begin //
+begin
+  //
 end;
 
-(* AlekId:Добавлено *)
-{ AlekId: вызывает контекстное меню }
-
-procedure TMainForm.dtsBibleMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+procedure TMainForm.dtsBibleMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 var
   pt: TPoint;
   ix: integer;
@@ -11110,7 +10146,7 @@ begin
   end;
 
   me := dtsBible.Tabs.Objects[it] as TModuleEntry;
-  ws := me.wsFullName;
+  ws := me.mFullName;
 
   if hint_expanded = 0 then
     hint_expanded := 1;
@@ -11276,8 +10312,6 @@ var
   list_ix, len: integer;
   nd: PVirtualNode;
 begin
-  { AlekId:добавлено }
-  { это чтобы избежать ненужных "рывков" в списке при двойном щелчке }
   list_ix := DicSelectedItemIndex();
   if (list_ix >= 0) and (list_ix < integer(mBqEngine.DictionariesCount)) and
     (mBqEngine.DictionaryTokens[list_ix] = edtDic.Text) then
@@ -11285,7 +10319,6 @@ begin
     Result := list_ix;
     Exit;
   end;
-  { //AlekId:добавлено }
   s := Trim(edtDic.Text);
   if Length(s) <= 0 then
   begin
@@ -11313,15 +10346,6 @@ begin
   until len <= 0;
   Result := 0;
 end;
-
-{ procedure TMainForm.bwrXRefMainHotSpotClick(Sender: TObject;
-  const SRC: string; var Handled: Boolean);
-  begin
-  ProcessCommand(SRC);
-  Handled := true;
-  end; }
-
-(* AlekId:Добавлено *)
 
 function TMainForm.CreateNewBibleInstance(aBible: TBible): TBible;
 begin
@@ -11575,7 +10599,6 @@ begin
   if Source is TClosableTabControl then
   begin
     try
-      // TODO: fix this
       ViewTabInfo := TObject((TObject((Source as TClosableTabControl).tag) as TTabSheet).tag) as TViewTabInfo;
       if TabIndex = dtsBible.Tabs.Count - 1 then
       begin
@@ -11589,7 +10612,6 @@ begin
         end;
         Exit;
       end;
-      // cp:=viewTabInfo.mBible.Name;
       // replace
       modIx := mModules.FindByFolder(ViewTabInfo.Bible.ShortPath);
       if modIx < 0 then
@@ -11623,8 +10645,11 @@ begin
 
 end;
 
-procedure TMainForm.BibleTabsDragOver(Sender, Source: TObject; X, Y: integer;
-  state: TDragState; var Accept: Boolean);
+procedure TMainForm.BibleTabsDragOver(
+  Sender, Source: TObject;
+  X, Y: integer;
+  state: TDragState;
+  var Accept: Boolean);
 var
   tabIx, delta: integer;
   dragOverPoint: TPoint;
@@ -11644,12 +10669,7 @@ begin
   if pmMemo.PopupComponent = reMemo then
     reMemo.PasteFromClipboard
   else if pmMemo.PopupComponent is TEdit then
-    (pmMemo.PopupComponent as TEdit).PasteFromClipboard
-  else if pmMemo.PopupComponent is TComboBox then
-  begin
-    // (pmMemo.PopupComponent as TComboBox).con
-    // (pmMemo.PopupComponent as TComboBox).Text :=  (pmMemo.PopupComponent as TComboBox).Text+TntClipboard.AsText;
-  end;
+    (pmMemo.PopupComponent as TEdit).PasteFromClipboard;
 end;
 
 procedure TMainForm.cbQtyChange(Sender: TObject);
@@ -11668,13 +10688,10 @@ begin
     Font.Name := bwrSearch.DefFontName;
     Font.color := bwrSearch.DefFontColor;
     Font.Size := bwrSearch.DefFontSize;
-    // Font.Charset := DefaultCharset;
   end;
 
   if FontDialog.Execute then
   begin
-    // DefaultCharset := FontDialog.Font.Charset;
-
     with bwrSearch do
     begin
       DefFontName := FontDialog.Font.Name;
@@ -11861,8 +10878,10 @@ begin
   if InputForm.ShowModal = mrOk then
   begin
     with MainBook do
-      newstring := ShortName + ' ' + ShortPassageSignature(CurBook, CurChapter,
-        CurVerseNumber, CurVerseNumber) + ' ' + InputForm.memValue.Text;
+      newstring :=
+        ShortName + ' ' +
+        ShortPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber) + ' ' +
+        InputForm.memValue.Text;
 
     StrReplace(newstring, #13#10, ' ', true);
 
@@ -11909,9 +10928,9 @@ begin
     F := CurVerseNumber;
     t := CurVerseNumber;
   end;
+
   TagsDbEngine.AddVerseTagged(nd.getText(), MainBook.CurBook,
     MainBook.CurChapter, F, t, MainBook.ShortPath, true);
-
 end;
 
 procedure TMainForm.lbBookmarksDblClick(Sender: TObject);
@@ -11919,8 +10938,7 @@ begin
   ProcessCommand(Bookmarks[lbBookmarks.ItemIndex], hlDefault);
 end;
 
-procedure TMainForm.bwrStrongHotSpotClick(Sender: TObject; const SRC: string;
-  var Handled: Boolean);
+procedure TMainForm.bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
   num, code: integer;
   scode: string;
@@ -11967,8 +10985,7 @@ begin
   end;
 end;
 
-procedure TMainForm.lbHistoryKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMainForm.lbHistoryKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   i: integer;
 begin
@@ -11977,7 +10994,8 @@ begin
 
   if Key = VK_DELETE then
   begin
-    if Application.MessageBox('Удалить запись в истории?',
+    if Application.MessageBox(
+      'Удалить запись в истории?',
       'Подтвердите удаление', MB_YESNO + MB_DEFBUTTON1) <> ID_YES then
       Exit;
 
@@ -12006,17 +11024,11 @@ end;
 
 procedure TMainForm.miSearchWindowClick(Sender: TObject);
 begin
-  { AlekId: теперь по другому }
-  { SearchToolbar.Visible := not SearchToolbar.Visible;
-    miSearchWindow.Checked := SearchToolbar.Visible;
-    //AlekId: не понятна логика сл. строки
-    if SearchToolbar.Visible then ActiveControl := edtSearch; }
-  (* AlekId:Добавлено *)
-  pgcMain.ActivePageIndex := 0; // на первую вкладку
+  pgcMain.ActivePageIndex := 0; // to the first tab
   pgcHistoryBookmarks.ActivePageIndex := 2;
-  // на вкладку быстрого поиска
+
+  // to quick search tab
   ActiveControl := tedtQuickSearch;
-  (* AlekId:/Добавлено *)
 
   if bwrHtml.SelLength <> 0 then
   begin
@@ -12054,7 +11066,6 @@ begin
 end;
 
 // find selected Strongs number in the whole Bible...
-
 procedure TMainForm.pnlFindStrongNumberClick(Sender: TObject);
 begin
   if lbStrong.ItemIndex < 0 then
@@ -12099,7 +11110,6 @@ var
   satBible: string;
 
 begin
-  //
   G_XRefVerseCmd := Trim(G_XRefVerseCmd);
   addr := G_XRefVerseCmd;
   if Length(addr) <= 0 then
@@ -12152,7 +11162,7 @@ begin
       try
         for i := 0 to moduleCount do
         begin
-          sl.Add(mModules[i].wsFullName);
+          sl.Add(mModules[i].mFullName);
         end;
       finally
         sl.EndUpdate();
@@ -12177,7 +11187,7 @@ begin
     lbFavourites.Items.BeginUpdate();
     for i := 0 to moduleCount do
     begin
-      lbFavourites.Items.Add(mFavorites.mModuleEntries[i].wsFullName);
+      lbFavourites.Items.Add(mFavorites.mModuleEntries[i].mFullName);
     end;
     lbFavourites.Items.EndUpdate();
   end;
@@ -12187,7 +11197,7 @@ begin
 
   moduleCount := ConfigForm.lbFavourites.Count - 1;
   mFavorites.Clear();
-  // dtsBible.Tabs.Clear();
+
   for i := 0 to moduleCount do
   begin
     try
@@ -12200,35 +11210,9 @@ begin
       end;
     end;
   end;
-  // dtsBible.Tabs.Add('***');
-  // favMenuItemCount := GetHotModuleCount();
-  // favMenuItem := FindTaggedTopMenuItem(3333);
-  // for i := 0 to moduleCount do
-  // begin
-  // if (i < favMenuItemCount) then
-  // begin
-  // GetHotMenuItem(i).Caption := ConfigForm.lbxFavourites.Items[i];
-  // end
-  // else
-  // begin
-  // mi := TMenuItem.Create(self);
-  // mi.Tag := 7000 + i;
-  // mi.Caption := ConfigForm.lbxFavourites.Items[i];
-  // favMenuItem.Add(mi);
-  // end;
-  // end;
-  // Inc(moduleCount);
-  // Dec(favMenuItemCount);
-  // for i := moduleCount to favMenuItemCount do
-  // begin
-  // mi := GetHotMenuItem(i);
-  // favMenuItem.Remove(mi);
-  // mi.Free();
-  // end;
-  //
+
   SetFavouritesShortcuts();
   AdjustBibleTabs(MainBook.ShortName);
-  // InitBibleTabs();
 
   CopyOptionsCopyVerseNumbersChecked := ConfigForm.chkCopyVerseNumbers.Checked;
   CopyOptionsCopyFontParamsChecked := ConfigForm.chkCopyFontParams.Checked;
@@ -12415,9 +11399,6 @@ end;
 
 procedure TMainForm.SysHotKeyHotKey(Sender: TObject; Index: integer);
 begin
-  // if Index <> ConfigFormHotKeyChoiceItemIndex then
-  // Exit;
-
   if trayIcon.MinimizeToTray then
   begin
     if MainForm.Visible then
@@ -12505,10 +11486,6 @@ var
   ti: TViewTabInfo;
   vhl: TbqHLVerseOption;
 begin
-  // P.X := tlbMain.Left + 15 * tlbMain.Height + 5;
-  // P.Y := tlbMain.Top + tlbMain.Height * 2 + 10;
-  // P := ClientToScreen(P);
-  // SatelliteMenu.Popup(P.X, P.Y);
   ti := GetActiveTabInfo();
   if not Assigned(ti) then
     Exit;
@@ -12525,7 +11502,6 @@ begin
     end;
     Exit;
   end;
-  // if ti.mSatelliteName
   ShowQNav(udParabibles);
 end;
 
@@ -12540,32 +11516,11 @@ begin
   end
   else
   begin
-    tbtnSatellite.Hint := Lang.SayDefault('MainForm.tbtnSatellite.Hint',
+    tbtnSatellite.Hint := Lang.SayDefault(
+      'MainForm.tbtnSatellite.Hint',
       'Choose sencodary Bible');
-
   end;
 end;
-
-// function TMainForm.SatelliteMenuItemFromModuleName(aName: WideString):
-// TMenuItem;
-// var
-// i, itemIx, itemCount: integer;
-// begin
-// itemIx := -1;
-// itemCount := SatelliteMenu.Items.Count - 1;
-// for i := 0 to itemCount do
-// begin
-// if SatelliteMenu.Items[i].Caption = aName then
-// begin
-// itemIx := i;
-// break;
-// end;
-// end;
-// if itemIx >= 0 then
-// Result := TMenuItem(SatelliteMenu.Items[itemIx])
-// else
-// Result := nil;
-// end;
 
 procedure TMainForm.SelectSatelliteBibleByName(const bibleName: string);
 var
@@ -12592,7 +11547,6 @@ begin
       end;
 
     end; // else
-    // перегрузить
     tbtnSatellite.Down := bibleName <> '------';
   except
     on E: Exception do
@@ -12625,20 +11579,7 @@ begin
       vstDicList.Selected[nd] := true;
       DicScrollNode(nd);
     end;
-
-    // for i := 0 to DicLB.Items.Count - 1 do
-    // begin
-    // if WideLowerCase(Copy(DicLB.Items[i], 1, len))
-    // = WideLowerCase(edtDic.Text) then
-    // begin
-    // DicLB.ItemIndex := i;
-    // //DicLBClick(Sender);
-    // Exit;
-    // end;
-    // end;
   end;
-  // DicLB.ItemIndex := 0;
-
 end;
 
 procedure TMainForm.ReCalculateTagTree;
@@ -12650,15 +11591,9 @@ begin
   if (not tbList.Visible) or (not TagsDbEngine.fdTagsConnection.Connected) then
     Exit;
 
-  // VerseNodesEraseCachedText();
   GfxRenderers.TbqTagsRenderer.InvalidateRenderers();
   vdtTagsVerses.Invalidate();
   vdtTagsVerses.ReinitNode(vdtTagsVerses.RootNode, true);
-
-  if pgcMain.ActivePage = tbList then
-  begin
-    // vdtTagsVerses.Repaint();
-  end;
 
 end;
 
@@ -12678,20 +11613,22 @@ begin
   if (pgcMain.ActivePage = tbXRef) then
   begin
     miOpenNewView.Visible := true;
-    // miOpenNewView.Visible := pgcMain.ActivePage = tbXRef;
-    G_XRefVerseCmd := Get_AHREF_VerseCommand(bwrXRef.DocumentSource,
+    G_XRefVerseCmd := Get_AHREF_VerseCommand(
+      bwrXRef.DocumentSource,
       bwrXRef.SectionList.FindSourcePos(bwrXRef.RightMouseClickPos));
   end
   else if (pgcMain.ActivePage = tbSearch) then
   begin
     miOpenNewView.Visible := true;
-    G_XRefVerseCmd := Get_AHREF_VerseCommand(bwrSearch.DocumentSource,
+    G_XRefVerseCmd := Get_AHREF_VerseCommand(
+      bwrSearch.DocumentSource,
       bwrSearch.SectionList.FindSourcePos(bwrSearch.RightMouseClickPos));
   end
   else if (pgcMain.ActivePage = tbDic) then
   begin
     miOpenNewView.Visible := true;
-    G_XRefVerseCmd := Get_AHREF_VerseCommand(bwrDic.DocumentSource,
+    G_XRefVerseCmd := Get_AHREF_VerseCommand(
+      bwrDic.DocumentSource,
       bwrDic.SectionList.FindSourcePos(bwrDic.RightMouseClickPos));
   end
   else
@@ -12703,12 +11640,11 @@ var
   hotMi: TMenuItem;
   ix: integer;
 begin
-  // favMi:=FindTaggedTopMenuItem(3333);
   Result := true;
   hotMi := FavouriteItemFromModEntry(oldMe);
   if Assigned(hotMi) then
   begin
-    hotMi.Caption := newMe.wsFullName;
+    hotMi.Caption := newMe.mFullName;
     hotMi.tag := integer(newMe);
   end;
   ix := FavouriteTabFromModEntry(oldMe);
