@@ -879,31 +879,9 @@ var
   G_XRefVerseCmd: string;
 {$R *.DFM}
 
-function GetAppDataFolder: string;
-var
-  dBuffer: string;
-begin
-  Result := '';
-
-  SetLength(dBuffer, 1024);
-  if not ShlObj.SHGetSpecialFolderPath(0, PChar(dBuffer), CSIDL_APPDATA, false)
-  then
-    Exit;
-
-  TrimNullTerminatedString(dBuffer);
-  if dBuffer = '' then
-    Exit;
-
-  if Copy(dBuffer, Length(dBuffer), 1) <> '\' then
-    dBuffer := dBuffer + '\';
-
-  Result := dBuffer;
-end;
-
 procedure ClearVolatileStateData(var state: TViewTabInfoState);
 begin
-  state := state * [vtisShowNotes, vtisShowStrongs, vtisResolveLinks,
-    vtisFuzzyResolveLinks];
+  state := state * [vtisShowNotes, vtisShowStrongs, vtisResolveLinks, vtisFuzzyResolveLinks];
 end;
 
 function DefaultViewTabState(): TViewTabInfoState;
@@ -1097,8 +1075,7 @@ begin
     mFavorites := TFavoriteModules.Create(AddHotModule, DeleteHotModule,
       ReplaceHotModule, InsertHotModule, ForceForegroundLoad);
 
-    SaveFileDialog.InitialDir := MainCfgIni.SayDefault('SaveDirectory',
-      GetMyDocuments);
+    SaveFileDialog.InitialDir := MainCfgIni.SayDefault('SaveDirectory', GetMyDocuments);
     SelTextColor := MainCfgIni.SayDefault('SelTextColor', Color2Hex(clRed));
     PrintFootNote := MainCfgIni.SayDefault('PrintFootNote', '1') = '1';
 
@@ -1196,11 +1173,6 @@ function TMainForm.LoadHotModulesConfig(): Boolean;
 var
   fn1, fn2: string;
   f1Exists, f2Exists: Boolean;
-
-  procedure DefaultHotModules();
-  begin
-  end;
-
 begin
   try
 
@@ -10272,8 +10244,6 @@ begin
   if Button = mbLeft then
     pgcViewTabs.BeginDrag(false, 10);
 end;
-
-{ /AlekId:добавлено }
 
 procedure TMainForm.pgcViewTabsStartDrag(Sender: TObject; var DragObject: TDragObject);
 var

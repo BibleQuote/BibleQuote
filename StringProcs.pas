@@ -21,15 +21,11 @@ function DeleteFirstWord(var s: string): string;
 function IniStringFirstPart(s: string): string;
 function IniStringSecondPart(s: string): string;
 
-function SingleLetterDelete(var s: string): boolean;
-
 function StrReplace(var s: string; const substr1, substr2: string; recurse: boolean): boolean;
 function StrColorUp(var s: string; const wrd, c1, c2: string; casesensitive: boolean): boolean;
 
 function StrDeleteFirstNumber(var s: string): string;
 function StrGetFirstNumber(s: string): string;
-
-// address $$$ comment $$$$$$ commentnext
 
 function Comment(s: string): string; // retrieves a comment from a command line
 
@@ -48,17 +44,12 @@ function Get_AHREF_VerseCommand(const s: string; iPos: integer): string;
 function DeleteStrongNumbers(s: string): string;
 function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
 
-function LastPos(SubS, s: string): integer;
-
 // find string in SORTED list, maybe partial match
 function FindString(List: TStringList; s: string): integer;
 
 procedure AddLine(var rResult: string; const aLine: string);
-
-function PosCIL(aSubString: AnsiString; const aString: AnsiString; aStartPos: integer = 1): integer; overload;
 function PosCIL(aSubString: string; const aString: string; aStartPos: integer = 1): integer; overload;
 
-procedure TrimNullTerminatedString(var aString: String);
 function FindPosition(const sourceString, findString: string; const startPos: integer; options: TStringSearchOptions): integer;
 
 const
@@ -94,21 +85,6 @@ begin
     Result := b;
   if (b = e - 1) and (Copy(List[e], 1, len) = s) then
     Result := e;
-end;
-
-function LastPos(SubS, s: string): integer;
-var
-  offset, i, len: integer;
-begin
-  Result := 0;
-  len := Length(s);
-  offset := 0;
-  repeat
-    i := Pos(SubS, Copy(s, offset + 1, len));
-    if i > 0 then
-      Result := i + offset;
-    offset := offset + Length(SubS);
-  until i = 0;
 end;
 
 function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
@@ -470,25 +446,6 @@ begin
 
 end;
 
-function SingleLetterDelete(var s: string): boolean;
-var
-  snew, sword: string;
-begin
-  Result := false;
-  snew := '';
-
-  while s <> '' do
-  begin
-    sword := DeleteFirstWord(s);
-    if Length(sword) > 1 then
-      snew := snew + sword + ' '
-    else
-      Result := true;
-  end;
-
-  s := Trim(snew);
-end;
-
 function Char2Hex(c: Char): integer;
 begin
   Result := 0;
@@ -737,50 +694,6 @@ begin
     Result := aChar;
 end;
 
-function PosCIL(aSubString: AnsiString; const aString: AnsiString; aStartPos: integer = 1): integer; overload;
-var
-  dLength: integer;
-  dSubLength: integer;
-  dPos: integer;
-  dPos2: integer;
-  dFirstChar: AnsiChar;
-
-label
-  NextFirstChar;
-begin
-  Result := 0;
-
-  dSubLength := Length(aSubString);
-  dLength := Length(aString);
-  if dSubLength = 0 then
-    Exit;
-  if aStartPos + dSubLength - 1 > dLength then
-    Exit;
-
-  for dPos := 1 to dSubLength do
-    aSubString[dPos] := LatCharToLower(aSubString[dPos]);
-
-  dFirstChar := aSubString[1];
-
-  dLength := dLength - dSubLength + 1;
-  for dPos := aStartPos to dLength do
-  begin
-    if LatCharToLower(aString[dPos]) = dFirstChar then
-    begin
-      for dPos2 := 2 to dSubLength do
-        if LatCharToLower(aString[dPos + dPos2 - 1]) <> aSubString[dPos2] then
-          Goto NextFirstChar;
-
-      Result := dPos;
-      Exit;
-
-    end;
-
-  NextFirstChar:
-  end;
-
-end;
-
 function PosCIL(aSubString: string; const aString: string; aStartPos: integer = 1): integer; overload;
 var
   dLength: integer;
@@ -823,15 +736,6 @@ begin
   NextFirstChar:
   end;
 
-end;
-
-procedure TrimNullTerminatedString(var aString: string);
-var
-  dPos: integer;
-begin
-  dPos := Pos(#0, aString);
-  if dPos > 0 then
-    SetLength(aString, dPos - 1);
 end;
 
 function GetMyDocuments: string;

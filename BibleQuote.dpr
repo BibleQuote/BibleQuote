@@ -22,7 +22,6 @@ uses
   SevenZipHelper in 'SevenZipHelper.pas',
   Containers in 'Containers.pas',
   PlainUtils in 'PlainUtils.pas',
-  HistoryContainer in 'HistoryContainer.pas',
   LinksParser in 'LinksParser.pas',
   BibleLinkParser in 'BibleLinkParser.pas',
   GfxRenderers in 'GfxRenderers.pas',
