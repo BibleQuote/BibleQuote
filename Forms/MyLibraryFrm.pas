@@ -21,48 +21,60 @@ type
     btnCollapse: TButton;
     btnClear: TButton;
     stxCount: TStaticText;
-    procedure vdtBookListGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
+
+    procedure vdtBookListGetText(
+      Sender: TBaseVirtualTree;
+      Node: PVirtualNode;
+      Column: TColumnIndex;
+      TextType: TVSTTextType;
+      var CellText: string);
+
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure vdtBookListCompareNodes(Sender: TBaseVirtualTree;
-      Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+
+    procedure vdtBookListCompareNodes(
+      Sender: TBaseVirtualTree;
+      Node1, Node2: PVirtualNode;
+      Column: TColumnIndex;
+      var Result: Integer);
+
     procedure edtFilterChange(Sender: TObject);
-    procedure edtFilterKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure vdtBookListKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure edtFilterKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure vdtBookListKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure vdtBookListDblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure vdtBookListDrawNode(Sender: TBaseVirtualTree;
-      const PaintInfo: TVTPaintInfo);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure vdtBookListDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
     procedure vdtBookListMeasureItem(Sender: TBaseVirtualTree;
       TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
     procedure FormResize(Sender: TObject);
-    procedure vdtBookListMouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
+    procedure vdtBookListMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure vdtBookListClick(Sender: TObject);
-    procedure dtsTagsChange(Sender: TObject; NewTab: Integer;
-      var AllowChange: Boolean);
+    procedure dtsTagsChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
 
-    procedure vdtBookListFocusChanging(Sender: TBaseVirtualTree;
-      OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
+    procedure vdtBookListFocusChanging(
+      Sender: TBaseVirtualTree;
+      OldNode, NewNode: PVirtualNode;
+      OldColumn, NewColumn: TColumnIndex;
       var Allowed: Boolean);
-    procedure vdtBookListMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure vdtBookListDrawHint(Sender: TBaseVirtualTree; HintCanvas: TCanvas;
-      Node: PVirtualNode; R: TRect; Column: TColumnIndex);
-    procedure vdtBookListGetHintSize(Sender: TBaseVirtualTree;
-      Node: PVirtualNode; Column: TColumnIndex; var R: TRect);
+
+    procedure vdtBookListMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+
+    procedure vdtBookListDrawHint(
+      Sender: TBaseVirtualTree;
+      HintCanvas: TCanvas;
+      Node: PVirtualNode;
+      R: TRect;
+      Column: TColumnIndex);
+
+    procedure vdtBookListGetHintSize(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var R: TRect);
+
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormDestroy(Sender: TObject);
     procedure btnCollapseClick(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
     procedure vdtBookListFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
-    procedure vdtBookListMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+    procedure vdtBookListMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure btnOKClick(Sender: TObject);
   private
     { Private declarations }
@@ -76,29 +88,24 @@ type
     mCounter: Integer;
     mfntReg, mfntBook, mfntTag, mfntTagCap: TFont;
 
-    procedure SelAction(const modName: WideString = ''; bookName: Integer = 0);
-    function LinkFromPoint(pt: TPoint; out me: TModuleEntry;
-      out linkType: TLibLinkType): Integer;
-    function PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings;
-      calc: Boolean; var rects: PRectArray): Integer;
-    function PaintBookTokens(canv: TCanvas; rct: TRect;
-      var tkns: TMatchInfoArray; calc: Boolean): Integer;
+    procedure SelAction(const modName: string = ''; bookName: Integer = 0);
+    function LinkFromPoint(pt: TPoint; out me: TModuleEntry; out linkType: TLibLinkType): Integer;
+    function PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings; calc: Boolean; var rects: PRectArray): Integer;
+    function PaintBookTokens(canv: TCanvas; rct: TRect; var tkns: TMatchInfoArray; calc: Boolean): Integer;
     procedure SetTagTabs();
   public
-    mCellText: WideString;
+    mCellText: string;
     mBookIx: Integer;
     mUseDisposition: TBQUseDisposition;
     mUILock: Boolean;
     mSavedWidth, mSavedHeight: Integer;
-    procedure UpdateList(ml: TObjectList; ti: Integer = -1;
-      selName: WideString = '');
+    procedure UpdateList(ml: TObjectList; ti: Integer = -1; selName: string = '');
     procedure PrepareFonts();
-    { Public declarations }
   end;
 
 var
   MyLibraryForm: TMyLibraryForm;
-  G_OtherCats: WideString = 'Другие категории';
+  G_OtherCats: string = 'Другие категории';
 
 implementation
 
@@ -114,8 +121,8 @@ const
 begin
   if not assigned(S_EmptyModuleEntry) then
   begin
-    S_EmptyModuleEntry := TModuleEntry.Create(modtypeBible, '------', '',
-      '<none>', '', '', '');
+    S_EmptyModuleEntry := TModuleEntry.Create(
+      modtypeBible, '------', '', '<none>', '', '', '');
   end;
   Result := S_EmptyModuleEntry;
 end;
@@ -158,8 +165,7 @@ begin
   UpdateList(mods);
 end;
 
-procedure TMyLibraryForm.edtFilterKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMyLibraryForm.edtFilterKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   pvn: PVirtualNode;
 begin
@@ -199,8 +205,7 @@ begin
   FocusControl(edtFilter);
 end;
 
-function TMyLibraryForm.LinkFromPoint(pt: TPoint; out me: TModuleEntry;
-  out linkType: TLibLinkType): Integer;
+function TMyLibraryForm.LinkFromPoint(pt: TPoint; out me: TModuleEntry; out linkType: TLibLinkType): Integer;
 var
   Node: PVirtualNode;
   nVOrg, i, c: Integer;
@@ -248,8 +253,7 @@ begin
   end;
 end;
 
-procedure TMyLibraryForm.dtsTagsChange(Sender: TObject; NewTab: Integer;
-  var AllowChange: Boolean);
+procedure TMyLibraryForm.dtsTagsChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
 begin
   if mods = nil then
     exit;
@@ -261,12 +265,11 @@ begin
   UpdateList(mods, NewTab);
 end;
 
-function TMyLibraryForm.PaintBookTokens(canv: TCanvas; rct: TRect;
-  var tkns: TMatchInfoArray; calc: Boolean): Integer;
+function TMyLibraryForm.PaintBookTokens(canv: TCanvas; rct: TRect; var tkns: TMatchInfoArray; calc: Boolean): Integer;
 
 var
   i, c, fw, fh, fi, fwidth: Integer;
-  ws: WideString;
+  ws: string;
   sz: TSize;
 
   procedure AlignRects(f, l: Integer);
@@ -290,7 +293,7 @@ var
 
 begin
   c := length(tkns) - 1;
-  // if c > 9 then c := 9;
+
   if calc then
   begin
 
@@ -311,7 +314,7 @@ begin
     begin
       ws := tkns[i].name;
 
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+      Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or DT_SINGLELINE);
 
       if (tkns[i].rct.Right > rct.Right) and (tkns[i].rct.Left > rct.Left) then
       begin
@@ -319,8 +322,7 @@ begin
         fi := i;
         tkns[i].rct.Left := rct.Left;
         tkns[i].rct.Top := tkns[i].rct.Bottom + fh;
-        Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct,
-          DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+        Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or DT_SINGLELINE);
       end;
 
       if i < c then
@@ -340,8 +342,7 @@ begin
     begin
       ws := tkns[i].name;
 
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, tkns[i].rct,
-        DT_TOP or DT_SINGLELINE);
+      Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_SINGLELINE);
     end;
   end;
 
@@ -349,11 +350,10 @@ begin
 
 end;
 
-function TMyLibraryForm.PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings;
-  calc: Boolean; var rects: PRectArray): Integer;
+function TMyLibraryForm.PaintTokens(canv: TCanvas; rct: TRect; tkns: TStrings; calc: Boolean; var rects: PRectArray): Integer;
 var
   i, c, fw, fh: Integer;
-  ws: WideString;
+  str: string;
   sz: TSize;
 begin
   c := tkns.Count - 1;
@@ -376,15 +376,15 @@ begin
 
     for i := 0 to c do
     begin
-      ws := tkns[i];
+      str := tkns[i];
 
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+      Windows.DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
 
       if (rects^[i].Right > rct.Right) and (rects^[i].Left > rct.Left) then
       begin
         rects^[i].Left := rct.Left;
         rects^[i].Top := rects^[i].Bottom + fh;
-        Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+        Windows.DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
       end;
 
       if i < c then
@@ -403,8 +403,11 @@ begin
 
     for i := 0 to c do
     begin
-      ws := tkns[i];
-      Windows.DrawTextW(canv.Handle, PWideChar(Pointer(ws)), -1, rects^[i], DT_TOP or DT_SINGLELINE);
+      str := tkns[i];
+      if (str <> '') then
+      begin
+        Windows.DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_SINGLELINE);
+      end;
     end;
 
   end;
@@ -427,6 +430,7 @@ begin
     mfntTag := TFont.Create();
   if not assigned(mfntTagCap) then
     mfntTagCap := TFont.Create();
+
   mfntReg.Height := rh;
   mfntBook.Height := rh * 4 div 5;
   mfntTag.Height := rh * 4 div 5;
@@ -438,8 +442,7 @@ begin
   mfntBook.Color := $005EBB;
 end;
 
-procedure TMyLibraryForm.SelAction(const modName: WideString = '';
-  bookName: Integer = 0);
+procedure TMyLibraryForm.SelAction(const modName: string = ''; bookName: Integer = 0);
 var
   pvn: PVirtualNode;
 var
@@ -456,7 +459,7 @@ begin
       begin
         if pNodeData.modType = modtypeTag then
           exit;
-        mCellText := pNodeData.wsFullName;
+        mCellText := pNodeData.mFullName;
         ModalResult := mrOk;
       end // modentry valid
     end // selected node found
@@ -491,7 +494,7 @@ end;
 
 procedure TMyLibraryForm.SetTagTabs;
 var
-  s: WideString;
+  s: string;
   c, i: Integer;
 begin
   if mUseDisposition = udMyLibrary then
@@ -593,8 +596,7 @@ begin
   end;
 end;
 
-procedure TMyLibraryForm.FormKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TMyLibraryForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   dlt, ti: Integer;
 
@@ -615,12 +617,15 @@ begin
 
 end;
 
-procedure TMyLibraryForm.FormMouseWheel(Sender: TObject; Shift: TShiftState;
-  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+procedure TMyLibraryForm.FormMouseWheel(
+  Sender: TObject;
+  Shift: TShiftState;
+  WheelDelta: Integer;
+  MousePos: TPoint;
+  var Handled: Boolean);
 begin
   if self.ActiveControl <> vdtBookList then
     self.FocusControl(vdtBookList);
-  // Handled:=true;
 end;
 
 procedure TMyLibraryForm.FormResize(Sender: TObject);
@@ -628,8 +633,7 @@ begin
   vdtBookList.ReinitChildren(nil, true);
 end;
 
-procedure TMyLibraryForm.UpdateList(ml: TObjectList; ti: Integer = -1;
-  selName: WideString = '');
+procedure TMyLibraryForm.UpdateList(ml: TObjectList; ti: Integer = -1; selName: string = '');
 var
   cnt, i: Integer;
   me, catMe: TModuleEntry;
@@ -668,7 +672,7 @@ begin
         me := TModuleEntry(vdtBookList.GetNodeData(rt)^);
         if assigned(me) then
         begin
-          selName := me.wsFullName;
+          selName := me.mFullName;
         end;
       end;
     end;
@@ -705,8 +709,6 @@ begin
           if (mt = []) or ((me.modType in [modtypeBible, modtypeComment]) and
             (mt = [mmtBookName])) then
             Continue;
-
-          // if Pos(WideLowerCase(edtFilter.Text), WideLowerCase(TModuleEntry(ml.Items[i]).wsFullName))<=0 then continue;
         end;
 
         case ti of
@@ -719,7 +721,7 @@ begin
           3:
             doAdd := me.modType = modtypeComment;
         end;
-        selFlag := (me.wsFullName = selName) and doAdd;
+        selFlag := (me.mFullName = selName) and doAdd;
         if (doAdd) and (mmtBookName in mt) then
         begin
           catMe := me;
@@ -859,7 +861,7 @@ begin
     exit;
   if lt = lltBook then
   begin
-    SelAction(me.wsFullName, me.mMatchInfo[i].ix);
+    SelAction(me.mFullName, me.mMatchInfo[i].ix);
 
   end
   else
@@ -867,28 +869,14 @@ begin
     StrToTokens(me.modCats, '|', mStrTokens);
     edtFilter.Text := mStrTokens[i];
   end;
-  // node:=vdtBookList.GetNodeAt(pt.x,pt.y, true, nVOrg);
-  // if node=nil then exit;
-  // try
-  // me:=TModuleEntry((vdtBookList.GetNodeData(node))^);
-  // if not assigned(me) then exit;
-  // c:=me.mCatsCnt-1;
-  // if c<0 then exit;
-  // pt.Y:=pt.Y - nVOrg;
-  //
-  // for I := 0 to c do begin
-  // if PtInRect(me.mRects^[i],pt) then begin
-  // StrToTokens(me.modCats, '|', mStrTokens);
-  // edtFilter.Text:='.'+ mStrTokens[i];
-  // end;
-  //
-  // end;//fr
-  //
 
 end;
 
-procedure TMyLibraryForm.vdtBookListCompareNodes(Sender: TBaseVirtualTree;
-  Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+procedure TMyLibraryForm.vdtBookListCompareNodes(
+  Sender: TBaseVirtualTree;
+  Node1, Node2: PVirtualNode;
+  Column: TColumnIndex;
+  var Result: Integer);
 var
   mod1, mod2: TModuleEntry;
   tr: Integer;
@@ -910,26 +898,28 @@ begin
   if tr = 0 then
     if mod1.modType = modtypeTag then
     begin
-      if mod1.wsFullName = G_OtherCats then
+      if mod1.mFullName = G_OtherCats then
       begin
         Result := 1;
         exit;
       end;
-      if mod2.wsFullName = G_OtherCats then
+      if mod2.mFullName = G_OtherCats then
       begin
         Result := -1;
         exit;
       end;
     end;
-  tr := OmegaCompareTxt(mod1.wsFullName, mod2.wsFullName);
-  // AnsiCompareText(mod1.name, mod2.name);
+  tr := OmegaCompareTxt(mod1.mFullName, mod2.mFullName);
 done:
   Result := tr;
 
 end;
 
-procedure TMyLibraryForm.vdtBookListGetHintSize(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; var R: TRect);
+procedure TMyLibraryForm.vdtBookListGetHintSize(
+  Sender: TBaseVirtualTree;
+  Node: PVirtualNode;
+  Column: TColumnIndex;
+  var R: TRect);
 var
   me: TModuleEntry;
 begin
@@ -944,14 +934,16 @@ begin
 
   R.Right := 640;
   R.Bottom := 480;
-  DrawTextW(vdtBookList.Canvas.Handle, PWideChar(Pointer(me.wsShortPath)),
-    length(me.wsShortPath), R, DT_CALCRECT);
+  DrawText(vdtBookList.Canvas.Handle, PChar(Pointer(me.mShortPath)), length(me.mShortPath), R, DT_CALCRECT);
   InflateRect(R, 6, 6);
 end;
 
-procedure TMyLibraryForm.vdtBookListGetText(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+procedure TMyLibraryForm.vdtBookListGetText(
+  Sender: TBaseVirtualTree;
+  Node: PVirtualNode;
+  Column: TColumnIndex;
+  TextType: TVSTTextType;
+  var CellText: string);
 var
   pNodeData: TModuleEntry;
 begin
@@ -960,14 +952,12 @@ begin
   pNodeData := TModuleEntry((Sender.GetNodeData(Node))^);
   if Integer(pNodeData) > 65536 then
     try
-      CellText := pNodeData.wsFullName;
+      CellText := pNodeData.mFullName;
     except
     end;
 end;
 
-procedure TMyLibraryForm.vdtBookListKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-
+procedure TMyLibraryForm.vdtBookListKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   try
     if Key = VK_ESCAPE then
@@ -976,13 +966,16 @@ begin
   end;
 end;
 
-procedure TMyLibraryForm.vdtBookListMeasureItem(Sender: TBaseVirtualTree;
-  TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
+procedure TMyLibraryForm.vdtBookListMeasureItem(
+  Sender: TBaseVirtualTree;
+  TargetCanvas: TCanvas;
+  Node: PVirtualNode;
+  var NodeHeight: Integer);
 var
   me: TModuleEntry;
   rct: TRect;
   h, dlt, vmarg, rght: Integer;
-  ws: WideString;
+  ws: string;
   p: Pointer;
 begin
   if (Node = nil) or (csDestroying in self.ComponentState) then
@@ -999,17 +992,15 @@ begin
 
     p := Sender.GetNodeData(Node);
     me := TModuleEntry((p)^);
-    ws := me.wsFullName;
+    ws := me.mFullName;
 
     rct.Left := 0;
     rct.Top := 0;
     rct.Bottom := 200;
 
-    rght := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
-      vdtBookList.TextMargin * 2 - 6;
+    rght := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) - vdtBookList.TextMargin * 2 - 6;
     rct.Right := rght;
-    h := Windows.DrawTextW(TargetCanvas.Handle, PWideChar(Pointer(ws)), -1, rct,
-      DT_CALCRECT or DT_WORDBREAK);
+    h := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
     NodeHeight := h;
     rct.Top := h;
     vmarg := dlt + dlt;
@@ -1024,8 +1015,7 @@ begin
       and (length(me.mMatchInfo) > 0) then
     begin
       rct.Left := vdtBookList.TextMargin;
-      rct.Right := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
-        vdtBookList.TextMargin - 2;
+      rct.Right := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) - vdtBookList.TextMargin - 2;
       dlt := mfntTag.Height;
       TargetCanvas.Font := mfntBook;
       if dlt < 0 then
@@ -1053,8 +1043,7 @@ begin
       me.mCatsCnt := mStrTokens.Count;
     end;
 
-    rct.Right := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) -
-      vdtBookList.TextMargin - 2;
+    rct.Right := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) - vdtBookList.TextMargin - 2;
     dlt := mfntTag.Height;
 
     TargetCanvas.Font := mfntTag;
@@ -1063,19 +1052,14 @@ begin
       dlt := -dlt;
     rct.Top := rct.Top + (dlt div 4);
     rct.Bottom := rct.Top + 300;
-    NodeHeight := PaintTokens(TargetCanvas, rct, mStrTokens, true, me.mRects)
-      + (vmarg);
-    // h:=Windows.DrawTextW(TargetCanvas.Handle,
-    // PWideChar(Pointer(ws)), -1,rct,DT_CALCRECT or DT_WORDBREAK);
-
-    ///
-  except { on e:Exception do BqShowException(e); }
+    NodeHeight := PaintTokens(TargetCanvas, rct, mStrTokens, true, me.mRects) + (vmarg);
+  except
+    // nothing
   end;
 
 end;
 
-procedure TMyLibraryForm.vdtBookListMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMyLibraryForm.vdtBookListMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   me: TModuleEntry;
 var
@@ -1095,8 +1079,7 @@ begin
 
 end;
 
-procedure TMyLibraryForm.vdtBookListMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
+procedure TMyLibraryForm.vdtBookListMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 var
   i: Integer;
   me: TModuleEntry;
@@ -1130,8 +1113,11 @@ begin
   end;
 end;
 
-procedure TMyLibraryForm.vdtBookListMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMyLibraryForm.vdtBookListMouseUp(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer);
 var
   pvn: PVirtualNode;
   me: TModuleEntry;
@@ -1181,8 +1167,12 @@ begin
   SelAction();
 end;
 
-procedure TMyLibraryForm.vdtBookListDrawHint(Sender: TBaseVirtualTree;
-  HintCanvas: TCanvas; Node: PVirtualNode; R: TRect; Column: TColumnIndex);
+procedure TMyLibraryForm.vdtBookListDrawHint(
+  Sender: TBaseVirtualTree;
+  HintCanvas: TCanvas;
+  Node: PVirtualNode;
+  R: TRect;
+  Column: TColumnIndex);
 var
   me: TModuleEntry;
 begin
@@ -1196,13 +1186,10 @@ begin
   HintCanvas.Brush.Color := clWindow;
   HintCanvas.RoundRect(R.Left, R.Top, R.Right, R.Bottom, 2, 2);
   InflateRect(R, -6, -6);
-  Windows.DrawTextW(HintCanvas.Handle, PWideChar(Pointer(me.wsShortPath)),
-    length(me.wsShortPath), R, 0);
+  Windows.DrawText(HintCanvas.Handle, PChar(Pointer(me.mShortPath)), length(me.mShortPath), R, 0);
 end;
 
-procedure TMyLibraryForm.vdtBookListDrawNode(Sender: TBaseVirtualTree;
-  const PaintInfo: TVTPaintInfo);
-
+procedure TMyLibraryForm.vdtBookListDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
 var
   me: TModuleEntry;
   rct: TRect;
@@ -1210,9 +1197,9 @@ var
   ws: string;
   cl1: TColor;
 begin
-
   if PaintInfo.Node = nil then
     exit;
+
   me := TModuleEntry((Sender.GetNodeData(PaintInfo.Node))^);
   rct := PaintInfo.ContentRect;
   PaintInfo.Canvas.Font := mfntReg;
@@ -1231,7 +1218,7 @@ begin
       cl1 := vdtBookList.Colors.FocusedSelectionColor
     else
     begin
-      if me.wsFullName = G_NoCategoryStr then
+      if me.mFullName = G_NoCategoryStr then
         cl1 := $00D1D9ED
       else
         cl1 := $ACD5FF;
@@ -1246,7 +1233,7 @@ begin
   else
     flgs := DT_WORDBREAK;
 
-  ws := me.wsFullName;
+  ws := me.mFullName;
 
   inc(rct.Top, dlt);
   PaintInfo.Canvas.Font := mfntTagCap;
@@ -1256,19 +1243,9 @@ begin
     if vdtBookList.Focused then
       PaintInfo.Canvas.Brush.Color := vdtBookList.Colors.FocusedSelectionColor;
   end;
-  h := Windows.DrawTextW(PaintInfo.Canvas.Handle, PWideChar(Pointer(ws)), -1,
-    rct, flgs);
+  h := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(ws)), -1, rct, flgs);
 
   rct.Top := h;
-
-  // if me.modType=modtypeBookHighlighted then begin
-  // Inc(rct.Top,dlt);
-  // dlt := PaintInfo.Canvas.Font.Height;
-  // PaintInfo.Canvas.Font:=mfntBook;
-  // //h := Windows.DrawTextW(PaintInfo.Canvas.Handle,
-  /// /      PWideChar(me.mMatchInfo[0].name ), -1, rct,  DT_WORDBREAK);
-  // Inc(rct.Top,h);
-  // end;
   if ((me.modType = modtypeBookHighlighted) or (bqisExpanded in me.mStyle)) and
     (length(me.mMatchInfo) > 0) then
   begin
@@ -1278,20 +1255,19 @@ begin
 
   if (length(me.modCats) <= 0) then
     exit;
-  // Inc(rct.Top,h+dlt);
+
   mStrTokens.Clear();
   StrToTokens(me.modCats, '|', mStrTokens);
 
   ws := TokensToStr(mStrTokens, ' ', false);
   PaintInfo.Canvas.Font := mfntTag;
   PaintTokens(PaintInfo.Canvas, rct, mStrTokens, false, me.mRects);
-  // h:=Windows.DrawTextW(PaintInfo.Canvas.Handle,
-  // PWideChar(Pointer(ws)), -1,rct,DT_WORDBREAK);
-
 end;
 
-procedure TMyLibraryForm.vdtBookListFocusChanging(Sender: TBaseVirtualTree;
-  OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
+procedure TMyLibraryForm.vdtBookListFocusChanging(
+  Sender: TBaseVirtualTree;
+  OldNode, NewNode: PVirtualNode;
+  OldColumn, NewColumn: TColumnIndex;
   var Allowed: Boolean);
 var
   me: TModuleEntry;

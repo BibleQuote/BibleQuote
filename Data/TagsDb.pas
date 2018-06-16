@@ -24,20 +24,19 @@ type
     Parents: TObjectList;
     nodeState: TVersesNodeState;
     class var cdTags, cdVerses, cdLocations: TFDQuery;
-    constructor Create(const aSelfId: int64; const name: string;
-      vt: TVersesNodeType);
+    constructor Create(const aSelfId: int64; const name: string; vt: TVersesNodeType);
     destructor Destroy(); override;
     function getText(): string;
     function getBibleLinkEx(): TBibleLinkEx;
-    procedure packCached(const sig: string; const txt: string;
-      const font: string);
-    function unpackCached(const ws: string; out sig: string; out font: string;
-      out txt: string): HRESULT;
-    class function FindNodeById(lst: TObjectList; id: int64;
-      nodeType: TVersesNodeType; out node: TVersesNodeData): integer; static;
-  end;
+    procedure packCached(const sig: string; const txt: string; const font: string);
+    function unpackCached(const ws: string; out sig: string; out font: string; out txt: string): HRESULT;
 
-  TTagOperation = procedure(id: int64; const txt: wideString) of object;
+    class function FindNodeById(
+      lst: TObjectList;
+      id: int64;
+      nodeType: TVersesNodeType;
+      out node: TVersesNodeData): integer; static;
+  end;
 
   TbqVerseTagsList = class(TObjectList)
     function FindTagItem(const txt: string): TVersesNodeData;
@@ -47,8 +46,7 @@ type
 
   IuiVerseOperations = interface
     ['{14ED0EC0-45FE-1FD6-F1F0-54DF5DE47A78}']
-    procedure VerseAdded(verse_id, tagId: int64; const cmd: string;
-      show: boolean);
+    procedure VerseAdded(verse_id, tagId: int64; const cmd: string; show: boolean);
     procedure VerseDeleted(verse_id, tagId: int64);
     procedure TagAdded(tagId: int64; const txt: string; show: boolean);
     procedure TagDeleted(tagId: int64; const txt: string);
@@ -86,29 +84,22 @@ type
 
     function CreateDB(const path: string): integer;
     function InternalAddTag(const tag: string; out dbTagid: int64): integer;
-    function InternalAddVerse(bk, ch, vs, ve: integer; const loc: string;
-      out dbVerseId: int64): HRESULT;
+    function InternalAddVerse(bk, ch, vs, ve: integer; const loc: string; out dbVerseId: int64): HRESULT;
     function InternalAddLocation(loc: string; out dbLocId: int64): HRESULT;
-    function InternalAddRelation(dbTagid, dbVerseId, relationId: int64;
-      show: boolean): HRESULT;
+    function InternalAddRelation(dbTagid, dbVerseId, relationId: int64; show: boolean): HRESULT;
     function RelationFromChar(ch: Char): integer;
-    function InternalDeleteTag(const tn: string; dbTagid: int64;
-      uiRelaxed: boolean): integer;
+    function InternalDeleteTag(const tn: string; dbTagid: int64; uiRelaxed: boolean): integer;
     function InternalDeleteVerse(const verseId: int64): HRESULT;
   public
     { Public declarations }
 
-    procedure InitVerseListEngine(const fromPath: string;
-      UI: IuiVerseOperations);
+    procedure InitVerseListEngine(const fromPath: string; UI: IuiVerseOperations);
     function SeedNodes(NodeLst: TObjectList): integer;
-    function InitNodeChildren(const vnd: TVersesNodeData;
-      verse_tags_cache: TbqVerseTagsList): integer;
+    function InitNodeChildren(const vnd: TVersesNodeData; verse_tags_cache: TbqVerseTagsList): integer;
     procedure AddVerseTagged(tagsList: string; bk, ch, vs, ve: integer; const loc: string; show: boolean);
     function AddTag(const tn: string; out dbTagid: int64): HRESULT;
-    function DeleteTag(const tn: string; dbTagid: int64;
-      uiRelaxed: boolean = false): integer;
-    function DeleteVerseFromTag(const verseId: int64; const dbTagName: string;
-      uiRelaxed: boolean = false): HRESULT;
+    function DeleteTag(const tn: string; dbTagid: int64; uiRelaxed: boolean = false): integer;
+    function DeleteVerseFromTag(const verseId: int64; const dbTagName: string; uiRelaxed: boolean = false): HRESULT;
     function RenameTag(const tagId: int64; const newName: string): HRESULT;
   end;
 
@@ -141,8 +132,7 @@ begin
   end;
 end;
 
-procedure TTagsDbEngine.AddVerseTagged(tagsList: string; bk, ch, vs, ve: integer;
-  const loc: string; show: boolean);
+procedure TTagsDbEngine.AddVerseTagged(tagsList: string; bk, ch, vs, ve: integer; const loc: string; show: boolean);
 var
   sl: TStringList;
 var
@@ -161,8 +151,7 @@ begin
       InternalAddVerse(bk, ch, vs, ve, loc, dbVerseId);
 
       if dbVerseId < 0 then
-        raise Exception.CreateFmt('Cannot add this passage (%d,%d,%d,%d)',
-          [bk, ch, vs, ve]);
+        raise Exception.CreateFmt('Cannot add this passage (%d,%d,%d,%d)', [bk, ch, vs, ve]);
 
       for i := 0 to c do
       begin
@@ -171,14 +160,16 @@ begin
           continue;
         firstChar := curTag[1];
         relation := RelationFromChar(firstChar);
+
         if relation <> RELATION_NORMAL then
           curTag := Copy(curTag, 2, $FFFF);
+
         InternalAddTag(curTag, dbTagid);
         if dbTagid < 0 then
         begin
-          raise Exception.CreateFmt('Cannot add tag: %s . Operation aborted',
-            [curTag]);
+          raise Exception.CreateFmt('Cannot add tag: %s . Operation aborted', [curTag]);
         end;
+
         InternalAddRelation(dbTagid, dbVerseId, relation, show);
 
       end;
@@ -273,8 +264,7 @@ begin
   end;
 end;
 
-function TTagsDbEngine.DeleteTag(const tn: string; dbTagid: int64;
-  uiRelaxed: boolean = false): integer;
+function TTagsDbEngine.DeleteTag(const tn: string; dbTagid: int64; uiRelaxed: boolean = false): integer;
 var
   verseId: int64;
   i, c: integer;
@@ -305,8 +295,7 @@ begin
     end;
 
     try
-      fdTagsConnection.ExecSQL
-        (Format('DELETE from [VTRelations] where (TAGID=%d)', [dbTagid]));
+      fdTagsConnection.ExecSQL(Format('DELETE from [VTRelations] where (TAGID=%d)', [dbTagid]));
     except
       on e: Exception do
         BqShowException(e);
@@ -326,8 +315,7 @@ begin
   result := InternalDeleteTag(tn, dbTagid, uiRelaxed);
 end;
 
-function TTagsDbEngine.DeleteVerseFromTag(const verseId: int64;
-  const dbTagName: string; uiRelaxed: boolean): HRESULT;
+function TTagsDbEngine.DeleteVerseFromTag(const verseId: int64; const dbTagName: string; uiRelaxed: boolean): HRESULT;
 var
   dbTagid: int64;
 begin
@@ -350,8 +338,7 @@ begin
   mUI.VerseDeleted(verseId, dbTagid);
 end;
 
-function TTagsDbEngine.InitNodeChildren(const vnd: TVersesNodeData;
-  verse_tags_cache: TbqVerseTagsList): integer;
+function TTagsDbEngine.InitNodeChildren(const vnd: TVersesNodeData; verse_tags_cache: TbqVerseTagsList): integer;
 var
   cVid: int64;
   vndChild: TVersesNodeData;
@@ -364,6 +351,7 @@ begin
     tlbVRelations.SQL.Text :=
       Format('SELECT * from [VTRelations] where (TAGID=%d) ORDER BY [VerseId]',
       [vnd.SelfId]);
+
     tlbVRelations.Open();
     Include(vnd.nodeState, bqvnsInitialized);
     while not tlbVRelations.Eof do
@@ -382,8 +370,7 @@ begin
 
 end;
 
-procedure TTagsDbEngine.InitVerseListEngine(const fromPath: string;
-  UI: IuiVerseOperations);
+procedure TTagsDbEngine.InitVerseListEngine(const fromPath: string; UI: IuiVerseOperations);
 begin
   try
     mInitialized := true;
@@ -428,15 +415,14 @@ begin
   result := 0;
 end;
 
-function TTagsDbEngine.InternalAddRelation(dbTagid, dbVerseId,
-  relationId: int64; show: boolean): HRESULT;
+function TTagsDbEngine.InternalAddRelation(dbTagid, dbVerseId, relationId: int64; show: boolean): HRESULT;
 begin
   result := fdTagsConnection.ExecSQL
     (Format('insert or ignore into [VTRelations] (TAGID, VERSEID, RELATIONID)' +
     'values (%d,%d,%d)', [dbTagid, dbVerseId, relationId]));
+
   if (result > 0) then
     mUI.VerseAdded(dbVerseId, dbTagid, '', show);
-  // mVerseAdded(dbVerseId, dbTagId, '',show);
 end;
 
 function is_not_unique_msg(const msg: string): boolean;
@@ -455,11 +441,13 @@ begin
   tlbTagNames.Connection := fdTagsConnection;
   insertStatement := Format('insert or ignore into [TagNames] (TagName) values ("%s")', [tag]);
   result := fdTagsConnection.ExecSQL(insertStatement);
+
   if (result <= 0) then
     effectiveAdded := false;
-  tlbTagNames.SQL.Text := 'Select * from [TagNames] where tagName="' +
-    tag + '"';
+
+  tlbTagNames.SQL.Text := 'Select * from [TagNames] where tagName="' + tag + '"';
   tlbTagNames.Open;
+
   if not tlbTagNames.Eof then
   begin
     dbTagid := tlbTagNamesTAGID.Value;
@@ -476,13 +464,17 @@ var
 begin
   dbVerseId := -1;
   InternalAddLocation(loc, locID);
-  result := fdTagsConnection.ExecSQL
-    (Format('insert or ignore into [Verses] (LocId, BookIx,ChapterIx,VerseStart,VerseEnd)'
-    + 'values (%d,%d,%d,%d,%d)', [locID, bk, ch, vs, ve]));
 
-  tlbVerses.SQL.Text := Format('Select * from [Verses] where ((BookIx=%d) AND  '
-    + '(ChapterIx=%d) AND (VerseStart=%d) AND (VerseEnd=%d) AND (LocId=%d) )',
+  result := fdTagsConnection.ExecSQL(Format(
+    'insert or ignore into [Verses] (LocId, BookIx,ChapterIx,VerseStart,VerseEnd)' +
+    'values (%d,%d,%d,%d,%d)',
+    [locID, bk, ch, vs, ve]));
+
+  tlbVerses.SQL.Text := Format(
+    'Select * from [Verses] where ((BookIx=%d) AND  ' +
+    '(ChapterIx=%d) AND (VerseStart=%d) AND (VerseEnd=%d) AND (LocId=%d) )',
     [bk, ch, vs, ve, locID]);
+
   tlbVerses.Open();
   if not tlbVerses.Eof then
     dbVerseId := tlbVersesID.Value
@@ -491,13 +483,12 @@ begin
 
 end;
 
-function TTagsDbEngine.InternalDeleteTag(const tn: string; dbTagid: int64;
-  uiRelaxed: boolean): integer;
+function TTagsDbEngine.InternalDeleteTag(const tn: string; dbTagid: int64; uiRelaxed: boolean): integer;
 begin
   result := -1;
   try
-    result := fdTagsConnection.ExecSQL
-      (Format('Delete from TTRELATIONS where ((ORG_TAGID=%d) OR (REL_TAGID=%d))',
+    result := fdTagsConnection.ExecSQL(Format(
+      'Delete from TTRELATIONS where ((ORG_TAGID=%d) OR (REL_TAGID=%d))',
       [dbTagid, dbTagid]));
   except
     on e: Exception do
@@ -518,8 +509,7 @@ function TTagsDbEngine.InternalDeleteVerse(const verseId: int64): HRESULT;
 begin
   result := -1;
   try
-    result := fdTagsConnection.ExecSQL('Delete from [Verses] where ID =' +
-      IntToStr(verseId));
+    result := fdTagsConnection.ExecSQL('Delete from [Verses] where ID =' + IntToStr(verseId));
   except
     on e: EDatabaseError do
       if (pos('foreign key', e.Message) <= 0) then
@@ -545,9 +535,10 @@ function TTagsDbEngine.RenameTag(const tagId: int64;
   const newName: string): HRESULT;
 begin
   try
-    result := fdTagsConnection.ExecSQL
-      (Format('UPDATE [TagNames] SET [TagName]="%s" Where TAGID=%d',
+    result := fdTagsConnection.ExecSQL(Format(
+      'UPDATE [TagNames] SET [TagName]="%s" Where TAGID=%d',
       [newName, tagId]));
+
     mUI.TagRenamed(tagId, newName);
   except
     on e: EDatabaseError do
@@ -589,8 +580,7 @@ end;
 
 { TVersesNodeData }
 
-constructor TVersesNodeData.Create(const aSelfId: int64; const name: string;
-  vt: TVersesNodeType);
+constructor TVersesNodeData.Create(const aSelfId: int64; const name: string; vt: TVersesNodeType);
 begin
   SelfId := aSelfId;
   cachedTxt := name;
@@ -613,8 +603,11 @@ begin
   inherited;
 end;
 
-class function TVersesNodeData.FindNodeById(lst: TObjectList; id: int64;
-  nodeType: TVersesNodeType; out node: TVersesNodeData): integer;
+class function TVersesNodeData.FindNodeById(
+  lst: TObjectList;
+  id: int64;
+  nodeType: TVersesNodeType;
+  out node: TVersesNodeData): integer;
 var
   i, c: integer;
 begin
@@ -637,8 +630,10 @@ function TVersesNodeData.getBibleLinkEx(): TBibleLinkEx;
 begin
   if nodeType <> bqvntVerse then
     raise Exception.Create('Incorrect usage of TVersesNodeData.getBibleLinkEx');
+
   cdVerses.SQL.Text := Format('SELECT * FROM [Verses] where ID=%d', [SelfId]);
   cdVerses.Open();
+
   if cdVerses.Eof then
     raise Exception.Create('VereseNodeData structure corrutpted');
 
@@ -646,11 +641,15 @@ begin
   result.chapter := TagsDbEngine.tlbVersesChapterIx.Value;
   result.vstart := TagsDbEngine.tlbVersesVerseStart.Value;
   result.vend := TagsDbEngine.tlbVersesVerseEnd.Value;
-  cdLocations.SQL.Text := Format('SELECT * FROM [VLocations] where LocID=%d',
+
+  cdLocations.SQL.Text := Format(
+    'SELECT * FROM [VLocations] where LocID=%d',
     [TagsDbEngine.tlbVersesLoCID.Value]);
+
   cdLocations.Open();
   if cdLocations.Eof then
     raise Exception.Create('VereseNodeData structure corrutpted');
+
   result.modName := cdLocations.FieldByName('LocStringID').AsString;
 end;
 
@@ -666,8 +665,7 @@ begin
 
   if nodeType = bqvntTag then
   begin
-    cdTags.SQL.Text := Format('Select * from [TagNames] where TagId=%d',
-      [SelfId]);
+    cdTags.SQL.Text := Format('Select * from [TagNames] where TagId=%d', [SelfId]);
     cdTags.Open();
     if cdTags.Eof then
     begin
@@ -690,8 +688,7 @@ begin
   cachedTxt := Format('bqvndPacked|%s|%s|%s', [sig, font, txt]);
 end;
 
-function TVersesNodeData.unpackCached(const ws: string; out sig, font: string;
-  out txt: string): HRESULT;
+function TVersesNodeData.unpackCached(const ws: string; out sig, font: string; out txt: string): HRESULT;
 var
   i, startIx: integer;
 label fail;
@@ -725,8 +722,7 @@ end;
 
 { TbqVerseTagsList }
 
-function TbqVerseTagsList.FindItemByTagPointer(ptr: Pointer;
-  startIx: integer): integer;
+function TbqVerseTagsList.FindItemByTagPointer(ptr: Pointer; startIx: integer): integer;
 var
   i, c: integer;
   vnd: TVersesNodeData;

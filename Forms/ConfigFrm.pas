@@ -118,7 +118,6 @@ procedure TConfigForm.btnSelectPathClick(Sender: TObject);
 var
   s: string;
 begin
-  // ??? Как сработает ?
   if SelectDirectory(lblSelectSecondPath.Caption, edtSelectPath.Text, s) then
   begin
     if s[Length(s)] <> '\' then
@@ -127,25 +126,6 @@ begin
     edtSelectPath.Text := s;
 
   end;
-
-  {
-    with BrowseDir1 do
-    begin
-    Caption := Application.Title;
-    Title := SelectSecondPathLabel.Caption;
-    Selection := SelectPathEdit.Text;
-    end;
-
-    if BrowseDir1.Execute then
-    begin
-    s := BrowseDir1.Selection;
-
-    if s[Length(s)] <> '\'
-    then s := s + '\';
-
-    SelectPathEdit.Text := s;
-    end;
-  }
 end;
 
 procedure TConfigForm.btnDeletePathClick(Sender: TObject);

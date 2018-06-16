@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, WideStrings;
+  Dialogs, StdCtrls;
 
 type
   TExceptionForm = class(TForm)
@@ -14,15 +14,11 @@ type
     btnHalt: TButton;
     procedure btnHaltClick(Sender: TObject);
   private
-    { Private declarations }
     mNonContinuable: boolean;
-  public
-    { Public declarations }
   end;
 
-procedure BqShowException(e: Exception; addInfo: WideString = '';
-  nonContinuable: boolean = false);
-function StackLst(codePtr, stackTop: Pointer): WideString;
+procedure BqShowException(e: Exception; addInfo: string = ''; nonContinuable: boolean = false);
+function StackLst(codePtr, stackTop: Pointer): string;
 
 var
   ExceptionForm: TExceptionForm;
@@ -38,8 +34,8 @@ var
 function getExceptionLog(): TbqTextFileWriter;
 begin
   if not assigned(bqExceptionLog) then
-    bqExceptionLog := TbqTextFileWriter.Create(CreateAndGetConfigFolder() +
-      'bqErr.log');
+    bqExceptionLog := TbqTextFileWriter.Create(CreateAndGetConfigFolder() + 'bqErr.log');
+
   result := bqExceptionLog;
 end;
 
@@ -54,8 +50,7 @@ begin
     result := S_FALSE;
 end;
 
-procedure BqShowException(e: Exception; addInfo: WideString = '';
-  nonContinuable: boolean = false);
+procedure BqShowException(e: Exception; addInfo: string = ''; nonContinuable: boolean = false);
 var
   lns: TStrings;
   iv: TIdleEvent;
@@ -74,16 +69,19 @@ begin
       nonContinuable;
     lns.clear;
     JclLastExceptStackListToStrings(lns, true, true, true, false);
-    lns.Insert(0, WideFormat('Exception:%s, msg:%s', [e.ClassName, e.Message]));
+    lns.Insert(0, Format('Exception:%s, msg:%s', [e.ClassName, e.Message]));
+
     if g_ExceptionContext.Count > 0 then
       lns.Insert(1, 'Context:'#13#10 + g_ExceptionContext.Text);
+
     if length(addInfo) > 0 then
       lns.Insert(0, addInfo);
+
     ExceptionForm.btnOK.Enabled := not nonContinuable;
     lns.Add('OS info:' + WinInfoString());
     lns.Add('bqVersion: ' + GetAppVersionStr());
     ExceptionForm.memError.Lines.AddStrings(lns);
-    exceptionLog.WriteUnicodeLine(bqNowDateTimeString() + ':');
+    exceptionLog.WriteUnicodeLine(NowDateTimeString() + ':');
     exceptionLog.WriteUnicodeLine(lns.Text);
     exceptionLog.WriteUnicodeLine('--------');
     if not ExceptionForm.visible then
@@ -101,15 +99,15 @@ begin
   end;
 end;
 
-function StackLst(codePtr, stackTop: Pointer): WideString;
+function StackLst(codePtr, stackTop: Pointer): string;
 var
   stackInfo: TJclStackInfoList;
   sl: TStringList;
 begin
   sl := nil;
   result := '';
-  stackInfo := JclDebug.TJclStackInfoList.Create(true, 3, codePtr, false, nil,
-    stackTop);
+  stackInfo := TJclStackInfoList.Create(
+    true, 3, codePtr, false, nil, stackTop);
 
   if assigned(stackInfo) then
   begin

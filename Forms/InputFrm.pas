@@ -56,18 +56,6 @@ end;
 
 procedure TInputForm.FormShow(Sender: TObject);
 begin
-  {
-     this input form can be used for entering text in TEdit or TMemo
-     when tag = 0, it uses TEdit, and when tag = 1, it uses TMemo...
-
-     the OK button's position and form height is set according to chosen option
-  }
-
-//  with InputForm do begin
-//    Left := (Screen.Width-Width) div 2;
-//    Top := (Screen.Height-Height) div 2;
-//  end;
-
   if InputForm.Tag = 0 then // TEdit
   begin
     edtValue.Visible := true;

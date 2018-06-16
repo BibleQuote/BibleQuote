@@ -420,10 +420,10 @@ begin
       with modStringList, moduleEntry do
       begin
         Add(IntToStr(ord(modType)));
-        Add(wsFullName);
-        Add(wsShortName);
-        Add(wsShortPath);
-        Add(wsFullPath);
+        Add(mFullName);
+        Add(mShortName);
+        Add(mShortPath);
+        Add(mFullPath);
         Add(modBookNames);
         Add(modCats);
         Add('***');
