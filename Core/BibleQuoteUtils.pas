@@ -4,15 +4,10 @@ unit BibleQuoteUtils;
 
 interface
 
-uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils, JCLDebug,
-  Contnrs, Windows, SysUtils, Classes, COperatingSystemInfo, SystemInfo;
+uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils, JCLDebug, PlainUtils,
+  Contnrs, Windows, SysUtils, Classes, SystemInfo, CRC32;
 
 type
-  TBibleModuleSecurity = class
-    path, folder: string;
-    pwd: string;
-  end;
-
   TPasswordPolicy = class
   protected
     mPasswordList: TStrings;
@@ -40,8 +35,7 @@ type
   TBQPasswordException = class(TBQException)
     mArchive: string;
     mWrongPassword: string;
-    constructor CreateFmt(const password, module: string; const Msg: string;
-      const Args: array of const);
+    constructor CreateFmt(const password, module: string; const Msg: string; const Args: array of const);
   end;
 
   TBQInstalledFontInfo = class
@@ -96,8 +90,8 @@ type
 
     constructor Create(
       amodType: TModuleType;
-      aFullName, aShortName, aShortPath, aFullPath:
-      string; aBookNames: string;
+      aFullName, aShortName, aShortPath, aFullPath: string;
+      aBookNames: string;
       modCats: string); overload;
 
     constructor Create(me: TModuleEntry); overload;
@@ -154,10 +148,6 @@ type
 
   end;
 
-  TbqOldObjectList = class(TList)
-    procedure Notify(Ptr: Pointer; Action: TListNotification); virtual;
-  end;
-
   TBQStringList = class(TStringList)
   protected
     function CompareStrings(const S1, S2: string): integer; override;
@@ -173,53 +163,13 @@ type
     mHandle: THandle;
   public
     constructor Create(const aFileName: string);
-    function WriteUnicodeLine(const line: string): HRESULT;
+    function WriteLine(const line: string): HRESULT;
     function Close(): HRESULT;
     destructor Destroy(); override;
   end;
 
 var
   g_ExceptionContext: TbqExceptionContext;
-
-const
-  Crc32Bytes = 4;
-  Crc32Start: Cardinal = $FFFFFFFF;
-  Crc32Bits = 32;
-
-const
-  Crc32Table: array[0..255] of Cardinal = (
-    $00000000, $04C11DB7, $09823B6E, $0D4326D9, $130476DC, $17C56B6B, $1A864DB2, $1E475005,
-    $2608EDB8, $22C9F00F, $2F8AD6D6, $2B4BCB61, $350C9B64, $31CD86D3, $3C8EA00A, $384FBDBD,
-    $4C11DB70, $48D0C6C7, $4593E01E, $4152FDA9, $5F15ADAC, $5BD4B01B, $569796C2, $52568B75,
-    $6A1936C8, $6ED82B7F, $639B0DA6, $675A1011, $791D4014, $7DDC5DA3, $709F7B7A, $745E66CD,
-    $9823B6E0, $9CE2AB57, $91A18D8E, $95609039, $8B27C03C, $8FE6DD8B, $82A5FB52, $8664E6E5,
-    $BE2B5B58, $BAEA46EF, $B7A96036, $B3687D81, $AD2F2D84, $A9EE3033, $A4AD16EA, $A06C0B5D,
-    $D4326D90, $D0F37027, $DDB056FE, $D9714B49, $C7361B4C, $C3F706FB, $CEB42022, $CA753D95,
-    $F23A8028, $F6FB9D9F, $FBB8BB46, $FF79A6F1, $E13EF6F4, $E5FFEB43, $E8BCCD9A, $EC7DD02D,
-    $34867077, $30476DC0, $3D044B19, $39C556AE, $278206AB, $23431B1C, $2E003DC5, $2AC12072,
-    $128E9DCF, $164F8078, $1B0CA6A1, $1FCDBB16, $018AEB13, $054BF6A4, $0808D07D, $0CC9CDCA,
-    $7897AB07, $7C56B6B0, $71159069, $75D48DDE, $6B93DDDB, $6F52C06C, $6211E6B5, $66D0FB02,
-    $5E9F46BF, $5A5E5B08, $571D7DD1, $53DC6066, $4D9B3063, $495A2DD4, $44190B0D, $40D816BA,
-    $ACA5C697, $A864DB20, $A527FDF9, $A1E6E04E, $BFA1B04B, $BB60ADFC, $B6238B25, $B2E29692,
-    $8AAD2B2F, $8E6C3698, $832F1041, $87EE0DF6, $99A95DF3, $9D684044, $902B669D, $94EA7B2A,
-    $E0B41DE7, $E4750050, $E9362689, $EDF73B3E, $F3B06B3B, $F771768C, $FA325055, $FEF34DE2,
-    $C6BCF05F, $C27DEDE8, $CF3ECB31, $CBFFD686, $D5B88683, $D1799B34, $DC3ABDED, $D8FBA05A,
-    $690CE0EE, $6DCDFD59, $608EDB80, $644FC637, $7A089632, $7EC98B85, $738AAD5C, $774BB0EB,
-    $4F040D56, $4BC510E1, $46863638, $42472B8F, $5C007B8A, $58C1663D, $558240E4, $51435D53,
-    $251D3B9E, $21DC2629, $2C9F00F0, $285E1D47, $36194D42, $32D850F5, $3F9B762C, $3B5A6B9B,
-    $0315D626, $07D4CB91, $0A97ED48, $0E56F0FF, $1011A0FA, $14D0BD4D, $19939B94, $1D528623,
-    $F12F560E, $F5EE4BB9, $F8AD6D60, $FC6C70D7, $E22B20D2, $E6EA3D65, $EBA91BBC, $EF68060B,
-    $D727BBB6, $D3E6A601, $DEA580D8, $DA649D6F, $C423CD6A, $C0E2D0DD, $CDA1F604, $C960EBB3,
-    $BD3E8D7E, $B9FF90C9, $B4BCB610, $B07DABA7, $AE3AFBA2, $AAFBE615, $A7B8C0CC, $A379DD7B,
-    $9B3660C6, $9FF77D71, $92B45BA8, $9675461F, $8832161A, $8CF30BAD, $81B02D74, $857130C3,
-    $5D8A9099, $594B8D2E, $5408ABF7, $50C9B640, $4E8EE645, $4A4FFBF2, $470CDD2B, $43CDC09C,
-    $7B827D21, $7F436096, $7200464F, $76C15BF8, $68860BFD, $6C47164A, $61043093, $65C52D24,
-    $119B4BE9, $155A565E, $18197087, $1CD86D30, $029F3D35, $065E2082, $0B1D065B, $0FDC1BEC,
-    $3793A651, $3352BBE6, $3E119D3F, $3AD08088, $2497D08D, $2056CD3A, $2D15EBE3, $29D4F654,
-    $C5A92679, $C1683BCE, $CC2B1D17, $C8EA00A0, $D6AD50A5, $D26C4D12, $DF2F6BCB, $DBEE767C,
-    $E3A1CBC1, $E760D676, $EA23F0AF, $EEE2ED18, $F0A5BD1D, $F464A0AA, $F9278673, $FDE69BC4,
-    $89B8FD09, $8D79E0BE, $803AC667, $84FBDBD0, $9ABC8BD5, $9E7D9662, $933EB0BB, $97FFAD0C,
-    $AFB010B1, $AB710D06, $A6322BDF, $A2F33668, $BCB4666D, $B8757BDA, $B5365D03, $B1F740B4);
 
 resourcestring
   bqPageStyle = '<STYLE> '#13#10 +
@@ -253,14 +203,12 @@ function ArchiveFileSize(path: string): integer;
 function SpecialIO(const fileName: string; strings: TStrings; obf: int64; read: boolean = true): boolean;
 function FontExists(const fontName: string): boolean;
 function FontFromCharset(aHDC: HDC; charset: integer; desiredFont: string = ''): string;
-function GetCRC32(pData: PByteArray; count: integer; Crc: Cardinal = 0): Cardinal;
 function ExtractModuleName(aModuleSignature: string): string;
 function StrPosW(const Str, SubStr: PChar): PChar;
 function ExctractName(const filename: string): string;
 function IsDown(key: integer): boolean;
 function FileRemoveExtension(const path: string): string;
 procedure CopyHTMLToClipBoard(const Str: string; const htmlStr: string = '');
-function OmegaCompareTxt(const str1, str2: string; len: integer = -1; strict: boolean = false): integer;
 procedure InsertDefaultFontInfo(var html: string; fontName: string; fontSz: integer);
 function TokensToStr(Lst: TStrings; delim: string; addlastDelim: boolean = true): string;
 function StrMathTokens(const Str: string; tkns: TStrings; fullMatch: boolean): boolean;
@@ -273,8 +221,6 @@ function MainFileExists(s: string): string;
 function ExePath(): string;
 function ModulesDirectory(): string;
 function CompressedModulesDirectory(): string;
-function OSinfo(): TOperatingSystemInfo;
-function WinInfoString(): string;
 function GetCallerEIP(): Pointer;
 function GetCallerEbP(): Pointer;
 procedure cleanUpInstalledFonts();
@@ -305,27 +251,6 @@ uses JclSysInfo, MainFrm, Controls, Forms, Clipbrd, StrUtils, BibleQuoteConfig,
 
 var
   __exe__path: string;
-
-function OmegaCompareTxt(const str1, str2: string; len: integer = -1; strict: boolean = false): integer;
-var
-  str1len, str2len, minLen: integer;
-begin
-
-  str1len := length(str1); str2len := Length(str2);
-  if str1len > str2len then minLen := str2len else minLen := str1len;
-  if len > minLen then len := minlen;
-
-{$IFDEF MSWINDOWS}
-  Result := CompareString(LANG_INVARIANT, NORM_IGNORECASE,
-    PChar(Pointer(str1)), len,
-    PChar(Pointer(str2)), len) - CSTR_EQUAL;
-{$ENDIF}
-{$IFDEF POSIX}
-  Result := AnsiStrLIComp(PWideChar(Pointer(str1)), PWideChar(Pointer(str2)), len);
-{$ENDIF}
-
-  if (result = 0) and strict then result := str1len - str2len;
-end;
 
 function GetArchiveFromSpecial(const aSpecial: string): string; overload;
 var
@@ -368,8 +293,7 @@ begin
   end; // else
 end; // fn
 
-function TokensToStr(Lst: TStrings; delim: string;
-  addlastDelim: boolean = true): string;
+function TokensToStr(Lst: TStrings; delim: string; addlastDelim: boolean = true): string;
 var
   c, I: integer;
 begin
@@ -437,9 +361,9 @@ begin
 
     __cachedModulesListFolder := CreateAndGetConfigFolder();
     __cachedModulesListFolder := ExtractFilePath(
-  		Copy(__cachedModulesListFolder,
-     	1,
-		  Length(__cachedModulesListFolder) - 1));
+        Copy(__cachedModulesListFolder,
+        1,
+        Length(__cachedModulesListFolder) - 1));
   end;
   result := __cachedModulesListFolder;
 end;
@@ -587,28 +511,6 @@ begin
     finally
       CloseHandle(fileHandle);
     end;
-  end;
-end;
-
-function GetCRC32(pData: PByteArray; count: integer; Crc: Cardinal = 0)
-  : Cardinal;
-var
-  I: integer;
-begin
-  result := Crc32Start;
-  dec(count);
-  for I := 0 to count do
-  begin
-    // a 32 bit value shr 24 is a Byte, explictit type conversion to Byte adds an ASM instruction
-    result := Crc32Table[result shr (Crc32Bits - 8)] xor (result shl 8)
-      xor pData[I];
-  end;
-  for I := 0 to Crc32Bytes - 1 do
-  begin
-    // a 32 bit value shr 24 is a Byte, explictit type conversion to Byte adds an ASM instruction
-    result := Crc32Table[result shr (Crc32Bits - 8)] xor (result shl 8)
-      xor (Crc shr (Crc32Bits - 8));
-    Crc := Crc shl 8;
   end;
 end;
 
@@ -2002,89 +1904,6 @@ begin
 
   end;
 
-  function IsWindows64: boolean;
-  type
-    TIsWow64Process = function(aHandle: THandle; var AIsWow64: BOOL) : BOOL; stdcall;
-  var
-    vKernel32Handle: DWORD;
-    vIsWow64Process: TIsWow64Process;
-    vIsWow64: BOOL;
-  begin
-    // 1) assume that we are not running under Windows 64 bit
-    result := false;
-
-    // 2) Load kernel32.dll library
-    vKernel32Handle := LoadLibrary('kernel32.dll');
-    if (vKernel32Handle = 0) then
-      exit; // Loading kernel32.dll was failed, just return
-
-    try
-
-      // 3) Load windows api IsWow64Process
-      @vIsWow64Process := GetProcAddress(vKernel32Handle, 'IsWow64Process');
-      if not assigned(vIsWow64Process) then
-        exit; // Loading IsWow64Process was failed, just return
-
-      // 4) Execute IsWow64Process against our own process
-      vIsWow64 := false;
-      if (vIsWow64Process(GetCurrentProcess, vIsWow64)) then
-        result := vIsWow64; // use the returned value
-
-    finally
-      FreeLibrary(vKernel32Handle); // unload the library
-    end;
-  end;
-
-  var
-    _osInfo: TOperatingSystemInfo = nil;
-
-  function OSinfo(): TOperatingSystemInfo;
-  begin
-    if not assigned(_osInfo) then
-    begin
-      _osInfo := TOperatingSystemInfo.Create(nil);
-      _osInfo.Active := true;
-    end;
-    result := _osInfo;
-
-  end;
-
-  function WinInfoString(): string;
-{$J+}
-  const
-    win_info: string = '';
-  var
-    osprop: TOperatingSystemProperties;
-{$J-}
-  begin
-    if Length(win_info) = 0 then
-    begin
-      try
-        osprop := OSinfo().OperatingSystemProperties;
-
-        win_info := osprop.Caption;
-        if Length(osprop.CSDVersion) > 0 then
-          win_info := Format('%s (%s)', [win_info, osprop.CSDVersion]);
-        if Length(osprop.OSLanguageAsString) > 0 then
-          win_info := Format('%s (OSLang: %s[%d])',
-            [win_info, osprop.OSLanguageAsString, osprop.OSLanguage]);
-        win_info := Format('%s (SP: %d.%d)',
-          [win_info, osprop.ServicePackMajorVersion, osprop.ServicePackMinorVersion]);
-      except
-        win_info := GetWindowsProductString() + ' ' + GetWindowsServicePackVersionString();
-      end;
-
-      if IsWindows64() then
-        win_info := win_info + ' (64bit)'
-      else
-        win_info := win_info + ' (32bit)';
-
-    end;
-
-    result := win_info;
-
-  end;
-
   function GetCallerEIP(): Pointer; assembler;
   asm
     mov eax,dword ptr [esp]
@@ -2095,13 +1914,6 @@ begin
     mov eax, ebp
   end;
 
-{$REGION  TbqOldObjectList }
-
-  procedure TbqOldObjectList.Notify(Ptr: Pointer; Action: TListNotification);
-  begin
-    if Action = lnDeleted then
-
-  end;
 {$ENDREGION}
   { TbqTextFileWriter }
 
@@ -2132,7 +1944,7 @@ begin
     inherited;
   end;
 
-  function TbqTextFileWriter.WriteUnicodeLine(const line: string): HRESULT;
+  function TbqTextFileWriter.WriteLine(const line: string): HRESULT;
   var
     bytesWritten: Cardinal;
     boolWrite: BOOL;
@@ -2175,6 +1987,5 @@ finalization
 // S_SevenZip.Free();
 JclStopExceptionTracking();
 FreeAndNil(g_ExceptionContext);
-FreeAndNil(_osInfo);
 
 end.

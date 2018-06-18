@@ -30,7 +30,7 @@ type
 
 implementation
 
-uses BibleQuoteUtils, ExceptionFrm;
+uses BibleQuoteUtils;
 
 constructor TDict.Create;
 begin
@@ -51,57 +51,48 @@ end;
 
 function TDict.Initialize(IndexFile, DictFile: string; background: boolean = false): boolean;
 begin
-  try
-
-    if IndexFile = FIndex then
-    begin
-      result := true;
-      exit
-    end;
-
-    // if not assigned(FiLines) then begin
-    if (FileExistsEx(IndexFile) < 0) or (FileExistsEx(DictFile) < 0) then
-    begin
-      result := false;
-      exit;
-    end;
-
-    FIndex := IndexFile;
-    FDict := DictFile;
-    FPath := ExtractFileName(IndexFile);
-    FPath := Copy(FPath, 1, Length(FPath) - 3);
-
-    FiLines := ReadTextFileLines(FIndex, TEncoding.GetEncoding(1251));
-
-    FName := FiLines[0];
-    FiLines.Delete(0);
-    FWords.Clear;
-    Filinecount := (FiLines.Count div 2) - 1;
-    FWords.Capacity := Filinecount;
-    Fii := 0;
-    if background then
-      exit;
-
-    if (not background) or (Fii <= Filinecount) then
-      repeat
-        FWords.InsertObject(Fii, Trim(FiLines[2 * Fii]), Pointer(StrToInt(Trim(FiLines[2 * Fii + 1]))));
-        Inc(Fii);
-      until (Fii > Filinecount) or (background and ((Fii and $3FF) = $3FF));
-
-    result := Fii > Filinecount;
-    if not result then
-      exit;
-    FInitialized := true;
-    result := (FWords.Count > 0);
-    FreeandNil(FiLines);
-    Fii := 0;
-  except
-    on e: Exception do
-    begin
-
-      BqShowException(e);
-    end;
+  if IndexFile = FIndex then
+  begin
+    result := true;
+    exit
   end;
+
+  // if not assigned(FiLines) then begin
+  if (FileExistsEx(IndexFile) < 0) or (FileExistsEx(DictFile) < 0) then
+  begin
+    result := false;
+    exit;
+  end;
+
+  FIndex := IndexFile;
+  FDict := DictFile;
+  FPath := ExtractFileName(IndexFile);
+  FPath := Copy(FPath, 1, Length(FPath) - 3);
+
+  FiLines := ReadTextFileLines(FIndex, TEncoding.GetEncoding(1251));
+
+  FName := FiLines[0];
+  FiLines.Delete(0);
+  FWords.Clear;
+  Filinecount := (FiLines.Count div 2) - 1;
+  FWords.Capacity := Filinecount;
+  Fii := 0;
+  if background then
+    exit;
+
+  if (not background) or (Fii <= Filinecount) then
+    repeat
+      FWords.InsertObject(Fii, Trim(FiLines[2 * Fii]), Pointer(StrToInt(Trim(FiLines[2 * Fii + 1]))));
+      Inc(Fii);
+    until (Fii > Filinecount) or (background and ((Fii and $3FF) = $3FF));
+
+  result := Fii > Filinecount;
+  if not result then
+    exit;
+  FInitialized := true;
+  result := (FWords.Count > 0);
+  FreeandNil(FiLines);
+  Fii := 0;
 end;
 
 function TDict.Lookup(wrd: string): string;
@@ -130,8 +121,7 @@ begin
     else
       dCount := dDictSize - dOffset;
 
-    result := ReadDictFragment(FDict, dOffset, dCount,
-      TEncoding.GetEncoding(1251));
+    result := ReadDictFragment(FDict, dOffset, dCount, TEncoding.GetEncoding(1251));
 
   end;
 

@@ -11,7 +11,7 @@ uses
   Graphics, Controls,
   Forms, System.UITypes,
   ComCtrls, Generics.Collections,
-  Menus, IOUtils, Math,
+  Menus, IOUtils, Math, SystemInfo,
   ExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
   VirtualTrees, ToolWin, StdCtrls, rkGlassButton, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
@@ -6505,21 +6505,29 @@ begin
 
   fullDir := TPath.Combine(ModulesDirectory, StrongsDir);
 
-  if hebrew or (num = 0) then
-  begin
-    if not(StrongHebrew.Initialize(TPath.Combine(fullDir, 'hebrew.idx'), TPath.Combine(fullDir, 'hebrew.htm'))) then
-      ShowMessage('Error in' + TPath.Combine(fullDir, 'hebrew.*'));
-    res := StrongHebrew.Lookup(s);
-    StrReplace(res, '<h4>', '<h4>H', false);
-    Copyright := StrongHebrew.Name;
-  end
-  else
-  begin
-    if not(StrongGreek.Initialize(TPath.Combine(fullDir, 'greek.idx'), TPath.Combine(fullDir, 'greek.htm'))) then
-      ShowMessage('Error in' + TPath.Combine(fullDir, 'greek.*'));
-    res := StrongGreek.Lookup(s);
-    StrReplace(res, '<h4>', '<h4>G', false);
-    Copyright := StrongGreek.Name;
+  try
+    if hebrew or (num = 0) then
+    begin
+      if not(StrongHebrew.Initialize(TPath.Combine(fullDir, 'hebrew.idx'), TPath.Combine(fullDir, 'hebrew.htm'))) then
+        ShowMessage('Error in' + TPath.Combine(fullDir, 'hebrew.*'));
+      res := StrongHebrew.Lookup(s);
+      StrReplace(res, '<h4>', '<h4>H', false);
+      Copyright := StrongHebrew.Name;
+    end
+    else
+    begin
+      if not(StrongGreek.Initialize(TPath.Combine(fullDir, 'greek.idx'), TPath.Combine(fullDir, 'greek.htm'))) then
+        ShowMessage('Error in' + TPath.Combine(fullDir, 'greek.*'));
+      res := StrongGreek.Lookup(s);
+      StrReplace(res, '<h4>', '<h4>G', false);
+      Copyright := StrongGreek.Name;
+    end;
+  except
+    on e: Exception do
+    begin
+
+      BqShowException(e);
+    end;
   end;
 
   pgcMain.ActivePage := tbStrong;
