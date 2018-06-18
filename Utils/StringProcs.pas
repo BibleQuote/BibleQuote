@@ -1,18 +1,13 @@
 ﻿unit StringProcs;
 
-// some string procedures
-
 interface
 
 uses
-  ShlObj,
   SysUtils,
   Classes,
   Windows,
   StrUtils,
   Graphics;
-
-function GetMyDocuments: string;
 
 function UpperCaseFirstLetter(s: string): string;
 
@@ -146,7 +141,7 @@ begin
     end;
   end;
 
-  if isNum then // если шла ссылка то в конце надо ее завершить....
+  if isNum then // if a link was in the end, close it
   begin
     if supercase then
       Result := Result + '<font size=1><a href=s' + link + '>' + link +
@@ -736,18 +731,6 @@ begin
   NextFirstChar:
   end;
 
-end;
-
-function GetMyDocuments: string;
-var
-  r: Bool;
-  path: array [0 .. Max_Path] of Char;
-begin
-  r := ShGetSpecialFolderPath(0, path, CSIDL_Personal, false);
-  if not r then
-    Result := 'C:\TEMP'
-  else
-    Result := path;
 end;
 
 function FindPosition(const sourceString, findString: string; const startPos: integer; options: TStringSearchOptions): integer;

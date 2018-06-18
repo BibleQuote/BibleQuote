@@ -2,7 +2,7 @@ unit PlainUtils;
 
 interface
 
-uses SysUtils, Windows, Classes, Character, JclUnicode;
+uses SysUtils, Windows, Classes, Character;
 
 function PChar2Int(pwc: PChar; out val: integer): PChar;
 function StrToTokens(const str: string; const delim: string; strLst: TStrings; useQuotes: boolean = false): integer;
@@ -12,6 +12,7 @@ function IsSpaceEndedString(const ws: string): boolean;
 function UpperPosCI(const substr: string; str: string): integer;
 function NowDateTimeString(): string;
 function ParamStartedWith(const token: string; out param: string): boolean;
+function OmegaCompareTxt(const str1, str2: string; len: integer = -1; strict: boolean = false): integer;
 
 implementation
 
@@ -175,7 +176,7 @@ end;
 
 function IsSpaceEndedString(const ws: string): boolean;
 begin
-  result := UnicodeIsSpace(Cardinal(ws[Length(ws) - 1]));
+  result := ws[Length(ws) - 1].IsWhiteSpace;
 end;
 
 function UpperPosCI(const substr: string; str: string): integer;
@@ -224,6 +225,27 @@ begin
     param := '';
     exit
   end;
+end;
+
+function OmegaCompareTxt(const str1, str2: string; len: integer = -1; strict: boolean = false): integer;
+var
+  str1len, str2len, minLen: integer;
+begin
+
+  str1len := length(str1); str2len := Length(str2);
+  if str1len > str2len then minLen := str2len else minLen := str1len;
+  if len > minLen then len := minlen;
+
+{$IFDEF MSWINDOWS}
+  Result := CompareString(LANG_INVARIANT, NORM_IGNORECASE,
+    PChar(Pointer(str1)), len,
+    PChar(Pointer(str2)), len) - CSTR_EQUAL;
+{$ENDIF}
+{$IFDEF POSIX}
+  Result := AnsiStrLIComp(PWideChar(Pointer(str1)), PWideChar(Pointer(str2)), len);
+{$ENDIF}
+
+  if (result = 0) and strict then result := str1len - str2len;
 end;
 
 end.

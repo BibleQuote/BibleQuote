@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls;
+  Dialogs, StdCtrls, SystemInfo;
 
 type
   TExceptionForm = class(TForm)
@@ -81,9 +81,9 @@ begin
     lns.Add('OS info:' + WinInfoString());
     lns.Add('bqVersion: ' + GetAppVersionStr());
     ExceptionForm.memError.Lines.AddStrings(lns);
-    exceptionLog.WriteUnicodeLine(NowDateTimeString() + ':');
-    exceptionLog.WriteUnicodeLine(lns.Text);
-    exceptionLog.WriteUnicodeLine('--------');
+    exceptionLog.WriteLine(NowDateTimeString() + ':');
+    exceptionLog.WriteLine(lns.Text);
+    exceptionLog.WriteLine('--------');
     if not ExceptionForm.visible then
     begin
       ExceptionForm.ShowModal();

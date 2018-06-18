@@ -5,7 +5,7 @@ unit bible;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, JclUnicode, IOUtils, Types,
+  Windows, Messages, SysUtils, Classes, IOUtils, Types,
   Graphics, Controls, Forms, Dialogs, IOProcs,
   StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices;
 

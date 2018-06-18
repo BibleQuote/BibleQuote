@@ -117,9 +117,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_Build>34</VerInfo_Build>
+        <VerInfo_Build>80</VerInfo_Build>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.0.1.34;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.0.1.80;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
     </PropertyGroup>
     <ProjectExtensions>
         <Borland.Personality>Delphi.Personality.12</Borland.Personality>
@@ -603,8 +603,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="BibleQuoteUtils.pas"/>
-        <DCCReference Include="MultiLanguage.pas"/>
         <DCCReference Include="Forms\InputFrm.pas">
             <Form>InputForm</Form>
         </DCCReference>
@@ -614,52 +612,56 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Forms\ConfigFrm.pas">
             <Form>ConfigForm</Form>
         </DCCReference>
-        <DCCReference Include="Dict.pas"/>
-        <DCCReference Include="Bible.pas"/>
-        <DCCReference Include="BibleQuoteConfig.pas"/>
         <DCCReference Include="Forms\ExceptionFrm.pas">
             <Form>ExceptionForm</Form>
         </DCCReference>
         <DCCReference Include="Forms\MyLibraryFrm.pas">
             <Form>MyLibraryForm</Form>
         </DCCReference>
-        <DCCReference Include="HintTools.pas"/>
-        <DCCReference Include="LinksParserIntf.pas"/>
-        <DCCReference Include="SevenZipHelper.pas"/>
-        <DCCReference Include="Containers.pas"/>
-        <DCCReference Include="PlainUtils.pas"/>
-        <DCCReference Include="LinksParser.pas"/>
-        <DCCReference Include="BibleLinkParser.pas"/>
-        <DCCReference Include="GfxRenderers.pas"/>
-        <DCCReference Include="ICommandProcessor.pas"/>
-        <DCCReference Include="WinUIServices.pas"/>
-        <DCCReference Include="CommandProcessor.pas"/>
-        <DCCReference Include="HTMLViewerSite.pas"/>
-        <DCCReference Include="VDTEditLink.pas"/>
-        <DCCReference Include="BackgroundServices.pas"/>
-        <DCCReference Include="Engine.pas"/>
-        <DCCReference Include="EngineInterfaces.pas"/>
         <DCCReference Include="Forms\MainFrm.pas">
             <Form>MainForm</Form>
             <DesignClass>TTntForm</DesignClass>
         </DCCReference>
-        <DCCReference Include="IOProcs.pas"/>
         <DCCReference Include="Forms\AboutFrm.pas">
             <Form>AboutForm</Form>
         </DCCReference>
         <DCCReference Include="Forms\PasswordDlg.pas">
             <Form>PasswordBox</Form>
         </DCCReference>
-        <DCCReference Include="StringProcs.pas"/>
+        <DCCReference Include="Collections\Containers.pas"/>
+        <DCCReference Include="Core\Bible.pas"/>
+        <DCCReference Include="Core\BibleLinkParser.pas"/>
+        <DCCReference Include="Core\BibleQuoteConfig.pas"/>
+        <DCCReference Include="Core\BibleQuoteUtils.pas"/>
+        <DCCReference Include="Core\CommandProcessor.pas"/>
+        <DCCReference Include="Core\Engine.pas"/>
+        <DCCReference Include="Core\EngineInterfaces.pas"/>
+        <DCCReference Include="Utils\AppInfo.pas"/>
+        <DCCReference Include="Utils\SystemInfo.pas"/>
+        <DCCReference Include="UI\GfxRenderers.pas"/>
+        <DCCReference Include="UI\HintTools.pas"/>
+        <DCCReference Include="UI\HTMLViewerSite.pas"/>
+        <DCCReference Include="UI\WinUIServices.pas"/>
+        <DCCReference Include="Core\ICommandProcessor.pas"/>
+        <DCCReference Include="UI\VDTEditLink.pas"/>
+        <DCCReference Include="Core\Dict.pas"/>
+        <DCCReference Include="Utils\SevenZipHelper.pas"/>
+        <DCCReference Include="Core\LinksParser.pas"/>
+        <DCCReference Include="Core\LinksParserIntf.pas"/>
+        <DCCReference Include="Core\Favorites.pas"/>
+        <DCCReference Include="Utils\PlainUtils.pas"/>
+        <DCCReference Include="Utils\StringProcs.pas"/>
+        <DCCReference Include="IO\BackgroundServices.pas"/>
+        <DCCReference Include="IO\IOProcs.pas"/>
+        <DCCReference Include="IO\ModuleProcs.pas"/>
         <DCCReference Include="Data\TagsDb.pas">
             <Form>TagsDbEngine</Form>
+            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="ModuleProcs.pas"/>
-        <DCCReference Include="AppInfo.pas"/>
-        <DCCReference Include="TabData.pas"/>
-        <DCCReference Include="Favorites.pas"/>
-        <DCCReference Include="SystemInfo.pas"/>
+        <DCCReference Include="Core\MultiLanguage.pas"/>
+        <DCCReference Include="Core\TabData.pas"/>
+        <DCCReference Include="Utils\CRC32.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -2,7 +2,7 @@
 
 interface
 
-uses JclUnicode, Classes, LinksParserIntf, Containers;
+uses Classes, LinksParserIntf, Containers, Character;
 
 type
   TLinkMatchType = (lmtNone, lmtFirst, lmtConCat, lmtSecond, lmtBoth);
@@ -712,8 +712,8 @@ begin
     if lpoTextRecognition in mLinkParserOptions then
     begin
       tokenLen := length(tkn);
-      lowerCased := UnicodeIsLower(Cardinal(tkn[1]));
-      if (tokenLen < 4) and lowerCased and not UnicodeIsDigit(Cardinal(tkn[1]))
+      lowerCased := tkn[1].IsLower;
+      if (tokenLen < 4) and lowerCased and not tkn[1].IsDigit
       then
       begin
 
@@ -1008,7 +1008,7 @@ begin
   Ignore := (wc <> ':') and (wc <> '.') and (wc <> ',') and (wc <> '-') and
     (wc <> ';') and ((Integer(wc) < ($2010)) or (Integer(wc) > $2015));
 
-  result := not UnicodeIsAlphaNum(Cardinal(wc));
+  result := not wc.IsLetterOrDigit;
 end;
 
 function IsTerminator(ch: Char): boolean; inline;
