@@ -8147,12 +8147,12 @@ begin
   if nV then
   begin
     if vti[vtisFuzzyResolveLinks] then
-      imageIx := 43
+      imageIx := 13
     else
-      imageIx := 42;
+      imageIx := 11;
   end
   else
-    imageIx := 41;
+    imageIx := 12;
 
   tbtnResolveLinks.ImageIndex := imageIx;
 
@@ -8401,12 +8401,12 @@ begin
     if tabInfo[vtisResolveLinks] then
     begin
       if tabInfo[vtisFuzzyResolveLinks] then
-        i := 43
+        i := 13
       else
-        i := 42;
+        i := 11;
     end
     else
-      i := 41;
+      i := 12;
 
     tbtnResolveLinks.ImageIndex := i;
 
