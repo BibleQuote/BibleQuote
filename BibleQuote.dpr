@@ -2,6 +2,8 @@
 // JCL_DEBUG_EXPERT_INSERTJDBG ON
 program BibleQuote;
 
+
+
 uses
   Forms,
   Classes,
@@ -44,7 +46,9 @@ uses
   TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule},
   MultiLanguage in 'Core\MultiLanguage.pas',
   TabData in 'Core\TabData.pas',
-  CRC32 in 'Utils\CRC32.pas';
+  CRC32 in 'Utils\CRC32.pas',
+  ModuleViewIntf in 'UI\ModuleViewIntf.pas',
+  ModuleFrm in 'Forms\ModuleFrm.pas' {ModuleForm};
 
 {$R *.res}
 var
