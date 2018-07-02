@@ -243,6 +243,7 @@ type
     vdtModules: TVirtualStringTree;
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
+    tbtnNewForm: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -439,6 +440,9 @@ type
       const SearchText: string;
       var Result: integer);
 
+    function CreateModuleView(): IModuleView;
+    procedure LoadModuleViews();
+    procedure OnModuleFormActivate(Sender: TObject);
     procedure CompareTranslations();
     procedure DictionariesLoading(Sender: TObject);
     procedure DictionariesLoaded(Sender: TObject);
@@ -463,6 +467,7 @@ type
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
     procedure bwrSearchHotSpotCovered(Sender: TObject; const SRC: string);
     procedure miCloseTabClick(Sender: TObject);
+    procedure tbtnNewFormClick(Sender: TObject);
 
   public
     MainBook: TBible;
@@ -850,7 +855,6 @@ procedure TMainForm.LoadConfiguration;
 var
   fname: string;
   fnt: TFont;
-  moduleForm: TModuleForm;
 begin
   try
     UserDir := CreateAndGetConfigFolder;
@@ -898,20 +902,6 @@ begin
     fnt.Free;
 
     Prepare(ExtractFilePath(Application.ExeName) + 'biblebooks.cfg', Output);
-
-    moduleForm := TModuleForm.Create(self, self);
-    mModuleView := moduleForm;
-    with mModuleView.Browser do
-    begin
-      DefFontName := MainCfgIni.SayDefault('DefFontName', 'Microsoft Sans Serif');
-      mBrowserDefaultFontName := DefFontName;
-      DefFontSize := StrToInt(MainCfgIni.SayDefault('DefFontSize', '12'));
-      DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor', Color2Hex(clWindowText))); // '#000000'
-      DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
-      DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
-
-      g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor', Color2Hex(clInfoBk)))); // '#F5F5DC'
-    end;
 
     with bwrSearch do
     begin
@@ -983,11 +973,6 @@ begin
     mFlagFullcontextLinks := MainCfgIni.SayDefault(C_opt_FullContextLinks, '1') = '1';
     mFlagHighlightVerses := MainCfgIni.SayDefault(C_opt_HighlightVerseHits, '1') = '1';
 
-    if miHrefUnderlineChecked then
-      mModuleView.Browser.htOptions := mModuleView.Browser.htOptions - [htNoLinkUnderline]
-    else
-      mModuleView.Browser.htOptions := mModuleView.Browser.htOptions + [htNoLinkUnderline];
-
     try
       fname := UserDir + 'bibleqt_bookmarks.ini';
       if FileExists(fname) then
@@ -1009,26 +994,101 @@ begin
         BqShowException(E)
     end;
     // COPYING OPTIONS
-    CopyOptionsCopyVerseNumbersChecked :=
-      MainCfgIni.SayDefault('CopyOptionsCopyVerseNumbers', '1') = '1';
-    CopyOptionsCopyFontParamsChecked :=
-      MainCfgIni.SayDefault('CopyOptionsCopyFontParams', '0') = '1';
-    CopyOptionsAddReferenceChecked :=
-      MainCfgIni.SayDefault('CopyOptionsAddReference', '1') = '1';
-    CopyOptionsAddReferenceRadioItemIndex :=
-      StrToInt(MainCfgIni.SayDefault('CopyOptionsAddReferenceRadio', '1'));
-    CopyOptionsAddLineBreaksChecked :=
-      MainCfgIni.SayDefault('CopyOptionsAddLineBreaks', '1') = '1';
-    CopyOptionsAddModuleNameChecked :=
-      MainCfgIni.SayDefault('CopyOptionsAddModuleName', '0') = '1';
+    CopyOptionsCopyVerseNumbersChecked :=  MainCfgIni.SayDefault('CopyOptionsCopyVerseNumbers', '1') = '1';
+    CopyOptionsCopyFontParamsChecked := MainCfgIni.SayDefault('CopyOptionsCopyFontParams', '0') = '1';
+    CopyOptionsAddReferenceChecked := MainCfgIni.SayDefault('CopyOptionsAddReference', '1') = '1';
+    CopyOptionsAddReferenceRadioItemIndex := StrToInt(MainCfgIni.SayDefault('CopyOptionsAddReferenceRadio', '1'));
+    CopyOptionsAddLineBreaksChecked := MainCfgIni.SayDefault('CopyOptionsAddLineBreaks', '1') = '1';
+    CopyOptionsAddModuleNameChecked := MainCfgIni.SayDefault('CopyOptionsAddModuleName', '0') = '1';
 
-    ConfigFormHotKeyChoiceItemIndex :=
-      StrToInt(MainCfgIni.SayDefault('ConfigFormHotKeyChoiceItemIndex', '0'));
+    ConfigFormHotKeyChoiceItemIndex := StrToInt(MainCfgIni.SayDefault('ConfigFormHotKeyChoiceItemIndex', '0'));
 
     trayIcon.MinimizeToTray := MainCfgIni.SayDefault('MinimizeToTray', '0') = '1';
+
+    LoadModuleViews();
   except
     on E: Exception do
       BqShowException(E)
+  end;
+end;
+
+function TMainForm.CreateModuleView(): IModuleView;
+var
+  moduleForm: TModuleForm;
+  h: Integer;
+  tabInfo: TViewTabInfo;
+  newBible: TBible;
+begin
+  moduleForm := TModuleForm.Create(self, self);
+
+  with moduleForm.Browser do
+  begin
+    DefFontName := mBrowserDefaultFontName;
+    DefFontSize := StrToInt(MainCfgIni.SayDefault('DefFontSize', '12'));
+    DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor', Color2Hex(clWindowText))); // '#000000'
+    DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
+    DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
+
+  end;
+
+  if miHrefUnderlineChecked then
+     moduleForm.Browser.htOptions := moduleForm.Browser.htOptions - [htNoLinkUnderline]
+  else
+     moduleForm.Browser.htOptions := moduleForm.Browser.htOptions + [htNoLinkUnderline];
+
+  SetVScrollTracker(moduleForm.Browser);
+
+  moduleForm.miMemosToggle.Checked := MemosOn;
+  moduleForm.BibleTabs.Font.Assign(self.Font);
+
+  h := self.Font.Height;
+  if h < 0 then
+    h := -h;
+
+  moduleForm.BibleTabs.Height := h + 13;
+  moduleForm.OnActivate := self.OnModuleFormActivate;
+
+  Result := moduleForm;
+end;
+
+procedure TMainForm.LoadModuleViews();
+var
+  moduleForm: TModuleForm;
+  h: Integer;
+  tabInfo: TViewTabInfo;
+  newBible: TBible;
+begin
+
+  mBrowserDefaultFontName := MainCfgIni.SayDefault('DefFontName', 'Microsoft Sans Serif');
+  g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor', Color2Hex(clInfoBk)))); // '#F5F5DC'
+
+  moduleForm := CreateModuleView() as TModuleForm;
+
+  newBible := CreateNewBibleInstance(MainBook);
+  tabInfo := TViewTabInfo.Create(newBible, '', SatelliteBible, '', DefaultViewTabState());
+  moduleForm.ViewTabs.Tabs.AddObject(newBible.Name, tabInfo);
+  moduleForm.Caption := newBible.Name;
+
+  moduleForm.ManualDock(pnlModules);
+  moduleForm.Caption := 'Module main';
+  moduleForm.Show;
+
+  mModuleView := moduleForm;
+end;
+
+procedure TMainForm.OnModuleFormActivate(Sender: TObject);
+var
+  moduleForm: TModuleForm;
+begin
+  moduleForm := Sender as TModuleForm;
+  if Assigned(moduleForm) then
+  begin
+    OutputDebugString(PChar(Pointer(moduleForm.Caption + ' activated')));
+    if (mModuleView <> moduleForm as IModuleView) then
+    begin
+      mModuleView := moduleForm;
+      moduleForm.UpdateViewTabs();
+    end;
   end;
 end;
 
@@ -1418,8 +1478,7 @@ begin
   end;
 
   if not firstTabInitialized then
-    SetFirstTabInitialLocation(LastAddress, '', '',
-      DefaultViewTabState(), true);
+    SetFirstTabInitialLocation(LastAddress, '', '', DefaultViewTabState(), true);
 end;
 
 function TMainForm.LoadTaggedBookMarks(): Boolean;
@@ -1761,7 +1820,6 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 var
   i: integer;
-  viewTabState: TViewTabInfoState;
   tabInfo: TViewTabInfo;
 begin
 
@@ -1829,8 +1887,6 @@ begin
   // LOADING CONFIGURATION
   LoadConfiguration;
 
-  GetModuleView(self).pnlMain.Align := alClient;
-
   if MainPagesWidth <> 0 then
     pgcMain.Width := MainPagesWidth;
 
@@ -1887,10 +1943,6 @@ begin
   lblBookmark.Caption := '';
   if Bookmarks.Count > 0 then
     lblBookmark.Caption := Comment(Bookmarks[0]);
-
-  viewTabState := DefaultViewTabState();
-  tabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', viewTabState);
-  mModuleView.ViewTabs.Tabs.AddObject(MainBook.Name, tabInfo);
 
   LoadTabsFromFile(UserDir + 'viewtabs.cfg');
   LoadHotModulesConfig();
@@ -6205,7 +6257,6 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 var
-  moduleForm: TModuleForm;
   h: Integer;
 begin
   if MainFormInitialized then
@@ -6232,25 +6283,15 @@ begin
 
   try
     if (mModuleView.Browser <> nil) then
-      GetModuleView(self).ActiveControl := mModuleView.Browser
+    begin
+      // TODO: Set focus
+      //GetModuleView(self).SetFocus();
+      //GetModuleView(self).ActiveControl := mModuleView.Browser;
+    end;
   except
     on E: Exception do
       BqShowException(E);
   end;
-
-  moduleForm := GetModuleView(self);
-  SetVScrollTracker(mModuleView.Browser);
-  moduleForm.miMemosToggle.Checked := MemosOn;
-  moduleForm.BibleTabs.Font.Assign(self.Font);
-
-  h := self.Font.Height;
-  if h < 0 then
-    h := -h;
-
-  mModuleView.BibleTabs.Height := h + 13;
-
-  moduleForm.ManualDock(pnlModules);
-  moduleForm.Show;
 end;
 
 procedure TMainForm.cbLinksChange(Sender: TObject);
@@ -7462,6 +7503,27 @@ begin
     reMemo.SelAttributes.Style := reMemo.SelAttributes.Style + [fsUnderline];
 end;
 
+procedure TMainForm.tbtnNewFormClick(Sender: TObject);
+var
+  moduleForm: TModuleForm;
+  activeTabInfo: TViewTabInfo;
+begin
+  moduleForm := CreateModuleView() as TModuleForm;
+
+  moduleForm.ManualDock(pnlModules);
+  moduleForm.Caption := 'Module';
+  moduleForm.Show;
+
+  activeTabInfo := mModuleView.GetActiveTabInfo();
+  mModuleView := moduleForm;
+  Windows.SetFocus(moduleForm.Handle);
+
+  if (activeTabInfo <> nil) then
+  begin
+    NewViewTab(activeTabInfo.Location, activeTabInfo.SatelliteName, '', activeTabInfo.State, '', true);
+  end;
+end;
+
 procedure TMainForm.tbtnMemoFontClick(Sender: TObject);
 begin
   with reMemo.SelAttributes do
@@ -7778,15 +7840,15 @@ var
   path: string;
   scte: TSectionBase;
   activeTabInfo: TViewTabInfo;
+
   function find_verse(sp: integer): integer;
   var
     pfind: PChar;
     i: integer;
   begin
+
     Result := -1;
-    pfind := searchbuf(
-      PChar(Pointer(ds)), sourcePos - 1, sourcePos - 1, 0,
-      '<a name="bqverse', [soMatchCase]);
+    pfind := searchbuf(PChar(Pointer(ds)), sourcePos - 1, sourcePos - 1, 0, '<a name="bqverse', [soMatchCase]);
 
     if not Assigned(pfind) then
       Exit;
