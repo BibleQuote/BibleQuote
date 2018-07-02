@@ -1123,8 +1123,15 @@ object MainForm: TMainForm
         OnClick = tbtnSatelliteClick
         OnMouseEnter = tbtnSatelliteMouseEnter
       end
-      object tbtnLastSeparator: TToolButton
+      object tbtnNewForm: TToolButton
         Left = 312
+        Top = 0
+        Caption = 'New Form'
+        ImageIndex = 10
+        OnClick = tbtnNewFormClick
+      end
+      object tbtnLastSeparator: TToolButton
+        Left = 344
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -1133,7 +1140,7 @@ object MainForm: TMainForm
       end
     end
     object tlbResolveLnks: TToolBar
-      Left = 319
+      Left = 351
       Top = 1
       Width = 56
       Margins.Top = 0
@@ -1148,6 +1155,7 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
+      ExplicitLeft = 319
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -1171,7 +1179,7 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 375
+      Left = 407
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -1187,6 +1195,7 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
+      ExplicitLeft = 375
       object cbLinks: TComboBox
         Left = 0
         Top = 0
@@ -1566,7 +1575,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800980310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800A40310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3305,7 +3314,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01010E00E801280118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010E00E801340118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
       000000000000000000000000000000000000000000000000000000000000B9B8
       B3008581790066615700655F5500827F7600B9B7B20000000000000000000000
