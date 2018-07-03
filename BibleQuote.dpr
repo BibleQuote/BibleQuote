@@ -48,7 +48,8 @@ uses
   TabData in 'Core\TabData.pas',
   CRC32 in 'Utils\CRC32.pas',
   ModuleViewIntf in 'UI\ModuleViewIntf.pas',
-  ModuleFrm in 'Forms\ModuleFrm.pas' {ModuleForm};
+  ModuleFrm in 'Forms\ModuleFrm.pas' {ModuleForm},
+  ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas';
 
 {$R *.res}
 var
