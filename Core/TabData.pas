@@ -113,7 +113,7 @@ begin
   VScrollPos := -1;
 end;
 
-{ TrecMainViewTabInfo }
+{ TViewTabInfo }
 
 constructor TViewTabInfo.Create(
   const bible: TBible;
