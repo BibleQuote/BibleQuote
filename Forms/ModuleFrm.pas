@@ -136,12 +136,8 @@ type
     procedure dtsBibleMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure dtsBibleMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure dtsBibleMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-
-    procedure FormCreate(Sender: TObject);
     procedure pmBrowserPopup(Sender: TObject);
     function GetActiveTabInfo(): TViewTabInfo;
-    procedure FormActivate(Sender: TObject);
-    procedure FormDeactivate(Sender: TObject);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -896,21 +892,6 @@ begin
   mMainView.miDeteleBibleTab.tag := itemIx;
   pt := dtsBible.ClientToScreen(pt);
   mMainView.pmEmpty.Popup(pt.X, pt.Y);
-end;
-
-procedure TModuleForm.FormActivate(Sender: TObject);
-begin
-  OutputDebugString(PChar(Pointer(Caption + ' activated 1')));
-end;
-
-procedure TModuleForm.FormCreate(Sender: TObject);
-begin
-//
-end;
-
-procedure TModuleForm.FormDeactivate(Sender: TObject);
-begin
-  OutputDebugString(PChar(Pointer(Caption + ' deactivated 1')));
 end;
 
 procedure TModuleForm.miAddBookmarkClick(Sender: TObject);

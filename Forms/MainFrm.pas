@@ -19,7 +19,8 @@ uses
   VdtEditlink, bqGradientPanel, bqClosableTabControl, ModuleProcs,
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
   MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
-  TabData, Favorites, ModuleViewIntf;
+  TabData, Favorites, ModuleViewIntf, ThinCaptionedDockTree,
+  Vcl.CaptionedDockTree;
 
 const
 
@@ -442,6 +443,7 @@ type
 
     function CreateModuleView(): IModuleView;
     procedure LoadModuleViews();
+    procedure OnModuleFormDeactivate(Sender: TObject);
     procedure OnModuleFormActivate(Sender: TObject);
     procedure CompareTranslations();
     procedure DictionariesLoading(Sender: TObject);
@@ -472,7 +474,6 @@ type
   public
     MainBook: TBible;
     SecondBook: TBible;
-
     SysHotKey: TSysHotKey;
 
     FCurPreviewPage: integer;
@@ -1016,8 +1017,6 @@ function TMainForm.CreateModuleView(): IModuleView;
 var
   moduleForm: TModuleForm;
   h: Integer;
-  tabInfo: TViewTabInfo;
-  newBible: TBible;
 begin
   moduleForm := TModuleForm.Create(self, self);
 
@@ -1047,6 +1046,7 @@ begin
 
   moduleForm.BibleTabs.Height := h + 13;
   moduleForm.OnActivate := self.OnModuleFormActivate;
+  moduleForm.OnDeactivate := self.OnModuleFormDeactivate;
 
   Result := moduleForm;
 end;
@@ -1054,7 +1054,6 @@ end;
 procedure TMainForm.LoadModuleViews();
 var
   moduleForm: TModuleForm;
-  h: Integer;
   tabInfo: TViewTabInfo;
   newBible: TBible;
 begin
@@ -1067,13 +1066,25 @@ begin
   newBible := CreateNewBibleInstance(MainBook);
   tabInfo := TViewTabInfo.Create(newBible, '', SatelliteBible, '', DefaultViewTabState());
   moduleForm.ViewTabs.Tabs.AddObject(newBible.Name, tabInfo);
-  moduleForm.Caption := newBible.Name;
 
   moduleForm.ManualDock(pnlModules);
-  moduleForm.Caption := 'Module main';
+  moduleForm.Caption := '';
   moduleForm.Show;
 
   mModuleView := moduleForm;
+end;
+
+procedure TMainForm.OnModuleFormDeactivate(Sender: TObject);
+var
+  moduleForm: TModuleForm;
+begin
+  moduleForm := Sender as TModuleForm;
+  if Assigned(moduleForm) then
+  begin
+      // save active tab state
+      moduleForm.GetActiveTabInfo()
+        .SaveBrowserState(moduleForm.bwrHtml);
+  end;
 end;
 
 procedure TMainForm.OnModuleFormActivate(Sender: TObject);
@@ -1081,13 +1092,19 @@ var
   moduleForm: TModuleForm;
 begin
   moduleForm := Sender as TModuleForm;
+
   if Assigned(moduleForm) then
   begin
-    OutputDebugString(PChar(Pointer(moduleForm.Caption + ' activated')));
     if (mModuleView <> moduleForm as IModuleView) then
     begin
       mModuleView := moduleForm;
-      moduleForm.UpdateViewTabs();
+
+      // sync main form UI
+      UpdateUI();
+
+      // restore active tab state
+      moduleForm.GetActiveTabInfo()
+        .RestoreBrowserState(moduleForm.bwrHtml);
     end;
   end;
 end;
@@ -1820,7 +1837,6 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 var
   i: integer;
-  tabInfo: TViewTabInfo;
 begin
 
   mBqEngine := TBibleQuoteEngine.Create();
@@ -3836,7 +3852,6 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftSta
 var
   OldKey: Word;
   hotMenuItem: TMenuItem;
-  tryCount: integer;
 label
   exitlabel;
 begin
@@ -6256,8 +6271,6 @@ begin
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
-var
-  h: Integer;
 begin
   if MainFormInitialized then
     Exit; // run only once...
@@ -7506,21 +7519,22 @@ end;
 procedure TMainForm.tbtnNewFormClick(Sender: TObject);
 var
   moduleForm: TModuleForm;
-  activeTabInfo: TViewTabInfo;
+  currentTabInfo: TViewTabInfo;
 begin
+  currentTabInfo := mModuleView.GetActiveTabInfo();
+
   moduleForm := CreateModuleView() as TModuleForm;
 
   moduleForm.ManualDock(pnlModules);
-  moduleForm.Caption := 'Module';
+  moduleForm.Caption := '';
   moduleForm.Show;
 
-  activeTabInfo := mModuleView.GetActiveTabInfo();
   mModuleView := moduleForm;
   Windows.SetFocus(moduleForm.Handle);
 
-  if (activeTabInfo <> nil) then
+  if (currentTabInfo <> nil) then
   begin
-    NewViewTab(activeTabInfo.Location, activeTabInfo.SatelliteName, '', activeTabInfo.State, '', true);
+    NewViewTab(currentTabInfo.Location, currentTabInfo.SatelliteName, '', currentTabInfo.State, '', true);
   end;
 end;
 
@@ -10358,5 +10372,11 @@ begin
   end;
 
 end;
+
+initialization
+
+DefaultDockTreeClass := TThinCaptionedDockTree;
+
+finalization
 
 end.
