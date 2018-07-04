@@ -377,10 +377,8 @@ type
     function PaintTokens(canv: TCanvas; rct: TRect; tkns: TObjectList; calc: Boolean): integer;
     procedure vdtTagsVersesDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
     function LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
-    procedure FormDblClick(Sender: TObject);
     procedure pgcMainMouseLeave(Sender: TObject);
     procedure miRecognizeBibleLinksClick(Sender: TObject);
-    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: integer; MousePos: TPoint; var Handled: Boolean);
     procedure tmCommonTimer(Sender: TObject);
     procedure miVerseHighlightBGClick(Sender: TObject);
     procedure cbListDropDown(Sender: TObject);
@@ -6648,11 +6646,6 @@ begin
   CanClose := true;
 end;
 
-procedure TMainForm.FormDblClick(Sender: TObject);
-begin
-  //
-end;
-
 procedure TMainForm.FormDeactivate(Sender: TObject);
 begin
   if G_ControlKeyDown then
@@ -6660,16 +6653,6 @@ begin
     SetBibleTabsHintsState(false);
     G_ControlKeyDown := false;
   end
-end;
-
-procedure TMainForm.FormMouseWheel(
-  Sender: TObject;
-  Shift: TShiftState;
-  WheelDelta: integer;
-  MousePos: TPoint;
-  var Handled: Boolean);
-begin
-  //
 end;
 
 procedure TMainForm.tbtnAddTagClick(Sender: TObject);
