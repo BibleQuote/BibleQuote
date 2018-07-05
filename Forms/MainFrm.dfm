@@ -21,12 +21,10 @@ object MainForm: TMainForm
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
-  OnDblClick = FormDblClick
   OnDeactivate = FormDeactivate
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
-  OnMouseWheel = FormMouseWheel
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 14
@@ -248,13 +246,11 @@ object MainForm: TMainForm
             object lblBookmark: TLabel
               Left = 10
               Top = 10
-              Width = 254
-              Height = 90
+              Width = 57
+              Height = 14
               Align = alClient
               Caption = 'lblBookmark'
               WordWrap = True
-              ExplicitWidth = 57
-              ExplicitHeight = 14
             end
           end
         end
@@ -839,6 +835,10 @@ object MainForm: TMainForm
     object tbXRef: TTabSheet
       Hint = 'TSK'
       ImageIndex = 19
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object bwrXRef: THTMLViewer
         Left = 0
         Top = 0
@@ -992,7 +992,6 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 514
       ExplicitHeight = 14
     end
     object lblCopyRightNotice: TLabel
@@ -1572,7 +1571,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800A80310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800AC0310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3311,7 +3310,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01010F00E801680118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010F00E8016C0118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
       000000000000000000000000000000000000000000000000000000000000B9B8
       B3008581790066615700655F5500827F7600B9B7B20000000000000000000000
