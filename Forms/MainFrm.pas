@@ -875,6 +875,9 @@ begin
         BqShowException(E, 'Cannot Load Configuration file!');
     end;
 
+    mBrowserDefaultFontName := MainCfgIni.SayDefault('DefFontName', 'Microsoft Sans Serif');
+    g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor', Color2Hex(clInfoBk)))); // '#F5F5DC'
+
     MainFormWidth := (StrToInt(MainCfgIni.SayDefault('MainFormWidth', '0')) * Screen.Width) div MAXWIDTH;
     MainFormHeight := (StrToInt(MainCfgIni.SayDefault('MainFormHeight', '0')) * Screen.Height) div MAXHEIGHT;
     MainFormLeft := (StrToInt(MainCfgIni.SayDefault('MainFormLeft', '0')) * Screen.Width) div MAXWIDTH;
@@ -1003,8 +1006,6 @@ begin
     ConfigFormHotKeyChoiceItemIndex := StrToInt(MainCfgIni.SayDefault('ConfigFormHotKeyChoiceItemIndex', '0'));
 
     trayIcon.MinimizeToTray := MainCfgIni.SayDefault('MinimizeToTray', '0') = '1';
-
-    LoadModuleViews();
   except
     on E: Exception do
       BqShowException(E)
@@ -1053,17 +1054,11 @@ procedure TMainForm.LoadModuleViews();
 var
   moduleForm: TModuleForm;
   tabInfo: TViewTabInfo;
-  newBible: TBible;
 begin
-
-  mBrowserDefaultFontName := MainCfgIni.SayDefault('DefFontName', 'Microsoft Sans Serif');
-  g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor', Color2Hex(clInfoBk)))); // '#F5F5DC'
-
   moduleForm := CreateModuleView() as TModuleForm;
 
-  newBible := CreateNewBibleInstance(MainBook);
-  tabInfo := TViewTabInfo.Create(newBible, '', SatelliteBible, '', DefaultViewTabState());
-  moduleForm.ViewTabs.Tabs.AddObject(newBible.Name, tabInfo);
+  tabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', DefaultViewTabState());
+  moduleForm.ViewTabs.Tabs.AddObject(MainBook.Name, tabInfo);
 
   moduleForm.ManualDock(pnlModules);
   moduleForm.Caption := '';
@@ -1907,9 +1902,6 @@ begin
     StrReplace(TextTemplate, 'src=', 'src=' + TemplatePath, false);
 
   FillLanguageMenu();
-  mTranslated := ApplyInitialTranslation();
-
-  MainMenuInit(false);
 
   // MAIN TABS INITIALIZATION
   lbHistory.Items.BeginUpdate;
@@ -1929,6 +1921,9 @@ begin
   if Bookmarks.Count > 0 then
     lblBookmark.Caption := Comment(Bookmarks[0]);
 
+  MainMenuInit(false);
+  LoadModuleViews();
+  mTranslated := ApplyInitialTranslation();
   LoadTabsFromFile(UserDir + 'viewtabs.json');
   LoadHotModulesConfig();
 
@@ -2994,8 +2989,7 @@ begin
   SetButtonHint(tbtnNewTab, miNewTab);
   SetButtonHint(tbtnCloseTab, miCloseTab);
 
-  GetModuleView(self).tbtnMemos.Hint := GetModuleView(self).miMemosToggle.Caption + ' (' +
-    ShortCutToText(GetModuleView(self).miMemosToggle.ShortCut) + ')';
+  GetModuleView(self).tbtnMemos.Hint := GetModuleView(self).miMemosToggle.Caption + ' (' + ShortCutToText(GetModuleView(self).miMemosToggle.ShortCut) + ')';
 
   cbList.ItemIndex := 0;
 
