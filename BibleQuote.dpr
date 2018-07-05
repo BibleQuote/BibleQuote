@@ -49,7 +49,8 @@ uses
   CRC32 in 'Utils\CRC32.pas',
   ModuleViewIntf in 'UI\ModuleViewIntf.pas',
   ModuleFrm in 'Forms\ModuleFrm.pas' {ModuleForm},
-  ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas';
+  ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas',
+  ViewConfig in 'IO\ViewConfig.pas';
 
 {$R *.res}
 var

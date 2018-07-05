@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, System.Types, Vcl.Graphics, Vcl.Themes, Vcl.GraphUtil, Vcl.DockTabSet,
-  Vcl.CaptionedDockTree, Vcl.Controls;
+  Vcl.CaptionedDockTree, Vcl.Controls, System.UITypes;
 
 type
   TThinCaptionedDockTree = class(TCaptionedTabDockTree)
