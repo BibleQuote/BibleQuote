@@ -20,7 +20,7 @@ uses
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
   MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
   TabData, Favorites, ModuleViewIntf, ThinCaptionedDockTree,
-  Vcl.CaptionedDockTree;
+  Vcl.CaptionedDockTree, ViewConfig;
 
 const
 
@@ -1397,96 +1397,66 @@ end;
 
 procedure TMainForm.LoadTabsFromFile(path: string);
 var
-  tabStringList: TStringList;
-  linesCount, tabIx, i, activeTabIx, valErr: integer;
-  strongs_notes_code: UInt64;
-  location, second_bible, Title: string;
+  tabIx, i, activeTabIx: integer;
+  strongNotesCode: UInt64;
+  location, secondBible, Title: string;
   addTabResult, firstTabInitialized: Boolean;
   tabViewState: TViewTabInfoState;
+  viewConfig: TViewConfig;
+  moduleViewSettings: TModuleViewSettings;
 begin
-  tabStringList := nil;
   firstTabInitialized := false;
   try
-    try
-      if (not FileExists(path)) then
+    if (not FileExists(path)) then
+    begin
+      SetFirstTabInitialLocation(LastAddress, '', '', DefaultViewTabState(), true);
+      Exit;
+    end;
+
+    viewConfig := TViewConfig.Load(path);
+    activeTabIx := -1;
+    tabIx := 0;
+    i := 0;
+    for moduleViewSettings in viewConfig.ModuleViews do
+    begin
+      if (moduleViewSettings.Active) then
+        activeTabIx := i;
+
+      secondBible := moduleViewSettings.SecondBible;
+      Title := moduleViewSettings.Title;
+      strongNotesCode := moduleViewSettings.StrongNotesCode;
+      if (strongNotesCode <= 0) then
+        strongNotesCode := 101;
+
+      tabViewState := DecodeViewtabState(strongNotesCode);
+
+      location := moduleViewSettings.Location;
+      if Length(Trim(location)) > 0 then
       begin
-        SetFirstTabInitialLocation(LastAddress, '', '', DefaultViewTabState(), true);
-        Exit;
-      end;
-      tabStringList := TStringList.Create();
-      tabStringList.LoadFromFile(path);
-      activeTabIx := -1;
-      tabIx := 0;
-      with tabStringList do
-      begin
-        linesCount := Count - 1; // ?;
-        i := 0;
-        if (linesCount < 1) then
-          Exit;
-        repeat
-          if (Strings[i]) = '+' then
-          begin
-            activeTabIx := tabIx;
-            inc(i);
-            if i >= linesCount then
-              Exit;
-          end;
-          location := Strings[i];
-          inc(i);
-          if ((i < linesCount) and (Length(Strings[i]) > 0) and
-            (Strings[i] <> '***') and not(CharInSet(Char(Strings[i][1]), [#0 .. #9])))
-          then
-          begin
-            second_bible := Strings[i];
-          end
-          else
-            second_bible := '';
 
-          inc(i);
-          strongs_notes_code := 101; // default: show notes and strict links
-          if ((i < linesCount) and (Strings[i] <> '***')) then
-          begin
-            Val(Strings[i], strongs_notes_code, valErr);
-            inc(i);
-          end;
-          tabViewState := DecodeViewtabState(strongs_notes_code);
+        if (tabIx > 0) then
+          addTabResult := NewViewTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
+        else
+        begin
+          addTabResult := true;
+          SetFirstTabInitialLocation(location, secondBible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
+          firstTabInitialized := true;
+        end;
+      end
+      else
+        addTabResult := false;
 
-          if ((i < linesCount) and (Strings[i] <> '***')) then
-          begin
-            Title := Strings[i];
-            inc(i);
-          end;
+      if (addTabResult) then
+        inc(tabIx);
 
-          if Length(Trim(location)) > 0 then
-          begin
+      inc(i);
+    end;
 
-            if (tabIx > 0) then
-              addTabResult := NewViewTab(location, second_bible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
-            else
-            begin
-              addTabResult := true;
-              SetFirstTabInitialLocation(location, second_bible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
-              firstTabInitialized := true;
-            end;
-          end
-          else
-            addTabResult := false;
-          if (addTabResult) then
-            inc(tabIx);
-          while ((i < linesCount) and (Strings[i] <> '***')) do
-            inc(i);
-          if (i < linesCount) then
-            inc(i);
-        until (i >= linesCount);
+    if (activeTabIx < 0) or (activeTabIx >= mModuleView.ViewTabs.Tabs.Count) then
+        activeTabIx := 0;
 
-        if (activeTabIx < 0) or (activeTabIx >= mModuleView.ViewTabs.Tabs.Count) then
-          activeTabIx := 0;
-        mModuleView.ViewTabs.TabIndex := activeTabIx;
-        mModuleView.UpdateViewTabs();
-      end; // with
-    finally
-      tabStringList.Free();
-    end; // try
+    mModuleView.ViewTabs.TabIndex := activeTabIx;
+    mModuleView.UpdateViewTabs();
   except
     on E: Exception do
       BqShowException(E);
@@ -1631,7 +1601,7 @@ begin
     UserDir := CreateAndGetConfigFolder;
     writeln(NowDateTimeString(), ':SaveConfiguration, userdir:', UserDir);
 
-    SaveTabsToFile(UserDir + 'viewtabs.cfg');
+    SaveTabsToFile(UserDir + 'viewtabs.json');
     try
       mModuleLoader.SaveCachedModules();
     except
@@ -1793,43 +1763,44 @@ end;
 
 procedure TMainForm.SaveTabsToFile(path: string);
 var
-  tabStringList: TStringList;
   tabCount, i: integer;
   tabInfo, activeTabInfo: TViewTabInfo;
   viewTabsEncoded: UInt64;
+  viewConfig: TViewConfig;
+  moduleViewSettings: TModuleViewSettings;
 begin
-  tabStringList := nil;
   try
-    tabStringList := TStringList.Create();
     tabCount := mModuleView.ViewTabs.Tabs.Count - 1;
     activeTabInfo := TViewTabInfo(mModuleView.ViewTabs.Tabs.Objects[mModuleView.ViewTabs.TabIndex]);
+    viewConfig := TViewConfig.Create;
     for i := 0 to tabCount do
     begin
       try
         tabInfo := TViewTabInfo(mModuleView.ViewTabs.Tabs.Objects[i]);
-        with tabStringList do
-        begin
-          if tabInfo = activeTabInfo then
-            Add('+');
 
-          viewTabsEncoded := EncodeToValue(tabInfo);
-          Add(tabInfo.Location);
-          Add(tabInfo.SatelliteName);
-          Add(IntToStr(viewTabsEncoded));
-          Add(tabInfo.Title);
-          Add('***');
-        end; // with tabInfo, tabStringList
+        moduleViewSettings := TModuleViewSettings.Create;
+        if tabInfo = activeTabInfo then
+        begin
+          moduleViewSettings.Active := true;
+        end;
+
+        viewTabsEncoded := EncodeToValue(tabInfo);
+        moduleViewSettings.Location := tabInfo.Location;
+        moduleViewSettings.SecondBible := tabInfo.SatelliteName;
+        moduleViewSettings.StrongNotesCode := viewTabsEncoded;
+        moduleViewSettings.Title := tabInfo.Title;
+
+        viewConfig.ModuleViews.Add(moduleViewSettings);
       except
       end;
     end; // for
 
-    tabStringList.SaveToFile(path, TEncoding.UTF8);
+    viewConfig.Save(UserDir + 'viewtabs.json');
 
   except
     on E: Exception do
       BqShowException(E)
   end;
-  tabStringList.Free();
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -1958,7 +1929,7 @@ begin
   if Bookmarks.Count > 0 then
     lblBookmark.Caption := Comment(Bookmarks[0]);
 
-  LoadTabsFromFile(UserDir + 'viewtabs.cfg');
+  LoadTabsFromFile(UserDir + 'viewtabs.json');
   LoadHotModulesConfig();
 
   StrongsDir := C_StrongsSubDirectory;
