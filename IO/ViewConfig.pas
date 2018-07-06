@@ -3,8 +3,9 @@ unit ViewConfig;
 interface
 uses
   XMLDoc, XMLIntf, Classes, SysUtils, Generics.Collections, Rest.Json, IOUtils;
+
 type
-  TModuleViewSettings = class
+  TTabSettings = class
   private
     FLocation: string;
     FSecondBible: string;
@@ -20,7 +21,17 @@ type
   end;
 
 type
+  TModuleViewSettings = class
+  private
+    FTabSettingsList: TList<TTabSettings>;
+    FActive: boolean;
+  public
+    property TabSettingsList: TList<TTabSettings> read FTabSettingsList write FTabSettingsList;
+    property Active: boolean read FActive write FActive;
+    constructor Create();
+  end;
 
+type
   TViewConfig = class
   private
     FModuleViews: TList<TModuleViewSettings>;
@@ -34,6 +45,12 @@ type
   end;
 
 implementation
+
+constructor TModuleViewSettings.Create();
+begin
+  FTabSettingsList := TList<TTabSettings>.Create();
+  FActive := false;
+end;
 
 constructor TViewConfig.Create();
 begin

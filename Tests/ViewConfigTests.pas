@@ -47,27 +47,54 @@ begin
 
   Assert.IsNotNull(viewConfig);
   Assert.AreEqual(2, viewConfig.ModuleViews.Count);
-  Assert.AreEqual('Test location 1', viewconfig.ModuleViews[0].Location);
-  Assert.AreEqual('Test location 2', viewconfig.ModuleViews[1].Location);
+  Assert.AreEqual(2, viewConfig.ModuleViews[0].TabSettingsList.Count);
+  Assert.AreEqual(2, viewConfig.ModuleViews[1].TabSettingsList.Count);
+
+  Assert.AreEqual('Test location 1', viewconfig.ModuleViews[0].TabSettingsList[0].Location);
+  Assert.AreEqual('Title 1', viewconfig.ModuleViews[0].TabSettingsList[0].Title);
+  Assert.AreEqual('Test location 3', viewconfig.ModuleViews[1].TabSettingsList[0].Location);
+  Assert.AreEqual('Title 3', viewconfig.ModuleViews[1].TabSettingsList[0].Title);
 end;
 
 procedure TestViewConfig.SaveViewConfigTest_ShouldNotThrow();
 var
   path: string;
   viewConfig: TViewConfig;
-  m1, m2: TModuleViewSettings;
+  moduleSettings: TModuleViewSettings;
+  tabSettings: TTabSettings;
 begin
   path := GetFilePath('viewconfig_temp.json');
   viewConfig := TViewConfig.Create;
 
-  m1 := TModuleViewSettings.Create;
-  m1.Location := 'Test location 1';
+  moduleSettings := TModuleViewSettings.Create;
 
-  m2 := TModuleViewSettings.Create;
-  m2.Location := 'Test location 2';
+  tabSettings := TTabSettings.Create;
+  tabSettings.Location := 'Test location 1';
+  tabSettings.Title := 'Title 1';
 
-  viewConfig.ModuleViews.Add(m1);
-  viewConfig.ModuleViews.Add(m2);
+  moduleSettings.TabSettingsList.Add(tabSettings);
+
+  tabSettings := TTabSettings.Create;
+  tabSettings.Location := 'Test location 2';
+  tabSettings.Title := 'Title 2';
+
+  moduleSettings.TabSettingsList.Add(tabSettings);
+  viewConfig.ModuleViews.Add(moduleSettings);
+
+   moduleSettings := TModuleViewSettings.Create;
+
+  tabSettings := TTabSettings.Create;
+  tabSettings.Location := 'Test location 3';
+  tabSettings.Title := 'Title 3';
+
+  moduleSettings.TabSettingsList.Add(tabSettings);
+
+  tabSettings := TTabSettings.Create;
+  tabSettings.Location := 'Test location 4';
+  tabSettings.Title := 'Title 4';
+
+  moduleSettings.TabSettingsList.Add(tabSettings);
+  viewConfig.ModuleViews.Add(moduleSettings);
 
   Assert.WillNotRaise(procedure begin viewConfig.Save(path); end);
 end;
