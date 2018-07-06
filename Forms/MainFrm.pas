@@ -440,9 +440,10 @@ type
       var Result: integer);
 
     function CreateModuleView(): IModuleView;
-    procedure LoadModuleViews();
+    procedure CreateInitialModuleView();
     procedure OnModuleFormDeactivate(Sender: TObject);
     procedure OnModuleFormActivate(Sender: TObject);
+    procedure OnModuleFormClose(Sender: TObject; var Action: TCloseAction);
     procedure CompareTranslations();
     procedure DictionariesLoading(Sender: TObject);
     procedure DictionariesLoaded(Sender: TObject);
@@ -503,6 +504,7 @@ type
     mTranslated: Boolean;
 
     mModuleView: IModuleView;
+    mModuleViews: TList<IModuleView>;
 
     // OLD VARABLES START
     mModules: TCachedModules;
@@ -1044,13 +1046,17 @@ begin
     h := -h;
 
   moduleForm.BibleTabs.Height := h + 13;
+  moduleForm.Caption := '';
   moduleForm.OnActivate := self.OnModuleFormActivate;
   moduleForm.OnDeactivate := self.OnModuleFormDeactivate;
+  moduleForm.OnClose := self.OnModuleFormClose;
+
+  mModuleViews.Add(moduleForm as IModuleView);
 
   Result := moduleForm;
 end;
 
-procedure TMainForm.LoadModuleViews();
+procedure TMainForm.CreateInitialModuleView();
 var
   moduleForm: TModuleForm;
   tabInfo: TViewTabInfo;
@@ -1061,7 +1067,6 @@ begin
   moduleForm.ViewTabs.Tabs.AddObject(MainBook.Name, tabInfo);
 
   moduleForm.ManualDock(pnlModules);
-  moduleForm.Caption := '';
   moduleForm.Show;
 
   mModuleView := moduleForm;
@@ -1077,6 +1082,23 @@ begin
       // save active tab state
       moduleForm.GetActiveTabInfo()
         .SaveBrowserState(moduleForm.bwrHtml);
+  end;
+end;
+
+procedure TMainForm.OnModuleFormClose(Sender: TObject; var Action: TCloseAction);
+var
+  moduleView: TModuleForm;
+begin
+  if (Sender is TModuleForm) then
+  begin
+    moduleView := Sender as TModuleForm;
+    mModuleViews.Remove(moduleView as IModuleView);
+
+    if (mModuleViews.Count > 0) then
+    begin
+      if (mModuleViews.Items[0] is TModuleForm) then
+        OnModuleFormActivate(mModuleViews.Items[0] as TModuleForm);
+    end;
   end;
 end;
 
@@ -1398,9 +1420,13 @@ var
   addTabResult, firstTabInitialized: Boolean;
   tabViewState: TViewTabInfoState;
   viewConfig: TViewConfig;
+  tabSettings: TTabSettings;
   moduleViewSettings: TModuleViewSettings;
+  isFirstModuleView: boolean;
+  moduleForm: TModuleForm;
 begin
   firstTabInitialized := false;
+  CreateInitialModuleView();
   try
     if (not FileExists(path)) then
     begin
@@ -1409,56 +1435,73 @@ begin
     end;
 
     viewConfig := TViewConfig.Load(path);
-    activeTabIx := -1;
-    tabIx := 0;
-    i := 0;
+    isFirstModuleView := true;
     for moduleViewSettings in viewConfig.ModuleViews do
     begin
-      if (moduleViewSettings.Active) then
-        activeTabIx := i;
+      activeTabIx := -1;
+      tabIx := 0;
+      i := 0;
 
-      secondBible := moduleViewSettings.SecondBible;
-      Title := moduleViewSettings.Title;
-      strongNotesCode := moduleViewSettings.StrongNotesCode;
-      if (strongNotesCode <= 0) then
-        strongNotesCode := 101;
-
-      tabViewState := DecodeViewtabState(strongNotesCode);
-
-      location := moduleViewSettings.Location;
-      if Length(Trim(location)) > 0 then
+      if (not isFirstModuleView) then
       begin
+        moduleForm := CreateModuleView() as TModuleForm;
 
-        if (tabIx > 0) then
-          addTabResult := NewViewTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
-        else
+        moduleForm.ManualDock(pnlModules);
+        moduleForm.Show;
+
+        mModuleView := moduleForm;
+      end;
+
+      for tabSettings in moduleViewSettings.TabSettingsList do
+      begin
+        if (tabSettings.Active) then
+          activeTabIx := i;
+
+        secondBible := tabSettings.SecondBible;
+        Title := tabSettings.Title;
+        strongNotesCode := tabSettings.StrongNotesCode;
+        if (strongNotesCode <= 0) then
+          strongNotesCode := 101;
+
+        tabViewState := DecodeViewtabState(strongNotesCode);
+
+        location := tabSettings.Location;
+        if Length(Trim(location)) > 0 then
         begin
-          addTabResult := true;
-          SetFirstTabInitialLocation(location, secondBible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
-          firstTabInitialized := true;
-        end;
-      end
-      else
-        addTabResult := false;
+          if ((tabIx > 0) or not isFirstModuleView) then
+            addTabResult := NewViewTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
+          else
+          begin
+            addTabResult := true;
+            SetFirstTabInitialLocation(location, secondBible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
+            firstTabInitialized := true;
+          end;
+        end
+        else
+          addTabResult := false;
 
-      if (addTabResult) then
-        inc(tabIx);
+        if (addTabResult) then
+          inc(tabIx);
 
-      inc(i);
+        inc(i);
+      end;
+
+      if (activeTabIx < 0) or (activeTabIx >= mModuleView.ViewTabs.Tabs.Count) then
+          activeTabIx := 0;
+
+      mModuleView.ViewTabs.TabIndex := activeTabIx;
+      mModuleView.UpdateViewTabs();
+      isFirstModuleView := false;
     end;
-
-    if (activeTabIx < 0) or (activeTabIx >= mModuleView.ViewTabs.Tabs.Count) then
-        activeTabIx := 0;
-
-    mModuleView.ViewTabs.TabIndex := activeTabIx;
-    mModuleView.UpdateViewTabs();
   except
     on E: Exception do
       BqShowException(E);
   end;
 
   if not firstTabInitialized then
+  begin
     SetFirstTabInitialLocation(LastAddress, '', '', DefaultViewTabState(), true);
+  end;
 end;
 
 function TMainForm.LoadTaggedBookMarks(): Boolean;
@@ -1763,32 +1806,45 @@ var
   viewTabsEncoded: UInt64;
   viewConfig: TViewConfig;
   moduleViewSettings: TModuleViewSettings;
+  tabSettings: TTabSettings;
+  moduleForm: TModuleForm;
+  moduleView: IModuleView;
 begin
   try
-    tabCount := mModuleView.ViewTabs.Tabs.Count - 1;
-    activeTabInfo := TViewTabInfo(mModuleView.ViewTabs.Tabs.Objects[mModuleView.ViewTabs.TabIndex]);
     viewConfig := TViewConfig.Create;
-    for i := 0 to tabCount do
+    for moduleView in mModuleViews do
     begin
-      try
-        tabInfo := TViewTabInfo(mModuleView.ViewTabs.Tabs.Objects[i]);
+      moduleForm := moduleView as TModuleForm;
+      moduleViewSettings := TModuleViewSettings.Create;
 
-        moduleViewSettings := TModuleViewSettings.Create;
-        if tabInfo = activeTabInfo then
-        begin
-          moduleViewSettings.Active := true;
+      tabCount := moduleView.ViewTabs.Tabs.Count - 1;
+      activeTabInfo := TViewTabInfo(moduleView.ViewTabs.Tabs.Objects[moduleView.ViewTabs.TabIndex]);
+      if (moduleView = mModuleView) then
+        moduleViewSettings.Active := true;
+
+      for i := 0 to tabCount do
+      begin
+        try
+          tabInfo := TViewTabInfo(moduleView.ViewTabs.Tabs.Objects[i]);
+          tabSettings := TTabSettings.Create;
+
+          if tabInfo = activeTabInfo then
+          begin
+            tabSettings.Active := true;
+          end;
+
+          viewTabsEncoded := EncodeToValue(tabInfo);
+          tabSettings.Location := tabInfo.Location;
+          tabSettings.SecondBible := tabInfo.SatelliteName;
+          tabSettings.StrongNotesCode := viewTabsEncoded;
+          tabSettings.Title := tabInfo.Title;
+
+          moduleViewSettings.TabSettingsList.Add(tabSettings);
+        except
         end;
-
-        viewTabsEncoded := EncodeToValue(tabInfo);
-        moduleViewSettings.Location := tabInfo.Location;
-        moduleViewSettings.SecondBible := tabInfo.SatelliteName;
-        moduleViewSettings.StrongNotesCode := viewTabsEncoded;
-        moduleViewSettings.Title := tabInfo.Title;
-
-        viewConfig.ModuleViews.Add(moduleViewSettings);
-      except
-      end;
-    end; // for
+      end; // for
+      viewConfig.ModuleViews.Add(moduleViewSettings);
+    end;
 
     viewConfig.Save(UserDir + 'viewtabs.json');
 
@@ -1810,6 +1866,7 @@ begin
   mModuleLoader.OnArchiveModuleLoadFailed := ArchiveModuleLoadFailed;
 
   MainFormInitialized := false; // prohibit re-entry into FormShow
+  mModuleViews := TList<IModuleView>.Create;
   CheckModuleInstall();
 
   pgcMain.DoubleBuffered := true;
@@ -1922,9 +1979,9 @@ begin
     lblBookmark.Caption := Comment(Bookmarks[0]);
 
   MainMenuInit(false);
-  LoadModuleViews();
-  mTranslated := ApplyInitialTranslation();
+
   LoadTabsFromFile(UserDir + 'viewtabs.json');
+  mTranslated := ApplyInitialTranslation();
   LoadHotModulesConfig();
 
   StrongsDir := C_StrongsSubDirectory;
@@ -7472,12 +7529,11 @@ begin
   currentTabInfo := mModuleView.GetActiveTabInfo();
 
   moduleForm := CreateModuleView() as TModuleForm;
-
   moduleForm.ManualDock(pnlModules);
-  moduleForm.Caption := '';
   moduleForm.Show;
 
   mModuleView := moduleForm;
+
   Windows.SetFocus(moduleForm.Handle);
 
   if (currentTabInfo <> nil) then
