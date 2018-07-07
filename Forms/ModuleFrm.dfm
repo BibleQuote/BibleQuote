@@ -303,29 +303,11 @@ object ModuleForm: TModuleForm
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 1
-      object imgLoadProgress: TImage
-        Tag = 1
-        AlignWithMargins = True
-        Left = 638
-        Top = 0
-        Width = 19
-        Height = 21
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Margins.Bottom = 0
-        Align = alRight
-        Center = True
-        Proportional = True
-        Transparent = True
-        Visible = False
-        ExplicitLeft = 395
-      end
       object dtsBible: TDockTabSet
         Tag = -1
         Left = 0
         Top = 0
-        Width = 638
+        Width = 657
         Height = 21
         Cursor = crHandPoint
         Hint = 'rtet'
@@ -347,6 +329,9 @@ object ModuleForm: TModuleForm
         OnMouseMove = dtsBibleMouseMove
         OnMouseUp = dtsBibleMouseUp
         DockSite = False
+        ExplicitLeft = -3
+        ExplicitTop = 2
+        ExplicitWidth = 638
       end
     end
   end
@@ -354,7 +339,7 @@ object ModuleForm: TModuleForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800B00310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800B40310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2083,7 +2068,7 @@ object ModuleForm: TModuleForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C010102000300340118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000300380118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

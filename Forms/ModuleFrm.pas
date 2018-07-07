@@ -52,7 +52,6 @@ type
     tbtnMatchCase: TToolButton;
     tbtnMatchWholeWord: TToolButton;
     pnlPaint: TPanel;
-    imgLoadProgress: TImage;
     dtsBible: TDockTabSet;
     mViewTabsPopup: TPopupMenu;
     miNewViewTab: TMenuItem;
