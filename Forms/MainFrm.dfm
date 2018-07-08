@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 446
+  ClientHeight = 426
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 34
     Width = 8
-    Height = 391
+    Height = 371
     AutoSnap = False
     MinSize = 100
     ExplicitTop = 24
@@ -42,11 +42,10 @@ object MainForm: TMainForm
     Left = 298
     Top = 34
     Width = 583
-    Height = 391
+    Height = 371
     Align = alClient
     DockSite = True
     TabOrder = 0
-    ExplicitHeight = 321
   end
   object sbxPreview: TScrollBox
     Left = 299
@@ -93,7 +92,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 290
-    Height = 391
+    Height = 371
     Hint = 'Memos'
     ActivePage = tbSearch
     Align = alLeft
@@ -102,11 +101,9 @@ object MainForm: TMainForm
     TabWidth = 27
     OnChange = pgcMainChange
     OnMouseLeave = pgcMainMouseLeave
-    ExplicitHeight = 321
     object tbGo: TTabSheet
       Hint = 'Navigate'
       ImageIndex = 5
-      ExplicitHeight = 291
       object splGo: TSplitter
         Left = 0
         Top = 242
@@ -170,19 +167,17 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 106
+        Height = 86
         ActivePage = tbHistory
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 36
         object tbHistory: TTabSheet
           Caption = 'tbHistory'
-          ExplicitHeight = 6
           object lbHistory: TListBox
             Left = 0
             Top = 0
             Width = 274
-            Height = 76
+            Height = 56
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -193,13 +188,11 @@ object MainForm: TMainForm
             OnClick = lbHistoryClick
             OnDblClick = lbHistoryDblClick
             OnKeyUp = lbHistoryKeyUp
-            ExplicitHeight = 6
           end
         end
         object tbBookmarks: TTabSheet
           Caption = 'tbBookmarks'
           ImageIndex = 1
-          ExplicitHeight = 6
           object lbBookmarks: TListBox
             Left = 0
             Top = 0
@@ -216,14 +209,13 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = -34
+            Top = -54
             Width = 274
             Height = 110
             Align = alBottom
             BevelOuter = bvNone
             BorderWidth = 10
             TabOrder = 1
-            ExplicitTop = -104
             object lblBookmark: TLabel
               Left = 10
               Top = 10
@@ -244,12 +236,11 @@ object MainForm: TMainForm
       ImageIndex = 1
       ParentShowHint = False
       ShowHint = True
-      ExplicitHeight = 291
       object bwrSearch: THTMLViewer
         Left = 0
         Top = 179
         Width = 282
-        Height = 182
+        Height = 162
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -269,7 +260,6 @@ object MainForm: TMainForm
         OnKeyUp = bwrSearchKeyUp
         OnHotSpotClick = bwrSearchHotSpotClick
         OnHotSpotCovered = bwrSearchHotSpotCovered
-        ExplicitHeight = 112
       end
       object pnlSearch: TPanel
         Left = 0
@@ -404,12 +394,11 @@ object MainForm: TMainForm
     object tbDic: TTabSheet
       Hint = 'Dictionaries'
       ImageIndex = 17
-      ExplicitHeight = 291
       object bwrDic: THTMLViewer
         Left = 0
         Top = 234
         Width = 282
-        Height = 127
+        Height = 107
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -429,7 +418,6 @@ object MainForm: TMainForm
         OnHotSpotClick = bwrDicHotSpotClick
         OnHotSpotCovered = bwrDicHotSpotCovered
         OnMouseDouble = bwrDicMouseDouble
-        ExplicitHeight = 57
       end
       object pnlDic: TPanel
         Left = 0
@@ -531,13 +519,12 @@ object MainForm: TMainForm
     object tbStrong: TTabSheet
       Hint = 'Strong'#39's Dictionary'
       ImageIndex = 18
-      ExplicitHeight = 291
       object bwrStrong: THTMLViewer
         AlignWithMargins = True
         Left = 3
         Top = 210
         Width = 276
-        Height = 148
+        Height = 128
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -556,7 +543,6 @@ object MainForm: TMainForm
         ScrollBars = ssVertical
         OnHotSpotClick = bwrStrongHotSpotClick
         OnMouseDouble = bwrStrongMouseDouble
-        ExplicitHeight = 78
       end
       object pnlStrong: TPanel
         Left = 0
@@ -617,12 +603,11 @@ object MainForm: TMainForm
     end
     object tbComments: TTabSheet
       Hint = 'Commentaries'
-      ExplicitHeight = 291
       object bwrComments: THTMLViewer
         Left = 0
         Top = 30
         Width = 282
-        Height = 331
+        Height = 311
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -639,7 +624,6 @@ object MainForm: TMainForm
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrCommentsHotSpotClick
-        ExplicitHeight = 261
       end
       object pnlComments: TPanel
         Left = 0
@@ -702,12 +686,11 @@ object MainForm: TMainForm
     object tbMemo: TTabSheet
       Hint = 'Memos'
       ImageIndex = 2
-      ExplicitHeight = 291
       object reMemo: TRichEdit
         Left = 0
         Top = 25
         Width = 282
-        Height = 307
+        Height = 287
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -719,17 +702,15 @@ object MainForm: TMainForm
         TabOrder = 0
         Zoom = 100
         OnChange = reMemoChange
-        ExplicitHeight = 237
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 332
+        Top = 312
         Width = 282
         Height = 29
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 262
         object lblMemo: TLabel
           Left = 4
           Top = 4
@@ -829,12 +810,11 @@ object MainForm: TMainForm
     object tbXRef: TTabSheet
       Hint = 'TSK'
       ImageIndex = 19
-      ExplicitHeight = 291
       object bwrXRef: THTMLViewer
         Left = 0
         Top = 0
         Width = 282
-        Height = 361
+        Height = 341
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -851,12 +831,10 @@ object MainForm: TMainForm
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrXRefHotSpotClick
-        ExplicitHeight = 291
       end
     end
     object tbList: TTabSheet
       ImageIndex = 39
-      ExplicitHeight = 291
       object tlbTags: TToolBar
         Left = 0
         Top = 0
@@ -887,7 +865,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 53
         Width = 282
-        Height = 308
+        Height = 288
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -940,8 +918,6 @@ object MainForm: TMainForm
         OnResize = vdtTagsVersesResize
         OnShowScrollBar = vdtTagsVersesShowScrollBar
         OnStateChange = vdtTagsVersesStateChange
-        ExplicitTop = 52
-        ExplicitHeight = 239
         Columns = <>
       end
       object cbTagsFilter: TComboBox
@@ -1223,14 +1199,11 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 425
+    Top = 405
     Width = 881
     Height = 21
     Align = alBottom
     TabOrder = 5
-    ExplicitLeft = 1
-    ExplicitTop = 390
-    ExplicitWidth = 581
     object imgLoadProgress: TImage
       Tag = 1
       AlignWithMargins = True
@@ -1596,7 +1569,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800B00310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800B80310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3335,7 +3308,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01010F00E801700118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010F00E801780118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
       000000000000000000000000000000000000000000000000000000000000B9B8
       B3008581790066615700655F5500827F7600B9B7B20000000000000000000000

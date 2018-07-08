@@ -593,7 +593,7 @@ type
     procedure DrawMetaFile(PB: TPaintBox; mf: TMetaFile);
     function ProcessCommand(s: string; hlVerses: TbqHLVerseOption): Boolean;
     function CreateNewBibleInstance(aBible: TBible): TBible;
-    procedure AdjustBibleTabs(awsNewModuleName: string = '');
+    procedure AdjustBibleTabs(moduleView: IModuleView; awsNewModuleName: string = '');
 
     procedure SafeProcessCommand(wsLocation: string; hlOption: TbqHLVerseOption);
     procedure UpdateUI();
@@ -626,10 +626,9 @@ type
     function LoadModules(background: Boolean): Boolean;
     function LoadHotModulesConfig(): Boolean;
     procedure SaveHotModulesConfig(aMUIEngine: TMultiLanguage);
-    function AddHotModule(const modEntry: TModuleEntry; tag: integer;
-      addBibleTab: Boolean = true): integer;
+    function AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
     function FavouriteItemFromModEntry(const me: TModuleEntry): TMenuItem;
-    function FavouriteTabFromModEntry(const me: TModuleEntry): integer;
+    function FavouriteTabFromModEntry(moduleView: IModuleView; const me: TModuleEntry): integer;
     procedure DeleteHotModule(moduleTabIx: integer); overload;
     function DeleteHotModule(const me: TModuleEntry): Boolean; overload;
     function ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
@@ -1164,12 +1163,17 @@ function TMainForm.LoadHotModulesConfig(): Boolean;
 var
   fn1, fn2: string;
   f1Exists, f2Exists: Boolean;
+  moduleView: IModuleView;
 begin
   try
 
     Result := false;
-    mModuleView.BibleTabs.Tabs.Clear();
-    mModuleView.BibleTabs.Tabs.Add('***');
+    for moduleView in mModuleViews do
+    begin
+        moduleView.BibleTabs.Tabs.Clear();
+        moduleView.BibleTabs.Tabs.Add('***');
+    end;
+
     fn1 := CreateAndGetConfigFolder() + C_HotModulessFileName;
     f1Exists := FileExists(fn1);
     if f1Exists then
@@ -2884,11 +2888,11 @@ begin
   end;
 end;
 
-function TMainForm.AddHotModule(const modEntry: TModuleEntry; tag: integer;
-  addBibleTab: Boolean = true): integer;
+function TMainForm.AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
   ix: integer;
+  moduleView: IModuleView;
 begin
   Result := -1;
   try
@@ -2902,10 +2906,14 @@ begin
     favouriteMenuItem.Add(hotMenuItem);
     if not addBibleTab then
       Exit;
-    ix := mModuleView.BibleTabs.Tabs.Count - 1;
 
-    mModuleView.BibleTabs.Tabs.Insert(ix, modEntry.VisualSignature());
-    mModuleView.BibleTabs.Tabs.Objects[ix] := modEntry;
+    for moduleView in mModuleViews do
+    begin
+      ix := moduleView.BibleTabs.Tabs.Count - 1;
+
+      moduleView.BibleTabs.Tabs.Insert(ix, modEntry.VisualSignature());
+      moduleView.BibleTabs.Tabs.Objects[ix] := modEntry;
+    end;
   except
     on E: Exception do
     begin
@@ -3251,45 +3259,50 @@ var
   i, num, bibleTabsCount, curItem: integer;
   s: string;
   saveOnChange: TTabChangeEvent;
+  moduleView: IModuleView;
 begin
-  bibleTabsCount := mModuleView.BibleTabs.Tabs.Count - 1;
-  curItem := mModuleView.BibleTabs.TabIndex;
-  if bibleTabsCount > 9 then
-    bibleTabsCount := 9
-  else
-    Dec(bibleTabsCount);
-  for i := 0 to bibleTabsCount do
+  for moduleView in mModuleViews do
   begin
-    s := mModuleView.BibleTabs.Tabs[i];
+    bibleTabsCount := moduleView.BibleTabs.Tabs.Count - 1;
+    curItem := moduleView.BibleTabs.TabIndex;
+    if bibleTabsCount > 9 then
+      bibleTabsCount := 9
+    else
+      Dec(bibleTabsCount);
+    for i := 0 to bibleTabsCount do
+    begin
+      s := moduleView.BibleTabs.Tabs[i];
+      if showHints then
+      begin
+        if (i < 9) then
+          num := i + 1
+        else
+          num := 0;
+        moduleView.BibleTabs.Tabs[i] := Format('%d-%s', [num, s]);
+      end
+      else
+      begin
+        if (s[2] <> '-') or (not CharInSet(Char(s[1]), ['0' .. '9'])) then
+          break;
+        moduleView.BibleTabs.Tabs[i] := Copy(s, 3, $FFFFFF);
+      end;
+    end; // for
+
     if showHints then
     begin
-      if (i < 9) then
-        num := i + 1
-      else
-        num := 0;
-      mModuleView.BibleTabs.Tabs[i] := Format('%d-%s', [num, s]);
+      moduleView.BibleTabs.FirstIndex := 0;
+      moduleView.BibleTabs.TabIndex := curItem;
     end
     else
     begin
-      if (s[2] <> '-') or (not CharInSet(Char(s[1]), ['0' .. '9'])) then
-        break;
-      mModuleView.BibleTabs.Tabs[i] := Copy(s, 3, $FFFFFF);
+      saveOnChange := moduleView.BibleTabs.OnChange;
+      moduleView.BibleTabs.OnChange := nil;
+      if curItem > 0 then
+        moduleView.BibleTabs.TabIndex := curItem - 1;
+      moduleView.BibleTabs.TabIndex := curItem;
+      moduleView.BibleTabs.OnChange := saveOnChange;
     end;
-  end; // for
 
-  if showHints then
-  begin
-    mModuleView.BibleTabs.FirstIndex := 0;
-    mModuleView.BibleTabs.TabIndex := curItem;
-  end
-  else
-  begin
-    saveOnChange := mModuleView.BibleTabs.OnChange;
-    mModuleView.BibleTabs.OnChange := nil;
-    if curItem > 0 then
-      mModuleView.BibleTabs.TabIndex := curItem - 1;
-    mModuleView.BibleTabs.TabIndex := curItem;
-    mModuleView.BibleTabs.OnChange := saveOnChange;
   end;
 
   mBibleTabsInCtrlKeyDownState := showHints;
@@ -3850,7 +3863,7 @@ begin
       end;
     end;
     if (not wasFile) then
-      AdjustBibleTabs();
+      AdjustBibleTabs(mModuleView);
     if lbHistory.ItemIndex <> -1 then
     begin
       GetModuleView(self).tbtnBack.Enabled := lbHistory.ItemIndex < lbHistory.Items.Count - 1;
@@ -4219,17 +4232,16 @@ begin
 
 end;
 
-function TMainForm.FavouriteTabFromModEntry(const me: TModuleEntry): integer;
+function TMainForm.FavouriteTabFromModEntry(moduleView: IModuleView; const me: TModuleEntry): integer;
 var
   i, cnt: integer;
-
 begin
   Result := -1;
-  cnt := mModuleView.BibleTabs.Tabs.Count - 1;
+  cnt := moduleView.BibleTabs.Tabs.Count - 1;
   i := 0;
   while i <= cnt do
   begin
-    if mModuleView.BibleTabs.Tabs.Objects[i] = me then
+    if moduleView.BibleTabs.Tabs.Objects[i] = me then
       break;
     inc(i);
   end;
@@ -4873,6 +4885,7 @@ function TMainForm.InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
   cnt, i: integer;
+  moduleView: IModuleView;
 begin
   Result := -1;
   try
@@ -4896,10 +4909,13 @@ begin
     hotMenuItem.OnClick := HotKeyClick;
 
     favouriteMenuItem.Insert(ix + i, hotMenuItem);
-    mModuleView.BibleTabs.Tabs.Insert(ix, newMe.VisualSignature());
-    mModuleView.BibleTabs.Tabs.Objects[ix] := newMe;
-    Result := ix;
-    mModuleView.BibleTabs.Repaint();
+    for moduleView in mModuleViews do
+    begin
+      moduleView.BibleTabs.Tabs.Insert(ix, newMe.VisualSignature());
+      moduleView.BibleTabs.Tabs.Objects[ix] := newMe;
+      Result := ix;
+      moduleView.BibleTabs.Repaint();
+    end;
   except
     on E: Exception do
     begin
@@ -6400,7 +6416,7 @@ end;
 procedure TMainForm.DeleteHotModule(moduleTabIx: integer);
 var
   hotMenuItem, favouriteMenuItem: TMenuItem;
-
+  moduleView: IModuleView;
 begin
   try
     hotMenuItem := mModuleView.BibleTabs.Tabs.Objects[moduleTabIx] as TMenuItem;
@@ -6409,9 +6425,14 @@ begin
     if not Assigned(favouriteMenuItem) then
       Exit;
     favouriteMenuItem.Remove(hotMenuItem);
-    mModuleView.BibleTabs.Tabs.Delete(moduleTabIx);
+
+    for moduleView in mModuleViews do
+    begin
+      moduleView.BibleTabs.Tabs.Delete(moduleTabIx);
+    end;
+
     hotMenuItem.Free();
-    AdjustBibleTabs(MainBook.ShortName);
+    AdjustBibleTabs(moduleView, MainBook.ShortName);
     SetFavouritesShortcuts();
   except
     on E: Exception do
@@ -6954,33 +6975,34 @@ begin
   //
 end;
 
-procedure TMainForm.AdjustBibleTabs(awsNewModuleName: string = '');
+procedure TMainForm.AdjustBibleTabs(moduleView: IModuleView; awsNewModuleName: string = '');
 var
   i, tabCount, tabIx, offset: integer;
   ws: string;
 begin
+
   if Length(awsNewModuleName) = 0 then
     awsNewModuleName := MainBook.ShortName;
   offset := ord(mBibleTabsInCtrlKeyDownState) shl 1;
-  tabCount := mModuleView.BibleTabs.Tabs.Count - 1;
+  tabCount := moduleView.BibleTabs.Tabs.Count - 1;
   tabIx := -1;
   for i := 0 to tabCount do
   begin
-    ws := mModuleView.BibleTabs.Tabs.Strings[i];
+    ws := moduleView.BibleTabs.Tabs.Strings[i];
     if CompareString(LOCALE_SYSTEM_DEFAULT, 0, PChar(Pointer(awsNewModuleName)), -1, PChar(Pointer(ws)) + offset,-1) = CSTR_EQUAL then
     begin
       tabIx := i;
       break;
     end;
   end;
-  mModuleView.BibleTabs.OnChange := nil;
+  moduleView.BibleTabs.OnChange := nil;
   if tabIx >= 0 then
-    mModuleView.BibleTabs.TabIndex := tabIx
+    moduleView.BibleTabs.TabIndex := tabIx
   else
-    mModuleView.BibleTabs.TabIndex := mModuleView.BibleTabs.Tabs.Count - 1;
+    moduleView.BibleTabs.TabIndex := moduleView.BibleTabs.Tabs.Count - 1;
 
   // not a favorite book
-  mModuleView.BibleTabs.OnChange := GetModuleView(self).dtsBibleChange;
+  moduleView.BibleTabs.OnChange := (moduleView as TModuleForm).dtsBibleChange;
 end;
 
 procedure TMainForm.AppOnHintHandler(Sender: TObject);
@@ -7525,13 +7547,22 @@ procedure TMainForm.tbtnNewFormClick(Sender: TObject);
 var
   moduleForm: TModuleForm;
   currentTabInfo: TViewTabInfo;
+  I: Integer;
 begin
   currentTabInfo := mModuleView.GetActiveTabInfo();
 
   moduleForm := CreateModuleView() as TModuleForm;
+
+  moduleForm.BibleTabs.Tabs.Clear();
+  moduleForm.BibleTabs.Tabs.Add('***');
+  for I := 0 to mFavorites.mModuleEntries.Count - 1 do
+  begin
+    moduleForm.BibleTabs.Tabs.Insert(I, mFavorites.mModuleEntries[I].VisualSignature());
+    moduleForm.BibleTabs.Tabs.Objects[I] := mFavorites.mModuleEntries[I];
+  end;
+
   moduleForm.ManualDock(pnlModules);
   moduleForm.Show;
-
   mModuleView := moduleForm;
 
   Windows.SetFocus(moduleForm.Handle);
@@ -7679,7 +7710,7 @@ begin
       Exit;
 
     MainBook := tabInfo.Bible;
-    AdjustBibleTabs(MainBook.ShortName);
+    AdjustBibleTabs(mModuleView, MainBook.ShortName);
     StrongNumbersOn := tabInfo[vtisShowStrongs];
     miStrong.Checked := tabInfo[vtisShowStrongs];
     GetModuleView(self).tbtnStrongNumbers.Down := tabInfo[vtisShowStrongs];
@@ -9426,6 +9457,7 @@ function TMainForm.DeleteHotModule(const me: TModuleEntry): Boolean;
 var
   hotMenuItem, favouriteMenuItem: TMenuItem;
   i: integer;
+  moduleView: IModuleView;
 begin
   try
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
@@ -9441,10 +9473,13 @@ begin
       BqShowException(E);
   end;
   try
-    i := FavouriteTabFromModEntry(me);
-    if i >= 0 then
-      mModuleView.BibleTabs.Tabs.Delete(i);
-    AdjustBibleTabs(MainBook.ShortName);
+    for moduleView in mModuleViews do
+    begin
+      i := FavouriteTabFromModEntry(moduleView, me);
+      if i >= 0 then
+        moduleView.BibleTabs.Tabs.Delete(i);
+      AdjustBibleTabs(moduleView, MainBook.ShortName);
+    end;
   except
     on E: Exception do
       BqShowException(E);
@@ -9963,7 +9998,7 @@ begin
   end;
 
   SetFavouritesShortcuts();
-  AdjustBibleTabs(MainBook.ShortName);
+  AdjustBibleTabs(mModuleView, MainBook.ShortName);
 
   CopyOptionsCopyVerseNumbersChecked := ConfigForm.chkCopyVerseNumbers.Checked;
   CopyOptionsCopyFontParamsChecked := ConfigForm.chkCopyFontParams.Checked;
@@ -10360,6 +10395,7 @@ function TMainForm.ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
 var
   hotMi: TMenuItem;
   ix: integer;
+  moduleView: IModuleView;
 begin
   Result := true;
   hotMi := FavouriteItemFromModEntry(oldMe);
@@ -10368,13 +10404,16 @@ begin
     hotMi.Caption := newMe.mFullName;
     hotMi.tag := integer(newMe);
   end;
-  ix := FavouriteTabFromModEntry(oldMe);
-  if ix >= 0 then
-  begin
-    mModuleView.BibleTabs.Tabs[ix] := newMe.VisualSignature();
-    mModuleView.BibleTabs.Tabs.Objects[ix] := newMe;
-  end;
 
+  for moduleView in mModuleViews do
+  begin
+    ix := FavouriteTabFromModEntry(moduleView, oldMe);
+    if ix >= 0 then
+    begin
+      moduleView.BibleTabs.Tabs[ix] := newMe.VisualSignature();
+      moduleView.BibleTabs.Tabs.Objects[ix] := newMe;
+    end;
+  end;
 end;
 
 initialization
