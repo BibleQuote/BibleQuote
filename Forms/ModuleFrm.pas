@@ -716,7 +716,7 @@ begin
     begin
       me := TModuleEntry(mMainView.mModules.Items[modIx]);
       if mMainView.mFavorites.AddModule(me) then
-        mMainView.AdjustBibleTabs();
+        mMainView.AdjustBibleTabs(self);
     end;
     Exit;
   end;
@@ -762,7 +762,7 @@ begin
         begin
           me := TModuleEntry(mMainView.mModules.Items[modIx]);
           mMainView.mFavorites.AddModule(me);
-          mMainView.AdjustBibleTabs(mMainView.MainBook.ShortName);
+          mMainView.AdjustBibleTabs(self, mMainView.MainBook.ShortName);
         end;
         Exit;
       end;
@@ -776,7 +776,7 @@ begin
         Exit;
 
       mMainView.mFavorites.ReplaceModule(TModuleEntry(dtsBible.Tabs.Objects[TabIndex]), me);
-      mMainView.AdjustBibleTabs(mMainView.MainBook.ShortName);
+      mMainView.AdjustBibleTabs(self, mMainView.MainBook.ShortName);
     except
     end;
   end
@@ -794,7 +794,7 @@ begin
 
     mMainView.mFavorites.MoveItem(me, TabIndex);
 
-    mMainView.AdjustBibleTabs(mMainView.MainBook.ShortName);
+    mMainView.AdjustBibleTabs(self, mMainView.MainBook.ShortName);
     mMainView.SetFavouritesShortcuts();
   end;
 end;
