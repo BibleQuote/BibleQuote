@@ -1019,6 +1019,7 @@ var
   h: Integer;
 begin
   moduleForm := TModuleForm.Create(self, self);
+  TranslateForm(moduleForm);
 
   with moduleForm.Browser do
   begin
@@ -2998,6 +2999,7 @@ var
   fnt: TFont;
   locDirectory: string;
   locFilePath: string;
+  moduleView: IModuleView;
 begin
   result := false;
 
@@ -3026,6 +3028,12 @@ begin
   TranslateForm(MyLibraryForm);
   TranslateForm(ExceptionForm);
   TranslateForm(AboutForm);
+
+  for moduleView in mModuleViews do
+  begin
+    if (moduleView is TModuleForm) then
+      TranslateForm(moduleView as TModuleForm);
+  end;
 
   for i := 0 to miLanguage.Count - 1 do
     with miLanguage.Items[i] do
