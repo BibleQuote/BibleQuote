@@ -1462,8 +1462,7 @@ begin
     end
   end;
 
-  function TCachedModules.IndexOf(const name: string;
-    fromix: integer): integer;
+  function TCachedModules.IndexOf(const name: string; fromix: integer): integer;
   var
     cnt, I: integer;
   begin

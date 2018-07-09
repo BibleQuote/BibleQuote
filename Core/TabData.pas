@@ -143,6 +143,9 @@ end;
 
 procedure TViewTabInfo.RestoreBrowserState(const aHtmlViewer: THTMLViewer);
 begin
+  if mBrowserState = nil then
+    Exit;
+
   if (mBrowserState.SelStart >= 0) then
   begin
     aHtmlViewer.SelStart := mBrowserState.SelStart;
