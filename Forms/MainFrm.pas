@@ -1075,13 +1075,15 @@ end;
 procedure TMainForm.OnModuleFormDeactivate(Sender: TObject);
 var
   moduleForm: TModuleForm;
+  tabInfo: TViewTabInfo;
 begin
   moduleForm := Sender as TModuleForm;
   if Assigned(moduleForm) then
   begin
       // save active tab state
-      moduleForm.GetActiveTabInfo()
-        .SaveBrowserState(moduleForm.bwrHtml);
+      tabInfo := moduleForm.GetActiveTabInfo();
+      if Assigned(tabInfo) then
+        tabInfo.SaveBrowserState(moduleForm.bwrHtml);
   end;
 end;
 
@@ -1105,6 +1107,7 @@ end;
 procedure TMainForm.OnModuleFormActivate(Sender: TObject);
 var
   moduleForm: TModuleForm;
+  tabInfo: TViewTabInfo;
 begin
   moduleForm := Sender as TModuleForm;
 
@@ -1118,8 +1121,9 @@ begin
       UpdateUI();
 
       // restore active tab state
-      moduleForm.GetActiveTabInfo()
-        .RestoreBrowserState(moduleForm.bwrHtml);
+      tabInfo := moduleForm.GetActiveTabInfo();
+      if Assigned(tabInfo) then
+        tabInfo.RestoreBrowserState(moduleForm.bwrHtml);
     end;
   end;
 end;
@@ -1814,6 +1818,7 @@ var
   tabSettings: TTabSettings;
   moduleForm: TModuleForm;
   moduleView: IModuleView;
+  fileStream: TFileStream;
 begin
   try
     viewConfig := TViewConfig.Create;
@@ -1853,6 +1858,10 @@ begin
 
     viewConfig.Save(UserDir + 'viewtabs.json');
 
+    fileStream := TFileStream.Create(UserDir + 'viewforms.dat', fmCreate);
+    pnlModules.DockManager.SaveToStream(fileStream);
+    fileStream.Free;
+
   except
     on E: Exception do
       BqShowException(E)
@@ -1862,6 +1871,7 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 var
   i: integer;
+  fileStream: TFileStream;
 begin
 
   mBqEngine := TBibleQuoteEngine.Create();
@@ -1986,6 +1996,14 @@ begin
   MainMenuInit(false);
 
   LoadTabsFromFile(UserDir + 'viewtabs.json');
+
+  if (TFile.Exists(UserDir + 'viewforms.dat')) then
+  begin
+    fileStream := TFileStream.Create(UserDir + 'viewforms.dat', fmOpenRead);
+    pnlModules.DockManager.LoadFromStream(fileStream);
+    fileStream.Free;
+  end;
+
   mTranslated := ApplyInitialTranslation();
   LoadHotModulesConfig();
 
@@ -4713,6 +4731,8 @@ begin
 end;
 
 procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  moduleView: IModuleView;
 
   procedure _finalizeViewTabs();
   var
@@ -4731,6 +4751,13 @@ begin
 
   writeln(NowDateTimeString(), 'FormClose entered');
   SaveConfiguration;
+
+  for moduleView in mModuleViews do
+  begin
+    if (moduleView is TModuleForm) then
+      (moduleView as TModuleForm).Close;
+  end;
+
   Flush(Output);
   mBqEngine.Finalize();
   mBqEngine := nil;
