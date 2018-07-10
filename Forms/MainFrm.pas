@@ -739,7 +739,7 @@ type
     procedure FillLanguageMenu;
     function GetLocalizationDirectory(): string;
     function ApplyInitialTranslation(): Boolean;
-    procedure TranslateForm(form: TForm);
+    procedure TranslateForm(form: TForm; fname: string = '');
     procedure ToggleQuickSearchPanel(const enable: Boolean);
     procedure SearchForward();
     procedure SearchBackward();
@@ -1019,7 +1019,7 @@ var
   h: Integer;
 begin
   moduleForm := TModuleForm.Create(self, self);
-  TranslateForm(moduleForm);
+  TranslateForm(moduleForm, 'ModuleForm');
 
   with moduleForm.Browser do
   begin
@@ -2004,11 +2004,11 @@ begin
     fileStream.Free;
   end;
 
-  mTranslated := ApplyInitialTranslation();
   LoadHotModulesConfig();
 
   StrongsDir := C_StrongsSubDirectory;
   LoadFontFromFolder(TPath.Combine(ModulesDirectory, StrongsDir));
+  mTranslated := ApplyInitialTranslation();
 
   StrongHebrew := TDict.Create;
   StrongGreek := TDict.Create;
@@ -3050,7 +3050,7 @@ begin
   for moduleView in mModuleViews do
   begin
     if (moduleView is TModuleForm) then
-      TranslateForm(moduleView as TModuleForm);
+      TranslateForm(moduleView as TModuleForm, 'ModuleForm');
   end;
 
   for i := 0 to miLanguage.Count - 1 do
@@ -7308,11 +7308,11 @@ begin
 
 end;
 
-procedure TMainForm.TranslateForm(form: TForm);
+procedure TMainForm.TranslateForm(form: TForm; fname: string = '');
 begin
   try
     if Assigned(form) then
-      Lang.TranslateForm(form);
+      Lang.TranslateForm(form, fname);
   except
     on E: Exception do
     begin

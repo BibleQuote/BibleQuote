@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 406
+  ClientHeight = 386
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 34
     Width = 8
-    Height = 351
+    Height = 331
     AutoSnap = False
     MinSize = 100
     ExplicitTop = 24
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 298
     Top = 34
     Width = 583
-    Height = 351
+    Height = 331
     Align = alClient
     DockSite = True
     TabOrder = 0
@@ -92,9 +92,9 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 290
-    Height = 351
+    Height = 331
     Hint = 'Memos'
-    ActivePage = tbStrong
+    ActivePage = tbGo
     Align = alLeft
     Images = ilImages
     TabOrder = 2
@@ -167,7 +167,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 67
+        Height = 47
         ActivePage = tbHistory
         Align = alClient
         TabOrder = 1
@@ -177,7 +177,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 38
+            Height = 18
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -209,7 +209,7 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = -72
+            Top = -92
             Width = 274
             Height = 110
             Align = alBottom
@@ -240,7 +240,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 143
+        Height = 123
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -398,7 +398,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 88
+        Height = 68
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -524,7 +524,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 109
+        Height = 89
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -607,7 +607,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 292
+        Height = 272
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -690,7 +690,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 25
         Width = 282
-        Height = 268
+        Height = 248
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -705,7 +705,7 @@ object MainForm: TMainForm
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 293
+        Top = 273
         Width = 282
         Height = 29
         Align = alBottom
@@ -814,7 +814,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 282
-        Height = 322
+        Height = 302
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -863,9 +863,9 @@ object MainForm: TMainForm
       end
       object vdtTagsVerses: TVirtualDrawTree
         Left = 0
-        Top = 53
+        Top = 52
         Width = 282
-        Height = 269
+        Height = 250
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -1199,7 +1199,7 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 385
+    Top = 365
     Width = 881
     Height = 21
     Align = alBottom
@@ -1569,7 +1569,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800BC0310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800C00310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3308,7 +3308,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01010F00E8017C0118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010F00E801800118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
       000000000000000000000000000000000000000000000000000000000000B9B8
       B3008581790066615700655F5500827F7600B9B7B20000000000000000000000
