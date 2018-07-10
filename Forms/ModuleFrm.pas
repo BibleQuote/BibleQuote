@@ -964,11 +964,10 @@ begin
           end;
 
         finally
-          pgcViewTabsChange(nil);
+          pgcViewTabs.TabIndex := 0;
+          UpdateViewTabs();
           pgcViewTabs.Repaint();
         end;
-
-        pgcViewTabs.TabIndex := 0;
       finally
         pgcViewTabs.tag := -1;
       end;
@@ -1164,6 +1163,9 @@ var
 begin
   try
     tabInfo := GetActiveTabInfo();
+    if not Assigned(tabInfo) then
+      Exit;
+
     try
       bwrHtml.NoScollJump := true;
       mMainView.UpdateUI();
