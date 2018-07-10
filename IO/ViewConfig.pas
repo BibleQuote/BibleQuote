@@ -25,9 +25,19 @@ type
   private
     FTabSettingsList: TList<TTabSettings>;
     FActive: boolean;
+    FViewIndex: integer;
+    FDocked: boolean;
+    FLeft, FTop: integer;
+    FWidth, FHeight: integer;
   public
     property TabSettingsList: TList<TTabSettings> read FTabSettingsList write FTabSettingsList;
     property Active: boolean read FActive write FActive;
+    property ViewIndex: integer read FViewIndex write FViewIndex;
+    property Docked: boolean read FDocked write FDocked;
+    property Left: integer read FLeft write FLeft;
+    property Top: integer read FTop write FTop;
+    property Width: integer read FWidth write FWidth;
+    property Height: integer read FHeight write FHeight;
     constructor Create();
   end;
 
@@ -35,8 +45,10 @@ type
   TViewConfig = class
   private
     FModuleViews: TList<TModuleViewSettings>;
+    FLastViewIndex: integer;
   public
     property ModuleViews: TList<TModuleViewSettings> read FModuleViews write FModuleViews;
+    property LastViewIndex: integer read FLastViewIndex write FLastViewIndex;
 
     constructor Create();
 
@@ -48,13 +60,14 @@ implementation
 
 constructor TModuleViewSettings.Create();
 begin
-  FTabSettingsList := TList<TTabSettings>.Create();
-  FActive := false;
+  TabSettingsList := TList<TTabSettings>.Create();
+  Active := false;
 end;
 
 constructor TViewConfig.Create();
 begin
   ModuleViews := TList<TModuleViewSettings>.Create();
+  LastViewIndex := 1;
 end;
 
 class function TViewConfig.Load(fileName: string): TViewConfig;
