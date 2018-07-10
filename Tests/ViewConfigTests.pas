@@ -2,7 +2,7 @@ unit ViewConfigTests;
 
 interface
 uses
-  DUnitX.TestFramework, Classes, ViewConfig, XmlSerial, SysUtils, RegularExpressions,
+  DUnitX.TestFramework, Classes, ViewConfig, SysUtils, RegularExpressions,
   Rest.Json, IOUtils;
 
 type
