@@ -22,7 +22,6 @@ const
 type
   TModuleForm = class(TForm, IModuleView)
     ilImages: TImageList;
-    ilPictures24: TImageList;
     pnlMain: TPanel;
     pgcViewTabs: TClosableTabControl;
     pnlMainView: TPanel;
