@@ -140,6 +140,7 @@ type
   private
     { Private declarations }
     mMainView: TMainForm;
+    mViewIndex: integer;
   public
     { Public declarations }
 
@@ -157,11 +158,16 @@ type
     function GetBrowser: THTMLViewer;
     function GetViewTabs: TClosableTabControl;
     function GetBibleTabs: TDockTabSet;
+    function GetViewIndex: integer;
+
+    // setters
+    procedure SetViewIndex(index: integer);
 
     // properties
     property ViewTabs: TClosableTabControl read GetViewTabs;
     property Browser: THTMLViewer read GetBrowser;
     property BibleTabs: TDockTabSet read GetBibleTabs;
+    property ViewIndex: integer read GetViewIndex write SetViewIndex;
   end;
 
 implementation
@@ -181,6 +187,17 @@ end;
 function TModuleForm.GetBibleTabs(): TDockTabSet;
 begin
   Result := dtsBible;
+end;
+
+function TModuleForm.GetViewIndex(): integer;
+begin
+  Result := mViewIndex;
+end;
+
+procedure TModuleForm.SetViewIndex(index: integer);
+begin
+  mViewIndex := index;
+  Name := 'ModuleForm_' + IntToStr(index);
 end;
 
 constructor TModuleForm.Create(AOwner: TComponent; mainView: TMainForm);
