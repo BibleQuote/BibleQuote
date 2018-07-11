@@ -439,8 +439,9 @@ type
       const SearchText: string;
       var Result: integer);
 
-    function CreateModuleView(index: integer): IModuleView;
+    function CreateModuleView(viewName: string): IModuleView;
     procedure CreateInitialModuleView();
+    function GenerateViewModuleViewName(): string;
     procedure OnModuleFormDeactivate(Sender: TObject);
     procedure OnModuleFormActivate(Sender: TObject);
     procedure OnModuleFormClose(Sender: TObject; var Action: TCloseAction);
@@ -505,7 +506,6 @@ type
 
     mModuleView: IModuleView;
     mModuleViews: TList<IModuleView>;
-    mModuleViewLastIndex: integer;
 
     // OLD VARABLES START
     mModules: TCachedModules;
@@ -1014,13 +1014,13 @@ begin
   end;
 end;
 
-function TMainForm.CreateModuleView(index: integer): IModuleView;
+function TMainForm.CreateModuleView(viewName: string): IModuleView;
 var
   moduleForm: TModuleForm;
   h: Integer;
 begin
   moduleForm := TModuleForm.Create(self, self);
-  moduleForm.SetViewIndex(index);
+  moduleForm.SetViewName(viewName);
 
   TranslateForm(moduleForm, 'ModuleForm');
 
@@ -1059,12 +1059,22 @@ begin
   Result := moduleForm;
 end;
 
+function TMainForm.GenerateViewModuleViewName(): string;
+var guid: TGUID;
+begin
+  CreateGUID(guid);
+  Result := 'ModuleForm_' + Format('%0.8X%0.4X%0.4X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X',
+       [guid.D1, guid.D2, guid.D3,
+       guid.D4[0], guid.D4[1], guid.D4[2], guid.D4[3],
+       guid.D4[4], guid.D4[5], guid.D4[6], guid.D4[7]]);
+end;
+
 procedure TMainForm.CreateInitialModuleView();
 var
   moduleForm: TModuleForm;
   tabInfo: TViewTabInfo;
 begin
-  moduleForm := CreateModuleView(mModuleViewLastIndex) as TModuleForm;
+  moduleForm := CreateModuleView(GenerateViewModuleViewName()) as TModuleForm;
 
   tabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', DefaultViewTabState());
   moduleForm.ViewTabs.Tabs.AddObject(MainBook.Name, tabInfo);
@@ -1449,7 +1459,6 @@ begin
 
     viewConfig := TViewConfig.Load(path);
     isFirstModuleView := true;
-    mModuleViewLastIndex := viewConfig.LastViewIndex;
 
     for moduleViewSettings in viewConfig.ModuleViews do
     begin
@@ -1459,11 +1468,11 @@ begin
 
       if (not isFirstModuleView) then
       begin
-        moduleForm := CreateModuleView(moduleViewSettings.ViewIndex) as TModuleForm;
+        moduleForm := CreateModuleView(moduleViewSettings.ViewName) as TModuleForm;
       end
       else
       begin
-        moduleForm := CreateModuleView(moduleViewSettings.ViewIndex) as TModuleForm;
+        moduleForm := CreateModuleView(moduleViewSettings.ViewName) as TModuleForm;
         initTabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', DefaultViewTabState());
         moduleForm.ViewTabs.Tabs.AddObject(MainBook.Name, initTabInfo);
       end;
@@ -1843,7 +1852,6 @@ var
 begin
   try
     viewConfig := TViewConfig.Create;
-    viewConfig.LastViewIndex := mModuleViewLastIndex;
     for moduleView in mModuleViews do
     begin
       moduleForm := moduleView as TModuleForm;
@@ -1854,7 +1862,7 @@ begin
       if (moduleView = mModuleView) then
         moduleViewSettings.Active := true;
 
-      moduleViewSettings.ViewIndex := moduleForm.ViewIndex;
+      moduleViewSettings.ViewName := moduleForm.ViewName;
       moduleViewSettings.Docked := not moduleForm.Floating;
       if not (moduleViewSettings.Docked) then
       begin
@@ -1914,7 +1922,6 @@ begin
 
   MainFormInitialized := false; // prohibit re-entry into FormShow
   mModuleViews := TList<IModuleView>.Create;
-  mModuleViewLastIndex := 1;
 
   CheckModuleInstall();
 
@@ -7622,8 +7629,7 @@ var
 begin
   currentTabInfo := mModuleView.GetActiveTabInfo();
 
-  inc(mModuleViewLastIndex);
-  moduleForm := CreateModuleView(mModuleViewLastIndex) as TModuleForm;
+  moduleForm := CreateModuleView(GenerateViewModuleViewName()) as TModuleForm;
 
   moduleForm.BibleTabs.Tabs.Clear();
   moduleForm.BibleTabs.Tabs.Add('***');
