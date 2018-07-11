@@ -605,8 +605,8 @@ type
       state: TViewTabInfoState;
       visual: Boolean);
 
-    procedure SaveTabsToFile(path: string);
-    procedure LoadTabsFromFile(path: string);
+    procedure SaveModuleViews();
+    procedure LoadModuleViews();
 
     function NewViewTab(
       const command: string;
@@ -1434,7 +1434,7 @@ begin
     Include(Result, vtisShowNotes);
 end;
 
-procedure TMainForm.LoadTabsFromFile(path: string);
+procedure TMainForm.LoadModuleViews();
 var
   tabIx, i, activeTabIx: integer;
   strongNotesCode: UInt64;
@@ -1447,17 +1447,22 @@ var
   moduleViewSettings: TModuleViewSettings;
   isFirstModuleView: boolean;
   moduleForm: TModuleForm;
+  fileStream: TFileStream;
+  tabsConfig, viewsConfig: string;
 begin
+  tabsConfig := UserDir + 'viewtabs.json';
+  viewsConfig := UserDir + 'viewforms.dat';
+
   firstTabInitialized := false;
   try
-    if (not FileExists(path)) then
+    if (not FileExists(tabsConfig)) then
     begin
       CreateInitialModuleView();
       SetFirstTabInitialLocation(LastAddress, '', '', DefaultViewTabState(), true);
       Exit;
     end;
 
-    viewConfig := TViewConfig.Load(path);
+    viewConfig := TViewConfig.Load(tabsConfig);
     isFirstModuleView := true;
 
     for moduleViewSettings in viewConfig.ModuleViews do
@@ -1529,8 +1534,17 @@ begin
 
       mModuleView.ViewTabs.TabIndex := activeTabIx;
       mModuleView.UpdateViewTabs();
+
       isFirstModuleView := false;
     end;
+
+    if (firstTabInitialized and TFile.Exists(viewsConfig)) then
+    begin
+        fileStream := TFileStream.Create(viewsConfig, fmOpenRead);
+        pnlModules.DockManager.LoadFromStream(fileStream);
+        fileStream.Free;
+    end;
+
   except
     on E: Exception do
       BqShowException(E);
@@ -1678,7 +1692,7 @@ begin
     UserDir := CreateAndGetConfigFolder;
     writeln(NowDateTimeString(), ':SaveConfiguration, userdir:', UserDir);
 
-    SaveTabsToFile(UserDir + 'viewtabs.json');
+    SaveModuleViews();
     try
       mModuleLoader.SaveCachedModules();
     except
@@ -1838,7 +1852,7 @@ begin
   inc(Result, 1000 * ord(ViewTabInfo[vtisFuzzyResolveLinks]));
 end;
 
-procedure TMainForm.SaveTabsToFile(path: string);
+procedure TMainForm.SaveModuleViews();
 var
   tabCount, i: integer;
   tabInfo, activeTabInfo: TViewTabInfo;
@@ -1911,7 +1925,6 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 var
   i: integer;
-  fileStream: TFileStream;
 begin
 
   mBqEngine := TBibleQuoteEngine.Create();
@@ -2036,15 +2049,7 @@ begin
 
   MainMenuInit(false);
 
-  LoadTabsFromFile(UserDir + 'viewtabs.json');
-
-  if (TFile.Exists(UserDir + 'viewforms.dat')) then
-  begin
-    fileStream := TFileStream.Create(UserDir + 'viewforms.dat', fmOpenRead);
-    pnlModules.DockManager.LoadFromStream(fileStream);
-    fileStream.Free;
-  end;
-
+  LoadModuleViews();
   LoadHotModulesConfig();
 
   StrongsDir := C_StrongsSubDirectory;
