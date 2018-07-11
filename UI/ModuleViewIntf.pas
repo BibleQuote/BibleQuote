@@ -20,16 +20,16 @@ interface
     function GetBrowser: THTMLViewer;
     function GetViewTabs: TClosableTabControl;
     function GetBibleTabs: TDockTabSet;
-    function GetViewIndex: integer;
+    function GetViewName: string;
 
     // setters
-    procedure SetViewIndex(index: integer);
+    procedure SetViewName(viewName: string);
 
     // properties
     property ViewTabs: TClosableTabControl read GetViewTabs;
     property Browser: THTMLViewer read GetBrowser;
     property BibleTabs: TDockTabSet read GetBibleTabs;
-    property ViewIndex: integer read GetViewIndex write SetViewIndex;
+    property ViewName: string read GetViewName write SetViewName;
   end;
 implementation
 
