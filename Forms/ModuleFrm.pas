@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Tabs, Vcl.DockTabSet, Vcl.ExtCtrls,
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ToolWin, HTMLEmbedInterfaces, Htmlview,
-  bqClosableTabControl, System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, HintTools,
+  System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, HintTools,
   CommandProcessor, BibleQuoteUtils, ShellAPI, System.StrUtils,
   LinksParserIntf, SevenZipHelper, HTMLUn2, ExceptionFrm, InputFrm,
   ShlObj, contnrs, Clipbrd, Bible, Math, StringProcs, ModuleViewIntf, MainFrm,
@@ -79,13 +79,13 @@ type
     procedure pgcViewTabsChange(Sender: TObject);
     procedure pgcViewTabsChanging(Sender: TObject; var AllowChange: Boolean);
     procedure pgcViewTabsContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
-    procedure pgcViewTabsDeleteTab(sender: TClosableTabControl; index: Integer);
+
     procedure pgcViewTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure pgcViewTabsDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
     procedure pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: Integer; var ImageIndex: Integer);
     procedure pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure pgcViewTabsStartDrag(Sender: TObject; var DragObject: TDragObject);
-    procedure pgcViewTabsTabDoubleClick(sender: TClosableTabControl; index: Integer);
+
     procedure miNewViewTabClick(Sender: TObject);
     procedure miCloseViewTabClick(Sender: TObject);
     procedure miCloseAllOtherTabsClick(Sender: TObject);
@@ -812,9 +812,10 @@ end;
 procedure TModuleForm.dtsBibleDragDrop(Sender, Source: TObject; X, Y: Integer);
 var
   TabIndex, sourceTabIx, modIx: integer;
-  ViewTabInfo: TViewTabInfo;
+  viewTabInfo: TViewTabInfo;
   dragDropPoint: TPoint;
   me: TModuleEntry;
+  moduleTabIndex: integer;
 begin
   dragDropPoint.X := X;
   dragDropPoint.Y := Y;
@@ -822,14 +823,21 @@ begin
   if (TabIndex < 0) or (TabIndex >= dtsBible.Tabs.Count) then
     Exit;
 
-  if Source is TClosableTabControl then
+  if Source is TChromeTabs then
   begin
     try
-      ViewTabInfo := TObject((TObject((Source as TClosableTabControl).tag) as TTabSheet).tag) as TViewTabInfo;
+      moduleTabIndex := (Source as TChromeTabs).tag;
+      if (moduleTabIndex < 0) then
+        Exit;
+
+      viewTabInfo := TViewTabInfo((Source as TChromeTabs).Tabs[moduleTabIndex]);
+      if not Assigned(viewTabInfo) then
+        Exit;
+
       if TabIndex = dtsBible.Tabs.Count - 1 then
       begin
         // drop on *** - last tab, adding new tab
-        modIx := mMainView.mModules.FindByFolder(ViewTabInfo.Bible.ShortPath);
+        modIx := mMainView.mModules.FindByFolder(viewTabInfo.Bible.ShortPath);
         if modIx >= 0 then
         begin
           me := TModuleEntry(mMainView.mModules.Items[modIx]);
@@ -839,7 +847,7 @@ begin
         Exit;
       end;
       // replace
-      modIx := mMainView.mModules.FindByFolder(ViewTabInfo.Bible.ShortPath);
+      modIx := mMainView.mModules.FindByFolder(viewTabInfo.Bible.ShortPath);
       if modIx < 0 then
         Exit;
 
@@ -1286,11 +1294,12 @@ begin
   //ctViewTabs.tag := ctViewTabs.IndexOfTabAt(MousePos.X, MousePos.Y);
 end;
 
-procedure TModuleForm.pgcViewTabsDeleteTab(sender: TClosableTabControl; index: Integer);
-begin
-  ctViewTabs.tag := index;
-  CloseCurrentTab();
-end;
+// TODO: fix it
+//procedure TModuleForm.pgcViewTabsDeleteTab(sender: TClosableTabControl; index: Integer);
+//begin
+//  ctViewTabs.tag := index;
+//  CloseCurrentTab();
+//end;
 
 procedure TModuleForm.pgcViewTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
 var
@@ -1357,16 +1366,6 @@ begin
 //      BqShowException(E);
 //    end;
 //  end;
-end;
-
-procedure TModuleForm.pgcViewTabsTabDoubleClick(sender: TClosableTabControl; index: Integer);
-var
-  ti: TViewTabInfo;
-begin
-  ti := TViewTabInfo(ctViewTabs.Tabs[index].Data);
-  if not Assigned(ti) then
-    Exit;
-  mMainView.NewViewTab(ti.Location, ti.SatelliteName, '', ti.State, '', true)
 end;
 
 procedure TModuleForm.pmBrowserPopup(Sender: TObject);

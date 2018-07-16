@@ -16,7 +16,7 @@ uses
   VirtualTrees, ToolWin, StdCtrls, rkGlassButton, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
-  VdtEditlink, bqGradientPanel, bqClosableTabControl, ModuleProcs,
+  VdtEditlink, bqGradientPanel, ModuleProcs,
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
   MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
   TabData, Favorites, ModuleViewIntf, ThinCaptionedDockTree,
