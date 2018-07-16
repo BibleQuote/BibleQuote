@@ -20,7 +20,9 @@ uses
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
   MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
   TabData, Favorites, ModuleViewIntf, ThinCaptionedDockTree,
-  Vcl.CaptionedDockTree, ViewConfig;
+  Vcl.CaptionedDockTree, ViewConfig,
+  ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
+  ChromeTabsLog;
 
 const
 
@@ -1073,11 +1075,15 @@ procedure TMainForm.CreateInitialModuleView();
 var
   moduleForm: TModuleForm;
   tabInfo: TViewTabInfo;
+  newTab: TChromeTab;
 begin
   moduleForm := CreateModuleView(GenerateViewModuleViewName()) as TModuleForm;
 
   tabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', DefaultViewTabState());
-  moduleForm.ViewTabs.Tabs.AddObject(MainBook.Name, tabInfo);
+  newTab := moduleForm.ViewTabs.Tabs.Add;
+
+  newTab.Caption := MainBook.Name;
+  newTab.Data := tabInfo;
 
   moduleForm.ManualDock(pnlModules);
   moduleForm.Show;
@@ -1449,6 +1455,7 @@ var
   moduleForm: TModuleForm;
   fileStream: TFileStream;
   tabsConfig, viewsConfig: string;
+  newTab: TChromeTab;
 begin
   tabsConfig := UserDir + 'viewtabs.json';
   viewsConfig := UserDir + 'viewforms.dat';
@@ -1479,7 +1486,11 @@ begin
       begin
         moduleForm := CreateModuleView(moduleViewSettings.ViewName) as TModuleForm;
         initTabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', DefaultViewTabState());
-        moduleForm.ViewTabs.Tabs.AddObject(MainBook.Name, initTabInfo);
+
+        newTab := moduleForm.ViewTabs.Tabs.Add;
+
+        newTab.Caption := MainBook.Name;
+        newTab.Data := initTabInfo;
       end;
 
       if (moduleViewSettings.Docked) then
@@ -1532,7 +1543,7 @@ begin
       if (activeTabIx < 0) or (activeTabIx >= mModuleView.ViewTabs.Tabs.Count) then
           activeTabIx := 0;
 
-      mModuleView.ViewTabs.TabIndex := activeTabIx;
+      mModuleView.ViewTabs.ActiveTabIndex := activeTabIx;
       mModuleView.UpdateViewTabs();
 
       isFirstModuleView := false;
@@ -1872,7 +1883,7 @@ begin
       moduleViewSettings := TModuleViewSettings.Create;
 
       tabCount := moduleView.ViewTabs.Tabs.Count - 1;
-      activeTabInfo := TViewTabInfo(moduleView.ViewTabs.Tabs.Objects[moduleView.ViewTabs.TabIndex]);
+      activeTabInfo := TViewTabInfo(moduleView.ViewTabs.ActiveTab.Data);
       if (moduleView = mModuleView) then
         moduleViewSettings.Active := true;
 
@@ -1889,7 +1900,7 @@ begin
       for i := 0 to tabCount do
       begin
         try
-          tabInfo := TViewTabInfo(moduleView.ViewTabs.Tabs.Objects[i]);
+          tabInfo := TViewTabInfo(moduleView.ViewTabs.Tabs[i].Data);
           tabSettings := TTabSettings.Create;
 
           if tabInfo = activeTabInfo then
@@ -3426,13 +3437,13 @@ begin
     LastAddress := wsCommand;
 
   ClearVolatileStateData(state);
-  vti := TViewTabInfo(mModuleView.ViewTabs.Tabs.Objects[0]);
+  vti := TViewTabInfo(mModuleView.ViewTabs.Tabs[0].Data);
   vti.SatelliteName := wsSecondaryView;
   vti.State := state;
   vti.Title := Title;
   vti.Location := LastAddress;
-  mModuleView.ViewTabs.Tabs[0] := Title;
-  mModuleView.ViewTabs.Tabs.Objects[0] := vti;
+  mModuleView.ViewTabs.Tabs[0].Caption := Title;
+  mModuleView.ViewTabs.Tabs[0].Data := vti;
   if visual then
   begin
 
@@ -3751,7 +3762,7 @@ begin
         // here we set proper name to tab
         with MainBook, mModuleView.ViewTabs do
         begin
-          if mModuleView.ViewTabs.TabIndex >= 0 then
+          if mModuleView.ViewTabs.ActiveTabIndex >= 0 then
             try
 
               ti := mModuleView.GetActiveTabInfo();
@@ -3767,7 +3778,8 @@ begin
               else
                 ti[vtisHighLightVerses] := false;
               ti.Title := Format('%.6s-%.6s:%d', [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
-              mModuleView.ViewTabs.Tabs[mModuleView.ViewTabs.TabIndex] := ti.Title;
+              //mModuleView.ViewTabs.ActiveTabIndex := mModuleView.ViewTabs.Tabs.Count - 1;
+              mModuleView.ViewTabs.ActiveTab.Caption := ti.Title;
 
             except
               on E: Exception do
@@ -3869,7 +3881,7 @@ begin
 
       ti := mModuleView.GetActiveTabInfo();
       ti.Title := Format('%.12s', [value]);
-      mModuleView.ViewTabs.Tabs[mModuleView.ViewTabs.TabIndex] := ti.Title;
+      mModuleView.ViewTabs.ActiveTab.Caption := ti.Title;
       ti.Location := s;
       ti.LocationType := vtlFile;
 
@@ -3884,7 +3896,7 @@ begin
         mModuleView.Browser.LoadFromFile(mModuleView.Browser.Base + dup);
         ti := mModuleView.GetActiveTabInfo();
         ti.Title := Format('%.12s', [s]);
-        mModuleView.ViewTabs.Tabs[mModuleView.ViewTabs.TabIndex] := ti.Title;
+        mModuleView.ViewTabs.ActiveTab.Caption := ti.Title;
 
         ti.Location := s;
         ti.LocationType := vtlFile;
@@ -4787,7 +4799,7 @@ var
     C := mModuleView.ViewTabs.Tabs.Count - 1;
     for i := 0 to C do
     begin
-      (TObject(mModuleView.ViewTabs.Tabs.Objects[i]) as TViewTabInfo).Free();
+      (TViewTabInfo(mModuleView.ViewTabs.Tabs[i].Data)).Free();
     end;
   end;
 
@@ -5299,10 +5311,10 @@ begin
     for i := 0 to browserCount do
     begin
       try
-        tabInfo := mModuleView.ViewTabs.Tabs.Objects[i] as TViewTabInfo;
+        tabInfo := TViewTabInfo(mModuleView.ViewTabs.Tabs[i].Data);
         with tabInfo do
         begin
-          if i <> mModuleView.ViewTabs.TabIndex then
+          if i <> mModuleView.ViewTabs.ActiveTabIndex then
             StateEntryStatus[vtisPendingReload] := true;
 
           mModuleView.Browser.DefFontName := FontDialog.Font.Name;
@@ -5338,7 +5350,7 @@ begin
   for i := 0 to browserCount do
   begin
     try
-      if i <> mModuleView.ViewTabs.TabIndex then
+      if i <> mModuleView.ViewTabs.ActiveTabIndex then
       begin
         Refresh();
       end;
@@ -5388,10 +5400,10 @@ begin
   for i := 0 to browserCount do
   begin
     try
-      tabInfo := mModuleView.ViewTabs.Tabs.Objects[i] as TViewTabInfo;
+      tabInfo := TViewTabInfo(mModuleView.ViewTabs.Tabs[i].Data);
       with tabInfo do
       begin
-        if i <> mModuleView.ViewTabs.TabIndex then
+        if i <> mModuleView.ViewTabs.ActiveTabIndex then
         begin
           StateEntryStatus[vtisPendingReload] := true;
         end;
@@ -6290,10 +6302,10 @@ begin
   if not MainBook.isBible then
     Exit;
 
-  if (mModuleView.ViewTabs.TabIndex < 0) then
+  if (mModuleView.ViewTabs.ActiveTabIndex < 0) then
     Exit;
 
-  tabInfo := mModuleView.ViewTabs.Tabs.Objects[mModuleView.ViewTabs.TabIndex] as TViewTabInfo;
+  tabInfo := TViewTabInfo(mModuleView.ViewTabs.ActiveTab.Data);
 
   if (not Assigned(tabInfo)) then
     Exit;
@@ -6487,7 +6499,7 @@ begin
   for i := 0 to C do
   begin
     try
-      cti := mModuleView.ViewTabs.Tabs.Objects[i] as TViewTabInfo;
+      cti := TViewTabInfo(mModuleView.ViewTabs.Tabs[i].Data);
       if cti <> ti then
         cti[vtisPendingReload] := true;
     except
@@ -9117,6 +9129,7 @@ var
   curTabInfo, newTabInfo: TViewTabInfo;
   newBible: TBible;
   saveMainBook: TBible;
+  newTab: TChromeTab;
 begin
   newBible := nil;
   saveMainBook := MainBook;
@@ -9128,10 +9141,10 @@ begin
     if not Assigned(newBible) then
       abort;
 
-    if (mModuleView.ViewTabs.TabIndex >= 0) then
+    if (mModuleView.ViewTabs.ActiveTabIndex >= 0) then
     begin
       // save current tab state
-      curTabInfo := mModuleView.ViewTabs.Tabs.Objects[mModuleView.ViewTabs.TabIndex] as TViewTabInfo;
+      curTabInfo := TViewTabInfo(mModuleView.ViewTabs.ActiveTab.Data);
       if (Assigned(curTabInfo)) then
       begin
          curTabInfo.SaveBrowserState(mModuleView.Browser);
@@ -9141,11 +9154,15 @@ begin
     newTabInfo := TViewTabInfo.Create(newBible, command, satellite, Title, state);
 
     MainBook := newBible;
-    mModuleView.ViewTabs.Tabs.AddObject(Title, newTabInfo);
+
+    newTab := mModuleView.ViewTabs.Tabs.Add;
+
+    newTab.Caption := Title;
+    newTab.Data := newTabInfo;
 
     if visual then
     begin
-      mModuleView.ViewTabs.TabIndex := mModuleView.ViewTabs.Tabs.Count - 1;
+      mModuleView.ViewTabs.ActiveTabIndex := mModuleView.ViewTabs.Tabs.Count - 1;
 
       StrongNumbersOn := vtisShowStrongs in state;
       MainBook.RecognizeBibleLinks := vtisResolveLinks in state;
