@@ -472,6 +472,8 @@ type
     procedure bwrSearchHotSpotCovered(Sender: TObject; const SRC: string);
     procedure miCloseTabClick(Sender: TObject);
     procedure tbtnNewFormClick(Sender: TObject);
+  private
+    function AddTabToModuleView(moduleView: IModuleView; newTabInfo: TViewTabInfo; const title: string): TChromeTab;
 
   public
     MainBook: TBible;
@@ -1075,15 +1077,11 @@ procedure TMainForm.CreateInitialModuleView();
 var
   moduleForm: TModuleForm;
   tabInfo: TViewTabInfo;
-  newTab: TChromeTab;
 begin
   moduleForm := CreateModuleView(GenerateViewModuleViewName()) as TModuleForm;
 
   tabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', DefaultViewTabState());
-  newTab := moduleForm.ViewTabs.Tabs.Add;
-
-  newTab.Caption := MainBook.Name;
-  newTab.Data := tabInfo;
+  AddTabToModuleView(moduleForm, tabInfo, MainBook.Name);
 
   moduleForm.ManualDock(pnlModules);
   moduleForm.Show;
@@ -1487,10 +1485,7 @@ begin
         moduleForm := CreateModuleView(moduleViewSettings.ViewName) as TModuleForm;
         initTabInfo := TViewTabInfo.Create(MainBook, '', SatelliteBible, '', DefaultViewTabState());
 
-        newTab := moduleForm.ViewTabs.Tabs.Add;
-
-        newTab.Caption := MainBook.Name;
-        newTab.Data := initTabInfo;
+        AddTabToModuleView(moduleForm, initTabInfo, MainBook.Name);
       end;
 
       if (moduleViewSettings.Docked) then
@@ -7140,6 +7135,17 @@ begin
   Result := DicSelectedItemIndex(pn);
 end;
 
+function TMainForm.AddTabToModuleView(moduleView: IModuleView; newTabInfo: TViewTabInfo; const title: string): TChromeTab;
+var
+  newTab: TChromeTab;
+begin
+  newTab := moduleView.ViewTabs.Tabs.Add;
+  newTab.Caption := title;
+  newTab.Data := newTabInfo;
+
+  Result := newTab;
+end;
+
 procedure TMainForm.GoReference();
   var
   book, chapter, fromverse, toverse: integer;
@@ -9129,7 +9135,6 @@ var
   curTabInfo, newTabInfo: TViewTabInfo;
   newBible: TBible;
   saveMainBook: TBible;
-  newTab: TChromeTab;
 begin
   newBible := nil;
   saveMainBook := MainBook;
@@ -9154,11 +9159,7 @@ begin
     newTabInfo := TViewTabInfo.Create(newBible, command, satellite, Title, state);
 
     MainBook := newBible;
-
-    newTab := mModuleView.ViewTabs.Tabs.Add;
-
-    newTab.Caption := Title;
-    newTab.Data := newTabInfo;
+    AddTabToModuleView(mModuleView, newTabInfo, Title);
 
     if visual then
     begin
@@ -9502,7 +9503,7 @@ end;
 
 procedure TMainForm.miCloseTabClick(Sender: TObject);
 begin
-  mModuleView.CloseCurrentTab();
+  mModuleView.CloseActiveTab();
 end;
 
 procedure TMainForm.miCommentsClick(Sender: TObject);

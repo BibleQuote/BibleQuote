@@ -76,15 +76,6 @@ type
     miMemoCut: TMenuItem;
     miMemoPaste: TMenuItem;
     ctViewTabs: TChromeTabs;
-    procedure pgcViewTabsChange(Sender: TObject);
-    procedure pgcViewTabsChanging(Sender: TObject; var AllowChange: Boolean);
-    procedure pgcViewTabsContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
-
-    procedure pgcViewTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure pgcViewTabsDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
-    procedure pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: Integer; var ImageIndex: Integer);
-    procedure pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure pgcViewTabsStartDrag(Sender: TObject; var DragObject: TDragObject);
 
     procedure miNewViewTabClick(Sender: TObject);
     procedure miCloseViewTabClick(Sender: TObject);
@@ -144,6 +135,11 @@ type
     procedure ctViewTabsButtonAddClick(Sender: TObject; var Handled: Boolean);
     procedure ctViewTabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab; var Close: Boolean);
     procedure ctViewTabsTabDblClick(Sender: TObject; ATab: TChromeTab);
+    procedure ctViewTabsTabDragDropped(Sender: TObject;
+      DragTabObject: IDragTabObject; NewTab: TChromeTab);
+    procedure ctViewTabsTabDragDrop(Sender: TObject; X, Y: Integer;
+      DragTabObject: IDragTabObject; Cancelled: Boolean;
+      var TabDropOptions: TTabDropOptions);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -153,7 +149,7 @@ type
     constructor Create(AOwner: TComponent; mainView: TMainForm); reintroduce;
 
     procedure BrowserHotSpotCovered(viewer: THTMLViewer; src: string);
-    procedure CloseCurrentTab();
+    procedure CloseActiveTab();
     procedure CopyBrowserSelectionToClipboard();
     procedure SetMemosVisible(showMemos: Boolean);
     procedure UpdateViewTabs();
@@ -242,14 +238,14 @@ begin
   ti := TViewTabInfo(sourceTab.Data);
   if not Assigned(ti) then
     Exit;
-  mMainView.NewViewTab(ti.Location, ti.SatelliteName, '', ti.State, '', true)
+  mMainView.NewViewTab(ti.Location, ti.SatelliteName, '', ti.State, '', true);
+  Handled := true;
 end;
 
 procedure TModuleForm.ctViewTabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab; var Close: Boolean);
 begin
-  ctViewTabs.tag := ATab.Index;
   if ctViewTabs.Tabs.Count <= 1 then
-    Close := false;
+    self.Close; // close form when all tabs are closed
 end;
 
 procedure TModuleForm.ctViewTabsTabDblClick(Sender: TObject; ATab: TChromeTab);
@@ -1020,78 +1016,64 @@ begin
       Exit;
     end;
 
-    saveTabIndex := ctViewTabs.tag;
+    saveTabIndex := ctViewTabs.ActiveTabIndex;
     if (saveTabIndex >= 0) and (saveTabIndex < ctViewTabs.Tabs.Count) then
     begin
+      C := ctViewTabs.Tabs.Count - 1;
       try
-        C := ctViewTabs.Tabs.Count - 1;
-        try
-          while C > saveTabIndex do
-          begin
-            curTab := TViewTabInfo(ctViewTabs.Tabs[C].Data);
-            ctViewTabs.Tabs.Delete(C);
-            Dec(C);
-            curTab.Free();
-          end;
-
-          C := 0;
-          while C < saveTabIndex do
-          begin
-            curTab := TViewTabInfo(ctViewTabs.Tabs[0].Data);
-            ctViewTabs.Tabs.Delete(0);
-            Inc(C);
-            curTab.Free();
-          end;
-
-        finally
-          ctViewTabs.ActiveTabIndex := 0;
-          UpdateViewTabs();
-          ctViewTabs.Repaint();
+        while C > saveTabIndex do
+        begin
+          curTab := TViewTabInfo(ctViewTabs.Tabs[C].Data);
+          ctViewTabs.Tabs.Delete(C);
+          Dec(C);
+          curTab.Free();
         end;
-      finally
-        ctViewTabs.tag := -1;
-      end;
 
+        C := 0;
+        while C < saveTabIndex do
+        begin
+          curTab := TViewTabInfo(ctViewTabs.Tabs[0].Data);
+          ctViewTabs.Tabs.Delete(0);
+          Inc(C);
+          curTab.Free();
+        end;
+
+      finally
+        ctViewTabs.ActiveTabIndex := 0;
+        UpdateViewTabs();
+        ctViewTabs.Refresh;
+      end;
     end;
   except
     on E: Exception do
-      BqShowException(E, Format('pgcViewTabs.Tag:%d', [ctViewTabs.tag]));
+      BqShowException(E, Format('ctViewTabs.ActiveTabIndex:%d', [ctViewTabs.ActiveTabIndex]));
   end; // except
 end;
 
-procedure TModuleForm.CloseCurrentTab();
+procedure TModuleForm.CloseActiveTab();
 var
   tabInfo: TViewTabInfo;
   tabIndex: integer;
 begin
-  if ctViewTabs.Tabs.Count > 1 then
+  tabIndex := ctViewTabs.ActiveTabIndex;
+  if (tabIndex >= 0) and (tabIndex < ctViewTabs.Tabs.Count) then
   begin
-    tabIndex := ctViewTabs.tag;
-    if (tabIndex >= 0) and (tabIndex < ctViewTabs.Tabs.Count) then
-    begin
-      // close tab under cursor
-      try
-        tabInfo := TViewTabInfo(ctViewTabs.Tabs[tabIndex].Data);
+    tabInfo := TViewTabInfo(ctViewTabs.Tabs[tabIndex].Data);
 
-        ctViewTabs.Tabs.Delete(tabIndex);
+    ctViewTabs.Tabs.Delete(tabIndex);
 
-        ctViewTabs.ActiveTabIndex := IfThen(tabIndex = ctViewTabs.Tabs.Count, tabIndex - 1, tabIndex);
+    ctViewTabs.ActiveTabIndex := IfThen(tabIndex = ctViewTabs.Tabs.Count, tabIndex - 1, tabIndex);
 
-        pgcViewTabsChange(nil);
-        tabInfo.Free();
-        if ctViewTabs.Tabs.Count <= 1 then
-          ctViewTabs.Repaint();
+    tabInfo.Free();
 
-      except
-        ctViewTabs.tag := -1; // now is done
-      end;
-    end;
+    if ctViewTabs.Tabs.Count = 0 then
+      self.Close; // close form when all tabs are closed
   end;
 end;
 
 procedure TModuleForm.miCloseViewTabClick(Sender: TObject);
 begin
-  CloseCurrentTab;
+  CloseActiveTab;
 end;
 
 procedure TModuleForm.miCompareClick(Sender: TObject);
@@ -1269,103 +1251,52 @@ begin
   end;
 end;
 
-procedure TModuleForm.pgcViewTabsChange(Sender: TObject);
-begin
-  UpdateViewTabs();
-end;
-
-procedure TModuleForm.pgcViewTabsChanging(Sender: TObject; var AllowChange: Boolean);
+procedure TModuleForm.ctViewTabsTabDragDrop(Sender: TObject; X, Y: Integer; DragTabObject: IDragTabObject; Cancelled: Boolean; var TabDropOptions: TTabDropOptions);
 var
-  tabInfo: TViewTabInfo;
+  srcTabs: TChromeTabs;
+  dstTabs: TChromeTabs;
+  dstContrl: IChromeTabDockControl;
 begin
-  if (ctViewTabs.ActiveTabIndex >= 0) then
+  srcTabs := DragTabObject.SourceControl.GetControl as TChromeTabs;
+  dstContrl := DragTabObject.DockControl;
+
+  if (not Assigned(dstContrl)) then
   begin
-    tabInfo := TViewTabInfo(ctViewTabs.ActiveTab.Data);
-    if not Assigned(tabInfo) then
-      Exit;
-
-    tabInfo.SaveBrowserState(bwrHtml);
+    exclude(TabDropOptions, tdDeleteDraggedTab);
+    exit;
   end;
+
+  dstTabs := dstContrl.GetControl as TChromeTabs;
+  if (dstTabs = srcTabs) then
+    exclude(TabDropOptions, tdDeleteDraggedTab);
 end;
 
-procedure TModuleForm.pgcViewTabsContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
-begin
-  // TODO: fix it
-  //ctViewTabs.tag := ctViewTabs.IndexOfTabAt(MousePos.X, MousePos.Y);
-end;
-
-// TODO: fix it
-//procedure TModuleForm.pgcViewTabsDeleteTab(sender: TClosableTabControl; index: Integer);
-//begin
-//  ctViewTabs.tag := index;
-//  CloseCurrentTab();
-//end;
-
-procedure TModuleForm.pgcViewTabsDragDrop(Sender, Source: TObject; X, Y: Integer);
+procedure TModuleForm.ctViewTabsTabDragDropped(Sender: TObject; DragTabObject: IDragTabObject; NewTab: TChromeTab);
 var
-  dropIndex: integer;
-  startIndex: integer;
+  srcTabs: TChromeTabs;
+  dstTabs: TChromeTabs;
+  dstForm: TModuleForm;
 begin
-  // TODO: fix it
-//  dropIndex := ctViewTabs.IndexOfTabAt(X, Y);
-//  startIndex := ctViewTabs.tag;
-//  if (dropIndex >= 0) and (startIndex >= 0) and (startIndex < ctViewTabs.Tabs.Count) then
-//  begin
-//    if dropIndex = startIndex then
-//      ctViewTabs.ActiveTabIndex := dropindex
-//    else
-//    begin
-//      ctViewTabs.Tabs.Exchange(startIndex, dropindex);
-//      ctViewTabs.ActiveTabIndex := dropindex;
-//    end;
-//  end;
-end;
+  srcTabs := DragTabObject.SourceControl.GetControl as TChromeTabs;
+  dstTabs := DragTabObject.DockControl.GetControl as TChromeTabs;
 
-procedure TModuleForm.pgcViewTabsDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
-begin
-  if Source <> ctViewTabs then
-    Exit;
-  Accept := true;
-end;
-
-procedure TModuleForm.pgcViewTabsGetImageIndex(Sender: TObject; TabIndex: Integer; var ImageIndex: Integer);
-begin
-  // disable tab icons
-  ImageIndex := -1;
-end;
-
-procedure TModuleForm.pgcViewTabsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  // TODO: fix it
-  //if Button = mbLeft then
-  //  pgcViewTabs.BeginDrag(false, 10);
-end;
-
-procedure TModuleForm.pgcViewTabsStartDrag(Sender: TObject; var DragObject: TDragObject);
-var
-  MousePos: TPoint;
-  tabIdx: integer;
-begin
-  // TODO: fix it
-//  try
-//    MousePos := Mouse.CursorPos;
-//    with pgcViewTabs do
-//    begin
-//      MousePos := ScreenToClient(MousePos);
-//      tabIdx := IndexOfTabAt(MousePos.X, MousePos.Y);
-//      if ((tabIdx < 0) or (tabIdx >= Tabs.Count)) then
-//      begin
-//        CancelDrag();
-//        Exit;
-//      end;
-//      pgcViewTabs.tag := tabIdx;
-//    end;
-//  except
-//    on E: Exception do
-//    begin
-//      BqShowException(E);
-//    end;
-//  end;
+  // We've dropped the tab on another tab control
+  if (dstTabs <> srcTabs) then
+  begin
+    if ((srcTabs = ctViewTabs) and (srcTabs.Tabs.Count <= 1)) then
+    begin
+      self.Close;
+    end
+    else
+    begin
+      dstForm := dstTabs.Owner as TModuleForm;
+      if Assigned(dstForm) then
+      begin
+        dstForm.Activate();
+        dstForm.OnActivate(self);
+      end;
+    end;
+  end;
 end;
 
 procedure TModuleForm.pmBrowserPopup(Sender: TObject);

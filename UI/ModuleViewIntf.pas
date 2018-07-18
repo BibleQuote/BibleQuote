@@ -11,7 +11,7 @@ interface
   ['{DEADBEEF-31AB-4F3A-B16F-57B47258402A}']
 
     procedure BrowserHotSpotCovered(viewer: THTMLViewer; src: string);
-    procedure CloseCurrentTab();
+    procedure CloseActiveTab();
     procedure CopyBrowserSelectionToClipboard();
     function GetActiveTabInfo(): TViewTabInfo;
     procedure UpdateViewTabs();
