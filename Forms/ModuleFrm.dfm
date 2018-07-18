@@ -69,6 +69,8 @@ object ModuleForm: TModuleForm
       OnButtonAddClick = ctViewTabsButtonAddClick
       OnButtonCloseTabClick = ctViewTabsButtonCloseTabClick
       OnTabDblClick = ctViewTabsTabDblClick
+      OnTabDragDrop = ctViewTabsTabDragDrop
+      OnTabDragDropped = ctViewTabsTabDragDropped
       ActiveTabIndex = -1
       Options.Display.CloseButton.Offsets.Vertical = 6
       Options.Display.CloseButton.Offsets.Horizontal = 2
@@ -152,7 +154,7 @@ object ModuleForm: TModuleForm
       Options.DragDrop.DragStartPixels = 2
       Options.DragDrop.DragControlImageResizeFactor = 0.500000000000000000
       Options.DragDrop.DragCursor = crDefault
-      Options.DragDrop.DragDisplay = ddTabAndControl
+      Options.DragDrop.DragDisplay = ddTab
       Options.DragDrop.DragFormBorderWidth = 2
       Options.DragDrop.DragFormBorderColor = 8421504
       Options.DragDrop.ContrainDraggedTabWithinContainer = True
@@ -178,7 +180,7 @@ object ModuleForm: TModuleForm
       Options.Behaviour.BackgroundDragMovesForm = True
       Options.Behaviour.TabSmartDeleteResizing = True
       Options.Behaviour.TabSmartDeleteResizeCancelDelay = 700
-      Options.Behaviour.UseBuiltInPopupMenu = True
+      Options.Behaviour.UseBuiltInPopupMenu = False
       Options.Behaviour.TabRightClickSelect = True
       Options.Behaviour.ActivateNewTab = True
       Options.Behaviour.DebugMode = False
@@ -388,10 +390,8 @@ object ModuleForm: TModuleForm
       LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineSize = 1.000000000000000000
       LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineAlpha = 200
       Align = alTop
+      PopupMenu = mViewTabsPopup
       TabOrder = 1
-      ExplicitLeft = 176
-      ExplicitTop = 168
-      ExplicitWidth = 300
     end
     object pnlMainView: TPanel
       Left = 1
@@ -405,11 +405,6 @@ object ModuleForm: TModuleForm
       ParentBackground = False
       PopupMenu = mViewTabsPopup
       TabOrder = 2
-      OnContextPopup = pgcViewTabsContextPopup
-      ExplicitLeft = 4
-      ExplicitTop = 6
-      ExplicitWidth = 649
-      ExplicitHeight = 333
       object bwrHtml: THTMLViewer
         Left = 0
         Top = 54
@@ -440,8 +435,6 @@ object ModuleForm: TModuleForm
         OnHotSpotCovered = bwrHtmlHotSpotCovered
         OnImageRequest = bwrHtmlImageRequest
         OnMouseDouble = bwrHtmlMouseDouble
-        ExplicitWidth = 649
-        ExplicitHeight = 279
       end
       object pnlViewPageToolbar: TPanel
         Left = 0
@@ -455,7 +448,6 @@ object ModuleForm: TModuleForm
         Padding.Right = 1
         Padding.Bottom = 2
         TabOrder = 1
-        ExplicitWidth = 649
         object tlbViewPage: TToolBar
           AlignWithMargins = True
           Left = 2
@@ -470,7 +462,6 @@ object ModuleForm: TModuleForm
           GradientEndColor = clWindow
           Images = ilImages
           TabOrder = 0
-          ExplicitWidth = 645
           object tbtnBack: TToolButton
             Left = 0
             Top = 0
@@ -600,7 +591,6 @@ object ModuleForm: TModuleForm
           TabOrder = 1
           Transparent = True
           Visible = False
-          ExplicitWidth = 645
           object tbtnQuickSearchPrev: TToolButton
             Left = 0
             Top = 0
@@ -653,7 +643,7 @@ object ModuleForm: TModuleForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010111006800E00310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010111006800E40310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
