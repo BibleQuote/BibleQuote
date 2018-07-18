@@ -1609,7 +1609,7 @@ begin
         .nodeType = bqvntTag) do
       begin
         nd := TVersesNodeData(mBqEngine.VersesTagsList[i]);
-        PVirtualNode(nd.Parents) := vdtTagsVerses.AddChild(nil, nd);
+        PVirtualNode(nd.Parents) := vdtTagsVerses.InsertNode(nil, amAddChildLast, nd);
         inc(i);
       end;
 
@@ -1624,7 +1624,7 @@ begin
             tn := TVersesNodeData(nd.Parents[j]);
             if not Assigned(tn) then
               continue;
-            vdtTagsVerses.AddChild(PVirtualNode(tn.Parents), nd);
+            vdtTagsVerses.InsertNode(PVirtualNode(tn.Parents), amAddChildLast, nd);
           end;
 
         end;
@@ -6715,7 +6715,7 @@ var
 begin
   vnd := TVersesNodeData.Create(tagId, txt, bqvntTag);
   mBqEngine.VersesTagsList.Add(vnd);
-  pvn := vdtTagsVerses.AddChild(nil, vnd);
+  pvn := vdtTagsVerses.InsertNode(nil, amAddChildLast, vnd);
   vnd.Parents := TObjectList(pvn);
   vdtTagsVerses.Sort(nil, -1, sdAscending);
   if Show then
@@ -7050,7 +7050,7 @@ begin
 
     for i := 0 to wordCount do
     begin
-      pvn := vstDicList.AddChild(nil, Pointer(i));
+      pvn := vstDicList.InsertNode(nil, amAddChildLast, Pointer(i));
       tokens.Objects[i] := TObject(pvn);
     end; // for
 
@@ -7925,7 +7925,7 @@ begin
     if vnd_verse.Parents.IndexOf(vnd) < 0 then
       vnd_verse.Parents.Add(vnd);
   end;
-  pvnVerse := vdtTagsVerses.AddChild(pvnTag, vnd_verse);
+  pvnVerse := vdtTagsVerses.InsertNode(pvnTag, amAddChildLast, vnd_verse);
   vdtTagsVerses.Sort(pvnTag, -1, sdAscending);
   if Show then
   begin
@@ -8466,7 +8466,7 @@ begin
     rct.Bottom := 200;
     rct.Right := vdtTagsVerses.ClientWidth - mscrollbarX - vdtTagsVerses.TextMargin * 2 - 5;
 
-    h := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
+    h := DrawText(TargetCanvas.Handle, PChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
 
     NodeHeight := h;
     vmarg := dlt;
@@ -9744,7 +9744,7 @@ begin
       wordCount := lst.Count - 1;
       for wordIx := 0 to wordCount do
       begin
-        pvn := vstDicList.AddChild(nil, Pointer(wordIx));
+        pvn := vstDicList.InsertNode(nil, amAddChildLast, Pointer(wordIx));
         lst.Objects[wordIx] := TObject(pvn);
         if wordIx and $FFF = $FFF then
           Application.ProcessMessages;
