@@ -45,8 +45,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure vdtBookListDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
-    procedure vdtBookListMeasureItem(Sender: TBaseVirtualTree;
-      TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
     procedure FormResize(Sender: TObject);
     procedure vdtBookListMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure vdtBookListClick(Sender: TObject);
@@ -76,6 +74,8 @@ type
     procedure vdtBookListFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vdtBookListMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure btnOKClick(Sender: TObject);
+    procedure vdtBookListMeasureItem(Sender: TBaseVirtualTree;
+      TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
   private
     { Private declarations }
 
@@ -314,7 +314,7 @@ begin
     begin
       ws := tkns[i].name;
 
-      Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+      DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or DT_SINGLELINE);
 
       if (tkns[i].rct.Right > rct.Right) and (tkns[i].rct.Left > rct.Left) then
       begin
@@ -322,7 +322,7 @@ begin
         fi := i;
         tkns[i].rct.Left := rct.Left;
         tkns[i].rct.Top := tkns[i].rct.Bottom + fh;
-        Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+        DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_CALCRECT or DT_SINGLELINE);
       end;
 
       if i < c then
@@ -342,7 +342,7 @@ begin
     begin
       ws := tkns[i].name;
 
-      Windows.DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_SINGLELINE);
+      DrawText(canv.Handle, PChar(Pointer(ws)), -1, tkns[i].rct, DT_TOP or DT_SINGLELINE);
     end;
   end;
 
@@ -356,6 +356,12 @@ var
   str: string;
   sz: TSize;
 begin
+  if not Assigned(rects) then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
   c := tkns.Count - 1;
 
   if c > 9 then
@@ -378,13 +384,13 @@ begin
     begin
       str := tkns[i];
 
-      Windows.DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+      DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
 
       if (rects^[i].Right > rct.Right) and (rects^[i].Left > rct.Left) then
       begin
         rects^[i].Left := rct.Left;
         rects^[i].Top := rects^[i].Bottom + fh;
-        Windows.DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
+        DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_CALCRECT or DT_SINGLELINE);
       end;
 
       if i < c then
@@ -404,10 +410,8 @@ begin
     for i := 0 to c do
     begin
       str := tkns[i];
-      if (str <> '') then
-      begin
-        Windows.DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_SINGLELINE);
-      end;
+      if (str <> '')then
+        DrawText(canv.Handle, PChar(Pointer(str)), -1, rects^[i], DT_TOP or DT_SINGLELINE);
     end;
 
   end;
@@ -695,7 +699,7 @@ begin
 
       if mUseDisposition = udParabibles then
       begin
-        vdtBookList.AddChild(nil, Pointer(EmptyModuleEntry()));
+        vdtBookList.InsertNode(nil, amAddChildLast, EmptyModuleEntry());
       end;
 
       StrToTokens(ss, ' ', mFilterStrTokens);
@@ -771,7 +775,7 @@ begin
             begin
               catMe := TModuleEntry.Create(modtypeTag, tagstr, '', '', '', '', '');
 
-              rt := vdtBookList.AddChild(nil, Pointer(catMe));
+              rt := vdtBookList.InsertNode(nil, amAddChildLast, catMe);
               if tagstr = selName then
                 sel := rt;
               Include(rt^.States, vsDisabled);
@@ -781,7 +785,7 @@ begin
             else
               rt := PVirtualNode(TModuleEntry(mCatNodes[ci]).mNode);
 
-            tempVN := vdtBookList.AddChild(rt, me);
+            tempVN := vdtBookList.InsertNode(rt, amAddChildLast, me);
             if selFlag then
             begin
               selFlag := false;
@@ -796,7 +800,7 @@ begin
         else if doAdd then
         begin
           inc(mCounter);
-          tempVN := vdtBookList.AddChild(nil, me);
+          tempVN := vdtBookList.InsertNode(nil, amAddChildLast, me);
         end;
 
         if selFlag then
@@ -976,7 +980,6 @@ var
   rct: TRect;
   h, dlt, vmarg, rght: Integer;
   ws: string;
-  p: Pointer;
 begin
   if (Node = nil) or (csDestroying in self.ComponentState) then
     exit;
@@ -990,8 +993,7 @@ begin
     if dlt = 0 then
       dlt := 2;
 
-    p := Sender.GetNodeData(Node);
-    me := TModuleEntry((p)^);
+    me := Sender.GetNodeData<TModuleEntry>(Node);
     ws := me.mFullName;
 
     rct.Left := 0;
@@ -1000,7 +1002,7 @@ begin
 
     rght := vdtBookList.Width - GetSystemMetrics(SM_CXVSCROLL) - vdtBookList.TextMargin * 2 - 6;
     rct.Right := rght;
-    h := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
+    h := DrawText(TargetCanvas.Handle, PChar(Pointer(ws)), -1, rct, DT_CALCRECT or DT_WORDBREAK);
     NodeHeight := h;
     rct.Top := h;
     vmarg := dlt + dlt;
@@ -1054,10 +1056,12 @@ begin
     rct.Bottom := rct.Top + 300;
     NodeHeight := PaintTokens(TargetCanvas, rct, mStrTokens, true, me.mRects) + (vmarg);
   except
+    on E : Exception do OutputDebugString(PChar(Pointer(E.ToString())));
     // nothing
   end;
 
 end;
+
 
 procedure TMyLibraryForm.vdtBookListMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
@@ -1186,7 +1190,7 @@ begin
   HintCanvas.Brush.Color := clWindow;
   HintCanvas.RoundRect(R.Left, R.Top, R.Right, R.Bottom, 2, 2);
   InflateRect(R, -6, -6);
-  Windows.DrawText(HintCanvas.Handle, PChar(Pointer(me.mShortPath)), length(me.mShortPath), R, 0);
+  DrawText(HintCanvas.Handle, PChar(Pointer(me.mShortPath)), length(me.mShortPath), R, 0);
 end;
 
 procedure TMyLibraryForm.vdtBookListDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
