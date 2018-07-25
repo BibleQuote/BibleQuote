@@ -1,4 +1,4 @@
-﻿unit BookFrm;
+﻿unit BookFra;
 
 interface
 
@@ -12,28 +12,7 @@ uses
   Bible, ModuleViewIntf, Math;
 
 type
-  TBookForm = class(TForm, IBookView)
-    ilImages: TImageList;
-    pmBrowser: TPopupMenu;
-    miSearchWord: TMenuItem;
-    miSearchWindow: TMenuItem;
-    miCompare: TMenuItem;
-    N3: TMenuItem;
-    miCopySelection: TMenuItem;
-    miCopyPassage: TMenuItem;
-    miCopyVerse: TMenuItem;
-    N2: TMenuItem;
-    miAddBookmark: TMenuItem;
-    miAddBookmarkTagged: TMenuItem;
-    miAddMemo: TMenuItem;
-    N4: TMenuItem;
-    miMemosToggle: TMenuItem;
-    pmMemo: TPopupMenu;
-    miMemoCopy: TMenuItem;
-    miMemoCut: TMenuItem;
-    miMemoPaste: TMenuItem;
-    pnlPaint: TPanel;
-    dtsBible: TDockTabSet;
+  TBookFrame = class(TFrame, IBookView)
     pnlMainView: TPanel;
     bwrHtml: THTMLViewer;
     pnlViewPageToolbar: TPanel;
@@ -60,6 +39,27 @@ type
     tbtnSep08: TToolButton;
     tbtnMatchCase: TToolButton;
     tbtnMatchWholeWord: TToolButton;
+    pnlPaint: TPanel;
+    dtsBible: TDockTabSet;
+    ilImages: TImageList;
+    pmBrowser: TPopupMenu;
+    miSearchWord: TMenuItem;
+    miSearchWindow: TMenuItem;
+    miCompare: TMenuItem;
+    N3: TMenuItem;
+    miCopySelection: TMenuItem;
+    miCopyPassage: TMenuItem;
+    miCopyVerse: TMenuItem;
+    N2: TMenuItem;
+    miAddBookmark: TMenuItem;
+    miAddBookmarkTagged: TMenuItem;
+    miAddMemo: TMenuItem;
+    N4: TMenuItem;
+    miMemosToggle: TMenuItem;
+    pmMemo: TPopupMenu;
+    miMemoCopy: TMenuItem;
+    miMemoCut: TMenuItem;
+    miMemoPaste: TMenuItem;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure miCompareClick(Sender: TObject);
@@ -134,7 +134,7 @@ implementation
 {$R *.dfm}
 uses ModuleFrm;
 
-procedure TBookForm.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
+procedure TBookFrame.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
   first: integer;
   scode, unicodeSRC: string;
@@ -278,7 +278,7 @@ begin
   // in all other cases, the link is processed according to HTML rules :-)
 end;
 
-procedure TBookForm.BrowserHotSpotCovered(viewer: THTMLViewer; src: string);
+procedure TBookFrame.BrowserHotSpotCovered(viewer: THTMLViewer; src: string);
 var
   unicodeSRC, ConcreteCmd: string;
   wstr, ws2, fontName, replaceModPath: string;
@@ -338,12 +338,12 @@ begin
   HintWindowClass := HintTools.TbqHintWindow;
 end;
 
-procedure TBookForm.bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
+procedure TBookFrame.bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
 begin
   BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
 end;
 
-procedure TBookForm.bwrHtmlImageRequest(Sender: TObject; const SRC: string; var Stream: TMemoryStream);
+procedure TBookFrame.bwrHtmlImageRequest(Sender: TObject; const SRC: string; var Stream: TMemoryStream);
 var
   vti: TViewTabInfo;
   archive: string;
@@ -375,7 +375,7 @@ begin
   end;
 end;
 
-procedure TBookForm.bwrHtmlKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TBookFrame.bwrHtmlKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   mMainView.BrowserPosition := bwrHtml.Position;
 
@@ -411,7 +411,7 @@ begin
   end;
 end;
 
-procedure TBookForm.bwrHtmlKeyPress(Sender: TObject; var Key: Char);
+procedure TBookFrame.bwrHtmlKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = '+' then
   begin
@@ -425,7 +425,7 @@ begin
   end;
 end;
 
-procedure TBookForm.bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TBookFrame.bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   oxt, oct: integer;
 begin
@@ -495,7 +495,7 @@ begin
   end;
 end;
 
-procedure TBookForm.bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TBookFrame.bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   num, code: integer;
 begin
@@ -519,7 +519,7 @@ begin
     mMainView.tbtnToggle.Click;
 end;
 
-procedure TBookForm.bwrHtmlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TBookFrame.bwrHtmlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   section: TSectionBase;
   topPos, Index: integer;
@@ -534,7 +534,7 @@ begin
   OutputDebugString(Pointer(classname));
 end;
 
-procedure TBookForm.bwrHtmlMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+procedure TBookFrame.bwrHtmlMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 var
   fontSize: integer;
   delta, tm: integer;
@@ -602,14 +602,14 @@ begin
   mMainView.FontChanged(delta);
 end;
 
-constructor TBookForm.Create(AOwner: TComponent; mainView: TMainForm; moduleView: IModuleView);
+constructor TBookFrame.Create(AOwner: TComponent; mainView: TMainForm; moduleView: IModuleView);
 begin
   inherited Create(AOwner);
   mMainView := mainView;
   mModuleView := moduleView;
 end;
 
-procedure TBookForm.dtsBibleChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
+procedure TBookFrame.dtsBibleChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
 var
   me: TModuleEntry;
 begin
@@ -640,7 +640,7 @@ begin
   mMainView.tbLinksToolBar.Visible := false;
 end;
 
-procedure TBookForm.dtsBibleClick(Sender: TObject);
+procedure TBookFrame.dtsBibleClick(Sender: TObject);
 var
   pt: TPoint;
   it, modIx: integer;
@@ -687,7 +687,7 @@ begin
   end;
 end;
 
-procedure TBookForm.dtsBibleDragDrop(Sender, Source: TObject; X, Y: Integer);
+procedure TBookFrame.dtsBibleDragDrop(Sender, Source: TObject; X, Y: Integer);
 var
   TabIndex, sourceTabIx, modIx: integer;
   viewTabInfo: TViewTabInfo;
@@ -757,7 +757,7 @@ begin
   end;
 end;
 
-procedure TBookForm.dtsBibleDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+procedure TBookFrame.dtsBibleDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 var
   tabIx, delta: integer;
   dragOverPoint: TPoint;
@@ -772,7 +772,7 @@ begin
   Accept := (tabIx >= 0) and (tabIx < dtsBible.Tabs.Count - delta);
 end;
 
-procedure TBookForm.dtsBibleMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TBookFrame.dtsBibleMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   pt: TPoint;
   ix: integer;
@@ -788,7 +788,7 @@ begin
   dtsBible.BeginDrag(false, 20);
 end;
 
-procedure TBookForm.dtsBibleMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+procedure TBookFrame.dtsBibleMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 {$J+}
 const
   last_mouse_pos: TPoint = (X: 0; Y: 0);
@@ -833,7 +833,7 @@ begin
   Application.CancelHint();
 end;
 
-procedure TBookForm.dtsBibleMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TBookFrame.dtsBibleMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   pt: TPoint;
   itemIx: integer;
@@ -852,24 +852,24 @@ begin
   mMainView.pmEmpty.Popup(pt.X, pt.Y);
 end;
 
-procedure TBookForm.FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
+procedure TBookFrame.FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
 var moduleForm: TModuleForm;
 begin
   moduleForm := mModuleView as TModuleForm;
   moduleForm.MakeActive;
 end;
 
-procedure TBookForm.miAddBookmarkClick(Sender: TObject);
+procedure TBookFrame.miAddBookmarkClick(Sender: TObject);
 begin
   mMainView.AddBookmark(miAddBookmark.Caption);
 end;
 
-procedure TBookForm.miAddBookmarkTaggedClick(Sender: TObject);
+procedure TBookFrame.miAddBookmarkTaggedClick(Sender: TObject);
 begin
   mMainView.AddBookmarkTagged();
 end;
 
-procedure TBookForm.miAddMemoClick(Sender: TObject);
+procedure TBookFrame.miAddMemoClick(Sender: TObject);
 begin
   if (mMainView.AddMemo(miAddMemo.Caption)) then
   begin
@@ -883,17 +883,17 @@ begin
   end;
 end;
 
-procedure TBookForm.miCompareClick(Sender: TObject);
+procedure TBookFrame.miCompareClick(Sender: TObject);
 begin
   mMainView.CompareTranslations();
 end;
 
-procedure TBookForm.miCopyPassageClick(Sender: TObject);
+procedure TBookFrame.miCopyPassageClick(Sender: TObject);
 begin
   mMainView.CopyPassageToClipboard();
 end;
 
-procedure TBookForm.CopyBrowserSelectionToClipboard();
+procedure TBookFrame.CopyBrowserSelectionToClipboard();
 var
   s: string;
   trCount: integer;
@@ -929,17 +929,17 @@ begin
   until trCount <= 0;
 end;
 
-procedure TBookForm.miCopySelectionClick(Sender: TObject);
+procedure TBookFrame.miCopySelectionClick(Sender: TObject);
 begin
   CopyBrowserSelectionToClipboard();
 end;
 
-procedure TBookForm.miCopyVerseClick(Sender: TObject);
+procedure TBookFrame.miCopyVerseClick(Sender: TObject);
 begin
   mMainView.CopyVerse;
 end;
 
-procedure TBookForm.miMemoCopyClick(Sender: TObject);
+procedure TBookFrame.miMemoCopyClick(Sender: TObject);
 begin
   if pmMemo.PopupComponent = mMainView.reMemo then
     mMainView.reMemo.CopyToClipboard
@@ -949,7 +949,7 @@ begin
     Clipboard.AsText := (pmMemo.PopupComponent as TComboBox).Text;
 end;
 
-procedure TBookForm.miMemoCutClick(Sender: TObject);
+procedure TBookFrame.miMemoCutClick(Sender: TObject);
 begin
   if pmMemo.PopupComponent = mMainView.reMemo then
     mMainView.reMemo.CutToClipboard
@@ -962,7 +962,7 @@ begin
   end;
 end;
 
-procedure TBookForm.miMemoPasteClick(Sender: TObject);
+procedure TBookFrame.miMemoPasteClick(Sender: TObject);
 begin
   if pmMemo.PopupComponent = mMainView.reMemo then
     mMainView.reMemo.PasteFromClipboard
@@ -970,7 +970,7 @@ begin
     (pmMemo.PopupComponent as TEdit).PasteFromClipboard;
 end;
 
-procedure TBookForm.SetMemosVisible(showMemos: Boolean);
+procedure TBookFrame.SetMemosVisible(showMemos: Boolean);
 var
   ti: TViewTabInfo;
 begin
@@ -984,12 +984,12 @@ begin
   mMainView.ProcessCommand(ti.Location, TbqHLVerseOption(ord(ti[vtisHighLightVerses])));
 end;
 
-procedure TBookForm.miMemosToggleClick(Sender: TObject);
+procedure TBookFrame.miMemosToggleClick(Sender: TObject);
 begin
   SetMemosVisible(miMemosToggle.Checked);
 end;
 
-procedure TBookForm.miSearchWindowClick(Sender: TObject);
+procedure TBookFrame.miSearchWindowClick(Sender: TObject);
 begin
   mMainView.pgcMain.ActivePageIndex := 0; // to the first tab
   mMainView.pgcHistoryBookmarks.ActivePageIndex := 2;
@@ -1004,7 +1004,7 @@ begin
   end;
 end;
 
-procedure TBookForm.miSearchWordClick(Sender: TObject);
+procedure TBookFrame.miSearchWordClick(Sender: TObject);
 begin
   if bwrHtml.SelLength = 0 then
     Exit;
@@ -1015,7 +1015,7 @@ begin
   mMainView.btnFindClick(Sender);
 end;
 
-procedure TBookForm.pmBrowserPopup(Sender: TObject);
+procedure TBookFrame.pmBrowserPopup(Sender: TObject);
 var
   s, scap: string;
   i: integer;
@@ -1085,7 +1085,7 @@ begin
     end;
 end;
 
-procedure TBookForm.tbtnBackClick(Sender: TObject);
+procedure TBookFrame.tbtnBackClick(Sender: TObject);
 begin
   mMainView.HistoryOn := false;
   if mMainView.lbHistory.ItemIndex < mMainView.lbHistory.Items.Count - 1 then
@@ -1098,12 +1098,12 @@ begin
   Winapi.Windows.SetFocus(bwrHtml.Handle);
 end;
 
-procedure TBookForm.tbtnCopyClick(Sender: TObject);
+procedure TBookFrame.tbtnCopyClick(Sender: TObject);
 begin
   CopyBrowserSelectionToClipboard();
 end;
 
-procedure TBookForm.tbtnForwardClick(Sender: TObject);
+procedure TBookFrame.tbtnForwardClick(Sender: TObject);
 begin
   mMainView.HistoryOn := false;
   if mMainView.lbHistory.ItemIndex > 0 then
@@ -1116,22 +1116,22 @@ begin
   Winapi.Windows.SetFocus(bwrHtml.Handle);
 end;
 
-procedure TBookForm.tbtnMemosClick(Sender: TObject);
+procedure TBookFrame.tbtnMemosClick(Sender: TObject);
 begin
   SetMemosVisible(tbtnMemos.Down);
 end;
 
-procedure TBookForm.tbtnNextChapterClick(Sender: TObject);
+procedure TBookFrame.tbtnNextChapterClick(Sender: TObject);
 begin
   mMainView.GoNextChapter;
 end;
 
-procedure TBookForm.tbtnPrevChapterClick(Sender: TObject);
+procedure TBookFrame.tbtnPrevChapterClick(Sender: TObject);
 begin
   mMainView.GoPrevChapter;
 end;
 
-procedure TBookForm.ToggleQuickSearchPanel(const enable: Boolean);
+procedure TBookFrame.ToggleQuickSearchPanel(const enable: Boolean);
 begin
   tbtnQuickSearch.Down := enable;
   tlbQuickSearch.Visible := enable;
@@ -1141,32 +1141,32 @@ begin
     Winapi.Windows.SetFocus(tedtQuickSearch.Handle);
 end;
 
-procedure TBookForm.tbtnQuickSearchClick(Sender: TObject);
+procedure TBookFrame.tbtnQuickSearchClick(Sender: TObject);
 begin
   ToggleQuickSearchPanel(tbtnQuickSearch.Down);
 end;
 
-procedure TBookForm.tbtnQuickSearchNextClick(Sender: TObject);
+procedure TBookFrame.tbtnQuickSearchNextClick(Sender: TObject);
 begin
   SearchForward();
 end;
 
-procedure TBookForm.tbtnQuickSearchPrevClick(Sender: TObject);
+procedure TBookFrame.tbtnQuickSearchPrevClick(Sender: TObject);
 begin
   SearchBackward();
 end;
 
-procedure TBookForm.tbtnReferenceClick(Sender: TObject);
+procedure TBookFrame.tbtnReferenceClick(Sender: TObject);
 begin
   mMainView.GoReference();
 end;
 
-procedure TBookForm.tbtnReferenceInfoClick(Sender: TObject);
+procedure TBookFrame.tbtnReferenceInfoClick(Sender: TObject);
 begin
   mMainView.ShowReferenceInfo();
 end;
 
-procedure TBookForm.ToggleStrongNumbers();
+procedure TBookFrame.ToggleStrongNumbers();
 var
   vti: TViewTabInfo;
   savePosition: integer;
@@ -1187,12 +1187,12 @@ begin
   bwrHtml.Position := savePosition;
 end;
 
-procedure TBookForm.tbtnStrongNumbersClick(Sender: TObject);
+procedure TBookFrame.tbtnStrongNumbersClick(Sender: TObject);
 begin
   ToggleStrongNumbers();
 end;
 
-procedure TBookForm.tedtQuickSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TBookFrame.tedtQuickSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = 13 then
   begin
@@ -1200,22 +1200,22 @@ begin
   end;
 end;
 
-procedure TBookForm.tedtReferenceChange(Sender: TObject);
+procedure TBookFrame.tedtReferenceChange(Sender: TObject);
 begin
   mMainView.AddressFromMenus := false;
 end;
 
-procedure TBookForm.tedtReferenceDblClick(Sender: TObject);
+procedure TBookFrame.tedtReferenceDblClick(Sender: TObject);
 begin
   mMainView.GoReference();
 end;
 
-procedure TBookForm.tedtReferenceEnter(Sender: TObject);
+procedure TBookFrame.tedtReferenceEnter(Sender: TObject);
 begin
   PostMessageW(tedtReference.Handle, EM_SETSEL, 0, -1);
 end;
 
-procedure TBookForm.tedtReferenceKeyPress(Sender: TObject; var Key: Char);
+procedure TBookFrame.tedtReferenceKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #13 then
   begin
@@ -1224,7 +1224,7 @@ begin
   end;
 end;
 
-procedure TBookForm.SearchForward();
+procedure TBookFrame.SearchForward();
 var
   searchText: string;
   searchOptions: TStringSearchOptions;
@@ -1265,7 +1265,7 @@ begin
     mBrowserSearchPosition := 0;
 end;
 
-procedure TBookForm.SearchBackward();
+procedure TBookFrame.SearchBackward();
 var
   searchText: string;
   searchOptions: TStringSearchOptions;

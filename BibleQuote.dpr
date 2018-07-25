@@ -51,7 +51,7 @@ uses
   ModuleFrm in 'Forms\ModuleFrm.pas' {ModuleForm},
   ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas',
   ViewConfig in 'IO\ViewConfig.pas',
-  BookFrm in 'Forms\BookFrm.pas' {BookForm};
+  BookFra in 'Views\BookFra.pas' {BookFrame: TFrame};
 
 {$R *.res}
 var

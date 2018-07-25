@@ -741,7 +741,7 @@ type
     procedure FillLanguageMenu;
     function GetLocalizationDirectory(): string;
     function ApplyInitialTranslation(): Boolean;
-    procedure TranslateForm(form: TForm; fname: string = '');
+    procedure TranslateControl(form: TWinControl; fname: string = '');
     procedure ToggleQuickSearchPanel(const enable: Boolean);
     procedure ShowReferenceInfo();
     procedure GoReference();
@@ -776,7 +776,7 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
 
   HintTools, sevenZipHelper,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
-  EngineInterfaces, StringProcs, LinksParser, BookFrm;
+  EngineInterfaces, StringProcs, LinksParser, BookFra;
 
 {$R *.DFM}
 
@@ -785,9 +785,9 @@ begin
   Result := mainForm.mModuleView as TModuleForm;
 end;
 
-function GetBookView(mainForm: TMainForm): TBookForm;
+function GetBookView(mainForm: TMainForm): TBookFrame;
 begin
-  Result := GetModuleView(mainForm).BookView as TBookForm;
+  Result := GetModuleView(mainForm).BookView as TBookFrame;
 end;
 
 procedure ClearVolatileStateData(var state: TViewTabInfoState);
@@ -1026,7 +1026,7 @@ begin
   moduleForm := TModuleForm.Create(self, self);
   moduleForm.SetViewName(viewName);
 
-  TranslateForm(moduleForm, 'ModuleForm');
+  TranslateControl(moduleForm, 'ModuleForm');
 
   with moduleForm.Browser do
   begin
@@ -1045,7 +1045,7 @@ begin
 
   SetVScrollTracker(moduleForm.Browser);
 
-  (moduleForm.BookView as TBookForm).miMemosToggle.Checked := MemosOn;
+  (moduleForm.BookView as TBookFrame).miMemosToggle.Checked := MemosOn;
   moduleForm.BibleTabs.Font.Assign(self.Font);
 
   h := self.Font.Height;
@@ -3054,7 +3054,6 @@ var
   locDirectory: string;
   locFilePath: string;
   moduleView: IModuleView;
-  bookForm: TBookForm;
   moduleForm: TModuleForm;
 begin
   result := false;
@@ -3081,19 +3080,19 @@ begin
 
   UpdateDictionariesCombo();
 
-  TranslateForm(MyLibraryForm);
-  TranslateForm(ExceptionForm);
-  TranslateForm(AboutForm);
+  TranslateControl(MyLibraryForm);
+  TranslateControl(ExceptionForm);
+  TranslateControl(AboutForm);
 
   for moduleView in mModuleViews do
   begin
     if (moduleView is TModuleForm) then
     begin
       moduleForm := moduleView as TModuleForm;
-      TranslateForm(moduleForm, 'ModuleForm');
+      TranslateControl(moduleForm, 'ModuleForm');
 
-      if (moduleForm.BookView is TBookForm) then
-        TranslateForm(moduleForm.BookView as TBookForm, 'ModuleForm');
+      if (moduleForm.BookView is TBookFrame) then
+        TranslateControl(moduleForm.BookView as TBookFrame, 'ModuleForm');
     end;
   end;
 
@@ -3106,7 +3105,7 @@ begin
   LockWindowUpdate(self.Handle);
 
   try
-    Lang.TranslateForm(MainForm);
+    Lang.TranslateControl(MainForm);
   finally
     LockWindowUpdate(0);
   end;
@@ -6405,8 +6404,8 @@ begin
   tbLinksToolBar.Visible := false;
   cbQty.ItemIndex := 0;
 
-  TranslateForm(ExceptionForm);
-  TranslateForm(AboutForm);
+  TranslateControl(ExceptionForm);
+  TranslateControl(AboutForm);
 
   ConfigForm.Font := MainForm.Font;
   ConfigForm.Font.CharSet := MainForm.Font.CharSet;
@@ -7286,11 +7285,11 @@ begin
 
 end;
 
-procedure TMainForm.TranslateForm(form: TForm; fname: string = '');
+procedure TMainForm.TranslateControl(form: TWinControl; fname: string = '');
 begin
   try
     if Assigned(form) then
-      Lang.TranslateForm(form, fname);
+      Lang.TranslateControl(form, fname);
   except
     on E: Exception do
     begin
@@ -7376,7 +7375,7 @@ procedure TMainForm.TranslateConfigForm;
 begin
   if Assigned(ConfigForm) then
   begin
-    Lang.TranslateForm(ConfigForm);
+    Lang.TranslateControl(ConfigForm);
     ConfigForm.chkCopyVerseNumbers.Checked := CopyOptionsCopyVerseNumbersChecked;
     ConfigForm.chkCopyFontParams.Checked := CopyOptionsCopyFontParamsChecked;
     ConfigForm.chkAddReference.Checked := CopyOptionsAddReferenceChecked;
@@ -10050,7 +10049,7 @@ begin
   if not Assigned(MyLibraryForm) then
     MyLibraryForm := TMyLibraryForm.Create(self);
 
-  TranslateForm(MyLibraryForm);
+  TranslateControl(MyLibraryForm);
 
   case useDisposition of
     udParabibles:

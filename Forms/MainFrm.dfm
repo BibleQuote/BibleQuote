@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 14
+  TextHeight = 15
   object splMain: TSplitter
     Left = 290
     Top = 34
@@ -171,10 +171,11 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 27
+        Height = 26
         ActivePage = tbHistory
         Align = alClient
         TabOrder = 1
+        ExplicitHeight = 27
         object tbHistory: TTabSheet
           Caption = 'tbHistory'
           ExplicitLeft = 0
@@ -230,8 +231,8 @@ object MainForm: TMainForm
             object lblBookmark: TLabel
               Left = 10
               Top = 10
-              Width = 57
-              Height = 14
+              Width = 59
+              Height = 15
               Align = alClient
               Caption = 'lblBookmark'
               WordWrap = True
@@ -253,7 +254,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 103
+        Height = 102
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -273,6 +274,7 @@ object MainForm: TMainForm
         OnKeyUp = bwrSearchKeyUp
         OnHotSpotClick = bwrSearchHotSpotClick
         OnHotSpotCovered = bwrSearchHotSpotCovered
+        ExplicitHeight = 103
       end
       object pnlSearch: TPanel
         Left = 0
@@ -289,7 +291,7 @@ object MainForm: TMainForm
           Left = 4
           Top = 159
           Width = 45
-          Height = 14
+          Height = 15
           Caption = 'lblSearch'
         end
         object cbSearch: TComboBox
@@ -308,7 +310,7 @@ object MainForm: TMainForm
           Left = 27
           Top = 28
           Width = 196
-          Height = 22
+          Height = 23
           Hint = 'Search scope'
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 15
@@ -380,7 +382,7 @@ object MainForm: TMainForm
           Left = 234
           Top = 2
           Width = 48
-          Height = 22
+          Height = 23
           Hint = 'Number of result to display per view'
           Style = csDropDownList
           Anchors = [akTop, akRight]
@@ -515,8 +517,8 @@ object MainForm: TMainForm
         object lblDicFoundSeveral: TLabel
           Left = 9
           Top = 4
-          Width = 168
-          Height = 14
+          Width = 166
+          Height = 15
           Caption = #1085#1072#1081#1076#1077#1085#1086' '#1074' '#1085#1077#1089#1082#1086#1083#1100#1082#1080#1093' '#1089#1083#1086#1074#1072#1088#1103#1093':'
         end
         object cbDic: TComboBox
@@ -734,17 +736,18 @@ object MainForm: TMainForm
       end
       object pnlMemo: TPanel
         Left = 0
-        Top = 253
+        Top = 252
         Width = 282
         Height = 29
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitTop = 253
         object lblMemo: TLabel
           Left = 4
           Top = 4
           Width = 12
-          Height = 14
+          Height = 15
           Caption = '....'
         end
       end
@@ -986,8 +989,8 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 546
       Top = 4
-      Width = 37
-      Height = 14
+      Width = 38
+      Height = 15
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -1608,7 +1611,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800D00310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800D80310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3347,7 +3350,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01010F00E801900118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010F00E801980118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
       000000000000000000000000000000000000000000000000000000000000B9B8
       B3008581790066615700655F5500827F7600B9B7B20000000000000000000000

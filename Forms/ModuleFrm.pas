@@ -11,7 +11,7 @@ uses
   LinksParserIntf, SevenZipHelper, HTMLUn2, ExceptionFrm, InputFrm,
   ShlObj, contnrs, Clipbrd, Bible, Math, StringProcs, ModuleViewIntf, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, BookFrm;
+  ChromeTabsLog, BookFra;
 
 const
   bsText = 0;
@@ -51,7 +51,7 @@ type
   private
     { Private declarations }
     mMainView: TMainForm;
-    mBookView: TBookForm;
+    mBookView: TBookFrame;
   public
     { Public declarations }
 
@@ -171,9 +171,8 @@ end;
 
 procedure TModuleForm.FormCreate(Sender: TObject);
 begin
-  mBookView := TBookForm.Create(nil, mMainView, self);
+  mBookView := TBookFrame.Create(nil, mMainView, self);
   mBookView.Parent := pnlMain;
-  mBookView.BorderStyle := bsNone;
   mBookView.Align := alClient;
   mBookView.Show;
   mBookView.BringToFront;

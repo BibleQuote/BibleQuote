@@ -1,36 +1,34 @@
-object BookForm: TBookForm
+object BookFrame: TBookFrame
   Left = 0
   Top = 0
-  BorderStyle = bsSizeToolWin
-  ClientHeight = 299
-  ClientWidth = 635
-  Color = clBtnFace
+  Width = 430
+  Height = 313
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
-  Visible = True
+  ParentFont = False
+  TabOrder = 0
   OnMouseActivate = FormMouseActivate
-  PixelsPerInch = 96
-  TextHeight = 13
   object pnlMainView: TPanel
     Left = 0
     Top = 0
-    Width = 635
-    Height = 278
+    Width = 430
+    Height = 292
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlView'
     Color = clWindow
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 320
+    ExplicitHeight = 219
     object bwrHtml: THTMLViewer
       Left = 0
       Top = 54
-      Width = 635
-      Height = 224
+      Width = 430
+      Height = 238
       TabOrder = 0
       Align = alClient
       PopupMenu = pmBrowser
@@ -56,11 +54,13 @@ object BookForm: TBookForm
       OnHotSpotCovered = bwrHtmlHotSpotCovered
       OnImageRequest = bwrHtmlImageRequest
       OnMouseDouble = bwrHtmlMouseDouble
+      ExplicitWidth = 320
+      ExplicitHeight = 165
     end
     object pnlViewPageToolbar: TPanel
       Left = 0
       Top = 0
-      Width = 635
+      Width = 430
       Height = 54
       Align = alTop
       AutoSize = True
@@ -69,11 +69,12 @@ object BookForm: TBookForm
       Padding.Right = 1
       Padding.Bottom = 2
       TabOrder = 1
+      ExplicitWidth = 320
       object tlbViewPage: TToolBar
         AlignWithMargins = True
         Left = 2
         Top = 3
-        Width = 631
+        Width = 426
         Height = 23
         Margins.Left = 0
         Margins.Top = 1
@@ -83,6 +84,7 @@ object BookForm: TBookForm
         GradientEndColor = clWindow
         Images = ilImages
         TabOrder = 0
+        ExplicitWidth = 316
         object tbtnBack: TToolButton
           Left = 0
           Top = 0
@@ -198,7 +200,7 @@ object BookForm: TBookForm
         AlignWithMargins = True
         Left = 2
         Top = 28
-        Width = 631
+        Width = 426
         Height = 22
         Margins.Left = 0
         Margins.Top = 1
@@ -212,6 +214,7 @@ object BookForm: TBookForm
         TabOrder = 1
         Transparent = True
         Visible = False
+        ExplicitWidth = 316
         object tbtnQuickSearchPrev: TToolButton
           Left = 0
           Top = 0
@@ -261,17 +264,19 @@ object BookForm: TBookForm
   end
   object pnlPaint: TPanel
     Left = 0
-    Top = 278
-    Width = 635
+    Top = 292
+    Width = 430
     Height = 21
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 219
+    ExplicitWidth = 320
     object dtsBible: TDockTabSet
       Tag = -1
       Left = 0
       Top = 0
-      Width = 635
+      Width = 430
       Height = 21
       Cursor = crHandPoint
       Hint = 'rtet'
@@ -293,13 +298,14 @@ object BookForm: TBookForm
       OnMouseMove = dtsBibleMouseMove
       OnMouseUp = dtsBibleMouseUp
       DockSite = False
+      ExplicitWidth = 320
     end
   end
   object ilImages: TImageList
-    Left = 464
-    Top = 271
+    Left = 96
+    Top = 95
     Bitmap = {
-      494C010111006800F80310001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010111006800000410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -969,8 +975,8 @@ object BookForm: TBookForm
   object pmBrowser: TPopupMenu
     AutoHotkeys = maManual
     OnPopup = pmBrowserPopup
-    Left = 550
-    Top = 119
+    Left = 142
+    Top = 95
     object miSearchWord: TMenuItem
       Caption = 'miSearchWord'
       OnClick = miSearchWordClick
@@ -1026,8 +1032,8 @@ object BookForm: TBookForm
   end
   object pmMemo: TPopupMenu
     AutoHotkeys = maManual
-    Left = 509
-    Top = 165
+    Left = 45
+    Top = 93
     object miMemoCopy: TMenuItem
       Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
       ShortCut = 16451
