@@ -444,7 +444,6 @@ type
     function CreateModuleView(viewName: string): IModuleView;
     procedure CreateInitialModuleView();
     function GenerateViewModuleViewName(): string;
-    procedure OnModuleFormDeactivate(Sender: TObject);
     procedure OnModuleFormActivate(Sender: TObject);
     procedure OnModuleFormClose(Sender: TObject; var Action: TCloseAction);
     procedure CompareTranslations();
@@ -513,8 +512,6 @@ type
 
     // OLD VARABLES START
     mModules: TCachedModules;
-
-    BrowserSearchPosition: Longint;
 
     BrowserPosition: Longint; // this helps PgUp, PgDn to scroll chapters...
     SearchBrowserPosition: Longint; // list search results pages...
@@ -746,8 +743,6 @@ type
     function ApplyInitialTranslation(): Boolean;
     procedure TranslateForm(form: TForm; fname: string = '');
     procedure ToggleQuickSearchPanel(const enable: Boolean);
-    procedure SearchForward();
-    procedure SearchBackward();
     procedure ShowReferenceInfo();
     procedure GoReference();
     function DefaultViewTabState(): TViewTabInfoState;
@@ -781,13 +776,18 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
 
   HintTools, sevenZipHelper,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
-  EngineInterfaces, StringProcs, LinksParser;
+  EngineInterfaces, StringProcs, LinksParser, BookFrm;
 
 {$R *.DFM}
 
 function GetModuleView(mainForm: TMainForm): TModuleForm;
 begin
   Result := mainForm.mModuleView as TModuleForm;
+end;
+
+function GetBookView(mainForm: TMainForm): TBookForm;
+begin
+  Result := GetModuleView(mainForm).BookView as TBookForm;
 end;
 
 procedure ClearVolatileStateData(var state: TViewTabInfoState);
@@ -1045,7 +1045,7 @@ begin
 
   SetVScrollTracker(moduleForm.Browser);
 
-  moduleForm.miMemosToggle.Checked := MemosOn;
+  (moduleForm.BookView as TBookForm).miMemosToggle.Checked := MemosOn;
   moduleForm.BibleTabs.Font.Assign(self.Font);
 
   h := self.Font.Height;
@@ -1055,7 +1055,6 @@ begin
   moduleForm.BibleTabs.Height := h + 13;
   moduleForm.Caption := '';
   moduleForm.OnActivate := self.OnModuleFormActivate;
-  moduleForm.OnDeactivate := self.OnModuleFormDeactivate;
   moduleForm.OnClose := self.OnModuleFormClose;
 
   mModuleViews.Add(moduleForm as IModuleView);
@@ -1087,21 +1086,6 @@ begin
   moduleForm.Show;
 
   mModuleView := moduleForm;
-end;
-
-procedure TMainForm.OnModuleFormDeactivate(Sender: TObject);
-var
-  moduleForm: TModuleForm;
-  tabInfo: TViewTabInfo;
-begin
-  moduleForm := Sender as TModuleForm;
-  if Assigned(moduleForm) then
-  begin
-      // save active tab state
-      tabInfo := moduleForm.GetActiveTabInfo();
-      if Assigned(tabInfo) then
-        tabInfo.SaveBrowserState(moduleForm.bwrHtml);
-  end;
 end;
 
 procedure TMainForm.OnModuleFormClose(Sender: TObject; var Action: TCloseAction);
@@ -1140,7 +1124,7 @@ begin
       // restore active tab state
       tabInfo := moduleForm.GetActiveTabInfo();
       if Assigned(tabInfo) then
-        tabInfo.RestoreBrowserState(moduleForm.bwrHtml);
+        tabInfo.RestoreBrowserState(GetBookView(self).bwrHtml);
     end;
   end;
 end;
@@ -1573,7 +1557,7 @@ var
   begin
     tbList.PageControl := nil;
     pgcMain.ActivePageIndex := 0;
-    GetModuleView(self).miAddBookmarkTagged.Visible := false;
+    GetBookView(self).miAddBookmarkTagged.Visible := false;
   end;
 
 begin
@@ -2878,12 +2862,12 @@ begin
     tbtnToggle.Click;
   pgcMain.ActivePage := tbGo;
 
-  Windows.SetFocus(GetModuleView(self).tedtReference.Handle);
+  Windows.SetFocus(GetBookView(self).tedtReference.Handle);
 end;
 
 procedure TMainForm.CopySelectionClick(Sender: TObject);
 begin
-  mModuleView.CopyBrowserSelectionToClipboard();
+  GetBookView(self).CopyBrowserSelectionToClipboard();
 end;
 
 function TMainForm.ActivateFont(const fontPath: string): DWORD;
@@ -3005,7 +2989,7 @@ begin
     Exit;
   end;
 
-  if not GetModuleView(self).tbtnPrevChapter.Enabled then
+  if not GetBookView(self).tbtnPrevChapter.Enabled then
     Exit;
 
   with MainBook do
@@ -3037,7 +3021,7 @@ begin
     Exit;
   end;
 
-  if not GetModuleView(self).tbtnNextChapter.Enabled then
+  if not GetBookView(self).tbtnNextChapter.Enabled then
     Exit;
 
   with MainBook do
@@ -3070,6 +3054,8 @@ var
   locDirectory: string;
   locFilePath: string;
   moduleView: IModuleView;
+  bookForm: TBookForm;
+  moduleForm: TModuleForm;
 begin
   result := false;
 
@@ -3102,7 +3088,13 @@ begin
   for moduleView in mModuleViews do
   begin
     if (moduleView is TModuleForm) then
-      TranslateForm(moduleView as TModuleForm, 'ModuleForm');
+    begin
+      moduleForm := moduleView as TModuleForm;
+      TranslateForm(moduleForm, 'ModuleForm');
+
+      if (moduleForm.BookView is TBookForm) then
+        TranslateForm(moduleForm.BookView as TBookForm, 'ModuleForm');
+    end;
   end;
 
   for i := 0 to miLanguage.Count - 1 do
@@ -3119,20 +3111,20 @@ begin
     LockWindowUpdate(0);
   end;
 
-  GetModuleView(self).miCopySelection.Caption := miCopy.Caption;
+  GetBookView(self).miCopySelection.Caption := miCopy.Caption;
 
   // initialize Toolbar
   SetButtonHint(tbtnToggle, miToggle);
-  SetButtonHint(GetModuleView(self).tbtnCopy, miCopy);
+  SetButtonHint(GetBookView(self).tbtnCopy, miCopy);
   SetButtonHint(tbtnPrint, miPrint);
   SetButtonHint(tbtnPreview, miPrintPreview);
   SetButtonHint(tbtnSound, miSound);
 
-  SetButtonHint(GetModuleView(self).tbtnStrongNumbers, miStrong);
+  SetButtonHint(GetBookView(self).tbtnStrongNumbers, miStrong);
   SetButtonHint(tbtnNewTab, miNewTab);
   SetButtonHint(tbtnCloseTab, miCloseTab);
 
-  GetModuleView(self).tbtnMemos.Hint := GetModuleView(self).miMemosToggle.Caption + ' (' + ShortCutToText(GetModuleView(self).miMemosToggle.ShortCut) + ')';
+  GetBookView(self).tbtnMemos.Hint := GetBookView(self).miMemosToggle.Caption + ' (' + ShortCutToText(GetBookView(self).miMemosToggle.ShortCut) + ')';
 
   cbList.ItemIndex := 0;
 
@@ -3945,8 +3937,8 @@ begin
       AdjustBibleTabs(mModuleView);
     if lbHistory.ItemIndex <> -1 then
     begin
-      GetModuleView(self).tbtnBack.Enabled := lbHistory.ItemIndex < lbHistory.Items.Count - 1;
-      GetModuleView(self).tbtnForward.Enabled := lbHistory.ItemIndex > 0;
+      GetBookView(self).tbtnBack.Enabled := lbHistory.ItemIndex < lbHistory.Items.Count - 1;
+      GetBookView(self).tbtnForward.Enabled := lbHistory.ItemIndex > 0;
     end;
   finally
     mInterfaceLock := false;
@@ -4096,7 +4088,7 @@ begin
           if ActiveControl = reMemo then
             reMemo.CopyToClipboard
           else if GetModuleView(self).ActiveControl = mModuleView.Browser then
-            GetModuleView(self).tbtnCopy.Click
+            GetBookView(self).tbtnCopy.Click
           else if ActiveControl is THTMLViewer then
             (ActiveControl as THTMLViewer).CopyToClipboard
           else if GetModuleView(self).ActiveControl is THTMLViewer then
@@ -4121,7 +4113,7 @@ begin
       ord('F'):
         ShowQuickSearch();
       ord('M'):
-        GetModuleView(self).miMemosToggle.Click;
+        GetBookView(self).miMemosToggle.Click;
 
       ord('L'):
         tbtnSound.Click;
@@ -4263,7 +4255,7 @@ begin
       else
       begin
         // exit from edtGo (F2) or cbSearch (F3) to Browser
-        if (GetModuleView(self).ActiveControl = GetModuleView(self).tedtReference) or (ActiveControl = cbSearch) then
+        if (GetModuleView(self).ActiveControl = GetBookView(self).tedtReference) or (ActiveControl = cbSearch) then
           GetModuleView(self).ActiveControl := mModuleView.Browser;
       end;
     end;
@@ -5955,7 +5947,7 @@ procedure TMainForm.MainBookChangeModule(Sender: TObject);
 begin
   cbModules.ItemIndex := cbModules.Items.IndexOf(MainBook.Name);
   UpdateBooksAndChaptersBoxes();
-  GetModuleView(self).tbtnStrongNumbers.Enabled := MainBook.Trait[bqmtStrongs];
+  GetBookView(self).tbtnStrongNumbers.Enabled := MainBook.Trait[bqmtStrongs];
   SearchListInit;
 
   if pgcMain.ActivePage = tbComments then
@@ -6117,7 +6109,7 @@ end;
 
 procedure TMainForm.miStrongClick(Sender: TObject);
 begin
-  mModuleView.ToggleStrongNumbers();
+  GetBookView(self).ToggleStrongNumbers();
 end;
 
 procedure TMainForm.miVerseHighlightBGClick(Sender: TObject);
@@ -6265,7 +6257,7 @@ end;
 
 procedure TMainForm.bwrSearchHotSpotCovered(Sender: TObject; const SRC: string);
 begin
-  mModuleView.BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
+  GetBookView(self).BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
 end;
 
 procedure TMainForm.miShowSignaturesClick(Sender: TObject);
@@ -6437,12 +6429,12 @@ procedure TMainForm.cbLinksChange(Sender: TObject);
 var
   book, chapter, fromverse, toverse: integer;
 begin
-  GetModuleView(self).tedtReference.Text := cbLinks.Items[cbLinks.ItemIndex];
+  GetBookView(self).tedtReference.Text := cbLinks.Items[cbLinks.ItemIndex];
 
-  if MainBook.OpenReference(GetModuleView(self).tedtReference.Text, book, chapter, fromverse, toverse) then
+  if MainBook.OpenReference(GetBookView(self).tedtReference.Text, book, chapter, fromverse, toverse) then
     ProcessCommand(Format('go %s %d %d %d %d', [MainBook.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
   else
-    ProcessCommand(GetModuleView(self).tedtReference.Text, hlDefault);
+    ProcessCommand(GetBookView(self).tedtReference.Text, hlDefault);
 end;
 
 function TMainForm.DefaultLocation: string;
@@ -6569,7 +6561,7 @@ begin
       ProcessCommand(ConcreteCmd, hlDefault)
     else
     begin
-      GetModuleView(self).tedtReference.Text := SRC;
+      GetBookView(self).tedtReference.Text := SRC;
       GoReference();
     end
   end;
@@ -6577,7 +6569,7 @@ end;
 
 procedure TMainForm.bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
 begin
-  mModuleView.BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
+  GetBookView(self).BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
 end;
 
 procedure TMainForm.bwrCommentsHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -6615,7 +6607,7 @@ begin
       ProcessCommand(ConcreteCmd, hlDefault)
     else
     begin
-      GetModuleView(self).tedtReference.Text := cmd;
+      GetBookView(self).tedtReference.Text := cmd;
       GoReference();
     end;
   end;
@@ -7092,7 +7084,7 @@ begin
     moduleView.BibleTabs.TabIndex := moduleView.BibleTabs.Tabs.Count - 1;
 
   // not a favorite book
-  moduleView.BibleTabs.OnChange := (moduleView as TModuleForm).dtsBibleChange;
+  moduleView.BibleTabs.OnChange := GetBookView(self).dtsBibleChange;
 end;
 
 procedure TMainForm.AppOnHintHandler(Sender: TObject);
@@ -7157,10 +7149,10 @@ procedure TMainForm.GoReference();
   moduleEntry: TModuleEntry;
 label lblTail;
 begin
-  if Trim(GetModuleView(self).tedtReference.Text) = '' then
+  if Trim(GetBookView(self).tedtReference.Text) = '' then
     Exit;
 
-  linktxt := GetModuleView(self).tedtReference.Text;
+  linktxt := GetBookView(self).tedtReference.Text;
   StrReplace(linktxt, '(', '', true);
   StrReplace(linktxt, ')', '', true);
   StrReplace(linktxt, '[', '', true);
@@ -7186,8 +7178,8 @@ begin
     end;
 
     tbLinksToolBar.Visible := (Links.Count > 1);
-    GetModuleView(self).tedtReference.Text := Links[0];
-    openSuccess := MainBook.OpenReference(GetModuleView(self).tedtReference.Text, book, chapter, fromverse, toverse);
+    GetBookView(self).tedtReference.Text := Links[0];
+    openSuccess := MainBook.OpenReference(GetBookView(self).tedtReference.Text, book, chapter, fromverse, toverse);
 
     if not openSuccess then
     begin
@@ -7202,7 +7194,7 @@ begin
           tempBook.inifile :=
             MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).mShortPath + '\bibleqt.ini');
 
-          openSuccess := tempBook.OpenReference(GetModuleView(self).tedtReference.Text, book, chapter, fromverse, toverse);
+          openSuccess := tempBook.OpenReference(GetBookView(self).tedtReference.Text, book, chapter, fromverse, toverse);
 
           if openSuccess then
           begin
@@ -7224,7 +7216,7 @@ begin
 
             modPath := moduleEntry.mShortPath;
             tempBook.inifile := MainFileExists(TPath.Combine(modPath, 'bibleqt.ini'));
-            openSuccess := tempBook.OpenReference(GetModuleView(self).tedtReference.Text, book, chapter, fromverse, toverse);
+            openSuccess := tempBook.OpenReference(GetBookView(self).tedtReference.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin
               MainBook.inifile := tempBook.inifile;
@@ -7240,7 +7232,7 @@ begin
     if openSuccess then
       SafeProcessCommand(Format('go %s %d %d %d %d', [MainBook.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
     else
-      SafeProcessCommand(GetModuleView(self).tedtReference.Text, hlDefault);
+      SafeProcessCommand(GetBookView(self).tedtReference.Text, hlDefault);
   lblTail:
   finally
     Links.Free;
@@ -7283,94 +7275,14 @@ begin
   CopyrightForm.ShowModal;
 end;
 
-procedure TMainForm.SearchBackward();
-var
-  searchText: string;
-  searchOptions: TStringSearchOptions;
-  i: Integer;
-  dx, dy: Integer;
-  X, Y: Integer;
-begin
-  searchText := GetModuleView(self).tedtQuickSearch.Text;
-
-  searchOptions := [];
-  if (GetModuleView(self).tbtnMatchCase.Down) then
-    Include(searchOptions, soMatchCase);
-  if (GetModuleView(self).tbtnMatchWholeWord.Down) then
-    Include(searchOptions, soWholeWord);
-
-  i := FindPosition(mModuleView.Browser.DocumentSource, searchText, BrowserSearchPosition - 1, searchOptions);
-  if i > 0 then
-  begin
-    BrowserSearchPosition := i;
-    dx := mModuleView.Browser.FindDisplayPos(i, true);
-    dy := mModuleView.Browser.FindDisplayPos(i + Length(searchText), true);
-    mModuleView.Browser.SelStart := dx - 1;
-    mModuleView.Browser.SelLength := dy - dx;
-    mModuleView.Browser.DisplayPosToXY(dx, X, Y);
-    if (Y > 10) then
-      mModuleView.Browser.VScrollBarPosition := Y - 10
-    else
-      mModuleView.Browser.VScrollBarPosition := Y;
-  end
-  else
-  begin
-    if (Length(mModuleView.Browser.DocumentSource) > 0) then
-      BrowserSearchPosition := mModuleView.Browser.DocumentSource.Length - 1
-    else
-      BrowserSearchPosition := 0;
-  end;
-end;
-
-procedure TMainForm.SearchForward();
-var
-  searchText: string;
-  searchOptions: TStringSearchOptions;
-  i: Integer;
-  dx, dy: Integer;
-  X, Y: Integer;
-begin
-  searchText := GetModuleView(self).tedtQuickSearch.Text;
-
-  searchOptions := [soDown];
-  if (GetModuleView(self).tbtnMatchCase.Down) then
-    Include(searchOptions, soMatchCase);
-  if (GetModuleView(self).tbtnMatchWholeWord.Down) then
-    Include(searchOptions, soWholeWord);
-
-  if BrowserSearchPosition = 0 then
-  begin
-    BrowserSearchPosition := Pos('</title>', string(mModuleView.Browser.DocumentSource));
-    if BrowserSearchPosition > 0 then
-      inc(BrowserSearchPosition, Length('</title>'));
-  end;
-
-  i := FindPosition(mModuleView.Browser.DocumentSource, searchText, BrowserSearchPosition + 1, searchOptions);
-  if i > 0 then
-  begin
-    BrowserSearchPosition := i;
-    dx := mModuleView.Browser.FindDisplayPos(i, true);
-    dy := mModuleView.Browser.FindDisplayPos(i + Length(searchText), true);
-    mModuleView.Browser.SelStart := dx - 1;
-    mModuleView.Browser.SelLength := dy - dx;
-    mModuleView.Browser.DisplayPosToXY(dx, X, Y);
-    if (Y > 10) then
-      mModuleView.Browser.VScrollBarPosition := Y - 10
-    else
-      mModuleView.Browser.VScrollBarPosition := Y;
-  end
-  else
-    BrowserSearchPosition := 0;
-end;
-
 procedure TMainForm.ToggleQuickSearchPanel(const enable: Boolean);
 begin
-  GetModuleView(self).tbtnQuickSearch.Down := enable;
-  GetModuleView(self).tlbQuickSearch.Visible := enable;
-  GetModuleView(self).tlbQuickSearch.Height := IfThen(enable, GetModuleView(self).tlbViewPage.Height, 0);
+  GetBookView(self).tbtnQuickSearch.Down := enable;
+  GetBookView(self).tlbQuickSearch.Visible := enable;
+  GetBookView(self).tlbQuickSearch.Height := IfThen(enable, GetBookView(self).tlbViewPage.Height, 0);
 
   if (enable) then
-    GetModuleView(self).ActiveControl := GetModuleView(self).tedtQuickSearch;
+    GetModuleView(self).ActiveControl := GetBookView(self).tedtQuickSearch;
 
 end;
 
@@ -7814,12 +7726,12 @@ begin
     AdjustBibleTabs(mModuleView, MainBook.ShortName);
     StrongNumbersOn := tabInfo[vtisShowStrongs];
     miStrong.Checked := tabInfo[vtisShowStrongs];
-    GetModuleView(self).tbtnStrongNumbers.Down := tabInfo[vtisShowStrongs];
+    GetBookView(self).tbtnStrongNumbers.Down := tabInfo[vtisShowStrongs];
     tbtnSatellite.Down := (Length(tabInfo.SatelliteName) > 0) and (tabInfo.SatelliteName <> '------');
 
-    GetModuleView(self).tbtnStrongNumbers.Enabled := MainBook.Trait[bqmtStrongs];
+    GetBookView(self).tbtnStrongNumbers.Enabled := MainBook.Trait[bqmtStrongs];
     MemosOn := tabInfo[vtisShowNotes];
-    GetModuleView(self).miMemosToggle.Checked := MemosOn;
+    GetBookView(self).miMemosToggle.Checked := MemosOn;
 
     if tabInfo[vtisResolveLinks] then
     begin
@@ -7835,7 +7747,7 @@ begin
 
     miRecognizeBibleLinks.Checked := tabInfo[vtisResolveLinks];
 
-    GetModuleView(self).tbtnMemos.Down := MemosOn;
+    GetBookView(self).tbtnMemos.Down := MemosOn;
 
     if not MainBook.isBible then
     begin
@@ -9300,24 +9212,24 @@ begin
 
   case pgcMain.ActivePageIndex of
     0:
-      GetModuleView(self).pmMemo.PopupComponent := GetModuleView(self).tedtReference;
+      GetBookView(self).pmMemo.PopupComponent := GetBookView(self).tedtReference;
     1:
       begin
-        GetModuleView(self).pmMemo.PopupComponent := cbSearch;
+        GetBookView(self).pmMemo.PopupComponent := cbSearch;
       end;
     2:
-      GetModuleView(self).pmMemo.PopupComponent := edtDic;
+      GetBookView(self).pmMemo.PopupComponent := edtDic;
     3:
-      GetModuleView(self).pmMemo.PopupComponent := edtStrong;
+      GetBookView(self).pmMemo.PopupComponent := edtStrong;
     4:
       begin
-        GetModuleView(self).pmMemo.PopupComponent := bwrComments;
+        GetBookView(self).pmMemo.PopupComponent := bwrComments;
         FilterCommentariesCombo;
       end;
     5:
-      GetModuleView(self).pmMemo.PopupComponent := bwrXRef;
+      GetBookView(self).pmMemo.PopupComponent := bwrXRef;
     6:
-      GetModuleView(self).pmMemo.PopupComponent := reMemo;
+      GetBookView(self).pmMemo.PopupComponent := reMemo;
 
   end;
 end;
@@ -9670,7 +9582,7 @@ begin
 
   if InputForm.ShowModal = mrOk then
   begin
-    GetModuleView(self).tedtReference.Text := InputForm.edtValue.Text;
+    GetBookView(self).tedtReference.Text := InputForm.edtValue.Text;
     InputForm.edtValue.Text := '';
     GoReference();
 
@@ -10010,7 +9922,7 @@ begin
   NewViewTab(addr, satBible, '', ti.State, '', true);
   if GetCommandType(G_XRefVerseCmd) = bqctInvalid then
   begin
-    GetModuleView(self).tedtReference.Text := addr;
+    GetBookView(self).tedtReference.Text := addr;
     GoReference();
   end;
 
@@ -10199,11 +10111,11 @@ begin
   end;
   ToggleQuickSearchPanel(true);
   try
-    FocusControl(GetModuleView(self).tedtQuickSearch);
+    FocusControl(GetBookView(self).tedtQuickSearch);
   except
   end;
-  if Length(GetModuleView(self).tedtQuickSearch.Text) > 0 then
-    GetModuleView(self).tedtQuickSearch.SelectAll();
+  if Length(GetBookView(self).tedtQuickSearch.Text) > 0 then
+    GetBookView(self).tedtQuickSearch.SelectAll();
 end;
 
 procedure TMainForm.ShowSearchTab;

@@ -50,7 +50,8 @@ uses
   ModuleViewIntf in 'UI\ModuleViewIntf.pas',
   ModuleFrm in 'Forms\ModuleFrm.pas' {ModuleForm},
   ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas',
-  ViewConfig in 'IO\ViewConfig.pas';
+  ViewConfig in 'IO\ViewConfig.pas',
+  BookFrm in 'Forms\BookFrm.pas' {BookForm};
 
 {$R *.res}
 var
