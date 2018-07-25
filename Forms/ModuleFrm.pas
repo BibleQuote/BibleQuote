@@ -5,11 +5,9 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Tabs, Vcl.DockTabSet, Vcl.ExtCtrls,
-  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ToolWin, HTMLEmbedInterfaces, Htmlview,
-  System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, HintTools,
-  CommandProcessor, BibleQuoteUtils, ShellAPI, System.StrUtils,
-  LinksParserIntf, SevenZipHelper, HTMLUn2, ExceptionFrm, InputFrm,
-  ShlObj, contnrs, Clipbrd, Bible, Math, StringProcs, ModuleViewIntf, MainFrm,
+  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ToolWin, Htmlview,
+  System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, BibleQuoteUtils,
+  ExceptionFrm, Math, ModuleViewIntf, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, BookFra;
 
