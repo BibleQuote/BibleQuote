@@ -39,6 +39,8 @@ type
     mCopyrightNotice: string;
     mTitle: string;
     mBible, mSecondBible: TBible;
+    mReferenceBible: TBible;
+
     mSatelliteName: string;
     mFirstVisiblePara, mLastVisiblePara: integer;
 
@@ -65,7 +67,8 @@ type
     property LastVisiblePara: integer read mLastVisiblePara  write mLastVisiblePara;
 
     property Bible: TBible read mBible;
-    property SecondBible: TBible read mSecondBible;
+    property SecondBible: TBible read mSecondBible write mSecondBible;
+    property ReferenceBible: TBible read mReferenceBible write mReferenceBible;
 
     property LocationType: TViewTabLocType read mLocationType write mLocationType;
     property BrowserState: TViewTabBrowserState read mBrowserState;

@@ -57,6 +57,7 @@ type
 
     procedure CloseActiveTab();
     procedure UpdateViewTabs();
+    function AddBookTab(newTabInfo: TViewTabInfo; const title: string): TChromeTab;
 
     // getters
     function GetBrowser: THTMLViewer;
@@ -378,6 +379,17 @@ begin
   except
     // just eat everything wrong
   end;
+end;
+
+function TModuleForm.AddBookTab(newTabInfo: TViewTabInfo; const title: string): TChromeTab;
+var
+  newTab: TChromeTab;
+begin
+  newTab := ViewTabs.Tabs.Add;
+  newTab.Caption := title;
+  newTab.Data := newTabInfo;
+
+  Result := newTab;
 end;
 
 end.

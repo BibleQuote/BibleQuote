@@ -17,6 +17,7 @@ interface
     procedure CloseActiveTab();
     function GetActiveTabInfo(): TViewTabInfo;
     procedure UpdateViewTabs();
+    function AddBookTab(newTabInfo: TViewTabInfo; const title: string): TChromeTab;
 
     // getters
     function GetBrowser: THTMLViewer;

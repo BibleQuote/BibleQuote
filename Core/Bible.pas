@@ -425,8 +425,7 @@ begin
   inherited Destroy;
 end;
 
-function TBible.ReferenceToInternal(const moduleRelatedRef: TBibleLink;
-  out independent: TBibleLink): integer;
+function TBible.ReferenceToInternal(const moduleRelatedRef: TBibleLink; out independent: TBibleLink): integer;
 begin
   moduleRelatedRef.AssignTo(independent);
   Result := ord(ReferenceToInternal(

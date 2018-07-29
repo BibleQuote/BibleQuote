@@ -22,8 +22,6 @@ object BookFrame: TBookFrame
     Color = clWindow
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 320
-    ExplicitHeight = 219
     object bwrHtml: THTMLViewer
       Left = 0
       Top = 54
@@ -54,8 +52,6 @@ object BookFrame: TBookFrame
       OnHotSpotCovered = bwrHtmlHotSpotCovered
       OnImageRequest = bwrHtmlImageRequest
       OnMouseDouble = bwrHtmlMouseDouble
-      ExplicitWidth = 320
-      ExplicitHeight = 165
     end
     object pnlViewPageToolbar: TPanel
       Left = 0
@@ -69,7 +65,6 @@ object BookFrame: TBookFrame
       Padding.Right = 1
       Padding.Bottom = 2
       TabOrder = 1
-      ExplicitWidth = 320
       object tlbViewPage: TToolBar
         AlignWithMargins = True
         Left = 2
@@ -84,7 +79,6 @@ object BookFrame: TBookFrame
         GradientEndColor = clWindow
         Images = ilImages
         TabOrder = 0
-        ExplicitWidth = 316
         object tbtnBack: TToolButton
           Left = 0
           Top = 0
@@ -214,7 +208,6 @@ object BookFrame: TBookFrame
         TabOrder = 1
         Transparent = True
         Visible = False
-        ExplicitWidth = 316
         object tbtnQuickSearchPrev: TToolButton
           Left = 0
           Top = 0
@@ -270,8 +263,6 @@ object BookFrame: TBookFrame
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 219
-    ExplicitWidth = 320
     object dtsBible: TDockTabSet
       Tag = -1
       Left = 0
@@ -298,14 +289,13 @@ object BookFrame: TBookFrame
       OnMouseMove = dtsBibleMouseMove
       OnMouseUp = dtsBibleMouseUp
       DockSite = False
-      ExplicitWidth = 320
     end
   end
   object ilImages: TImageList
     Left = 96
     Top = 95
     Bitmap = {
-      494C010111006800000410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010111006800040410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
