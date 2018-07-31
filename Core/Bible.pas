@@ -242,7 +242,7 @@ type
 
   protected
     mRecognizeBibleLinks: boolean;
-    mFuzzyResolveLnks: boolean;
+    mFuzzyResolveLinks: boolean;
     mShortNamesVars: TStringList;
     mModuleType: TbqModuleType;
 
@@ -391,7 +391,7 @@ type
     property OnChangeModule: TNotifyEvent read FOnChangeModule write FOnChangeModule;
     property OnPasswordRequired: TBiblePasswordRequired read FOnPasswordRequired write FOnPasswordRequired;
     property RecognizeBibleLinks: boolean read mRecognizeBibleLinks write mRecognizeBibleLinks;
-    property FuzzyResolve: boolean read mFuzzyResolveLnks write mFuzzyResolveLnks;
+    property FuzzyResolve: boolean read mFuzzyResolveLinks write mFuzzyResolveLinks;
 
   end;
 
@@ -981,7 +981,7 @@ begin
   recLnks := (not FBible) or (IsCommentary());
   if forceResolveLinks or (recLnks and mRecognizeBibleLinks) then
   begin
-    FLines.Text := ResolveLnks(FLines.Text, mFuzzyResolveLnks);
+    FLines.Text := ResolveLinks(FLines.Text, mFuzzyResolveLinks);
   end;
 
   if FFiltered and trait[bqmtIncludeChapterHead] then

@@ -112,6 +112,7 @@ type
     procedure ToggleStrongNumbers();
     procedure BrowserHotSpotCovered(viewer: THTMLViewer; src: string);
     procedure FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
+    procedure ToggleQuickSearchPanel(const enable: Boolean);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -119,7 +120,6 @@ type
 
     mBrowserSearchPosition: Longint;
 
-    procedure ToggleQuickSearchPanel(const enable: Boolean);
     procedure SetMemosVisible(showMemos: Boolean);
 
     procedure SearchForward();
@@ -1367,13 +1367,15 @@ var
   tabInfo: TViewTabInfo;
 begin
   tabInfo := mModuleView.GetActiveTabInfo;
-
-  ix := mMainView.mModules.FindByName(name);
-  if ix >= 0 then
+  if (Assigned(mMainView.mModules)) then
   begin
-    ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].mShortPath, 'bibleqt.ini'));
-    if (ini <> tabInfo.SecondBible.inifile) then
-      tabInfo.SecondBible.inifile := ini;
+    ix := mMainView.mModules.FindByName(name);
+    if ix >= 0 then
+    begin
+      ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].mShortPath, 'bibleqt.ini'));
+      if (ini <> tabInfo.SecondBible.inifile) then
+        tabInfo.SecondBible.inifile := ini;
+    end;
   end;
 end;
 

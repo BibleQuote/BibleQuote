@@ -100,7 +100,7 @@ type
   end;
 
 function Prepare(fn: string; var df: Text): boolean;
-function ResolveLnks(const txt: string; fuzzyLogic: boolean): string;
+function ResolveLinks(const txt: string; fuzzyLogic: boolean): string;
 
 procedure ExtractLnks(const txt: string; fuzzyLogic: boolean; var la: TBibleLinkArray);
 procedure FinalizeParser();
@@ -1026,13 +1026,13 @@ begin
   lparser.mBlArray := la;
   Include(lparser.mLinkParserOptions, lpoExtractLnks);
   try
-    ResolveLnks(txt, fuzzyLogic);
+    ResolveLinks(txt, fuzzyLogic);
   finally
     Exclude(lparser.mLinkParserOptions, lpoExtractLnks);
   end;
 end;
 
-function ResolveLnks(const txt: string; fuzzyLogic: boolean): string;
+function ResolveLinks(const txt: string; fuzzyLogic: boolean): string;
 var
   pCurrent, pFirstToken, pSavedFirstToken, pSecondToken, pLinkStart,
   pWriteBuf, pWriteFence, pLastWrittenFrom, psFence, pNewCurrent,
