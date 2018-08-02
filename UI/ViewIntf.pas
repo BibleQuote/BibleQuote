@@ -1,4 +1,4 @@
-unit ModuleViewIntf;
+unit ViewIntf;
 
 interface
 
@@ -11,13 +11,14 @@ interface
   ['{8015DBB1-AC95-49F3-9E00-B49BEF9A60F6}']
   end;
 
-  type IModuleView = interface
+  type ITabsView = interface
   ['{DEADBEEF-31AB-4F3A-B16F-57B47258402A}']
 
     procedure CloseActiveTab();
     function GetActiveTabInfo(): TViewTabInfo;
     procedure UpdateViewTabs();
     function AddBookTab(newTabInfo: TViewTabInfo; const title: string): TChromeTab;
+    procedure MakeActive();
 
     // getters
     function GetBrowser: THTMLViewer;

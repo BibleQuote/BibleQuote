@@ -1,4 +1,4 @@
-unit ViewConfig;
+unit LayoutConfig;
 
 interface
 uses
@@ -21,7 +21,7 @@ type
   end;
 
 type
-  TModuleViewSettings = class
+  TTabsViewSettings = class
   private
     FTabSettingsList: TList<TTabSettings>;
     FActive: boolean;
@@ -42,40 +42,40 @@ type
   end;
 
 type
-  TViewConfig = class
+  TLayoutConfig = class
   private
-    FModuleViews: TList<TModuleViewSettings>;
+    FTabsViewList: TList<TTabsViewSettings>;
   public
-    property ModuleViews: TList<TModuleViewSettings> read FModuleViews write FModuleViews;
+    property TabsViewList: TList<TTabsViewSettings> read FTabsViewList write FTabsViewList;
 
     constructor Create();
 
     procedure Save(fileName: string);
-    class function Load(fileName: string) : TViewConfig;
+    class function Load(fileName: string) : TLayoutConfig;
   end;
 
 implementation
 
-constructor TModuleViewSettings.Create();
+constructor TTabsViewSettings.Create();
 begin
   TabSettingsList := TList<TTabSettings>.Create();
   Active := false;
 end;
 
-constructor TViewConfig.Create();
+constructor TLayoutConfig.Create();
 begin
-  ModuleViews := TList<TModuleViewSettings>.Create();
+  TabsViewList := TList<TTabsViewSettings>.Create();
 end;
 
-class function TViewConfig.Load(fileName: string): TViewConfig;
+class function TLayoutConfig.Load(fileName: string): TLayoutConfig;
 var
   json: string;
 begin
   json := TFile.ReadAllText(fileName);
-  Result := TJson.JsonToObject<TViewConfig>(json);
+  Result := TJson.JsonToObject<TLayoutConfig>(json);
 end;
 
-procedure TViewConfig.Save(fileName: string);
+procedure TLayoutConfig.Save(fileName: string);
 var
   json: string;
 begin

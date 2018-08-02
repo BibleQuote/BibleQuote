@@ -19,8 +19,8 @@ uses
   VdtEditlink, bqGradientPanel, ModuleProcs,
   Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
   MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
-  TabData, Favorites, ModuleViewIntf, ThinCaptionedDockTree,
-  Vcl.CaptionedDockTree, ViewConfig,
+  TabData, Favorites, ViewIntf, ThinCaptionedDockTree,
+  Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog;
 
@@ -437,11 +437,11 @@ type
       const SearchText: string;
       var Result: integer);
 
-    function CreateModuleView(viewName: string): IModuleView;
-    procedure CreateInitialModuleView();
-    function GenerateViewModuleViewName(): string;
-    procedure OnModuleFormActivate(Sender: TObject);
-    procedure OnModuleFormClose(Sender: TObject; var Action: TCloseAction);
+    function CreateTabsView(viewName: string): ITabsView;
+    procedure CreateInitialTabsView();
+    function GenerateTabsViewName(): string;
+    procedure OnTabsFormActivate(Sender: TObject);
+    procedure OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
     procedure CompareTranslations();
     procedure DictionariesLoading(Sender: TObject);
     procedure DictionariesLoaded(Sender: TObject);
@@ -501,8 +501,8 @@ type
     mModuleLoader: TModuleLoader;
     mTranslated: Boolean;
 
-    mModuleView: IModuleView;
-    mModuleViews: TList<IModuleView>;
+    mTabsView: ITabsView;
+    mTabsViews: TList<ITabsView>;
 
     // OLD VARABLES START
     mModules: TCachedModules;
@@ -599,8 +599,8 @@ type
       state: TViewTabInfoState;
       visual: Boolean);
 
-    procedure SaveModuleViews();
-    procedure LoadModuleViews();
+    procedure SaveTabsViews();
+    procedure LoadTabsViews();
 
     function NewViewTab(
       const command: string;
@@ -623,7 +623,7 @@ type
     procedure SaveHotModulesConfig(aMUIEngine: TMultiLanguage);
     function AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
     function FavoriteItemFromModEntry(const me: TModuleEntry): TMenuItem;
-    function FavoriteTabFromModEntry(moduleView: IModuleView; const me: TModuleEntry): integer;
+    function FavoriteTabFromModEntry(tabsView: ITabsView; const me: TModuleEntry): integer;
     procedure DeleteHotModule(moduleTabIx: integer); overload;
     function DeleteHotModule(const me: TModuleEntry): Boolean; overload;
     function ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
@@ -771,7 +771,7 @@ implementation
 uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
   BibleQuoteConfig,
   ExceptionFrm, AboutFrm, ShellAPI,
-  StrUtils, CommCtrl, ModuleFrm,
+  StrUtils, CommCtrl, DockTabsFrm,
 
   HintTools, sevenZipHelper, BookFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
@@ -782,28 +782,28 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
 function TMainForm.GetMainBook(): TBible;
 begin
   Result := nil;
-  if (Assigned(mModuleView)) then
-    Result := mModuleView.GetActiveTabInfo.Bible;
+  if (Assigned(mTabsView)) then
+    Result := mTabsView.GetActiveTabInfo.Bible;
 end;
 
 function TMainForm.GetSecondaryBook(): TBible;
 begin
-  Result := mModuleView.GetActiveTabInfo.SecondBible;
+  Result := mTabsView.GetActiveTabInfo.SecondBible;
 end;
 
 function TMainForm.GetReferenceBook(): TBible;
 begin
-  Result := mModuleView.GetActiveTabInfo.ReferenceBible;
+  Result := mTabsView.GetActiveTabInfo.ReferenceBible;
 end;
 
-function GetModuleView(mainForm: TMainForm): TModuleForm;
+function GetTabsView(mainForm: TMainForm): TDockTabsForm;
 begin
-  Result := mainForm.mModuleView as TModuleForm;
+  Result := mainForm.mTabsView as TDockTabsForm;
 end;
 
 function GetBookView(mainForm: TMainForm): TBookFrame;
 begin
-  Result := GetModuleView(mainForm).BookView as TBookFrame;
+  Result := GetTabsView(mainForm).BookView as TBookFrame;
 end;
 
 procedure ClearVolatileStateData(var state: TViewTabInfoState);
@@ -858,13 +858,13 @@ end;
 procedure TMainForm.GoRandomPlace;
 var
   bookIndex, chapterIndex, verseIndex: integer;
-  moduleView: TModuleForm;
+  tabsView: TDockTabsForm;
   book: TBible;
 begin
-  moduleView := GetModuleView(self);
-  if (Assigned(moduleView)) then
+  tabsView := GetTabsView(self);
+  if (Assigned(tabsView)) then
   begin
-    book := moduleView.GetActiveTabInfo.Bible;
+    book := tabsView.GetActiveTabInfo.Bible;
 
     Randomize();
     bookIndex := Random(book.BookQty) + 1;
@@ -1042,67 +1042,66 @@ begin
   end;
 end;
 
-function TMainForm.CreateModuleView(viewName: string): IModuleView;
+function TMainForm.CreateTabsView(viewName: string): ITabsView;
 var
-  moduleForm: TModuleForm;
+  tabsForm: TDockTabsForm;
   h: Integer;
 begin
-  moduleForm := TModuleForm.Create(self, self);
-  moduleForm.SetViewName(viewName);
+  tabsForm := TDockTabsForm.Create(self, self);
+  tabsForm.SetViewName(viewName);
 
-  TranslateControl(moduleForm, 'ModuleForm');
+  TranslateControl(tabsForm, 'DockTabsForm');
 
-  with moduleForm.Browser do
+  with tabsForm.Browser do
   begin
     DefFontName := mBrowserDefaultFontName;
     DefFontSize := StrToInt(MainCfgIni.SayDefault('DefFontSize', '12'));
     DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor', Color2Hex(clWindowText))); // '#000000'
     DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
     DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
-
   end;
 
   if miHrefUnderlineChecked then
-     moduleForm.Browser.htOptions := moduleForm.Browser.htOptions - [htNoLinkUnderline]
+     tabsForm.Browser.htOptions := tabsForm.Browser.htOptions - [htNoLinkUnderline]
   else
-     moduleForm.Browser.htOptions := moduleForm.Browser.htOptions + [htNoLinkUnderline];
+     tabsForm.Browser.htOptions := tabsForm.Browser.htOptions + [htNoLinkUnderline];
 
-  SetVScrollTracker(moduleForm.Browser);
+  SetVScrollTracker(tabsForm.Browser);
 
-  (moduleForm.BookView as TBookFrame).miMemosToggle.Checked := MemosOn;
-  moduleForm.BibleTabs.Font.Assign(self.Font);
+  (tabsForm.BookView as TBookFrame).miMemosToggle.Checked := MemosOn;
+  tabsForm.BibleTabs.Font.Assign(self.Font);
 
   h := self.Font.Height;
   if h < 0 then
     h := -h;
 
-  moduleForm.BibleTabs.Height := h + 13;
-  moduleForm.Caption := '';
-  moduleForm.OnActivate := self.OnModuleFormActivate;
-  moduleForm.OnClose := self.OnModuleFormClose;
+  tabsForm.BibleTabs.Height := h + 13;
+  tabsForm.Caption := '';
+  tabsForm.OnActivate := self.OnTabsFormActivate;
+  tabsForm.OnClose := self.OnTabsFormClose;
 
-  mModuleViews.Add(moduleForm as IModuleView);
+  mTabsViews.Add(tabsForm as ITabsView);
 
-  Result := moduleForm;
+  Result := tabsForm;
 end;
 
-function TMainForm.GenerateViewModuleViewName(): string;
+function TMainForm.GenerateTabsViewName(): string;
 var guid: TGUID;
 begin
   CreateGUID(guid);
-  Result := 'ModuleForm_' + Format('%0.8X%0.4X%0.4X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X',
+  Result := 'DockTabsForm_' + Format('%0.8X%0.4X%0.4X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X',
        [guid.D1, guid.D2, guid.D3,
        guid.D4[0], guid.D4[1], guid.D4[2], guid.D4[3],
        guid.D4[4], guid.D4[5], guid.D4[6], guid.D4[7]]);
 end;
 
-procedure TMainForm.CreateInitialModuleView();
+procedure TMainForm.CreateInitialTabsView();
 var
-  moduleForm: TModuleForm;
+  tabsForm: TDockTabsForm;
   tabInfo: TViewTabInfo;
   book, secondBook, refBook: TBible;
 begin
-  moduleForm := CreateModuleView(GenerateViewModuleViewName()) as TModuleForm;
+  tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
 
   book := CreateNewBibleInstance();
   secondBook := TBible.Create(self);
@@ -1112,49 +1111,49 @@ begin
   tabInfo.SecondBible := secondBook;
   tabInfo.ReferenceBible := refBook;
 
-  moduleForm.AddBookTab(tabInfo, book.Name);
+  tabsForm.AddBookTab(tabInfo, book.Name);
 
-  moduleForm.ManualDock(pnlModules);
-  moduleForm.Show;
+  tabsForm.ManualDock(pnlModules);
+  tabsForm.Show;
 
-  mModuleView := moduleForm;
+  mTabsView := tabsForm;
 end;
 
-procedure TMainForm.OnModuleFormClose(Sender: TObject; var Action: TCloseAction);
+procedure TMainForm.OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
 var
-  moduleView: TModuleForm;
+  tabsView: TDockTabsForm;
 begin
-  if (Sender is TModuleForm) then
+  if (Sender is TDockTabsForm) then
   begin
-    moduleView := Sender as TModuleForm;
-    mModuleViews.Remove(moduleView as IModuleView);
+    tabsView := Sender as TDockTabsForm;
+    mTabsViews.Remove(tabsView as ITabsView);
 
-    if (mModuleViews.Count > 0) then
+    if (mTabsViews.Count > 0) then
     begin
-      if (mModuleViews[0] is TModuleForm) then
-        OnModuleFormActivate(mModuleViews[0] as TModuleForm);
+      if (mTabsViews[0] is TDockTabsForm) then
+        OnTabsFormActivate(mTabsViews[0] as TDockTabsForm);
     end;
   end;
 end;
 
-procedure TMainForm.OnModuleFormActivate(Sender: TObject);
+procedure TMainForm.OnTabsFormActivate(Sender: TObject);
 var
-  moduleForm: TModuleForm;
+  tabsForm: TDockTabsForm;
   tabInfo: TViewTabInfo;
 begin
-  moduleForm := Sender as TModuleForm;
+  tabsForm := Sender as TDockTabsForm;
 
-  if Assigned(moduleForm) then
+  if Assigned(tabsForm) then
   begin
-    if (mModuleView <> moduleForm as IModuleView) then
+    if (mTabsView <> tabsForm as ITabsView) then
     begin
-      mModuleView := moduleForm;
+      mTabsView := tabsForm;
 
       // sync main form UI
       UpdateUI();
 
       // restore active tab state
-      tabInfo := moduleForm.GetActiveTabInfo();
+      tabInfo := tabsForm.GetActiveTabInfo();
       if Assigned(tabInfo) then
         tabInfo.RestoreBrowserState(GetBookView(self).bwrHtml);
     end;
@@ -1187,15 +1186,15 @@ function TMainForm.LoadHotModulesConfig(): Boolean;
 var
   fn1, fn2: string;
   f1Exists, f2Exists: Boolean;
-  moduleView: IModuleView;
+  tabsView: ITabsView;
 begin
   try
 
     Result := false;
-    for moduleView in mModuleViews do
+    for tabsView in mTabsViews do
     begin
-        moduleView.BibleTabs.Tabs.Clear();
-        moduleView.BibleTabs.Tabs.Add('***');
+        tabsView.BibleTabs.Tabs.Clear();
+        tabsView.BibleTabs.Tabs.Add('***');
     end;
 
     fn1 := CreateAndGetConfigFolder() + C_HotModulessFileName;
@@ -1440,7 +1439,7 @@ begin
     Include(Result, vtisShowNotes);
 end;
 
-procedure TMainForm.LoadModuleViews();
+procedure TMainForm.LoadTabsViews();
 var
   tabIx, i, activeTabIx: integer;
   strongNotesCode: UInt64;
@@ -1448,67 +1447,67 @@ var
   addTabResult, firstTabInitialized: Boolean;
   initTabInfo: TViewTabInfo;
   tabViewState: TViewTabInfoState;
-  viewConfig: TViewConfig;
+  layoutConfig: TLayoutConfig;
   tabSettings: TTabSettings;
-  moduleViewSettings: TModuleViewSettings;
-  isFirstModuleView: boolean;
-  moduleForm: TModuleForm;
+  tabsViewSettings: TTabsViewSettings;
+  isFirstTabsView: boolean;
+  tabsForm: TDockTabsForm;
   fileStream: TFileStream;
-  tabsConfig, viewsConfig: string;
+  tabsConfigPath, layoutConfigPath: string;
   newTab: TChromeTab;
   book: TBible;
 begin
-  tabsConfig := UserDir + 'viewtabs.json';
-  viewsConfig := UserDir + 'viewforms.dat';
+  tabsConfigPath := UserDir + 'layout_tabs.json';
+  layoutConfigPath := UserDir + 'layout_forms.dat';
 
   firstTabInitialized := false;
   try
-    if (not FileExists(tabsConfig)) then
+    if (not FileExists(tabsConfigPath)) then
     begin
-      CreateInitialModuleView();
+      CreateInitialTabsView();
       SetFirstTabInitialLocation(LastAddress, '', '', DefaultViewTabState(), true);
       Exit;
     end;
 
-    viewConfig := TViewConfig.Load(tabsConfig);
-    isFirstModuleView := true;
+    layoutConfig := TLayoutConfig.Load(tabsConfigPath);
+    isFirstTabsView := true;
 
-    for moduleViewSettings in viewConfig.ModuleViews do
+    for tabsViewSettings in layoutConfig.TabsViewList do
     begin
       activeTabIx := -1;
       tabIx := 0;
       i := 0;
 
-      if (not isFirstModuleView) then
+      if (not isFirstTabsView) then
       begin
-        moduleForm := CreateModuleView(moduleViewSettings.ViewName) as TModuleForm;
+        tabsForm := CreateTabsView(tabsViewSettings.ViewName) as TDockTabsForm;
       end
       else
       begin
-        moduleForm := CreateModuleView(moduleViewSettings.ViewName) as TModuleForm;
+        tabsForm := CreateTabsView(tabsViewSettings.ViewName) as TDockTabsForm;
         book := CreateNewBibleInstance();
 
         initTabInfo := TViewTabInfo.Create(book, '', SatelliteBible, '', DefaultViewTabState());
         initTabInfo.SecondBible := TBible.Create(self);
         initTabInfo.ReferenceBible := TBible.Create(self);
 
-        moduleForm.AddBookTab(initTabInfo, book.Name);
+        tabsForm.AddBookTab(initTabInfo, book.Name);
       end;
 
-      if (moduleViewSettings.Docked) then
-        moduleForm.ManualDock(pnlModules)
+      if (tabsViewSettings.Docked) then
+        tabsForm.ManualDock(pnlModules)
       else
       begin
-        moduleForm.Left := moduleViewSettings.Left;
-        moduleForm.Top := moduleViewSettings.Top;
-        moduleForm.Height := moduleViewSettings.Height;
-        moduleForm.Width := moduleViewSettings.Width;
+        tabsForm.Left := tabsViewSettings.Left;
+        tabsForm.Top := tabsViewSettings.Top;
+        tabsForm.Height := tabsViewSettings.Height;
+        tabsForm.Width := tabsViewSettings.Width;
       end;
 
-      moduleForm.Show;
-      mModuleView := moduleForm;
+      tabsForm.Show;
+      mTabsView := tabsForm;
 
-      for tabSettings in moduleViewSettings.TabSettingsList do
+      for tabSettings in tabsViewSettings.TabSettingsList do
       begin
         if (tabSettings.Active) then
           activeTabIx := i;
@@ -1524,7 +1523,7 @@ begin
         location := tabSettings.Location;
         if Length(Trim(location)) > 0 then
         begin
-          if ((tabIx > 0) or not isFirstModuleView) then
+          if ((tabIx > 0) or not isFirstTabsView) then
             addTabResult := NewViewTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
           else
           begin
@@ -1542,18 +1541,18 @@ begin
         inc(i);
       end;
 
-      if (activeTabIx < 0) or (activeTabIx >= mModuleView.ViewTabs.Tabs.Count) then
+      if (activeTabIx < 0) or (activeTabIx >= mTabsView.ViewTabs.Tabs.Count) then
           activeTabIx := 0;
 
-      mModuleView.ViewTabs.ActiveTabIndex := activeTabIx;
-      mModuleView.UpdateViewTabs();
+      mTabsView.ViewTabs.ActiveTabIndex := activeTabIx;
+      mTabsView.UpdateViewTabs();
 
-      isFirstModuleView := false;
+      isFirstTabsView := false;
     end;
 
-    if (firstTabInitialized and TFile.Exists(viewsConfig)) then
+    if (firstTabInitialized and TFile.Exists(layoutConfigPath)) then
     begin
-        fileStream := TFileStream.Create(viewsConfig, fmOpenRead);
+        fileStream := TFileStream.Create(layoutConfigPath, fmOpenRead);
         pnlModules.DockManager.LoadFromStream(fileStream);
         fileStream.Free;
     end;
@@ -1565,7 +1564,7 @@ begin
 
   if not firstTabInitialized then
   begin
-    CreateInitialModuleView();
+    CreateInitialTabsView();
     SetFirstTabInitialLocation(LastAddress, '', '', DefaultViewTabState(), true);
   end;
 end;
@@ -1705,7 +1704,7 @@ begin
     UserDir := CreateAndGetConfigFolder;
     writeln(NowDateTimeString(), ':SaveConfiguration, userdir:', UserDir);
 
-    SaveModuleViews();
+    SaveTabsViews();
     try
       mModuleLoader.SaveCachedModules();
     except
@@ -1738,10 +1737,10 @@ begin
     ini.Learn('Panel2Height', IntToStr((pnlGo.Height * MAXHEIGHT) div Screen.Height));
 
     ini.Learn('DefFontName', mBrowserDefaultFontName);
-    ini.Learn('DefFontSize', IntToStr(mModuleView.Browser.DefFontSize));
+    ini.Learn('DefFontSize', IntToStr(mTabsView.Browser.DefFontSize));
 
-    if (Color2Hex(mModuleView.Browser.DefFontColor) <> Color2Hex(clWindowText)) then
-      ini.Learn('DefFontColor', Color2Hex(mModuleView.Browser.DefFontColor));
+    if (Color2Hex(mTabsView.Browser.DefFontColor) <> Color2Hex(clWindowText)) then
+      ini.Learn('DefFontColor', Color2Hex(mTabsView.Browser.DefFontColor));
 
     if (g_VerseBkHlColor <> Color2Hex(clHighlight)) then
       ini.Learn('VerseBkHLColor', g_VerseBkHlColor);
@@ -1752,10 +1751,10 @@ begin
     if (Color2Hex(bwrSearch.DefFontColor) <> Color2Hex(clWindowText)) then
       ini.Learn('RefFontColor', Color2Hex(bwrSearch.DefFontColor));
 
-    if (Color2Hex(mModuleView.Browser.DefBackGround) <> Color2Hex(clWindow)) then
-      ini.Learn('DefBackground', Color2Hex(mModuleView.Browser.DefBackGround));
-    if (Color2Hex(mModuleView.Browser.DefHotSpotColor) <> Color2Hex(clHotLight)) then
-      ini.Learn('DefHotSpotColor', Color2Hex(mModuleView.Browser.DefHotSpotColor));
+    if (Color2Hex(mTabsView.Browser.DefBackGround) <> Color2Hex(clWindow)) then
+      ini.Learn('DefBackground', Color2Hex(mTabsView.Browser.DefBackGround));
+    if (Color2Hex(mTabsView.Browser.DefHotSpotColor) <> Color2Hex(clHotLight)) then
+      ini.Learn('DefHotSpotColor', Color2Hex(mTabsView.Browser.DefHotSpotColor));
 
     if (SelTextColor <> Color2Hex(clRed)) then
       ini.Learn('SelTextColor', SelTextColor);
@@ -1865,44 +1864,44 @@ begin
   inc(Result, 1000 * ord(ViewTabInfo[vtisFuzzyResolveLinks]));
 end;
 
-procedure TMainForm.SaveModuleViews();
+procedure TMainForm.SaveTabsViews();
 var
   tabCount, i: integer;
   tabInfo, activeTabInfo: TViewTabInfo;
   viewTabsEncoded: UInt64;
-  viewConfig: TViewConfig;
-  moduleViewSettings: TModuleViewSettings;
+  layoutConfig: TLayoutConfig;
+  tabsViewSettings: TTabsViewSettings;
   tabSettings: TTabSettings;
-  moduleForm: TModuleForm;
-  moduleView: IModuleView;
+  tabsForm: TDockTabsForm;
+  tabsView: ITabsView;
   fileStream: TFileStream;
 begin
   try
-    viewConfig := TViewConfig.Create;
-    for moduleView in mModuleViews do
+    layoutConfig := TLayoutConfig.Create;
+    for tabsView in mTabsViews do
     begin
-      moduleForm := moduleView as TModuleForm;
-      moduleViewSettings := TModuleViewSettings.Create;
+      tabsForm := tabsView as TDockTabsForm;
+      tabsViewSettings := TTabsViewSettings.Create;
 
-      tabCount := moduleView.ViewTabs.Tabs.Count - 1;
-      activeTabInfo := mModuleView.GetActiveTabInfo();
-      if (moduleView = mModuleView) then
-        moduleViewSettings.Active := true;
+      tabCount := tabsView.ViewTabs.Tabs.Count - 1;
+      activeTabInfo := mTabsView.GetActiveTabInfo();
+      if (tabsView = mTabsView) then
+        tabsViewSettings.Active := true;
 
-      moduleViewSettings.ViewName := moduleForm.ViewName;
-      moduleViewSettings.Docked := not moduleForm.Floating;
-      if not (moduleViewSettings.Docked) then
+      tabsViewSettings.ViewName := tabsForm.ViewName;
+      tabsViewSettings.Docked := not tabsForm.Floating;
+      if not (tabsViewSettings.Docked) then
       begin
-        moduleViewSettings.Left := moduleForm.Left;
-        moduleViewSettings.Top := moduleForm.Top;
-        moduleViewSettings.Width := moduleForm.Width;
-        moduleViewSettings.Height := moduleForm.Height;
+        tabsViewSettings.Left := tabsForm.Left;
+        tabsViewSettings.Top := tabsForm.Top;
+        tabsViewSettings.Width := tabsForm.Width;
+        tabsViewSettings.Height := tabsForm.Height;
       end;
 
       for i := 0 to tabCount do
       begin
         try
-          tabInfo := TViewTabInfo(moduleView.ViewTabs.Tabs[i].Data);
+          tabInfo := TViewTabInfo(tabsView.ViewTabs.Tabs[i].Data);
           tabSettings := TTabSettings.Create;
 
           if tabInfo = activeTabInfo then
@@ -1916,16 +1915,16 @@ begin
           tabSettings.StrongNotesCode := viewTabsEncoded;
           tabSettings.Title := tabInfo.Title;
 
-          moduleViewSettings.TabSettingsList.Add(tabSettings);
+          tabsViewSettings.TabSettingsList.Add(tabSettings);
         except
         end;
       end; // for
-      viewConfig.ModuleViews.Add(moduleViewSettings);
+      layoutConfig.TabsViewList.Add(tabsViewSettings);
     end;
 
-    viewConfig.Save(UserDir + 'viewtabs.json');
+    layoutConfig.Save(UserDir + 'layout_tabs.json');
 
-    fileStream := TFileStream.Create(UserDir + 'viewforms.dat', fmCreate);
+    fileStream := TFileStream.Create(UserDir + 'layout_forms.dat', fmCreate);
     pnlModules.DockManager.SaveToStream(fileStream);
     fileStream.Free;
 
@@ -1947,7 +1946,7 @@ begin
   mModuleLoader.OnArchiveModuleLoadFailed := ArchiveModuleLoadFailed;
 
   MainFormInitialized := false; // prohibit re-entry into FormShow
-  mModuleViews := TList<IModuleView>.Create;
+  mTabsViews := TList<ITabsView>.Create;
 
   CheckModuleInstall();
 
@@ -2053,7 +2052,7 @@ begin
 
   MainMenuInit(false);
 
-  LoadModuleViews();
+  LoadTabsViews();
   LoadHotModulesConfig();
 
   StrongsDir := C_StrongsSubDirectory;
@@ -2088,7 +2087,7 @@ begin
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
-    currentModule := mModuleView.GetActiveTabInfo().Bible;
+    currentModule := mTabsView.GetActiveTabInfo().Bible;
     if (currentModule.ModuleType = bqmBible) then
       prefBible := currentModule.ShortPath
     else
@@ -2286,7 +2285,7 @@ begin
           fontName := ReferenceBook.fontName
         else
           fontName := '';
-        fontName := FontFromCharset(self.Canvas.Handle, ReferenceBook.desiredCharset, mModuleView.Browser.DefFontName);
+        fontName := FontFromCharset(self.Canvas.Handle, ReferenceBook.desiredCharset, mTabsView.Browser.DefFontName);
       end;
       if Length(fontName) = 0 then
         fontName := mBrowserDefaultFontName;
@@ -2442,7 +2441,7 @@ begin
   chapterCount := MainBook.ChapterCountForBook(MainBook.CurBook, false);
   mainbook_right_aligned := MainBook.UseRightAlignment;
 
-  activeInfo := mModuleView.GetActiveTabInfo();
+  activeInfo := mTabsView.GetActiveTabInfo();
 
   // search for a secondary Bible if the first module is bible
   if MainBook.isBible then
@@ -2582,7 +2581,7 @@ begin
       fontName := SuggestFont(SecondaryBook.fontName, SecondaryBook.path, SecondaryBook.desiredCharset)
     else
       fontName := mBrowserDefaultFontName;
-    mModuleView.Browser.DefFontName := fontName;
+    mTabsView.Browser.DefFontName := fontName;
   end;
 
   Text := MainBook.ChapterHead;
@@ -2769,7 +2768,7 @@ begin
   StrReplace(dBrowserSource, '%TEXT%', Text, false);
 
   if ((Length(MainBook.fontName) > 0) and
-    (MainBook.fontName = mModuleView.Browser.DefFontName)) then
+    (MainBook.fontName = mTabsView.Browser.DefFontName)) then
     fontName := MainBook.fontName
   else
     fontName := '';
@@ -2781,18 +2780,18 @@ begin
       MainBook.desiredCharset);
   if Length(fontName) <= 0 then
     fontName := mBrowserDefaultFontName;
-  mModuleView.Browser.DefFontName := fontName;
+  mTabsView.Browser.DefFontName := fontName;
   StrReplace(dBrowserSource, '<F>', '<font face="' + fontName + '">', true);
   StrReplace(dBrowserSource, '</F>', '</font>', true);
 
   // fonts processing
   dBrowserSource := '<HTML>' + Title + dBrowserSource + '</HTML>';
-  mModuleView.Browser.Base := MainBook.path;
+  mTabsView.Browser.Base := MainBook.path;
 
   for i := 1 downto 0 do
   begin
     try
-      mModuleView.Browser.LoadFromString(dBrowserSource);
+      mTabsView.Browser.LoadFromString(dBrowserSource);
       break;
     except
       on E: Exception do
@@ -2803,7 +2802,7 @@ begin
       end;
     end;
   end;
-  mModuleView.Browser.Position := 0;
+  mTabsView.Browser.Position := 0;
   multiHl := (highlight_verse.X > 0) and (highlight_verse.Y > 0) and
     (highlight_verse.Y <> highlight_verse.X);
   if highlight_verse.X > 0 then
@@ -2814,7 +2813,7 @@ begin
     verse := 0;
   hlVerses := TbqHLVerseOption(ord(verse > 0));
   if (hlVerses = hlTrue) then
-    mModuleView.Browser.PositionTo('bqverse' + IntToStr(verse), not multiHl);
+    mTabsView.Browser.PositionTo('bqverse' + IntToStr(verse), not multiHl);
 
   VersePosition := verse;
 
@@ -2852,12 +2851,12 @@ begin
   SaveFileDialog.DefaultExt := '.htm';
   SaveFileDialog.Filter := 'HTML (*.htm,*.html)|*.htm;*.html';
 
-  s := mModuleView.Browser.DocumentTitle;
+  s := mTabsView.Browser.DocumentTitle;
   SaveFileDialog.FileName := DumpFileName(s) + '.htm';
 
   if SaveFileDialog.Execute then
   begin
-    WriteHtml(SaveFileDialog.FileName, mModuleView.Browser.DocumentSource);
+    WriteHtml(SaveFileDialog.FileName, mTabsView.Browser.DocumentSource);
     SaveFileDialog.InitialDir := ExtractFilePath(SaveFileDialog.FileName);
   end;
 end;
@@ -2955,7 +2954,7 @@ function TMainForm.AddHotModule(const modEntry: TModuleEntry; tag: integer; addB
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
   ix: integer;
-  moduleView: IModuleView;
+  tabsView: ITabsView;
 begin
   Result := -1;
   try
@@ -2970,12 +2969,12 @@ begin
     if not addBibleTab then
       Exit;
 
-    for moduleView in mModuleViews do
+    for tabsView in mTabsViews do
     begin
-      ix := moduleView.BibleTabs.Tabs.Count - 1;
+      ix := tabsView.BibleTabs.Tabs.Count - 1;
 
-      moduleView.BibleTabs.Tabs.Insert(ix, modEntry.VisualSignature());
-      moduleView.BibleTabs.Tabs.Objects[ix] := modEntry;
+      tabsView.BibleTabs.Tabs.Insert(ix, modEntry.VisualSignature());
+      tabsView.BibleTabs.Tabs.Objects[ix] := modEntry;
     end;
   except
     on E: Exception do
@@ -3014,7 +3013,7 @@ begin
   tbComments.tag := 0;
   ShowComments;
 
-  Windows.SetFocus(mModuleView.Browser.Handle);
+  Windows.SetFocus(mTabsView.Browser.Handle);
 end;
 
 procedure TMainForm.GoNextChapter;
@@ -3046,7 +3045,7 @@ begin
   tbComments.tag := 0;
   ShowComments;
 
-  Windows.SetFocus(mModuleView.Browser.Handle);
+  Windows.SetFocus(mTabsView.Browser.Handle);
 end;
 
 procedure SetButtonHint(aButton: TToolButton; aMenuItem: TMenuItem);
@@ -3061,8 +3060,8 @@ var
   fnt: TFont;
   locDirectory: string;
   locFilePath: string;
-  moduleView: IModuleView;
-  moduleForm: TModuleForm;
+  tabsView: ITabsView;
+  tabsForm: TDockTabsForm;
 begin
   result := false;
 
@@ -3092,15 +3091,15 @@ begin
   TranslateControl(ExceptionForm);
   TranslateControl(AboutForm);
 
-  for moduleView in mModuleViews do
+  for tabsView in mTabsViews do
   begin
-    if (moduleView is TModuleForm) then
+    if (tabsView is TDockTabsForm) then
     begin
-      moduleForm := moduleView as TModuleForm;
-      TranslateControl(moduleForm, 'ModuleForm');
+      tabsForm := tabsView as TDockTabsForm;
+      TranslateControl(tabsForm, 'DockTabsForm');
 
-      if (moduleForm.BookView is TBookFrame) then
-        TranslateControl(moduleForm.BookView as TBookFrame, 'ModuleForm');
+      if (tabsForm.BookView is TBookFrame) then
+        TranslateControl(tabsForm.BookView as TBookFrame, 'DockTabsForm');
     end;
   end;
 
@@ -3189,7 +3188,7 @@ procedure TMainForm.tbtnPrintClick(Sender: TObject);
 begin
   with PrintDialog do
     if Execute then
-      mModuleView.Browser.Print(MinPage, MaxPage);
+      mTabsView.Browser.Print(MinPage, MaxPage);
 end;
 
 var
@@ -3214,8 +3213,8 @@ begin
 
     sbxPreview.Visible := false;
 
-    GetModuleView(self).pnlMain.Visible := true;
-    Windows.SetFocus(mModuleView.Browser.Handle);
+    GetTabsView(self).pnlMain.Visible := true;
+    Windows.SetFocus(mTabsView.Browser.Handle);
 
     pgcMain.Visible := refvisible;
 
@@ -3226,7 +3225,7 @@ begin
     refvisible := pgcMain.Visible;
 
     MFPrinter := TMetaFilePrinter.Create(self);
-    mModuleView.Browser.PrintPreview(MFPrinter);
+    mTabsView.Browser.PrintPreview(MFPrinter);
 
     ZoomIndex := 0;
     CurPreviewPage := 0;
@@ -3235,7 +3234,7 @@ begin
 
     pgcMain.Visible := false;
 
-    GetModuleView(self).pnlMain.Visible := false;
+    GetTabsView(self).pnlMain.Visible := false;
     sbxPreview.OnResize := sbxPreviewResize;
 
     sbxPreview.Align := alClient;
@@ -3336,48 +3335,48 @@ var
   i, num, bibleTabsCount, curItem: integer;
   s: string;
   saveOnChange: TTabChangeEvent;
-  moduleView: IModuleView;
+  tabsView: ITabsView;
 begin
-  for moduleView in mModuleViews do
+  for tabsView in mTabsViews do
   begin
-    bibleTabsCount := moduleView.BibleTabs.Tabs.Count - 1;
-    curItem := moduleView.BibleTabs.TabIndex;
+    bibleTabsCount := tabsView.BibleTabs.Tabs.Count - 1;
+    curItem := tabsView.BibleTabs.TabIndex;
     if bibleTabsCount > 9 then
       bibleTabsCount := 9
     else
       Dec(bibleTabsCount);
     for i := 0 to bibleTabsCount do
     begin
-      s := moduleView.BibleTabs.Tabs[i];
+      s := tabsView.BibleTabs.Tabs[i];
       if showHints then
       begin
         if (i < 9) then
           num := i + 1
         else
           num := 0;
-        moduleView.BibleTabs.Tabs[i] := Format('%d-%s', [num, s]);
+        tabsView.BibleTabs.Tabs[i] := Format('%d-%s', [num, s]);
       end
       else
       begin
         if (s[2] <> '-') or (not CharInSet(Char(s[1]), ['0' .. '9'])) then
           break;
-        moduleView.BibleTabs.Tabs[i] := Copy(s, 3, $FFFFFF);
+        tabsView.BibleTabs.Tabs[i] := Copy(s, 3, $FFFFFF);
       end;
     end; // for
 
     if showHints then
     begin
-      moduleView.BibleTabs.FirstIndex := 0;
-      moduleView.BibleTabs.TabIndex := curItem;
+      tabsView.BibleTabs.FirstIndex := 0;
+      tabsView.BibleTabs.TabIndex := curItem;
     end
     else
     begin
-      saveOnChange := moduleView.BibleTabs.OnChange;
-      moduleView.BibleTabs.OnChange := nil;
+      saveOnChange := tabsView.BibleTabs.OnChange;
+      tabsView.BibleTabs.OnChange := nil;
       if curItem > 0 then
-        moduleView.BibleTabs.TabIndex := curItem - 1;
-      moduleView.BibleTabs.TabIndex := curItem;
-      moduleView.BibleTabs.OnChange := saveOnChange;
+        tabsView.BibleTabs.TabIndex := curItem - 1;
+      tabsView.BibleTabs.TabIndex := curItem;
+      tabsView.BibleTabs.OnChange := saveOnChange;
     end;
 
   end;
@@ -3431,13 +3430,13 @@ begin
     LastAddress := wsCommand;
 
   ClearVolatileStateData(state);
-  vti := TViewTabInfo(mModuleView.ViewTabs.Tabs[0].Data);
+  vti := TViewTabInfo(mTabsView.ViewTabs.Tabs[0].Data);
   vti.SatelliteName := wsSecondaryView;
   vti.State := state;
   vti.Title := Title;
   vti.Location := LastAddress;
-  mModuleView.ViewTabs.Tabs[0].Caption := Title;
-  mModuleView.ViewTabs.Tabs[0].Data := vti;
+  mTabsView.ViewTabs.Tabs[0].Caption := Title;
+  mTabsView.ViewTabs.Tabs[0].Data := vti;
 
   if visual then
   begin
@@ -3659,7 +3658,7 @@ label
     if oldPath = '' then
     begin
       oldPath := MainFileExists(TPath.Combine(mDefaultLocation, C_ModuleIniName));
-      if mModuleView.Browser.GetTextLen() <= 0 then
+      if mTabsView.Browser.GetTextLen() <= 0 then
       begin
         ProcessCommand(Format('go %s 1 1 1', [mDefaultLocation]), hlFalse);
         Exit
@@ -3683,8 +3682,8 @@ begin
   mInterfaceLock := true;
   try
     wasFile := false;
-    browserpos := mModuleView.Browser.Position;
-    mModuleView.Browser.tag := bsText;
+    browserpos := mTabsView.Browser.Position;
+    mTabsView.Browser.tag := bsText;
 
     oldPath := MainBook.inifile;
     oldbook := MainBook.CurBook;
@@ -3754,12 +3753,12 @@ begin
         HistoryAdd(s);
 
         // here we set proper name to tab
-        with MainBook, mModuleView.ViewTabs do
+        with MainBook, mTabsView.ViewTabs do
         begin
-          if mModuleView.ViewTabs.ActiveTabIndex >= 0 then
+          if mTabsView.ViewTabs.ActiveTabIndex >= 0 then
             try
 
-              ti := mModuleView.GetActiveTabInfo();
+              ti := mTabsView.GetActiveTabInfo();
               // save the context
               ti.Location := s;
               ti.LocationType := vtlModule;
@@ -3772,8 +3771,8 @@ begin
               else
                 ti[vtisHighLightVerses] := false;
               ti.Title := Format('%.6s-%.6s:%d', [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
-              //mModuleView.ViewTabs.ActiveTabIndex := mModuleView.ViewTabs.Tabs.Count - 1;
-              mModuleView.ViewTabs.ActiveTab.Caption := ti.Title;
+
+              mTabsView.ViewTabs.ActiveTab.Caption := ti.Title;
 
             except
               on E: Exception do
@@ -3834,7 +3833,7 @@ begin
         goto exitlabel;
       end;
 
-      mModuleView.Browser.Base := ExtractFilePath(path);
+      mTabsView.Browser.Base := ExtractFilePath(path);
       ReadHtmlTo(path, dBrowserSource, TEncoding.GetEncoding(1251));
 
       if wasSearchHistory then
@@ -3843,15 +3842,15 @@ begin
         StrReplace(dBrowserSource, '</*>', '</font>', true);
 
       end;
-      ti := mModuleView.GetActiveTabInfo();
+      ti := mTabsView.GetActiveTabInfo();
       if ti[vtisResolveLinks] then
       begin
         dBrowserSource := ResolveLinks(dBrowserSource, ti[vtisFuzzyResolveLinks]);
       end;
-      mModuleView.Browser.LoadFromString(dBrowserSource);
+      mTabsView.Browser.LoadFromString(dBrowserSource);
       value := '';
-      if Trim(mModuleView.Browser.DocumentTitle) <> '' then
-        value := mModuleView.Browser.DocumentTitle
+      if Trim(mTabsView.Browser.DocumentTitle) <> '' then
+        value := mTabsView.Browser.DocumentTitle
       else
         value := ExtractFileName(path);
 
@@ -3865,17 +3864,17 @@ begin
         end;
 
       if (History.Count > 0) and (History[0] = s) then
-        mModuleView.Browser.Position := browserpos;
+        mTabsView.Browser.Position := browserpos;
 
       HistoryAdd(s);
       if wasSearchHistory then
-        mModuleView.Browser.tag := bsSearch
+        mTabsView.Browser.tag := bsSearch
       else
-        mModuleView.Browser.tag := bsFile;
+        mTabsView.Browser.tag := bsFile;
 
-      ti := mModuleView.GetActiveTabInfo();
+      ti := mTabsView.GetActiveTabInfo();
       ti.Title := Format('%.12s', [value]);
-      mModuleView.ViewTabs.ActiveTab.Caption := ti.Title;
+      mTabsView.ViewTabs.ActiveTab.Caption := ti.Title;
       ti.Location := s;
       ti.LocationType := vtlFile;
 
@@ -3887,10 +3886,10 @@ begin
 
     if ExtractFileName(dup) = dup then
       try
-        mModuleView.Browser.LoadFromFile(mModuleView.Browser.Base + dup);
-        ti := mModuleView.GetActiveTabInfo();
+        mTabsView.Browser.LoadFromFile(mTabsView.Browser.Base + dup);
+        ti := mTabsView.GetActiveTabInfo();
         ti.Title := Format('%.12s', [s]);
-        mModuleView.ViewTabs.ActiveTab.Caption := ti.Title;
+        mTabsView.ViewTabs.ActiveTab.Caption := ti.Title;
 
         ti.Location := s;
         ti.LocationType := vtlFile;
@@ -4094,13 +4093,13 @@ begin
         begin
           if ActiveControl = reMemo then
             reMemo.CopyToClipboard
-          else if GetModuleView(self).ActiveControl = mModuleView.Browser then
+          else if GetTabsView(self).ActiveControl = mTabsView.Browser then
             GetBookView(self).tbtnCopy.Click
           else if ActiveControl is THTMLViewer then
             (ActiveControl as THTMLViewer).CopyToClipboard
-          else if GetModuleView(self).ActiveControl is THTMLViewer then
+          else if GetTabsView(self).ActiveControl is THTMLViewer then
           begin
-            (GetModuleView(self).ActiveControl as THTMLViewer).CopyToClipboard;
+            (GetTabsView(self).ActiveControl as THTMLViewer).CopyToClipboard;
           end; // if webbr
         end;
       // Ord('B'): BookmarkButton.Click;
@@ -4245,14 +4244,14 @@ end;
 
 procedure TMainForm.FormKeyPress(Sender: TObject; var Key: Char);
 var
-  moduleView: TModuleForm;
+  tabsView: TDockTabsForm;
   bookView: TBookFrame;
 begin
   if Key = #27 then
   begin
-    moduleView := GetModuleView(self);
+    tabsView := GetTabsView(self);
     Key := #0;
-    if not moduleView.pnlMain.Visible then
+    if not tabsView.pnlMain.Visible then
       { previewing }
       miPrintPreview.Click // this turns preview off
     else
@@ -4263,8 +4262,8 @@ begin
       begin
         // exit from edtGo (F2) or cbSearch (F3) to Browser
         bookView := GetBookView(self);
-        if (moduleView.ActiveControl = bookView.tedtReference) or (ActiveControl = cbSearch) then
-          moduleView.ActiveControl := mModuleView.Browser;
+        if (tabsView.ActiveControl = bookView.tedtReference) or (ActiveControl = cbSearch) then
+          tabsView.ActiveControl := mTabsView.Browser;
       end;
     end;
     Exit;
@@ -4310,16 +4309,16 @@ begin
   end;
 end;
 
-function TMainForm.FavoriteTabFromModEntry(moduleView: IModuleView; const me: TModuleEntry): integer;
+function TMainForm.FavoriteTabFromModEntry(tabsView: ITabsView; const me: TModuleEntry): integer;
 var
   i, cnt: integer;
 begin
   Result := -1;
-  cnt := moduleView.BibleTabs.Tabs.Count - 1;
+  cnt := tabsView.BibleTabs.Tabs.Count - 1;
   i := 0;
   while i <= cnt do
   begin
-    if moduleView.BibleTabs.Tabs.Objects[i] = me then
+    if tabsView.BibleTabs.Tabs.Objects[i] = me then
       break;
     inc(i);
   end;
@@ -4339,7 +4338,7 @@ var
 begin
   Result := -1;
   doFilter := btnOnlyMeaningful.Down;
-  vti := mModuleView.GetActiveTabInfo();
+  vti := mTabsView.GetActiveTabInfo();
   if (vti = nil) then
     Exit;
   getAddress := bl.FromBqStringLocation(vti.Location);
@@ -4711,18 +4710,18 @@ procedure TMainForm.FontChanged(delta: integer);
 var
   defFontSz, browserpos: integer;
 begin
-  defFontSz := mModuleView.Browser.DefFontSize;
+  defFontSz := mTabsView.Browser.DefFontSize;
   if ((delta > 0) and (defFontSz > 48)) or ((delta < 0) and (defFontSz < 6))
   then
     Exit;
   inc(defFontSz, delta);
   Screen.Cursor := crHourGlass;
   try
-    mModuleView.Browser.DefFontSize := defFontSz;
-    browserpos := mModuleView.Browser.Position and $FFFF0000;
+    mTabsView.Browser.DefFontSize := defFontSz;
+    browserpos := mTabsView.Browser.Position and $FFFF0000;
 
-    mModuleView.Browser.LoadFromString(mModuleView.Browser.DocumentSource);
-    mModuleView.Browser.Position := browserpos;
+    mTabsView.Browser.LoadFromString(mTabsView.Browser.DocumentSource);
+    mTabsView.Browser.Position := browserpos;
 
     browserpos := bwrSearch.Position and $FFFF0000;
     bwrSearch.DefFontSize := defFontSz;
@@ -4776,16 +4775,16 @@ end;
 
 procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var
-  moduleView: IModuleView;
+  tabsView: ITabsView;
 
   procedure _finalizeViewTabs();
   var
     i, C: integer;
   begin
-    C := mModuleView.ViewTabs.Tabs.Count - 1;
+    C := mTabsView.ViewTabs.Tabs.Count - 1;
     for i := 0 to C do
     begin
-      (TViewTabInfo(mModuleView.ViewTabs.Tabs[i].Data)).Free();
+      (TViewTabInfo(mTabsView.ViewTabs.Tabs[i].Data)).Free();
     end;
   end;
 
@@ -4796,10 +4795,10 @@ begin
   writeln(NowDateTimeString(), 'FormClose entered');
   SaveConfiguration;
 
-  for moduleView in mModuleViews do
+  for tabsView in mTabsViews do
   begin
-    if (moduleView is TModuleForm) then
-      (moduleView as TModuleForm).Close;
+    if (tabsView is TDockTabsForm) then
+      (tabsView as TDockTabsForm).Close;
   end;
 
   Flush(Output);
@@ -4962,7 +4961,7 @@ function TMainForm.InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
   cnt, i: integer;
-  moduleView: IModuleView;
+  tabsView: ITabsView;
 begin
   Result := -1;
   try
@@ -4986,12 +4985,12 @@ begin
     hotMenuItem.OnClick := HotKeyClick;
 
     favouriteMenuItem.Insert(ix + i, hotMenuItem);
-    for moduleView in mModuleViews do
+    for tabsView in mTabsViews do
     begin
-      moduleView.BibleTabs.Tabs.Insert(ix, newMe.VisualSignature());
-      moduleView.BibleTabs.Tabs.Objects[ix] := newMe;
+      tabsView.BibleTabs.Tabs.Insert(ix, newMe.VisualSignature());
+      tabsView.BibleTabs.Tabs.Objects[ix] := newMe;
       Result := ix;
-      moduleView.BibleTabs.Repaint();
+      tabsView.BibleTabs.Repaint();
     end;
   except
     on E: Exception do
@@ -5048,7 +5047,7 @@ begin
 
   try
     i := Pos('#', SRC);
-    ti := mModuleView.GetActiveTabInfo();
+    ti := mTabsView.GetActiveTabInfo();
     if i = 1 then
       loc := current + SRC;
     if i >= 1 then
@@ -5191,7 +5190,7 @@ begin
   hlVerses := hlFalse;
   // remember old module's params
   wasBible := MainBook.isBible;
-  ti := mModuleView.GetActiveTabInfo();
+  ti := mTabsView.GetActiveTabInfo();
   blValidAddressExtracted := bl.FromBqStringLocation(ti.Location, path);
   if not blValidAddressExtracted then
   begin
@@ -5239,7 +5238,7 @@ begin
       ProcessCommand(bl.ToCommand(TPath.Combine(commentpath, tempBook.ShortPath)), hlVerses);
       if firstVisibleVerse > 0 then
       begin
-        mModuleView.Browser.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
+        mTabsView.Browser.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
       end;
     except
     end;
@@ -5283,32 +5282,32 @@ begin
   with FontDialog do
   begin
     Font.Name := mBrowserDefaultFontName;
-    Font.color := mModuleView.Browser.DefFontColor;
-    Font.Size := mModuleView.Browser.DefFontSize;
+    Font.color := mTabsView.Browser.DefFontColor;
+    Font.Size := mTabsView.Browser.DefFontSize;
   end;
 
   if FontDialog.Execute then
   begin
-    browserCount := mModuleView.ViewTabs.Tabs.Count - 1;
+    browserCount := mTabsView.ViewTabs.Tabs.Count - 1;
     for i := 0 to browserCount do
     begin
       try
-        tabInfo := TViewTabInfo(mModuleView.ViewTabs.Tabs[i].Data);
+        tabInfo := TViewTabInfo(mTabsView.ViewTabs.Tabs[i].Data);
         with tabInfo do
         begin
-          if i <> mModuleView.ViewTabs.ActiveTabIndex then
+          if i <> mTabsView.ViewTabs.ActiveTabIndex then
             StateEntryStatus[vtisPendingReload] := true;
 
-          mModuleView.Browser.DefFontName := FontDialog.Font.Name;
-          mBrowserDefaultFontName := mModuleView.Browser.DefFontName;
-          mModuleView.Browser.DefFontColor := FontDialog.Font.color;
-          mModuleView.Browser.DefFontSize := FontDialog.Font.Size;
+          mTabsView.Browser.DefFontName := FontDialog.Font.Name;
+          mBrowserDefaultFontName := mTabsView.Browser.DefFontName;
+          mTabsView.Browser.DefFontColor := FontDialog.Font.color;
+          mTabsView.Browser.DefFontSize := FontDialog.Font.Size;
         end // with
       except
       end;
     end;
 
-    tabInfo := mModuleView.GetActiveTabInfo();
+    tabInfo := mTabsView.GetActiveTabInfo();
     ProcessCommand(tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
   end;
 end;
@@ -5327,16 +5326,16 @@ var
   i, browserCount: integer;
   newColor: TColor;
 begin
-  newColor := ChooseColor(mModuleView.Browser.DefBackGround);
+  newColor := ChooseColor(mTabsView.Browser.DefBackGround);
 
-  mModuleView.Browser.DefBackGround := newColor;
-  mModuleView.Browser.Refresh;
+  mTabsView.Browser.DefBackGround := newColor;
+  mTabsView.Browser.Refresh;
 
-  browserCount := mModuleView.ViewTabs.Tabs.Count - 1;
+  browserCount := mTabsView.ViewTabs.Tabs.Count - 1;
   for i := 0 to browserCount do
   begin
     try
-      if i <> mModuleView.ViewTabs.ActiveTabIndex then
+      if i <> mTabsView.ViewTabs.ActiveTabIndex then
       begin
         Refresh();
       end;
@@ -5366,23 +5365,23 @@ var
   tabInfo: TViewTabInfo;
   newColor: TColor;
 begin
-  with mModuleView.Browser do
+  with mTabsView.Browser do
   begin
     newColor := ChooseColor(DefHotSpotColor);
     DefHotSpotColor := newColor;
   end;
 
-  tabInfo := mModuleView.GetActiveTabInfo();
+  tabInfo := mTabsView.GetActiveTabInfo();
   ProcessCommand(tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
 
-  browserCount := mModuleView.ViewTabs.Tabs.Count - 1;
+  browserCount := mTabsView.ViewTabs.Tabs.Count - 1;
   for i := 0 to browserCount do
   begin
     try
-      tabInfo := TViewTabInfo(mModuleView.ViewTabs.Tabs[i].Data);
+      tabInfo := TViewTabInfo(mTabsView.ViewTabs.Tabs[i].Data);
       with tabInfo do
       begin
-        if i <> mModuleView.ViewTabs.ActiveTabIndex then
+        if i <> mTabsView.ViewTabs.ActiveTabIndex then
         begin
           StateEntryStatus[vtisPendingReload] := true;
         end;
@@ -5499,7 +5498,7 @@ begin
   if (CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
   begin
     mHTMLSelection := Result;
-    InsertDefaultFontInfo(mHTMLSelection, mModuleView.Browser.DefFontName, mModuleView.Browser.DefFontSize);
+    InsertDefaultFontInfo(mHTMLSelection, mTabsView.Browser.DefFontName, mTabsView.Browser.DefFontSize);
   end
   else
     mHTMLSelection := '';
@@ -5749,7 +5748,7 @@ begin
 
   AddLine(RefLines, '</font><br><br>');
 
-  bwrXRef.DefFontName := mModuleView.Browser.DefFontName;
+  bwrXRef.DefFontName := mTabsView.Browser.DefFontName;
   mXRefMisUsed := false;
   bwrXRef.LoadFromString(RefLines);
 
@@ -5788,7 +5787,7 @@ begin
     find := MainFileExists(fname2 + '.mp3');
 
   if find = '' then
-    ShowMessage(Format(Lang.Say('SoundNotFound'), [mModuleView.Browser.DocumentTitle]))
+    ShowMessage(Format(Lang.Say('SoundNotFound'), [mTabsView.Browser.DocumentTitle]))
   else
     ShellExecute(Application.Handle, nil, PChar(find), nil, nil, SW_MINIMIZE);
 end;
@@ -5806,7 +5805,7 @@ begin
   if miDeteleBibleTab.tag < 0 then
     Exit;
   try
-    me := (mModuleView.BibleTabs.Tabs.Objects[miDeteleBibleTab.tag]) as TModuleEntry;
+    me := (mTabsView.BibleTabs.Tabs.Objects[miDeteleBibleTab.tag]) as TModuleEntry;
     mFavorites.DeleteModule(me);
   except
   end;
@@ -5834,14 +5833,14 @@ begin
         fnt.Size := FontDialog.Font.Size;
 
         self.Font := fnt;
-        mModuleView.BibleTabs.Font.Assign(fnt);
+        mTabsView.BibleTabs.Font.Assign(fnt);
         Screen.HintFont := fnt;
         h := fnt.Height;
 
         if h < 0 then
           h := -h;
 
-        mModuleView.BibleTabs.Height := h + 13;
+        mTabsView.BibleTabs.Height := h + 13;
         Update;
         lblTitle.Font.Assign(fnt);
         lblCopyRightNotice.Font.Assign(fnt);
@@ -6067,13 +6066,13 @@ begin
   if MainBook.fontName <> '' then
     reClipboard.Font.Name := MainBook.fontName
   else
-    reClipboard.Font.Name := mModuleView.Browser.DefFontName;
+    reClipboard.Font.Name := mTabsView.Browser.DefFontName;
 
-  reClipboard.Font.Size := mModuleView.Browser.DefFontSize;
+  reClipboard.Font.Size := mTabsView.Browser.DefFontSize;
   reClipboard.Lines.Add(Clipboard.AsText);
 
   reClipboard.SelectAll;
-  reClipboard.SelAttributes.CharSet := mModuleView.Browser.CharSet;
+  reClipboard.SelAttributes.CharSet := mTabsView.Browser.CharSet;
   reClipboard.SelAttributes.Name := reClipboard.Font.Name;
 
   if Length(mHTMLSelection) > 0 then
@@ -6127,7 +6126,7 @@ begin
 
   AddLine(dSource, '<a name="endofsearchresults"><p>' + s + '<br><p>');
 
-  bwrSearch.CharSet := mModuleView.Browser.CharSet;
+  bwrSearch.CharSet := mTabsView.Browser.CharSet;
 
   StrReplace(dSource, '<*>', '<font color=' + SelTextColor + '>', true);
   StrReplace(dSource, '</*>', '</font>', true);
@@ -6163,13 +6162,13 @@ begin
     begin
       if IsDown(VK_MENU) then
       begin
-        ti := mModuleView.GetActiveTabInfo();
+        ti := mTabsView.GetActiveTabInfo();
         if Assigned(ti) then
           satBible := ti.SatelliteName
         else
           satBible := '------';
 
-        NewViewTab(wsrc, satBible, mModuleView.Browser.Base, mModuleView.GetActiveTabInfo().State, '', true);
+        NewViewTab(wsrc, satBible, mTabsView.Browser.Base, mTabsView.GetActiveTabInfo().State, '', true);
 
       end
       else
@@ -6191,11 +6190,11 @@ var
 begin
   miShowSignatures.Checked := not miShowSignatures.Checked;
 
-  vti := mModuleView.GetActiveTabInfo();
+  vti := mTabsView.GetActiveTabInfo();
   vti[vtisShowStrongs] := StrongNumbersOn;
-  savePosition := mModuleView.Browser.Position;
+  savePosition := mTabsView.Browser.Position;
   ProcessCommand(vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
-  mModuleView.Browser.Position := savePosition;
+  mTabsView.Browser.Position := savePosition;
 end;
 
 procedure TMainForm.CompareTranslations();
@@ -6213,17 +6212,17 @@ begin
   if not MainBook.isBible then
     Exit;
 
-  if (mModuleView.ViewTabs.ActiveTabIndex < 0) then
+  if (mTabsView.ViewTabs.ActiveTabIndex < 0) then
     Exit;
 
-  tabInfo := mModuleView.GetActiveTabInfo();
+  tabInfo := mTabsView.GetActiveTabInfo();
 
   if (not Assigned(tabInfo)) then
     Exit;
 
   // try
   dBrowserSource := '<font size=+1><table>';
-  mModuleView.Browser.DefFontName := mBrowserDefaultFontName;
+  mTabsView.Browser.DefFontName := mBrowserDefaultFontName;
   MainBook.OpenChapter(MainBook.CurBook, MainBook.CurChapter);
   s := MainBook.Verses[CurVerseNumber - 1];
   StrDeleteFirstNumber(s);
@@ -6304,7 +6303,7 @@ begin
   end;
 
   AddLine(dBrowserSource, '</table>');
-  mModuleView.Browser.LoadFromString(dBrowserSource);
+  mTabsView.Browser.LoadFromString(dBrowserSource);
 
   tabInfo.IsCompareTranslation := true;
   tabInfo.CompareTranslationText := dBrowserSource;
@@ -6312,8 +6311,8 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 var
-  moduleView: IModuleView;
-  moduleForm: TModuleForm;
+  tabsView: ITabsView;
+  tabsForm: TDockTabsForm;
 begin
   if MainFormInitialized then
     Exit; // run only once...
@@ -6337,12 +6336,12 @@ begin
 
   TranslateConfigForm;
 
-  for moduleView in mModuleViews do
+  for tabsView in mTabsViews do
   begin
-    if (moduleView is TModuleForm) then
+    if (tabsView is TDockTabsForm) then
     begin
-      moduleForm := moduleView as TModuleForm;
-      moduleForm.BringToFront;
+      tabsForm := tabsView as TDockTabsForm;
+      tabsForm.BringToFront;
     end;
   end;
 
@@ -6407,12 +6406,12 @@ var
   i, C: integer;
   ti, cti: TViewTabInfo;
 begin
-  ti := mModuleView.GetActiveTabInfo();
-  C := mModuleView.ViewTabs.Tabs.Count - 1;
+  ti := mTabsView.GetActiveTabInfo();
+  C := mTabsView.ViewTabs.Tabs.Count - 1;
   for i := 0 to C do
   begin
     try
-      cti := TViewTabInfo(mModuleView.ViewTabs.Tabs[i].Data);
+      cti := TViewTabInfo(mTabsView.ViewTabs.Tabs[i].Data);
       if cti <> ti then
         cti[vtisPendingReload] := true;
     except
@@ -6424,19 +6423,19 @@ end;
 procedure TMainForm.DeleteHotModule(moduleTabIx: integer);
 var
   hotMenuItem, favouriteMenuItem: TMenuItem;
-  moduleView: IModuleView;
+  tabsView: ITabsView;
 begin
   try
-    hotMenuItem := mModuleView.BibleTabs.Tabs.Objects[moduleTabIx] as TMenuItem;
+    hotMenuItem := mTabsView.BibleTabs.Tabs.Objects[moduleTabIx] as TMenuItem;
 
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
     if not Assigned(favouriteMenuItem) then
       Exit;
     favouriteMenuItem.Remove(hotMenuItem);
 
-    for moduleView in mModuleViews do
+    for tabsView in mTabsViews do
     begin
-      moduleView.BibleTabs.Tabs.Delete(moduleTabIx);
+      tabsView.BibleTabs.Tabs.Delete(moduleTabIx);
     end;
 
     hotMenuItem.Free();
@@ -6462,7 +6461,7 @@ begin
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
-    currentModule := mModuleView.GetActiveTabInfo().Bible;
+    currentModule := mTabsView.GetActiveTabInfo().Bible;
     if currentModule.isBible then
       prefBible := currentModule.ShortPath
     else
@@ -6510,7 +6509,7 @@ begin
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
-    currentModule := mModuleView.GetActiveTabInfo().Bible;
+    currentModule := mTabsView.GetActiveTabInfo().Bible;
     if currentModule.isBible then
       prefBible := currentModule.ShortPath
     else
@@ -6786,7 +6785,7 @@ begin
       Exit;
 
     pt := Mouse.CursorPos;
-    chk := GetWindowRect(mModuleView.BibleTabs.Handle, rct);
+    chk := GetWindowRect(mTabsView.BibleTabs.Handle, rct);
     if not chk then
       Exit;
     hit := PtInRect(rct, pt);
@@ -6794,7 +6793,7 @@ begin
       Exit;
     if hint_expanded = 1 then
     begin
-      ti := mModuleView.GetActiveTabInfo();
+      ti := mTabsView.GetActiveTabInfo();
       if not bl.FromBqStringLocation(ti.Location, modPath) then
       begin
         Exit;
@@ -6808,13 +6807,13 @@ begin
         it := ti.FirstVisiblePara + 10;
       bl.vstart := ti.FirstVisiblePara;
       bl.vend := it;
-      tabIx := mModuleView.BibleTabs.ItemAtPos(mModuleView.BibleTabs.ScreenToClient(pt));
-      if (tabIx < 0) or (tabIx >= mModuleView.BibleTabs.Tabs.Count) then
+      tabIx := mTabsView.BibleTabs.ItemAtPos(mTabsView.BibleTabs.ScreenToClient(pt));
+      if (tabIx < 0) or (tabIx >= mTabsView.BibleTabs.Tabs.Count) then
       begin
         Exit;
       end;
 
-      me := mModuleView.BibleTabs.Tabs.Objects[tabIx] as TModuleEntry;
+      me := mTabsView.BibleTabs.Tabs.Objects[tabIx] as TModuleEntry;
 
       R := ti.Bible.ReferenceToInternal(bl, common_lnk);
       if R < -1 then
@@ -6831,7 +6830,7 @@ begin
     str := str + txt;
 
     HintWindowClass := HintTools.TbqHintWindow;
-    mModuleView.BibleTabs.Hint := str;
+    mTabsView.BibleTabs.Hint := str;
     Application.CancelHint();
     hint_expanded := 2;
   except
@@ -6852,7 +6851,7 @@ end;
 procedure TMainForm.cbModulesCloseUp(Sender: TObject);
 begin
   try
-    MainForm.FocusControl(mModuleView.Browser);
+    MainForm.FocusControl(mTabsView.Browser);
   except
   end;
 end;
@@ -7290,13 +7289,13 @@ begin
   wsrc := SRC;
   if IsDown(VK_MENU) then
   begin
-    ti := mModuleView.GetActiveTabInfo();
+    ti := mTabsView.GetActiveTabInfo();
     if Assigned(ti) then
       satBible := ti.SatelliteName
     else
       satBible := '------';
 
-    NewViewTab(wsrc, satBible, mModuleView.Browser.Base, mModuleView.GetActiveTabInfo().State, '', true)
+    NewViewTab(wsrc, satBible, mTabsView.Browser.Base, mTabsView.GetActiveTabInfo().State, '', true)
 
   end
   else
@@ -7319,7 +7318,7 @@ var
   imageIx, browserpos: integer;
 begin
   nV := miRecognizeBibleLinks.Checked;
-  vti := mModuleView.GetActiveTabInfo();
+  vti := mTabsView.GetActiveTabInfo();
   vti[vtisResolveLinks] := nV;
 
   if nV then
@@ -7336,12 +7335,12 @@ begin
 
   if (MainBook.RecognizeBibleLinks <> nV) or (vti[vtisPendingReload]) then
   begin
-    browserpos := mModuleView.Browser.Position;
+    browserpos := mTabsView.Browser.Position;
     MainBook.FuzzyResolve := vti[vtisFuzzyResolveLinks];
     MainBook.RecognizeBibleLinks := nV;
     SafeProcessCommand(vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
     vti[vtisPendingReload] := false;
-    mModuleView.Browser.Position := browserpos;
+    mTabsView.Browser.Position := browserpos;
   end;
 
 end;
@@ -7431,27 +7430,27 @@ end;
 
 procedure TMainForm.tbtnNewFormClick(Sender: TObject);
 var
-  moduleForm: TModuleForm;
+  tabsForm: TDockTabsForm;
   currentTabInfo: TViewTabInfo;
   I: Integer;
 begin
-  currentTabInfo := mModuleView.GetActiveTabInfo();
+  currentTabInfo := mTabsView.GetActiveTabInfo();
 
-  moduleForm := CreateModuleView(GenerateViewModuleViewName()) as TModuleForm;
+  tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
 
-  moduleForm.BibleTabs.Tabs.Clear();
-  moduleForm.BibleTabs.Tabs.Add('***');
+  tabsForm.BibleTabs.Tabs.Clear();
+  tabsForm.BibleTabs.Tabs.Add('***');
   for I := 0 to mFavorites.mModuleEntries.Count - 1 do
   begin
-    moduleForm.BibleTabs.Tabs.Insert(I, mFavorites.mModuleEntries[I].VisualSignature());
-    moduleForm.BibleTabs.Tabs.Objects[I] := mFavorites.mModuleEntries[I];
+    tabsForm.BibleTabs.Tabs.Insert(I, mFavorites.mModuleEntries[I].VisualSignature());
+    tabsForm.BibleTabs.Tabs.Objects[I] := mFavorites.mModuleEntries[I];
   end;
 
-  moduleForm.ManualDock(pnlModules);
-  moduleForm.Show;
-  mModuleView := moduleForm;
+  tabsForm.ManualDock(pnlModules);
+  tabsForm.Show;
+  mTabsView := tabsForm;
 
-  Windows.SetFocus(moduleForm.Handle);
+  Windows.SetFocus(tabsForm.Handle);
 
   if (currentTabInfo <> nil) then
   begin
@@ -7591,7 +7590,7 @@ begin
   mInterfaceLock := true;
   mScrollAcc := 0;
   try
-    tabInfo := mModuleView.GetActiveTabInfo();
+    tabInfo := mTabsView.GetActiveTabInfo();
     if not Assigned(tabInfo) then
       Exit;
 
@@ -7803,20 +7802,20 @@ begin
   try
     vn := -1;
     ve := vn;
-    scrollPos := integer(mModuleView.Browser.VScrollBar.Position);
+    scrollPos := integer(mTabsView.Browser.VScrollBar.Position);
     msbPosition := scrollPos;
     if scrollPos = 0 then
       vn := 1;
 
-    sct := mModuleView.Browser.SectionList.FindSectionAtPosition(scrollPos, vn, ch);
+    sct := mTabsView.Browser.SectionList.FindSectionAtPosition(scrollPos, vn, ch);
 
-    BottomPos := scrollPos + mModuleView.Browser.__PaintPanel.Height;
-    scte := mModuleView.Browser.SectionList.FindSectionAtPosition(BottomPos, ve, ch);
-    ds := mModuleView.Browser.DocumentSource;
+    BottomPos := scrollPos + mTabsView.Browser.__PaintPanel.Height;
+    scte := mTabsView.Browser.SectionList.FindSectionAtPosition(BottomPos, ve, ch);
+    ds := mTabsView.Browser.DocumentSource;
     if Assigned(sct) and (sct is TSectionBase) then
     begin
       delta := sct.DrawHeight div 2;
-      positionLst := mModuleView.Browser.SectionList.PositionList;
+      positionLst := mTabsView.Browser.SectionList.PositionList;
       if sct.YPosition + delta < scrollPos then
       begin
         // try to find first fully visible section
@@ -7864,7 +7863,7 @@ begin
 
     // TSection(sct).
 
-    activeTabInfo := mModuleView.GetActiveTabInfo();
+    activeTabInfo := mTabsView.GetActiveTabInfo();
     if vn > 0 then
     begin
       activeTabInfo.FirstVisiblePara := vn;
@@ -8560,7 +8559,7 @@ begin
   // if it's a commentary or it has chapter zero (introduction to book)
   // and it's chapter 1, show chapter 0, too :-)
   resolveLinks := false;
-  tabInfo := mModuleView.GetActiveTabInfo();
+  tabInfo := mTabsView.GetActiveTabInfo();
   if Assigned(tabInfo) then
   begin
     resolveLinks := tabInfo[vtisResolveLinks];
@@ -8747,7 +8746,7 @@ begin
     end;
   blResolveLinks := false;
   blFuzzy := false;
-  ti := mModuleView.GetActiveTabInfo();
+  ti := mTabsView.GetActiveTabInfo();
   if Assigned(ti) then
   begin
     blResolveLinks := ti[vtisResolveLinks];
@@ -8897,7 +8896,6 @@ begin
     AddressFromMenus := true;
 
     command := Format('go %s %d %d', [MainBook.ShortPath, bookIndex, chapterIndex]);
-
     Result := ProcessCommand(command, hlDefault);
   end;
 end;
@@ -8921,13 +8919,13 @@ begin
     if not Assigned(newBible) then
       abort;
 
-    if (mModuleView.ViewTabs.ActiveTabIndex >= 0) then
+    if (mTabsView.ViewTabs.ActiveTabIndex >= 0) then
     begin
       // save current tab state
-      curTabInfo := mModuleView.GetActiveTabInfo();
+      curTabInfo := mTabsView.GetActiveTabInfo();
       if (Assigned(curTabInfo)) then
       begin
-         curTabInfo.SaveBrowserState(mModuleView.Browser);
+         curTabInfo.SaveBrowserState(mTabsView.Browser);
       end;
     end;
 
@@ -8936,11 +8934,11 @@ begin
     newTabInfo.SecondBible := TBible.Create(self);
     newTabInfo.ReferenceBible := TBible.Create(self);
 
-    mModuleView.AddBookTab(newTabInfo, Title);
+    mTabsView.AddBookTab(newTabInfo, Title);
 
     if visual then
     begin
-      mModuleView.ViewTabs.ActiveTabIndex := mModuleView.ViewTabs.Tabs.Count - 1;
+      mTabsView.ViewTabs.ActiveTabIndex := mTabsView.ViewTabs.Tabs.Count - 1;
 
       StrongNumbersOn := vtisShowStrongs in state;
       MainBook.RecognizeBibleLinks := vtisResolveLinks in state;
@@ -8948,8 +8946,6 @@ begin
       MemosOn := vtisShowNotes in state;
 
       SafeProcessCommand(command, hlDefault);
-
-      UpdateUI();
     end
     else
     begin
@@ -9238,7 +9234,7 @@ procedure TMainForm.miNewTabClick(Sender: TObject);
 var
   activeTabInfo: TViewTabInfo;
 begin
-  activeTabInfo := mModuleView.GetActiveTabInfo();
+  activeTabInfo := mTabsView.GetActiveTabInfo();
   if (activeTabInfo <> nil) then
   begin
     NewViewTab(activeTabInfo.Location, activeTabInfo.SatelliteName, '', activeTabInfo.State, '', true);
@@ -9252,7 +9248,7 @@ var
   reload: Boolean;
 begin
   mi := Sender as TMenuItem;
-  ti := mModuleView.GetActiveTabInfo();
+  ti := mTabsView.GetActiveTabInfo();
   reload := (ti[vtisFuzzyResolveLinks] xor (Sender = miFuzzyLogic));
 
   if (Assigned(ti)) then
@@ -9276,7 +9272,7 @@ end;
 
 procedure TMainForm.miCloseTabClick(Sender: TObject);
 begin
-  mModuleView.CloseActiveTab();
+  mTabsView.CloseActiveTab();
 end;
 
 procedure TMainForm.miCommentsClick(Sender: TObject);
@@ -9331,7 +9327,7 @@ function TMainForm.DeleteHotModule(const me: TModuleEntry): Boolean;
 var
   hotMenuItem, favouriteMenuItem: TMenuItem;
   i: integer;
-  moduleView: IModuleView;
+  tabsView: ITabsView;
 begin
   try
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
@@ -9347,12 +9343,12 @@ begin
       BqShowException(E);
   end;
   try
-    for moduleView in mModuleViews do
+    for tabsView in mTabsViews do
     begin
-      i := FavoriteTabFromModEntry(moduleView, me);
+      i := FavoriteTabFromModEntry(tabsView, me);
       if i >= 0 then
-        moduleView.BibleTabs.Tabs.Delete(i);
-      (moduleView.BookView as TBookFrame).AdjustBibleTabs(MainBook.ShortName);
+        tabsView.BibleTabs.Tabs.Delete(i);
+      (tabsView.BookView as TBookFrame).AdjustBibleTabs(MainBook.ShortName);
     end;
   except
     on E: Exception do
@@ -9447,7 +9443,7 @@ begin
     InputForm.edtValue.Text := '';
     GoReference();
 
-    Windows.SetFocus(mModuleView.Browser.Handle);
+    Windows.SetFocus(mTabsView.Browser.Handle);
   end;
 end;
 
@@ -9768,7 +9764,7 @@ begin
   addr := G_XRefVerseCmd;
   if Length(addr) <= 0 then
     Exit;
-  ti := mModuleView.GetActiveTabInfo();
+  ti := mTabsView.GetActiveTabInfo();
   if Assigned(ti) then
     satBible := ti.SatelliteName
   else
@@ -9910,7 +9906,7 @@ begin
   case useDisposition of
     udParabibles:
       begin
-        ws := mModuleView.GetActiveTabInfo().SatelliteName;
+        ws := mTabsView.GetActiveTabInfo().SatelliteName;
         wcap := Lang.SayDefault('SelectParaBible', 'Select secondary bible');
         wbtn := Lang.SayDefault('DeselectSec', 'Deselect');
         ws := SecondaryBook.Name;
@@ -9933,7 +9929,7 @@ begin
   if (MyLibraryForm.ModalResult <> mrOk) or
     (Length(MyLibraryForm.mCellText) <= 0) then
   begin
-    tbtnSatellite.Down := mModuleView.GetActiveTabInfo().SatelliteName <> '------';
+    tbtnSatellite.Down := mTabsView.GetActiveTabInfo().SatelliteName <> '------';
     Exit;
   end;
   case useDisposition of
@@ -10115,7 +10111,7 @@ var
   ti: TViewTabInfo;
   vhl: TbqHLVerseOption;
 begin
-  ti := mModuleView.GetActiveTabInfo();
+  ti := mTabsView.GetActiveTabInfo();
   if not Assigned(ti) then
     Exit;
   if ti.SatelliteName <> '------' then
@@ -10140,7 +10136,7 @@ var
 begin
   if tbtnSatellite.Down then
   begin
-    ti := mModuleView.GetActiveTabInfo();
+    ti := mTabsView.GetActiveTabInfo();
     tbtnSatellite.Hint := ti.SatelliteName;
   end
   else
@@ -10158,13 +10154,13 @@ var
 begin
 
   try
-    tabInfo := mModuleView.GetActiveTabInfo();
+    tabInfo := mTabsView.GetActiveTabInfo();
     tabInfo.SatelliteName := bibleName;
     if tabInfo.Bible.isBible then
     begin
-      broserPos := mModuleView.Browser.Position;
+      broserPos := mTabsView.Browser.Position;
       ProcessCommand(tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
-      mModuleView.Browser.Position := broserPos;
+      mTabsView.Browser.Position := broserPos;
     end
     else
     begin
@@ -10268,7 +10264,7 @@ function TMainForm.ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
 var
   hotMi: TMenuItem;
   ix: integer;
-  moduleView: IModuleView;
+  tabsView: ITabsView;
 begin
   Result := true;
   hotMi := FavoriteItemFromModEntry(oldMe);
@@ -10278,13 +10274,13 @@ begin
     hotMi.tag := integer(newMe);
   end;
 
-  for moduleView in mModuleViews do
+  for tabsView in mTabsViews do
   begin
-    ix := FavoriteTabFromModEntry(moduleView, oldMe);
+    ix := FavoriteTabFromModEntry(tabsView, oldMe);
     if ix >= 0 then
     begin
-      moduleView.BibleTabs.Tabs[ix] := newMe.VisualSignature();
-      moduleView.BibleTabs.Tabs.Objects[ix] := newMe;
+      tabsView.BibleTabs.Tabs[ix] := newMe.VisualSignature();
+      tabsView.BibleTabs.Tabs.Objects[ix] := newMe;
     end;
   end;
 end;

@@ -9,7 +9,7 @@ uses
   Vcl.Menus, System.ImageList, Vcl.ImgList, MainFrm, TabData, HintTools,
   WinApi.ShellApi, StrUtils, BibleQuoteUtils, CommandProcessor, LinksParserIntf,
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
-  Bible, ModuleViewIntf, Math, IOUtils;
+  Bible, ViewIntf, Math, IOUtils;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -116,7 +116,7 @@ type
   private
     { Private declarations }
     mMainView: TMainForm;
-    mModuleView: IModuleView;
+    mTabsView: ITabsView;
 
     mBrowserSearchPosition: Longint;
 
@@ -130,7 +130,7 @@ type
     property MainBook: TBible read GetMainBook;
   public
     { Public declarations }
-    constructor Create(AOwner: TComponent; mainView: TMainForm; moduleView: IModuleView); reintroduce;
+    constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
 
     procedure AdjustBibleTabs(moduleName: string = '');
     procedure LoadSecondBookByName(const name: string);
@@ -139,11 +139,11 @@ type
 implementation
 
 {$R *.dfm}
-uses ModuleFrm;
+uses DockTabsFrm;
 
 function TBookFrame.GetMainBook(): TBible;
 begin
-  Result := mModuleView.GetActiveTabInfo.Bible;
+  Result := mTabsView.GetActiveTabInfo.Bible;
 end;
 
 procedure TBookFrame.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -160,7 +160,7 @@ var
 begin
   unicodeSRC := SRC;
   iscontrolDown := IsDown(VK_CONTROL);
-  tabInfo := mModuleView.GetActiveTabInfo();
+  tabInfo := mTabsView.GetActiveTabInfo();
 
   if GetCommandType(SRC) = bqctGoCommand then
   // verse hyperlink
@@ -319,7 +319,7 @@ begin
 
   if Length(wstr) <= 0 then
     Exit;
-  ti := mModuleView.GetActiveTabInfo();
+  ti := mTabsView.GetActiveTabInfo();
 
   if (viewer <> bwrHtml) and (ti.Bible.isBible) then
     replaceModPath := ti.Bible.ShortPath
@@ -370,7 +370,7 @@ const
 {$J-}
 begin
   try
-    vti := mModuleView.GetActiveTabInfo();
+    vti := mTabsView.GetActiveTabInfo();
 
     if not Assigned(vti) then
       Exit;
@@ -446,7 +446,7 @@ var
   oxt, oct: integer;
   tabInfo: TViewTabInfo;
 begin
-  tabInfo := mModuleView.GetActiveTabInfo();
+  tabInfo := mTabsView.GetActiveTabInfo();
   if tabInfo.LocationType = vtlFile then
     Exit;
 
@@ -518,7 +518,7 @@ var
   num, code: integer;
   tabInfo: TViewTabInfo;
 begin
-  tabInfo := mModuleView.GetActiveTabInfo();
+  tabInfo := mTabsView.GetActiveTabInfo();
 
   if not mMainView.mDictionariesFullyInitialized then
   begin
@@ -579,6 +579,7 @@ begin
         if mMainView.mScrollAcc > 2 then
         begin
           lastWheelTime := tm;
+          mTabsView.MakeActive();
           mMainView.GoNextChapter();
           Handled := true;
 
@@ -597,6 +598,7 @@ begin
         if mMainView.mScrollAcc > 2 then
         begin
           lastWheelTime := tm;
+          mTabsView.MakeActive();
           mMainView.GoPrevChapter();
           bwrHtml.PositionTo('endofchapterNMFHJAHSTDGF123');
           Handled := true;
@@ -622,11 +624,11 @@ begin
   mMainView.FontChanged(delta);
 end;
 
-constructor TBookFrame.Create(AOwner: TComponent; mainView: TMainForm; moduleView: IModuleView);
+constructor TBookFrame.Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView);
 begin
   inherited Create(AOwner);
   mMainView := mainView;
-  mModuleView := moduleView;
+  mTabsView := tabsView;
 end;
 
 procedure TBookFrame.dtsBibleChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
@@ -681,7 +683,7 @@ begin
       mMainView.SelectSatelliteBibleByName('');
       Exit;
     end;
-    modIx := mMainView.mModules.FindByFolder(mModuleView.GetActiveTabInfo().Bible.ShortPath);
+    modIx := mMainView.mModules.FindByFolder(mTabsView.GetActiveTabInfo().Bible.ShortPath);
     if modIx >= 0 then
     begin
       me := TModuleEntry(mMainView.mModules.Items[modIx]);
@@ -699,7 +701,7 @@ begin
   end;
   if IsDown(VK_MENU) then
   begin
-    ti := mModuleView.GetActiveTabInfo();
+    ti := mTabsView.GetActiveTabInfo();
     s := ti.Location;
     StrReplace(s, ti.Bible.ShortPath, me.mShortPath, false);
     mMainView.NewViewTab(s, ti.SatelliteName, '', ti.State, '', true);
@@ -769,7 +771,7 @@ begin
       Exit;
 
     me := TModuleEntry(dtsBible.Tabs.Objects[sourceTabIx]);
-    viewTabInfo := mModuleView.GetActiveTabInfo;
+    viewTabInfo := mTabsView.GetActiveTabInfo;
 
     mMainView.mFavorites.MoveItem(me, TabIndex);
 
@@ -874,10 +876,10 @@ begin
 end;
 
 procedure TBookFrame.FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
-var moduleForm: TModuleForm;
+var tabsForm: TDockTabsForm;
 begin
-  moduleForm := mModuleView as TModuleForm;
-  moduleForm.MakeActive;
+  tabsForm := mTabsView as TDockTabsForm;
+  tabsForm.MakeActive;
 end;
 
 procedure TBookFrame.miAddBookmarkClick(Sender: TObject);
@@ -999,7 +1001,7 @@ begin
   tbtnMemos.Down := showMemos;
 
   mMainView.MemosOn := showMemos;
-  ti := mModuleView.GetActiveTabInfo();
+  ti := mTabsView.GetActiveTabInfo();
   ti[vtisShowNotes] := showMemos;
 
   mMainView.ProcessCommand(ti.Location, TbqHLVerseOption(ord(ti[vtisHighLightVerses])));
@@ -1081,7 +1083,7 @@ begin
     miCopyVerse.Visible := false;
   end
   else
-    tabInfo := mModuleView.GetActiveTabInfo;
+    tabInfo := mTabsView.GetActiveTabInfo;
 
     with tabInfo.Bible do
     begin
@@ -1198,7 +1200,7 @@ begin
   mMainView.miStrong.Checked := not mMainView.miStrong.Checked;
   mMainView.StrongNumbersOn := mMainView.miStrong.Checked;
   tbtnStrongNumbers.Down := mMainView.StrongNumbersOn;
-  vti := mModuleView.GetActiveTabInfo();
+  vti := mTabsView.GetActiveTabInfo();
   vti[vtisShowStrongs] := mMainView.StrongNumbersOn;
 
   if not vti.Bible.Trait[bqmtStrongs] then
@@ -1366,7 +1368,7 @@ var
   ini: string;
   tabInfo: TViewTabInfo;
 begin
-  tabInfo := mModuleView.GetActiveTabInfo;
+  tabInfo := mTabsView.GetActiveTabInfo;
   if (Assigned(mMainView.mModules)) then
   begin
     ix := mMainView.mModules.FindByName(name);

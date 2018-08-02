@@ -90,7 +90,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="IOProcsTests.pas"/>
-        <DCCReference Include="ViewConfigTests.pas"/>
+        <DCCReference Include="LayoutConfigTests.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

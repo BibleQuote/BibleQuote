@@ -1,4 +1,4 @@
-﻿unit ModuleFrm;
+﻿unit DockTabsFrm;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Tabs, Vcl.DockTabSet, Vcl.ExtCtrls,
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ToolWin, Htmlview,
   System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, BibleQuoteUtils,
-  ExceptionFrm, Math, ModuleViewIntf, MainFrm,
+  ExceptionFrm, Math, ViewIntf, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, BookFra;
 
@@ -20,7 +20,7 @@ const
   bsSearch = 5;
 
 type
-  TModuleForm = class(TForm, IModuleView)
+  TDockTabsForm = class(TForm, ITabsView)
     ilImages: TImageList;
     pnlMain: TPanel;
     mViewTabsPopup: TPopupMenu;
@@ -44,8 +44,6 @@ type
     procedure ctViewTabsTabDragDrop(Sender: TObject; X, Y: Integer; DragTabObject: IDragTabObject; Cancelled: Boolean; var TabDropOptions: TTabDropOptions);
     procedure FormCreate(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
-
-    procedure MakeActive();
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -58,6 +56,7 @@ type
     procedure CloseActiveTab();
     procedure UpdateViewTabs();
     function AddBookTab(newTabInfo: TViewTabInfo; const title: string): TChromeTab;
+    procedure MakeActive();
 
     // getters
     function GetBrowser: THTMLViewer;
@@ -81,48 +80,48 @@ implementation
 
 {$R *.dfm}
 
-function TModuleForm.GetViewTabs(): TChromeTabs;
+function TDockTabsForm.GetViewTabs(): TChromeTabs;
 begin
   Result := ctViewTabs;
 end;
 
-function TModuleForm.GetBrowser(): THTMLViewer;
+function TDockTabsForm.GetBrowser(): THTMLViewer;
 begin
   Result := mBookView.bwrHtml;
 end;
 
-function TModuleForm.GetBookView(): IBookView;
+function TDockTabsForm.GetBookView(): IBookView;
 begin
   Result := mBookView as IBookView;
 end;
 
-function TModuleForm.GetBibleTabs(): TDockTabSet;
+function TDockTabsForm.GetBibleTabs(): TDockTabSet;
 begin
   Result := mBookView.dtsBible;
 end;
 
-function TModuleForm.GetViewName(): string;
+function TDockTabsForm.GetViewName(): string;
 begin
   Result := Name;
 end;
 
-procedure TModuleForm.SetViewName(viewName: string);
+procedure TDockTabsForm.SetViewName(viewName: string);
 begin
   Name := viewName;
 end;
 
-constructor TModuleForm.Create(AOwner: TComponent; mainView: TMainForm);
+constructor TDockTabsForm.Create(AOwner: TComponent; mainView: TMainForm);
 begin
   inherited Create(AOwner);
   mMainView := mainView;
 end;
 
-procedure TModuleForm.ctViewTabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
+procedure TDockTabsForm.ctViewTabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
 begin
   UpdateViewTabs();
 end;
 
-procedure TModuleForm.ctViewTabsActiveTabChanging(Sender: TObject; AOldTab, ANewTab: TChromeTab; var Allow: Boolean);
+procedure TDockTabsForm.ctViewTabsActiveTabChanging(Sender: TObject; AOldTab, ANewTab: TChromeTab; var Allow: Boolean);
 var
   tabInfo: TViewTabInfo;
 begin
@@ -136,7 +135,7 @@ begin
   end;
 end;
 
-procedure TModuleForm.ctViewTabsButtonAddClick(Sender: TObject; var Handled: Boolean);
+procedure TDockTabsForm.ctViewTabsButtonAddClick(Sender: TObject; var Handled: Boolean);
 var
   ti: TViewTabInfo;
   sourceTab: TChromeTab;
@@ -152,13 +151,13 @@ begin
   Handled := true;
 end;
 
-procedure TModuleForm.ctViewTabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab; var Close: Boolean);
+procedure TDockTabsForm.ctViewTabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab; var Close: Boolean);
 begin
   if ctViewTabs.Tabs.Count <= 1 then
     self.Close; // close form when all tabs are closed
 end;
 
-procedure TModuleForm.ctViewTabsTabDblClick(Sender: TObject; ATab: TChromeTab);
+procedure TDockTabsForm.ctViewTabsTabDblClick(Sender: TObject; ATab: TChromeTab);
 var
   ti: TViewTabInfo;
 begin
@@ -168,7 +167,7 @@ begin
   mMainView.NewViewTab(ti.Location, ti.SatelliteName, '', ti.State, '', true);
 end;
 
-procedure TModuleForm.FormCreate(Sender: TObject);
+procedure TDockTabsForm.FormCreate(Sender: TObject);
 begin
   mBookView := TBookFrame.Create(nil, mMainView, self);
   mBookView.Parent := pnlMain;
@@ -177,7 +176,7 @@ begin
   mBookView.BringToFront;
 end;
 
-procedure TModuleForm.FormDeactivate(Sender: TObject);
+procedure TDockTabsForm.FormDeactivate(Sender: TObject);
 var
   tabInfo: TViewTabInfo;
 begin
@@ -187,7 +186,7 @@ begin
       tabInfo.SaveBrowserState(mBookView.bwrHtml);
 end;
 
-procedure TModuleForm.MakeActive();
+procedure TDockTabsForm.MakeActive();
 begin
   // activate form when any of its control is clicked
   if (not Active) then
@@ -196,12 +195,12 @@ begin
   end;
 end;
 
-procedure TModuleForm.FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
+procedure TDockTabsForm.FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
 begin
   MakeActive;
 end;
 
-procedure TModuleForm.miCloseAllOtherTabsClick(Sender: TObject);
+procedure TDockTabsForm.miCloseAllOtherTabsClick(Sender: TObject);
 var
   saveTabIndex: integer;
   curTab: TViewTabInfo;
@@ -248,7 +247,7 @@ begin
   end; // except
 end;
 
-procedure TModuleForm.CloseActiveTab();
+procedure TDockTabsForm.CloseActiveTab();
 var
   tabInfo: TViewTabInfo;
   tabIndex: integer;
@@ -269,12 +268,12 @@ begin
   end;
 end;
 
-procedure TModuleForm.miCloseViewTabClick(Sender: TObject);
+procedure TDockTabsForm.miCloseViewTabClick(Sender: TObject);
 begin
   CloseActiveTab;
 end;
 
-procedure TModuleForm.miNewViewTabClick(Sender: TObject);
+procedure TDockTabsForm.miNewViewTabClick(Sender: TObject);
 var
   activeTabInfo: TViewTabInfo;
 begin
@@ -285,7 +284,7 @@ begin
   end;
 end;
 
-procedure TModuleForm.UpdateViewTabs();
+procedure TDockTabsForm.UpdateViewTabs();
 var
   tabInfo: TViewTabInfo;
 begin
@@ -317,7 +316,7 @@ begin
   end;
 end;
 
-procedure TModuleForm.ctViewTabsTabDragDrop(Sender: TObject; X, Y: Integer; DragTabObject: IDragTabObject; Cancelled: Boolean; var TabDropOptions: TTabDropOptions);
+procedure TDockTabsForm.ctViewTabsTabDragDrop(Sender: TObject; X, Y: Integer; DragTabObject: IDragTabObject; Cancelled: Boolean; var TabDropOptions: TTabDropOptions);
 var
   srcTabs: TChromeTabs;
   dstTabs: TChromeTabs;
@@ -337,11 +336,11 @@ begin
     exclude(TabDropOptions, tdDeleteDraggedTab);
 end;
 
-procedure TModuleForm.ctViewTabsTabDragDropped(Sender: TObject; DragTabObject: IDragTabObject; NewTab: TChromeTab);
+procedure TDockTabsForm.ctViewTabsTabDragDropped(Sender: TObject; DragTabObject: IDragTabObject; NewTab: TChromeTab);
 var
   srcTabs: TChromeTabs;
   dstTabs: TChromeTabs;
-  dstForm: TModuleForm;
+  dstForm: TDockTabsForm;
 begin
   srcTabs := DragTabObject.SourceControl.GetControl as TChromeTabs;
   dstTabs := DragTabObject.DockControl.GetControl as TChromeTabs;
@@ -355,7 +354,7 @@ begin
     end
     else
     begin
-      dstForm := dstTabs.Owner as TModuleForm;
+      dstForm := dstTabs.Owner as TDockTabsForm;
       if Assigned(dstForm) then
       begin
         dstForm.Activate();
@@ -365,7 +364,7 @@ begin
   end;
 end;
 
-function TModuleForm.GetActiveTabInfo(): TViewTabInfo;
+function TDockTabsForm.GetActiveTabInfo(): TViewTabInfo;
 var
   tabIndex: integer;
 begin
@@ -381,7 +380,7 @@ begin
   end;
 end;
 
-function TModuleForm.AddBookTab(newTabInfo: TViewTabInfo; const title: string): TChromeTab;
+function TDockTabsForm.AddBookTab(newTabInfo: TViewTabInfo; const title: string): TChromeTab;
 var
   newTab: TChromeTab;
 begin
