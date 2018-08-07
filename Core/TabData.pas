@@ -2,12 +2,31 @@
 
 interface
 
-uses System.Classes, SysUtils, Controls, Bible, Htmlview;
+uses System.UITypes, System.Classes, Winapi.Windows, SysUtils,
+     Vcl.Controls, Vcl.Graphics, Bible, HtmlView,
+     Vcl.Tabs, Vcl.DockTabSet, ChromeTabs, ChromeTabsTypes, ChromeTabsUtils,
+     ChromeTabsControls, ChromeTabsClasses, ChromeTabsLog;
 
 type
-  TViewTabLocType = (vtlUnspecified, vtlModule, vtlFile);
+  IBookView = interface
+  ['{8015DBB1-AC95-49F3-9E00-B49BEF9A60F6}']
+  end;
 
-  TViewTabInfoStateEntries = (
+  ITagsView = interface
+  ['{372AF297-B27E-4A91-A215-36B8564BF797}']
+  end;
+
+  ITabsView = interface; // forward declaration
+
+  IViewTabInfo = interface
+  ['{AF0866F3-5841-445E-A830-8EBD678B59A8}']
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+  end;
+
+  TBookTabLocType = (vtlUnspecified, vtlModule, vtlFile);
+
+  TBookTabInfoStateEntries = (
     vtisShowStrongs,
     vtisShowNotes,
     vtisHighLightVerses,
@@ -15,9 +34,9 @@ type
     vtisFuzzyResolveLinks,
     vtisPendingReload);
 
-  TViewTabInfoState = set of TViewTabInfoStateEntries;
+  TBookTabInfoState = set of TBookTabInfoStateEntries;
 
-  TViewTabBrowserState = class
+  TBookTabBrowserState = class
   private
     mSelStart: integer;
     mSelLenght: integer;
@@ -32,7 +51,7 @@ type
     constructor Create();
   end;
 
-  TViewTabInfo = class
+  TBookTabInfo = class(TInterfacedObject, IViewTabInfo)
   private
     mLocation, mTitleLocation: string;
     mTitleFont: string;
@@ -44,17 +63,17 @@ type
     mSatelliteName: string;
     mFirstVisiblePara, mLastVisiblePara: integer;
 
-    mState: TViewTabInfoState;
-    mLocationType: TViewTabLocType;
-    mBrowserState: TViewTabBrowserState;
+    mState: TBookTabInfoState;
+    mLocationType: TBookTabLocType;
+    mBrowserState: TBookTabBrowserState;
 
     mIsCompareTranslation: Boolean;
     mCompareTranslationText: string;
 
-    function GetStateEntryStatus(stateEntry: TViewTabInfoStateEntries): Boolean; inline;
-    procedure SetStateEntry(stateEntry: TViewTabInfoStateEntries; value: Boolean);
+    function GetStateEntryStatus(stateEntry: TBookTabInfoStateEntries): Boolean; inline;
+    procedure SetStateEntry(stateEntry: TBookTabInfoStateEntries; value: Boolean);
   public
-    property State: TViewTabInfoState read mState write mState;
+    property State: TBookTabInfoState read mState write mState;
 
     property Location: string read mLocation write mLocation;
     property TitleLocation: string read mTitleLocation write mTitleLocation;
@@ -70,12 +89,12 @@ type
     property SecondBible: TBible read mSecondBible write mSecondBible;
     property ReferenceBible: TBible read mReferenceBible write mReferenceBible;
 
-    property LocationType: TViewTabLocType read mLocationType write mLocationType;
-    property BrowserState: TViewTabBrowserState read mBrowserState;
+    property LocationType: TBookTabLocType read mLocationType write mLocationType;
+    property BrowserState: TBookTabBrowserState read mBrowserState;
     property IsCompareTranslation: Boolean read mIsCompareTranslation write mIsCompareTranslation;
     property CompareTranslationText: string read mCompareTranslationText write mCompareTranslationText;
 
-    property StateEntryStatus[i: TViewTabInfoStateEntries]: Boolean
+    property StateEntryStatus[i: TBookTabInfoStateEntries]: Boolean
       read GetStateEntryStatus write SetStateEntry; default;
 
     procedure SaveBrowserState(const aHtmlViewer: THTMLViewer);
@@ -86,29 +105,60 @@ type
       const location: string;
       const satelliteBibleName: string;
       const title: string;
-      const state: TViewTabInfoState);
+      const state: TBookTabInfoState);
 
     procedure Init(
       const bible: TBible;
       const location: string;
       const satelliteBibleName: string;
       const title: string;
-      const state: TViewTabInfoState);
+      const state: TBookTabInfoState);
 
-    destructor Destroy; override;
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
   end;
 
   TViewTabDragObject = class(TDragObjectEx)
   protected
-    mViewTabInfo: TViewTabInfo;
+    mViewTabInfo: TBookTabInfo;
   public
-    constructor Create(aViewTabInfo: TViewTabInfo);
-    property ViewTabInfo: TViewTabInfo read mViewTabInfo;
+    constructor Create(aViewTabInfo: TBookTabInfo);
+    property ViewTabInfo: TBookTabInfo read mViewTabInfo;
+  end;
+
+  ITabsView = interface
+  ['{DEADBEEF-31AB-4F3A-B16F-57B47258402A}']
+
+    procedure CloseActiveTab();
+    function GetActiveTabInfo(): IViewTabInfo;
+    procedure UpdateBookView();
+    function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
+    procedure MakeActive();
+
+    // getters
+    function GetBrowser: THTMLViewer;
+    function GetBookView: IBookView;
+    function GetChromeTabs: TChromeTabs;
+    function GetBibleTabs: TDockTabSet;
+    function GetViewName: string;
+    function GetTabInfo(tabIndex: integer): IViewTabInfo;
+
+    // setters
+    procedure SetViewName(viewName: string);
+
+    // properties
+    property ChromeTabs: TChromeTabs read GetChromeTabs;
+    property Browser: THTMLViewer read GetBrowser;
+    property BookView: IBookView read GetBookView;
+    property BibleTabs: TDockTabSet read GetBibleTabs;
+    property ViewName: string read GetViewName write SetViewName;
   end;
 
 implementation
 
-constructor TViewTabBrowserState.Create;
+uses BookFra;
+
+constructor TBookTabBrowserState.Create;
 begin
   SelStart := -1;
   SelLenght := -1;
@@ -116,27 +166,29 @@ begin
   VScrollPos := -1;
 end;
 
-{ TViewTabInfo }
+{ TBookTabInfo }
 
-constructor TViewTabInfo.Create(
+constructor TBookTabInfo.Create(
   const bible: TBible;
   const location: string;
   const satelliteBibleName: string;
   const title: string;
-  const state: TViewTabInfoState);
+  const state: TBookTabInfoState);
 begin
   Init(bible, location, satelliteBibleName, title, state);
 end;
 
-destructor TViewTabInfo.Destroy;
+procedure TBookTabInfo.SaveState(const tabsView: ITabsView);
 begin
-  if (mBible <> nil) then
-    FreeAndNil(mBible);
-
-  inherited Destroy;
+  SaveBrowserState((tabsView.BookView as TBookFrame).bwrHtml);
 end;
 
-procedure TViewTabInfo.SaveBrowserState(const aHtmlViewer: THTMLViewer);
+procedure TBookTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+  RestoreBrowserState((tabsView.BookView as TBookFrame).bwrHtml);
+end;
+
+procedure TBookTabInfo.SaveBrowserState(const aHtmlViewer: THTMLViewer);
 begin
   mBrowserState.SelStart := aHtmlViewer.SelStart;
   mBrowserState.SelLenght := aHtmlViewer.SelLength;
@@ -144,7 +196,7 @@ begin
   mBrowserState.VScrollPos := aHtmlViewer.VScrollBarPosition;
 end;
 
-procedure TViewTabInfo.RestoreBrowserState(const aHtmlViewer: THTMLViewer);
+procedure TBookTabInfo.RestoreBrowserState(const aHtmlViewer: THTMLViewer);
 begin
   if mBrowserState = nil then
     Exit;
@@ -162,19 +214,19 @@ begin
      aHtmlViewer.VScrollBarPosition := mBrowserState.VScrollPos;
 end;
 
-function TViewTabInfo.GetStateEntryStatus(stateEntry: TViewTabInfoStateEntries): Boolean;
+function TBookTabInfo.GetStateEntryStatus(stateEntry: TBookTabInfoStateEntries): Boolean;
 begin
   Result := stateEntry in mState;
 end;
 
-procedure TViewTabInfo.Init(
+procedure TBookTabInfo.Init(
   const bible: TBible;
   const location: string;
   const satelliteBibleName: string;
   const title: string;
-  const state: TViewTabInfoState);
+  const state: TBookTabInfoState);
 begin
-  mBrowserState := TViewTabBrowserState.Create;
+  mBrowserState := TBookTabBrowserState.Create;
   mBible := bible;
   mLocation := location;
   mSatelliteName := satelliteBibleName;
@@ -186,7 +238,7 @@ begin
   mCompareTranslationText := '';
 end;
 
-procedure TViewTabInfo.SetStateEntry(stateEntry: TViewTabInfoStateEntries; value: Boolean);
+procedure TBookTabInfo.SetStateEntry(stateEntry: TBookTabInfoStateEntries; value: Boolean);
 begin
   if value then
     Include(mState, stateEntry)
@@ -196,7 +248,7 @@ end;
 
 { TViewTabDragObject }
 
-constructor TViewTabDragObject.Create(aViewTabInfo: TViewTabInfo);
+constructor TViewTabDragObject.Create(aViewTabInfo: TBookTabInfo);
 begin
   inherited Create();
   mViewTabInfo := aViewTabInfo;

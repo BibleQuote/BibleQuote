@@ -47,11 +47,12 @@ uses
   MultiLanguage in 'Core\MultiLanguage.pas',
   TabData in 'Core\TabData.pas',
   CRC32 in 'Utils\CRC32.pas',
-  ViewIntf in 'UI\ViewIntf.pas',
   DockTabsFrm in 'Forms\DockTabsFrm.pas' {DockTabsForm},
   ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas',
   LayoutConfig in 'IO\LayoutConfig.pas',
-  BookFra in 'Views\BookFra.pas' {BookFrame: TFrame};
+  BookFra in 'Views\BookFra.pas' {BookFrame: TFrame},
+  TagsFra in 'Views\TagsFra.pas' {TagsFrame: TFrame},
+  FontManager in 'Core\FontManager.pas';
 
 {$R *.res}
 var
