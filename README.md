@@ -9,6 +9,6 @@
 
 Bible Study Software
 
-![BibleQuote screenshot](./Resources/biblequote-screenshot.png "BibleQuote")
+![BibleQuote screenshot](./Resources/screenshot.png "BibleQuote")
 
 &copy; BibleQuote.org 2017-2018
