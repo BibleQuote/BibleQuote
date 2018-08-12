@@ -1,7 +1,14 @@
+<p align="center">
+  <br>
+  <img width="230" src="./Resources/logo.png" alt="awesome">
+  <br>
+  <br>
+</p>
+
 # BibleQuote
 
-Bible study software
+Bible Study Software
 
 ![BibleQuote screenshot](./Resources/biblequote-screenshot.png "BibleQuote")
 
-&copy; Biblequote.org 2017-2018
+&copy; BibleQuote.org 2017-2018
