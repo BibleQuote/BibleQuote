@@ -152,6 +152,7 @@ type
     // getters
     function GetBrowser: THTMLViewer;
     function GetBookView: IBookView;
+    function GetMemoView: IMemoView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -164,6 +165,7 @@ type
     property ChromeTabs: TChromeTabs read GetChromeTabs;
     property Browser: THTMLViewer read GetBrowser;
     property BookView: IBookView read GetBookView;
+    property MemoView: IMemoView read GetMemoView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
   end;

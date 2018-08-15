@@ -11,7 +11,6 @@ uses
 type
   TMemoFrame = class(TFrame, IMemoView)
     ilImages: TImageList;
-    ilPictures24: TImageList;
     tlbMemo: TToolBar;
     tbtnMemoOpen: TToolButton;
     tbtnMemoSave: TToolButton;

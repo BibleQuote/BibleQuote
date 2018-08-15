@@ -229,7 +229,7 @@ type
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
     tbtnNewForm: TToolButton;
-    tbtnNewTagsTab: TToolButton;
+    tbtnNewMemoTab: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -444,7 +444,7 @@ type
     procedure BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string);
     procedure BookChangeModule(Sender: TObject);
     procedure BookSearchComplete(Sender: TObject);
-    procedure tbtnNewTagsTabClick(Sender: TObject);
+    procedure tbtnNewMemoTabClick(Sender: TObject);
   public
     SysHotKey: TSysHotKey;
 
@@ -2265,8 +2265,8 @@ begin
       tabsForm := tabsView as TDockTabsForm;
       TranslateControl(tabsForm, 'DockTabsForm');
 
-      if (tabsForm.BookView is TBookFrame) then
-        TranslateControl(tabsForm.BookView as TBookFrame, 'DockTabsForm');
+      TranslateControl(tabsForm.BookView as TFrame, 'DockTabsForm');
+      TranslateControl(tabsForm.MemoView as TFrame, 'DockTabsForm');
     end;
   end;
 
@@ -6262,7 +6262,7 @@ begin
   end;
 end;
 
-procedure TMainForm.tbtnNewTagsTabClick(Sender: TObject);
+procedure TMainForm.tbtnNewMemoTabClick(Sender: TObject);
 var
   newTabInfo: TMemoTabInfo;
 begin
