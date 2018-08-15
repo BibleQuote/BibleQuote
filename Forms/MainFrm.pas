@@ -6264,10 +6264,10 @@ end;
 
 procedure TMainForm.tbtnNewTagsTabClick(Sender: TObject);
 var
-  newTabInfo: TTagsTabInfo;
+  newTabInfo: TMemoTabInfo;
 begin
-    newTabInfo := TTagsTabInfo.Create();
-    mTabsView.AddTagsTab(newTabInfo);
+    newTabInfo := TMemoTabInfo.Create();
+    mTabsView.AddMemoTab(newTabInfo);
 end;
 
 procedure TMainForm.UpdateAllBooks;

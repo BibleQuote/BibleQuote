@@ -1,4 +1,4 @@
-object TagsFrame: TTagsFrame
+object MemoFrame: TMemoFrame
   Left = 0
   Top = 0
   Width = 320

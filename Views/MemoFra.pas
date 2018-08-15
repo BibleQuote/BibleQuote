@@ -1,4 +1,4 @@
-unit TagsFra;
+unit MemoFra;
 
 interface
 
@@ -9,7 +9,7 @@ uses
   Vcl.Menus, System.UITypes;
 
 type
-  TTagsFrame = class(TFrame, ITagsView)
+  TMemoFrame = class(TFrame, IMemoView)
     ilImages: TImageList;
     ilPictures24: TImageList;
     tlbMemo: TToolBar;
@@ -60,27 +60,27 @@ implementation
 
 {$R *.dfm}
 
-procedure TTagsFrame.miMemoCopyClick(Sender: TObject);
+procedure TMemoFrame.miMemoCopyClick(Sender: TObject);
 begin
   reMemo.CopyToClipboard
 end;
 
-procedure TTagsFrame.miMemoCutClick(Sender: TObject);
+procedure TMemoFrame.miMemoCutClick(Sender: TObject);
 begin
   reMemo.CutToClipboard
 end;
 
-procedure TTagsFrame.miMemoPasteClick(Sender: TObject);
+procedure TMemoFrame.miMemoPasteClick(Sender: TObject);
 begin
   reMemo.PasteFromClipboard
 end;
 
-procedure TTagsFrame.reMemoChange(Sender: TObject);
+procedure TMemoFrame.reMemoChange(Sender: TObject);
 begin
   reMemo.tag := 1;
 end;
 
-procedure TTagsFrame.tbtnMemoBoldClick(Sender: TObject);
+procedure TMemoFrame.tbtnMemoBoldClick(Sender: TObject);
 begin
   if fsBold in reMemo.SelAttributes.Style then
     reMemo.SelAttributes.Style := reMemo.SelAttributes.Style - [fsBold]
@@ -88,7 +88,7 @@ begin
     reMemo.SelAttributes.Style := reMemo.SelAttributes.Style + [fsBold];
 end;
 
-procedure TTagsFrame.tbtnMemoFontClick(Sender: TObject);
+procedure TMemoFrame.tbtnMemoFontClick(Sender: TObject);
 begin
   with reMemo.SelAttributes do
   begin
@@ -110,7 +110,7 @@ begin
     end;
 end;
 
-procedure TTagsFrame.tbtnMemoItalicClick(Sender: TObject);
+procedure TMemoFrame.tbtnMemoItalicClick(Sender: TObject);
 begin
   if fsItalic in reMemo.SelAttributes.Style then
     reMemo.SelAttributes.Style := reMemo.SelAttributes.Style - [fsItalic]
@@ -118,7 +118,7 @@ begin
     reMemo.SelAttributes.Style := reMemo.SelAttributes.Style + [fsItalic];
 end;
 
-procedure TTagsFrame.tbtnMemoOpenClick(Sender: TObject);
+procedure TMemoFrame.tbtnMemoOpenClick(Sender: TObject);
 begin
   OpenDialog.Filter := 'RTF (*.rtf)|*.rtf|DOC (*.doc)|*.doc|*.*|*.*';
   OpenDialog.FileName := MemoFilename;
@@ -132,7 +132,7 @@ begin
   end;
 end;
 
-procedure TTagsFrame.tbtnMemoPainterClick(Sender: TObject);
+procedure TMemoFrame.tbtnMemoPainterClick(Sender: TObject);
 begin
   ColorDialog.color := reMemo.Font.color;
 
@@ -140,7 +140,7 @@ begin
     reMemo.SelAttributes.color := ColorDialog.color;
 end;
 
-procedure TTagsFrame.tbtnMemoPrintClick(Sender: TObject);
+procedure TMemoFrame.tbtnMemoPrintClick(Sender: TObject);
 var
   opt: TPrintDialogOptions;
 begin
@@ -154,7 +154,7 @@ begin
   end;
 end;
 
-procedure TTagsFrame.tbtnMemoSaveClick(Sender: TObject);
+procedure TMemoFrame.tbtnMemoSaveClick(Sender: TObject);
 var
   i: integer;
 begin
@@ -179,7 +179,7 @@ begin
   end;
 end;
 
-procedure TTagsFrame.tbtnMemoUnderlineClick(Sender: TObject);
+procedure TMemoFrame.tbtnMemoUnderlineClick(Sender: TObject);
 begin
   if fsUnderline in reMemo.SelAttributes.Style then
     reMemo.SelAttributes.Style := reMemo.SelAttributes.Style - [fsUnderline]

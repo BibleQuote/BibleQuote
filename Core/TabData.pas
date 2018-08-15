@@ -10,13 +10,13 @@ uses System.UITypes, System.Classes, Winapi.Windows, SysUtils,
 type
   TViewTabType = (
     vttBook,
-    vttTags);
+    vttMemo);
 
   IBookView = interface
   ['{8015DBB1-AC95-49F3-9E00-B49BEF9A60F6}']
   end;
 
-  ITagsView = interface
+  IMemoView = interface
   ['{372AF297-B27E-4A91-A215-36B8564BF797}']
   end;
 
@@ -125,7 +125,7 @@ type
     function GetViewType(): TViewTabType;
   end;
 
-  TTagsTabInfo = class(TInterfacedObject, IViewTabInfo)
+  TMemoTabInfo = class(TInterfacedObject, IViewTabInfo)
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
@@ -146,7 +146,7 @@ type
     function GetActiveTabInfo(): IViewTabInfo;
     procedure UpdateBookView();
     function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
-    function AddTagsTab(newTabInfo: TTagsTabInfo): TChromeTab;
+    function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     procedure MakeActive();
 
     // getters
@@ -265,19 +265,19 @@ begin
     Exclude(mState, stateEntry);
 end;
 
-{ TTagsTabInfo }
+{ TMemoTabInfo }
 
-function TTagsTabInfo.GetViewType(): TViewTabType;
+function TMemoTabInfo.GetViewType(): TViewTabType;
 begin
-  Result := vttTags;
+  Result := vttMemo;
 end;
 
-procedure TTagsTabInfo.SaveState(const tabsView: ITabsView);
+procedure TMemoTabInfo.SaveState(const tabsView: ITabsView);
 begin
 // nothing to save
 end;
 
-procedure TTagsTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TMemoTabInfo.RestoreState(const tabsView: ITabsView);
 begin
 // nothing to save
 end;

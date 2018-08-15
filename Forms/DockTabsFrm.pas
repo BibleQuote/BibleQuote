@@ -9,7 +9,7 @@ uses
   System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, BibleQuoteUtils,
   ExceptionFrm, Math, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, BookFra, TagsFra;
+  ChromeTabsLog, BookFra, MemoFra;
 
 const
   bsText = 0;
@@ -49,7 +49,7 @@ type
     { Private declarations }
     mMainView: TMainForm;
     mBookView: TBookFrame;
-    mTagsView: TTagsFrame;
+    mMemoView: TMemoFrame;
     mViewTabs: TList<IViewTabInfo>;
 
     procedure ShowFrame(frame: TFrame);
@@ -63,7 +63,7 @@ type
     procedure CloseActiveTab();
     procedure UpdateBookView();
     function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
-    function AddTagsTab(newTabInfo: TTagsTabInfo): TChromeTab;
+    function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     procedure MakeActive();
 
     // getters
@@ -173,16 +173,16 @@ begin
 
   if (tabInfo.GetViewType = vttBook) then
   begin
-    HideFrame(mTagsView);
+    HideFrame(mMemoView);
     ShowFrame(mBookView);
 
     UpdateBookView();
   end;
 
-  if (tabInfo.GetViewType = vttTags) then
+  if (tabInfo.GetViewType = vttMemo) then
   begin
     HideFrame(mBookView);
-    ShowFrame(mTagsView);
+    ShowFrame(mMemoView);
   end;
 end;
 
@@ -267,9 +267,9 @@ end;
 
 procedure TDockTabsForm.FormCreate(Sender: TObject);
 begin
-  mTagsView := TTagsFrame.Create(nil);
-  mTagsView.Parent := pnlMain;
-  mTagsView.Align := alClient;
+  mMemoView := TMemoFrame.Create(nil);
+  mMemoView.Parent := pnlMain;
+  mMemoView.Align := alClient;
 
   mBookView := TBookFrame.Create(nil, mMainView, self);
   mBookView.Parent := pnlMain;
@@ -492,12 +492,12 @@ begin
   Result := newTab;
 end;
 
-function TDockTabsForm.AddTagsTab(newTabInfo: TTagsTabInfo): TChromeTab;
+function TDockTabsForm.AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
 var
   newTab: TChromeTab;
 begin
   newTab := ctViewTabs.Tabs.Add;
-  newTab.Caption := 'Zakladki';
+  newTab.Caption := 'Memo';
   newTab.Data := newTabInfo;
 
   mViewTabs.Add(newTabInfo);

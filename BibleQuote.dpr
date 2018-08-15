@@ -51,7 +51,7 @@ uses
   ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas',
   LayoutConfig in 'IO\LayoutConfig.pas',
   BookFra in 'Views\BookFra.pas' {BookFrame: TFrame},
-  TagsFra in 'Views\TagsFra.pas' {TagsFrame: TFrame},
+  MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame},
   FontManager in 'Core\FontManager.pas';
 
 {$R *.res}
