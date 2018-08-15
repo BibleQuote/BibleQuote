@@ -169,7 +169,7 @@ var
   tabInfo: IViewTabInfo;
 begin
   tabInfo := mTabsView.GetActiveTabInfo();
-  if (tabInfo is TBookTabInfo) then
+  if (tabInfo.GetViewType = vttBook) then
     Result := TBookTabInfo(tabInfo)
   else
     Result := nil;
@@ -974,9 +974,7 @@ end;
 
 procedure TBookFrame.miMemoCopyClick(Sender: TObject);
 begin
-  if pmMemo.PopupComponent = mMainView.reMemo then
-    mMainView.reMemo.CopyToClipboard
-  else if pmMemo.PopupComponent is TEdit then
+  if pmMemo.PopupComponent is TEdit then
     (pmMemo.PopupComponent as TEdit).CopyToClipboard
   else if pmMemo.PopupComponent is TComboBox then
     Clipboard.AsText := (pmMemo.PopupComponent as TComboBox).Text;
@@ -984,9 +982,7 @@ end;
 
 procedure TBookFrame.miMemoCutClick(Sender: TObject);
 begin
-  if pmMemo.PopupComponent = mMainView.reMemo then
-    mMainView.reMemo.CutToClipboard
-  else if pmMemo.PopupComponent is TEdit then
+  if pmMemo.PopupComponent is TEdit then
     (pmMemo.PopupComponent as TEdit).CutToClipboard
   else if pmMemo.PopupComponent is TComboBox then
   begin
@@ -997,9 +993,7 @@ end;
 
 procedure TBookFrame.miMemoPasteClick(Sender: TObject);
 begin
-  if pmMemo.PopupComponent = mMainView.reMemo then
-    mMainView.reMemo.PasteFromClipboard
-  else if pmMemo.PopupComponent is TEdit then
+  if pmMemo.PopupComponent is TEdit then
     (pmMemo.PopupComponent as TEdit).PasteFromClipboard;
 end;
 

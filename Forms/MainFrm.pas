@@ -115,15 +115,10 @@ type
     miRefCopy: TMenuItem;
     miRefPrint: TMenuItem;
     cbQty: TComboBox;
-    tbMemo: TTabSheet;
-    reMemo: TRichEdit;
     pnlComments: TPanel;
     cbModules: TComboBox;
     cbComments: TComboBox;
     btnSearchOptions: TButton;
-    pnlMemo: TPanel;
-    lblMemo: TLabel;
-    pmHistory: TPopupMenu;
     splMain: TSplitter;
     pgcHistoryBookmarks: TPageControl;
     tbHistory: TTabSheet;
@@ -181,18 +176,6 @@ type
     miHotKey: TMenuItem;
     miAbout: TMenuItem;
     ilImages: TImageList;
-    tlbMemo: TToolBar;
-    tbtnMemoOpen: TToolButton;
-    tbtnMemoSave: TToolButton;
-    tbtnMemoPrint: TToolButton;
-    tbtnSep1: TToolButton;
-    tbtnMemoFont: TToolButton;
-    tbtnSep2: TToolButton;
-    tbtnMemoBold: TToolButton;
-    tbtnMemoItalic: TToolButton;
-    tbtnMemoUnderline: TToolButton;
-    tbtnSep3: TToolButton;
-    tbtnMemoPainter: TToolButton;
     tlbPanel: TGradientPanel;
     tlbMain: TToolBar;
     tbtnToggle: TToolButton;
@@ -246,6 +229,7 @@ type
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
     tbtnNewForm: TToolButton;
+    tbtnNewTagsTab: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -302,14 +286,6 @@ type
     procedure bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
-    procedure tbtnMemoOpenClick(Sender: TObject);
-    procedure tbtnMemoSaveClick(Sender: TObject);
-    procedure tbtnMemoBoldClick(Sender: TObject);
-    procedure tbtnMemoItalicClick(Sender: TObject);
-    procedure tbtnMemoUnderlineClick(Sender: TObject);
-    procedure tbtnMemoFontClick(Sender: TObject);
-    procedure reMemoChange(Sender: TObject);
-    procedure tbtnMemoPainterClick(Sender: TObject);
     procedure miNotepadClick(Sender: TObject);
     procedure cbCommentsChange(Sender: TObject);
     procedure btnSearchOptionsClick(Sender: TObject);
@@ -337,7 +313,6 @@ type
     procedure miOptionsClick(Sender: TObject);
     procedure trayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
-    procedure tbtnMemoPrintClick(Sender: TObject);
     procedure tbtnSatelliteClick(Sender: TObject);
     procedure SelectSatelliteBibleByName(const bibleName: string);
     procedure edtDicChange(Sender: TObject);
@@ -469,6 +444,7 @@ type
     procedure BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string);
     procedure BookChangeModule(Sender: TObject);
     procedure BookSearchComplete(Sender: TObject);
+    procedure tbtnNewTagsTabClick(Sender: TObject);
   public
     SysHotKey: TSysHotKey;
 
@@ -1078,12 +1054,11 @@ begin
   tabInfo.SecondBible := secondBook;
   tabInfo.ReferenceBible := refBook;
 
+  mTabsView := tabsForm;
   tabsForm.AddBookTab(tabInfo, book.Name);
 
   tabsForm.ManualDock(pnlModules);
   tabsForm.Show;
-
-  mTabsView := tabsForm;
 end;
 
 procedure TMainForm.OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
@@ -2990,10 +2965,8 @@ begin
       // Ord('H'): HistoryButton.Click;
 
       ord('Z'):
-        if ActiveControl <> reMemo then
           GoPrevChapter;
       ord('X'):
-        if ActiveControl <> reMemo then
           GoNextChapter;
       ord('T'):
         tbtnToggle.Click;
@@ -3012,9 +2985,7 @@ begin
       // end;
       ord('C'), VK_INSERT:
         begin
-          if ActiveControl = reMemo then
-            reMemo.CopyToClipboard
-          else if GetTabsView(self).ActiveControl = mTabsView.Browser then
+          if GetTabsView(self).ActiveControl = mTabsView.Browser then
             GetBookView(self).tbtnCopy.Click
           else if ActiveControl is THTMLViewer then
             (ActiveControl as THTMLViewer).CopyToClipboard
@@ -6258,70 +6229,6 @@ begin
   until trCount <= 0;
 end;
 
-procedure TMainForm.tbtnMemoOpenClick(Sender: TObject);
-begin
-  OpenDialog.Filter := 'RTF (*.rtf)|*.rtf|DOC (*.doc)|*.doc|*.*|*.*';
-  OpenDialog.FileName := MemoFilename;
-  if OpenDialog.Execute then
-  begin
-    reMemo.Lines.LoadFromFile(OpenDialog.FileName);
-    reMemo.tag := 0; // not changed
-
-    MemoFilename := OpenDialog.FileName;
-    lblMemo.Caption := ExtractFileName(MemoFilename);
-  end;
-end;
-
-procedure TMainForm.tbtnMemoSaveClick(Sender: TObject);
-var
-  i: integer;
-begin
-  SaveFileDialog.DefaultExt := '.rtf';
-  SaveFileDialog.Filter := 'RTF (*.rtf)|*.rtf|DOC (*.doc)|*.doc|*.*|*.*';
-  SaveFileDialog.FileName := MemoFilename;
-  if SaveFileDialog.Execute then
-  begin
-    MemoFilename := SaveFileDialog.FileName;
-    i := Length(MemoFilename);
-
-    if (SaveFileDialog.FilterIndex = 1) and
-      (WideLowerCase(Copy(MemoFilename, i - 3, 4)) <> '.rtf') then
-      MemoFilename := MemoFilename + '.rtf';
-    if (SaveFileDialog.FilterIndex = 2) and
-      (WideLowerCase(Copy(MemoFilename, i - 3, 4)) <> '.doc') then
-      MemoFilename := MemoFilename + '.doc';
-
-    reMemo.Lines.SaveToFile(MemoFilename, TEncoding.UTF8);
-    reMemo.tag := 0; // not changed
-
-    lblMemo.Caption := ExtractFileName(MemoFilename);
-  end;
-end;
-
-procedure TMainForm.tbtnMemoBoldClick(Sender: TObject);
-begin
-  if fsBold in reMemo.SelAttributes.Style then
-    reMemo.SelAttributes.Style := reMemo.SelAttributes.Style - [fsBold]
-  else
-    reMemo.SelAttributes.Style := reMemo.SelAttributes.Style + [fsBold];
-end;
-
-procedure TMainForm.tbtnMemoItalicClick(Sender: TObject);
-begin
-  if fsItalic in reMemo.SelAttributes.Style then
-    reMemo.SelAttributes.Style := reMemo.SelAttributes.Style - [fsItalic]
-  else
-    reMemo.SelAttributes.Style := reMemo.SelAttributes.Style + [fsItalic];
-end;
-
-procedure TMainForm.tbtnMemoUnderlineClick(Sender: TObject);
-begin
-  if fsUnderline in reMemo.SelAttributes.Style then
-    reMemo.SelAttributes.Style := reMemo.SelAttributes.Style - [fsUnderline]
-  else
-    reMemo.SelAttributes.Style := reMemo.SelAttributes.Style + [fsUnderline];
-end;
-
 procedure TMainForm.tbtnNewFormClick(Sender: TObject);
 var
   tabsForm: TDockTabsForm;
@@ -6334,6 +6241,8 @@ begin
 
   tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
 
+  mTabsView := tabsForm;
+
   tabsForm.BibleTabs.Tabs.Clear();
   tabsForm.BibleTabs.Tabs.Add('***');
   for I := 0 to mFavorites.mModuleEntries.Count - 1 do
@@ -6344,7 +6253,6 @@ begin
 
   tabsForm.ManualDock(pnlModules);
   tabsForm.Show;
-  mTabsView := tabsForm;
 
   Windows.SetFocus(tabsForm.Handle);
 
@@ -6354,31 +6262,12 @@ begin
   end;
 end;
 
-procedure TMainForm.tbtnMemoFontClick(Sender: TObject);
+procedure TMainForm.tbtnNewTagsTabClick(Sender: TObject);
+var
+  newTabInfo: TTagsTabInfo;
 begin
-  with reMemo.SelAttributes do
-  begin
-    FontDialog.Font.Name := Name;
-    FontDialog.Font.CharSet := CharSet;
-    FontDialog.Font.Size := Size;
-    FontDialog.Font.Style := Style;
-    FontDialog.Font.color := color;
-  end;
-
-  if FontDialog.Execute then
-    with reMemo.SelAttributes do
-    begin
-      Name := FontDialog.Font.Name;
-      CharSet := FontDialog.Font.CharSet;
-      Size := FontDialog.Font.Size;
-      Style := FontDialog.Font.Style;
-      color := FontDialog.Font.color;
-    end;
-end;
-
-procedure TMainForm.reMemoChange(Sender: TObject);
-begin
-  reMemo.tag := 1;
+    newTabInfo := TTagsTabInfo.Create();
+    mTabsView.AddTagsTab(newTabInfo);
 end;
 
 procedure TMainForm.UpdateAllBooks;
@@ -6499,6 +6388,9 @@ begin
   mScrollAcc := 0;
   try
     bookView := GetBookView(self);
+    if not Assigned(bookView) then
+      Exit;
+
     tabInfo := bookView.BookTabInfo;
     if not Assigned(tabInfo) then
       Exit;
@@ -7398,19 +7290,11 @@ begin
   //
 end;
 
-procedure TMainForm.tbtnMemoPainterClick(Sender: TObject);
-begin
-  ColorDialog.color := reMemo.Font.color;
-
-  if ColorDialog.Execute then
-    reMemo.SelAttributes.color := ColorDialog.color;
-end;
-
 procedure TMainForm.miNotepadClick(Sender: TObject);
 begin
   if not pgcMain.Visible then
     tbtnToggle.Click;
-  pgcMain.ActivePage := tbMemo;
+  // TODO: Open new tags tab
 end;
 
 procedure TMainForm.ShowComments;
@@ -7944,7 +7828,8 @@ begin
     5:
       GetBookView(self).pmMemo.PopupComponent := bwrXRef;
     6:
-      GetBookView(self).pmMemo.PopupComponent := reMemo;
+      // TODO: active tags tab of active form
+      //GetBookView(self).pmMemo.PopupComponent := reMemo;
 
   end;
 end;
@@ -8945,20 +8830,6 @@ begin
       Application.Restore;
       Application.BringToFront;
     end;
-  end;
-end;
-
-procedure TMainForm.tbtnMemoPrintClick(Sender: TObject);
-var
-  opt: TPrintDialogOptions;
-begin
-  with PrintDialog do
-  begin
-    opt := options;
-    options := [];
-    if Execute then
-      reMemo.Print('Printed by BibleQuote, http://JesusChrist.ru');
-    options := opt;
   end;
 end;
 

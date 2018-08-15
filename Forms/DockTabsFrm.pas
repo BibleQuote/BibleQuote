@@ -9,7 +9,7 @@ uses
   System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, BibleQuoteUtils,
   ExceptionFrm, Math, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, BookFra;
+  ChromeTabsLog, BookFra, TagsFra;
 
 const
   bsText = 0;
@@ -49,7 +49,12 @@ type
     { Private declarations }
     mMainView: TMainForm;
     mBookView: TBookFrame;
+    mTagsView: TTagsFrame;
     mViewTabs: TList<IViewTabInfo>;
+
+    procedure ShowFrame(frame: TFrame);
+    procedure HideFrame(frame: TFrame);
+    procedure UpdateTabContent(ATab: TChromeTab);
   public
     { Public declarations }
 
@@ -58,6 +63,7 @@ type
     procedure CloseActiveTab();
     procedure UpdateBookView();
     function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
+    function AddTagsTab(newTabInfo: TTagsTabInfo): TChromeTab;
     procedure MakeActive();
 
     // getters
@@ -66,7 +72,8 @@ type
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
-    function GetTabInfo(tabIndex: integer): IViewTabInfo;
+    function GetTabInfo(tabIndex: integer): IViewTabInfo; overload;
+    function GetTabInfo(data: Pointer): IViewTabInfo; overload;
 
     // setters
     procedure SetViewName(viewName: string);
@@ -114,22 +121,30 @@ begin
 end;
 
 function TDockTabsForm.GetTabInfo(tabIndex: integer): IViewTabInfo;
-var
-  data: Pointer;
-  obj: TObject;
-  intf: IViewTabInfo;
 begin
   Result := nil;
   try
     if (tabIndex >= 0) and (tabIndex < ctViewTabs.Tabs.Count) then
     begin
-      data := ctViewTabs.ActiveTab.Data;
-      obj := TObject(data);
-      if Assigned(obj) then
-      begin
-        if Supports(obj, IViewTabInfo, intf) then
-          Result := intf;
-      end;
+      Result := GetTabInfo(ctViewTabs.ActiveTab.Data);
+    end;
+  except on e: Exception do
+    // just eat everything wrong
+  end;
+end;
+
+function TDockTabsForm.GetTabInfo(data: Pointer): IViewTabInfo;
+var
+  obj: TObject;
+  intf: IViewTabInfo;
+begin
+  Result := nil;
+  try
+    obj := TObject(data);
+    if Assigned(obj) then
+    begin
+      if Supports(obj, IViewTabInfo, intf) then
+        Result := intf;
     end;
   except on e: Exception do
     // just eat everything wrong
@@ -145,37 +160,76 @@ end;
 
 procedure TDockTabsForm.ctViewTabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
 begin
-  UpdateBookView();
+  UpdateTabContent(ATab);
+end;
+
+procedure TDockTabsForm.UpdateTabContent(ATab: TChromeTab);
+var
+  tabInfo: IViewTabInfo;
+begin
+  tabInfo := GetTabInfo(ATab.Data);
+  if not Assigned(tabInfo) then
+    Exit;
+
+  if (tabInfo.GetViewType = vttBook) then
+  begin
+    HideFrame(mTagsView);
+    ShowFrame(mBookView);
+
+    UpdateBookView();
+  end;
+
+  if (tabInfo.GetViewType = vttTags) then
+  begin
+    HideFrame(mBookView);
+    ShowFrame(mTagsView);
+  end;
+end;
+
+procedure TDockTabsForm.ShowFrame(frame: TFrame);
+begin
+  frame.Show;
+  frame.BringToFront;
+end;
+
+procedure TDockTabsForm.HideFrame(frame: TFrame);
+begin
+  frame.Hide;
 end;
 
 procedure TDockTabsForm.ctViewTabsActiveTabChanging(Sender: TObject; AOldTab, ANewTab: TChromeTab; var Allow: Boolean);
 var
-  tabInfo: TBookTabInfo;
+  tabInfo: IViewTabInfo;
 begin
   if (ctViewTabs.ActiveTabIndex >= 0) then
   begin
-    tabInfo := TBookTabInfo(ctViewTabs.ActiveTab.Data);
+    tabInfo := GetTabInfo(ctViewTabs.ActiveTabIndex);
+
     if not Assigned(tabInfo) then
       Exit;
 
-    tabInfo.SaveBrowserState(mBookView.bwrHtml);
+    tabInfo.SaveState(self);
   end;
 end;
 
 procedure TDockTabsForm.ctViewTabsButtonAddClick(Sender: TObject; var Handled: Boolean);
 var
-  ti: TBookTabInfo;
-  sourceTab: TChromeTab;
+  index: integer;
+  tabInfo: IViewTabInfo;
+  bookTabInfo: TBookTabInfo;
 begin
-  sourceTab := ctViewTabs.ActiveTab;
-  if not Assigned(sourceTab) then
-    sourceTab := ctViewTabs.Tabs[0];
+  index := ctViewTabs.ActiveTabIndex;
 
-  ti := TBookTabInfo(sourceTab.Data);
-  if not Assigned(ti) then
-    Exit;
-  mMainView.NewBookTab(ti.Location, ti.SatelliteName, '', ti.State, '', true);
-  Handled := true;
+  if (index >= 0) and (index < ctViewTabs.Tabs.Count) then
+  begin
+    tabInfo := GetTabInfo(index);
+    if (tabInfo.GetViewType = vttBook) then
+    begin
+      bookTabInfo := TBookTabInfo(tabInfo);
+      mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+      Handled := true;
+    end;
+  end;
 end;
 
 procedure TDockTabsForm.ctViewTabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab; var Close: Boolean);
@@ -186,12 +240,15 @@ end;
 
 procedure TDockTabsForm.ctViewTabsTabDblClick(Sender: TObject; ATab: TChromeTab);
 var
-  ti: TBookTabInfo;
+  tabInfo: IViewTabInfo;
+  bookTabInfo: TBookTabInfo;
 begin
-  ti := TBookTabInfo(ATab.Data);
-  if not Assigned(ti) then
-    Exit;
-  mMainView.NewBookTab(ti.Location, ti.SatelliteName, '', ti.State, '', true);
+  tabInfo := GetTabInfo(ATab.Data);
+  if (tabInfo.GetViewType = vttBook) then
+  begin
+    bookTabInfo := TBookTabInfo(tabInfo);
+    mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+  end;
 end;
 
 procedure TDockTabsForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -210,6 +267,10 @@ end;
 
 procedure TDockTabsForm.FormCreate(Sender: TObject);
 begin
+  mTagsView := TTagsFrame.Create(nil);
+  mTagsView.Parent := pnlMain;
+  mTagsView.Align := alClient;
+
   mBookView := TBookFrame.Create(nil, mMainView, self);
   mBookView.Parent := pnlMain;
   mBookView.Align := alClient;
@@ -244,7 +305,7 @@ end;
 procedure TDockTabsForm.miCloseAllOtherTabsClick(Sender: TObject);
 var
   saveTabIndex: integer;
-  curTab: TBookTabInfo;
+  curTab: TObject;
   C: integer;
 begin
   try
@@ -261,7 +322,7 @@ begin
       try
         while C > saveTabIndex do
         begin
-          curTab := TBookTabInfo(ctViewTabs.Tabs[C].Data);
+          curTab := TObject(ctViewTabs.Tabs[C].Data);
           ctViewTabs.Tabs.Delete(C);
           mViewTabs.Delete(C);
           Dec(C);
@@ -271,7 +332,7 @@ begin
         C := 0;
         while C < saveTabIndex do
         begin
-          curTab := TBookTabInfo(ctViewTabs.Tabs[0].Data);
+          curTab := TObject(ctViewTabs.Tabs[0].Data);
           ctViewTabs.Tabs.Delete(0);
           mViewTabs.Delete(0);
           Inc(C);
@@ -336,7 +397,7 @@ var
 begin
   try
     tabInfo := GetActiveTabInfo();
-    if not (tabInfo is TBookTabInfo) then
+    if (not Assigned(tabInfo)) or (not (tabInfo is TBookTabInfo)) then
       Exit;
 
     bookTabInfo := tabInfo as TBookTabInfo;
@@ -426,6 +487,22 @@ begin
   newTab.Data := newTabInfo;
 
   mViewTabs.Add(newTabInfo);
+  UpdateTabContent(newTab);
+
+  Result := newTab;
+end;
+
+function TDockTabsForm.AddTagsTab(newTabInfo: TTagsTabInfo): TChromeTab;
+var
+  newTab: TChromeTab;
+begin
+  newTab := ctViewTabs.Tabs.Add;
+  newTab.Caption := 'Zakladki';
+  newTab.Data := newTabInfo;
+
+  mViewTabs.Add(newTabInfo);
+  UpdateTabContent(newTab);
+
   Result := newTab;
 end;
 

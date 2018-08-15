@@ -8,6 +8,10 @@ uses System.UITypes, System.Classes, Winapi.Windows, SysUtils,
      ChromeTabsControls, ChromeTabsClasses, ChromeTabsLog;
 
 type
+  TViewTabType = (
+    vttBook,
+    vttTags);
+
   IBookView = interface
   ['{8015DBB1-AC95-49F3-9E00-B49BEF9A60F6}']
   end;
@@ -22,6 +26,8 @@ type
   ['{AF0866F3-5841-445E-A830-8EBD678B59A8}']
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
+
+    function GetViewType(): TViewTabType;
   end;
 
   TBookTabLocType = (vtlUnspecified, vtlModule, vtlFile);
@@ -116,6 +122,13 @@ type
 
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+  end;
+
+  TTagsTabInfo = class(TInterfacedObject, IViewTabInfo)
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
   end;
 
   TViewTabDragObject = class(TDragObjectEx)
@@ -133,6 +146,7 @@ type
     function GetActiveTabInfo(): IViewTabInfo;
     procedure UpdateBookView();
     function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
+    function AddTagsTab(newTabInfo: TTagsTabInfo): TChromeTab;
     procedure MakeActive();
 
     // getters
@@ -176,6 +190,11 @@ constructor TBookTabInfo.Create(
   const state: TBookTabInfoState);
 begin
   Init(bible, location, satelliteBibleName, title, state);
+end;
+
+function TBookTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttBook;
 end;
 
 procedure TBookTabInfo.SaveState(const tabsView: ITabsView);
@@ -244,6 +263,23 @@ begin
     Include(mState, stateEntry)
   else
     Exclude(mState, stateEntry);
+end;
+
+{ TTagsTabInfo }
+
+function TTagsTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttTags;
+end;
+
+procedure TTagsTabInfo.SaveState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+procedure TTagsTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+// nothing to save
 end;
 
 { TViewTabDragObject }

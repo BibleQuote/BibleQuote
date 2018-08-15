@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 355
+  ClientHeight = 402
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 34
     Width = 8
-    Height = 300
+    Height = 347
     AutoSnap = False
     MinSize = 100
     ExplicitTop = 24
@@ -42,10 +42,11 @@ object MainForm: TMainForm
     Left = 298
     Top = 34
     Width = 583
-    Height = 300
+    Height = 347
     Align = alClient
     DockSite = True
     TabOrder = 0
+    ExplicitHeight = 300
   end
   object sbxPreview: TScrollBox
     Left = 299
@@ -92,7 +93,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 290
-    Height = 300
+    Height = 347
     Hint = 'Memos'
     ActivePage = tbXRef
     Align = alLeft
@@ -167,7 +168,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 16
+        Height = 63
         ActivePage = tbHistory
         Align = alClient
         TabOrder = 1
@@ -177,12 +178,11 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 6
+            Height = 34
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
             ParentShowHint = False
-            PopupMenu = pmHistory
             ShowHint = False
             TabOrder = 0
             OnClick = lbHistoryClick
@@ -201,7 +201,6 @@ object MainForm: TMainForm
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
-            PopupMenu = pmHistory
             TabOrder = 0
             OnClick = lbBookmarksClick
             OnDblClick = lbBookmarksDblClick
@@ -209,7 +208,7 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = -104
+            Top = -76
             Width = 274
             Height = 110
             Align = alBottom
@@ -240,7 +239,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 92
+        Height = 139
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -398,7 +397,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 37
+        Height = 84
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -524,7 +523,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 58
+        Height = 105
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -607,7 +606,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 241
+        Height = 288
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -683,130 +682,6 @@ object MainForm: TMainForm
         end
       end
     end
-    object tbMemo: TTabSheet
-      Hint = 'Memos'
-      ImageIndex = 2
-      object reMemo: TRichEdit
-        Left = 0
-        Top = 25
-        Width = 282
-        Height = 217
-        Align = alClient
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -20
-        Font.Name = 'Times New Roman'
-        Font.Style = []
-        ParentFont = False
-        ScrollBars = ssVertical
-        TabOrder = 0
-        Zoom = 100
-        OnChange = reMemoChange
-      end
-      object pnlMemo: TPanel
-        Left = 0
-        Top = 242
-        Width = 282
-        Height = 29
-        Align = alBottom
-        BevelOuter = bvNone
-        TabOrder = 1
-        object lblMemo: TLabel
-          Left = 4
-          Top = 4
-          Width = 12
-          Height = 14
-          Caption = '....'
-        end
-      end
-      object tlbMemo: TToolBar
-        AlignWithMargins = True
-        Left = 2
-        Top = 2
-        Width = 277
-        Height = 23
-        Margins.Left = 2
-        Margins.Top = 2
-        Margins.Bottom = 0
-        GradientEndColor = 11517638
-        Images = ilImages
-        TabOrder = 2
-        object tbtnMemoOpen: TToolButton
-          Left = 0
-          Top = 0
-          Caption = 'tbtnMemoOpen'
-          ImageIndex = 9
-          OnClick = tbtnMemoOpenClick
-        end
-        object tbtnMemoSave: TToolButton
-          Left = 23
-          Top = 0
-          Caption = 'tbtnMemoSave'
-          ImageIndex = 10
-          OnClick = tbtnMemoSaveClick
-        end
-        object tbtnMemoPrint: TToolButton
-          Left = 46
-          Top = 0
-          Caption = 'tbtnMemoPrint'
-          ImageIndex = 11
-          OnClick = tbtnMemoPrintClick
-        end
-        object tbtnSep1: TToolButton
-          Left = 69
-          Top = 0
-          Width = 6
-          Style = tbsSeparator
-        end
-        object tbtnMemoFont: TToolButton
-          Left = 75
-          Top = 0
-          Caption = 'tbtnMemoFont'
-          ImageIndex = 20
-          OnClick = tbtnMemoFontClick
-        end
-        object tbtnSep2: TToolButton
-          Left = 98
-          Top = 0
-          Width = 6
-          Style = tbsSeparator
-        end
-        object tbtnMemoBold: TToolButton
-          Left = 104
-          Top = 0
-          Caption = 'tbtnMemoBold'
-          ImageIndex = 21
-          OnClick = tbtnMemoBoldClick
-        end
-        object tbtnMemoItalic: TToolButton
-          Left = 127
-          Top = 0
-          Caption = 'tbtnMemoItalic'
-          ImageIndex = 22
-          OnClick = tbtnMemoItalicClick
-        end
-        object tbtnMemoUnderline: TToolButton
-          Left = 150
-          Top = 0
-          Caption = 'tbtnMemoUnderline'
-          ImageIndex = 23
-          OnClick = tbtnMemoUnderlineClick
-        end
-        object tbtnSep3: TToolButton
-          Left = 173
-          Top = 0
-          Width = 6
-          Style = tbsSeparator
-        end
-        object tbtnMemoPainter: TToolButton
-          Left = 179
-          Top = 0
-          Caption = 'tbtnMemoPainter'
-          ImageIndex = 24
-          OnClick = tbtnMemoPainterClick
-        end
-      end
-    end
     object tbXRef: TTabSheet
       Hint = 'TSK'
       ImageIndex = 19
@@ -814,7 +689,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 282
-        Height = 271
+        Height = 318
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -865,7 +740,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 52
         Width = 282
-        Height = 219
+        Height = 266
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -947,7 +822,7 @@ object MainForm: TMainForm
     GradientEndColor = clBtnFace
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 546
+      Left = 578
       Top = 4
       Width = 37
       Height = 26
@@ -967,9 +842,9 @@ object MainForm: TMainForm
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 593
+      Left = 625
       Top = 4
-      Width = 280
+      Width = 248
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -986,7 +861,7 @@ object MainForm: TMainForm
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 350
+      Width = 382
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -1028,8 +903,15 @@ object MainForm: TMainForm
         ImageIndex = 10
         OnClick = miNewTabClick
       end
-      object tbtnCloseTab: TToolButton
+      object tbtnNewTagsTab: TToolButton
         Left = 102
+        Top = 0
+        Caption = 'tbtnNewTagsTab'
+        ImageIndex = 10
+        OnClick = tbtnNewTagsTabClick
+      end
+      object tbtnCloseTab: TToolButton
+        Left = 134
         Top = 0
         Hint = #1059#1076#1072#1083#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
         Caption = 'tbtnCloseTab'
@@ -1037,13 +919,13 @@ object MainForm: TMainForm
         OnClick = miCloseTabClick
       end
       object tbtnSep06: TToolButton
-        Left = 134
+        Left = 166
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnLib: TToolButton
-        Left = 140
+        Left = 172
         Top = 0
         Hint = 'Browse Library'
         Caption = 'btnQNav'
@@ -1051,47 +933,47 @@ object MainForm: TMainForm
         OnClick = tbtnLibClick
       end
       object tbtnSep04: TToolButton
-        Left = 172
+        Left = 204
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnPreview: TToolButton
-        Left = 178
+        Left = 210
         Top = 0
         Caption = 'Preview'
         ImageIndex = 2
         OnClick = tbtnPreviewClick
       end
       object tbtnPrint: TToolButton
-        Left = 210
+        Left = 242
         Top = 0
         Caption = 'Print'
         ImageIndex = 9
         OnClick = tbtnPrintClick
       end
       object tbtnSep05: TToolButton
-        Left = 242
+        Left = 274
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnSound: TToolButton
-        Left = 248
+        Left = 280
         Top = 0
         Caption = 'Sound'
         ImageIndex = 6
         OnClick = tbtnSoundClick
       end
       object tbtnCopyright: TToolButton
-        Left = 280
+        Left = 312
         Top = 0
         Caption = 'Copyright'
         ImageIndex = 8
         OnClick = tbtnCopyrightClick
       end
       object tbtnSatellite: TToolButton
-        Left = 312
+        Left = 344
         Top = 0
         Caption = 'Satellite'
         ImageIndex = 5
@@ -1100,7 +982,7 @@ object MainForm: TMainForm
         OnMouseEnter = tbtnSatelliteMouseEnter
       end
       object tbtnLastSeparator: TToolButton
-        Left = 344
+        Left = 376
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -1109,7 +991,7 @@ object MainForm: TMainForm
       end
     end
     object tlbResolveLnks: TToolBar
-      Left = 351
+      Left = 383
       Top = 1
       Width = 56
       Margins.Top = 0
@@ -1147,7 +1029,7 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 407
+      Left = 439
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -1199,11 +1081,12 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 334
+    Top = 381
     Width = 881
     Height = 21
     Align = alBottom
     TabOrder = 5
+    ExplicitTop = 334
     object imgLoadProgress: TImage
       Tag = 1
       AlignWithMargins = True
@@ -1273,10 +1156,6 @@ object MainForm: TMainForm
       Caption = #1055#1077#1095#1072#1090#1072#1090#1100
       OnClick = miRefPrintClick
     end
-  end
-  object pmHistory: TPopupMenu
-    Left = 588
-    Top = 161
   end
   object pmEmpty: TPopupMenu
     Left = 620
@@ -1569,7 +1448,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800080410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800180410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3303,7 +3182,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01010F00E801C80118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010F00E801D80118001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000006000000001002000000000000090
       000000000000000000000000000000000000000000000000000000000000B9B8
       B3008581790066615700655F5500827F7600B9B7B20000000000000000000000
