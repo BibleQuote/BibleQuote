@@ -178,6 +178,7 @@ begin
   if not Assigned(tabInfo) then
     Exit;
 
+  mMainView.UpdateUIForType(tabInfo.GetViewType);
   if (tabInfo.GetViewType = vttBook) then
   begin
     HideFrame(mMemoView);
@@ -348,7 +349,7 @@ begin
 
       finally
         ctViewTabs.ActiveTabIndex := 0;
-        UpdateBookView();
+        UpdateTabContent(ctViewTabs.ActiveTab);
         ctViewTabs.Refresh;
       end;
     end;
@@ -360,19 +361,14 @@ end;
 
 procedure TDockTabsForm.CloseActiveTab();
 var
-  tabInfo: TBookTabInfo;
   tabIndex: integer;
 begin
   tabIndex := ctViewTabs.ActiveTabIndex;
   if (tabIndex >= 0) and (tabIndex < ctViewTabs.Tabs.Count) then
   begin
-    tabInfo := TBookTabInfo(ctViewTabs.Tabs[tabIndex].Data);
-
     ctViewTabs.Tabs.Delete(tabIndex);
     mViewTabs.Delete(tabIndex);
     ctViewTabs.ActiveTabIndex := IfThen(tabIndex = ctViewTabs.Tabs.Count, tabIndex - 1, tabIndex);
-
-    tabInfo.Free();
 
     if ctViewTabs.Tabs.Count = 0 then
       self.Close; // close form when all tabs are closed
@@ -411,7 +407,7 @@ begin
 
     try
       mBookView.bwrHtml.NoScollJump := true;
-      mMainView.UpdateUI();
+      mMainView.UpdateBookView();
 
       if (bookTabInfo.IsCompareTranslation) then
       begin

@@ -346,6 +346,9 @@ begin
   if Length(wstr) <= 0 then
     Exit;
 
+  if not Assigned(BookTabInfo) then
+    Exit;
+
   if (viewer <> bwrHtml) and (BookTabInfo.Bible.isBible) then
     replaceModPath := BookTabInfo.Bible.ShortPath
   else
@@ -1194,9 +1197,8 @@ procedure TBookFrame.ToggleStrongNumbers();
 var savePosition: integer;
 begin
   mMainView.miStrong.Checked := not mMainView.miStrong.Checked;
-  mMainView.StrongNumbersOn := mMainView.miStrong.Checked;
-  tbtnStrongNumbers.Down := mMainView.StrongNumbersOn;
-  BookTabInfo[vtisShowStrongs] := mMainView.StrongNumbersOn;
+  tbtnStrongNumbers.Down := mMainView.miStrong.Checked;
+  BookTabInfo[vtisShowStrongs] := mMainView.miStrong.Checked;
 
   if not BookTabInfo.Bible.Trait[bqmtStrongs] then
   begin
@@ -1405,7 +1407,7 @@ label
     bibleLink.book := oldbook;
     bibleLink.chapter := oldchapter;
 
-    mMainView.UpdateUI();
+    mMainView.UpdateBookView();
   end;
 
 begin
@@ -1684,6 +1686,12 @@ var
   dp: string;
   refBook: TBible;
 begin
+  if not Assigned(BookTabInfo) then
+  begin
+    Result := -2;
+    Exit;
+  end;
+
   refBook := BookTabInfo.ReferenceBible;
   me := nil;
   try

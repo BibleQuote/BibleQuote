@@ -54,6 +54,7 @@ const
   DefaultLanguageFile = 'Русский.lng';
 
 type
+  TControlProc = reference to procedure (const AControl: TControl);
   TBookNodeType = (btChapter, btBook);
   PBookNodeData = ^TBookNodeData;
 
@@ -441,7 +442,7 @@ type
     procedure miCloseTabClick(Sender: TObject);
     procedure tbtnNewFormClick(Sender: TObject);
 
-    procedure BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string);
+    procedure BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);
     procedure BookChangeModule(Sender: TObject);
     procedure BookSearchComplete(Sender: TObject);
     procedure tbtnNewMemoTabClick(Sender: TObject);
@@ -495,10 +496,6 @@ type
     MainFormInitialized: Boolean; // for only one entrance into .FormShow
 
     HistoryOn: Boolean;
-
-    MemoFilename: string;
-
-    StrongNumbersOn: Boolean;
 
     SearchPageSize: integer;
 
@@ -565,7 +562,7 @@ type
     procedure DrawMetaFile(PB: TPaintBox; mf: TMetaFile);
     function CreateNewBibleInstance(): TBible;
 
-    procedure UpdateUI();
+    procedure UpdateBookView();
 
     procedure SetFirstTabInitialLocation(
       wsCommand, wsSecondaryView: string;
@@ -657,6 +654,10 @@ type
     procedure ShowComments;
     procedure ShowSearchTab();
     procedure ShowTagsTab();
+    procedure UpdateUIForType(tabType: TViewTabType);
+
+    procedure ModifyControl(const AControl: TControl; const ARef: TControlProc);
+    procedure SyncChildrenEnabled(const AControl: TControl);
 
     // finds the closest match for a word in merged
     // dictionary word list
@@ -1092,7 +1093,7 @@ begin
       mTabsView := tabsForm;
 
       // sync main form UI
-      UpdateUI();
+      UpdateBookView();
 
       // restore active tab state
       tabInfo := tabsForm.GetActiveTabInfo();
@@ -1923,8 +1924,6 @@ begin
 
   HelpFileName := 'indexrus.htm';
 
-  StrongNumbersOn := false;
-
   Memos := TStringList.Create;
   Memos.Sorted := true;
 
@@ -2611,12 +2610,11 @@ begin
 
   if visual then
   begin
-    StrongNumbersOn := vtisShowStrongs in state;
     MemosOn := vtisShowNotes in state;
     vti.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
     vti.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
     bookView.SafeProcessCommand(LastAddress, hlDefault);
-    UpdateUI();
+    UpdateBookView();
   end
   else
   begin
@@ -3603,7 +3601,7 @@ begin
         params := params - spWordParts;
 
       SearchTime := GetTickCount;
-      bible.Search(data, params, s);
+      bible.Search(data, params, s, not (vtisShowStrongs in bookView.BookTabInfo.State));
     end;
   finally
     Screen.Cursor := crDefault;
@@ -3668,7 +3666,7 @@ begin
     Application.OnIdle := nil;
     self.UpdateFromCashed();
     self.UpdateAllBooks();
-    self.UpdateUI();
+    //self.UpdateUI();
   end;
 
   if not mDictionariesFullyInitialized then
@@ -3796,7 +3794,7 @@ begin
     begin
       self.UpdateFromCashed();
       self.UpdateAllBooks();
-      self.UpdateUI();
+      self.UpdateBookView();
     end
     else
     begin
@@ -4050,8 +4048,7 @@ begin
   i := mModules.FindByName(s);
   if i < 0 then
   begin
-    g_ExceptionContext.Add
-      ('In GoModuleName: cannot find specified module name:' + s);
+    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name:' + s);
     raise Exception.Create('Exception mModules.FindByName failed!');
   end;
   me := mModules.Items[i];
@@ -4059,7 +4056,17 @@ begin
   hlVerses := hlFalse;
   bookView := GetBookView(self);
   bookTabInfo := bookView.BookTabInfo;
-  bible := bookTabInfo.Bible;
+  if Assigned(bookTabInfo) then
+  begin
+    bible := bookTabInfo.Bible;
+  end
+  else
+  begin
+    bible := CreateNewBibleInstance();
+    bookTabInfo := TBookTabInfo.Create(bible, '', SatelliteBible, '', DefaultBookTabState());
+    bookTabInfo.SecondBible := TBible.Create(self);
+    bookTabInfo.ReferenceBible := TBible.Create(self);
+  end;
 
   // remember old module's params
   wasBible := bible.isBible;
@@ -4311,8 +4318,10 @@ var
   s: string;
   shiftDown: Boolean;
   bible: TBible;
+  bookTabInfo: TBookTabInfo;
 begin
-  bible := GetBookView(self).BookTabInfo.Bible;
+  bookTabInfo := GetBookView(self).BookTabInfo;
+  bible := bookTabInfo.Bible;
 
   Result := '';
   for i := fromverse to toverse do
@@ -4320,7 +4329,7 @@ begin
     s := bible.Verses[i - 1];
     StrDeleteFirstNumber(s);
 
-    if bible.Trait[bqmtStrongs] and (not StrongNumbersOn) then
+    if bible.Trait[bqmtStrongs] and not (vtisShowStrongs in bookTabInfo.State) then
       s := DeleteStrongNumbers(s);
 
     if (CopyOptionsCopyVerseNumbersChecked xor (IsDown(VK_CONTROL))) and
@@ -5120,7 +5129,7 @@ begin
 
   bookView := GetBookView(self);
   vti := bookView.BookTabInfo;
-  vti[vtisShowStrongs] := StrongNumbersOn;
+  vti[vtisShowStrongs] := miShowSignatures.Checked;
   savePosition := mTabsView.Browser.Position;
   bookView.ProcessCommand(vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
   mTabsView.Browser.Position := savePosition;
@@ -5159,7 +5168,7 @@ begin
   s := bible.Verses[CurVerseNumber - 1];
   StrDeleteFirstNumber(s);
 
-  if not StrongNumbersOn then
+  if not (vtisShowStrongs in bookTabInfo.State) then
     s := DeleteStrongNumbers(s);
 
   AddLine(dBrowserSource,
@@ -5203,7 +5212,7 @@ begin
     s := secBible.Verses[iv - 1];
     StrDeleteFirstNumber(s);
 
-    if not StrongNumbersOn then
+    if not (vtisShowStrongs in bookTabInfo.State) then
       s := DeleteStrongNumbers(s);
 
     if Length(secBible.fontName) > 0 then
@@ -5400,19 +5409,22 @@ var
   bible: TBible;
   status: integer;
 begin
+  prefBible := '';
   bookView := GetBookView(self);
-
-  cmd := SRC;
-  Handled := true;
-  autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
-  if autoCmd then
+  if Assigned(bookView) and Assigned(bookView.BookTabInfo) then
   begin
     bible := bookView.BookTabInfo.Bible;
     if bible.isBible then
       prefBible := bible.ShortPath
     else
       prefBible := '';
+  end;
 
+  cmd := SRC;
+  Handled := true;
+  autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
+  if autoCmd then
+  begin
     status := bookView.PreProcessAutoCommand(cmd, prefBible, ConcreteCmd);
     if status <= -2 then
       Exit;
@@ -6378,7 +6390,7 @@ begin
   end;
 end;
 
-procedure TMainForm.UpdateUI();
+procedure TMainForm.UpdateBookView();
 var
   tabInfo: TBookTabInfo;
   i: integer;
@@ -6396,7 +6408,6 @@ begin
       Exit;
 
     bookView.AdjustBibleTabs(tabInfo.Bible.ShortName);
-    StrongNumbersOn := tabInfo[vtisShowStrongs];
     miStrong.Checked := tabInfo[vtisShowStrongs];
     bookView.tbtnStrongNumbers.Down := tabInfo[vtisShowStrongs];
     tbtnSatellite.Down := (Length(tabInfo.SatelliteName) > 0) and (tabInfo.SatelliteName <> '------');
@@ -7294,7 +7305,7 @@ procedure TMainForm.miNotepadClick(Sender: TObject);
 begin
   if not pgcMain.Visible then
     tbtnToggle.Click;
-  // TODO: Open new tags tab
+  tbtnNewMemoTabClick(self);
 end;
 
 procedure TMainForm.ShowComments;
@@ -7316,6 +7327,8 @@ label lblSetOutput;
 begin
   bookView := GetBookView(self);
   bookTabInfo := bookView.BookTabInfo;
+  if not Assigned(bookTabInfo) then
+    Exit;
   if not bookTabInfo.Bible.isBible then
     Exit;
   if (not pgcMain.Visible) or (pgcMain.ActivePage <> tbComments) then
@@ -7753,7 +7766,6 @@ begin
     begin
       mTabsView.ChromeTabs.ActiveTabIndex := mTabsView.ChromeTabs.Tabs.Count - 1;
 
-      StrongNumbersOn := vtisShowStrongs in state;
       newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
       newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
       MemosOn := vtisShowNotes in state;
@@ -8514,6 +8526,7 @@ procedure TMainForm.miOpenNewViewClick(Sender: TObject);
 var
   addr: string;
   ti: TBookTabInfo;
+  state: TBookTabInfoState;
   satBible: string;
 begin
   G_XRefVerseCmd := Trim(G_XRefVerseCmd);
@@ -8522,11 +8535,17 @@ begin
     Exit;
   ti := GetBookView(self).BookTabInfo;
   if Assigned(ti) then
-    satBible := ti.SatelliteName
+  begin
+    satBible := ti.SatelliteName;
+    state := ti.State;
+  end
   else
+  begin
     satBible := '------';
+    state := DefaultBookTabState;
+  end;
 
-  NewBookTab(addr, satBible, '', ti.State, '', true);
+  NewBookTab(addr, satBible, '', state, '', true);
   if GetCommandType(G_XRefVerseCmd) = bqctInvalid then
   begin
     GetBookView(self).tedtReference.Text := addr;
@@ -8739,13 +8758,15 @@ procedure TMainForm.ShowSearchTab;
 begin
   if not pgcMain.Visible then
     tbtnToggle.Click;
+
   if pgcMain.ActivePage <> tbSearch then
   begin
     pgcMain.ActivePage := tbSearch;
     pgcMainChange(self);
   end;
-  ActiveControl := cbSearch;
 
+  if (cbSearch.Enabled) then
+    ActiveControl := cbSearch;
 end;
 
 procedure TMainForm.ShowTagsTab;
@@ -8757,8 +8778,9 @@ begin
     pgcMain.ActivePage := tbList;
     pgcMainChange(self);
   end;
-  ActiveControl := cbTagsFilter;
 
+  if (cbTagsFilter.Enabled) then
+    ActiveControl := cbTagsFilter;
 end;
 
 function TMainForm.AddMemo(caption: string): Boolean;
@@ -9013,7 +9035,7 @@ begin
   end;
 end;
 
-procedure TMainForm.BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string);
+procedure TMainForm.BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);
 var
   i: integer;
   bible: TBible;
@@ -9027,7 +9049,8 @@ begin
   if s <> '' then
   begin
     s := ParseHTML(s, '');
-    if bible.Trait[bqmtStrongs] and (not StrongNumbersOn) then
+
+    if bible.Trait[bqmtStrongs] and (removeStrongs = true) then
       s := DeleteStrongNumbers(s);
 
     StrDeleteFirstNumber(s);
@@ -9069,6 +9092,96 @@ begin
   DisplaySearchResults(1);
 end;
 
+procedure TMainForm.UpdateUIForType(tabType: TViewTabType);
+begin
+  case tabType of
+    vttBook: begin
+        tbGo.Enabled := true;
+        SyncChildrenEnabled(tbGo);
+
+        tbSearch.Enabled := true;
+        SyncChildrenEnabled(tbSearch);
+
+        tbList.Enabled := true;
+        SyncChildrenEnabled(tbList);
+
+        tbXRef.Enabled := true;
+        SyncChildrenEnabled(tbXRef);
+
+        tbStrong.Enabled := true;
+        SyncChildrenEnabled(tbStrong);
+
+        tbComments.Enabled := true;
+        SyncChildrenEnabled(tbComments);
+
+        miMyLibrary.Enabled := true;
+        miOpenPassage.Enabled := true;
+        miQuickNav.Enabled := true;
+        miStrong.Enabled := true;
+        miQuickSearch.Enabled := true;
+        miXref.Enabled := true;
+        miRecognizeBibleLinks.Enabled := true;
+        miShowSignatures.Enabled := true;
+        miCopy.Enabled := true;
+        miSound.Enabled := true;
+      end;
+    vttMemo: begin
+        tbGo.Enabled := false;
+        SyncChildrenEnabled(tbGo);
+
+        tbSearch.Enabled := false;
+        SyncChildrenEnabled(tbSearch);
+
+        tbList.Enabled := false;
+        SyncChildrenEnabled(tbList);
+
+        tbXRef.Enabled := false;
+        SyncChildrenEnabled(tbXRef);
+
+        tbStrong.Enabled := false;
+        SyncChildrenEnabled(tbStrong);
+
+        tbComments.Enabled := false;
+        SyncChildrenEnabled(tbComments);
+
+        miMyLibrary.Enabled := false;
+        miOpenPassage.Enabled := false;
+        miQuickNav.Enabled := false;
+        miStrong.Enabled := false;
+        miQuickSearch.Enabled := false;
+        miXref.Enabled := false;
+        miRecognizeBibleLinks.Enabled := false;
+        miShowSignatures.Enabled := false;
+        miCopy.Enabled := false;
+        miSound.Enabled := false;
+      end;
+
+  end;
+end;
+
+procedure TMainForm.ModifyControl(const AControl: TControl; const ARef: TControlProc);
+var
+  i : Integer;
+begin
+  if AControl = nil then
+    Exit;
+
+  if AControl is TWinControl then begin
+    for i := 0 to TWinControl(AControl).ControlCount - 1 do
+      ModifyControl(TWinControl(AControl).Controls[i], ARef);
+  end;
+  ARef(AControl);
+end;
+
+procedure TMainForm.SyncChildrenEnabled(const AControl: TControl);
+begin
+  ModifyControl(AControl,
+    procedure (const AChildControl: TControl)
+    begin
+      AChildControl.Enabled := AControl.Enabled;
+    end
+  );
+end;
 initialization
 
 DefaultDockTreeClass := TThinCaptionedDockTree;
