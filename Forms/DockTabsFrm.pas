@@ -65,6 +65,7 @@ type
     function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     procedure MakeActive();
+    procedure Translate();
 
     // getters
     function GetBrowser: THTMLViewer;
@@ -191,6 +192,8 @@ begin
   begin
     HideFrame(mBookView);
     ShowFrame(mMemoView);
+
+    mMainView.UpdateMemoView();
   end;
 end;
 
@@ -334,7 +337,6 @@ begin
           ctViewTabs.Tabs.Delete(C);
           mViewTabs.Delete(C);
           Dec(C);
-          curTab.Free();
         end;
 
         C := 0;
@@ -344,7 +346,6 @@ begin
           ctViewTabs.Tabs.Delete(0);
           mViewTabs.Delete(0);
           Inc(C);
-          curTab.Free();
         end;
 
       finally
@@ -389,8 +390,13 @@ begin
   if (activeTabInfo is TBookTabInfo) then
   begin
     bookTabInfo := activeTabInfo as TBookTabInfo;
-    mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+  end
+  else
+  begin
+    bookTabInfo := mMainView.CreateNewTabInfo();
   end;
+
+  mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
 end;
 
 procedure TDockTabsForm.UpdateBookView();
@@ -415,7 +421,7 @@ begin
       end
       else
       begin
-        mBookView.ProcessCommand(bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
+        mBookView.ProcessCommand(bookTabInfo, bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
       end;
 
       bookTabInfo.RestoreState(self);
@@ -500,13 +506,41 @@ var
   newTab: TChromeTab;
 begin
   newTab := ctViewTabs.Tabs.Add;
-  newTab.Caption := 'Memo';
+  newTab.Caption := Lang.Say('DockTabsForm.tbtnMemos.Caption');
   newTab.Data := newTabInfo;
+  newTab.ImageIndex := 17;
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
 
   Result := newTab;
+end;
+
+procedure TDockTabsForm.Translate();
+var
+  chromeTab: TChromeTab;
+  tabInfo: IViewTabInfo;
+  i: integer;
+begin
+  try
+      Lang.TranslateControl(self, 'DockTabsForm');
+      Lang.TranslateControl(mBookView, 'DockTabsForm');
+      Lang.TranslateControl(mMemoView, 'DockTabsForm');
+
+      for i := 0 to ctViewTabs.Tabs.Count - 1 do
+      begin
+        chromeTab := ctViewTabs.Tabs[i];
+        tabInfo := GetTabInfo(chromeTab.Data);
+        if (tabInfo.GetViewType() = vttMemo) then
+          chromeTab.Caption := Lang.Say('DockTabsForm.tbtnMemos.Caption');
+      end;
+  except
+    on E: Exception do
+    begin
+      // Failed to translate exception form
+      // Suppress the exception
+    end;
+  end;
 end;
 
 end.

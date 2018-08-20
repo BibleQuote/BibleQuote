@@ -411,6 +411,7 @@ type
       const SearchText: string;
       var Result: integer);
 
+    function CreateNewTabInfo(): TBookTabInfo;
     function CreateTabsView(viewName: string): ITabsView;
     procedure CreateInitialTabsView();
     function GenerateTabsViewName(): string;
@@ -563,6 +564,7 @@ type
     function CreateNewBibleInstance(): TBible;
 
     procedure UpdateBookView();
+    procedure UpdateMemoView();
 
     procedure SetFirstTabInitialLocation(
       wsCommand, wsSecondaryView: string;
@@ -1043,17 +1045,12 @@ procedure TMainForm.CreateInitialTabsView();
 var
   tabsForm: TDockTabsForm;
   tabInfo: TBookTabInfo;
-  book, secondBook, refBook: TBible;
+  book: TBible;
 begin
   tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
 
-  book := CreateNewBibleInstance();
-  secondBook := TBible.Create(self);
-  refBook := TBible.Create(self);
-
-  tabInfo := TBookTabInfo.Create(book, '', SatelliteBible, '', DefaultBookTabState());
-  tabInfo.SecondBible := secondBook;
-  tabInfo.ReferenceBible := refBook;
+  tabInfo := CreateNewTabInfo();
+  book := tabInfo.Bible;
 
   mTabsView := tabsForm;
   tabsForm.AddBookTab(tabInfo, book.Name);
@@ -1428,11 +1425,9 @@ begin
       else
       begin
         tabsForm := CreateTabsView(tabsViewSettings.ViewName) as TDockTabsForm;
-        book := CreateNewBibleInstance();
 
-        initTabInfo := TBookTabInfo.Create(book, '', SatelliteBible, '', DefaultBookTabState());
-        initTabInfo.SecondBible := TBible.Create(self);
-        initTabInfo.ReferenceBible := TBible.Create(self);
+        initTabInfo := CreateNewTabInfo();
+        book := initTabInfo.Bible;
 
         tabsForm.AddBookTab(initTabInfo, book.Name);
       end;
@@ -1510,6 +1505,20 @@ begin
     CreateInitialTabsView();
     SetFirstTabInitialLocation(LastAddress, '', '', DefaultBookTabState(), true);
   end;
+end;
+
+function TMainForm.CreateNewTabInfo(): TBookTabInfo;
+var
+  book: TBible;
+  tabInfo: TBookTabInfo;
+begin
+  book := CreateNewBibleInstance();
+
+  tabInfo := TBookTabInfo.Create(book, '', SatelliteBible, '', DefaultBookTabState());
+  tabInfo.SecondBible := TBible.Create(self);
+  tabInfo.ReferenceBible := TBible.Create(self);
+
+  Result := tabInfo;
 end;
 
 function TMainForm.LoadTaggedBookMarks(): Boolean;
@@ -1762,8 +1771,7 @@ begin
     until i < 0;
     try
       fname := UserDir + 'bibleqt_history.ini';
-      if (not FileExists(fname)) or
-        (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
+      if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
         History.SaveToFile(fname, TEncoding.UTF8);
     except
       on E: Exception do
@@ -1771,8 +1779,7 @@ begin
     end;
     try
       fname := UserDir + 'bibleqt_bookmarks.ini';
-      if (not FileExists(fname)) or
-        (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
+      if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
         Bookmarks.SaveToFile(fname, TEncoding.UTF8);
     except
       on E: Exception do
@@ -1780,8 +1787,7 @@ begin
     end;
     try
       fname := UserDir + 'UserMemos.mls';
-      if (not FileExists(fname)) or
-        (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
+      if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
         Memos.SaveToFile(fname, TEncoding.UTF8);
     except
       on E: Exception do
@@ -2168,7 +2174,7 @@ begin
       cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, ChapterQtys[CurBook - 1]]);
 
   HistoryOn := false;
-  bookView.ProcessCommand(cmd, hlFalse);
+  bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse);
   HistoryOn := true;
 
   // ShowXref;
@@ -2203,7 +2209,7 @@ begin
       cmd := Format('go %s %d %d', [ShortPath, CurBook + 1, 1]);
 
   HistoryOn := false;
-  bookView.ProcessCommand(cmd, hlFalse);
+  bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse);
   HistoryOn := true;
 
   // ShowXref;
@@ -2262,10 +2268,7 @@ begin
     if (tabsView is TDockTabsForm) then
     begin
       tabsForm := tabsView as TDockTabsForm;
-      TranslateControl(tabsForm, 'DockTabsForm');
-
-      TranslateControl(tabsForm.BookView as TFrame, 'DockTabsForm');
-      TranslateControl(tabsForm.MemoView as TFrame, 'DockTabsForm');
+      tabsForm.Translate;
     end;
   end;
 
@@ -2307,27 +2310,30 @@ begin
   Application.Title := MainForm.Caption;
   trayIcon.Hint := MainForm.Caption;
 
-  if bookView.BookTabInfo.Bible.inifile <> '' then
+  if Assigned(bookView.BookTabInfo) then
   begin
-    with bookView.BookTabInfo.Bible do
-      s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse);
+    if bookView.BookTabInfo.Bible.inifile <> '' then
+    begin
+      with bookView.BookTabInfo.Bible do
+        s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse);
 
-    if bookView.BookTabInfo.Bible.Copyright <> '' then
-      s := s + '; © ' + bookView.BookTabInfo.Bible.Copyright
-    else
-      s := s + '; ' + Lang.Say('PublicDomainText');
+      if bookView.BookTabInfo.Bible.Copyright <> '' then
+        s := s + '; © ' + bookView.BookTabInfo.Bible.Copyright
+      else
+        s := s + '; ' + Lang.Say('PublicDomainText');
 
-    lblTitle.Hint := s + '   ';
+      lblTitle.Hint := s + '   ';
 
-    if Length(lblTitle.Hint) < 83 then
-      lblTitle.Caption := lblTitle.Hint
-    else
-      lblTitle.Caption := Copy(lblTitle.Hint, 1, 80) + '...';
+      if Length(lblTitle.Hint) < 83 then
+        lblTitle.Caption := lblTitle.Hint
+      else
+        lblTitle.Caption := Copy(lblTitle.Hint, 1, 80) + '...';
 
-    tbtnCopyright.Hint := s;
+      tbtnCopyright.Hint := s;
 
-    UpdateBooksAndChaptersBoxes(bookView.BookTabInfo.Bible);
-    SearchListInit;
+      UpdateBooksAndChaptersBoxes(bookView.BookTabInfo.Bible);
+      SearchListInit;
+    end;
   end;
 
   fnt := TFont.Create;
@@ -2613,7 +2619,7 @@ begin
     MemosOn := vtisShowNotes in state;
     vti.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
     vti.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
-    bookView.SafeProcessCommand(LastAddress, hlDefault);
+    bookView.SafeProcessCommand(vti, LastAddress, hlDefault);
     UpdateBookView();
   end
   else
@@ -3114,7 +3120,7 @@ begin
 
     if Execute then
     begin
-      bookView.ProcessCommand('file ' + FileName + ' $$$' + FileName, hlDefault);
+      bookView.ProcessCommand(bookView.BookTabInfo, 'file ' + FileName + ' $$$' + FileName, hlDefault);
       InitialDir := ExtractFilePath(FileName);
     end;
   end;
@@ -4044,7 +4050,6 @@ var
   bookTabInfo: TBookTabInfo;
   bible: TBible;
 begin
-
   i := mModules.FindByName(s);
   if i < 0 then
   begin
@@ -4062,10 +4067,13 @@ begin
   end
   else
   begin
-    bible := CreateNewBibleInstance();
-    bookTabInfo := TBookTabInfo.Create(bible, '', SatelliteBible, '', DefaultBookTabState());
-    bookTabInfo.SecondBible := TBible.Create(self);
-    bookTabInfo.ReferenceBible := TBible.Create(self);
+    bookTabInfo := CreateNewTabInfo();
+    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+
+    bookTabInfo := bookView.BookTabInfo;
+    bible := bookTabInfo.Bible;
+
+    bookView.AdjustBibleTabs(bible.ShortName);
   end;
 
   // remember old module's params
@@ -4114,7 +4122,7 @@ begin
         firstVisibleVerse := bookTabInfo.FirstVisiblePara
       else
         firstVisibleVerse := -1;
-      bookView.ProcessCommand(bl.ToCommand(TPath.Combine(commentpath, tempBook.ShortPath)), hlVerses);
+      bookView.ProcessCommand(bookTabInfo, bl.ToCommand(TPath.Combine(commentpath, tempBook.ShortPath)), hlVerses);
       if firstVisibleVerse > 0 then
       begin
         mTabsView.Browser.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
@@ -4124,7 +4132,7 @@ begin
   end // both previuous and current are bibles
   else
   begin
-    bookView.SafeProcessCommand('go ' + TPath.Combine(commentpath, tempBook.ShortPath) + ' 1 1 0', hlFalse);
+    bookView.SafeProcessCommand(bookTabInfo, 'go ' + TPath.Combine(commentpath, tempBook.ShortPath) + ' 1 1 0', hlFalse);
   end;
 end;
 
@@ -4194,7 +4202,7 @@ begin
     end;
 
     if Assigned(bookView) then
-      bookView.ProcessCommand(bookView.BookTabInfo.Location, TbqHLVerseOption(ord(bookView.BookTabInfo[vtisHighLightVerses])));
+      bookView.ProcessCommand(bookView.BookTabInfo, bookView.BookTabInfo.Location, TbqHLVerseOption(ord(bookView.BookTabInfo[vtisHighLightVerses])));
   end;
 end;
 
@@ -4262,7 +4270,7 @@ begin
   bookView := GetBookView(self);
   bookTabInfo := bookView.BookTabInfo;
 
-  bookView.ProcessCommand(bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
+  bookView.ProcessCommand(bookTabInfo, bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
 
   browserCount := mTabsView.ChromeTabs.Tabs.Count - 1;
   for i := 0 to browserCount do
@@ -4946,7 +4954,7 @@ begin
   History.Delete(lbHistory.ItemIndex);
   lbHistory.Items.Delete(lbHistory.ItemIndex);
 
-  bookView.ProcessCommand(s, hlDefault);
+  bookView.ProcessCommand(bookView.BookTabInfo, s, hlDefault);
   tbLinksToolBar.Visible := false;
 end;
 
@@ -5108,7 +5116,7 @@ begin
 
       end
       else
-       bookView.ProcessCommand(wsrc, hlTrue);
+       bookView.ProcessCommand(bookView.BookTabInfo, wsrc, hlTrue);
     end;
   end;
   Handled := true;
@@ -5131,7 +5139,7 @@ begin
   vti := bookView.BookTabInfo;
   vti[vtisShowStrongs] := miShowSignatures.Checked;
   savePosition := mTabsView.Browser.Position;
-  bookView.ProcessCommand(vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
+  bookView.ProcessCommand(vti, vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
   mTabsView.Browser.Position := savePosition;
 end;
 
@@ -5302,9 +5310,9 @@ begin
   bookView.tedtReference.Text := cbLinks.Items[cbLinks.ItemIndex];
 
   if bible.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse) then
-    bookView.ProcessCommand(Format('go %s %d %d %d %d', [bible.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
+    bookView.ProcessCommand(bookView.BookTabInfo, Format('go %s %d %d %d %d', [bible.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
   else
-    bookView.ProcessCommand(bookView.tedtReference.Text, hlDefault);
+    bookView.ProcessCommand(bookView.BookTabInfo, bookView.tedtReference.Text, hlDefault);
 end;
 
 function TMainForm.DefaultLocation: string;
@@ -5367,7 +5375,7 @@ begin
     except
     end;
   end;
-  bookView.ProcessCommand(bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
+  bookView.ProcessCommand(bookTabInfo, bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
 end;
 
 procedure TMainForm.DeleteHotModule(moduleTabIx: integer);
@@ -5425,7 +5433,7 @@ begin
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
-    status := bookView.PreProcessAutoCommand(cmd, prefBible, ConcreteCmd);
+    status := bookView.PreProcessAutoCommand(bookView.BookTabInfo, cmd, prefBible, ConcreteCmd);
     if status <= -2 then
       Exit;
   end;
@@ -5441,7 +5449,7 @@ begin
   else
   begin
     if autoCmd then
-      bookView.ProcessCommand(ConcreteCmd, hlDefault)
+      bookView.ProcessCommand(bookView.BookTabInfo, ConcreteCmd, hlDefault)
     else
     begin
       bookView.tedtReference.Text := SRC;
@@ -5475,7 +5483,7 @@ begin
       prefBible := bible.ShortPath
     else
       prefBible := '';
-    status := bookView.PreProcessAutoCommand(cmd, prefBible, ConcreteCmd);
+    status := bookView.PreProcessAutoCommand(bookView.BookTabInfo, cmd, prefBible, ConcreteCmd);
     if status <= -2 then
       Exit;
   end;
@@ -5490,7 +5498,7 @@ begin
   else
   begin
     if autoCmd then
-      bookView.ProcessCommand(ConcreteCmd, hlDefault)
+      bookView.ProcessCommand(bookView.BookTabInfo, ConcreteCmd, hlDefault)
     else
     begin
       bookView.tedtReference.Text := cmd;
@@ -5982,9 +5990,9 @@ begin
       end;
     end;
     if openSuccess then
-      bookView.SafeProcessCommand(Format('go %s %d %d %d %d', [bible.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
+      bookView.SafeProcessCommand(bookView.BookTabInfo, Format('go %s %d %d %d %d', [bible.ShortPath, book, chapter, fromverse, toverse]), hlDefault)
     else
-      bookView.SafeProcessCommand(bookView.tedtReference.Text, hlDefault);
+      bookView.SafeProcessCommand(bookView.BookTabInfo, bookView.tedtReference.Text, hlDefault);
   lblTail:
   finally
     Links.Free;
@@ -6174,7 +6182,7 @@ begin
 
   end
   else
-    bookView.ProcessCommand(wsrc, hlDefault);
+    bookView.ProcessCommand(bookView.BookTabInfo, wsrc, hlDefault);
 
   Handled := true;
 end;
@@ -6215,7 +6223,7 @@ begin
     browserpos := mTabsView.Browser.Position;
     vti.Bible.FuzzyResolve := vti[vtisFuzzyResolveLinks];
     vti.Bible.RecognizeBibleLinks := nV;
-    bookView.SafeProcessCommand(vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
+    bookView.SafeProcessCommand(vti, vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
     vti[vtisPendingReload] := false;
     mTabsView.Browser.Position := browserpos;
   end;
@@ -6390,6 +6398,13 @@ begin
   end;
 end;
 
+procedure TMainForm.UpdateMemoView();
+begin
+  lblTitle.Caption := '';
+  lblCopyRightNotice.Caption := '';
+  tbtnCopyright.Hint := '';
+end;
+
 procedure TMainForm.UpdateBookView();
 var
   tabInfo: TBookTabInfo;
@@ -6459,7 +6474,7 @@ begin
     if tabInfo[vtisPendingReload] then
     begin
       tabInfo[vtisPendingReload] := false;
-      bookView.SafeProcessCommand(tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
+      bookView.SafeProcessCommand(tabInfo, tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
     end;
     if (tabInfo.LocationType = vtlModule) and Assigned(tabInfo.Bible) and (tabInfo.Bible.isBible) then
       Caption := tabInfo.Bible.Name + ' — BibleQuote';
@@ -6880,6 +6895,7 @@ var
   rct: TRect;
   pt: TPoint;
   ble: TBibleLinkEx;
+  bookView: TBookFrame;
 begin
   if not(Sender is TVirtualDrawTree) then
   begin
@@ -6909,7 +6925,9 @@ begin
     Exit;
 
   ble := nd.getBibleLinkEx();
-  GetBookView(self).ProcessCommand(ble.ToCommand(), hlTrue);
+
+  bookView := GetBookView(self);
+  bookView.ProcessCommand(bookView.BookTabInfo, ble.ToCommand(), hlTrue);
 end;
 
 procedure TMainForm.vdtTagsVersesEdited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
@@ -7579,9 +7597,12 @@ begin
 end;
 
 procedure TMainForm.lbHistoryClick(Sender: TObject);
+var
+  bookView: TBookFrame;
 begin
   HistoryOn := false;
-  GetBookView(self).ProcessCommand(History[lbHistory.ItemIndex], hlDefault);
+  bookView := GetBookView(self);
+  bookView.ProcessCommand(bookView.BookTabInfo, History[lbHistory.ItemIndex], hlDefault);
 
   tbLinksToolBar.Visible := false;
   HistoryOn := true;
@@ -7722,7 +7743,7 @@ begin
     bookView := GetBookView(self);
     bible := bookView.BookTabInfo.Bible;
     command := Format('go %s %d %d', [bible.ShortPath, bookIndex, chapterIndex]);
-    Result := bookView.ProcessCommand(command, hlDefault);
+    Result := bookView.ProcessCommand(bookView.BookTabInfo, command, hlDefault);
   end;
 end;
 
@@ -7770,7 +7791,7 @@ begin
       newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
       MemosOn := vtisShowNotes in state;
 
-      GetBookView(self).SafeProcessCommand(command, hlDefault);
+      GetBookView(self).SafeProcessCommand(newTabInfo, command, hlDefault);
     end
     else
     begin
@@ -7987,6 +8008,11 @@ var
   bookTabInfo: TBookTabInfo;
 begin
   bookTabInfo := GetBookView(self).BookTabInfo;
+  if not Assigned(bookTabInfo) then
+  begin
+    bookTabInfo := CreateNewTabInfo();
+  end;
+
   if (bookTabInfo <> nil) then
   begin
     NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
@@ -8102,7 +8128,8 @@ begin
       if i >= 0 then
         tabsView.BibleTabs.Tabs.Delete(i);
       bookView := GetBookView(self);
-      bookView.AdjustBibleTabs(bookView.BookTabInfo.Bible.ShortName);
+      if Assigned(bookView.BookTabInfo) then
+        bookView.AdjustBibleTabs(bookView.BookTabInfo.Bible.ShortName);
     end;
   except
     on E: Exception do
@@ -8370,8 +8397,10 @@ begin
 end;
 
 procedure TMainForm.lbBookmarksDblClick(Sender: TObject);
+var bookView: TBookFrame;
 begin
-  GetBookView(self).ProcessCommand(Bookmarks[lbBookmarks.ItemIndex], hlDefault);
+  bookView := GetBookView(self);
+  bookView.ProcessCommand(bookView.BookTabInfo, Bookmarks[lbBookmarks.ItemIndex], hlDefault);
 end;
 
 procedure TMainForm.bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -8628,8 +8657,7 @@ begin
   for i := 0 to moduleCount do
   begin
     try
-      mFavorites.AddModule(mModules.ResolveModuleByNames
-        (ConfigForm.lbFavourites.Items[i], ''));
+      mFavorites.AddModule(mModules.ResolveModuleByNames(ConfigForm.lbFavourites.Items[i], ''));
     except
       on E: Exception do
       begin
@@ -8640,8 +8668,11 @@ begin
 
   SetFavouritesShortcuts();
   bookView := GetBookView(self);
-  bible := bookView.BookTabInfo.Bible;
-  bookView.AdjustBibleTabs(bible.ShortName);
+  if Assigned(bookView.BookTabInfo) then
+  begin
+    bible := bookView.BookTabInfo.Bible;
+    bookView.AdjustBibleTabs(bible.ShortName);
+  end;
 
   CopyOptionsCopyVerseNumbersChecked := ConfigForm.chkCopyVerseNumbers.Checked;
   CopyOptionsCopyFontParamsChecked := ConfigForm.chkCopyFontParams.Checked;
@@ -8872,7 +8903,7 @@ begin
         vhl := hlTrue
       else
         vhl := hlFalse;
-      GetBookView(self).ProcessCommand(ti.Location, vhl);
+      GetBookView(self).ProcessCommand(ti, ti.Location, vhl);
     end;
     Exit;
   end;
@@ -8909,7 +8940,7 @@ begin
     if tabInfo.Bible.isBible then
     begin
       broserPos := mTabsView.Browser.Position;
-      bookView.ProcessCommand(tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
+      bookView.ProcessCommand(tabInfo, tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
       mTabsView.Browser.Position := broserPos;
     end
     else
@@ -9124,6 +9155,12 @@ begin
         miShowSignatures.Enabled := true;
         miCopy.Enabled := true;
         miSound.Enabled := true;
+
+        tbtnLib.Enabled := true;
+        tbtnSound.Enabled := true;
+        tbtnCopyright.Enabled := true;
+        tbtnSatellite.Enabled := true;
+        tbtnResolveLinks.Enabled := true;
       end;
     vttMemo: begin
         tbGo.Enabled := false;
@@ -9154,6 +9191,13 @@ begin
         miShowSignatures.Enabled := false;
         miCopy.Enabled := false;
         miSound.Enabled := false;
+
+        tbtnLib.Enabled := false;
+        tbtnSound.Enabled := false;
+
+        tbtnCopyright.Enabled := false;
+        tbtnSatellite.Enabled := false;
+        tbtnResolveLinks.Enabled := false;
       end;
 
   end;
