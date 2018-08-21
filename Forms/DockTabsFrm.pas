@@ -9,7 +9,7 @@ uses
   System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, BibleQuoteUtils,
   ExceptionFrm, Math, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, BookFra, MemoFra;
+  ChromeTabsLog, BookFra, MemoFra, LayoutConfig;
 
 const
   bsText = 0;
@@ -316,7 +316,6 @@ end;
 procedure TDockTabsForm.miCloseAllOtherTabsClick(Sender: TObject);
 var
   saveTabIndex: integer;
-  curTab: TObject;
   C: integer;
 begin
   try
@@ -333,7 +332,6 @@ begin
       try
         while C > saveTabIndex do
         begin
-          curTab := TObject(ctViewTabs.Tabs[C].Data);
           ctViewTabs.Tabs.Delete(C);
           mViewTabs.Delete(C);
           Dec(C);
@@ -342,7 +340,6 @@ begin
         C := 0;
         while C < saveTabIndex do
         begin
-          curTab := TObject(ctViewTabs.Tabs[0].Data);
           ctViewTabs.Tabs.Delete(0);
           mViewTabs.Delete(0);
           Inc(C);
@@ -393,7 +390,7 @@ begin
   end
   else
   begin
-    bookTabInfo := mMainView.CreateNewTabInfo();
+    bookTabInfo := mMainView.CreateBookNewTabInfo();
   end;
 
   mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);

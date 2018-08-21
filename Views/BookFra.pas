@@ -10,7 +10,7 @@ uses
   WinApi.ShellApi, StrUtils, BibleQuoteUtils, CommandProcessor, LinksParserIntf,
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
-  System.Types;
+  System.Types, LayoutConfig;
 
 type
   TBookFrame = class(TFrame, IBookView)

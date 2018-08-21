@@ -5,7 +5,7 @@ interface
 uses System.UITypes, System.Classes, Winapi.Windows, SysUtils,
      Vcl.Controls, Vcl.Graphics, Bible, HtmlView,
      Vcl.Tabs, Vcl.DockTabSet, ChromeTabs, ChromeTabsTypes, ChromeTabsUtils,
-     ChromeTabsControls, ChromeTabsClasses, ChromeTabsLog;
+     ChromeTabsControls, ChromeTabsClasses, ChromeTabsLog, LayoutConfig;
 
 type
   TViewTabType = (
@@ -28,6 +28,7 @@ type
     procedure RestoreState(const tabsView: ITabsView);
 
     function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
   end;
 
   TBookTabLocType = (vtlUnspecified, vtlModule, vtlFile);
@@ -78,6 +79,7 @@ type
 
     function GetStateEntryStatus(stateEntry: TBookTabInfoStateEntries): Boolean; inline;
     procedure SetStateEntry(stateEntry: TBookTabInfoStateEntries; value: Boolean);
+    function EncodeToValue(): UInt64;
   public
     property State: TBookTabInfoState read mState write mState;
 
@@ -123,12 +125,14 @@ type
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
   end;
 
   TMemoTabInfo = class(TInterfacedObject, IViewTabInfo)
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
   end;
 
   TViewTabDragObject = class(TDragObjectEx)
@@ -197,6 +201,29 @@ end;
 function TBookTabInfo.GetViewType(): TViewTabType;
 begin
   Result := vttBook;
+end;
+
+function TBookTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TBookTabSettings;
+  bookTabsEncoded: UInt64;
+begin
+  tabSettings := TBookTabSettings.Create;
+  bookTabsEncoded := EncodeToValue();
+  tabSettings.Location := Location;
+  tabSettings.SecondBible := SatelliteName;
+  tabSettings.StrongNotesCode := bookTabsEncoded;
+  tabSettings.Title := Title;
+
+  Result := tabSettings;
+end;
+
+function TBookTabInfo.EncodeToValue(): UInt64;
+begin
+  Result := ord(self[vtisShowNotes]);
+  inc(Result, 10 * ord(self[vtisShowStrongs]));
+  inc(Result, 100 * ord(self[vtisResolveLinks]));
+  inc(Result, 1000 * ord(self[vtisFuzzyResolveLinks]));
 end;
 
 procedure TBookTabInfo.SaveState(const tabsView: ITabsView);
@@ -272,6 +299,14 @@ end;
 function TMemoTabInfo.GetViewType(): TViewTabType;
 begin
   Result := vttMemo;
+end;
+
+function TMemoTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TMemoTabSettings;
+begin
+  tabSettings := TMemoTabSettings.Create;
+  Result := tabSettings;
 end;
 
 procedure TMemoTabInfo.SaveState(const tabsView: ITabsView);

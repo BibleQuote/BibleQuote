@@ -411,7 +411,7 @@ type
       const SearchText: string;
       var Result: integer);
 
-    function CreateNewTabInfo(): TBookTabInfo;
+    function CreateBookNewTabInfo(): TBookTabInfo;
     function CreateTabsView(viewName: string): ITabsView;
     procedure CreateInitialTabsView();
     function GenerateTabsViewName(): string;
@@ -776,13 +776,9 @@ begin
   vdtModules.Clear;
 
   if (Length(book.DesiredUIFont) > 0) then
-    begin
-      uifont := mFontManager.SuggestFont(self.Canvas.Handle, book.DesiredUIFont, book.path, $0007F);
-    end
-    else
-    begin
-      uifont := self.Font.Name
-    end;
+    uifont := mFontManager.SuggestFont(self.Canvas.Handle, book.DesiredUIFont, book.path, $0007F)
+  else
+    uifont := self.Font.Name;
 
   if vdtModules.Font.Name <> uifont then
     vdtModules.Font.Name := uifont;
@@ -1049,7 +1045,7 @@ var
 begin
   tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
 
-  tabInfo := CreateNewTabInfo();
+  tabInfo := CreateBookNewTabInfo();
   book := tabInfo.Bible;
 
   mTabsView := tabsForm;
@@ -1096,6 +1092,8 @@ begin
       tabInfo := tabsForm.GetActiveTabInfo();
       if Assigned(tabInfo) then
         tabInfo.RestoreState(tabsForm);
+
+      UpdateUIForType(tabInfo.GetViewType);
     end;
   end;
 end;
@@ -1382,6 +1380,7 @@ end;
 procedure TMainForm.LoadTabsViews();
 var
   tabIx, i, activeTabIx: integer;
+  activeView: integer;
   strongNotesCode: UInt64;
   location, secondBible, Title: string;
   addTabResult, firstTabInitialized: Boolean;
@@ -1390,12 +1389,13 @@ var
   layoutConfig: TLayoutConfig;
   tabSettings: TTabSettings;
   tabsViewSettings: TTabsViewSettings;
-  isFirstTabsView: boolean;
+  isFirstBookView: boolean;
   tabsForm: TDockTabsForm;
   fileStream: TFileStream;
   tabsConfigPath, layoutConfigPath: string;
   newTab: TChromeTab;
   book: TBible;
+  bookTabSettings: TBookTabSettings;
 begin
   tabsConfigPath := UserDir + 'layout_tabs.json';
   layoutConfigPath := UserDir + 'layout_forms.dat';
@@ -1410,7 +1410,7 @@ begin
     end;
 
     layoutConfig := TLayoutConfig.Load(tabsConfigPath);
-    isFirstTabsView := true;
+    isFirstBookView := true;
 
     for tabsViewSettings in layoutConfig.TabsViewList do
     begin
@@ -1418,15 +1418,10 @@ begin
       tabIx := 0;
       i := 0;
 
-      if (not isFirstTabsView) then
+      tabsForm := CreateTabsView(tabsViewSettings.ViewName) as TDockTabsForm;
+      if (isFirstBookView) then
       begin
-        tabsForm := CreateTabsView(tabsViewSettings.ViewName) as TDockTabsForm;
-      end
-      else
-      begin
-        tabsForm := CreateTabsView(tabsViewSettings.ViewName) as TDockTabsForm;
-
-        initTabInfo := CreateNewTabInfo();
+        initTabInfo := CreateBookNewTabInfo();
         book := initTabInfo.Bible;
 
         tabsForm.AddBookTab(initTabInfo, book.Name);
@@ -1445,33 +1440,44 @@ begin
       tabsForm.Show;
       mTabsView := tabsForm;
 
-      for tabSettings in tabsViewSettings.TabSettingsList do
+      for tabSettings in tabsViewSettings.GetOrderedTabSettings() do
       begin
         if (tabSettings.Active) then
           activeTabIx := i;
 
-        secondBible := tabSettings.SecondBible;
-        Title := tabSettings.Title;
-        strongNotesCode := tabSettings.StrongNotesCode;
-        if (strongNotesCode <= 0) then
-          strongNotesCode := 101;
-
-        tabViewState := DecodeBookTabState(strongNotesCode);
-
-        location := tabSettings.Location;
-        if Length(Trim(location)) > 0 then
+        addTabResult := false;
+        if (tabSettings is TBookTabSettings) then
         begin
-          if ((tabIx > 0) or not isFirstTabsView) then
-            addTabResult := NewBookTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
-          else
+          bookTabSettings := TBookTabSettings(tabSettings);
+
+          secondBible := bookTabSettings.SecondBible;
+          Title := bookTabSettings.Title;
+          strongNotesCode := bookTabSettings.StrongNotesCode;
+          if (strongNotesCode <= 0) then
+            strongNotesCode := 101;
+
+          tabViewState := DecodeBookTabState(strongNotesCode);
+
+          location := bookTabSettings.Location;
+          if Length(Trim(location)) > 0 then
           begin
-            addTabResult := true;
-            SetFirstTabInitialLocation(location, secondBible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
-            firstTabInitialized := true;
-          end;
-        end
-        else
+            if ((tabIx > 0) or not isFirstBookView) then
+              addTabResult := NewBookTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
+            else
+            begin
+              addTabResult := true;
+              SetFirstTabInitialLocation(location, secondBible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
+              firstTabInitialized := true;
+            end;
+          end
+          else
           addTabResult := false;
+        end
+        else if (tabSettings is TMemoTabSettings) then
+        begin
+          mTabsView.AddMemoTab(TMemoTabInfo.Create());
+          addTabResult := true;
+        end;
 
         if (addTabResult) then
           inc(tabIx);
@@ -1485,7 +1491,7 @@ begin
       mTabsView.ChromeTabs.ActiveTabIndex := activeTabIx;
       mTabsView.UpdateBookView();
 
-      isFirstTabsView := false;
+      isFirstBookView := false;
     end;
 
     if (firstTabInitialized and TFile.Exists(layoutConfigPath)) then
@@ -1507,7 +1513,7 @@ begin
   end;
 end;
 
-function TMainForm.CreateNewTabInfo(): TBookTabInfo;
+function TMainForm.CreateBookNewTabInfo(): TBookTabInfo;
 var
   book: TBible;
   tabInfo: TBookTabInfo;
@@ -1805,20 +1811,10 @@ begin
   end;
 end;
 
-function EncodeToValue(const bookTabInfo: TBookTabInfo): UInt64;
-begin
-  Result := ord(bookTabInfo[vtisShowNotes]);
-  inc(Result, 10 * ord(bookTabInfo[vtisShowStrongs]));
-  inc(Result, 100 * ord(bookTabInfo[vtisResolveLinks]));
-  inc(Result, 1000 * ord(bookTabInfo[vtisFuzzyResolveLinks]));
-end;
-
 procedure TMainForm.SaveTabsViews();
 var
   tabCount, i: integer;
   tabInfo, activeTabInfo: IViewTabInfo;
-  bookTabInfo: TBookTabInfo;
-  bookTabsEncoded: UInt64;
   layoutConfig: TLayoutConfig;
   tabsViewSettings: TTabsViewSettings;
   tabSettings: TTabSettings;
@@ -1856,25 +1852,14 @@ begin
           if not Supports(data, IViewTabInfo, tabInfo) then
             continue;
 
-          if not (data is TBookTabInfo) then
-            continue;
-
-          bookTabInfo := TBookTabInfo(data);
-
-          tabSettings := TTabSettings.Create;
+          tabSettings := tabInfo.GetSettings;
 
           if tabInfo = activeTabInfo then
           begin
             tabSettings.Active := true;
           end;
-
-          bookTabsEncoded := EncodeToValue(bookTabInfo);
-          tabSettings.Location := bookTabInfo.Location;
-          tabSettings.SecondBible := bookTabInfo.SatelliteName;
-          tabSettings.StrongNotesCode := bookTabsEncoded;
-          tabSettings.Title := bookTabInfo.Title;
-
-          tabsViewSettings.TabSettingsList.Add(tabSettings);
+          tabSettings.Index := i;
+          tabsViewSettings.AddTabSettings(tabSettings);
         except
         end;
       end; // for
@@ -2612,7 +2597,6 @@ begin
   vti.Title := Title;
   vti.Location := LastAddress;
   mTabsView.ChromeTabs.Tabs[0].Caption := Title;
-  //mTabsView.ViewTabs.Tabs[0].Data := vti;
 
   if visual then
   begin
@@ -4067,7 +4051,7 @@ begin
   end
   else
   begin
-    bookTabInfo := CreateNewTabInfo();
+    bookTabInfo := CreateBookNewTabInfo();
     NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
 
     bookTabInfo := bookView.BookTabInfo;
@@ -6276,7 +6260,12 @@ begin
 
   Windows.SetFocus(tabsForm.Handle);
 
-  if (bookTabInfo <> nil) then
+  if not Assigned(bookTabInfo) then
+  begin
+    bookTabInfo := CreateBookNewTabInfo();
+  end;
+
+  if Assigned(bookTabInfo) then
   begin
     NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
   end;
@@ -6286,8 +6275,8 @@ procedure TMainForm.tbtnNewMemoTabClick(Sender: TObject);
 var
   newTabInfo: TMemoTabInfo;
 begin
-    newTabInfo := TMemoTabInfo.Create();
-    mTabsView.AddMemoTab(newTabInfo);
+  newTabInfo := TMemoTabInfo.Create();
+  mTabsView.AddMemoTab(newTabInfo);
 end;
 
 procedure TMainForm.UpdateAllBooks;
@@ -6748,10 +6737,19 @@ procedure TMainForm.vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVirt
 var
   Level: Integer;
   bible: TBible;
+  bookView: TBookFrame;
 begin
   Level := Sender.GetNodeLevel(Node);
-  bible := GetBookView(self).BookTabInfo.Bible;
-  ChildCount := IfThen(Level = 0, bible.ChapterQtys[Node.Index + 1], 0);
+  bookView := GetBookView(self);
+  if Assigned(bookView.BookTabInfo) then
+  begin
+    bible := bookView.BookTabInfo.Bible;
+    ChildCount := IfThen(Level = 0, bible.ChapterQtys[Node.Index + 1], 0);
+  end
+  else
+  begin
+    ChildCount := 0;
+  end;
 end;
 
 procedure TMainForm.vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -6772,6 +6770,15 @@ begin
       Include(InitialStates, ivsHasChildren);
 
     bookView := GetBookView(self);
+    if not Assigned(bookView.BookTabInfo) then
+    begin
+      if (Level = 0) then
+        vdtModules.RootNodeCount := 0
+      else
+        ParentNode.ChildCount := 0;
+      Exit;
+    end;
+
     bible := bookView.BookTabInfo.Bible;
 
     if (Level = 0) then
@@ -8010,7 +8017,7 @@ begin
   bookTabInfo := GetBookView(self).BookTabInfo;
   if not Assigned(bookTabInfo) then
   begin
-    bookTabInfo := CreateNewTabInfo();
+    bookTabInfo := CreateBookNewTabInfo();
   end;
 
   if (bookTabInfo <> nil) then
@@ -9108,6 +9115,7 @@ begin
   begin
     cbModules.ItemIndex := cbModules.Items.IndexOf(book.Name);
     UpdateBooksAndChaptersBoxes(book);
+
     GetBookView(self).tbtnStrongNumbers.Enabled := book.Trait[bqmtStrongs];
     SearchListInit;
 
@@ -9161,6 +9169,12 @@ begin
         tbtnCopyright.Enabled := true;
         tbtnSatellite.Enabled := true;
         tbtnResolveLinks.Enabled := true;
+
+        miPrint.Enabled := true;
+        tbtnPrint.Enabled := true;
+
+        miPrintPreview.Enabled := true;
+        tbtnPreview.Enabled := true;
       end;
     vttMemo: begin
         tbGo.Enabled := false;
@@ -9198,6 +9212,12 @@ begin
         tbtnCopyright.Enabled := false;
         tbtnSatellite.Enabled := false;
         tbtnResolveLinks.Enabled := false;
+
+        miPrint.Enabled := false;
+        tbtnPrint.Enabled := false;
+
+        miPrintPreview.Enabled := false;
+        tbtnPreview.Enabled := false;
       end;
 
   end;
