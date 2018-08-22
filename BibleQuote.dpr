@@ -47,10 +47,12 @@ uses
   MultiLanguage in 'Core\MultiLanguage.pas',
   TabData in 'Core\TabData.pas',
   CRC32 in 'Utils\CRC32.pas',
-  ModuleViewIntf in 'UI\ModuleViewIntf.pas',
-  ModuleFrm in 'Forms\ModuleFrm.pas' {ModuleForm},
+  DockTabsFrm in 'Forms\DockTabsFrm.pas' {DockTabsForm},
   ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas',
-  ViewConfig in 'IO\ViewConfig.pas';
+  LayoutConfig in 'IO\LayoutConfig.pas',
+  BookFra in 'Views\BookFra.pas' {BookFrame: TFrame},
+  MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame},
+  FontManager in 'Core\FontManager.pas';
 
 {$R *.res}
 var

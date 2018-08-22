@@ -35,7 +35,7 @@ type
     function ReadString(section, s, def: string): string;
     function Learn(s, value: string): Boolean; overload;
     function Learn(s: string; val: integer): Boolean; overload;
-    procedure TranslateForm(form: TForm; fname: string = '');
+    procedure TranslateControl(ctrl: TWinControl; fname: string = '');
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -288,16 +288,16 @@ begin
   end;
 end;
 
-procedure TMultiLanguage.TranslateForm(form: TForm; fname: string = '');
+procedure TMultiLanguage.TranslateControl(ctrl: TWinControl; fname: string = '');
 var
   i: integer;
   s, sname: string;
 begin
-  with form do
+  with ctrl do
     for i := 0 to ComponentCount - 1 do
     begin
       if (Length(fname) = 0) then
-        fname := form.Name;
+        fname := ctrl.Name;
 
       sname := fname + '.' + (Components[i]).Name;
 
@@ -322,10 +322,13 @@ begin
 
     end;
 
-  sname := fname;
-  s := Say(sname + '.Caption');
-  if s <> sname + '.Caption' then
-    form.Caption := s;
+  if (ctrl is TForm) then
+  begin
+    sname := fname;
+    s := Say(sname + '.Caption');
+    if s <> sname + '.Caption' then
+      (ctrl as TForm).Caption := s;
+  end;
 end;
 
 end.

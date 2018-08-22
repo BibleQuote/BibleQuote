@@ -16,7 +16,7 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   DUnitX.TestFramework,
   IOProcsTests in 'IOProcsTests.pas',
-  ViewConfigTests in 'ViewConfigTests.pas';
+  LayoutConfigTests in 'LayoutConfigTests.pas';
 
 var
   runner : ITestRunner;

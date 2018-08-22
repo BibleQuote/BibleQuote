@@ -154,7 +154,8 @@ type
   TBibleSearchEvent = procedure(
     Sender: TObject;
     NumVersesFound, book, chapter, verse: integer;
-    s: string) of object;
+    s: string;
+    removeStrongs: boolean) of object;
 
   TBiblePasswordRequired = procedure(
     aSender: TBible;
@@ -242,14 +243,14 @@ type
 
   protected
     mRecognizeBibleLinks: boolean;
-    mFuzzyResolveLnks: boolean;
+    mFuzzyResolveLinks: boolean;
     mShortNamesVars: TStringList;
     mModuleType: TbqModuleType;
 
     procedure LoadIniFile(fileName: string);
 
     function SearchOK(source: string; words: TStrings; params: byte): boolean;
-    procedure SearchBook(words: TStrings; params: byte; book: integer);
+    procedure SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean);
     procedure SetHTMLFilter(value: string);
 
     function toInternal(
@@ -336,7 +337,7 @@ type
     function OpenTSKReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
     function OpenRussianReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 
-    procedure Search(s: string; params: byte; bookset: TBibleSet);
+    procedure Search(s: string; params: byte; bookset: TBibleSet; removeStrongs: boolean);
     procedure StopSearching;
 
     procedure ClearBuffers;
@@ -391,7 +392,7 @@ type
     property OnChangeModule: TNotifyEvent read FOnChangeModule write FOnChangeModule;
     property OnPasswordRequired: TBiblePasswordRequired read FOnPasswordRequired write FOnPasswordRequired;
     property RecognizeBibleLinks: boolean read mRecognizeBibleLinks write mRecognizeBibleLinks;
-    property FuzzyResolve: boolean read mFuzzyResolveLnks write mFuzzyResolveLnks;
+    property FuzzyResolve: boolean read mFuzzyResolveLinks write mFuzzyResolveLinks;
 
   end;
 
@@ -425,8 +426,7 @@ begin
   inherited Destroy;
 end;
 
-function TBible.ReferenceToInternal(const moduleRelatedRef: TBibleLink;
-  out independent: TBibleLink): integer;
+function TBible.ReferenceToInternal(const moduleRelatedRef: TBibleLink; out independent: TBibleLink): integer;
 begin
   moduleRelatedRef.AssignTo(independent);
   Result := ord(ReferenceToInternal(
@@ -982,7 +982,7 @@ begin
   recLnks := (not FBible) or (IsCommentary());
   if forceResolveLinks or (recLnks and mRecognizeBibleLinks) then
   begin
-    FLines.Text := ResolveLnks(FLines.Text, mFuzzyResolveLnks);
+    FLines.Text := ResolveLinks(FLines.Text, mFuzzyResolveLinks);
   end;
 
   if FFiltered and trait[bqmtIncludeChapterHead] then
@@ -1119,7 +1119,7 @@ begin
   Result := integer(List.objects[Index1]) - integer(List.objects[Index2]);
 end;
 
-procedure TBible.SearchBook(words: TStrings; params: byte; book: integer);
+procedure TBible.SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean);
 var
   i, chapter, verse: integer;
   btmp, tmpwords: TStringList; // lines buffer from the book
@@ -1218,7 +1218,7 @@ begin
 
         Inc(FVersesFound);
         if assigned(FOnVerseFound) then
-          FOnVerseFound(Self, FVersesFound, book, chapter, verse, BookLines[i]);
+          FOnVerseFound(Self, FVersesFound, book, chapter, verse, BookLines[i], removeStrongs);
       end;
     end;
   end;
@@ -1227,7 +1227,7 @@ begin
   tmpwords.Free;
 end;
 
-procedure TBible.Search(s: string; params: byte; bookset: TBibleSet);
+procedure TBible.Search(s: string; params: byte; bookset: TBibleSet; removeStrongs: boolean);
 var
   words: TStrings;
   w: string;
@@ -1267,10 +1267,10 @@ begin
         if FStopSearching then
           break;
         if assigned(FOnVerseFound) then
-          FOnVerseFound(Self, FVersesFound, i, 0, 0, '');
+          FOnVerseFound(Self, FVersesFound, i, 0, 0, '', removeStrongs);
         // just to know that there is a searching -- fire an event
         try
-          SearchBook(words, params, i);
+          SearchBook(words, params, i, removeStrongs);
         except
           on e: Exception do
           begin

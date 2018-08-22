@@ -563,7 +563,7 @@ begin
     SetTagTabs();
 
     dtsTags.TabIndex := 0;
-    Lang.TranslateForm(self);
+    Lang.TranslateControl(self);
     mStrTokens := TStringList.Create();
     mTagTokens := TStringList.Create();
     mFilterStrTokens := TStringList.Create();
