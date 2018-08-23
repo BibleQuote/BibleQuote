@@ -1459,19 +1459,14 @@ begin
           tabViewState := DecodeBookTabState(strongNotesCode);
 
           location := bookTabSettings.Location;
-          if Length(Trim(location)) > 0 then
-          begin
-            if ((tabIx > 0) or not isFirstBookView) then
-              addTabResult := NewBookTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
-            else
-            begin
-              addTabResult := true;
-              SetFirstTabInitialLocation(location, secondBible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
-              firstTabInitialized := true;
-            end;
-          end
+          if ((tabIx > 0) or not isFirstBookView) then
+            addTabResult := NewBookTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
           else
-          addTabResult := false;
+          begin
+            addTabResult := true;
+            SetFirstTabInitialLocation(location, secondBible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
+            firstTabInitialized := true;
+          end;
         end
         else if (tabSettings is TMemoTabSettings) then
         begin
@@ -1830,7 +1825,11 @@ begin
       tabsForm := tabsView as TDockTabsForm;
       tabsViewSettings := TTabsViewSettings.Create;
 
-      tabCount := tabsView.ChromeTabs.Tabs.Count - 1;
+      if (tabsView.ChromeTabs.Tabs.Count = 0) then
+        continue;
+
+      tabCount := tabsView.ChromeTabs.Tabs.Count;
+
       activeTabInfo := mTabsView.GetActiveTabInfo();
       if (tabsView = mTabsView) then
         tabsViewSettings.Active := true;
@@ -1845,7 +1844,7 @@ begin
         tabsViewSettings.Height := tabsForm.Height;
       end;
 
-      for i := 0 to tabCount do
+      for i := 0 to tabCount - 1 do
       begin
         try
           data := tabsView.ChromeTabs.Tabs[i].Data;
