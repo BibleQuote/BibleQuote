@@ -47,13 +47,13 @@ begin
 
   Assert.IsNotNull(layoutConfig);
   Assert.AreEqual(2, layoutConfig.TabsViewList.Count);
-  Assert.AreEqual(2, layoutConfig.TabsViewList[0].TabSettingsList.Count);
-  Assert.AreEqual(2, layoutConfig.TabsViewList[1].TabSettingsList.Count);
+  Assert.AreEqual(2, layoutConfig.TabsViewList[0].BookTabs.Count);
+  Assert.AreEqual(2, layoutConfig.TabsViewList[1].BookTabs.Count);
 
-  Assert.AreEqual('Test location 1', layoutConfig.TabsViewList[0].TabSettingsList[0].Location);
-  Assert.AreEqual('Title 1', layoutConfig.TabsViewList[0].TabSettingsList[0].Title);
-  Assert.AreEqual('Test location 3', layoutConfig.TabsViewList[1].TabSettingsList[0].Location);
-  Assert.AreEqual('Title 3', layoutConfig.TabsViewList[1].TabSettingsList[0].Title);
+  Assert.AreEqual('Test location 1', layoutConfig.TabsViewList[0].BookTabs[0].Location);
+  Assert.AreEqual('Title 1', layoutConfig.TabsViewList[0].BookTabs[0].Title);
+  Assert.AreEqual('Test location 3', layoutConfig.TabsViewList[1].BookTabs[0].Location);
+  Assert.AreEqual('Title 3', layoutConfig.TabsViewList[1].BookTabs[0].Title);
 end;
 
 procedure TestLayoutConfig.SaveLayoutConfigTest_ShouldNotThrow();
@@ -61,39 +61,39 @@ var
   path: string;
   layoutConfig: TLayoutConfig;
   tabsSettings: TTabsViewSettings;
-  tabSettings: TTabSettings;
+  tabSettings: TBookTabSettings;
 begin
   path := GetFilePath('layout_config_temp.json');
   layoutConfig := TLayoutConfig.Create;
 
   tabsSettings := TTabsViewSettings.Create;
 
-  tabSettings := TTabSettings.Create;
+  tabSettings := TBookTabSettings.Create;
   tabSettings.Location := 'Test location 1';
   tabSettings.Title := 'Title 1';
 
-  tabsSettings.TabSettingsList.Add(tabSettings);
+  tabsSettings.AddTabSettings(tabSettings);
 
-  tabSettings := TTabSettings.Create;
+  tabSettings := TBookTabSettings.Create;
   tabSettings.Location := 'Test location 2';
   tabSettings.Title := 'Title 2';
 
-  tabsSettings.TabSettingsList.Add(tabSettings);
+  tabsSettings.AddTabSettings(tabSettings);
   layoutConfig.TabsViewList.Add(tabsSettings);
 
   tabsSettings := TTabsViewSettings.Create;
 
-  tabSettings := TTabSettings.Create;
+  tabSettings := TBookTabSettings.Create;
   tabSettings.Location := 'Test location 3';
   tabSettings.Title := 'Title 3';
 
-  tabsSettings.TabSettingsList.Add(tabSettings);
+  tabsSettings.AddTabSettings(tabSettings);
 
-  tabSettings := TTabSettings.Create;
+  tabSettings := TBookTabSettings.Create;
   tabSettings.Location := 'Test location 4';
   tabSettings.Title := 'Title 4';
 
-  tabsSettings.TabSettingsList.Add(tabSettings);
+  tabsSettings.AddTabSettings(tabSettings);
   layoutConfig.TabsViewList.Add(tabsSettings);
 
   Assert.WillNotRaise(procedure begin layoutConfig.Save(path); end);
