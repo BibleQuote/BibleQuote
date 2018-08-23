@@ -1182,7 +1182,7 @@ begin
     imgLoadProgress.Picture.Graphic := mIcn;
     imgLoadProgress.Show();
 
-    mBqEngine.LoadDictionaries(TPath.Combine(ModulesDirectory, C_DictionariesSubDirectory), foreground);
+    mBqEngine.LoadDictionaries(TPath.Combine(LibraryDirectory, C_DictionariesSubDirectory), foreground);
     if not foreground then
       Exit;
   end;
@@ -1998,7 +1998,7 @@ begin
   LoadHotModulesConfig();
 
   StrongsDir := C_StrongsSubDirectory;
-  LoadFontFromFolder(TPath.Combine(ModulesDirectory, StrongsDir));
+  LoadFontFromFolder(TPath.Combine(LibraryDirectory, StrongsDir));
   mTranslated := ApplyInitialTranslation();
 
   StrongHebrew := TDict.Create;
@@ -3904,8 +3904,7 @@ begin
     shfOP.Wnd := 0;
     shfOP.wFunc := FO_COPY;
     shfOP.pFrom := Pointer(path + #0);
-    shfOP.pTo := Pointer(ExePath + 'compressed\modules\' +
-      ExtractFileName(path) + #0);
+    shfOP.pTo := Pointer(CompressedModulesDirectory() + '\' + ExtractFileName(path) + #0);
     shfOP.fFlags := FOF_ALLOWUNDO or FOF_FILESONLY;
     shfOP.fAnyOperationsAborted := false;
     shfOP.hNameMappings := nil;
@@ -4550,7 +4549,7 @@ begin
   if Length(s) = 1 then
     s := '0' + s;
 
-  path := TPath.Combine(ModulesDirectory, C_TSKSubDirectory);
+  path := TPath.Combine(LibraryDirectory, C_TSKSubDirectory);
   path := TPath.Combine(path, s + '_*.ini');
 
   if FindFirst(path, faAnyFile, tf) <> 0 then
@@ -4558,7 +4557,7 @@ begin
 
   ti := TMultiLanguage.Create(nil);
 
-  path := TPath.Combine(ModulesDirectory, C_TSKSubDirectory);
+  path := TPath.Combine(LibraryDirectory, C_TSKSubDirectory);
   ti.inifile := TPath.Combine(path, tf.Name);
 
   secBible.OpenChapter(mainBible.CurBook, mainBible.CurChapter);
@@ -4863,7 +4862,7 @@ begin
   if StrongsDir = '' then
     StrongsDir := C_StrongsSubDirectory;
 
-  fullDir := TPath.Combine(ModulesDirectory, StrongsDir);
+  fullDir := TPath.Combine(LibraryDirectory, StrongsDir);
 
   try
     if hebrew or (num = 0) then

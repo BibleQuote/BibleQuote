@@ -101,18 +101,18 @@ begin
   try
     if not background then
     begin
-      AddFolderModules(TPath.Combine(ModulesDirectory, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
-      AddFolderModules(TPath.Combine(ModulesDirectory, C_BooksSubDirectory), tmpBook, background, modtypeBook);
+      AddFolderModules(TPath.Combine(LibraryDirectory, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
+      AddFolderModules(TPath.Combine(LibraryDirectory, C_BooksSubDirectory), tmpBook, background, modtypeBook);
 
       AddArchivedModules(CompressedModulesDirectory, tmpBook, background);
 
-      if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ModulesDirectory)) then
+      if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(LibraryDirectory)) then
       begin
         AddFolderModules(TPath.Combine(G_SecondPath, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
         AddFolderModules(TPath.Combine(G_SecondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
       end;
 
-      AddFolderModules(TPath.Combine(ModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, modtypeComment);
+      AddFolderModules(TPath.Combine(LibraryDirectory, C_CommentariesSubDirectory), tmpBook, background, modtypeComment);
       AddArchivedModules(TPath.Combine(CompressedModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
 
       mScanDone := true;
@@ -123,7 +123,7 @@ begin
       if not mFolderBiblesScanned then
       begin
         mFolderBiblesScanned := AddFolderModules(
-          TPath.Combine(ModulesDirectory, C_BiblesSubDirectory),
+          TPath.Combine(LibraryDirectory, C_BiblesSubDirectory),
           tmpBook,
           background,
           modtypeBible);
@@ -134,7 +134,7 @@ begin
       if not mFolderBooksScanned then
       begin
         mFolderBooksScanned := AddFolderModules(
-          TPath.Combine(ModulesDirectory, C_BooksSubDirectory),
+          TPath.Combine(LibraryDirectory, C_BooksSubDirectory),
           tmpBook,
           background,
           modtypeBook);
@@ -150,7 +150,7 @@ begin
 
       if not mSecondFolderBiblesScanned then
       begin
-        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ModulesDirectory)) then
+        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(LibraryDirectory)) then
         begin
           mSecondFolderBiblesScanned := AddFolderModules(
             TPath.Combine(G_SecondPath, C_BiblesSubDirectory),
@@ -166,7 +166,7 @@ begin
 
       if not mSecondFolderBooksScanned then
       begin
-        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(ModulesDirectory)) then
+        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(LibraryDirectory)) then
         begin
           mSecondFolderBooksScanned := AddFolderModules(
             TPath.Combine(G_SecondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
@@ -179,7 +179,7 @@ begin
       if not mFolderCommentsScanned then
       begin
         mFolderCommentsScanned := AddFolderModules(
-          TPath.Combine(ModulesDirectory, C_CommentariesSubDirectory),
+          TPath.Combine(LibraryDirectory, C_CommentariesSubDirectory),
           tmpBook,
           background,
           modtypeComment);

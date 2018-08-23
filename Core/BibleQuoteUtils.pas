@@ -219,7 +219,7 @@ function PeekToken(pC: PChar; delim: Char): string;
 
 function MainFileExists(s: string): string;
 function ExePath(): string;
-function ModulesDirectory(): string;
+function LibraryDirectory(): string;
 function CompressedModulesDirectory(): string;
 function GetCallerEIP(): Pointer;
 function GetCallerEbP(): Pointer;
@@ -1864,14 +1864,14 @@ begin
     result := __exe__path;
   end;
 
-  function ModulesDirectory(): string;
+  function LibraryDirectory(): string;
   begin
-    result := TPath.Combine(ExePath(), 'Modules');
+    result := TPath.Combine(ExePath(), C_LibraryDirectory);
   end;
 
   function CompressedModulesDirectory(): string;
   begin
-    result := TPath.Combine(ModulesDirectory(), 'Compressed');
+    result := TPath.Combine(ExePath(), C_CompressedLibraryDirectory);
   end;
 
   function CreateAndGetConfigFolder: string;
