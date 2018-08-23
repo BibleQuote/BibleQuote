@@ -3,14 +3,14 @@ unit BibleQuoteConfig;
 interface
 
 const
-  C_ModulesDirectory = 'Modules';
-  C_CompressedModulesDirectory = 'Modules\Compressed';
+  C_LibraryDirectory = 'Library';
+  C_CompressedLibraryDirectory = 'Library\Compressed';
   C_BiblesSubDirectory = 'Bibles';
   C_CommentariesSubDirectory = 'Commentaries';
   C_DictionariesSubDirectory = 'Dictionaries';
   C_BooksSubDirectory = 'Books';
-  C_TSKSubDirectory = 'Commentaries\Commentary-TSK';
-  C_StrongsSubDirectory = 'Strongs';
+  C_TSKSubDirectory = 'System\TSK';
+  C_StrongsSubDirectory = 'System\Strongs';
 
   C_ModuleIniName = 'bibleqt.ini';
   C_PasswordPolicyFileName = 'bq.pol';
