@@ -92,7 +92,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCC_Optimize>False</DCC_Optimize>
         <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-        <DCC_MapFile>3</DCC_MapFile>
         <DCC_Define>SMARTFONTS;RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_CodePage>1251</DCC_CodePage>
     </PropertyGroup>
