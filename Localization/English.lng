@@ -195,6 +195,7 @@ MainForm.tbComments.Hint = Commentaries
 MainForm.tbDic.Hint = Dictionaries
 MainForm.tbGo.Hint = Navigate
 MainForm.tbHistory.Caption = History
+MainForm.tbList.Hint = Themed Bookmarks
 MainForm.tbLinksToolBar.Caption = Links
 MainForm.tbMemo.Hint = Memos
 MainForm.tbSearch.Hint = Search

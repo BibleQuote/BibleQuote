@@ -195,6 +195,7 @@ MainForm.tbComments.Hint = Комментарии
 MainForm.tbDic.Hint = Словари
 MainForm.tbGo.Hint = Навигация
 MainForm.tbHistory.Caption = Журнал
+MainForm.tbList.Hint = Тематические закладки
 MainForm.tbLinksToolBar.Caption = Ссылки
 MainForm.tbMemo.Hint = Заметки
 MainForm.tbSearch.Hint = Поиск
