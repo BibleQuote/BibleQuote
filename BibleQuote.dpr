@@ -52,7 +52,8 @@ uses
   LayoutConfig in 'IO\LayoutConfig.pas',
   BookFra in 'Views\BookFra.pas' {BookFrame: TFrame},
   MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame},
-  FontManager in 'Core\FontManager.pas';
+  FontManager in 'Core\FontManager.pas',
+  LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame};
 
 {$R *.res}
 var

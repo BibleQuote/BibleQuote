@@ -117,7 +117,6 @@ type
     miRefPrint: TMenuItem;
     cbQty: TComboBox;
     pnlComments: TPanel;
-    cbModules: TComboBox;
     cbComments: TComboBox;
     btnSearchOptions: TButton;
     splMain: TSplitter;
@@ -231,6 +230,7 @@ type
     imgLoadProgress: TImage;
     tbtnNewForm: TToolButton;
     tbtnNewMemoTab: TToolButton;
+    btnAddLibraryForm: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -276,7 +276,6 @@ type
     procedure edtDicKeyPress(Sender: TObject; var Key: Char);
     procedure edtStrongKeyPress(Sender: TObject; var Key: Char);
     procedure tbtnToggleClick(Sender: TObject);
-    procedure cbModulesChange(Sender: TObject);
     procedure lbStrongDblClick(Sender: TObject);
     procedure miAboutClick(Sender: TObject);
     procedure bwrSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -447,6 +446,7 @@ type
     procedure BookChangeModule(Sender: TObject);
     procedure BookSearchComplete(Sender: TObject);
     procedure tbtnNewMemoTabClick(Sender: TObject);
+    procedure btnAddLibraryTabClick(Sender: TObject);
   public
     SysHotKey: TSysHotKey;
 
@@ -565,6 +565,7 @@ type
 
     procedure UpdateBookView();
     procedure UpdateMemoView();
+    procedure UpdateLibraryView();
 
     procedure SetFirstTabInitialLocation(
       wsCommand, wsSecondaryView: string;
@@ -630,7 +631,7 @@ type
     procedure SaveConfiguration;
     procedure SetBibleTabsHintsState(showHints: Boolean = true);
     procedure MainMenuInit(cacheupdate: Boolean);
-    procedure GoModuleName(s: string);
+    procedure GoModuleName(s: string; fromBeginning: Boolean = false);
 
     procedure UpdateBooksAndChaptersBoxes(book: TBible);
 
@@ -657,6 +658,7 @@ type
     procedure ShowSearchTab();
     procedure ShowTagsTab();
     procedure UpdateUIForType(tabType: TViewTabType);
+    procedure EnableBookTools(enable: boolean);
 
     procedure ModifyControl(const AControl: TControl; const ARef: TControlProc);
     procedure SyncChildrenEnabled(const AControl: TControl);
@@ -1380,21 +1382,16 @@ end;
 procedure TMainForm.LoadTabsViews();
 var
   tabIx, i, activeTabIx: integer;
-  activeView: integer;
   strongNotesCode: UInt64;
   location, secondBible, Title: string;
   addTabResult, firstTabInitialized: Boolean;
-  initTabInfo: TBookTabInfo;
   tabViewState: TBookTabInfoState;
   layoutConfig: TLayoutConfig;
   tabSettings: TTabSettings;
   tabsViewSettings: TTabsViewSettings;
-  isFirstBookView: boolean;
   tabsForm: TDockTabsForm;
   fileStream: TFileStream;
   tabsConfigPath, layoutConfigPath: string;
-  newTab: TChromeTab;
-  book: TBible;
   bookTabSettings: TBookTabSettings;
 begin
   tabsConfigPath := UserDir + 'layout_tabs.json';
@@ -1410,8 +1407,6 @@ begin
     end;
 
     layoutConfig := TLayoutConfig.Load(tabsConfigPath);
-    isFirstBookView := true;
-
     for tabsViewSettings in layoutConfig.TabsViewList do
     begin
       activeTabIx := -1;
@@ -1419,13 +1414,6 @@ begin
       i := 0;
 
       tabsForm := CreateTabsView(tabsViewSettings.ViewName) as TDockTabsForm;
-      if (isFirstBookView) then
-      begin
-        initTabInfo := CreateBookNewTabInfo();
-        book := initTabInfo.Bible;
-
-        tabsForm.AddBookTab(initTabInfo, book.Name);
-      end;
 
       if (tabsViewSettings.Docked) then
         tabsForm.ManualDock(pnlModules)
@@ -1459,21 +1447,20 @@ begin
           tabViewState := DecodeBookTabState(strongNotesCode);
 
           location := bookTabSettings.Location;
-          if ((tabIx > 0) or not isFirstBookView) then
-            addTabResult := NewBookTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)))
-          else
-          begin
-            addTabResult := true;
-            SetFirstTabInitialLocation(location, secondBible, Title, tabViewState, (tabIx = activeTabIx) or ((Length(Title) = 0)));
-            firstTabInitialized := true;
-          end;
+          addTabResult := NewBookTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)));
         end
         else if (tabSettings is TMemoTabSettings) then
         begin
           mTabsView.AddMemoTab(TMemoTabInfo.Create());
           addTabResult := true;
+        end
+        else if (tabSettings is TLibraryTabSettings) then
+        begin
+          mTabsView.AddLibraryTab(TLibraryTabInfo.Create());
+          addTabResult := true;
         end;
 
+        firstTabInitialized := true;
         if (addTabResult) then
           inc(tabIx);
 
@@ -1485,8 +1472,6 @@ begin
 
       mTabsView.ChromeTabs.ActiveTabIndex := activeTabIx;
       mTabsView.UpdateBookView();
-
-      isFirstBookView := false;
     end;
 
     if (firstTabInitialized and TFile.Exists(layoutConfigPath)) then
@@ -2801,11 +2786,6 @@ var
   bookNode: PVirtualNode;
   chapterNode: PVirtualNode;
 begin
-  i := cbModules.Items.IndexOf(bible.Name);
-
-  if i <> cbModules.ItemIndex then
-    cbModules.ItemIndex := i;
-
   i := bible.CurBook - 1;
   if bible.BookQty > 0 then
   begin
@@ -3318,6 +3298,14 @@ begin
   finally
     tree.EndUpdate();
   end;
+end;
+
+procedure TMainForm.btnAddLibraryTabClick(Sender: TObject);
+var
+  newTabInfo: TLibraryTabInfo;
+begin
+  newTabInfo := TLibraryTabInfo.Create();
+  mTabsView.AddLibraryTab(newTabInfo);
 end;
 
 procedure TMainForm.btnFindClick(Sender: TObject);
@@ -4015,7 +4003,7 @@ begin
   TranslateInterface(LastLanguageFile);
 end;
 
-procedure TMainForm.GoModuleName(s: string);
+procedure TMainForm.GoModuleName(s: string; fromBeginning: Boolean = false);
 var
   i: integer;
   firstVisibleVerse: integer;
@@ -4050,7 +4038,7 @@ begin
   else
   begin
     bookTabInfo := CreateBookNewTabInfo();
-    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', false);
 
     bookTabInfo := bookView.BookTabInfo;
     bible := bookTabInfo.Bible;
@@ -4093,14 +4081,13 @@ begin
   except
   end;
 
-  if tempBook.isBible and wasBible then
+  if tempBook.isBible and wasBible and not fromBeginning then
   begin
     R := tempBook.InternalToReference(obl, bl);
     if R <= -2 then
       hlVerses := hlFalse;
     try
-      if (bookTabInfo.FirstVisiblePara > 0) and
-        (bookTabInfo.FirstVisiblePara < bible.verseCount()) then
+      if (bookTabInfo.FirstVisiblePara > 0) and (bookTabInfo.FirstVisiblePara < bible.verseCount()) then
         firstVisibleVerse := bookTabInfo.FirstVisiblePara
       else
         firstVisibleVerse := -1;
@@ -4111,7 +4098,7 @@ begin
       end;
     except
     end;
-  end // both previuous and current are bibles
+  end // both previous and current are bibles
   else
   begin
     bookView.SafeProcessCommand(bookTabInfo, 'go ' + TPath.Combine(commentpath, tempBook.ShortPath) + ' 1 1 0', hlFalse);
@@ -5722,12 +5709,6 @@ begin
   pgcMain.Visible := not pgcMain.Visible;
 end;
 
-procedure TMainForm.cbModulesChange(Sender: TObject);
-begin
-  if Copy(cbModules.Items[cbModules.ItemIndex], 1, 1) <> #151 then
-    GoModuleName(cbModules.Items[cbModules.ItemIndex]);
-end;
-
 procedure TMainForm.cbModulesCloseUp(Sender: TObject);
 begin
   try
@@ -6280,49 +6261,7 @@ end;
 procedure TMainForm.UpdateAllBooks;
 var
   moduleEntry: TModuleEntry;
-  bookView: TBookFrame;
-  bible: TBible;
 begin
-
-  cbModules.Items.BeginUpdate;
-  try
-    cbModules.Items.Clear;
-
-    cbModules.Items.Add('——— ' + Lang.Say('StrBibleTranslations') + ' ———');
-    moduleEntry := mModules.ModTypedAsFirst(modtypeBible);
-    while Assigned(moduleEntry) do
-    begin
-      cbModules.Items.Add(moduleEntry.mFullName);
-      moduleEntry := mModules.ModTypedAsNext(modtypeBible);
-    end;
-    cbModules.Items.Add('——— ' + Lang.Say('StrBooks') + ' ———');
-    moduleEntry := mModules.ModTypedAsFirst(modtypeBook);
-
-    while Assigned(moduleEntry) do
-    begin
-      cbModules.Items.Add(moduleEntry.mFullName);
-      moduleEntry := mModules.ModTypedAsNext(modtypeBook);
-    end;
-
-    cbModules.Items.Add('——— ' + Lang.Say('StrCommentaries') + ' ———');
-    moduleEntry := mModules.ModTypedAsFirst(modtypeComment);
-    while Assigned(moduleEntry) do
-    begin
-      cbModules.Items.Add(moduleEntry.mFullName);
-      moduleEntry := mModules.ModTypedAsNext(modtypeComment);
-    end;
-
-    bookView := GetBookView(self);
-    if Assigned(bookView) and (bookView.BookTabInfo <> nil) then
-    begin
-      bible := bookView.BookTabInfo.Bible;
-      if Assigned(bible) and (bible.Name <> '') then
-        cbModules.ItemIndex := cbModules.Items.IndexOf(bible.Name);
-    end;
-  finally
-    cbModules.Items.EndUpdate;
-  end;
-
   cbComments.Items.BeginUpdate;
   try
     cbComments.Items.Clear;
@@ -6392,6 +6331,13 @@ begin
   tbtnCopyright.Hint := '';
 end;
 
+procedure TMainForm.UpdateLibraryView();
+begin
+  lblTitle.Caption := '';
+  lblCopyRightNotice.Caption := '';
+  tbtnCopyright.Hint := '';
+end;
+
 procedure TMainForm.UpdateBookView();
 var
   tabInfo: TBookTabInfo;
@@ -6447,10 +6393,6 @@ begin
     else
       cbList.Style := csDropDown;
 
-    with cbModules do
-    begin
-      ItemIndex := Items.IndexOf(tabInfo.Bible.Name);
-    end;
     UpdateBooksAndChaptersBoxes(tabInfo.Bible); // fill lists
     SearchListInit();
 
@@ -9111,7 +9053,6 @@ begin
   book := Sender as TBible;
   if Assigned(book) then
   begin
-    cbModules.ItemIndex := cbModules.Items.IndexOf(book.Name);
     UpdateBooksAndChaptersBoxes(book);
 
     GetBookView(self).tbtnStrongNumbers.Enabled := book.Trait[bqmtStrongs];
@@ -9133,92 +9074,59 @@ procedure TMainForm.UpdateUIForType(tabType: TViewTabType);
 begin
   case tabType of
     vttBook: begin
-        tbGo.Enabled := true;
-        SyncChildrenEnabled(tbGo);
-
-        tbSearch.Enabled := true;
-        SyncChildrenEnabled(tbSearch);
-
-        tbList.Enabled := true;
-        SyncChildrenEnabled(tbList);
-
-        tbXRef.Enabled := true;
-        SyncChildrenEnabled(tbXRef);
-
-        tbStrong.Enabled := true;
-        SyncChildrenEnabled(tbStrong);
-
-        tbComments.Enabled := true;
-        SyncChildrenEnabled(tbComments);
-
-        miMyLibrary.Enabled := true;
-        miOpenPassage.Enabled := true;
-        miQuickNav.Enabled := true;
-        miStrong.Enabled := true;
-        miQuickSearch.Enabled := true;
-        miXref.Enabled := true;
-        miRecognizeBibleLinks.Enabled := true;
-        miShowSignatures.Enabled := true;
-        miCopy.Enabled := true;
-        miSound.Enabled := true;
-
-        tbtnLib.Enabled := true;
-        tbtnSound.Enabled := true;
-        tbtnCopyright.Enabled := true;
-        tbtnSatellite.Enabled := true;
-        tbtnResolveLinks.Enabled := true;
-
-        miPrint.Enabled := true;
-        tbtnPrint.Enabled := true;
-
-        miPrintPreview.Enabled := true;
-        tbtnPreview.Enabled := true;
-      end;
+      EnableBookTools(true);
+    end;
     vttMemo: begin
-        tbGo.Enabled := false;
-        SyncChildrenEnabled(tbGo);
-
-        tbSearch.Enabled := false;
-        SyncChildrenEnabled(tbSearch);
-
-        tbList.Enabled := false;
-        SyncChildrenEnabled(tbList);
-
-        tbXRef.Enabled := false;
-        SyncChildrenEnabled(tbXRef);
-
-        tbStrong.Enabled := false;
-        SyncChildrenEnabled(tbStrong);
-
-        tbComments.Enabled := false;
-        SyncChildrenEnabled(tbComments);
-
-        miMyLibrary.Enabled := false;
-        miOpenPassage.Enabled := false;
-        miQuickNav.Enabled := false;
-        miStrong.Enabled := false;
-        miQuickSearch.Enabled := false;
-        miXref.Enabled := false;
-        miRecognizeBibleLinks.Enabled := false;
-        miShowSignatures.Enabled := false;
-        miCopy.Enabled := false;
-        miSound.Enabled := false;
-
-        tbtnLib.Enabled := false;
-        tbtnSound.Enabled := false;
-
-        tbtnCopyright.Enabled := false;
-        tbtnSatellite.Enabled := false;
-        tbtnResolveLinks.Enabled := false;
-
-        miPrint.Enabled := false;
-        tbtnPrint.Enabled := false;
-
-        miPrintPreview.Enabled := false;
-        tbtnPreview.Enabled := false;
-      end;
-
+      EnableBookTools(false);
+    end;
+    vttLibrary: begin
+      EnableBookTools(false);
+    end;
   end;
+end;
+
+procedure TMainForm.EnableBookTools(enable: boolean);
+begin
+  tbGo.Enabled := enable;
+  SyncChildrenEnabled(tbGo);
+
+  tbSearch.Enabled := enable;
+  SyncChildrenEnabled(tbSearch);
+
+  tbList.Enabled := enable;
+  SyncChildrenEnabled(tbList);
+
+  tbXRef.Enabled := enable;
+  SyncChildrenEnabled(tbXRef);
+
+  tbStrong.Enabled := enable;
+  SyncChildrenEnabled(tbStrong);
+
+  tbComments.Enabled := enable;
+  SyncChildrenEnabled(tbComments);
+
+  miMyLibrary.Enabled := enable;
+  miOpenPassage.Enabled := enable;
+  miQuickNav.Enabled := enable;
+  miStrong.Enabled := enable;
+  miQuickSearch.Enabled := enable;
+  miXref.Enabled := enable;
+  miRecognizeBibleLinks.Enabled := enable;
+  miShowSignatures.Enabled := enable;
+  miCopy.Enabled := enable;
+  miSound.Enabled := enable;
+
+  tbtnLib.Enabled := enable;
+  tbtnSound.Enabled := enable;
+  tbtnCopyright.Enabled := enable;
+  tbtnSatellite.Enabled := enable;
+  tbtnResolveLinks.Enabled := enable;
+
+  miPrint.Enabled := enable;
+  tbtnPrint.Enabled := enable;
+
+  miPrintPreview.Enabled := enable;
+  tbtnPreview.Enabled := enable;
 end;
 
 procedure TMainForm.ModifyControl(const AControl: TControl; const ARef: TControlProc);

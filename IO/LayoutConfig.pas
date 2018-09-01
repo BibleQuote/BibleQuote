@@ -17,6 +17,9 @@ type
   TMemoTabSettings = class(TTabSettings)
   end;
 
+  TLibraryTabSettings = class(TTabSettings)
+  end;
+
   TBookTabSettings = class(TTabSettings)
   private
     FLocation: string;
@@ -34,6 +37,7 @@ type
   private
     FBookTabs: TList<TBookTabSettings>;
     FMemoTabs: TList<TMemoTabSettings>;
+    FLibraryTabs: TList<TLibraryTabSettings>;
 
     FActive: boolean;
     FViewName: string;
@@ -43,6 +47,8 @@ type
   public
     property BookTabs: TList<TBookTabSettings> read FBookTabs write FBookTabs;
     property MemoTabs: TList<TMemoTabSettings> read FMemoTabs write FMemoTabs;
+    property LibraryTabs: TList<TLibraryTabSettings> read FLibraryTabs write FLibraryTabs;
+
     property Active: boolean read FActive write FActive;
     property ViewName: string read FViewName write FViewName;
     property Docked: boolean read FDocked write FDocked;
@@ -75,6 +81,8 @@ constructor TTabsViewSettings.Create();
 begin
   BookTabs := TList<TBookTabSettings>.Create();
   MemoTabs := TList<TMemoTabSettings>.Create();
+  LibraryTabs := TList<TLibraryTabSettings>.Create();
+
   Active := false;
 end;
 
@@ -85,6 +93,9 @@ begin
 
   if (tabSettings is TMemoTabSettings) then
     MemoTabs.Add(TMemoTabSettings(tabSettings));
+
+  if (tabSettings is TLibraryTabSettings) then
+    LibraryTabs.Add(TLibraryTabSettings(tabSettings));
 end;
 
 function TTabsViewSettings.GetOrderedTabSettings(): TList<TTabSettings>;
@@ -93,7 +104,7 @@ var
   tabs: TList<TTabSettings>;
   tab: TTabSettings;
 begin
-  count := BookTabs.Count + MemoTabs.Count;
+  count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count;
   tabs := TList<TTabSettings>.Create;
   tabs.Count := count;
 
@@ -103,6 +114,11 @@ begin
   end;
 
   for tab in MemoTabs do
+  begin
+    tabs[tab.Index] := tab;
+  end;
+
+  for tab in LibraryTabs do
   begin
     tabs[tab.Index] := tab;
   end;
