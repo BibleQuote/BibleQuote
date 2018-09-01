@@ -10,7 +10,8 @@ uses System.UITypes, System.Classes, Winapi.Windows, SysUtils,
 type
   TViewTabType = (
     vttBook,
-    vttMemo);
+    vttMemo,
+    vttLibrary);
 
   IBookView = interface
   ['{8015DBB1-AC95-49F3-9E00-B49BEF9A60F6}']
@@ -18,6 +19,10 @@ type
 
   IMemoView = interface
   ['{372AF297-B27E-4A91-A215-36B8564BF797}']
+  end;
+
+  ILibraryView = interface
+  ['{48FA0988-E4BA-4A39-9119-34D163959863}']
   end;
 
   ITabsView = interface; // forward declaration
@@ -135,6 +140,13 @@ type
     function GetSettings(): TTabSettings;
   end;
 
+  TLibraryTabInfo = class(TInterfacedObject, IViewTabInfo)
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+  end;
+
   TViewTabDragObject = class(TDragObjectEx)
   protected
     mViewTabInfo: TBookTabInfo;
@@ -151,12 +163,15 @@ type
     procedure UpdateBookView();
     function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
+    function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
+
     procedure MakeActive();
 
     // getters
     function GetBrowser: THTMLViewer;
     function GetBookView: IBookView;
     function GetMemoView: IMemoView;
+    function GetLibraryView: ILibraryView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -170,6 +185,7 @@ type
     property Browser: THTMLViewer read GetBrowser;
     property BookView: IBookView read GetBookView;
     property MemoView: IMemoView read GetMemoView;
+    property LibraryView: ILibraryView read GetLibraryView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
   end;
@@ -315,6 +331,31 @@ begin
 end;
 
 procedure TMemoTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+{ TLibraryTabInfo }
+
+function TLibraryTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttLibrary;
+end;
+
+function TLibraryTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TLibraryTabSettings;
+begin
+  tabSettings := TLibraryTabSettings.Create;
+  Result := tabSettings;
+end;
+
+procedure TLibraryTabInfo.SaveState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+procedure TLibraryTabInfo.RestoreState(const tabsView: ITabsView);
 begin
 // nothing to save
 end;

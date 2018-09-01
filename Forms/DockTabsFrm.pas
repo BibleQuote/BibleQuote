@@ -9,7 +9,7 @@ uses
   System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, BibleQuoteUtils,
   ExceptionFrm, Math, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, BookFra, MemoFra, LayoutConfig;
+  ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig;
 
 const
   bsText = 0;
@@ -50,6 +50,8 @@ type
     mMainView: TMainForm;
     mBookView: TBookFrame;
     mMemoView: TMemoFrame;
+    mLibraryView: TLibraryFrame;
+
     mViewTabs: TList<IViewTabInfo>;
 
     procedure ShowFrame(frame: TFrame);
@@ -62,8 +64,11 @@ type
 
     procedure CloseActiveTab();
     procedure UpdateBookView();
+    procedure UpdateLibraryView();
     function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
+    function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
+
     procedure MakeActive();
     procedure Translate();
 
@@ -71,6 +76,7 @@ type
     function GetBrowser: THTMLViewer;
     function GetBookView: IBookView;
     function GetMemoView: IMemoView;
+    function GetLibraryView: ILibraryView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -85,6 +91,7 @@ type
     property Browser: THTMLViewer read GetBrowser;
     property BookView: IBookView read GetBookView;
     property MemoView: IMemoView read GetMemoView;
+    property LibraryView: ILibraryView read GetLibraryView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
   end;
@@ -111,6 +118,11 @@ end;
 function TDockTabsForm.GetMemoView(): IMemoView;
 begin
   Result := mMemoView as IMemoView;
+end;
+
+function TDockTabsForm.GetLibraryView(): ILibraryView;
+begin
+  Result := mLibraryView as ILibraryView;
 end;
 
 function TDockTabsForm.GetBibleTabs(): TDockTabSet;
@@ -182,18 +194,29 @@ begin
   mMainView.UpdateUIForType(tabInfo.GetViewType);
   if (tabInfo.GetViewType = vttBook) then
   begin
-    HideFrame(mMemoView);
     ShowFrame(mBookView);
+    HideFrame(mMemoView);
+    HideFrame(mLibraryView);
 
     UpdateBookView();
   end;
 
   if (tabInfo.GetViewType = vttMemo) then
   begin
-    HideFrame(mBookView);
     ShowFrame(mMemoView);
+    HideFrame(mBookView);
+    HideFrame(mLibraryView);
 
     mMainView.UpdateMemoView();
+  end;
+
+  if (tabInfo.GetViewType = vttLibrary) then
+  begin
+    ShowFrame(mLibraryView);
+    HideFrame(mBookView);
+    HideFrame(mMemoView);
+
+    UpdateLibraryView();
   end;
 end;
 
@@ -281,6 +304,10 @@ begin
   mMemoView := TMemoFrame.Create(nil);
   mMemoView.Parent := pnlMain;
   mMemoView.Align := alClient;
+
+  mLibraryView := TLibraryFrame.Create(nil, mMainView, self);
+  mLibraryView.Parent := pnlMain;
+  mLibraryView.Align := alClient;
 
   mBookView := TBookFrame.Create(nil, mMainView, self);
   mBookView.Parent := pnlMain;
@@ -396,6 +423,12 @@ begin
   mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
 end;
 
+procedure TDockTabsForm.UpdateLibraryView;
+begin
+  mLibraryView.SetModules(mMainView.mModules);
+  mMainView.UpdateLibraryView();
+end;
+
 procedure TDockTabsForm.UpdateBookView();
 var
   tabInfo: IViewTabInfo;
@@ -506,6 +539,20 @@ begin
   newTab.Caption := Lang.Say('DockTabsForm.tbtnMemos.Caption');
   newTab.Data := newTabInfo;
   newTab.ImageIndex := 17;
+
+  mViewTabs.Add(newTabInfo);
+  UpdateTabContent(newTab);
+
+  Result := newTab;
+end;
+
+function TDockTabsForm.AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
+var
+  newTab: TChromeTab;
+begin
+  newTab := ctViewTabs.Tabs.Add;
+  newTab.Caption := 'Library';
+  newTab.Data := newTabInfo;
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);

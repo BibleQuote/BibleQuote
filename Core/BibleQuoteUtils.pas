@@ -126,6 +126,8 @@ type
   protected
     mSorted: boolean;
     mModTypedAsPointers: array [TModuleType] of integer;
+    FOnAssignEvent: TNotifyEvent;
+
     function GetItem(Index: integer): TModuleEntry;
     procedure SetItem(Index: integer; AObject: TModuleEntry);
     function GetArchivedCount(): integer;
@@ -146,6 +148,7 @@ type
     property ArchivedModulesCount: integer read GetArchivedCount;
     property ModTypedAsCount[modType: TModuleType]: integer read GetModTypedAsCount;
 
+    property OnAssignEvent: TNotifyEvent read FOnAssignEvent write FOnAssignEvent;
   end;
 
   TBQStringList = class(TStringList)
@@ -1388,6 +1391,9 @@ begin
     Clear();
     for I := 0 to cnt do
       Add(TModuleEntry.Create(TModuleEntry(source.Items[I])));
+
+    if Assigned(FOnAssignEvent) then
+      FOnAssignEvent(Self);
   end;
 
   function __ModEntryCmp(Item1, Item2: TModuleEntry): integer;
