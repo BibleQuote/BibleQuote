@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
-  Vcl.Menus, System.UITypes;
+  Vcl.Menus, System.UITypes, BibleQuoteUtils;
 
 type
   TMemoFrame = class(TFrame, IMemoView)
@@ -53,11 +53,17 @@ type
     MemoFilename: string;
   public
     { Public declarations }
+    procedure Translate();
   end;
 
 implementation
 
 {$R *.dfm}
+
+procedure TMemoFrame.Translate();
+begin
+  Lang.TranslateControl(self, 'DockTabsForm');
+end;
 
 procedure TMemoFrame.miMemoCopyClick(Sender: TObject);
 begin

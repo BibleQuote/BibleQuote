@@ -81,6 +81,7 @@ CBCaseNotCaption = Groß- und Kleinschreibung ignorieren
 CBPartsNotCaption = gesuchte Wörter dürfen in den Ergebnissen nur teilweise enthalten sein
 CBPhraseNotCaption = Wörter in beliebiger Reihenfolge
 ;
+StrAllBooks = ALL BOOKS (de)
 StrBibleTranslations = BIBELüBERSETZUNGEN
 StrBooks = ANDERE BüCHER
 StrCommentaries = KOMMENTARE
@@ -108,7 +109,6 @@ MainForm.btnSearchOptions.Caption = <
 MainForm.cbDic.Hint = Das Wörterbuch auswählen, aus dem der Eintrag angezeigt werden soll
 MainForm.cbDicFilter.Hint = Das Wörterbuch auswählen, in dem gesucht wird
 MainForm.cbList.Hint = Suchbereich
-MainForm.cbModules.Hint = Das anzuzeigende Modul auswählen
 MainForm.cbQty.Hint = Anzahl der Ergebnisse pro Ansicht
 MainForm.cbSearch.Hint = Ein Wort oder einen Ausdruck eingeben, um zu suchen
 MainForm.chkAll.Caption = Ergebnisse enthalten mindestens ein Wort
@@ -224,6 +224,8 @@ MainForm.tbtnToggle.Caption = Die linke Panel wechseln
 MainForm.tbtnToggle.Hint = Die linke Panel wechseln an/aus (Ctrl+F1)
 MainForm.trayIcon.Hint = BibleQuote
 
+DockTabsForm.edtFilter.Hint = Ein Wort oder einen Ausdruck eingeben, um zu suchen
+DockTabsForm.btnClear.Caption = Clear (de)
 DockTabsForm.miAddBookmark.Caption = Lesezeichen hinzufügen...
 DockTabsForm.miAddBookmarkTagged.Caption = Thematisches Lesezeichen hinzufügen
 DockTabsForm.miAddMemo.Caption = Notiz hinzufügen...

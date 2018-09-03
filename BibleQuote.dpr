@@ -4,6 +4,10 @@ program BibleQuote;
 
 
 
+
+
+{$R *.dres}
+
 uses
   Forms,
   Classes,
@@ -53,7 +57,8 @@ uses
   BookFra in 'Views\BookFra.pas' {BookFrame: TFrame},
   MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame},
   FontManager in 'Core\FontManager.pas',
-  LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame};
+  LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame},
+  ImageUtils in 'Utils\ImageUtils.pas';
 
 {$R *.res}
 var

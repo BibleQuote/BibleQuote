@@ -80,6 +80,7 @@ CBCaseNotCaption = не различать прописные и заглавн�
 CBPartsNotCaption = выражения могут быть частями слов
 CBPhraseNotCaption = слова могут следовать в любом порядке
 ;
+StrAllBooks = ВСЕ КНИГИ
 StrBibleTranslations = ПЕРЕВОДЫ БИБЛИИ
 StrBooks = ДРУГИЕ КНИГИ
 StrCommentaries = КОММЕНТАРИИ
@@ -107,7 +108,6 @@ MainForm.btnSearchOptions.Caption = <
 MainForm.cbDic.Hint = Выберите словарь для отображения записи
 MainForm.cbDicFilter.Hint = Выберите словарь для поиска
 MainForm.cbList.Hint = Область поиска
-MainForm.cbModules.Hint = Выберите модуль для просмотра
 MainForm.cbQty.Hint = Количество результатов для отображения
 MainForm.cbSearch.Hint = Введите слово или выражение для поиска
 MainForm.chkAll.Caption = искомое содержит хотя бы одно слово
@@ -223,6 +223,8 @@ MainForm.tbtnToggle.Caption = Левая панель
 MainForm.tbtnToggle.Hint = Вкл/выкл. левую панель (Ctrl+F1)
 MainForm.trayIcon.Hint = Цитата из Библии
 
+DockTabsForm.edtFilter.Hint = Введите слово или выражение для поиска
+DockTabsForm.btnClear.Caption = Очистить
 DockTabsForm.miAddBookmark.Caption = Добавить закладку...
 DockTabsForm.miAddBookmarkTagged.Caption = Добавить тематическую закладку...
 DockTabsForm.miAddMemo.Caption = Редактировать заметку...

@@ -22,6 +22,7 @@ object LibraryFrame: TLibraryFrame
     Top = 5
     Width = 126
     Height = 21
+    Style = csDropDownList
     Anchors = [akTop, akRight]
     TabOrder = 1
     OnChange = cmbBookTypeChange

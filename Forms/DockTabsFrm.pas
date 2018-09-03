@@ -253,16 +253,16 @@ var
   bookTabInfo: TBookTabInfo;
 begin
   index := ctViewTabs.ActiveTabIndex;
-
   if (index >= 0) and (index < ctViewTabs.Tabs.Count) then
   begin
     tabInfo := GetTabInfo(index);
     if (tabInfo.GetViewType = vttBook) then
-    begin
-      bookTabInfo := TBookTabInfo(tabInfo);
-      mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
-      Handled := true;
-    end;
+      bookTabInfo := TBookTabInfo(tabInfo)
+    else
+      bookTabInfo := mMainView.CreateBookNewTabInfo();
+
+    mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+    Handled := true;
   end;
 end;
 
@@ -568,8 +568,9 @@ var
 begin
   try
       Lang.TranslateControl(self, 'DockTabsForm');
-      Lang.TranslateControl(mBookView, 'DockTabsForm');
-      Lang.TranslateControl(mMemoView, 'DockTabsForm');
+      mBookView.Translate();
+      mMemoView.Translate();
+      mLibraryView.Translate();
 
       for i := 0 to ctViewTabs.Tabs.Count - 1 do
       begin

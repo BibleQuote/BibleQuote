@@ -2136,6 +2136,9 @@ begin
   if not bookView.tbtnPrevChapter.Enabled then
     Exit;
 
+  if not Assigned(bookView.BookTabInfo) then
+    Exit;
+
   with bookView.BookTabInfo.Bible do
     if CurChapter > 1 then
       cmd := Format('go %s %d %d', [ShortPath, CurBook, CurChapter - 1])
@@ -2169,6 +2172,9 @@ begin
   end;
 
   if not bookView.tbtnNextChapter.Enabled then
+    Exit;
+
+  if not Assigned(bookView.BookTabInfo) then
     Exit;
 
   with bookView.BookTabInfo.Bible do

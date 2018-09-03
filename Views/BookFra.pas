@@ -157,6 +157,7 @@ type
 
     function GetBookTabInfo: TBookTabInfo;
     property BookTabInfo: TBookTabInfo read GetBookTabInfo;
+    procedure Translate();
   end;
 
 implementation
@@ -173,6 +174,11 @@ begin
     Result := TBookTabInfo(tabInfo)
   else
     Result := nil;
+end;
+
+procedure TBookFrame.Translate();
+begin
+  Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
 procedure TBookFrame.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
