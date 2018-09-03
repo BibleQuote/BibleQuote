@@ -13,15 +13,20 @@ type
     vttMemo,
     vttLibrary);
 
-  IBookView = interface
+  ITabView = interface
+  ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
+    procedure Translate();
+  end;
+
+  IBookView = interface(ITabView)
   ['{8015DBB1-AC95-49F3-9E00-B49BEF9A60F6}']
   end;
 
-  IMemoView = interface
+  IMemoView = interface(ITabView)
   ['{372AF297-B27E-4A91-A215-36B8564BF797}']
   end;
 
-  ILibraryView = interface
+  ILibraryView = interface(ITabView)
   ['{48FA0988-E4BA-4A39-9119-34D163959863}']
   end;
 

@@ -80,6 +80,7 @@ CBCaseNotCaption = case unsensitive search
 CBPartsNotCaption = parts of words are allowed
 CBPhraseNotCaption = words can be in any order
 ;
+StrAllBooks = ALL BOOKS
 StrBibleTranslations = BIBLE TRANSLATIONS
 StrBooks = OTHER BOOKS
 StrCommentaries = COMMENTARIES
@@ -107,7 +108,6 @@ MainForm.btnSearchOptions.Caption = <
 MainForm.cbDic.Hint = Select dictionary to show entry from
 MainForm.cbDicFilter.Hint = Select dictionary to search within
 MainForm.cbList.Hint = Search scope
-MainForm.cbModules.Hint = Select module to view
 MainForm.cbQty.Hint = Number of result to display per view
 MainForm.cbSearch.Hint = enter word or expression to search
 MainForm.chkAll.Caption = results contain at least one word
@@ -223,6 +223,8 @@ MainForm.tbtnToggle.Caption = Toggle left panel
 MainForm.tbtnToggle.Hint = Toggle left panel on/off (Ctrl+F1)
 MainForm.trayIcon.Hint = BibleQuote
 
+DockTabsForm.edtFilter.Hint = Enter word or expression to search
+DockTabsForm.btnClear.Caption = Clear
 DockTabsForm.miAddBookmark.Caption = Add bookmark...
 DockTabsForm.miAddBookmarkTagged.Caption = Add Themed Bookmark
 DockTabsForm.miAddMemo.Caption = Add memo...

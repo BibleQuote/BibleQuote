@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 433
+  ClientHeight = 413
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 34
     Width = 8
-    Height = 378
+    Height = 358
     AutoSnap = False
     MinSize = 100
     ExplicitTop = 24
@@ -42,11 +42,10 @@ object MainForm: TMainForm
     Left = 298
     Top = 34
     Width = 583
-    Height = 378
+    Height = 358
     Align = alClient
     DockSite = True
     TabOrder = 0
-    ExplicitHeight = 306
   end
   object sbxPreview: TScrollBox
     Left = 299
@@ -93,7 +92,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 290
-    Height = 378
+    Height = 358
     Hint = 'Memos'
     ActivePage = tbGo
     Align = alLeft
@@ -106,10 +105,6 @@ object MainForm: TMainForm
     object tbGo: TTabSheet
       Hint = 'Navigate'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 277
       object splGo: TSplitter
         Left = 0
         Top = 242
@@ -159,11 +154,10 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 93
+        Height = 73
         ActivePage = tbBookmarks
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 22
         object tbHistory: TTabSheet
           Caption = 'tbHistory'
           ExplicitLeft = 0
@@ -189,10 +183,6 @@ object MainForm: TMainForm
         object tbBookmarks: TTabSheet
           Caption = 'tbBookmarks'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 12
           object lbBookmarks: TListBox
             Left = 0
             Top = 0
@@ -208,22 +198,23 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = -47
+            Top = -67
             Width = 274
             Height = 110
             Align = alBottom
             BevelOuter = bvNone
             BorderWidth = 10
             TabOrder = 1
-            ExplicitTop = -98
             object lblBookmark: TLabel
               Left = 10
               Top = 10
-              Width = 59
-              Height = 15
+              Width = 254
+              Height = 90
               Align = alClient
               Caption = 'lblBookmark'
               WordWrap = True
+              ExplicitWidth = 59
+              ExplicitHeight = 15
             end
           end
         end
@@ -854,7 +845,7 @@ object MainForm: TMainForm
       Left = 610
       Top = 4
       Width = 38
-      Height = 15
+      Height = 26
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -867,12 +858,13 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
+      ExplicitHeight = 15
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 657
+      Left = 658
       Top = 4
-      Width = 216
+      Width = 215
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -890,7 +882,6 @@ object MainForm: TMainForm
       Left = 1
       Top = 1
       Width = 414
-      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -1029,7 +1020,6 @@ object MainForm: TMainForm
       Left = 415
       Top = 1
       Width = 56
-      Height = 29
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
@@ -1042,7 +1032,6 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
-      ExplicitLeft = 383
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -1069,7 +1058,6 @@ object MainForm: TMainForm
       Left = 471
       Top = 1
       Width = 136
-      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -1083,12 +1071,11 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
-      ExplicitLeft = 439
       object cbLinks: TComboBox
         Left = 0
         Top = 0
         Width = 136
-        Height = 22
+        Height = 23
         Margins.Top = 0
         Margins.Bottom = 0
         Align = alClient
@@ -1120,12 +1107,11 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 412
+    Top = 392
     Width = 881
     Height = 21
     Align = alBottom
     TabOrder = 5
-    ExplicitTop = 340
     object imgLoadProgress: TImage
       Tag = 1
       AlignWithMargins = True
@@ -1487,7 +1473,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800400410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800440410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3221,7 +3207,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01011000E8013C0218001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011000E801400218001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000078000000010020000000000000B4
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
