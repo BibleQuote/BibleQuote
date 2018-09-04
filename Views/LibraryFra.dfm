@@ -47,6 +47,13 @@ object LibraryFrame: TLibraryFrame
     BevelInner = bvNone
     BevelOuter = bvNone
     BorderWidth = 1
+    Colors.BorderColor = clWindow
+    Colors.DisabledColor = clWindow
+    Colors.FocusedSelectionColor = 16706784
+    Colors.HotColor = clBtnHighlight
+    Colors.SelectionRectangleBlendColor = clCaptionText
+    Colors.UnfocusedSelectionColor = 16511449
+    Colors.UnfocusedSelectionBorderColor = 15106675
     Header.AutoSizeIndex = 0
     Header.MainColumn = -1
     HintAnimation = hatFade

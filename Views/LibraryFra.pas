@@ -37,9 +37,13 @@ type
     mMainView: TMainForm;
     mTabsView: ITabsView;
 
+    mFontBookName, mFontCopyright, mFontModType: TFont;
+
     procedure UpdateBookList();
     procedure OnModulesAssign(Sender: TObject);
     procedure UpdateModuleTypes();
+
+    procedure InitFonts();
   public
     constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
     procedure SetModules(modules: TCachedModules);
@@ -53,6 +57,7 @@ var
   COVER_WIDTH: integer = 56;
   COVER_HEIGHT: integer = 80;
   COVER_OFFSET: integer = 6;
+  TEXT_OFFSET: integer = 12;
 
 implementation
 
@@ -66,7 +71,27 @@ begin
   mMainView := mainView;
   mTabsView := tabsView;
 
+  InitFonts();
   Translate();
+end;
+
+procedure TLibraryFrame.InitFonts;
+begin
+  mFontBookName := TFont.Create();
+  mFontBookName.Name := 'Segoe UI';
+  mFontBookName.Color := clBlack;
+  mFontBookName.Style := [fsBold];
+  mFontBookName.Height := 16;
+
+  mFontCopyright := TFont.Create();
+  mFontCopyright.Color := clBlack;
+  mFontCopyright.Style := [];
+  mFontCopyright.Height := 12;
+
+  mFontModType := TFont.Create();
+  mFontModType.Color := clGray;
+  mFontModType.Style := [];
+  mFontModType.Height := 12;
 end;
 
 procedure TLibraryFrame.UpdateModuleTypes;
@@ -255,9 +280,10 @@ end;
 procedure TLibraryFrame.vdtBooksDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
 var
   modEntry: TModuleEntry;
-  height: integer;
-  rect: TRect;
+  height, top: integer;
+  rect, drawRect: TRect;
   picture, fitPicture: TPicture;
+  picTop: integer;
 begin
   if PaintInfo.Node = nil then
     Exit;
@@ -265,7 +291,7 @@ begin
   modEntry := Sender.GetNodeData<TModuleEntry>(PaintInfo.Node);
   if Assigned(modEntry) then
   begin
-    rect := PaintInfo.ContentRect;
+    rect := TRect.Create(PaintInfo.CellRect);
     InflateRect(rect, -COVER_OFFSET, -COVER_OFFSET);
 
     picture := nil;
@@ -273,16 +299,30 @@ begin
     try
       picture := LoadImage('CoverDefault');
       fitPicture := StretchImage(picture, COVER_WIDTH, COVER_HEIGHT);
-      PaintInfo.Canvas.Draw(rect.Left, rect.Top, fitPicture.Graphic);
-      InflateRect(rect, -COVER_WIDTH - 6, 0);
 
-      height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.mFullName)), -1, rect, DT_WORDBREAK);
-      rect.Top := rect.Top + height + 12;
+      if (rect.Height > COVER_HEIGHT) then
+        picTop := rect.Top + (rect.Height - COVER_HEIGHT) div 2
+      else
+        picTop := rect.Top;
 
-      Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.mShortName)), -1, rect, DT_WORDBREAK);
-      rect.Top := rect.Top + height + 12;
+      PaintInfo.Canvas.Draw(rect.Left, picTop, fitPicture.Graphic);
+      rect.Left := COVER_WIDTH + 12;
 
-      Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.modCats)), -1, rect, DT_WORDBREAK);
+      drawRect := TRect.Create(rect);
+      PaintInfo.Canvas.Font := mFontBookName;
+      height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.mFullName)), -1, drawRect, DT_WORDBREAK);
+      top := rect.Top + height + TEXT_OFFSET;
+
+      drawRect := TRect.Create(rect);
+      drawRect.Top := top;
+      PaintInfo.Canvas.Font := mFontCopyright;
+      height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.mShortName)), -1, drawRect, DT_WORDBREAK);
+      top := top + height + TEXT_OFFSET;
+
+      drawRect := TRect.Create(rect);
+      drawRect.Top := top;
+      PaintInfo.Canvas.Font := mFontModType;
+      Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.modCats)), -1, drawRect, DT_WORDBREAK);
     finally
       if Assigned(picture) then
         picture.Free;
@@ -306,15 +346,41 @@ end;
 procedure TLibraryFrame.vdtBooksMeasureItem(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
 var
   modEntry: TModuleEntry;
+  coverHeight, textHeight, height: integer;
+  rect, measureRect: TRect;
+  right: integer;
 begin
   if (Node = nil) or (csDestroying in self.ComponentState) then
     Exit;
 
+  coverHeight := COVER_HEIGHT + 2 * COVER_OFFSET;
+  textHeight := 0;
   NodeHeight := 0;
+
   modEntry := vdtBooks.GetNodeData<TModuleEntry>(Node);
   if Assigned(modEntry) then
   begin
-    NodeHeight := COVER_HEIGHT + 2 * COVER_OFFSET;
+    right := vdtBooks.ClientWidth - COVER_OFFSET;
+    measureRect := TRect.Create(COVER_OFFSET + COVER_WIDTH + 12, 0, right, 0);
+
+    textHeight := 2 * COVER_OFFSET;
+
+    TargetCanvas.Font := mFontBookName;
+    rect := TRect.Create(measureRect);
+    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.mFullName)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
+    textHeight := textHeight + height + TEXT_OFFSET;
+
+    TargetCanvas.Font := mFontCopyright;
+    rect := TRect.Create(measureRect);
+    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.mShortName)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
+    textHeight := textHeight + height + TEXT_OFFSET;
+
+    TargetCanvas.Font := mFontModType;
+    rect := TRect.Create(measureRect);
+    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.modCats)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
+    textHeight := textHeight + height;
+
+    NodeHeight := Max(coverHeight, textHeight);
   end;
 end;
 
