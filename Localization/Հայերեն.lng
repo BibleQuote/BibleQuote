@@ -1,0 +1,308 @@
+﻿
+; ՀԱՄԱԿԱՐԳԱՅԻՆ ՀԱՂՈՐԴԱԳՐՈՒԹՅՈՒՆՆԵՐ ===================================
+
+; Ուշադրություն:
+; Երկար հաղորդագրությունները կարելի է տեղափոխել հաջորդ տող = նշանի միջոցով տողի սկզբում
+
+
+SoundNotFound = Չի գտնվում Աուդիո ֆայլը "%s". Հնարավոր է, որ
+= Զեզ պետք է Ատվածաշնչի տեքստի հատուկ աուդիո օրինակ:
+= Խնդրում ենք կապվեք ծրագրի հեղինակների հետ:
+
+FileNotFound = Ֆայլը չի գտնվել %s
+GoingOnline = Հիմա "Աստվածաշնչի մեջբերումը" կբացի %s կայքը Ձեր ինտերնետ բրաուզերում
+#1%s=Չի ստացվում կարդալ %s մոդուլը: Մոդուլը չի աշխատում, կամ գաղտնագիրը սխալ է:
+
+lblPasswordNeeded=Մոդուլը բացելու համար պետք է մուտքագրել գաղտնագիրը (%s)
+lblPassword=Գաղտնագիր:
+btnCancel=Չեղարկել
+cbxSavePwd=Պահել գաղտնագիրը
+
+HelpFileName = indexam.htm
+
+AllBooks = Բոլորը
+OTOnly = Հ.Կ.
+NTOnly = Ն.Կ.
+APOnly = Ո.Կ.
+
+PublicDomainText = Այս տեքստը չունի հեղինակային իրավունքներ 
+
+OneLetterWordsDeleted = Փնտրվող արտահայտության մեկտառանի հատվածները հեռացվել են, քանի որ դրանք չափազանց հաճախ են հանդիպում տեքստում: 
+SearchTitle = Որոնում: "%s"
+SearchHeaders = <b>Մոդուլ: %s<P>Փնտրման տիրույթ: %s<P>
+SearchInterrupted = Գործընթացը ժամկետից շուտ ընդհատվել է<P>
+SearchOptions = Որոնման հատկանիշներ:</b>
+SearchResults = <b>Գտնվել է: %d</b><P>
+
+SearchAllBooks = Մոդուլի բոլոր գրքերը
+
+SearchWholeBible = Ողջ Աստվածաշունչը
+SearchOT = Հին Կտակարան
+SearchNT = Նոր Կտակարան
+SearchPT = # Հնգամատյան
+SearchHP = # Պատմական և բանաստեղծական գրքեր
+SearchPR = # Մարգարեներ
+SearchGA = # Ավետարաններ և Գործք Առաքելոց
+SearchER = # Առաքյալների թղթեր և Հայտնություն
+SearchAP = # Պարականոն գրքեր
+
+ViewPrevPage = Նախորդ էջ
+ViewNextPage = Հաջորդ էջ
+
+HolySriptCat = Սուրբ Գիրք, Աստվածաշունչ
+NoCat = Առանց կատեգորիայի
+CommentCat = Աստվածաշնչյան մեկնաբանություններ
+catOT = Հին Կտակարան
+catNT = Նոր Կտակարան
+catApocrypha = Պարականոն գրքեր
+
+LibTabsAll = Բոլորը
+LibTabsScriptures = Գործք
+LibTabsBooks = Գրքեր
+LibTabsComments = Մեկնաբանություններ
+LibTabsTags = Պիտակներ
+
+bqVerseTagNotUnique = Հնարավոր չէ անվանափոխել պիտակը, քանի որ այդ անունով պիտակ արդեն գոյություն ունի
+bqErrorUnknown = Անհայտ սխալ
+bqError = Սխալ
+
+commentaryLoadFail = Մեկնաբանությունը ցուցադրելը չի ստացվում
+
+HelpDocumentation = Փաստաթղթեր
+SelectParaBible = Կրկին ընտրեք Աստվածաշունչը
+DeselectSec = Ընտրությունը չեղարկել
+MyLib = Իմ գրադարանը 
+CollapseAll = Թաքցնել բոլորը
+
+; Ձևատարրեր և մենյու =================================
+
+CBAllNotCaption = Որոնելին պարունակում է մուտքագրված բոլոր բառերը 
+CBCaseNotCaption = անտեսել մեծատառերն ու փոքրատառերը
+CBPartsNotCaption = արտահայտությունները կարող են լինել բառերի հատվածներ CBPhraseNotCaption = բառերը կարող են լինել ցանկացած հաջորդականությամբ ;
+StrBibleTranslations = Աստվածաշնչի թարգմանությունները
+StrBooks = Այլ գրքեր
+StrCommentaries = Մեկնաբանություններ
+StrAllDictionaries = Բոլոր բառարանները
+;
+FoundInSeveralDictionaries = Գտնվել է մի քանի բառարաններում
+FoundInOneDictionary = Գտնվել է մի բառարանում
+;
+
+MainForm.Caption = Աստվածաշնչյան մեջբերում
+
+MainForm.JCRU_Home.Caption = JesusChrist.ru – քրիստոնեական հաղորդակցության սերվեր
+MainForm.JCRU_Software.Caption = Քրիստոնեական անվճար հավելվածներ
+MainForm.JCRU_Bible.Caption = Աստվածաշունչն ինտերնետում
+MainForm.JCRU_News.Caption = Ամբողջ աշխարհի նորությունների քաղվածք
+MainForm.JCRU_Forum.Caption = Քրիստոնեական բաց ֆորում
+MainForm.JCRU_Chat.Caption = Քրիստոնեական պատմական չատ
+MainForm.JCRU_Library.Caption = Քրիստոնեական գրադարան clib.ru
+MainForm.JCRU_Docs.Caption = Օգտակար հոգևոր հոդվածներ
+MainForm.JCRU_Mail.Caption = Փոստային ցրման ծառայություն
+
+MainForm.btnFind.Caption = Գտնել
+MainForm.btnFind.Hint = Սկսել/դադարեցնել որոնումը
+MainForm.btnSearchOptions.Caption = <
+MainForm.cbDic.Hint = Գրությունը տեսնելու հաամր ընտրեք բառարանը
+MainForm.cbDicFilter.Hint = Որոնելու համար ընտրեք բառարանը
+MainForm.cbList.Hint = Որոնման ոլորտը
+MainForm.cbModules.Hint = Դիտելու համար ընտրեք մոդուլը
+MainForm.cbQty.Hint = Ցուցադրվող արդյունքների քանակը
+MainForm.cbSearch.Hint = Որոնելու համար մուտքագրեք բառը կամ արտահայտությունը
+MainForm.chkAll.Caption = որոնելին պարունակում է թեկուզեև մեկ բառ
+MainForm.chkAll.Hint = Օրինակ. գտնել ոչ միայն այն խոսքերը, որոնցում կա  «Հիսուս Քրիստոս», այլև նրանք, որոնք պարունակում են "Հիսուս" կամ "Քրիստոս"
+MainForm.chkCase.Caption = տարբերություն դնել մեծատառերի ու փոքրատառերի միջև
+MainForm.chkCase.Hint = Օրինակ. որոնման ժամանակ «Աստված» և «աստված» բառերը
+MainForm.chkExactPhrase.Caption = որոնել ստույգ արտահայտությունը
+MainForm.chkExactPhrase.Hint = Օրինակ. այն խոսքերը, որտեղ կա «Օրհնյալ է Աստված», այլ ոչ թե «Օրհնյալ է Տեր Աստված»
+MainForm.chkParts.Caption = արտահայտությունները չեն կարող լինել բառերի հատվածներ
+MainForm.chkParts.Hint = Օրինակ. որոնել «օրհներ», այլ ոչ «օրհներգել» 
+MainForm.chkPhrase.Caption = բառերը նշված հերթականությամբ են
+MainForm.chkPhrase.Hint = Օրինակ. գտնել այն խոսքերը, որոնցում հանդիպում է «Հիսուս Քրիստոս», այլ ոչ թե «Քրիստոս Հիսուս»
+MainForm.edtDic.Hint = Մուտքագրեք որոնվող բառը
+MainForm.edtSearch.Caption = Գտնել այս պատուհանում
+MainForm.edtSearch.Hint = Մուտքագրեք որոնվող բառը կամ արտահայտությունը
+MainForm.edtStrong.Hint = Մուտքագրեք արմատական բառի թիվը
+MainForm.lbBook.Hint = Ընտրեք գիրքը, որը ցանկանում եք դիտել
+MainForm.lbChapter.Hint = Ընտրեք գլուխը, որը ցանկանում եք դիտել
+MainForm.lblCtrl1.Caption = Ctrl+1
+MainForm.lblDicFoundSeveral.Caption = գտնվել է մի քանի բառարաններում
+MainForm.lblMemo.Caption = ....
+MainForm.lblSearch.Caption = Մուտքագրեք որոնման հատկանիշները
+MainForm.lblSearch.Hint = Որոնման տիրույթը նեղացնելով և հստակ պարամետրեր նշելով կարելի ավելի լավ արդյունքներ ստանալ
+MainForm.miAbout.Caption = Այս ծրագրի մասին
+MainForm.miActions.Caption = Գործողություններ
+MainForm.miBGConfig.Caption = Գլխավոր պատուհանի գույնը
+MainForm.miChooseSatelliteBible.Caption = Ընտրել երկրորդական տեսք...
+MainForm.miCloseTab.Caption = Փակել պատուհանը
+MainForm.miColors.Caption = Ընտրել գույները
+MainForm.miComments.Caption = Մեկնաբանություններ
+MainForm.miCopy.Caption = Տեքստը պատճենել փոխանակման բուֆերում
+MainForm.miCopyOptions.Caption = Պատճենման հատկանիշներ
+MainForm.miCopyVerseNum.Caption = Պատճենել խոսքերի համարները
+MainForm.miCopyVerseNumbers.Caption = Տեղադրել խոսքերի համարները
+MainForm.miDeteleBibleTab.Caption = Ջնջել
+MainForm.miDialogFontConfig.Caption= Դիալոգային պատուհանների և միջերեսի տառատեսակը
+MainForm.miDic.Caption = Բառարաններ
+MainForm.miDownloadLatest.Caption = Բեռնել վերջին տարբերակը
+MainForm.miExit.Caption = Ելք
+MainForm.miFavorites.Caption = Ընտրված մոդուլներ
+MainForm.miFile.Caption = Ֆայլ
+MainForm.miFontConfig.Caption = Գլխավոր պատուհանի տառատեսակը
+MainForm.miFonts.Caption = Ընտրել տառատեսակները
+MainForm.miFoundTextConfig.Caption = Գտնված տեքստի և նշումների գույնը MainForm.miFuzzyLogic.Caption = Կիրառել ոչ հստակ տրամաբանություն
+MainForm.miGoBack.Caption = Վերադառնալ նախորդ էջ
+MainForm.miHelp.Caption = Օգտագործման ուղեցույց
+MainForm.miHelpMenu.Caption = Տեղեկատու
+MainForm.miHotKey.Caption = Նշել ընտրված մոդուլները...
+MainForm.miHrefConfig.Caption = Հղումների գույնը
+MainForm.miHrefUnderline.Caption = Ընդգծված հղումներ
+MainForm.miLanguage.Caption = Միջերեսի լեզուն
+MainForm.miMyLibrary.Caption = Իմ գրադարանը
+MainForm.miNewTab.Caption = Նոր պատուհան
+MainForm.miNewTab.Hint = Բացել նոր պատուհան
+MainForm.miNotepad.Caption = Մինի-խմբագրիչ
+MainForm.miOpen.Caption = Բացել ֆայլը...
+MainForm.miOpenNewView.Caption = Բացել նոր պատուհանում
+MainForm.miOpenPassage.Caption = Ընտրել հատված...
+MainForm.miOptions.Caption = Կարգավորումներ
+MainForm.miPrint.Caption = Տպել...
+MainForm.miPrintPreview.Caption = Նախադիտում
+MainForm.miQuickNav.Caption = Արագ անցնել հատվածին 
+MainForm.miQuickSearch.Caption = Որոնվող դարձվածքի արագ մուտքագրում
+MainForm.miRecognizeBibleLinks.Caption = Ճանաչել Աստվածաշնչին արված հղումները 
+MainForm.miRefCopy.Caption = Պատճենել
+MainForm.miRefFontConfig.Caption = Տեղեկատուների պատուհանի տառատեսակը
+MainForm.miRefPrint.Caption = Տպել
+MainForm.miSave.Caption = Պահպանել ֆայլի մեջ....
+MainForm.miSearch.Caption = Որոնում...
+MainForm.miShowSignatures.Caption = Յուրաքանչյուր խոսքի մոտ ցույց տալ գլխի վերնագիրը
+MainForm.miSound.Caption = Լսել ձայնային ֆայլը, եթե կա
+MainForm.miStrictLogic.Caption = Կիրառել միայն խիստ տրամաբանություն
+MainForm.miStrong.Caption = Համաբարբառի բառարմատները
+MainForm.miTechnoForum.Caption = «Մեջբերումների» 6-րդ տարբերակի քննարկումները
+MainForm.miToggle.Caption = Անջատել/միացնել ձախ վահանակը
+MainForm.miVerseHighlightBG.Caption = Ընդգծված խոսքերի ֆոնի գույնը 
+MainForm.miView.Caption = Տեսք
+MainForm.miWebSites.Caption = JesusChrist.ru
+MainForm.miXref.Caption = Զուգահեռ տեղեր (TSK)
+MainForm.pgcMain.Hint = Գործիքների վահանակ
+MainForm.pnlFindStrongNumber.Caption = գտնել խոսքեր այս համարով
+MainForm.tbBookmarks.Caption = Էջանշաններ
+MainForm.tbComments.Hint = Մեկնաբանություններ
+MainForm.tbDic.Hint = Բառարաններ
+MainForm.tbGo.Hint = Նավիգացիա
+MainForm.tbHistory.Caption = Գրանցամատյան
+MainForm.tbLinksToolBar.Caption = Հղումներ
+MainForm.tbMemo.Hint = Նշումներ
+MainForm.tbSearch.Hint = Որոնում
+MainForm.tbStrong.Hint = Համաբարբառի բառարան
+MainForm.tbXRef.Hint = Զուգահեռ տեղեր (TSK)
+MainForm.tbtnAddNode.Caption = Ավելացնել նշում
+MainForm.tbtnCloseTab.Caption= Փակել պատուհանը
+MainForm.tbtnCloseTab.Hint = Փակել պատուհանը (Ctrl+W)
+MainForm.tbtnCopyright.Caption = Հեղինակային իրավունքներ
+MainForm.tbtnDelNode.Caption = Հեռացնել նշումը
+MainForm.tbtnLib.Caption = Գրադարան
+MainForm.tbtnLib.Hint = Գրադարանի դիտում
+MainForm.tbtnMemoBold.Caption = Հոծ
+MainForm.tbtnMemoFont.Caption = Տառատեսակ
+MainForm.tbtnMemoItalic.Caption = Շեղ
+MainForm.tbtnMemoOpen.Caption = Բացել
+MainForm.tbtnMemoPainter.Caption = Տեքստի գույնը
+MainForm.tbtnMemoPrint.Caption = Տպել
+MainForm.tbtnMemoSave.Caption = Պահպանել
+MainForm.tbtnMemoUnderline.Caption = Ընդգծված
+MainForm.tbtnNewTab.Caption = Նոր պատուհան
+MainForm.tbtnNewTab.Hint = Նոր պատուհան (Ctrl+T)
+MainForm.tbtnPreview.Caption = Նախադիտում
+MainForm.tbtnPreview.Hint = Նախադիտում (Ctrl+F11)
+MainForm.tbtnPrint.Caption = Տպել
+MainForm.tbtnPrint.Hint = Տպել... (F11)
+MainForm.tbtnResolveLinks.Caption = Ճանաչել աստվածաշնչյան հղումմները
+MainForm.tbtnSatellite.Caption = Զուգահեռ Աստվածաշունչ
+MainForm.tbtnSatellite.Hint = Զուգահեռ Աստվածաշունչ MainForm.tbtnSound.Caption = Ձայնային ֆայլ
+MainForm.tbtnSound.Hint = Լսել ձայնային ֆայլը, եթե կա (Ctrl+F10)
+MainForm.tbtnToggle.Caption = Ձախ վահանակ
+MainForm.tbtnToggle.Hint = Միացնել/անջատել ձախ վահանակը (Ctrl+F1)
+MainForm.trayIcon.Hint = Աստվածաշնչյան մեջբերում
+
+ModuleForm.miAddBookmark.Caption = Ավելացնել էջանշան...
+ModuleForm.miAddBookmarkTagged.Caption = Ավելացնել թեմատիկ էջանշան...
+ModuleForm.miAddMemo.Caption = Խմբագրել նշումը...
+ModuleForm.miCloseAllOtherTabs.Caption = Փակել մյուս պատուհանները
+ModuleForm.miCloseViewTab.Caption = Փակել պատուհանը
+ModuleForm.miCompare.Caption = Համեմատել թարգմանությունները...
+ModuleForm.miCopyPassage.Caption = Պատճենել...
+ModuleForm.miCopySelection.Caption = Պատճենել ընտրված տեքստը
+ModuleForm.miCopyVerse.Caption = Պատճենել...
+ModuleForm.miMemoCopy.Caption = Պատճենել
+ModuleForm.miMemoCut.Caption = Կտրել
+ModuleForm.miMemoPaste.Caption = Տեղադրել
+ModuleForm.miMemosToggle.Caption = Միացնել/անջատել անձնական նշումները
+ModuleForm.miNewViewTab.Caption = Նոր պատուհան
+ModuleForm.miSearchWindow.Caption = Փնտրել այս պատուհանում...
+ModuleForm.miSearchWord.Caption = Ընտրված տեքստի որոնում
+ModuleForm.tbtnBack.Caption = Հետ
+ModuleForm.tbtnBack.Hint = Նախորդ գրառումը պատմության մեջ (Backspace, Alt+դեպի ձախ սլաքը)
+ModuleForm.tbtnCopy.Caption = Պատճենել տեքստը
+ModuleForm.tbtnCopy.Hint = Պատճենել տեքստը փոխանակման բուֆերում (Ctrl+F5)
+ModuleForm.tbtnForward.Caption = Առաջ
+ModuleForm.tbtnForward.Hint = Հաջորդ գրառումը պատմության մեջ (Alt+դեպի աջ սլաքը)
+ModuleForm.tbtnMatchCase.Hint = Հաշվի առնել ռեգիստրը
+ModuleForm.tbtnMatchWholeWord.Hint = Միայն բառն ամբողջությամբ
+ModuleForm.tbtnMemos.Caption = Անձնական նշումներ
+ModuleForm.tbtnMemos.Hint = Միացնել/անջատել անձնական նշումները (Ctrl+M)
+ModuleForm.tbtnNextChapter.Caption = Հաջորդ գլուխը
+ModuleForm.tbtnNextChapter.Hint = Հաջորդ գլուխը (Ctrl+X)
+ModuleForm.tbtnPrevChapter.Caption = Նախորդ գլուխը
+ModuleForm.tbtnPrevChapter.Hint = Նախորդ գլուխը (Ctrl+Z)
+ModuleForm.tbtnQuickSearch.Hint = Գտնել այս պատուհանում
+ModuleForm.tbtnQuickSearchNext.Hint = Որոնում առաջ
+ModuleForm.tbtnQuickSearchPrev.Hint = Որոնում հետ
+ModuleForm.tbtnReference.Hint = Ցույց տալ ըտրված հատվածը
+ModuleForm.tbtnReferenceInfo.Hint = Մոդուլի մասին ինֆորմացիա և գրքի ստորագրություններ
+ModuleForm.tbtnStrongNumbers.Caption = Համաբարբառի բառապաշարը
+ModuleForm.tbtnStrongNumbers.Hint = Համաբարբառի բառապաշարը (F5)
+ModuleForm.tedtQuickSearch.Hint = Մուտքագրեք որոնվող բառը կամ արտահայտությունը
+ModuleForm.tedtReference.Hint = Մուտքագրեք կամ տեղադրել խոսքի հղումը, օրինակ` Մարկոս 10:30
+
+AboutForm.Caption = Ծրագրի մասին
+AboutForm.btnOK.Caption = Լավ
+AboutForm.pnlDownloadLatest.Caption = Ծրագրի արդիական տարբերակն այստեղ է
+AboutForm.pnlForum.Caption = Ծրագրի աշխատանքը քննարկել ֆորումում 
+;
+CopyOptionsAddReference_ShortAtBeginning = Կարճ ստորագրություն յուրաքանչյուր խոսքի սկզբում
+CopyOptionsAddReference_ShortAtEnd = Կարճ ստորագրություն հատվածի վերջում
+CopyOptionsAddReference_FullAtEnd = Լրիվ ստորագրություն հատվածի վերջում 
+;
+
+ConfigForm.Caption = Կարգավորումներ
+ConfigForm.btnCancel.Caption = Չեղարկում
+ConfigForm.btnDeletePath.Caption = x
+ConfigForm.btnOK.Caption = Լավ
+ConfigForm.btnSelectPath.Caption = ...
+ConfigForm.chkAddLineBreaks.Caption = Ավելացնել տողանցում յուրաքանչյուր խոսքից հետո
+ConfigForm.chkAddModuleName.Caption = Ստորագրության մեջ դնել մոդուլի/թարգմանության կոդը
+ConfigForm.chkAddReference.Caption = Հատվածին կցել ստորագրությունը ConfigForm.chkCopyFontParams.Caption = Պատճենել տառատեսակի պարամետրերը
+ConfigForm.chkCopyFontParams.Hint = Տեքստը կփոխանցվի RTF ֆորմատով
+ConfigForm.chkCopyVerseNumbers.Caption = Պատճենել խոսքերի համարները
+ConfigForm.chkFullContextOnRestrictedLinks.Caption = Սահմանափակ հղումների լրիվ համատեքստը
+ConfigForm.chkHighlightVerseHits.Caption = Ընդգծել ընտրված խոսքը ConfigForm.chkMinimizeToTray.Caption = Պատուհանը փոքրացնելիս գցել կրկնատակի վրա
+ConfigForm.chkMinimizeToTray.Hint = Համակարգային ժամերի կողքին կստեղծվի տարբերանշան 
+ConfigForm.lblAvailableModules.Caption = Հասանելի մոդուլներ
+ConfigForm.lblFavourites.Caption = Ընտրյալ
+ConfigForm.lblSelectSecondPath.Caption = Լրացուցիչ ուղի դեպի մոդուլները
+ConfigForm.rgHotKeyChoice.Caption = Ստեղների համադրություն
+ConfigForm.tsCopyOptions.Caption = Պատճենման հատկություններ
+ConfigForm.tsFavouriteEx.Caption = Ընտրյալ մոդուլներ
+ConfigForm.tsOtherOptions.Caption = Այլ հատկություններ
+
+MyLibraryForm.btnClear.Caption = Մաքրել
+MyLibraryForm.btnCollapse.Caption = Թաքցնել բոլորը
+MyLibraryForm.btnOK.Caption = Լավ
+MyLibraryForm.lblNavigate.Caption = Անցնել
+
+ExceptionForm.btnHalt.Caption = Վթարային կանգ
+ExceptionForm.btnOK.Caption = Լավ
+ExceptionForm.lblLog.Caption = Բացառությունների արձանագրություն.
