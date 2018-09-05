@@ -17,7 +17,7 @@ uses
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
   VdtEditlink, bqGradientPanel, ModuleProcs,
-  Engine, MultiLanguage, LinksParserIntf, MyLibraryFrm, HTMLEmbedInterfaces,
+  Engine, MultiLanguage, LinksParserIntf, HTMLEmbedInterfaces,
   MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
   TabData, Favorites, ThinCaptionedDockTree,
   Vcl.CaptionedDockTree, LayoutConfig,
@@ -203,7 +203,6 @@ type
     miChooseSatelliteBible: TMenuItem;
     appEvents: TApplicationEvents;
     tbList: TTabSheet;
-    tbtnLib: TToolButton;
     reClipboard: TRichEdit;
     tlbTags: TToolBar;
     tbtnAddNode: TToolButton;
@@ -230,7 +229,7 @@ type
     imgLoadProgress: TImage;
     tbtnNewForm: TToolButton;
     tbtnNewMemoTab: TToolButton;
-    btnAddLibraryForm: TToolButton;
+    tbtnAddLibraryForm: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -314,7 +313,6 @@ type
     procedure trayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
     procedure tbtnSatelliteClick(Sender: TObject);
-    procedure SelectSatelliteBibleByName(const bibleName: string);
     procedure edtDicChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure miNewTabClick(Sender: TObject);
@@ -329,9 +327,7 @@ type
     procedure pmRefPopup(Sender: TObject);
     procedure miChooseSatelliteBibleClick(Sender: TObject);
     procedure appEventsException(Sender: TObject; E: Exception);
-    procedure InitQNavList();
 
-    procedure tbtnLibClick(Sender: TObject);
     function OpenChapter(): Boolean;
     procedure NavigateToMainBookNode(book: TBible);
     function GetChildNodeByIndex(parentNode: PVirtualNode; Index: integer): PVirtualNode;
@@ -446,7 +442,7 @@ type
     procedure BookChangeModule(Sender: TObject);
     procedure BookSearchComplete(Sender: TObject);
     procedure tbtnNewMemoTabClick(Sender: TObject);
-    procedure btnAddLibraryTabClick(Sender: TObject);
+    procedure tbtnAddLibraryTabClick(Sender: TObject);
   public
     SysHotKey: TSysHotKey;
 
@@ -668,7 +664,6 @@ type
     function LocateDicItem: integer;
 
     procedure ShowConfigDialog;
-    procedure ShowQNav(useDisposition: TBQUseDisposition = udMyLibrary);
     procedure ShowQuickSearch();
     procedure SetVScrollTracker(aBrwsr: THTMLViewer);
     procedure VSCrollTracker(Sender: TObject);
@@ -1729,11 +1724,6 @@ begin
     ini.Learn('MainFormFontSize', IntToStr(MainForm.Font.Size));
 
     ini.Learn('SaveDirectory', SaveFileDialog.InitialDir);
-    if Assigned(MyLibraryForm) then
-    begin
-      ini.Learn(C_frmMyLibWidth, MyLibraryForm.Width);
-      ini.Learn(C_frmMyLibHeight, MyLibraryForm.Height);
-    end;
     ini.Learn(C_opt_FullContextLinks, ord(mFlagFullcontextLinks));
     ini.Learn(C_opt_HighlightVerseHits, ord(mFlagHighlightVerses));
     try
@@ -2232,7 +2222,6 @@ begin
 
   UpdateDictionariesCombo();
 
-  TranslateControl(MyLibraryForm);
   TranslateControl(ExceptionForm);
   TranslateControl(AboutForm);
 
@@ -3304,7 +3293,7 @@ begin
   end;
 end;
 
-procedure TMainForm.btnAddLibraryTabClick(Sender: TObject);
+procedure TMainForm.tbtnAddLibraryTabClick(Sender: TObject);
 var
   newTabInfo: TLibraryTabInfo;
 begin
@@ -3826,12 +3815,6 @@ begin
   TbqTagsRenderer.CurveRadius := vdtTagsVerses.SelectionCurveRadius;
 end;
 
-procedure TMainForm.InitQNavList;
-begin
-  if not Assigned(MyLibraryForm) then
-    MyLibraryForm := TMyLibraryForm.Create(self);
-end;
-
 function TMainForm.InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
@@ -4123,7 +4106,7 @@ begin
   then
     case Key of
       $47:
-        ShowQNav(); // G key
+        tbtnAddLibraryTabClick(self); // G key
       $48:
         miQuickNavClick(self); // H key
       $46:
@@ -4735,13 +4718,6 @@ begin
         vstDicList.ReinitNode(vstDicList.RootNode, true);
         vstDicList.Invalidate();
         vstDicList.Repaint();
-
-        if Assigned(MyLibraryForm) then
-        begin
-          MyLibraryForm.Font.Assign(Font);
-          MyLibraryForm.Font.Height := MyLibraryForm.Font.Height * 5 div 4;
-          MyLibraryForm.Refresh();
-        end;
 
       finally
         fnt.Free
@@ -5698,11 +5674,6 @@ begin
 
 end;
 
-procedure TMainForm.tbtnLibClick(Sender: TObject);
-begin
-  ShowQNav();
-end;
-
 procedure TMainForm.tbtnResolveLinksClick(Sender: TObject);
 begin
   miRecognizeBibleLinks.Click();
@@ -6302,24 +6273,11 @@ begin
 end;
 
 function TMainForm.UpdateFromCashed(): Boolean;
-var
-  bookView: TBookFrame;
-  bookTabInfo: TBookTabInfo;
 begin
   try
     if not Assigned(mModules) then
       mModules := TCachedModules.Create(true);
     mModules.Assign(mModuleLoader.CachedModules);
-
-    if Assigned(MyLibraryForm) then
-    begin
-      bookView := GetBookView(self);
-      bookTabInfo := bookView.BookTabInfo;
-      if MyLibraryForm.mUseDisposition = udMyLibrary then
-        MyLibraryForm.UpdateList(mModules, -1, bookTabInfo.Bible.Name)
-      else
-        MyLibraryForm.UpdateList(mModules, -1, bookTabInfo.SecondBible.Name);
-    end;
 
     Result := true;
     mDefaultLocation := DefaultLocation();
@@ -8654,65 +8612,6 @@ begin
 
 end;
 
-procedure TMainForm.ShowQNav(useDisposition: TBQUseDisposition = udMyLibrary);
-var
-  ws, wcap, wbtn: string;
-  bookNode: PVirtualNode;
-  bookTabInfo: TBookTabInfo;
-begin
-  if not Assigned(MyLibraryForm) then
-    MyLibraryForm := TMyLibraryForm.Create(self);
-
-  TranslateControl(MyLibraryForm);
-  bookTabInfo := GetBookView(self).BookTabInfo;
-  case useDisposition of
-    udParabibles:
-      begin
-        ws := bookTabInfo.SatelliteName;
-        wcap := Lang.SayDefault('SelectParaBible', 'Select secondary bible');
-        wbtn := Lang.SayDefault('DeselectSec', 'Deselect');
-        ws := bookTabInfo.SecondBible.Name;
-      end;
-    udMyLibrary:
-      begin
-        ws := bookTabInfo.Bible.Name;
-        wcap := Lang.SayDefault('MyLib', 'My Library');
-        wbtn := Lang.SayDefault('CollapseAll', 'Collapse all');
-      end;
-  end;
-
-  MyLibraryForm.Caption := wcap;
-  MyLibraryForm.btnCollapse.Caption := wbtn;
-
-  MyLibraryForm.mUseDisposition := useDisposition;
-  MyLibraryForm.mCellText := EmptyWideStr;
-  MyLibraryForm.UpdateList(mModules, -1, ws);
-  MyLibraryForm.ShowModal();
-  if (MyLibraryForm.ModalResult <> mrOk) or
-    (Length(MyLibraryForm.mCellText) <= 0) then
-  begin
-    tbtnSatellite.Down := bookTabInfo.SatelliteName <> '------';
-    Exit;
-  end;
-  case useDisposition of
-    udParabibles:
-      SelectSatelliteBibleByName(MyLibraryForm.mCellText);
-    udMyLibrary:
-      begin
-        GoModuleName(MyLibraryForm.mCellText);
-        if MyLibraryForm.mBookIx > 0 then
-        begin
-          bookNode := GetChildNodeByIndex(nil, MyLibraryForm.mBookIx - 1);
-          if Assigned(bookNode) then
-          begin
-            vdtModules.Selected[bookNode] := true;
-            vdtModules.FocusedNode := bookNode;
-          end;
-        end;
-      end;
-  end;
-end;
-
 procedure TMainForm.ShowQuickSearch;
 var bookView: TBookFrame;
 begin
@@ -8845,20 +8744,8 @@ begin
   ti := GetBookView(self).BookTabInfo;
   if not Assigned(ti) then
     Exit;
-  if ti.SatelliteName <> '------' then
-  begin
-    ti.SatelliteName := '------';
-    if ti.LocationType in [vtlUnspecified, vtlModule] then
-    begin
-      if ti[vtisHighLightVerses] then
-        vhl := hlTrue
-      else
-        vhl := hlFalse;
-      GetBookView(self).ProcessCommand(ti, ti.Location, vhl);
-    end;
-    Exit;
-  end;
-  ShowQNav(udParabibles);
+
+  GetBookView(self).SelectSatelliteModule();
 end;
 
 procedure TMainForm.tbtnSatelliteMouseEnter(Sender: TObject);
@@ -8868,48 +8755,14 @@ begin
   if tbtnSatellite.Down then
   begin
     ti := GetBookView(self).BookTabInfo;
-    tbtnSatellite.Hint := ti.SatelliteName;
+    if Assigned(ti) then
+      tbtnSatellite.Hint := ti.SatelliteName;
   end
   else
   begin
     tbtnSatellite.Hint := Lang.SayDefault(
       'MainForm.tbtnSatellite.Hint',
       'Choose sencodary Bible');
-  end;
-end;
-
-procedure TMainForm.SelectSatelliteBibleByName(const bibleName: string);
-var
-  tabInfo: TBookTabInfo;
-  broserPos: integer;
-  bookView: TBookFrame;
-begin
-  try
-    bookView := GetBookView(self);
-    tabInfo := bookView.BookTabInfo;
-    tabInfo.SatelliteName := bibleName;
-    if tabInfo.Bible.isBible then
-    begin
-      broserPos := mTabsView.Browser.Position;
-      bookView.ProcessCommand(tabInfo, tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
-      mTabsView.Browser.Position := broserPos;
-    end
-    else
-    begin
-      try
-        bookView.LoadSecondBookByName(bibleName);
-      except
-        on E: Exception do
-          BqShowException(E);
-      end;
-
-    end; // else
-    tbtnSatellite.Down := bibleName <> '------';
-  except
-    on E: Exception do
-    begin
-      BqShowException(E);
-    end;
   end;
 end;
 
@@ -9109,7 +8962,6 @@ begin
   tbComments.Enabled := enable;
   SyncChildrenEnabled(tbComments);
 
-  miMyLibrary.Enabled := enable;
   miOpenPassage.Enabled := enable;
   miQuickNav.Enabled := enable;
   miStrong.Enabled := enable;
@@ -9120,7 +8972,6 @@ begin
   miCopy.Enabled := enable;
   miSound.Enabled := enable;
 
-  tbtnLib.Enabled := enable;
   tbtnSound.Enabled := enable;
   tbtnCopyright.Enabled := enable;
   tbtnSatellite.Enabled := enable;

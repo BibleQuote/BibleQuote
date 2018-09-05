@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 373
+  ClientHeight = 355
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 34
     Width = 8
-    Height = 318
+    Height = 300
     AutoSnap = False
     MinSize = 100
     ExplicitTop = 24
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 298
     Top = 34
     Width = 583
-    Height = 318
+    Height = 300
     Align = alClient
     DockSite = True
     TabOrder = 0
@@ -92,7 +92,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 290
-    Height = 318
+    Height = 300
     Hint = 'Memos'
     ActivePage = tbList
     Align = alLeft
@@ -154,7 +154,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 255
         Width = 282
-        Height = 33
+        Height = 15
         ActivePage = tbBookmarks
         Align = alClient
         TabOrder = 1
@@ -164,7 +164,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 274
-            Height = 3
+            Height = 5
             Style = lbOwnerDrawVariable
             Align = alClient
             ItemHeight = 14
@@ -194,7 +194,7 @@ object MainForm: TMainForm
           end
           object pnlBookmarks: TPanel
             Left = 0
-            Top = -107
+            Top = -105
             Width = 274
             Height = 110
             Align = alBottom
@@ -225,7 +225,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 109
+        Height = 91
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -383,7 +383,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 54
+        Height = 36
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -509,7 +509,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 75
+        Height = 57
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -592,7 +592,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 258
+        Height = 240
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -675,7 +675,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 282
-        Height = 288
+        Height = 270
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -726,7 +726,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 53
         Width = 282
-        Height = 235
+        Height = 217
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -808,7 +808,7 @@ object MainForm: TMainForm
     GradientEndColor = clBtnFace
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 610
+      Left = 578
       Top = 4
       Width = 38
       Height = 26
@@ -824,13 +824,14 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
+      ExplicitLeft = 610
       ExplicitHeight = 15
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 658
+      Left = 626
       Top = 4
-      Width = 215
+      Width = 247
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -847,7 +848,7 @@ object MainForm: TMainForm
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 414
+      Width = 382
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -903,70 +904,62 @@ object MainForm: TMainForm
         Width = 6
         Style = tbsSeparator
       end
-      object tbtnLib: TToolButton
+      object tbtnAddLibraryForm: TToolButton
         Left = 140
         Top = 0
-        Hint = 'Browse Library'
-        Caption = 'btnQNav'
+        Caption = 'tbtnAddLibraryTab'
         ImageIndex = 7
-        OnClick = tbtnLibClick
-      end
-      object btnAddLibraryForm: TToolButton
-        Left = 172
-        Top = 0
-        Caption = 'btnAddLibraryTab'
-        ImageIndex = 7
-        OnClick = btnAddLibraryTabClick
+        OnClick = tbtnAddLibraryTabClick
       end
       object tbtnNewMemoTab: TToolButton
-        Left = 204
+        Left = 172
         Top = 0
         Caption = 'tbtnNewMemoTab'
         ImageIndex = 15
         OnClick = tbtnNewMemoTabClick
       end
       object tbtnSep04: TToolButton
-        Left = 236
+        Left = 204
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnPreview: TToolButton
-        Left = 242
+        Left = 210
         Top = 0
         Caption = 'Preview'
         ImageIndex = 2
         OnClick = tbtnPreviewClick
       end
       object tbtnPrint: TToolButton
-        Left = 274
+        Left = 242
         Top = 0
         Caption = 'Print'
         ImageIndex = 9
         OnClick = tbtnPrintClick
       end
       object tbtnSep05: TToolButton
-        Left = 306
+        Left = 274
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnSound: TToolButton
-        Left = 312
+        Left = 280
         Top = 0
         Caption = 'Sound'
         ImageIndex = 6
         OnClick = tbtnSoundClick
       end
       object tbtnCopyright: TToolButton
-        Left = 344
+        Left = 312
         Top = 0
         Caption = 'Copyright'
         ImageIndex = 8
         OnClick = tbtnCopyrightClick
       end
       object tbtnSatellite: TToolButton
-        Left = 376
+        Left = 344
         Top = 0
         Caption = 'Satellite'
         ImageIndex = 5
@@ -975,7 +968,7 @@ object MainForm: TMainForm
         OnMouseEnter = tbtnSatelliteMouseEnter
       end
       object tbtnLastSeparator: TToolButton
-        Left = 408
+        Left = 376
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -984,7 +977,7 @@ object MainForm: TMainForm
       end
     end
     object tlbResolveLnks: TToolBar
-      Left = 415
+      Left = 383
       Top = 1
       Width = 56
       Margins.Top = 0
@@ -999,6 +992,7 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
+      ExplicitLeft = 415
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -1022,7 +1016,7 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 471
+      Left = 439
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -1038,6 +1032,7 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
+      ExplicitLeft = 471
       object cbLinks: TComboBox
         Left = 0
         Top = 0
@@ -1074,7 +1069,7 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 352
+    Top = 334
     Width = 881
     Height = 21
     Align = alBottom
@@ -1318,7 +1313,7 @@ object MainForm: TMainForm
         Caption = 'My Librar&y'
         ImageIndex = 33
         ShortCut = 16460
-        OnClick = tbtnLibClick
+        OnClick = tbtnAddLibraryTabClick
       end
       object miToggle: TMenuItem
         Caption = #1042#1082#1083'/'#1074#1099#1082#1083#1102#1095#1080#1090#1100' '#1083#1077#1074#1091#1102' '#1087#1072#1085#1077#1083#1100
@@ -1440,7 +1435,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C0101330068004C0410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800500410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3174,7 +3169,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01011000E801480218001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011000E8014C0218001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000078000000010020000000000000B4
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

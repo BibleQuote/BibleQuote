@@ -26,8 +26,6 @@ const
   C_crlf: packed array [0 .. 2] of Char = (#13, #10, #0);
   C_plus: Char = '+';
   C_minus: Char = '-';
-  C_frmMyLibWidth: string = 'frmMyLibWidth';
-  C_frmMyLibHeight: string = 'frmMyLibHeight';
   C_opt_FullContextLinks = 'FullContextLinks';
   C_opt_HighlightVerseHits = 'HighlightVerseHits';
   C__bqAutoBible: string = '_bqAutoBible';

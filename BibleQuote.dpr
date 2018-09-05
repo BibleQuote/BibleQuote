@@ -17,7 +17,6 @@ uses
   CopyrightFrm in 'Forms\CopyrightFrm.pas' {CopyrightForm},
   ConfigFrm in 'Forms\ConfigFrm.pas' {ConfigForm},
   ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm},
-  MyLibraryFrm in 'Forms\MyLibraryFrm.pas' {MyLibraryForm},
   MainFrm in 'Forms\MainFrm.pas' {MainForm: TTntForm},
   AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
   PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox},

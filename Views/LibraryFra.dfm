@@ -11,16 +11,16 @@ object LibraryFrame: TLibraryFrame
   object edtFilter: TEdit
     Left = 3
     Top = 5
-    Width = 222
+    Width = 198
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     OnChange = edtFilterChange
   end
   object cmbBookType: TComboBox
-    Left = 231
+    Left = 207
     Top = 5
-    Width = 126
+    Width = 150
     Height = 21
     Style = csDropDownList
     Anchors = [akTop, akRight]
