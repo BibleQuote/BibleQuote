@@ -73,6 +73,9 @@ DeselectSec = Deselect
 MyLib = My Library
 CollapseAll = Collapse all
 
+TabLibrary = Library
+TabMemos = Memos
+
 ; FORM ELEMENTS AND MENU ITEMS =================================
 
 CBAllNotCaption = results contain all given words
