@@ -251,7 +251,9 @@ begin
           tempBook.ShortPath,
           path + '\' + mSearchRecord.Name,
           tempBook.GetStucture(),
-          tempBook.Categories
+          tempBook.Categories,
+          tempBook.Author,
+          tempBook.ModuleImage
         );
 
         mCachedModules.Add(modEntry);
@@ -306,7 +308,9 @@ begin
             tempBook.ShortPath,
             EmptyWideStr,
             tempBook.GetStucture(),
-            tempBook.Categories
+            tempBook.Categories,
+            tempBook.Author,
+            tempBook.ModuleImage
           );
 
           mCachedModules.Add(modEntry);
@@ -350,13 +354,13 @@ begin
       cachedModulesList.LoadFromFile(cachedModsFilePath);
       mCachedModules.Clear();
       i := 1;
-      if cachedModulesList[0] <> 'v3' then
+      if cachedModulesList[0] <> 'v4' then
       begin
         Result := false;
         Exit;
       end;
       linecount := cachedModulesList.Count - 1;
-      if linecount < 7 then
+      if linecount < 9 then
         abort;
       repeat
         modIx := mCachedModules.IndexOf(cachedModulesList[i + 1]);
@@ -377,17 +381,19 @@ begin
             cachedModulesList[i + 3],
             cachedModulesList[i + 4],
             bookNames,
-            cats
+            cats,
+            cachedModulesList[i + 7],
+            cachedModulesList[i + 8]
           );
 {$R-}
           mCachedModules.Add(modEntry);
         end;
-        inc(i, 6);
+        inc(i, 8);
         while (i <= linecount) and (cachedModulesList[i] <> '***') do
           inc(i);
         inc(i);
 
-      until (i + 7) > linecount;
+      until (i + 9) > linecount;
       Result := true;
       mCachedModules._Sort();
     finally
@@ -413,7 +419,7 @@ begin
     count := mCachedModules.Count - 1;
     if count <= 0 then
       Exit;
-    modStringList.Add('v3');
+    modStringList.Add('v4');
     for i := 0 to count do
     begin
       moduleEntry := TModuleEntry(mCachedModules[i]);
@@ -426,6 +432,8 @@ begin
         Add(mFullPath);
         Add(modBookNames);
         Add(modCats);
+        Add(mAuthor);
+        Add(mCoverPath);
         Add('***');
       end;
     end;
