@@ -65,7 +65,7 @@ type
     procedure CloseActiveTab();
     procedure UpdateBookView();
     procedure UpdateLibraryView();
-    function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
+    function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
 
@@ -517,12 +517,12 @@ begin
   Result := GetTabInfo(ctViewTabs.ActiveTabIndex);
 end;
 
-function TDockTabsForm.AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
+function TDockTabsForm.AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
 var
   newTab: TChromeTab;
 begin
   newTab := ctViewTabs.Tabs.Add;
-  newTab.Caption := title;
+  newTab.Caption := newTabInfo.Title;
   newTab.Data := newTabInfo;
 
   mViewTabs.Add(newTabInfo);
@@ -536,7 +536,7 @@ var
   newTab: TChromeTab;
 begin
   newTab := ctViewTabs.Tabs.Add;
-  newTab.Caption := Lang.Say('DockTabsForm.tbtnMemos.Caption');
+  newTab.Caption := Lang.SayDefault('TabMemos', 'Memos');
   newTab.Data := newTabInfo;
   newTab.ImageIndex := 17;
 
@@ -551,8 +551,9 @@ var
   newTab: TChromeTab;
 begin
   newTab := ctViewTabs.Tabs.Add;
-  newTab.Caption := 'Library';
+  newTab.Caption := Lang.SayDefault('TabLibrary', 'My Library');
   newTab.Data := newTabInfo;
+  newTab.ImageIndex := 18;
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -576,8 +577,7 @@ begin
       begin
         chromeTab := ctViewTabs.Tabs[i];
         tabInfo := GetTabInfo(chromeTab.Data);
-        if (tabInfo.GetViewType() = vttMemo) then
-          chromeTab.Caption := Lang.Say('DockTabsForm.tbtnMemos.Caption');
+        chromeTab.Caption := tabInfo.GetCaption();
       end;
   except
     on E: Exception do

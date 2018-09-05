@@ -5,7 +5,8 @@ interface
 uses System.UITypes, System.Classes, Winapi.Windows, SysUtils,
      Vcl.Controls, Vcl.Graphics, Bible, HtmlView,
      Vcl.Tabs, Vcl.DockTabSet, ChromeTabs, ChromeTabsTypes, ChromeTabsUtils,
-     ChromeTabsControls, ChromeTabsClasses, ChromeTabsLog, LayoutConfig;
+     ChromeTabsControls, ChromeTabsClasses, ChromeTabsLog, LayoutConfig,
+     BibleQuoteUtils;
 
 type
   TViewTabType = (
@@ -39,6 +40,7 @@ type
 
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
+    function GetCaption(): string;
   end;
 
   TBookTabLocType = (vtlUnspecified, vtlModule, vtlFile);
@@ -136,6 +138,7 @@ type
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
+    function GetCaption(): string;
   end;
 
   TMemoTabInfo = class(TInterfacedObject, IViewTabInfo)
@@ -143,6 +146,7 @@ type
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
+    function GetCaption(): string;
   end;
 
   TLibraryTabInfo = class(TInterfacedObject, IViewTabInfo)
@@ -150,6 +154,7 @@ type
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
+    function GetCaption(): string;
   end;
 
   TViewTabDragObject = class(TDragObjectEx)
@@ -166,7 +171,7 @@ type
     procedure CloseActiveTab();
     function GetActiveTabInfo(): IViewTabInfo;
     procedure UpdateBookView();
-    function AddBookTab(newTabInfo: TBookTabInfo; const title: string): TChromeTab;
+    function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
 
@@ -222,6 +227,11 @@ end;
 function TBookTabInfo.GetViewType(): TViewTabType;
 begin
   Result := vttBook;
+end;
+
+function TBookTabInfo.GetCaption(): string;
+begin
+  Result := Title;
 end;
 
 function TBookTabInfo.GetSettings(): TTabSettings;
@@ -317,6 +327,11 @@ end;
 
 { TMemoTabInfo }
 
+function TMemoTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabMemos', 'Memos');
+end;
+
 function TMemoTabInfo.GetViewType(): TViewTabType;
 begin
   Result := vttMemo;
@@ -345,6 +360,11 @@ end;
 function TLibraryTabInfo.GetViewType(): TViewTabType;
 begin
   Result := vttLibrary;
+end;
+
+function TLibraryTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabLibrary', 'My Library');
 end;
 
 function TLibraryTabInfo.GetSettings(): TTabSettings;

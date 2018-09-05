@@ -74,6 +74,9 @@ DeselectSec = Abwählen
 MyLib = Meine Bibliothek
 CollapseAll = Alles zusammenklappen
 
+TabLibrary = Meine Bibliothek
+TabMemos = Notizen
+
 ; FORM ELEMENTS AND MENU ITEMS =================================
 
 CBAllNotCaption = Ergebnisse enthalten alle gesuchten Wörter

@@ -1043,15 +1043,13 @@ procedure TMainForm.CreateInitialTabsView();
 var
   tabsForm: TDockTabsForm;
   tabInfo: TBookTabInfo;
-  book: TBible;
 begin
   tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
 
   tabInfo := CreateBookNewTabInfo();
-  book := tabInfo.Bible;
 
   mTabsView := tabsForm;
-  tabsForm.AddBookTab(tabInfo, book.Name);
+  tabsForm.AddBookTab(tabInfo);
 
   tabsForm.ManualDock(pnlModules);
   tabsForm.Show;
@@ -7734,7 +7732,7 @@ begin
     newTabInfo.SecondBible := TBible.Create(self);
     newTabInfo.ReferenceBible := TBible.Create(self);
 
-    mTabsView.AddBookTab(newTabInfo, Title);
+    mTabsView.AddBookTab(newTabInfo);
 
     if visual then
     begin
