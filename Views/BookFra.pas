@@ -10,7 +10,7 @@ uses
   WinApi.ShellApi, StrUtils, BibleQuoteUtils, CommandProcessor, LinksParserIntf,
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
-  System.Types, LayoutConfig;
+  System.Types, LayoutConfig, LibraryFra;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -61,6 +61,7 @@ type
     miMemoCopy: TMenuItem;
     miMemoCut: TMenuItem;
     miMemoPaste: TMenuItem;
+    tbtnSatellite: TToolButton;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure miCompareClick(Sender: TObject);
@@ -108,6 +109,7 @@ type
     procedure tedtReferenceEnter(Sender: TObject);
     procedure tedtReferenceKeyPress(Sender: TObject; var Key: Char);
     procedure pmBrowserPopup(Sender: TObject);
+    procedure tbtnSatelliteClick(Sender: TObject);
 
     procedure CopyBrowserSelectionToClipboard();
     procedure ToggleStrongNumbers();
@@ -130,13 +132,15 @@ type
       options: TgmtOptions = [];
       maxWords: integer = 0): integer;
 
-   function GetRefBible(ix: integer): TModuleEntry;
-   function RefBiblesCount: integer;
-
+    function GetRefBible(ix: integer): TModuleEntry;
+    function RefBiblesCount: integer;
+    procedure SelectSatelliteModule();
   private
     { Private declarations }
     mMainView: TMainForm;
     mTabsView: ITabsView;
+    mSatelliteForm: TForm;
+    mSatelliteLibraryView: TLibraryFrame;
 
     mBrowserSearchPosition: Longint;
 
@@ -144,7 +148,9 @@ type
 
     procedure SearchForward();
     procedure SearchBackward();
+    procedure SelectSatelliteBibleByName(const bibleName: string);
 
+    procedure OnSelectSatelliteModule(Sender: TObject; modEntry: TModuleEntry);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
@@ -179,6 +185,8 @@ end;
 procedure TBookFrame.Translate();
 begin
   Lang.TranslateControl(self, 'DockTabsForm');
+  mSatelliteLibraryView.Translate();
+  mSatelliteForm.Caption := Lang.SayDefault('SelectParaBible', 'Select secondary bible');
 end;
 
 procedure TBookFrame.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -653,6 +661,17 @@ begin
   inherited Create(AOwner);
   mMainView := mainView;
   mTabsView := tabsView;
+
+  mSatelliteForm := TForm.Create(self);
+  mSatelliteForm.Width := 400;
+  mSatelliteForm.Height := 600;
+
+  mSatelliteLibraryView := TLibraryFrame.Create(nil, mTabsView);
+  mSatelliteLibraryView.OnSelectModule := OnSelectSatelliteModule;
+  mSatelliteLibraryView.cmbBookType.Enabled := false;
+  mSatelliteLibraryView.cmbBookType.ItemIndex := 1;
+  mSatelliteLibraryView.Align := TAlign.alClient;
+  mSatelliteLibraryView.Parent := mSatelliteForm;
 end;
 
 procedure TBookFrame.dtsBibleChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
@@ -703,7 +722,7 @@ begin
   begin
     if IsDown(VK_SHIFT) then
     begin
-      mMainView.SelectSatelliteBibleByName('');
+      SelectSatelliteBibleByName('');
       Exit;
     end;
     modIx := mMainView.mModules.FindByFolder(BookTabInfo.Bible.ShortPath);
@@ -719,7 +738,7 @@ begin
   me := dtsBible.Tabs.Objects[it] as TModuleEntry;
   if IsDown(VK_SHIFT) then
   begin
-    mMainView.SelectSatelliteBibleByName(me.mFullName);
+    SelectSatelliteBibleByName(me.mFullName);
     Exit;
   end;
   if IsDown(VK_MENU) then
@@ -1213,6 +1232,72 @@ begin
   savePosition := bwrHtml.Position;
   ProcessCommand(BookTabInfo, BookTabInfo.Location, TbqHLVerseOption(ord(BookTabInfo[vtisHighLightVerses])));
   bwrHtml.Position := savePosition;
+end;
+
+procedure TBookFrame.SelectSatelliteModule();
+var
+  vhl: TbqHLVerseOption;
+begin
+  if not Assigned(BookTabInfo) then
+    Exit;
+
+  if BookTabInfo.SatelliteName <> '------' then
+  begin
+    BookTabInfo.SatelliteName := '------';
+    if BookTabInfo.LocationType in [vtlUnspecified, vtlModule] then
+    begin
+      if BookTabInfo[vtisHighLightVerses] then
+        vhl := hlTrue
+      else
+        vhl := hlFalse;
+      ProcessCommand(BookTabInfo, BookTabInfo.Location, vhl);
+    end;
+    Exit;
+  end;
+
+  mSatelliteLibraryView.SetModules(mMainView.mModules);
+  mSatelliteForm.ShowModal();
+end;
+
+procedure TBookFrame.tbtnSatelliteClick(Sender: TObject);
+begin
+  SelectSatelliteModule();
+end;
+
+procedure TBookFrame.OnSelectSatelliteModule(Sender: TObject; modEntry: TModuleEntry);
+begin
+  SelectSatelliteBibleByName(modEntry.mFullName);
+  PostMessage(mSatelliteForm.Handle, wm_close, 0, 0);
+end;
+
+procedure TBookFrame.SelectSatelliteBibleByName(const bibleName: string);
+var
+  broserPos: integer;
+begin
+  try
+    BookTabInfo.SatelliteName := bibleName;
+    if BookTabInfo.Bible.isBible then
+    begin
+      broserPos := bwrHtml.Position;
+      ProcessCommand(BookTabInfo, BookTabInfo.Location, TbqHLVerseOption(ord(BookTabInfo[vtisHighLightVerses])));
+      bwrHtml.Position := broserPos;
+    end
+    else
+    begin
+      try
+        LoadSecondBookByName(bibleName);
+      except
+        on E: Exception do
+          BqShowException(E);
+      end;
+    end; // else
+    tbtnSatellite.Down := bibleName <> '------';
+  except
+    on E: Exception do
+    begin
+      BqShowException(E);
+    end;
+  end;
 end;
 
 procedure TBookFrame.tbtnStrongNumbersClick(Sender: TObject);

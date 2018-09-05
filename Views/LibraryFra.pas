@@ -16,11 +16,14 @@ type
     btCommentaries,
     btOtherBooks);
 
+  TSelectModuleEvent = procedure(Sender: TObject; modEntry: TModuleEntry) of object;
+
   TLibraryFrame = class(TFrame, ILibraryView)
     edtFilter: TEdit;
     cmbBookType: TComboBox;
     btnClear: TButton;
     vdtBooks: TVirtualDrawTree;
+
     procedure btnClearClick(Sender: TObject);
     procedure cmbBookTypeChange(Sender: TObject);
     procedure edtFilterChange(Sender: TObject);
@@ -34,12 +37,14 @@ type
     mUILock: Boolean;
     mModules: TCachedModules;
 
-    mMainView: TMainForm;
     mTabsView: ITabsView;
 
     mFontBookName, mFontCopyright, mFontModType: TFont;
 
     mCoverDefault: TPicture;
+
+    FOnSelectModuleEvent: TSelectModuleEvent;
+
     procedure UpdateBookList();
     procedure OnModulesAssign(Sender: TObject);
     procedure UpdateModuleTypes();
@@ -48,11 +53,13 @@ type
     procedure InitCoverDefault();
     function GetModuleTypeText(modType: TModuleType): string;
   public
-    constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent; tabsView: ITabsView); reintroduce;
     procedure SetModules(modules: TCachedModules);
 
     procedure Translate();
     destructor Destroy; override;
+
+    property OnSelectModule: TSelectModuleEvent read FOnSelectModuleEvent write FOnSelectModuleEvent;
   end;
 
 var
@@ -67,12 +74,11 @@ implementation
 
 {$R *.dfm}
 
-constructor TLibraryFrame.Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView);
+constructor TLibraryFrame.Create(AOwner: TComponent; tabsView: ITabsView);
 begin
   inherited Create(AOwner);
   mModules := TCachedModules.Create();
 
-  mMainView := mainView;
   mTabsView := tabsView;
 
   InitFonts();
@@ -300,8 +306,9 @@ begin
     Exit;
   end;
 
-  modEntry := TModuleEntry((vdt.GetNodeData(pnode))^);
-  mMainView.GoModuleName(modEntry.mFullName, true);
+  modEntry := vdt.GetNodeData<TModuleEntry>(pnode);
+  if Assigned(FOnSelectModuleEvent) then
+    FOnSelectModuleEvent(self, modEntry);
 end;
 
 procedure TLibraryFrame.vdtBooksDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
@@ -349,7 +356,6 @@ begin
     drawRect.Top := top;
     PaintInfo.Canvas.Font := mFontModType;
     Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(GetModuleTypeText(modEntry.modType))), -1, drawRect, DT_WORDBREAK);
-
   end;
 end;
 

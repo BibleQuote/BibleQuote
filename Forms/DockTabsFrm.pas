@@ -69,6 +69,8 @@ type
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
 
+    procedure OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
+
     procedure MakeActive();
     procedure Translate();
 
@@ -305,9 +307,10 @@ begin
   mMemoView.Parent := pnlMain;
   mMemoView.Align := alClient;
 
-  mLibraryView := TLibraryFrame.Create(nil, mMainView, self);
+  mLibraryView := TLibraryFrame.Create(nil, self);
   mLibraryView.Parent := pnlMain;
   mLibraryView.Align := alClient;
+  mLibraryView.OnSelectModule := OnSelectModule;
 
   mBookView := TBookFrame.Create(nil, mMainView, self);
   mBookView.Parent := pnlMain;
@@ -320,10 +323,15 @@ procedure TDockTabsForm.FormDeactivate(Sender: TObject);
 var
   tabInfo: IViewTabInfo;
 begin
-    // save active tab state
-    tabInfo := GetActiveTabInfo();
-    if Assigned(tabInfo) then
-      tabInfo.SaveState(self);
+  // save active tab state
+  tabInfo := GetActiveTabInfo();
+  if Assigned(tabInfo) then
+    tabInfo.SaveState(self);
+end;
+
+procedure TDockTabsForm.OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
+begin
+  mMainView.GoModuleName(modEntry.mFullName, true);
 end;
 
 procedure TDockTabsForm.MakeActive();
