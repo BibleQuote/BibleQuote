@@ -5,7 +5,8 @@ unit BibleQuoteUtils;
 interface
 
 uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils, JCLDebug, PlainUtils,
-  Contnrs, Windows, SysUtils, Classes, SystemInfo, CRC32;
+  Contnrs, Windows, SysUtils, Classes, SystemInfo, CRC32, Vcl.Graphics,
+  ImageUtils, SyncObjs;
 
 type
   TPasswordPolicy = class
@@ -76,6 +77,9 @@ type
     modCats: string;
     modBookNames: string;
 
+    mAuthor: string;
+    mCoverPath: string;
+
     mRects: PRectArray;
     mCatsCnt: integer;
     mNode: Pointer;
@@ -86,13 +90,17 @@ type
       amodType: TModuleType;
       aFullName, aShortName, aShortPath, aFullPath: string;
       aBookNames: string;
-      modCats: TStrings); overload;
+      modCats: TStrings;
+      anAuthor: string;
+      aCoverPath: string); overload;
 
     constructor Create(
       amodType: TModuleType;
       aFullName, aShortName, aShortPath, aFullPath: string;
       aBookNames: string;
-      modCats: string); overload;
+      modCats: string;
+      anAuthor: string;
+      aCoverPath: string); overload;
 
     constructor Create(me: TModuleEntry); overload;
     destructor Destroy; override;
@@ -101,13 +109,17 @@ type
       amodType: TModuleType;
       aFullName, aShortName, aShortPath, aFullPath: string;
       aBookNames: string;
-      modCatsLst: TStrings); overload;
+      modCatsLst: TStrings;
+      anAuthor: string;
+      aCoverPath: string); overload;
 
     procedure Init(
       amodType: TModuleType;
       aFullName, aShortName, aShortPath, aFullPath: string;
       aBookNames: string;
-      amodCats: string); overload;
+      amodCats: string;
+      anAuthor: string;
+      aCoverPath: string); overload;
 
     procedure Assign(source: TModuleEntry);
     function Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
@@ -115,9 +127,13 @@ type
     function BookNameByIx(ix: integer): string;
     function VisualSignature(): string;
     function BibleBookPresent(ix: integer): boolean;
+    function GetCoverImage(width, height: integer): TPicture;
 
     function getIniPath(): string;
   protected
+    mCachedCover: TPicture;
+    mCachedWidth, mCachedHeight: integer;
+    mCachedCoverLock : TCriticalSection;
 
     function DefaultModCats(): string;
   end;
@@ -1086,7 +1102,7 @@ end;
 procedure TModuleEntry.Assign(source: TModuleEntry);
 begin
   Init(source.modType, source.mFullName, source.mShortName,
-    source.mShortPath, source.mFullPath, source.modBookNames, source.modCats);
+    source.mShortPath, source.mFullPath, source.modBookNames, source.modCats, source.mAuthor, source.mCoverPath);
   mMatchInfo := source.mMatchInfo;
 end;
 
@@ -1094,11 +1110,13 @@ constructor TModuleEntry.Create(
   amodType: TModuleType;
   aFullName, aShortName, aShortPath, aFullPath: string;
   aBookNames: string;
-  modCats: TStrings);
+  modCats: TStrings;
+  anAuthor: string;
+  aCoverPath: string);
 begin
   inherited Create;
 
-  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats);
+  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats, anAuthor, aCoverPath);
 end;
 
 constructor TModuleEntry.Create(me: TModuleEntry);
@@ -1123,6 +1141,11 @@ end;
 destructor TModuleEntry.Destroy;
 begin
   FreeMem(mRects);
+  FreeAndNil(mCachedCoverLock);
+
+  if Assigned(mCachedCover) then
+    FreeAndNil(mCachedCover);
+
   mMatchInfo := nil;
   inherited;
 end;
@@ -1136,16 +1159,20 @@ constructor TModuleEntry.Create(
   amodType: TModuleType;
   aFullName, aShortName, aShortPath, aFullPath: string;
   aBookNames: string;
-  modCats: string);
+  modCats: string;
+  anAuthor: string;
+  aCoverPath: string);
 begin
-  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats);
+  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats, anAuthor, aCoverPath);
 end;
 
 procedure TModuleEntry.Init(
   amodType: TModuleType;
   aFullName, aShortName, aShortPath, aFullPath: string;
   aBookNames: string;
-  amodCats: string);
+  amodCats: string;
+  anAuthor: string;
+  aCoverPath: string);
 begin
   modType := amodType;
   mFullName := aFullName;
@@ -1160,6 +1187,11 @@ begin
   end
   else
     modCats := amodCats;
+
+  mCachedCover := nil;
+  mAuthor := anAuthor;
+  mCoverPath := aCoverPath;
+  mCachedCoverLock := TCriticalSection.Create;
 end;
 
 function TModuleEntry.Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
@@ -1362,11 +1394,53 @@ begin
     result := StrGetTokenByIx(modBookNames, ix);
   end;
 
+  function TModuleEntry.GetCoverImage(width, height: integer): TPicture;
+  var
+    coverPath: string;
+    origPicture: TPicture;
+  begin
+    Result := nil;
+
+    if (mCoverPath = '') then
+      Exit;
+
+    coverPath := TPath.Combine(mShortPath, mCoverPath);
+    if not FileExists(coverPath) then
+      Exit;
+
+    mCachedCoverLock.Acquire;
+    try
+      if Assigned(mCachedCover) and (width = mCachedWidth) and (height = mCachedHeight) then
+      begin
+        Result := mCachedCover;
+        Exit;
+      end;
+
+      origPicture := TPicture.Create();
+      try
+        origPicture.LoadFromFile(coverPath);
+
+        mCachedCover := StretchImage(origPicture, width, height);
+        mCachedWidth := width;
+        mCachedHeight := height;
+
+        Result := mCachedCover;
+      finally
+        origPicture.Free;
+      end;
+    finally
+      mCachedCoverLock.Release;
+    end;
+
+  end;
+
   procedure TModuleEntry.Init(
     amodType: TModuleType;
     aFullName, aShortName, aShortPath, aFullPath: string;
     aBookNames: string;
-    modCatsLst: TStrings);
+    modCatsLst: TStrings;
+    anAuthor: string;
+    aCoverPath: string);
   begin
     modType := amodType;
     mFullName := aFullName;
@@ -1379,6 +1453,10 @@ begin
       modCats := DefaultModCats()
     else
       modCats := TokensToStr(modCatsLst, '|');
+    mAuthor := anAuthor;
+    mCoverPath := aCoverPath;
+    mCachedCover := nil;
+    mCachedCoverLock := TCriticalSection.Create;
   end;
 
   { TCachedModules }

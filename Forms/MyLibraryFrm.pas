@@ -122,7 +122,7 @@ begin
   if not assigned(S_EmptyModuleEntry) then
   begin
     S_EmptyModuleEntry := TModuleEntry.Create(
-      modtypeBible, '------', '', '<none>', '', '', '');
+      modtypeBible, '------', '', '<none>', '', '', '', '', '');
   end;
   Result := S_EmptyModuleEntry;
 end;
@@ -773,7 +773,7 @@ begin
             ci := mCatNodes.IndexOf(tagstr);
             if ci < 0 then
             begin
-              catMe := TModuleEntry.Create(modtypeTag, tagstr, '', '', '', '', '');
+              catMe := TModuleEntry.Create(modtypeTag, tagstr, '', '', '', '', '', '', '');
 
               rt := vdtBookList.InsertNode(nil, amAddChildLast, catMe);
               if tagstr = selName then

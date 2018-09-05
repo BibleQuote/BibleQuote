@@ -207,6 +207,12 @@ type
     FStrongsDir: string;
     FStrongsPrefixed: boolean; // Gxxxx and Hxxx numbers or not?
 
+    FModuleName: string;
+    FModuleAuthor: string;
+    FModuleCompiler: string;
+    FModuleVersion: string;
+    FModuleImage: string;
+
     FHTML: string; // allowed HTML codes
     FFiltered: boolean;
     FDefaultFilter: boolean; // using default filter
@@ -277,6 +283,8 @@ type
     function GetStucture(): string;
     function GetDefaultEncoding(): TEncoding;
     function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
+    function GetModuleName(): string;
+    function GetAuthor(): string;
 
     function LinkValidnessStatus(
       path: string;
@@ -289,12 +297,19 @@ type
     property IniFile: string read FIniFile write LoadIniFile;
     property path: string read FPath;
     property ShortPath: string read FShortPath;
-    property Name: string read FName;
+    property Name: string read GetModuleName;
     property ShortName: string read FShortName;
     property Categories: TStringList read mCategories;
     property ChapterString: string read FChapterString;
     property ChapterStringPs: string read FChapterStringPs;
     property ChapterZeroString: string read FChapterZeroString;
+
+    // new attributes
+    property ModuleName: string read FModuleName;
+    property Author: string read GetAuthor;
+    property ModuleVersion: string read FModuleVersion;
+    property ModuleCompiler: string read FModuleCompiler;
+    property ModuleImage: string read FModuleImage;
 
     property ShortNamesVars[ix: integer]: string read GetShortNameVars;
     property Copyright: string read FCopyright;
@@ -533,6 +548,22 @@ begin
 
 end;
 
+function TBible.GetModuleName: string;
+begin
+  if (FModuleName <> '') then
+    Result := FModuleName
+  else
+    Result := FName;
+end;
+
+function TBible.GetAuthor: string;
+begin
+  if (FModuleAuthor <> '') then
+    Result := FModuleAuthor
+  else
+    Result := FCopyright;
+end;
+
 function TBible.GetStucture: string;
 var
   bookIx, bookCnt: integer;
@@ -674,6 +705,11 @@ begin
     FName := '';
     FShortName := '';
     FCopyright := '';
+    FModuleName := '';
+    FModuleAuthor := '';
+    FModuleCompiler := '';
+    FModuleVersion := '';
+    FModuleImage := '';
 
     mCategories.Clear();
     FFiltered := true;
@@ -812,7 +848,6 @@ begin
       else if dFirstPart = 'ChapterSign' then
       begin
         FChapterSign := dSecondPart;
-
       end
       else if dFirstPart = 'VerseSign' then
       begin
@@ -846,6 +881,26 @@ begin
       else if dFirstPart = 'ShortName' then
       begin
         SetShortNameVars(i, dSecondPart);
+      end
+      else if dFirstPart = 'ModuleName' then
+      begin
+        FModuleName := dSecondPart;
+      end
+      else if dFirstPart = 'ModuleAuthor' then
+      begin
+        FModuleAuthor := dSecondPart;
+      end
+      else if dFirstPart = 'ModuleVersion' then
+      begin
+        FModuleVersion := dSecondPart;
+      end
+      else if dFirstPart = 'ModuleCompiler' then
+      begin
+        FModuleCompiler := dSecondPart;
+      end
+      else if dFirstPart = 'ModuleImage' then
+      begin
+        FModuleImage := dSecondPart;
       end
       else
       begin
