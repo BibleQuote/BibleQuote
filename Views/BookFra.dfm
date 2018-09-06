@@ -148,9 +148,11 @@ object BookFrame: TBookFrame
           Left = 173
           Top = 0
           Caption = 'Satellite'
+          Grouped = True
           ImageIndex = 17
           Style = tbsCheck
           OnClick = tbtnSatelliteClick
+          OnMouseEnter = tbtnSatelliteMouseEnter
         end
         object tbtnSep07: TToolButton
           Left = 196
@@ -305,7 +307,7 @@ object BookFrame: TBookFrame
     Left = 96
     Top = 95
     Bitmap = {
-      494C010112006800540410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010112006800580410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

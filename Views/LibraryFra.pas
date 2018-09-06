@@ -252,36 +252,17 @@ end;
 procedure TLibraryFrame.vdtBooksCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
 var
   mod1, mod2: TModuleEntry;
-  tr: Integer;
-label
-  done;
 begin
-  mod1 := TModuleEntry(Sender.GetNodeData(Node1)^);
-  mod2 := TModuleEntry(Sender.GetNodeData(Node2)^);
+  mod1 := Sender.GetNodeData<TModuleEntry>(Node1);
+  mod2 := Sender.GetNodeData<TModuleEntry>(Node2);
 
   if not(assigned(mod1) and assigned(mod2)) then
   begin
     Result := 0;
+    Exit;
   end;
 
-  tr := ord(mod1.modType) - ord(mod2.modType);
-  if tr = 0 then
-    if mod1.modType = modtypeTag then
-    begin
-      if mod1.mFullName = G_OtherCats then
-      begin
-        Result := 1;
-        exit;
-      end;
-      if mod2.mFullName = G_OtherCats then
-      begin
-        Result := -1;
-        exit;
-      end;
-    end;
-  tr := OmegaCompareTxt(mod1.mFullName, mod2.mFullName);
-done:
-  Result := tr;
+  Result := OmegaCompareTxt(mod1.mFullName, mod2.mFullName);
 end;
 
 procedure TLibraryFrame.vdtBooksDblClick(Sender: TObject);
