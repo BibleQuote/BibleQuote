@@ -271,6 +271,7 @@ DockTabsForm.tbtnQuickSearchNext.Hint = Find next
 DockTabsForm.tbtnQuickSearchPrev.Hint = Find previous
 DockTabsForm.tbtnReference.Hint = Show the chosen passage
 DockTabsForm.tbtnReferenceInfo.Hint = Module info and book signature hints
+DockTabsForm.tbtnSatellite.Hint = Choose satellite bible
 DockTabsForm.tbtnStrongNumbers.Caption = Strong
 DockTabsForm.tbtnStrongNumbers.Hint = Strong's Lexicons (F5)
 DockTabsForm.tedtQuickSearch.Hint = Enter word or expression to search

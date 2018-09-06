@@ -135,6 +135,7 @@ type
     function GetRefBible(ix: integer): TModuleEntry;
     function RefBiblesCount: integer;
     procedure SelectSatelliteModule();
+    procedure tbtnSatelliteMouseEnter(Sender: TObject);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -1238,10 +1239,11 @@ procedure TBookFrame.SelectSatelliteModule();
 var
   vhl: TbqHLVerseOption;
 begin
+  tbtnSatellite.Down := false;
   if not Assigned(BookTabInfo) then
     Exit;
 
-  if BookTabInfo.SatelliteName <> '------' then
+  if (Length(BookTabInfo.SatelliteName) > 0) and (BookTabInfo.SatelliteName <> '------') then
   begin
     BookTabInfo.SatelliteName := '------';
     if BookTabInfo.LocationType in [vtlUnspecified, vtlModule] then
@@ -1268,6 +1270,21 @@ end;
 procedure TBookFrame.tbtnSatelliteClick(Sender: TObject);
 begin
   SelectSatelliteModule();
+end;
+
+procedure TBookFrame.tbtnSatelliteMouseEnter(Sender: TObject);
+begin
+  if tbtnSatellite.Down then
+  begin
+    if Assigned(BookTabInfo) then
+      tbtnSatellite.Hint := BookTabInfo.SatelliteName;
+  end
+  else
+  begin
+    tbtnSatellite.Hint := Lang.SayDefault(
+      'DockTabsForm.tbtnSatellite.Hint',
+      'Choose secondary Bible');
+  end;
 end;
 
 procedure TBookFrame.OnSatelliteFormDeactivate(Sender: TObject);

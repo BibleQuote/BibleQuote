@@ -186,7 +186,6 @@ type
     tbtnSep05: TToolButton;
     tbtnSound: TToolButton;
     tbtnCopyright: TToolButton;
-    tbtnSatellite: TToolButton;
     tbtnNewTab: TToolButton;
     tbtnCloseTab: TToolButton;
     miFileSep2: TMenuItem;
@@ -312,7 +311,6 @@ type
     procedure miOptionsClick(Sender: TObject);
     procedure trayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
-    procedure tbtnSatelliteClick(Sender: TObject);
     procedure edtDicChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure miNewTabClick(Sender: TObject);
@@ -380,7 +378,6 @@ type
     procedure tbtnResolveLinksClick(Sender: TObject);
     procedure miChooseLogicClick(Sender: TObject);
     procedure pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
-    procedure tbtnSatelliteMouseEnter(Sender: TObject);
     procedure imgLoadProgressClick(Sender: TObject);
     procedure cbCommentsDropDown(Sender: TObject);
 
@@ -6330,7 +6327,7 @@ begin
     bookView.AdjustBibleTabs(tabInfo.Bible.ShortName);
     miStrong.Checked := tabInfo[vtisShowStrongs];
     bookView.tbtnStrongNumbers.Down := tabInfo[vtisShowStrongs];
-    tbtnSatellite.Down := (Length(tabInfo.SatelliteName) > 0) and (tabInfo.SatelliteName <> '------');
+    bookView.tbtnSatellite.Down := (Length(tabInfo.SatelliteName) > 0) and (tabInfo.SatelliteName <> '------');
 
     bookView.tbtnStrongNumbers.Enabled := tabInfo.Bible.Trait[bqmtStrongs];
     MemosOn := tabInfo[vtisShowNotes];
@@ -7963,8 +7960,14 @@ begin
 end;
 
 procedure TMainForm.miChooseSatelliteBibleClick(Sender: TObject);
+var
+  ti: TBookTabInfo;
 begin
-  tbtnSatellite.Click();
+  ti := GetBookView(self).BookTabInfo;
+  if not Assigned(ti) then
+    Exit;
+
+  GetBookView(self).SelectSatelliteModule();
 end;
 
 procedure TMainForm.miCloseTabClick(Sender: TObject);
@@ -8746,35 +8749,6 @@ begin
   end;
 end;
 
-procedure TMainForm.tbtnSatelliteClick(Sender: TObject);
-var
-  ti: TBookTabInfo;
-begin
-  ti := GetBookView(self).BookTabInfo;
-  if not Assigned(ti) then
-    Exit;
-
-  GetBookView(self).SelectSatelliteModule();
-end;
-
-procedure TMainForm.tbtnSatelliteMouseEnter(Sender: TObject);
-var
-  ti: TBookTabInfo;
-begin
-  if tbtnSatellite.Down then
-  begin
-    ti := GetBookView(self).BookTabInfo;
-    if Assigned(ti) then
-      tbtnSatellite.Hint := ti.SatelliteName;
-  end
-  else
-  begin
-    tbtnSatellite.Hint := Lang.SayDefault(
-      'MainForm.tbtnSatellite.Hint',
-      'Choose sencodary Bible');
-  end;
-end;
-
 procedure TMainForm.edtDicChange(Sender: TObject);
 var
   len, cnt, R: integer;
@@ -8983,7 +8957,7 @@ begin
 
   tbtnSound.Enabled := enable;
   tbtnCopyright.Enabled := enable;
-  tbtnSatellite.Enabled := enable;
+  miChooseSatelliteBible.Enabled := enable;
   tbtnResolveLinks.Enabled := enable;
 
   miPrint.Enabled := enable;
