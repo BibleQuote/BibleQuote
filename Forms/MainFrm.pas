@@ -842,6 +842,11 @@ begin
     MainPagesWidth := (StrToInt(MainCfgIni.SayDefault('MainPagesWidth', '0')) * Screen.Height) div MAXHEIGHT;
     Panel2Height := (StrToInt(MainCfgIni.SayDefault('Panel2Height', '0')) * Screen.Height) div MAXHEIGHT;
 
+    LibFormWidth := StrToInt(MainCfgIni.SayDefault('LibFormWidth', '400'));
+    LibFormHeight := StrToInt(MainCfgIni.SayDefault('LibFormHeight', '600'));
+    LibFormTop := StrToInt(MainCfgIni.SayDefault('LibFormTop', '100'));
+    LibFormLeft := StrToInt(MainCfgIni.SayDefault('LibFormLeft', '100'));
+
     fnt := TFont.Create;
     fnt.Name := MainCfgIni.SayDefault('MainFormFontName', 'Microsoft Sans Serif');
 
@@ -1678,6 +1683,11 @@ begin
 
     ini.Learn('RefFontName', bwrSearch.DefFontName);
     ini.Learn('RefFontSize', IntToStr(bwrSearch.DefFontSize));
+
+    ini.Learn('LibFormWidth', LibFormWidth);
+    ini.Learn('LibFormHeight', LibFormHeight);
+    ini.Learn('LibFormTop', LibFormTop);
+    ini.Learn('LibFormLeft', LibFormLeft);
 
     if (Color2Hex(bwrSearch.DefFontColor) <> Color2Hex(clWindowText)) then
       ini.Learn('RefFontColor', Color2Hex(bwrSearch.DefFontColor));
@@ -8739,7 +8749,6 @@ end;
 procedure TMainForm.tbtnSatelliteClick(Sender: TObject);
 var
   ti: TBookTabInfo;
-  vhl: TbqHLVerseOption;
 begin
   ti := GetBookView(self).BookTabInfo;
   if not Assigned(ti) then

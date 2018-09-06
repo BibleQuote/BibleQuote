@@ -151,6 +151,7 @@ type
     procedure SelectSatelliteBibleByName(const bibleName: string);
 
     procedure OnSelectSatelliteModule(Sender: TObject; modEntry: TModuleEntry);
+    procedure OnSatelliteFormDeactivate(Sender: TObject);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
@@ -663,8 +664,7 @@ begin
   mTabsView := tabsView;
 
   mSatelliteForm := TForm.Create(self);
-  mSatelliteForm.Width := 400;
-  mSatelliteForm.Height := 600;
+  mSatelliteForm.OnDeactivate := OnSatelliteFormDeactivate;
 
   mSatelliteLibraryView := TLibraryFrame.Create(nil, mTabsView);
   mSatelliteLibraryView.OnSelectModule := OnSelectSatelliteModule;
@@ -1256,12 +1256,26 @@ begin
   end;
 
   mSatelliteLibraryView.SetModules(mMainView.mModules);
+
+  mSatelliteForm.Width := LibFormWidth;
+  mSatelliteForm.Height := LibFormHeight;
+  mSatelliteForm.Top := LibFormTop;
+  mSatelliteForm.Left := LibFormLeft;
+
   mSatelliteForm.ShowModal();
 end;
 
 procedure TBookFrame.tbtnSatelliteClick(Sender: TObject);
 begin
   SelectSatelliteModule();
+end;
+
+procedure TBookFrame.OnSatelliteFormDeactivate(Sender: TObject);
+begin
+  LibFormWidth := mSatelliteForm.Width;
+  LibFormHeight := mSatelliteForm.Height;
+  LibFormTop := mSatelliteForm.Top;
+  LibFormLeft := mSatelliteForm.Left;
 end;
 
 procedure TBookFrame.OnSelectSatelliteModule(Sender: TObject; modEntry: TModuleEntry);
