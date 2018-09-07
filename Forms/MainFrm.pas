@@ -330,7 +330,7 @@ type
     procedure NavigateToMainBookNode(book: TBible);
     function GetChildNodeByIndex(parentNode: PVirtualNode; Index: integer): PVirtualNode;
     function GetCurrentBookNode(): PVirtualNode;
-    function IsPsalms(bookNodeIndex: integer): Boolean;
+    function IsPsalms(bible: TBible; bookIndex: integer): Boolean;
     procedure pgcMainMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure tbtnAddTagClick(Sender: TObject);
 
@@ -6665,7 +6665,7 @@ procedure TMainForm.vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode, Nod
 var
   Data: PBookNodeData;
   Level: Integer;
-  chapterIndex: integer;
+  bookIndex, chapterIndex: integer;
   chapterString: string;
   bible: TBible;
   bookView: TBookFrame;
@@ -6705,7 +6705,8 @@ begin
       end
       else
       begin
-        if (IsPsalms(Node.Parent.Index + 1)) then
+        bookIndex := node.Parent.Index + 1;
+        if (IsPsalms(bible, bookIndex)) then
           chapterString := Trim(bible.ChapterStringPs)
         else
           chapterString := Trim(bible.ChapterString);
@@ -7585,18 +7586,13 @@ begin
   end;
 end;
 
-function TMainForm.IsPsalms(bookNodeIndex: integer): Boolean;
+function TMainForm.IsPsalms(bible: TBible; bookIndex: integer): Boolean;
 var
-  totalPsalms: integer;
-  bible: TBible;
+  chaptersCount: integer;
 begin
   try
-    bible := GetBookView(self).BookTabInfo.Bible;
-    totalPsalms := 150;
-    if (bible.Trait[bqmtZeroChapter]) then
-      totalPsalms := totalPsalms + 1; // extra introduction chapter
-
-    Result := (bookNodeIndex = 19) and (bible.ChapterQtys[19] = totalPsalms);
+    chaptersCount := bible.ChapterQtys[bookIndex];
+    Result := (chaptersCount = C_TotalPsalms) or (chaptersCount = C_TotalPsalms + 1);
   except
     Result := False;
   end;

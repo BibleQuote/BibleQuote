@@ -139,6 +139,8 @@ const
 const
   MAX_BOOKQTY = 256;
 
+  C_TotalPsalms = 150;
+
   // search params bits
   spWordParts = $01;
   spContainAll = $02;
@@ -2145,7 +2147,7 @@ begin
   chapter := ichapter;
   verse := iverse;
 
-  if ichapter > 150 then
+  if ichapter > C_TotalPsalms then
     chapter := 1;
 
   if (not FBible) then
@@ -2328,8 +2330,6 @@ begin
   book := ebook;
   chapter := echapter;
   verse := everse;
-
-  // if echapter > 150 then chapter := 1;
 
   if (not FBible) or (ebook > 66) then
   begin
