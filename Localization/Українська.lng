@@ -1,0 +1,315 @@
+
+; СИСТЕМНІ ПОВІДОМЛЕННЯ ===================================
+
+; Увага:
+; довге повідомлення можна перенести на наступний рядок зі знаком = в першій позиції
+
+SoundNotFound = Не вдалося знайти звуковий файл для "%s". Можливо, Вам
+= потрібно придбати спеціальну версію з аудіозаписом текстів Біблії.
+= Будь ласка, зв'яжіться з авторами програми.
+
+FileNotFound = Не можу знайти файл %s
+GoingOnline = Зараз "Цитата з Біблії" відкриє сайт %s у Вашому Інтернет-браузері
+#1%s=Помилка читання модуля %s. Модуль пошкоджений або вказан невірний пароль.
+
+lblPasswordNeeded=Для відкриття модуля потрібно ввести пароль (%s)
+lblPassword=Пароль:
+btnCancel=Відміна
+cbxSavePwd=Зберегти пароль
+
+HelpFileName = indexukr.htm
+
+AllBooks = Усе
+OTOnly = С.З.
+NTOnly = Н.З.
+APOnly = Н.К.
+
+PublicDomainText = Цей текст не має копірайту
+
+OneLetterWordsDeleted = Були вилучені однобуквені частини шуканого виразу, тому що вони занадто часто зустрічаються в тексті.
+SearchTitle = Пошук: "%s"
+SearchHeaders = <b>Модуль: %s<P>Діапазон пошуку: %s<P>
+SearchInterrupted = ПРОЦЕС БУВ ДОСТРОКОВО ПЕРЕРВАН.<P>
+SearchOptions = Опції пошуку:</b>
+SearchResults = <b>Знайдено: %d</b><P>
+
+SearchAllBooks = Всі книги модуля
+
+SearchWholeBible = ВСЯ БІБЛІЯ
+SearchOT = СТАРИЙ ЗАПОВІТ
+SearchNT = НОВИЙ ЗАПОВІТ
+SearchPT = # П'ятикнижжя
+SearchHP = # Історичні і поетичні книги
+SearchPR = # Пророки
+SearchGA = # Євангелія і ДіЇ
+SearchER = # Послання та Об'явлення
+SearchAP = # Неканонічні книги
+
+ViewPrevPage = Попередня сторінка
+ViewNextPage = Наступна сторінка
+
+HolySriptCat = Святе Письмо, Біблія
+NoCat = Без категорії
+CommentCat = Біблійні коментарі
+catOT = Старий Заповіт
+catNT = Новий Заповіт
+catApocrypha = Апокрифи
+
+LibTabsAll = Усе
+LibTabsScriptures = Писання
+LibTabsBooks = Книги
+LibTabsComments = Коментарі
+LibTabsTags = Теги
+
+bqVerseTagNotUnique = Неможливо перейменувати тег, інший з тим же ім'ям вже існує
+bqErrorUnknown = Невідома помилка
+bqError = Помилка
+
+commentaryLoadFail = Не вдалося відобразити коментар
+
+HelpDocumentation = Документація
+SelectParaBible = Виберіть вторинну біблію
+DeselectSec = Скасувати вибір
+MyLib = Моя бібліотека
+CollapseAll = Згорнути все
+
+; ЕЛЕМЕНТИ ФОРМИ І МЕНЮ =================================
+
+CBAllNotCaption = шукане містить всі введені слова
+CBCaseNotCaption = не розрізняти прописні і заголовні букви
+CBPartsNotCaption = вирази можуть бути частинами слів
+CBPhraseNotCaption = слова можуть слідувати в будь-якому порядку
+;
+StrBibleTranslations = ПЕРЕКЛАДИ БІБЛІЇ
+StrBooks = ІНШІ КНИГИ
+StrCommentaries = КОМЕНТАРІ
+StrAllDictionaries = ВСІ СЛОВАРИ
+;
+FoundInSeveralDictionaries = знайдено в кількох словниках
+FoundInOneDictionary = знайдено в одному словнику
+;
+
+MainForm.Caption = Цитата з Біблії
+
+MainForm.JCRU_Home.Caption = JesusChrist.ru - сервер християнського спілкування
+MainForm.JCRU_Software.Caption = Безкоштовні християнські софт-тварі
+MainForm.JCRU_Bible.Caption = Біблія в Інтернеті
+MainForm.JCRU_News.Caption = Дайджест новин з усього світу
+MainForm.JCRU_Forum.Caption = Відкритий християнський форум
+MainForm.JCRU_Chat.Caption = Історичний християнський чат
+MainForm.JCRU_Library.Caption = Християнська бібліотека clib.ru
+MainForm.JCRU_Docs.Caption = Корисні духовні статті
+MainForm.JCRU_Mail.Caption = Сервіс поштових розсилок
+
+MainForm.btnFind.Caption = Знайти
+MainForm.btnFind.Hint = Почати/зупинити пошук
+MainForm.btnSearchOptions.Caption = <
+MainForm.cbDic.Hint = Виберіть словник для відображення запису
+MainForm.cbDicFilter.Hint = Виберіть словник для пошуку
+MainForm.cbList.Hint = Область пошуку
+MainForm.cbModules.Hint = Виберіть модуль для перегляду
+MainForm.cbQty.Hint = Кількість результатів для відображення
+MainForm.cbSearch.Hint = Введіть слово або вираз для пошуку
+MainForm.chkAll.Caption = шукане містить хоча б одне слово
+MainForm.chkAll.Hint = Приклад: знайти не тільки вірші, що містять "Ісус Христос", але і ті, які містять "Ісус" або "Христос"
+MainForm.chkCase.Caption = розрізняти прописні і заголовні букви
+MainForm.chkCase.Hint = Пример: розрізняти при пошуку слова "Бог" і "бог"
+MainForm.chkExactPhrase.Caption = шукати точну фразу
+MainForm.chkExactPhrase.Hint = Приклад: вірші, де є "Благословен Бог", але не "Благословен Господь Бог"
+MainForm.chkParts.Caption = вирази не можуть бути частинами слів
+MainForm.chkParts.Hint = Приклад: шукати "благословенний", але не "благословення"
+MainForm.chkPhrase.Caption = слова йдуть в заданому порядку
+MainForm.chkPhrase.Hint = Приклад: знайти вірші, де зустрічається "Ісус Христос", але не "Христос Ісус"
+MainForm.edtDic.Hint = Введіть слово для пошуку
+MainForm.edtSearch.Caption = Знайти в поточному вікні
+MainForm.edtSearch.Hint = Введіть слово або вираз для пошуку
+MainForm.edtStrong.Hint = Введіть число Стронга
+MainForm.lbBook.Hint = Виберіть книгу для перегляду
+MainForm.lbChapter.Hint = Виберіть розділ для перегляду
+MainForm.lblCtrl1.Caption = Ctrl+1
+MainForm.lblDicFoundSeveral.Caption = знайдено в кількох словниках
+MainForm.lblMemo.Caption = ....
+MainForm.lblSearch.Caption = Введіть опції для пошуку
+MainForm.lblSearch.Hint = Шляхом звуження діапазону пошуку і завдання точних параметрів можна отримати кращі результати
+MainForm.miAbout.Caption = Про цю програму
+MainForm.miActions.Caption = Операції
+MainForm.miBGConfig.Caption = Колір фону головного вікна
+MainForm.miChooseSatelliteBible.Caption = Вибрати вторинний вигляд...
+MainForm.miCloseTab.Caption = Закрити вкладку
+MainForm.miColors.Caption = Вибрати кольори
+MainForm.miComments.Caption = Коментарі
+MainForm.miCopy.Caption = Копіювати текст в буфер обміну
+MainForm.miCopyOptions.Caption = Опції копіювання
+MainForm.miCopyVerseNum.Caption = Копіювати номера віршів
+MainForm.miCopyVerseNumbers.Caption = Вставляти номери віршів
+MainForm.miDeteleBibleTab.Caption = Видалити
+MainForm.miDialogFontConfig.Caption= Шрифт діалогових вікон та інтерфейсу
+MainForm.miDic.Caption = Словники
+MainForm.miDownloadLatest.Caption = Завантажити останню версію
+MainForm.miExit.Caption = Вихід
+MainForm.miFavorites.Caption = Вибрані модулі
+MainForm.miFile.Caption = Файл
+MainForm.miFontConfig.Caption = Шрифт головного вікна
+MainForm.miFonts.Caption = Вибрати шрифти
+MainForm.miFoundTextConfig.Caption = Колір знайденого тексту та заміток
+MainForm.miFuzzyLogic.Caption = Використовувати нечітку логіку
+MainForm.miGoBack.Caption = Повернутися на попередню сторінку
+MainForm.miHelp.Caption = Посібник користувача
+MainForm.miHelpMenu.Caption = Довідка
+MainForm.miHotKey.Caption = Додати вибрані модулі...
+MainForm.miHrefConfig.Caption = Колір для гіперпосилань
+MainForm.miHrefUnderline.Caption = Підкреслені гіперпосилання
+MainForm.miLanguage.Caption = Мова інтерфейсу
+MainForm.miMyLibrary.Caption = Моя бібліотека
+MainForm.miNewTab.Caption = Нова вкладка
+MainForm.miNewTab.Hint = Створити нову вкладку
+MainForm.miNotepad.Caption = Міні-редактор
+MainForm.miOpen.Caption = Відкрити файл...
+MainForm.miOpenNewView.Caption = Відкрити в новій вкладці
+MainForm.miOpenPassage.Caption = Вибрати уривок...
+MainForm.miOptions.Caption = Налаштування
+MainForm.miPrint.Caption = Друк...
+MainForm.miPrintPreview.Caption = Попередній перегляд
+MainForm.miQuickNav.Caption = Швидкий перехід до уривку
+MainForm.miQuickSearch.Caption = Швидке введення пошукової фрази
+MainForm.miRecognizeBibleLinks.Caption = Розпізнавати посилання на Біблію
+MainForm.miRefCopy.Caption = Копіювати
+MainForm.miRefFontConfig.Caption = Шрифт вікна довідників
+MainForm.miRefPrint.Caption = Друкувати
+MainForm.miSave.Caption = Зберегти в файл....
+MainForm.miSearch.Caption = Пошук...
+MainForm.miShowSignatures.Caption = Показувати підпис глави у кожного вірша
+MainForm.miSound.Caption = Прослухати звуковий файл, якщо є
+MainForm.miStrictLogic.Caption = Використовувати тільки сувору логіку
+MainForm.miStrong.Caption = Лексикони Стронга
+MainForm.miTechnoForum.Caption = Обговорення 6-й версії "Цитати"
+MainForm.miToggle.Caption = Вкл/викл. ліву панель
+MainForm.miVerseHighlightBG.Caption = Колір фону виділених віршів
+MainForm.miView.Caption = Вигляд
+MainForm.miWebSites.Caption = JesusChrist.ru
+MainForm.miXref.Caption = Паралельні місця (TSK)
+MainForm.pgcMain.Hint = Панель інструментів
+MainForm.pnlFindStrongNumber.Caption = знайти вірші з цим номером
+MainForm.tbBookmarks.Caption = Закладки
+MainForm.tbComments.Hint = Коментарі
+MainForm.tbDic.Hint = Словники
+MainForm.tbGo.Hint = Навігація
+MainForm.tbHistory.Caption = Журнал
+MainForm.tbList.Hint = Тематичні закладки
+MainForm.tbLinksToolBar.Caption = Посилання
+MainForm.tbMemo.Hint = Нотатки
+MainForm.tbSearch.Hint = Пошук
+MainForm.tbStrong.Hint = Словник Стронга
+MainForm.tbXRef.Hint = Паралельні місця (TSK)
+MainForm.tbtnAddNode.Caption = Додати нотатку
+MainForm.tbtnCloseTab.Caption= Закрити вкладку
+MainForm.tbtnCloseTab.Hint = Закрити вкладку (Ctrl+W)
+MainForm.tbtnCopyright.Caption = Авторські права
+MainForm.tbtnDelNode.Caption = Видалити нотатку
+MainForm.tbtnLib.Caption = Бібліотека
+MainForm.tbtnLib.Hint = Перегляд бібліотеки
+MainForm.tbtnNewTab.Caption = Нова вкладка
+MainForm.tbtnNewTab.Hint = Нова вкладка (Ctrl+T)
+MainForm.tbtnPreview.Caption = Попередній перегляд
+MainForm.tbtnPreview.Hint = Попередній перегляд (Ctrl+F11)
+MainForm.tbtnPrint.Caption = Друк
+MainForm.tbtnPrint.Hint = Друк... (F11)
+MainForm.tbtnResolveLinks.Caption = Розпізнавати біблійні посилання
+MainForm.tbtnSatellite.Caption = Паралельна Біблія
+MainForm.tbtnSatellite.Hint = Паралельна Біблія
+MainForm.tbtnSound.Caption = Звуковий файл
+MainForm.tbtnSound.Hint = Прослухати звуковий файл, якщо є (Ctrl+F10)
+MainForm.tbtnToggle.Caption = Ліва панель
+MainForm.tbtnToggle.Hint = Вкл/викл. ліву панель (Ctrl+F1)
+MainForm.trayIcon.Hint = Цитата з Біблії
+
+DockTabsForm.miAddBookmark.Caption = Додати закладку...
+DockTabsForm.miAddBookmarkTagged.Caption = Додати тематичну закладку...
+DockTabsForm.miAddMemo.Caption = Редагувати нотатку...
+DockTabsForm.miCloseAllOtherTabs.Caption = Закрити інші вкладки
+DockTabsForm.miCloseViewTab.Caption = Закрити вкладку
+DockTabsForm.miCompare.Caption = Порівняти переклади...
+DockTabsForm.miCopyPassage.Caption = Копіювати...
+DockTabsForm.miCopySelection.Caption = Копіювати виділений текст
+DockTabsForm.miCopyVerse.Caption = Копіювати...
+DockTabsForm.miMemoCopy.Caption = Копіювати
+DockTabsForm.miMemoCut.Caption = Вирізати
+DockTabsForm.miMemoPaste.Caption = Вставити
+DockTabsForm.miMemosToggle.Caption = Вкл/викл. особисті нотатки
+DockTabsForm.miNewViewTab.Caption = Нова вкладка
+DockTabsForm.miSearchWindow.Caption = Шукати в цьому вікні...
+DockTabsForm.miSearchWord.Caption = Пошук виділеного тексту
+DockTabsForm.tbtnBack.Caption = Назад
+DockTabsForm.tbtnBack.Hint = Поперед. запис в історії (Backspace, Alt + стрілка вліво)
+DockTabsForm.tbtnCopy.Caption = Копіювати текст
+DockTabsForm.tbtnCopy.Hint = Копіювати текст в буфер обміну (Ctrl+F5)
+DockTabsForm.tbtnForward.Caption = Вперед
+DockTabsForm.tbtnForward.Hint = Слід. запис в історії (Alt + стрілка вправо)
+DockTabsForm.tbtnMatchCase.Hint = Ураховувати регістр
+DockTabsForm.tbtnMatchWholeWord.Hint = Тільки слово повністю
+DockTabsForm.tbtnMemoBold.Hint = Напівжирний
+DockTabsForm.tbtnMemoFont.Hint = Шрифт
+DockTabsForm.tbtnMemoItalic.Hint = Курсив
+DockTabsForm.tbtnMemoOpen.Hint = Відкрити
+DockTabsForm.tbtnMemoPainter.Hint = Колір тексту
+DockTabsForm.tbtnMemoPrint.Hint = Друк
+DockTabsForm.tbtnMemoSave.Hint = Зберегти
+DockTabsForm.tbtnMemoUnderline.Hint = Підкреслений
+DockTabsForm.tbtnMemos.Caption = Особисті нотатки
+DockTabsForm.tbtnMemos.Hint = Вкл/викл. особисті нотатки (Ctrl+M)
+DockTabsForm.tbtnNextChapter.Caption = Слід. розділ
+DockTabsForm.tbtnNextChapter.Hint = Наступний розділ (Ctrl+X)
+DockTabsForm.tbtnPrevChapter.Caption = Попер. розділ
+DockTabsForm.tbtnPrevChapter.Hint = Попередній розділ (Ctrl+Z)
+DockTabsForm.tbtnQuickSearch.Hint = Знайти в даному вікні
+DockTabsForm.tbtnQuickSearchNext.Hint = Пошук вперед
+DockTabsForm.tbtnQuickSearchPrev.Hint = Пошук назад
+DockTabsForm.tbtnReference.Hint = Показати обраний уривок
+DockTabsForm.tbtnReferenceInfo.Hint = Інформація про модулі та підписи до книги
+DockTabsForm.tbtnStrongNumbers.Caption = Лексикони Стронга
+DockTabsForm.tbtnStrongNumbers.Hint = Лексикони Стронга (F5)
+DockTabsForm.tedtQuickSearch.Hint = Введіть слово або вираз для пошуку
+DockTabsForm.tedtReference.Hint = Введіть або вставте посилання на вірш, наприклад, Mk 10:30
+
+AboutForm.Caption = Про програму
+AboutForm.btnOK.Caption = OK
+AboutForm.pnlDownloadLatest.Caption = Актуальна версія програми тут
+AboutForm.pnlForum.Caption = Обговоріть роботу програми на форумі
+
+;
+CopyOptionsAddReference_ShortAtBeginning = Короткий підпис на початку кожного вірша
+CopyOptionsAddReference_ShortAtEnd = Короткий підпис в кінці уривка
+CopyOptionsAddReference_FullAtEnd = Повний підпис в кінці уривка
+;
+
+ConfigForm.Caption = Налаштування
+ConfigForm.btnCancel.Caption = Відміна
+ConfigForm.btnDeletePath.Caption = x
+ConfigForm.btnOK.Caption = OK
+ConfigForm.btnSelectPath.Caption = ...
+ConfigForm.chkAddLineBreaks.Caption = Додавати перенесення рядка після кожного вірша
+ConfigForm.chkAddModuleName.Caption = Вставляти в підпис код модуля/перекладу
+ConfigForm.chkAddReference.Caption = Додавати підпис до уривку
+ConfigForm.chkCopyFontParams.Caption = Копіювати параметри шрифту
+ConfigForm.chkCopyFontParams.Hint = Текст буде передаватися в форматі RTF
+ConfigForm.chkCopyVerseNumbers.Caption = Копіювати номера віршів
+ConfigForm.chkFullContextOnRestrictedLinks.Caption = Повний контекст обмежених посилань
+ConfigForm.chkHighlightVerseHits.Caption = Виділяти обраний вірш
+ConfigForm.chkMinimizeToTray.Caption = Звертати в трей при мінімізації вікна
+ConfigForm.chkMinimizeToTray.Hint = Біля системного годинника буде створена іконка
+ConfigForm.lblAvailableModules.Caption = Доступні модулі
+ConfigForm.lblFavourites.Caption = Вибране
+ConfigForm.lblSelectSecondPath.Caption = Додатковий шлях до модулів
+ConfigForm.rgHotKeyChoice.Caption = Комбінація клавіш
+ConfigForm.tsCopyOptions.Caption = Опції копіювання
+ConfigForm.tsFavouriteEx.Caption = Вибрані модулі
+ConfigForm.tsOtherOptions.Caption = Інші опції
+
+MyLibraryForm.btnClear.Caption = Очистити
+MyLibraryForm.btnCollapse.Caption = Згорнути все
+MyLibraryForm.btnOK.Caption = OK
+MyLibraryForm.lblNavigate.Caption = Перейти
+
+ExceptionForm.btnHalt.Caption = Аварійна зупинка
+ExceptionForm.btnOK.Caption = OK
+ExceptionForm.lblLog.Caption = Протокол виключення:
