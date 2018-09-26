@@ -274,6 +274,7 @@ DockTabsForm.tbtnReferenceInfo.Hint = Информация о модуле и п
 DockTabsForm.tbtnSatellite.Hint = Выбрать вторичный вид...
 DockTabsForm.tbtnStrongNumbers.Caption = Лексиконы Стронга
 DockTabsForm.tbtnStrongNumbers.Hint = Лексиконы Стронга (F5)
+DockTabsForm.tbtnToggleNav.Hint = Вкл/выкл. панель навигации
 DockTabsForm.tedtQuickSearch.Hint = Введите слово или выражение для поиска
 DockTabsForm.tedtReference.Hint = Введите или вставьте ссылку на стих, например, Mk 10:30
 

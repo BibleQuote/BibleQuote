@@ -274,6 +274,7 @@ DockTabsForm.tbtnReferenceInfo.Hint = Module info and book signature hints
 DockTabsForm.tbtnSatellite.Hint = Choose satellite bible
 DockTabsForm.tbtnStrongNumbers.Caption = Strong
 DockTabsForm.tbtnStrongNumbers.Hint = Strong's Lexicons (F5)
+DockTabsForm.tbtnToggleNav.Hint = Toggle navigation panel on/off
 DockTabsForm.tedtQuickSearch.Hint = Enter word or expression to search
 DockTabsForm.tedtReference.Hint = Enter or paste verse link like Mk 10:30
 
