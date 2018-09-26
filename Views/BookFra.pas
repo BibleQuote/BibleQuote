@@ -10,7 +10,7 @@ uses
   WinApi.ShellApi, StrUtils, BibleQuoteUtils, CommandProcessor, LinksParserIntf,
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
-  System.Types, LayoutConfig, LibraryFra;
+  System.Types, LayoutConfig, LibraryFra, VirtualTrees;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -62,6 +62,9 @@ type
     miMemoCut: TMenuItem;
     miMemoPaste: TMenuItem;
     tbtnSatellite: TToolButton;
+    pnlNav: TPanel;
+    splMain: TSplitter;
+    vdtModules: TVirtualStringTree;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure miCompareClick(Sender: TObject);
@@ -104,7 +107,6 @@ type
     procedure tbtnReferenceClick(Sender: TObject);
     procedure tbtnReferenceInfoClick(Sender: TObject);
     procedure tbtnStrongNumbersClick(Sender: TObject);
-    procedure tedtReferenceChange(Sender: TObject);
     procedure tedtReferenceDblClick(Sender: TObject);
     procedure tedtReferenceEnter(Sender: TObject);
     procedure tedtReferenceKeyPress(Sender: TObject; var Key: Char);
@@ -136,6 +138,11 @@ type
     function RefBiblesCount: integer;
     procedure SelectSatelliteModule();
     procedure tbtnSatelliteMouseEnter(Sender: TObject);
+    procedure vdtModulesAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vdtModulesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vdtModulesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+    procedure vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
+    procedure vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -153,6 +160,12 @@ type
 
     procedure OnSelectSatelliteModule(Sender: TObject; modEntry: TModuleEntry);
     procedure OnSatelliteFormDeactivate(Sender: TObject);
+
+    function OpenChapter: Boolean;
+    function IsPsalms(bible: TBible; bookIndex: integer): Boolean;
+    procedure SelectModuleTreeNode(bible: TBible);
+    function GetChildNodeByIndex(parentNode: PVirtualNode; index: Integer): PVirtualNode;
+    procedure UpdateModuleTreeFont(book: TBible);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
@@ -166,6 +179,9 @@ type
     function GetBookTabInfo: TBookTabInfo;
     property BookTabInfo: TBookTabInfo read GetBookTabInfo;
     procedure Translate();
+    procedure UpdateModuleTreeSelection(book: TBible);
+    procedure UpdateModuleTree(book: TBible);
+    function GetCurrentBookNode(): PVirtualNode;
   end;
 
 implementation
@@ -189,6 +205,152 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
   mSatelliteLibraryView.Translate();
   mSatelliteForm.Caption := Lang.SayDefault('SelectParaBible', 'Select secondary bible');
+end;
+
+function TBookFrame.IsPsalms(bible: TBible; bookIndex: integer): Boolean;
+var
+  chaptersCount: integer;
+begin
+  try
+    chaptersCount := bible.ChapterQtys[bookIndex];
+    Result := (chaptersCount = C_TotalPsalms) or (chaptersCount = C_TotalPsalms + 1);
+  except
+    Result := False;
+  end;
+end;
+
+function TBookFrame.OpenChapter: Boolean;
+var
+  data: PBookNodeData;
+  node: PVirtualNode;
+  bookIndex: integer;
+  chapterIndex: integer;
+  command: string;
+  bible: TBible;
+begin
+  Result := false;
+  node := vdtModules.GetFirstSelected();
+  if Assigned(node) then
+  begin
+    data := vdtModules.GetNodeData(node);
+
+    if (data.NodeType = btBook) then
+    begin
+      bookIndex := node.Index + 1;
+      chapterIndex := 1;
+    end
+    else
+    begin
+      bookIndex := node.Parent.Index + 1;
+      chapterIndex := node.Index + 1;
+    end;
+
+    bible := BookTabInfo.Bible;
+    command := Format('go %s %d %d', [bible.ShortPath, bookIndex, chapterIndex]);
+    Result := ProcessCommand(BookTabInfo, command, hlDefault);
+  end;
+end;
+
+procedure TBookFrame.vdtModulesAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
+begin
+  OpenChapter();
+end;
+
+procedure TBookFrame.vdtModulesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+var
+  Data: PBookNodeData;
+begin
+  Data := Sender.GetNodeData(Node);
+  // Explicitely free the string, the VCL cannot know that there is one but needs to free
+  // it nonetheless. For more fields in such a record which must be freed use Finalize(Data^) instead touching
+  // every member individually.
+  Finalize(Data^);
+end;
+
+procedure TBookFrame.vdtModulesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+var
+  Data: PBookNodeData;
+begin
+  Data := Sender.GetNodeData(Node);
+  if Assigned(Data) then
+    CellText := Data.Caption;
+end;
+
+procedure TBookFrame.vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
+var
+  Level: Integer;
+  bible: TBible;
+begin
+  Level := Sender.GetNodeLevel(Node);
+  if Assigned(BookTabInfo) then
+  begin
+    bible := BookTabInfo.Bible;
+    ChildCount := IfThen(Level = 0, bible.ChapterQtys[Node.Index + 1], 0);
+  end
+  else
+  begin
+    ChildCount := 0;
+  end;
+end;
+
+procedure TBookFrame.vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+var
+  Data: PBookNodeData;
+  Level: Integer;
+  bookIndex, chapterIndex: integer;
+  chapterString: string;
+  bible: TBible;
+begin
+  with Sender do
+  begin
+    Level := GetNodeLevel(Node);
+    Data := GetNodeData(Node);
+
+    if Level < 1 then
+      Include(InitialStates, ivsHasChildren);
+
+    if not Assigned(BookTabInfo) then
+    begin
+      if (Level = 0) then
+        vdtModules.RootNodeCount := 0
+      else
+        ParentNode.ChildCount := 0;
+      Exit;
+    end;
+
+    bible := BookTabInfo.Bible;
+
+    if (Level = 0) then
+    begin
+      Data.Caption := bible.FullNames[Node.Index + 1];
+      Data.NodeType := btBook;
+    end
+    else
+    begin
+      chapterIndex := Integer(Node.Index) + IfThen(bible.Trait[bqmtZeroChapter], 0, 1);
+
+      if (chapterIndex = 0) and (Length(Trim(bible.ChapterZeroString)) > 0) then
+      begin
+        chapterString := Trim(bible.ChapterZeroString);
+      end
+      else
+      begin
+        bookIndex := node.Parent.Index + 1;
+        if (IsPsalms(bible, bookIndex)) then
+          chapterString := Trim(bible.ChapterStringPs)
+        else
+          chapterString := Trim(bible.ChapterString);
+
+        if (Length(chapterString) > 0) then
+          chapterString := chapterString + ' ';
+
+        chapterString := chapterString + IntToStr(chapterIndex);
+      end;
+
+      Data.Caption := chapterString;
+      Data.NodeType := btChapter;
+    end;
+  end;
 end;
 
 procedure TBookFrame.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -673,6 +835,9 @@ begin
   mSatelliteLibraryView.cmbBookType.ItemIndex := 1;
   mSatelliteLibraryView.Align := TAlign.alClient;
   mSatelliteLibraryView.Parent := mSatelliteForm;
+
+  // Let the tree know how much data space we need.
+  vdtModules.NodeDataSize := SizeOf(TBookNodeData);
 end;
 
 procedure TBookFrame.dtsBibleChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
@@ -1344,11 +1509,6 @@ begin
   end;
 end;
 
-procedure TBookFrame.tedtReferenceChange(Sender: TObject);
-begin
-  mMainView.AddressFromMenus := false;
-end;
-
 procedure TBookFrame.tedtReferenceDblClick(Sender: TObject);
 begin
   mMainView.GoReference();
@@ -1493,6 +1653,149 @@ begin
       ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].mShortPath, 'bibleqt.ini'));
       if (ini <> BookTabInfo.SecondBible.inifile) then
         BookTabInfo.SecondBible.inifile := ini;
+    end;
+  end;
+end;
+
+function TBookFrame.GetCurrentBookNode(): PVirtualNode;
+var
+  currentNodes: TNodeArray;
+  data: PBookNodeData;
+begin
+  Result := nil;
+  currentNodes := vdtModules.GetSortedSelection(false);
+  if (Length(currentNodes) > 0) then
+  begin
+    data := vdtModules.GetNodeData(currentNodes[0]);
+    if (data.NodeType = btBook) then
+    begin
+      Result := currentNodes[0];
+    end
+    else
+    begin
+      Result := currentNodes[0].Parent;
+    end;
+  end;
+end;
+
+procedure TBookFrame.UpdateModuleTreeFont(book: TBible);
+var
+  uifont: string;
+begin
+  if (Length(book.DesiredUIFont) > 0) then
+    uifont := mMainView.mFontManager.SuggestFont(mMainView.Canvas.Handle, book.DesiredUIFont, book.path, $7F)
+  else
+    uifont := mMainView.Font.Name;
+
+  if vdtModules.Font.Name <> uifont then
+    vdtModules.Font.Name := uifont;
+end;
+
+procedure TBookFrame.UpdateModuleTree(book: TBible);
+begin
+  vdtModules.Clear;
+  UpdateModuleTreeFont(book);
+
+  vdtModules.RootNodeCount := book.BookQty;
+  UpdateModuleTreeSelection(book);
+end;
+
+procedure TBookFrame.UpdateModuleTreeSelection(book: TBible);
+var
+  bookNode, chapterNode: PVirtualNode;
+  chapterIndex, bookIndex: integer;
+begin
+  vdtModules.ClearSelection;
+
+  bookIndex := book.CurBook - 1;
+  if (bookIndex < 0) then
+    bookIndex := 0;
+
+  bookNode := GetChildNodeByIndex(nil, bookIndex);
+  if Assigned(bookNode) then
+  begin
+    chapterIndex := book.CurChapter - 1;
+    if (chapterIndex < 0) then
+      chapterIndex := 0;
+
+    chapterNode := GetChildNodeByIndex(bookNode, chapterIndex);
+
+    if Assigned(chapterNode) then
+    begin
+      if (vdtModules.Selected[chapterNode] = False) then
+      begin
+        if (vdtModules.Expanded[bookNode] = False) then
+          vdtModules.Expanded[bookNode] := True;
+
+        vdtModules.Selected[chapterNode] := True;
+        vdtModules.FocusedNode := chapterNode;
+      end;
+    end
+    else
+    begin
+      vdtModules.Selected[bookNode] := True;
+      vdtModules.FocusedNode := bookNode;
+    end;
+  end;
+end;
+
+procedure TBookFrame.SelectModuleTreeNode(bible: TBible);
+var
+  i: Integer;
+  bookNode: PVirtualNode;
+  chapterNode: PVirtualNode;
+begin
+  i := bible.CurBook - 1;
+  if bible.BookQty > 0 then
+  begin
+    bookNode := GetChildNodeByIndex(nil, i);
+    if Assigned(bookNode) then
+    begin
+      i := bible.CurChapter - 1;
+      if (i < 0) then
+        i := 0;
+      chapterNode := GetChildNodeByIndex(bookNode, i);
+      if Assigned(chapterNode) then
+      begin
+        if (vdtModules.Selected[chapterNode] = False) then
+        begin
+          if (vdtModules.Expanded[bookNode] = False) then
+            vdtModules.Expanded[bookNode] := True;
+
+          vdtModules.Selected[chapterNode] := True;
+          vdtModules.FocusedNode := chapterNode;
+        end;
+      end
+      else
+      begin
+        vdtModules.Selected[bookNode] := True;
+        vdtModules.FocusedNode := bookNode;
+      end;
+    end;
+  end;
+end;
+
+function TBookFrame.GetChildNodeByIndex(parentNode: PVirtualNode; index: Integer): PVirtualNode;
+begin
+  Result := nil;
+  if (parentNode = nil) then
+  begin
+    Result := vdtModules.GetFirst();
+    while (index <> 0) do
+    begin
+      Result := vdtModules.GetNextSibling(Result);
+      Dec(index);
+    end;
+    exit;
+  end;
+
+  if (vsHasChildren in parentNode.States) then
+  begin
+    Result := vdtModules.GetFirstChild(parentNode);
+    while (Assigned(Result) and (index <> 0)) do
+    begin
+      Result := vdtModules.GetNextSibling(Result);
+      Dec(index);
     end;
   end;
 end;
@@ -1763,7 +2066,7 @@ begin
       Exit;
     Result := true;
 
-    mMainView.SelectModuleTreeNode(bookTabInfo.Bible);
+    SelectModuleTreeNode(bookTabInfo.Bible);
 
     if (not wasFile) then
       AdjustBibleTabs();

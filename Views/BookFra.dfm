@@ -1,8 +1,8 @@
 object BookFrame: TBookFrame
   Left = 0
   Top = 0
-  Width = 430
-  Height = 313
+  Width = 664
+  Height = 508
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,20 +15,30 @@ object BookFrame: TBookFrame
   OnMouseActivate = FormMouseActivate
   object pnlMainView: TPanel
     Left = 0
-    Top = 0
-    Width = 430
-    Height = 292
+    Top = 54
+    Width = 664
+    Height = 433
     Align = alClient
     BevelOuter = bvNone
     Caption = 'pnlView'
     Color = clWindow
     ParentBackground = False
     TabOrder = 0
+    object splMain: TSplitter
+      Left = 300
+      Top = 0
+      Width = 5
+      Height = 433
+      Color = clBtnFace
+      ParentColor = False
+      ExplicitLeft = 0
+      ExplicitTop = 54
+    end
     object bwrHtml: THTMLViewer
-      Left = 0
-      Top = 54
-      Width = 430
-      Height = 238
+      Left = 305
+      Top = 0
+      Width = 359
+      Height = 433
       TabOrder = 0
       Align = alClient
       PopupMenu = pmBrowser
@@ -56,222 +66,45 @@ object BookFrame: TBookFrame
       OnImageRequest = bwrHtmlImageRequest
       OnMouseDouble = bwrHtmlMouseDouble
     end
-    object pnlViewPageToolbar: TPanel
+    object pnlNav: TPanel
       Left = 0
       Top = 0
-      Width = 430
-      Height = 54
-      Align = alTop
-      AutoSize = True
-      Padding.Left = 1
-      Padding.Top = 1
-      Padding.Right = 1
-      Padding.Bottom = 2
+      Width = 300
+      Height = 433
+      Align = alLeft
       TabOrder = 1
-      object tlbViewPage: TToolBar
-        AlignWithMargins = True
-        Left = 2
-        Top = 3
-        Width = 426
-        Height = 23
-        Margins.Left = 0
-        Margins.Top = 1
-        Margins.Right = 0
-        Margins.Bottom = 1
-        Caption = 'View page menu'
-        GradientEndColor = clWindow
-        Images = ilImages
+      object vdtModules: TVirtualStringTree
+        Left = 1
+        Top = 1
+        Width = 298
+        Height = 431
+        Align = alClient
+        ButtonStyle = bsTriangle
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial Unicode MS'
+        Font.Style = []
+        Header.AutoSizeIndex = 0
+        Header.MainColumn = -1
+        ParentFont = False
         TabOrder = 0
-        object tbtnBack: TToolButton
-          Left = 0
-          Top = 0
-          Caption = 'Back'
-          ImageIndex = 0
-          OnClick = tbtnBackClick
-        end
-        object tbtnForward: TToolButton
-          Left = 23
-          Top = 0
-          Caption = 'Forward'
-          ImageIndex = 1
-          OnClick = tbtnForwardClick
-        end
-        object tbtnSep02: TToolButton
-          Left = 46
-          Top = 0
-          Width = 6
-          Style = tbsSeparator
-        end
-        object tbtnPrevChapter: TToolButton
-          Left = 52
-          Top = 0
-          Caption = 'Minus'
-          ImageIndex = 4
-          OnClick = tbtnPrevChapterClick
-        end
-        object tbtnNextChapter: TToolButton
-          Left = 75
-          Top = 0
-          Caption = 'Plus'
-          ImageIndex = 5
-          OnClick = tbtnNextChapterClick
-        end
-        object tbtnSep03: TToolButton
-          Left = 98
-          Top = 0
-          Width = 6
-          Style = tbsSeparator
-        end
-        object tbtnCopy: TToolButton
-          Left = 104
-          Top = 0
-          Caption = 'Copy'
-          ImageIndex = 2
-          OnClick = tbtnCopyClick
-        end
-        object tbtnStrongNumbers: TToolButton
-          Left = 127
-          Top = 0
-          Caption = 'Strong'
-          ImageIndex = 3
-          Style = tbsCheck
-          OnClick = tbtnStrongNumbersClick
-        end
-        object tbtnMemos: TToolButton
-          Left = 150
-          Top = 0
-          Caption = 'Memos'
-          ImageIndex = 6
-          Style = tbsCheck
-          OnClick = tbtnMemosClick
-        end
-        object tbtnSatellite: TToolButton
-          Left = 173
-          Top = 0
-          Caption = 'Satellite'
-          Grouped = True
-          ImageIndex = 17
-          Style = tbsCheck
-          OnClick = tbtnSatelliteClick
-          OnMouseEnter = tbtnSatelliteMouseEnter
-        end
-        object tbtnSep07: TToolButton
-          Left = 196
-          Top = 0
-          Width = 6
-          Style = tbsSeparator
-        end
-        object tbtnQuickSearch: TToolButton
-          Left = 202
-          Top = 0
-          Caption = 'Quick search'
-          ImageIndex = 10
-          Style = tbsCheck
-          OnClick = tbtnQuickSearchClick
-        end
-        object tbtnSep09: TToolButton
-          Left = 225
-          Top = 0
-          Width = 6
-          ImageIndex = 45
-          Style = tbsSeparator
-        end
-        object tedtReference: TEdit
-          Left = 231
-          Top = 0
-          Width = 121
-          Height = 22
-          PopupMenu = pmMemo
-          TabOrder = 0
-          OnChange = tedtReferenceChange
-          OnDblClick = tedtReferenceDblClick
-          OnEnter = tedtReferenceEnter
-          OnKeyPress = tedtReferenceKeyPress
-        end
-        object tbtnReference: TToolButton
-          Left = 352
-          Top = 0
-          Caption = 'Go reference'
-          ImageIndex = 16
-          OnClick = tbtnReferenceClick
-        end
-        object tbtnReferenceInfo: TToolButton
-          Left = 375
-          Top = 0
-          Caption = 'Reference info'
-          ImageIndex = 15
-          OnClick = tbtnReferenceInfoClick
-        end
-      end
-      object tlbQuickSearch: TToolBar
-        AlignWithMargins = True
-        Left = 2
-        Top = 28
-        Width = 426
-        Height = 22
-        Margins.Left = 0
-        Margins.Top = 1
-        Margins.Right = 0
-        Margins.Bottom = 1
-        AutoSize = True
-        Caption = 'Quick search'
-        EdgeInner = esNone
-        EdgeOuter = esNone
-        Images = ilImages
-        TabOrder = 1
-        Transparent = True
-        Visible = False
-        object tbtnQuickSearchPrev: TToolButton
-          Left = 0
-          Top = 0
-          Caption = 'Previous match'
-          ImageIndex = 11
-          OnClick = tbtnQuickSearchPrevClick
-        end
-        object tedtQuickSearch: TEdit
-          Left = 23
-          Top = 0
-          Width = 155
-          Height = 22
-          TabOrder = 0
-          OnKeyUp = tedtQuickSearchKeyUp
-        end
-        object tbtnQuickSearchNext: TToolButton
-          Left = 178
-          Top = 0
-          Caption = 'tbtnQuickSearchNext'
-          ImageIndex = 12
-          OnClick = tbtnQuickSearchNextClick
-        end
-        object tbtnSep08: TToolButton
-          Left = 201
-          Top = 0
-          Width = 6
-          Caption = 'tbtnSep08'
-          ImageIndex = 47
-          Style = tbsSeparator
-        end
-        object tbtnMatchCase: TToolButton
-          Left = 207
-          Top = 0
-          Caption = 'tbtnMatchCase'
-          ImageIndex = 13
-          Style = tbsCheck
-        end
-        object tbtnMatchWholeWord: TToolButton
-          Left = 230
-          Top = 0
-          Caption = 'tbtnMatchWholeWord'
-          ImageIndex = 14
-          Style = tbsCheck
-        end
+        TreeOptions.AnimationOptions = [toAnimatedToggle]
+        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toUseBlendedImages]
+        TreeOptions.SelectionOptions = [toFullRowSelect]
+        OnAddToSelection = vdtModulesAddToSelection
+        OnFreeNode = vdtModulesFreeNode
+        OnGetText = vdtModulesGetText
+        OnInitChildren = vdtModulesInitChildren
+        OnInitNode = vdtModulesInitNode
+        Columns = <>
       end
     end
   end
   object pnlPaint: TPanel
     Left = 0
-    Top = 292
-    Width = 430
+    Top = 487
+    Width = 664
     Height = 21
     Align = alBottom
     BevelOuter = bvNone
@@ -280,7 +113,7 @@ object BookFrame: TBookFrame
       Tag = -1
       Left = 0
       Top = 0
-      Width = 430
+      Width = 664
       Height = 21
       Cursor = crHandPoint
       Hint = 'rtet'
@@ -304,11 +137,221 @@ object BookFrame: TBookFrame
       DockSite = False
     end
   end
+  object pnlViewPageToolbar: TPanel
+    Left = 0
+    Top = 0
+    Width = 664
+    Height = 54
+    Align = alTop
+    AutoSize = True
+    Padding.Left = 1
+    Padding.Top = 1
+    Padding.Right = 1
+    Padding.Bottom = 2
+    TabOrder = 2
+    object tlbViewPage: TToolBar
+      AlignWithMargins = True
+      Left = 2
+      Top = 3
+      Width = 660
+      Height = 23
+      Margins.Left = 0
+      Margins.Top = 1
+      Margins.Right = 0
+      Margins.Bottom = 1
+      Caption = 'View page menu'
+      GradientEndColor = clWindow
+      Images = ilImages
+      TabOrder = 0
+      object tbtnBack: TToolButton
+        Left = 0
+        Top = 0
+        Caption = 'Back'
+        ImageIndex = 0
+        OnClick = tbtnBackClick
+      end
+      object tbtnForward: TToolButton
+        Left = 23
+        Top = 0
+        Caption = 'Forward'
+        ImageIndex = 1
+        OnClick = tbtnForwardClick
+      end
+      object tbtnSep02: TToolButton
+        Left = 46
+        Top = 0
+        Width = 6
+        Style = tbsSeparator
+      end
+      object tbtnPrevChapter: TToolButton
+        Left = 52
+        Top = 0
+        Caption = 'Minus'
+        ImageIndex = 4
+        OnClick = tbtnPrevChapterClick
+      end
+      object tbtnNextChapter: TToolButton
+        Left = 75
+        Top = 0
+        Caption = 'Plus'
+        ImageIndex = 5
+        OnClick = tbtnNextChapterClick
+      end
+      object tbtnSep03: TToolButton
+        Left = 98
+        Top = 0
+        Width = 6
+        Style = tbsSeparator
+      end
+      object tbtnCopy: TToolButton
+        Left = 104
+        Top = 0
+        Caption = 'Copy'
+        ImageIndex = 2
+        OnClick = tbtnCopyClick
+      end
+      object tbtnStrongNumbers: TToolButton
+        Left = 127
+        Top = 0
+        Caption = 'Strong'
+        ImageIndex = 3
+        Style = tbsCheck
+        OnClick = tbtnStrongNumbersClick
+      end
+      object tbtnMemos: TToolButton
+        Left = 150
+        Top = 0
+        Caption = 'Memos'
+        ImageIndex = 6
+        Style = tbsCheck
+        OnClick = tbtnMemosClick
+      end
+      object tbtnSatellite: TToolButton
+        Left = 173
+        Top = 0
+        Caption = 'Satellite'
+        Grouped = True
+        ImageIndex = 17
+        Style = tbsCheck
+        OnClick = tbtnSatelliteClick
+        OnMouseEnter = tbtnSatelliteMouseEnter
+      end
+      object tbtnSep07: TToolButton
+        Left = 196
+        Top = 0
+        Width = 6
+        Style = tbsSeparator
+      end
+      object tbtnQuickSearch: TToolButton
+        Left = 202
+        Top = 0
+        Caption = 'Quick search'
+        ImageIndex = 10
+        Style = tbsCheck
+        OnClick = tbtnQuickSearchClick
+      end
+      object tbtnSep09: TToolButton
+        Left = 225
+        Top = 0
+        Width = 6
+        ImageIndex = 45
+        Style = tbsSeparator
+      end
+      object tedtReference: TEdit
+        Left = 231
+        Top = 0
+        Width = 121
+        Height = 22
+        PopupMenu = pmMemo
+        TabOrder = 0
+        OnDblClick = tedtReferenceDblClick
+        OnEnter = tedtReferenceEnter
+        OnKeyPress = tedtReferenceKeyPress
+      end
+      object tbtnReference: TToolButton
+        Left = 352
+        Top = 0
+        Caption = 'Go reference'
+        ImageIndex = 16
+        OnClick = tbtnReferenceClick
+      end
+      object tbtnReferenceInfo: TToolButton
+        Left = 375
+        Top = 0
+        Caption = 'Reference info'
+        ImageIndex = 15
+        OnClick = tbtnReferenceInfoClick
+      end
+    end
+    object tlbQuickSearch: TToolBar
+      AlignWithMargins = True
+      Left = 2
+      Top = 28
+      Width = 660
+      Height = 22
+      Margins.Left = 0
+      Margins.Top = 1
+      Margins.Right = 0
+      Margins.Bottom = 1
+      AutoSize = True
+      Caption = 'Quick search'
+      EdgeInner = esNone
+      EdgeOuter = esNone
+      Images = ilImages
+      TabOrder = 1
+      Transparent = True
+      Visible = False
+      object tbtnQuickSearchPrev: TToolButton
+        Left = 0
+        Top = 0
+        Caption = 'Previous match'
+        ImageIndex = 11
+        OnClick = tbtnQuickSearchPrevClick
+      end
+      object tedtQuickSearch: TEdit
+        Left = 23
+        Top = 0
+        Width = 155
+        Height = 22
+        TabOrder = 0
+        OnKeyUp = tedtQuickSearchKeyUp
+      end
+      object tbtnQuickSearchNext: TToolButton
+        Left = 178
+        Top = 0
+        Caption = 'tbtnQuickSearchNext'
+        ImageIndex = 12
+        OnClick = tbtnQuickSearchNextClick
+      end
+      object tbtnSep08: TToolButton
+        Left = 201
+        Top = 0
+        Width = 6
+        Caption = 'tbtnSep08'
+        ImageIndex = 47
+        Style = tbsSeparator
+      end
+      object tbtnMatchCase: TToolButton
+        Left = 207
+        Top = 0
+        Caption = 'tbtnMatchCase'
+        ImageIndex = 13
+        Style = tbsCheck
+      end
+      object tbtnMatchWholeWord: TToolButton
+        Left = 230
+        Top = 0
+        Caption = 'tbtnMatchWholeWord'
+        ImageIndex = 14
+        Style = tbsCheck
+      end
+    end
+  end
   object ilImages: TImageList
     Left = 96
     Top = 95
     Bitmap = {
-      494C0101120068005C0410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101120068006C0410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
