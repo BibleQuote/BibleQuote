@@ -275,6 +275,7 @@ DockTabsForm.tbtnReferenceInfo.Hint = Modulinfo und Hinweise zur Buchsignatur
 DockTabsForm.tbtnSatellite.Hint = Die begleitende Aussicht wählen
 DockTabsForm.tbtnStrongNumbers.Caption = Strong
 DockTabsForm.tbtnStrongNumbers.Hint = Strong's Wörterbuch (F5)
+DockTabsForm.tbtnToggleNav.Hint = Toggle navigation panel on/off (de)
 DockTabsForm.tedtQuickSearch.Hint = Ein Wort oder einen Ausdruck eingeben, um zu suchen
 DockTabsForm.tedtReference.Hint = Den Vers wie Mk 10:30 eingeben oder einfügen
 
