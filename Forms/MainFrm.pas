@@ -104,7 +104,6 @@ type
     cbList: TComboBox;
     btnFind: TButton;
     tbGo: TTabSheet;
-    pnlGo: TPanel;
     chkAll: TCheckBox;
     chkPhrase: TCheckBox;
     chkParts: TCheckBox;
@@ -134,7 +133,6 @@ type
     lblBookmark: TLabel;
     pnlFindStrongNumber: TPanel;
     trayIcon: TCoolTrayIcon;
-    splGo: TSplitter;
     edtDic: TComboBox;
     mmGeneral: TMainMenu;
     miFile: TMenuItem;
@@ -223,7 +221,6 @@ type
     tbtnSpace2: TToolButton;
     miShowSignatures: TMenuItem;
     miView: TMenuItem;
-    vdtModules: TVirtualStringTree;
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
     tbtnNewForm: TToolButton;
@@ -233,7 +230,6 @@ type
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
     procedure CopySelectionClick(Sender: TObject);
-    procedure ChapterComboBoxKeyPress(Sender: TObject; var Key: Char);
     procedure tbtnPrintClick(Sender: TObject);
     procedure HistoryButtonClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -242,7 +238,6 @@ type
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure btnFindClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure ChapterComboBoxChange(Sender: TObject);
     procedure miExitClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure miFontConfigClick(Sender: TObject);
@@ -326,11 +321,6 @@ type
     procedure miChooseSatelliteBibleClick(Sender: TObject);
     procedure appEventsException(Sender: TObject; E: Exception);
 
-    function OpenChapter(): Boolean;
-    procedure NavigateToMainBookNode(book: TBible);
-    function GetChildNodeByIndex(parentNode: PVirtualNode; Index: integer): PVirtualNode;
-    function GetCurrentBookNode(): PVirtualNode;
-    function IsPsalms(bible: TBible; bookIndex: integer): Boolean;
     procedure pgcMainMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure tbtnAddTagClick(Sender: TObject);
 
@@ -415,21 +405,6 @@ type
     procedure ModulesScanDone(Sender: TObject);
     procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
 
-    procedure vdtModulesGetText(
-      Sender: TBaseVirtualTree;
-      Node: PVirtualNode;
-      Column: TColumnIndex;
-      TextType: TVSTTextType;
-      var CellText: string);
-
-    procedure vdtModulesInitNode(
-      Sender: TBaseVirtualTree;
-      parentNode, Node: PVirtualNode;
-      var InitialStates: TVirtualNodeInitStates);
-
-    procedure vdtModulesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
-    procedure vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
-    procedure vdtModulesAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
     procedure bwrSearchHotSpotCovered(Sender: TObject; const SRC: string);
     procedure miCloseTabClick(Sender: TObject);
@@ -495,7 +470,6 @@ type
 
     PrintFootNote: Boolean;
 
-    AddressFromMenus: Boolean;
     IsSearching: Boolean;
 
     MainFormMaximized: Boolean;
@@ -530,7 +504,7 @@ type
     CurFromVerse, CurToVerse, VersePosition: integer;
 
     // config
-    MainFormLeft, MainFormTop, MainFormWidth, MainFormHeight, MainPagesWidth,  Panel2Height: integer;
+    MainFormLeft, MainFormTop, MainFormWidth, MainFormHeight, MainPagesWidth: integer;
 
     miHrefUnderlineChecked, CopyOptionsCopyVerseNumbersChecked,
       CopyOptionsCopyFontParamsChecked, CopyOptionsAddModuleNameChecked,
@@ -626,8 +600,6 @@ type
     procedure MainMenuInit(cacheupdate: Boolean);
     procedure GoModuleName(s: string; fromBeginning: Boolean = false);
 
-    procedure UpdateBooksAndChaptersBoxes(book: TBible);
-
     procedure LanguageMenuClick(Sender: TObject);
 
     function ChooseColor(color: TColor): TColor;
@@ -697,7 +669,6 @@ type
     function DefaultBookTabState(): TBookTabInfoState;
     procedure CopyVerse();
 
-    procedure SelectModuleTreeNode(bible: TBible);
     property FontManager: TFontManager read mFontManager;
   public
     mHandCur: TCursor;
@@ -763,24 +734,6 @@ begin
   Result := [vtisShowNotes, vtisResolveLinks];
 end;
 
-procedure TMainForm.UpdateBooksAndChaptersBoxes(book: TBible);
-var
-  uifont: string;
-begin
-  vdtModules.Clear;
-
-  if (Length(book.DesiredUIFont) > 0) then
-    uifont := mFontManager.SuggestFont(self.Canvas.Handle, book.DesiredUIFont, book.path, $0007F)
-  else
-    uifont := self.Font.Name;
-
-  if vdtModules.Font.Name <> uifont then
-    vdtModules.Font.Name := uifont;
-
-  vdtModules.RootNodeCount := book.BookQty;
-  NavigateToMainBookNode(book);
-end;
-
 procedure TMainForm.HistoryAdd(s: string);
 begin
   if (not HistoryOn) or ((History.Count > 0) and (History[0] = s)) then
@@ -837,7 +790,6 @@ begin
     MainFormMaximized := MainCfgIni.SayDefault('MainFormMaximized', '0') = '1';
 
     MainPagesWidth := (StrToInt(MainCfgIni.SayDefault('MainPagesWidth', '0')) * Screen.Height) div MAXHEIGHT;
-    Panel2Height := (StrToInt(MainCfgIni.SayDefault('Panel2Height', '0')) * Screen.Height) div MAXHEIGHT;
 
     LibFormWidth := StrToInt(MainCfgIni.SayDefault('LibFormWidth', '400'));
     LibFormHeight := StrToInt(MainCfgIni.SayDefault('LibFormHeight', '600'));
@@ -1666,9 +1618,6 @@ begin
     // width of nav window
     ini.Learn('MainPagesWidth', IntToStr((pgcMain.Width * MAXHEIGHT) div Screen.Height));
 
-    // height of nav window, above the history box
-    ini.Learn('Panel2Height', IntToStr((pnlGo.Height * MAXHEIGHT) div Screen.Height));
-
     ini.Learn('DefFontName', mBrowserDefaultFontName);
     ini.Learn('DefFontSize', IntToStr(mTabsView.Browser.DefFontSize));
 
@@ -1912,16 +1861,11 @@ begin
 
   pgcMain.ActivePage := tbGo;
 
-  AddressFromMenus := true;
-
   // LOADING CONFIGURATION
   LoadConfiguration;
 
   if MainPagesWidth <> 0 then
     pgcMain.Width := MainPagesWidth;
-
-  if Panel2Height <> 0 then
-    pnlGo.Height := Panel2Height;
 
   if MainFormWidth = 0 then
   begin
@@ -1991,9 +1935,6 @@ begin
   Application.OnActivate := self.OnActivate;
   Application.OnDeactivate := self.OnDeactivate;
   vstDicList.DefaultNodeHeight := Canvas.TextHeight('X');
-
-  // Let the tree know how much data space we need.
-  vdtModules.NodeDataSize := SizeOf(TBookNodeData);
 end;
 
 function TMainForm.GetIViewerBase(): IHtmlViewerBase;
@@ -2065,7 +2006,7 @@ begin
   if not Assigned(bookView) then
     Exit;
 
-  NavigateToMainBookNode(bookView.BookTabInfo.Bible);
+  bookView.UpdateModuleTreeSelection(bookView.BookTabInfo.Bible);
 
   if not pgcMain.Visible then
     tbtnToggle.Click;
@@ -2300,7 +2241,7 @@ begin
 
       tbtnCopyright.Hint := s;
 
-      UpdateBooksAndChaptersBoxes(bookView.BookTabInfo.Bible);
+      bookView.UpdateModuleTree(bookView.BookTabInfo.Bible);
       SearchListInit;
     end;
   end;
@@ -2314,15 +2255,6 @@ begin
   Update;
   fnt.Free;
 
-end;
-
-procedure TMainForm.ChapterComboBoxKeyPress(Sender: TObject; var Key: Char);
-begin
-  if Key = #13 then
-  begin
-    AddressFromMenus := true;
-    OpenChapter();
-  end;
 end;
 
 procedure TMainForm.tbtnPrintClick(Sender: TObject);
@@ -2778,41 +2710,6 @@ begin
   ny := TRUNC(sy * pnlPage.Height);
   sbxPreview.HorzScrollBar.Position := nx - sbxPreview.Width div 2;
   sbxPreview.VertScrollBar.Position := ny - sbxPreview.Height div 2;
-end;
-
-procedure TMainForm.SelectModuleTreeNode(bible: TBible);
-var
-  i: Integer;
-  bookNode: PVirtualNode;
-  chapterNode: PVirtualNode;
-begin
-  i := bible.CurBook - 1;
-  if bible.BookQty > 0 then
-  begin
-    bookNode := GetChildNodeByIndex(nil, i);
-    if Assigned(bookNode) then
-    begin
-      i := bible.CurChapter - 1;
-      if (i < 0) then
-        i := 0;
-      chapterNode := GetChildNodeByIndex(bookNode, i);
-      if Assigned(chapterNode) then
-      begin
-        if (vdtModules.Selected[chapterNode] = False) then
-        begin
-          if (vdtModules.Expanded[bookNode] = False) then
-            vdtModules.Expanded[bookNode] := True;
-          vdtModules.Selected[chapterNode] := True;
-          vdtModules.FocusedNode := chapterNode;
-        end;
-      end
-      else
-      begin
-        vdtModules.Selected[bookNode] := True;
-        vdtModules.FocusedNode := bookNode;
-      end;
-    end;
-  end;
 end;
 
 procedure TMainForm.HistoryButtonClick(Sender: TObject);
@@ -3749,11 +3646,6 @@ begin
     Items.EndUpdate;
     ItemIndex := 0;
   end;
-end;
-
-procedure TMainForm.ChapterComboBoxChange(Sender: TObject);
-begin
-  AddressFromMenus := true;
 end;
 
 procedure TMainForm.miExitClick(Sender: TObject);
@@ -6362,7 +6254,7 @@ begin
     else
       cbList.Style := csDropDown;
 
-    UpdateBooksAndChaptersBoxes(tabInfo.Bible); // fill lists
+    bookView.UpdateModuleTree(tabInfo.Bible); // fill lists
     SearchListInit();
 
     lblTitle.Font.Name := tabInfo.TitleFont;
@@ -6614,112 +6506,6 @@ begin
     begin
       BqShowException(E);
     end
-  end;
-end;
-
-procedure TMainForm.vdtModulesAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
-begin
-  OpenChapter();
-end;
-
-procedure TMainForm.vdtModulesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
-var
-  Data: PBookNodeData;
-begin
-  Data := Sender.GetNodeData(Node);
-  // Explicitely free the string, the VCL cannot know that there is one but needs to free
-  // it nonetheless. For more fields in such a record which must be freed use Finalize(Data^) instead touching
-  // every member individually.
-  Finalize(Data^);
-end;
-
-procedure TMainForm.vdtModulesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
-var
-  Data: PBookNodeData;
-begin
-  Data := Sender.GetNodeData(Node);
-  if Assigned(Data) then
-    CellText := Data.Caption;
-end;
-
-procedure TMainForm.vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
-var
-  Level: Integer;
-  bible: TBible;
-  bookView: TBookFrame;
-begin
-  Level := Sender.GetNodeLevel(Node);
-  bookView := GetBookView(self);
-  if Assigned(bookView.BookTabInfo) then
-  begin
-    bible := bookView.BookTabInfo.Bible;
-    ChildCount := IfThen(Level = 0, bible.ChapterQtys[Node.Index + 1], 0);
-  end
-  else
-  begin
-    ChildCount := 0;
-  end;
-end;
-
-procedure TMainForm.vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
-var
-  Data: PBookNodeData;
-  Level: Integer;
-  bookIndex, chapterIndex: integer;
-  chapterString: string;
-  bible: TBible;
-  bookView: TBookFrame;
-begin
-  with Sender do
-  begin
-    Level := GetNodeLevel(Node);
-    Data := GetNodeData(Node);
-
-    if Level < 1 then
-      Include(InitialStates, ivsHasChildren);
-
-    bookView := GetBookView(self);
-    if not Assigned(bookView.BookTabInfo) then
-    begin
-      if (Level = 0) then
-        vdtModules.RootNodeCount := 0
-      else
-        ParentNode.ChildCount := 0;
-      Exit;
-    end;
-
-    bible := bookView.BookTabInfo.Bible;
-
-    if (Level = 0) then
-    begin
-      Data.Caption := bible.FullNames[Node.Index + 1];
-      Data.NodeType := btBook;
-    end
-    else
-    begin
-      chapterIndex := Integer(Node.Index) + IfThen(bible.Trait[bqmtZeroChapter], 0, 1);
-
-      if (chapterIndex = 0) and (Length(Trim(bible.ChapterZeroString)) > 0) then
-      begin
-        chapterString := Trim(bible.ChapterZeroString);
-      end
-      else
-      begin
-        bookIndex := node.Parent.Index + 1;
-        if (IsPsalms(bible, bookIndex)) then
-          chapterString := Trim(bible.ChapterStringPs)
-        else
-          chapterString := Trim(bible.ChapterString);
-
-        if (Length(chapterString) > 0) then
-          chapterString := chapterString + ' ';
-
-        chapterString := chapterString + IntToStr(chapterIndex);
-      end;
-
-      Data.Caption := chapterString;
-      Data.NodeType := btChapter;
-    end;
   end;
 end;
 
@@ -7523,140 +7309,6 @@ begin
 
   tbLinksToolBar.Visible := false;
   HistoryOn := true;
-end;
-
-procedure TMainForm.NavigateToMainBookNode(book: TBible);
-var
-  bookNode, chapterNode: PVirtualNode;
-  chapterIndex, bookIndex: integer;
-begin
-  vdtModules.ClearSelection;
-
-  bookIndex := book.CurBook - 1;
-  if (bookIndex < 0) then
-    bookIndex := 0;
-
-  bookNode := GetChildNodeByIndex(nil, bookIndex);
-  if Assigned(bookNode) then
-  begin
-    chapterIndex := book.CurChapter - 1;
-    if (chapterIndex < 0) then
-      chapterIndex := 0;
-
-    chapterNode := GetChildNodeByIndex(bookNode, chapterIndex);
-
-    if Assigned(chapterNode) then
-    begin
-      if (vdtModules.Selected[chapterNode] = False) then
-      begin
-        if (vdtModules.Expanded[bookNode] = False) then
-          vdtModules.Expanded[bookNode] := True;
-
-        vdtModules.Selected[chapterNode] := True;
-        vdtModules.FocusedNode := chapterNode;
-      end;
-    end
-    else
-    begin
-      vdtModules.Selected[bookNode] := True;
-      vdtModules.FocusedNode := bookNode;
-    end;
-  end;
-
-end;
-
-function TMainForm.GetCurrentBookNode(): PVirtualNode;
-var
-  currentNodes: TNodeArray;
-  data: PBookNodeData;
-begin
-  Result := nil;
-  currentNodes := vdtModules.GetSortedSelection(false);
-  if (Length(currentNodes) > 0) then
-  begin
-    data := vdtModules.GetNodeData(currentNodes[0]);
-    if (data.NodeType = btBook) then
-    begin
-      Result := currentNodes[0];
-    end
-    else
-    begin
-      Result := currentNodes[0].Parent;
-    end;
-  end;
-end;
-
-function TMainForm.IsPsalms(bible: TBible; bookIndex: integer): Boolean;
-var
-  chaptersCount: integer;
-begin
-  try
-    chaptersCount := bible.ChapterQtys[bookIndex];
-    Result := (chaptersCount = C_TotalPsalms) or (chaptersCount = C_TotalPsalms + 1);
-  except
-    Result := False;
-  end;
-end;
-
-function TMainForm.GetChildNodeByIndex(parentNode: PVirtualNode; index: Integer): PVirtualNode;
-begin
-  Result := nil;
-  if (parentNode = nil) then
-  begin
-    Result := vdtModules.GetFirst();
-    while (index <> 0) do
-    begin
-      Result := vdtModules.GetNextSibling(Result);
-      Dec(index);
-    end;
-    exit;
-  end;
-
-  if (vsHasChildren in parentNode.States) then
-  begin
-    Result := vdtModules.GetFirstChild(parentNode);
-    while (Assigned(Result) and (index <> 0)) do
-    begin
-      Result := vdtModules.GetNextSibling(Result);
-      Dec(index);
-    end;
-  end;
-end;
-
-function TMainForm.OpenChapter: Boolean;
-var
-  data: PBookNodeData;
-  node: PVirtualNode;
-  bookIndex: integer;
-  chapterIndex: integer;
-  command: string;
-  bookView: TBookFrame;
-  bible: TBible;
-begin
-  Result := false;
-  node := vdtModules.GetFirstSelected();
-  if Assigned(node) then
-  begin
-    data := vdtModules.GetNodeData(node);
-
-    if (data.NodeType = btBook) then
-    begin
-      bookIndex := node.Index + 1;
-      chapterIndex := 1;
-    end
-    else
-    begin
-      bookIndex := node.Parent.Index + 1;
-      chapterIndex := node.Index + 1;
-    end;
-
-    AddressFromMenus := true;
-
-    bookView := GetBookView(self);
-    bible := bookView.BookTabInfo.Bible;
-    command := Format('go %s %d %d', [bible.ShortPath, bookIndex, chapterIndex]);
-    Result := bookView.ProcessCommand(bookView.BookTabInfo, command, hlDefault);
-  end;
 end;
 
 function TMainForm.NewBookTab(
@@ -8884,14 +8536,17 @@ begin
 end;
 
 procedure TMainForm.BookChangeModule(Sender: TObject);
-var book: TBible;
+var
+  book: TBible;
+  bookView: TBookFrame;
 begin
   book := Sender as TBible;
   if Assigned(book) then
   begin
-    UpdateBooksAndChaptersBoxes(book);
+    bookView := GetBookView(self);
+    bookView.UpdateModuleTree(book);
 
-    GetBookView(self).tbtnStrongNumbers.Enabled := book.Trait[bqmtStrongs];
+    bookView.tbtnStrongNumbers.Enabled := book.Trait[bqmtStrongs];
     SearchListInit;
 
     Caption := book.Name + ' — BibleQuote';
