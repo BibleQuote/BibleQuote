@@ -165,16 +165,14 @@ begin
         begin
           if (vl > 0) then
           begin
-            if (not mInCurrentChapterVerseAdded) and (not mBookExpicitSet) and
-              (mWeakChapterSign) then
+            if (not mInCurrentChapterVerseAdded) and (not mBookExpicitSet) and (mWeakChapterSign) then
             begin
               // errNum, 3:3 //not Ge 3,3:4  //not 3:5-3:6
               mChapter := mV1;
               mV1 := vl;
               mV2 := vl;
               Inc(mBibleLink.tokenStartOffset);
-              mFlags := [lpsBookEntered, lpsChapterEntered,
-                lpsFirstVerseEntered];
+              mFlags := [lpsBookEntered, lpsChapterEntered, lpsFirstVerseEntered];
               result := lmtBoth;
               goto tail;
             end
@@ -527,8 +525,7 @@ begin
     mLastDelim := '.';
     result := true;
   end
-  else if (tkn = '-') or ((Integer(tkn[1]) >= $2010) and
-    (Integer(tkn[1]) < $2015)) then
+  else if (tkn = '-') or ((Integer(tkn[1]) >= $2010) and (Integer(tkn[1]) < $2015)) then
   begin
     mLastTokenWasDelim := true;
     mLastDelim := '-';
@@ -606,8 +603,7 @@ begin
 
   Inc(mBibleLink.tokenEndOffset, ord(mVerseToChapterTransitionMade));
 
-  if not SetupLink(mBook, mChapter, mV1, mV2, mBibleLink.tokenEndOffset, false)
-  then goto tail;
+  if not SetupLink(mBook, mChapter, mV1, mV2, mBibleLink.tokenEndOffset, false) then goto tail;
 
   pBibleLnk := @mOutputBibleLink;
 tail:
@@ -935,9 +931,8 @@ begin
   lastch := tkn[tokLen];
   err := 1;
   if lvroAllowPartialVerses in options then
-    case ord(lastch) of
-      ord('a'), ord('b'), $42C, $430, $431, $44C:
-        Val(Copy(tkn, 1, tokLen - 1), result, err);
+    case ord(lastch) of ord('a'), ord('b'), $42C, $430, $431, $44C:
+      Val(Copy(tkn, 1, tokLen - 1), result, err);
     end;
   if err = 0 then
     exit;
@@ -1005,17 +1000,20 @@ end;
 
 function bqIsDelimiter(wc: Char; var Ignore: boolean): boolean;
 begin
-  Ignore := (wc <> ':') and (wc <> '.') and (wc <> ',') and (wc <> '-') and
-    (wc <> ';') and ((Integer(wc) < ($2010)) or (Integer(wc) > $2015));
+  Ignore :=
+    (wc <> ':') and
+    (wc <> '.') and
+    (wc <> ',') and
+    (wc <> '-') and
+    (wc <> ';') and
+    ((Integer(wc) < ($2010)) or (Integer(wc) > $2015));
 
   result := not wc.IsLetterOrDigit;
 end;
 
 function IsTerminator(ch: Char): boolean; inline;
 begin
-  case ch of
-    #$D, ')', '(', '<', #0:
-      result := true;
+  case ch of #$D, ')', '(', '<', #0: result := true;
   else
     result := false;
   end; // case
@@ -1111,7 +1109,6 @@ var
   end;
 
   procedure subRecordLnk(pStart, pLinkEnd: PChar);
-
   begin
     // if pLinkStart = nil then ls := pLastLink else ls := pLinkStart;
 
@@ -1273,6 +1270,7 @@ begin
       else if (state = 0) then
       begin
         blIgnoreDelimiter := true;
+        patchDelta := 0;
         if (pCurrent^ = '&') and ((pCurrent + 1)^ = '#') then
         begin
           pNewCurrent := PChar2Int(pCurrent + 2, vl);
@@ -1328,9 +1326,7 @@ begin
 {$IFDEF DEBUG}
               if lmt > lmtNone then
                 write(Format('tokens: %s & %s rslt: %s, dbg_tki: %d',
-                  [firstToken, secondToken,
-                  string(GetEnumName(TypeInfo(TLinkMatchType), ord(lmt))),
-                  dbg_tki]), #13#10);
+                  [firstToken, secondToken, string(GetEnumName(TypeInfo(TLinkMatchType), ord(lmt))), dbg_tki]), #13#10);
 
 {$ENDIF}
               if lmt > lmtNone then
@@ -1341,10 +1337,9 @@ begin
                   if pBibleLnk^.tokenStartOffset > 0 then
                     Now();
 
-                  subWriteBuffer
-                    (PChar(ctrLinkStarts.items[tknCounter - 1 - pBibleLnk^.tokenStartOffset]),
-                    PChar(ctrLastTokensParsed.items
-                    [1 + pBibleLnk^.tokenEndOffset]));
+                  subWriteBuffer(
+                    PChar(ctrLinkStarts.items[tknCounter - 1 - pBibleLnk^.tokenStartOffset]),
+                    PChar(ctrLastTokensParsed.items[1 + pBibleLnk^.tokenEndOffset]));
                   // if lmt>lmtNone then tknCounter:=0;//else we'll need it later
                   tknCounter := pBibleLnk^.tokenEndOffset + 1;
 {$IFDEF DEBUG}
@@ -1362,11 +1357,9 @@ begin
                   if pBibleLnk^.tokenStartOffset > 0 then
                     Now;
 
-                  subWriteBuffer
-                    (PChar(ctrLinkStarts.items[tknCounter - 1 -
-                    pBibleLnk^.tokenStartOffset]),
-                    PChar(ctrLastTokensParsed.items
-                    [pBibleLnk^.tokenEndOffset]));
+                  subWriteBuffer(
+                    PChar(ctrLinkStarts.items[tknCounter - 1 - pBibleLnk^.tokenStartOffset]),
+                    PChar(ctrLastTokensParsed.items[pBibleLnk^.tokenEndOffset]));
 {$IFDEF DEBUG}
                   writeln('after fin  tknCounter: 0 nulled: ');
 {$ENDIF}
@@ -1380,16 +1373,13 @@ begin
               begin
                 firstToken := secondToken;
                 pSavedFirstToken := pSecondToken;
-                pSecondToken := pCurrent +
-                  ord(isTokenSeparator and blIgnoreDelimiter)
-                { +patchdelta };
+                pSecondToken := pCurrent + ord(isTokenSeparator and blIgnoreDelimiter){ +patchdelta };
               end // if skip one char
               else
               begin
                 firstTokenFound := false;
                 // next char+ (1 if separator to ignore)
-                pFirstToken := pCurrent +
-                  ord(isTokenSeparator and blIgnoreDelimiter);
+                pFirstToken := pCurrent + ord(isTokenSeparator and blIgnoreDelimiter);
                 pSavedFirstToken := pFirstToken;
                 pSecondToken := nil;
               end; // else -skip 2 chars
@@ -1402,8 +1392,7 @@ begin
             begin
               if (pFirstToken = nil) or (pCurrent - pFirstToken < 1) then
               begin
-                pFirstToken := pCurrent + { patchdelta+ } ord
-                  (isTokenSeparator and blIgnoreDelimiter);
+                pFirstToken := pCurrent + { patchdelta+ } ord(isTokenSeparator and blIgnoreDelimiter);
                 pSavedFirstToken := pFirstToken;
               end
               else
@@ -1413,8 +1402,7 @@ begin
                 firstToken := pFirstToken;
                 pCurrent^ := saveChar;
                 firstTokenFound := true;
-                pSecondToken := pCurrent + { patchdelta+ } ord
-                  (isTokenSeparator and blIgnoreDelimiter);
+                pSecondToken := pCurrent + { patchdelta+ } ord(isTokenSeparator and blIgnoreDelimiter);
                 // pSaveFw := pFw;
                 pFirstToken := nil
               end;
@@ -1437,11 +1425,9 @@ begin
             AddTokenPos(lmt, true);
             if assigned(pBibleLnk) then
             begin
-              subWriteBuffer
-                (PChar(ctrLinkStarts.items[tknCounter - 1 -
-                pBibleLnk^.tokenStartOffset]),
-                PChar(ctrLastTokensParsed.items
-                [pBibleLnk^.tokenEndOffset + 1]));
+              subWriteBuffer(
+                PChar(ctrLinkStarts.items[tknCounter - 1 - pBibleLnk^.tokenStartOffset]),
+                PChar(ctrLastTokensParsed.items[pBibleLnk^.tokenEndOffset + 1]));
               tknCounter := 0; // pBibleLnk^.tokenEndOffset + 1;
             end;
           end;
@@ -1452,8 +1438,8 @@ begin
         if assigned(pBibleLnk) then
         begin
           // if tknCounter=0 then DebugBreak;
-          subWriteBuffer(PChar(ctrLinkStarts.items[tknCounter - 1 -
-            pBibleLnk^.tokenStartOffset]),
+          subWriteBuffer(
+            PChar(ctrLinkStarts.items[tknCounter - 1 - pBibleLnk^.tokenStartOffset]),
             PChar(ctrLastTokensParsed.items[pBibleLnk^.tokenEndOffset]));
         end;
         tknCounter := 0;
@@ -1648,8 +1634,7 @@ end;
 
 { TBQBooksHistory }
 
-function TBQBooksHistory.BestValidBookFor(chapter, key: Integer)
-  : TBibleBookNameEntry;
+function TBQBooksHistory.BestValidBookFor(chapter, key: Integer) : TBibleBookNameEntry;
 begin
     Result := nil;
 end;
