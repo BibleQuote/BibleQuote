@@ -1329,7 +1329,6 @@ end;
 procedure TMainForm.LoadTabsViews();
 var
   tabIx, i, activeTabIx: integer;
-  strongNotesCode: UInt64;
   location, secondBible, Title: string;
   addTabResult, firstTabInitialized: Boolean;
   tabViewState: TBookTabInfoState;
@@ -1339,6 +1338,7 @@ var
   tabsForm: TDockTabsForm;
   fileStream: TFileStream;
   tabsConfigPath, layoutConfigPath: string;
+  tabState: UInt64;
   bookTabSettings: TBookTabSettings;
 begin
   tabsConfigPath := UserDir + 'layout_tabs.json';
@@ -1387,11 +1387,11 @@ begin
 
           secondBible := bookTabSettings.SecondBible;
           Title := bookTabSettings.Title;
-          strongNotesCode := bookTabSettings.StrongNotesCode;
-          if (strongNotesCode <= 0) then
-            strongNotesCode := 101;
+          tabState := bookTabSettings.StrongNotesCode;
+          if (tabState <= 0) then
+            tabState := 101;
 
-          tabViewState := DecodeBookTabState(strongNotesCode);
+          tabViewState := DecodeBookTabState(tabState);
 
           location := bookTabSettings.Location;
           addTabResult := NewBookTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)));
@@ -2512,13 +2512,15 @@ begin
   vti.State := state;
   vti.Title := Title;
   vti.Location := LastAddress;
+
+  vti.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
+  vti.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
+
   mTabsView.ChromeTabs.Tabs[0].Caption := Title;
 
   if visual then
   begin
     MemosOn := vtisShowNotes in state;
-    vti.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
-    vti.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
     bookView.SafeProcessCommand(vti, LastAddress, hlDefault);
     UpdateBookView();
   end
@@ -7344,6 +7346,8 @@ begin
 
     newTabInfo.SecondBible := TBible.Create(self);
     newTabInfo.ReferenceBible := TBible.Create(self);
+    newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
+    newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
 
     mTabsView.AddBookTab(newTabInfo);
 
@@ -7351,10 +7355,7 @@ begin
     begin
       mTabsView.ChromeTabs.ActiveTabIndex := mTabsView.ChromeTabs.Tabs.Count - 1;
 
-      newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
-      newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
       MemosOn := vtisShowNotes in state;
-
       GetBookView(self).SafeProcessCommand(newTabInfo, command, hlDefault);
     end
     else

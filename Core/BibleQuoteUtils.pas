@@ -1920,7 +1920,7 @@ begin
     // compressed modules take precedence over other modules
     filePath := ExtractFilePath(s);
     modfolder := Copy(filePath, 1, Length(filePath) - 1);
-    fullPath := ExePath + '\' + modfolder + '.bqb';
+    fullPath := TPath.Combine(ExePath, modfolder + '.bqb');
 
     if FileExists(fullPath) then
       result := '?' + fullPath + '??' + C_ModuleIniName

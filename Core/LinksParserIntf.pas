@@ -48,7 +48,7 @@ type
 
 implementation
 
-uses SysUtils, BibleQuoteConfig;
+uses SysUtils, IOUtils, BibleQuoteConfig;
 
 type
   TfnResolveLnks = function(const txt: string): string;
@@ -231,7 +231,7 @@ end;
 
 function TBibleLinkEx.GetIniFileShortPath(): string;
 begin
-  Result := modName + '\' + C_ModuleIniName;
+  Result := TPath.Combine(modName, C_ModuleIniName);
 end;
 
 destructor TBibleBookNameEntry.Destroy;
