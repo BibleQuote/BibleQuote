@@ -79,6 +79,9 @@ type
     mBible, mSecondBible: TBible;
     mReferenceBible: TBible;
 
+    mHistory: TStrings;
+    mHistoryIndex: integer;
+
     mSatelliteName: string;
     mFirstVisiblePara, mLastVisiblePara: integer;
 
@@ -101,6 +104,8 @@ type
     property CopyrightNotice: string read mCopyrightNotice write mCopyrightNotice;
     property Title: string read mTitle write mTitle;
     property SatelliteName: string read mSatelliteName write mSatelliteName;
+    property History: TStrings read mHistory write mHistory;
+    property HistoryIndex: integer read mHistoryIndex write mHistoryIndex;
 
     property FirstVisiblePara: integer read mFirstVisiblePara write mFirstVisiblePara;
     property LastVisiblePara: integer read mLastVisiblePara  write mLastVisiblePara;
@@ -139,6 +144,8 @@ type
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
+
+    destructor Destroy(); override;
   end;
 
   TMemoTabInfo = class(TInterfacedObject, IViewTabInfo)
@@ -224,6 +231,14 @@ begin
   Init(bible, location, satelliteBibleName, title, state);
 end;
 
+destructor TBookTabInfo.Destroy;
+begin
+  if Assigned(mHistory) then
+    FreeAndNil(mHistory);
+
+  inherited;
+end;
+
 function TBookTabInfo.GetViewType(): TViewTabType;
 begin
   Result := vttBook;
@@ -243,8 +258,11 @@ begin
   bookTabsEncoded := EncodeToValue();
   tabSettings.Location := Location;
   tabSettings.SecondBible := SatelliteName;
-  tabSettings.StrongNotesCode := bookTabsEncoded;
+  tabSettings.OptionsState := bookTabsEncoded;
   tabSettings.Title := Title;
+
+  tabSettings.History := History.DelimitedText;
+  tabSettings.HistoryIndex := HistoryIndex;
 
   Result := tabSettings;
 end;
@@ -315,6 +333,10 @@ begin
   mTitle := title;
   mIsCompareTranslation := false;
   mCompareTranslationText := '';
+
+  mHistory := TStringList.Create;
+  mHistory.Delimiter := '|';
+  mHistoryIndex := -1;
 end;
 
 procedure TBookTabInfo.SetStateEntry(stateEntry: TBookTabInfoStateEntries; value: Boolean);

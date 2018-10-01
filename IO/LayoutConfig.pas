@@ -24,13 +24,17 @@ type
   private
     FLocation: string;
     FSecondBible: string;
-    FStrongNotesCode: UInt64;
+    FOptionsState: UInt64;
     FTitle: string;
+    FHistory: string;
+    FHistoryIndex: integer;
   public
     property Location: string read FLocation write FLocation;
     property SecondBible: string read FSecondBible write FSecondBible;
-    property StrongNotesCode: UInt64 read FStrongNotesCode write FStrongNotesCode;
+    property OptionsState: UInt64 read FOptionsState write FOptionsState;
     property Title: string read FTitle write FTitle;
+    property History: string read FHistory write FHistory;
+    property HistoryIndex: integer read FHistoryIndex write FHistoryIndex;
   end;
 
   TTabsViewSettings = class

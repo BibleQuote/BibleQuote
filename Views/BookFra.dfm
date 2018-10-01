@@ -188,44 +188,46 @@ object BookFrame: TBookFrame
         Left = 52
         Top = 0
         Caption = 'Forward'
+        DropdownMenu = pmHistory
         ImageIndex = 1
+        Style = tbsDropDown
         OnClick = tbtnForwardClick
       end
       object tbtnSep02: TToolButton
-        Left = 75
+        Left = 90
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnPrevChapter: TToolButton
-        Left = 81
+        Left = 96
         Top = 0
         Caption = 'Minus'
         ImageIndex = 4
         OnClick = tbtnPrevChapterClick
       end
       object tbtnNextChapter: TToolButton
-        Left = 104
+        Left = 119
         Top = 0
         Caption = 'Plus'
         ImageIndex = 5
         OnClick = tbtnNextChapterClick
       end
       object tbtnSep03: TToolButton
-        Left = 127
+        Left = 142
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnCopy: TToolButton
-        Left = 133
+        Left = 148
         Top = 0
         Caption = 'Copy'
         ImageIndex = 2
         OnClick = tbtnCopyClick
       end
       object tbtnStrongNumbers: TToolButton
-        Left = 156
+        Left = 171
         Top = 0
         Caption = 'Strong'
         ImageIndex = 3
@@ -233,7 +235,7 @@ object BookFrame: TBookFrame
         OnClick = tbtnStrongNumbersClick
       end
       object tbtnMemos: TToolButton
-        Left = 179
+        Left = 194
         Top = 0
         Caption = 'Memos'
         ImageIndex = 6
@@ -241,7 +243,7 @@ object BookFrame: TBookFrame
         OnClick = tbtnMemosClick
       end
       object tbtnSatellite: TToolButton
-        Left = 202
+        Left = 217
         Top = 0
         Caption = 'Satellite'
         Grouped = True
@@ -251,13 +253,13 @@ object BookFrame: TBookFrame
         OnMouseEnter = tbtnSatelliteMouseEnter
       end
       object tbtnSep04: TToolButton
-        Left = 225
+        Left = 240
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnQuickSearch: TToolButton
-        Left = 231
+        Left = 246
         Top = 0
         Caption = 'Quick search'
         ImageIndex = 10
@@ -265,14 +267,14 @@ object BookFrame: TBookFrame
         OnClick = tbtnQuickSearchClick
       end
       object tbtnSep05: TToolButton
-        Left = 254
+        Left = 269
         Top = 0
         Width = 6
         ImageIndex = 45
         Style = tbsSeparator
       end
       object tedtReference: TEdit
-        Left = 260
+        Left = 275
         Top = 0
         Width = 121
         Height = 22
@@ -283,14 +285,14 @@ object BookFrame: TBookFrame
         OnKeyPress = tedtReferenceKeyPress
       end
       object tbtnReference: TToolButton
-        Left = 381
+        Left = 396
         Top = 0
         Caption = 'Go reference'
         ImageIndex = 16
         OnClick = tbtnReferenceClick
       end
       object tbtnReferenceInfo: TToolButton
-        Left = 404
+        Left = 419
         Top = 0
         Caption = 'Reference info'
         ImageIndex = 15
@@ -365,7 +367,7 @@ object BookFrame: TBookFrame
     Left = 96
     Top = 95
     Bitmap = {
-      494C010113006800800410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010113006800900410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1109,5 +1111,9 @@ object BookFrame: TBookFrame
       ShortCut = 16470
       OnClick = miMemoPasteClick
     end
+  end
+  object pmHistory: TPopupMenu
+    Left = 170
+    Top = 239
   end
 end

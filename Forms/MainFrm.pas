@@ -27,7 +27,7 @@ uses
 const
 
   ZOOMFACTOR = 1.5;
-  MAXHISTORY = 1000;
+  MAXHISTORY = 15;
   {
     такие увеличенные размеры позволяют сохранять ПРОПОРЦИИ окна
     координаты окна программы вычисляются в относительных единицах
@@ -119,10 +119,6 @@ type
     cbComments: TComboBox;
     btnSearchOptions: TButton;
     splMain: TSplitter;
-    pgcHistoryBookmarks: TPageControl;
-    tbHistory: TTabSheet;
-    tbBookmarks: TTabSheet;
-    lbHistory: TListBox;
     pmEmpty: TPopupMenu;
     cbDicFilter: TComboBox;
     pnlSelectDic: TPanel;
@@ -231,7 +227,6 @@ type
     procedure GoButtonClick(Sender: TObject);
     procedure CopySelectionClick(Sender: TObject);
     procedure tbtnPrintClick(Sender: TObject);
-    procedure HistoryButtonClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure OpenButtonClick(Sender: TObject);
     procedure SearchButtonClick(Sender: TObject);
@@ -254,7 +249,6 @@ type
     procedure pbPreviewPaint(Sender: TObject);
     procedure pbPreviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure miPrintPreviewClick(Sender: TObject);
-    procedure lbHistoryDblClick(Sender: TObject);
     procedure miStrongClick(Sender: TObject);
 
     procedure bwrSearchHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -284,7 +278,6 @@ type
     procedure btnSearchOptionsClick(Sender: TObject);
     procedure chkExactPhraseClick(Sender: TObject);
     procedure cbDicChange(Sender: TObject);
-    procedure lbHistoryClick(Sender: TObject);
     procedure pgcMainChange(Sender: TObject);
     procedure miDicClick(Sender: TObject);
     procedure miCommentsClick(Sender: TObject);
@@ -298,7 +291,6 @@ type
     procedure bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure lbBookmarksClick(Sender: TObject);
     procedure lbBookmarksKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure lbHistoryKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure pnlFindStrongNumberMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pnlFindStrongNumberMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pnlFindStrongNumberClick(Sender: TObject);
@@ -464,8 +456,6 @@ type
 
     MainFormInitialized: Boolean; // for only one entrance into .FormShow
 
-    HistoryOn: Boolean;
-
     SearchPageSize: integer;
 
     PrintFootNote: Boolean;
@@ -481,7 +471,6 @@ type
 
     LastAddress: string;
 
-    History: TStrings;
     SearchResults: TStrings;
     SearchWords: TStrings;
 
@@ -608,7 +597,6 @@ type
 
     function CopyPassage(fromverse, toverse: integer): string;
 
-    procedure HistoryAdd(s: string);
     procedure DisplayStrongs(num: integer; hebrew: Boolean);
     procedure DisplayDictionary(const s: string);
 
@@ -732,23 +720,6 @@ end;
 function TMainForm.DefaultBookTabState(): TBookTabInfoState;
 begin
   Result := [vtisShowNotes, vtisResolveLinks];
-end;
-
-procedure TMainForm.HistoryAdd(s: string);
-begin
-  if (not HistoryOn) or ((History.Count > 0) and (History[0] = s)) then
-    Exit;
-
-  if History.Count >= MAXHISTORY then
-  begin
-    History.Delete(History.Count - 1);
-    lbHistory.Items.Delete(lbHistory.Items.Count - 1);
-  end;
-
-  History.Insert(0, s);
-
-  lbHistory.Items.Insert(0, Comment(s));
-  lbHistory.ItemIndex := 0;
 end;
 
 procedure TMainForm.HotKeyClick(Sender: TObject);
@@ -896,14 +867,6 @@ begin
     mslSearchBooksCache := TStringList.Create();
     LoadMru();
 
-    try
-      fname := UserDir + 'bibleqt_history.ini';
-      if FileExists(fname) then
-        History.LoadFromFile(fname);
-    except
-      on E: Exception do
-        BqShowException(E)
-    end;
     // COPYING OPTIONS
     CopyOptionsCopyVerseNumbersChecked :=  MainCfgIni.SayDefault('CopyOptionsCopyVerseNumbers', '1') = '1';
     CopyOptionsCopyFontParamsChecked := MainCfgIni.SayDefault('CopyOptionsCopyFontParams', '0') = '1';
@@ -1341,7 +1304,7 @@ var
   tabState: UInt64;
   bookTabSettings: TBookTabSettings;
 begin
-  tabsConfigPath := UserDir + 'layout_tabs.json';
+  tabsConfigPath := UserDir + 'tabs_config.json';
   layoutConfigPath := UserDir + 'layout_forms.dat';
 
   firstTabInitialized := false;
@@ -1387,7 +1350,7 @@ begin
 
           secondBible := bookTabSettings.SecondBible;
           Title := bookTabSettings.Title;
-          tabState := bookTabSettings.StrongNotesCode;
+          tabState := bookTabSettings.OptionsState;
           if (tabState <= 0) then
             tabState := 101;
 
@@ -1582,7 +1545,6 @@ procedure TMainForm.SaveConfiguration;
 var
   ini: TMultiLanguage;
   fname: string;
-  i: integer;
 begin
   try
 
@@ -1690,23 +1652,6 @@ begin
       ini.Destroy;
     end;
 
-    i := History.Count - 1;
-
-    repeat
-      if (i >= 0) and (i < History.Count) and (Pos('file', History[i]) = 1) and
-        (Pos('***', History[i]) > 0) then
-        History.Delete(i); // clear search results;
-
-      Dec(i);
-    until i < 0;
-    try
-      fname := UserDir + 'bibleqt_history.ini';
-      if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
-        History.SaveToFile(fname, TEncoding.UTF8);
-    except
-      on E: Exception do
-        BqShowException(E)
-    end;
     try
       fname := UserDir + 'bibleqt_bookmarks.ini';
       if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
@@ -1794,7 +1739,7 @@ begin
       layoutConfig.TabsViewList.Add(tabsViewSettings);
     end;
 
-    layoutConfig.Save(UserDir + 'layout_tabs.json');
+    layoutConfig.Save(UserDir + 'tabs_config.json');
 
     fileStream := TFileStream.Create(UserDir + 'layout_forms.dat', fmCreate);
     pnlModules.DockManager.SaveToStream(fileStream);
@@ -1823,7 +1768,6 @@ begin
   CheckModuleInstall();
 
   pgcMain.DoubleBuffered := true;
-  pgcHistoryBookmarks.DoubleBuffered := true;
 
   Screen.Cursors[crHandPoint] := LoadCursor(0, IDC_HAND);
   Application.HintHidePause := 1000 * 60;
@@ -1849,9 +1793,6 @@ begin
   MemosOn := false;
 
   Bookmarks := TStringList.Create;
-
-  History := TStringList.Create;
-  HistoryOn := true;
 
   SearchResults := TStringList.Create;
   SearchWords := TStringList.Create;
@@ -1896,15 +1837,6 @@ begin
     StrReplace(TextTemplate, 'src=', 'src=' + TemplatePath, false);
 
   FillLanguageMenu();
-
-  // MAIN TABS INITIALIZATION
-  lbHistory.Items.BeginUpdate;
-  for i := 0 to History.Count - 1 do
-    lbHistory.Items.Add(Comment(History[i]));
-  lbHistory.Items.EndUpdate;
-
-  if lbHistory.Items.Count > 0 then
-    lbHistory.ItemIndex := 0;
 
   lbBookmarks.Items.BeginUpdate;
   for i := 0 to Bookmarks.Count - 1 do
@@ -2081,9 +2013,7 @@ begin
     else if CurBook > 1 then
       cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, ChapterQtys[CurBook - 1]]);
 
-  HistoryOn := false;
-  bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse);
-  HistoryOn := true;
+  bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
 
   // ShowXref;
   tbComments.tag := 0;
@@ -2119,9 +2049,7 @@ begin
     else if CurBook < BookQty then
       cmd := Format('go %s %d %d', [ShortPath, CurBook + 1, 1]);
 
-  HistoryOn := false;
-  bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse);
-  HistoryOn := true;
+  bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
 
   // ShowXref;
   tbComments.tag := 0;
@@ -2714,12 +2642,6 @@ begin
   sbxPreview.VertScrollBar.Position := ny - sbxPreview.Height div 2;
 end;
 
-procedure TMainForm.HistoryButtonClick(Sender: TObject);
-begin
-  if History.Count = 0 then
-    Exit;
-end;
-
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   OldKey: Word;
@@ -3038,11 +2960,6 @@ begin
     begin
       Key := #0;
       btnFindClick(Sender);
-    end
-    else if ActiveControl = lbHistory then
-    begin
-      Key := #0;
-      lbHistoryDblClick(Sender);
     end;
   end;
 end;
@@ -3575,7 +3492,6 @@ begin
     GfxRenderers.TbqTagsRenderer.Done();
     FreeAndNil(Memos);
     FreeAndNil(Bookmarks);
-    FreeAndNil(History);
     FreeAndNil(SearchResults);
     FreeAndNil(SearchWords);
     FreeAndNil(StrongHebrew);
@@ -4790,24 +4706,6 @@ begin
   tbtnPreviewClick(Sender);
 end;
 
-procedure TMainForm.lbHistoryDblClick(Sender: TObject);
-var
-  s: string;
-  bookView: TBookFrame;
-begin
-  bookView := GetBookView(self);
-  if not Assigned(bookView) then
-    Exit;
-
-  s := History[lbHistory.ItemIndex];
-
-  History.Delete(lbHistory.ItemIndex);
-  lbHistory.Items.Delete(lbHistory.ItemIndex);
-
-  bookView.ProcessCommand(bookView.BookTabInfo, s, hlDefault);
-  tbLinksToolBar.Visible := false;
-end;
-
 procedure TMainForm.miStrongClick(Sender: TObject);
 begin
   GetBookView(self).ToggleStrongNumbers();
@@ -5121,8 +5019,6 @@ begin
   begin
     MessageDlg('No localization file.', mtWarning, [mbOk], 0);
   end;
-
-  pgcHistoryBookmarks.ActivePage := tbHistory;
 
   tbLinksToolBar.Visible := false;
   cbQty.ItemIndex := 0;
@@ -6257,6 +6153,9 @@ begin
       cbList.Style := csDropDown;
 
     bookView.UpdateModuleTree(tabInfo.Bible); // fill lists
+    bookView.HistoryClear();
+    bookView.UpdateHistory();
+
     SearchListInit();
 
     lblTitle.Font.Name := tabInfo.TitleFont;
@@ -7301,18 +7200,6 @@ begin
   pgcMain.ActivePage := tbDic;
 end;
 
-procedure TMainForm.lbHistoryClick(Sender: TObject);
-var
-  bookView: TBookFrame;
-begin
-  HistoryOn := false;
-  bookView := GetBookView(self);
-  bookView.ProcessCommand(bookView.BookTabInfo, History[lbHistory.ItemIndex], hlDefault);
-
-  tbLinksToolBar.Visible := false;
-  HistoryOn := true;
-end;
-
 function TMainForm.NewBookTab(
   const command: string;
   const satellite: string;
@@ -8017,34 +7904,6 @@ begin
 
     lbBookmarks.ItemIndex := i;
     lbBookmarksClick(Sender);
-  end;
-end;
-
-procedure TMainForm.lbHistoryKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-var
-  i: integer;
-begin
-  if lbHistory.Items.Count = 0 then
-    Exit;
-
-  if Key = VK_DELETE then
-  begin
-    if Application.MessageBox(
-      'Удалить запись в истории?',
-      'Подтвердите удаление', MB_YESNO + MB_DEFBUTTON1) <> ID_YES then
-      Exit;
-
-    i := lbHistory.ItemIndex;
-    History.Delete(i);
-    lbHistory.Items.Delete(i);
-    if i = lbHistory.Items.Count then
-      i := i - 1;
-
-    if i < 0 then
-      Exit;
-
-    lbHistory.ItemIndex := i;
-    lbHistoryClick(Sender);
   end;
 end;
 
