@@ -57,7 +57,8 @@ uses
   MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame},
   FontManager in 'Core\FontManager.pas',
   LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame},
-  ImageUtils in 'Utils\ImageUtils.pas';
+  ImageUtils in 'Utils\ImageUtils.pas',
+  UITools in 'UI\UITools.pas';
 
 {$R *.res}
 var

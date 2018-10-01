@@ -1270,7 +1270,6 @@ begin
       else if (state = 0) then
       begin
         blIgnoreDelimiter := true;
-        patchDelta := 0;
         if (pCurrent^ = '&') and ((pCurrent + 1)^ = '#') then
         begin
           pNewCurrent := PChar2Int(pCurrent + 2, vl);

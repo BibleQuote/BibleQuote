@@ -57,10 +57,10 @@ begin
     exit
   end;
 
+  result := false;
   // if not assigned(FiLines) then begin
   if (FileExistsEx(IndexFile) < 0) or (FileExistsEx(DictFile) < 0) then
   begin
-    result := false;
     exit;
   end;
 

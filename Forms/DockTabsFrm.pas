@@ -448,7 +448,7 @@ begin
       Exit;
 
     bookTabInfo := tabInfo as TBookTabInfo;
-
+    mBookView.HistoryOn := false;
     try
       mBookView.bwrHtml.NoScollJump := true;
       mMainView.UpdateBookView();
@@ -465,6 +465,7 @@ begin
       bookTabInfo.RestoreState(self);
     finally
       mBookView.bwrHtml.NoScollJump := false;
+      mBookView.HistoryOn := true;
     end;
   except
     on E: Exception do

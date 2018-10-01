@@ -10,7 +10,7 @@ uses
   WinApi.ShellApi, StrUtils, BibleQuoteUtils, CommandProcessor, LinksParserIntf,
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
-  System.Types, LayoutConfig, LibraryFra, VirtualTrees;
+  System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -19,7 +19,6 @@ type
     pnlViewPageToolbar: TPanel;
     tlbViewPage: TToolBar;
     tbtnBack: TToolButton;
-    tbtnForward: TToolButton;
     tbtnSep02: TToolButton;
     tbtnPrevChapter: TToolButton;
     tbtnNextChapter: TToolButton;
@@ -67,6 +66,8 @@ type
     vdtModules: TVirtualStringTree;
     tbtnSep01: TToolButton;
     tbtnToggleNav: TToolButton;
+    tbtnForward: TToolButton;
+    pmHistory: TPopupMenu;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure miCompareClick(Sender: TObject);
@@ -121,10 +122,19 @@ type
     procedure FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
     procedure ToggleQuickSearchPanel(const enable: Boolean);
 
-    function ProcessCommand(bookTabInfo: TBookTabInfo; s: string; hlVerses: TbqHLVerseOption): Boolean;
+    function ProcessCommand(bookTabInfo: TBookTabInfo; s: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
     procedure SafeProcessCommand(bookTabInfo: TBookTabInfo; wsLocation: string; hlOption: TbqHLVerseOption);
     function PreProcessAutoCommand(bookTabInfo: TBookTabInfo; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
     function GoAddress(bookTabInfo: TBookTabInfo; var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
+
+    procedure HistoryAdd(s: string);
+    procedure HistoryClear();
+    procedure UpdateHistory();
+    procedure HistoryItemClick(Sender: TObject);
+    function GetHistoryItemIndex(historyItem: TMenuItem): integer;
+    function GetCurrentHistoryItem(): TMenuItem;
+    function GetCurrentHistoryIndex(): integer;
+    procedure CheckHistoryItem(itemIndex: integer);
 
     function GetModuleText(
       cmd: string;
@@ -138,6 +148,8 @@ type
 
     function GetRefBible(ix: integer): TModuleEntry;
     function RefBiblesCount: integer;
+    procedure RealignToolBars(AParent: TWinControl);
+
     procedure SelectSatelliteModule();
     procedure tbtnSatelliteMouseEnter(Sender: TObject);
     procedure vdtModulesAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -152,6 +164,7 @@ type
     mTabsView: ITabsView;
     mSatelliteForm: TForm;
     mSatelliteLibraryView: TLibraryFrame;
+    mHistoryOn: boolean;
 
     mBrowserSearchPosition: Longint;
 
@@ -172,6 +185,8 @@ type
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
+
+    property HistoryOn: boolean read mHistoryOn write mHistoryOn;
 
     procedure AdjustBibleTabs(moduleName: string = '');
     procedure LoadSecondBookByName(const name: string);
@@ -432,7 +447,7 @@ begin
     if Assigned(BookTabInfo) then
     begin
     with BookTabInfo.Bible do
-      mMainView.HistoryAdd(Format('go %s %d %d %d %d $$$%s %s', [ShortPath, CurBook,
+      HistoryAdd(Format('go %s %d %d %d %d $$$%s %s', [ShortPath, CurBook,
         CurChapter, mMainView.tbXRef.tag, 0,
         // history comment
         ShortName, FullPassageSignature(CurBook, CurChapter, mMainView.tbXRef.tag, 0)]));
@@ -842,6 +857,9 @@ begin
   tbtnToggleNav.Down := pnlNav.Visible;
   // Let the tree know how much data space we need.
   vdtModules.NodeDataSize := SizeOf(TBookNodeData);
+
+  mHistoryOn := true;
+  RealignToolBars(Self);
 end;
 
 procedure TBookFrame.dtsBibleChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
@@ -1212,9 +1230,6 @@ end;
 
 procedure TBookFrame.miSearchWindowClick(Sender: TObject);
 begin
-  mMainView.pgcMain.ActivePageIndex := 0; // to the first tab
-  mMainView.pgcHistoryBookmarks.ActivePageIndex := 2;
-
   // to quick search tab
   Winapi.Windows.SetFocus(tedtQuickSearch.Handle);
 
@@ -1307,14 +1322,24 @@ begin
 end;
 
 procedure TBookFrame.tbtnBackClick(Sender: TObject);
+var
+  histItem: TMenuItem;
+  itemIndex: integer;
 begin
-  mMainView.HistoryOn := false;
-  if mMainView.lbHistory.ItemIndex < mMainView.lbHistory.Items.Count - 1 then
+  if (pmHistory.Items.Count = 0) then
+    Exit;
+
+  histItem := GetCurrentHistoryItem();
+  if not Assigned(histItem) then
+    Exit;
+
+  itemIndex := GetHistoryItemIndex(histItem);
+
+  if itemIndex < pmHistory.Items.Count - 1 then
   begin
-    mMainView.lbHistory.ItemIndex := mMainView.lbHistory.ItemIndex + 1;
-    ProcessCommand(BookTabInfo, mMainView.History[mMainView.lbHistory.ItemIndex], hlDefault);
+    ProcessCommand(BookTabInfo, BookTabInfo.History[itemIndex + 1], hlDefault, true);
+    CheckHistoryItem(itemIndex + 1);
   end;
-  mMainView.HistoryOn := true;
 
   Winapi.Windows.SetFocus(bwrHtml.Handle);
 end;
@@ -1325,16 +1350,93 @@ begin
 end;
 
 procedure TBookFrame.tbtnForwardClick(Sender: TObject);
+var
+  histItem: TMenuItem;
+  itemIndex: integer;
 begin
-  mMainView.HistoryOn := false;
-  if mMainView.lbHistory.ItemIndex > 0 then
+  if (pmHistory.Items.Count = 0) then
+    Exit;
+
+  histItem := GetCurrentHistoryItem();
+  if not Assigned(histItem) then
+    Exit;
+
+  itemIndex := GetHistoryItemIndex(histItem);
+
+  if itemIndex >= 1 then
   begin
-    mMainView.lbHistory.ItemIndex := mMainView.lbHistory.ItemIndex - 1;
-    ProcessCommand(BookTabInfo, mMainView.History[mMainView.lbHistory.ItemIndex], hlDefault);
+    ProcessCommand(BookTabInfo, BookTabInfo.History[itemIndex - 1], hlDefault, true);
+    CheckHistoryItem(itemIndex - 1);
   end;
-  mMainView.HistoryOn := true;
 
   Winapi.Windows.SetFocus(bwrHtml.Handle);
+end;
+
+function TBookFrame.GetCurrentHistoryItem(): TMenuItem;
+var
+  menuItem: TMenuItem;
+begin
+  Result := nil;
+  for menuItem in pmHistory.Items do
+  begin
+    if (menuItem.Checked) then
+    begin
+      Result := menuItem;
+      Exit;
+    end;
+  end;
+end;
+
+function TBookFrame.GetCurrentHistoryIndex(): integer;
+var
+  menuItem: TMenuItem;
+  idx: integer;
+begin
+  Result := -1;
+  idx := 0;
+  for menuItem in pmHistory.Items do
+  begin
+    if (menuItem.Checked) then
+    begin
+      Result := idx;
+      Exit;
+    end;
+    idx := idx + 1;
+  end;
+end;
+
+function TBookFrame.GetHistoryItemIndex(historyItem: TMenuItem): integer;
+var
+  menuItem: TMenuItem;
+  index: integer;
+begin
+  Result := -1;
+  index := 0;
+  for menuItem in pmHistory.Items do
+  begin
+    if (menuItem = historyItem) then
+      Result := index;
+    index := index + 1;
+  end;
+end;
+
+procedure TBookFrame.HistoryItemClick(Sender: TObject);
+var
+  menuItem : TMenuItem;
+  command: string;
+  historyIndex: integer;
+begin
+  if not Assigned(BookTabInfo) then
+    Exit;
+
+  if Sender is TMenuItem then
+  begin
+    menuItem := TMenuItem(Sender);
+
+    historyIndex := GetHistoryItemIndex(menuItem);
+    ProcessCommand(BookTabInfo, BookTabInfo.History[historyIndex], hlDefault, true);
+    CheckHistoryItem(historyIndex);
+  end;
 end;
 
 procedure TBookFrame.tbtnMemosClick(Sender: TObject);
@@ -1741,13 +1843,13 @@ begin
           vdtModules.Expanded[bookNode] := True;
 
         vdtModules.Selected[chapterNode] := True;
-        vdtModules.FocusedNode := chapterNode;
+        //vdtModules.FocusedNode := chapterNode;
       end;
     end
     else
     begin
       vdtModules.Selected[bookNode] := True;
-      vdtModules.FocusedNode := bookNode;
+      //vdtModules.FocusedNode := bookNode;
     end;
   end;
 end;
@@ -1813,7 +1915,7 @@ begin
   end;
 end;
 
-function TBookFrame.ProcessCommand(bookTabInfo: TBookTabInfo; s: string; hlVerses: TbqHLVerseOption): Boolean;
+function TBookFrame.ProcessCommand(bookTabInfo: TBookTabInfo; s: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
 var
   value, dup, path, oldPath, ConcreteCmd: string;
   focusVerse: integer;
@@ -1848,6 +1950,9 @@ label
   end;
 
 begin
+  if disableHistory then
+    mHistoryOn := false;
+
   Result := false;
 
   if s = '' then
@@ -1925,7 +2030,7 @@ begin
               FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, bibleLink.vend)]
             );
 
-        mMainView.HistoryAdd(s);
+        HistoryAdd(s);
 
         // here we set proper name to tab
         with bookTabInfo.Bible, mTabsView.ChromeTabs do
@@ -2038,10 +2143,11 @@ begin
             BqShowException(E);
         end;
 
-      if (mMainView.History.Count > 0) and (mMainView.History[0] = s) then
+      if (bookTabInfo.History.Count > 0) and (bookTabInfo.History[0] = s) then
         bwrHtml.Position := browserpos;
 
-      mMainView.HistoryAdd(s);
+      HistoryAdd(s);
+
       if wasSearchHistory then
         bwrHtml.tag := bsSearch
       else
@@ -2083,16 +2189,97 @@ begin
 
     if (not wasFile) then
       AdjustBibleTabs();
-    if mMainView.lbHistory.ItemIndex <> -1 then
-    begin
-      tbtnBack.Enabled := mMainView.lbHistory.ItemIndex < mMainView.lbHistory.Items.Count - 1;
-      tbtnForward.Enabled := mMainView.lbHistory.ItemIndex > 0;
-    end;
   finally
     mMainView.mInterfaceLock := false;
     Screen.Cursor := crDefault;
+
+    if disableHistory then
+      mHistoryOn := true;
+
   end;
 end; // proc processcommand
+
+procedure TBookFrame.UpdateHistory();
+var
+  i: integer;
+  historyItem: TMenuItem;
+begin
+  if not Assigned(BookTabInfo) then
+    Exit;
+
+  for i := 0 to BookTabInfo.History.Count - 1 do
+  begin
+    historyItem := TMenuItem.Create(pmHistory);
+    historyItem.Caption := Comment(BookTabInfo.History[i]);
+    historyItem.GroupIndex := 1;
+    historyItem.OnClick := HistoryItemClick;
+
+    pmHistory.Items.Add(historyItem);
+  end;
+
+  if (pmHistory.Items.Count > 0) then
+  begin
+    if BookTabInfo.HistoryIndex >= 0 then
+      CheckHistoryItem(BookTabInfo.HistoryIndex)
+    else
+      CheckHistoryItem(0);
+  end;
+end;
+
+procedure TBookFrame.HistoryClear();
+begin
+  pmHistory.Items.Clear();
+end;
+
+procedure TBookFrame.HistoryAdd(s: string);
+var
+  historyItem: TMenuItem;
+begin
+  if not Assigned(BookTabInfo) then
+    Exit;
+
+  with BookTabInfo do
+  begin
+    if (not mHistoryOn) or ((History.Count > 0) and (History[0] = s)) then
+      Exit;
+
+    if History.Count >= MAXHISTORY then
+    begin
+      History.Delete(History.Count - 1);
+      pmHistory.Items.Delete(pmHistory.Items.Count - 1);
+    end;
+
+    History.Insert(0, s);
+
+    historyItem := TMenuItem.Create(pmHistory);
+    historyItem.Caption := Comment(s);
+    historyItem.GroupIndex := 1;
+    historyItem.OnClick := HistoryItemClick;
+
+    pmHistory.Items.Insert(0, historyItem);
+    CheckHistoryItem(0);
+  end;
+end;
+
+procedure TBookFrame.CheckHistoryItem(itemIndex: integer);
+var
+  menuItem: TMenuItem;
+  idx: integer;
+begin
+  idx := 0;
+  for menuItem in pmHistory.Items do
+  begin
+    if (idx = itemIndex) then
+      menuItem.Checked := true
+    else
+      menuItem.Checked := false;
+    idx := idx + 1;
+  end;
+
+  BookTabInfo.HistoryIndex := itemIndex;
+  tbtnBack.Enabled := itemIndex < pmHistory.Items.Count - 1;
+  tbtnForward.Enabled := true;
+end;
 
 procedure TBookFrame.SafeProcessCommand(bookTabInfo: TBookTabInfo; wsLocation: string; hlOption: TbqHLVerseOption);
 var
@@ -2966,6 +3153,11 @@ begin
   for i := 0 to cnt do
     if mMainView.mFavorites.mModuleEntries[i].modType = modtypeBible then
       inc(Result);
+end;
+
+procedure TBookFrame.RealignToolBars(AParent: TWinControl);
+begin
+  EnumControls(AParent, TUITools.RealignToolBars);
 end;
 
 end.
