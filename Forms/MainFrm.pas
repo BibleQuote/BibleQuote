@@ -535,10 +535,11 @@ type
     function NewBookTab(
       const command: string;
       const satellite: string;
-      const browserbase: string;
       state: TBookTabInfoState;
       const Title: string;
-      visual: Boolean): Boolean;
+      visual: Boolean;
+      history: TStrings = nil;
+      historyIndex: integer = -1): Boolean;
 
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
@@ -1303,6 +1304,7 @@ var
   tabsConfigPath, layoutConfigPath: string;
   tabState: UInt64;
   bookTabSettings: TBookTabSettings;
+  history: TStrings;
 begin
   tabsConfigPath := UserDir + 'tabs_config.json';
   layoutConfigPath := UserDir + 'layout_forms.dat';
@@ -1357,7 +1359,15 @@ begin
           tabViewState := DecodeBookTabState(tabState);
 
           location := bookTabSettings.Location;
-          addTabResult := NewBookTab(location, secondBible, '', tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)));
+          history := TStringList.Create;
+
+          if (bookTabSettings.History.Length > 0) then
+          begin
+            history.Delimiter := '|';
+            history.DelimitedText := bookTabSettings.History;
+          end;
+
+          addTabResult := NewBookTab(location, secondBible, tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)), history, bookTabSettings.HistoryIndex);
         end
         else if (tabSettings is TMemoTabSettings) then
         begin
@@ -3842,7 +3852,7 @@ begin
   else
   begin
     bookTabInfo := CreateBookNewTabInfo();
-    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', false);
+    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', false);
 
     bookTabInfo := bookView.BookTabInfo;
     bible := bookTabInfo.Bible;
@@ -4860,7 +4870,7 @@ begin
         else
           satBible := '------';
 
-        NewBookTab(wsrc, satBible, mTabsView.Browser.Base, bookTabInfo.State, '', true);
+        NewBookTab(wsrc, satBible, bookTabInfo.State, '', true);
 
       end
       else
@@ -5913,7 +5923,7 @@ begin
     else
       satBible := '------';
 
-    NewBookTab(wsrc, satBible, mTabsView.Browser.Base, ti.State, '', true)
+    NewBookTab(wsrc, satBible, ti.State, '', true)
 
   end
   else
@@ -6018,7 +6028,7 @@ begin
 
   if Assigned(bookTabInfo) then
   begin
-    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
   end;
 end;
 
@@ -7203,13 +7213,16 @@ end;
 function TMainForm.NewBookTab(
   const command: string;
   const satellite: string;
-  const browserbase: string;
   state: TBookTabInfoState;
   const Title: string;
-  visual: Boolean): Boolean;
+  visual: Boolean;
+  history: TStrings = nil;
+  historyIndex: integer = -1): Boolean;
 var
   curTabInfo, newTabInfo: TBookTabInfo;
   newBible: TBible;
+  bookView: TBookFrame;
+  cmd: string;
 begin
   newBible := nil;
   ClearVolatileStateData(state);
@@ -7219,10 +7232,11 @@ begin
     if not Assigned(newBible) then
       abort;
 
+    bookView := GetBookView(self);
     if (mTabsView.ChromeTabs.ActiveTabIndex >= 0) then
     begin
       // save current tab state
-      curTabInfo := GetBookView(self).BookTabInfo;
+      curTabInfo := bookView.BookTabInfo;
       if (Assigned(curTabInfo)) then
       begin
          curTabInfo.SaveState(GetTabsView(self));
@@ -7236,6 +7250,9 @@ begin
     newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
     newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
 
+    if Assigned(history) then
+      newTabInfo.History.AddStrings(history);
+
     mTabsView.AddBookTab(newTabInfo);
 
     if visual then
@@ -7243,7 +7260,11 @@ begin
       mTabsView.ChromeTabs.ActiveTabIndex := mTabsView.ChromeTabs.Tabs.Count - 1;
 
       MemosOn := vtisShowNotes in state;
-      GetBookView(self).SafeProcessCommand(newTabInfo, command, hlDefault);
+      cmd := command;
+      if ((newTabInfo.History.Count > historyIndex) and (historyIndex >= 0)) then
+        cmd := newTabInfo.History[historyIndex];
+
+      bookView.SafeProcessCommand(newTabInfo, cmd, hlDefault);
     end
     else
     begin
@@ -7467,7 +7488,7 @@ begin
 
   if (bookTabInfo <> nil) then
   begin
-    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
   end;
 end;
 
@@ -8004,7 +8025,7 @@ begin
     state := DefaultBookTabState;
   end;
 
-  NewBookTab(addr, satBible, '', state, '', true);
+  NewBookTab(addr, satBible, state, '', true);
   if GetCommandType(G_XRefVerseCmd) = bqctInvalid then
   begin
     GetBookView(self).tedtReference.Text := addr;
