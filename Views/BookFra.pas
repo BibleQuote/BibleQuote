@@ -167,6 +167,7 @@ type
     mHistoryOn: boolean;
 
     mBrowserSearchPosition: Longint;
+    mUpdateOnTreeNodeSelect: boolean;
 
     procedure SetMemosVisible(showMemos: Boolean);
 
@@ -271,7 +272,8 @@ end;
 
 procedure TBookFrame.vdtModulesAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
 begin
-  OpenChapter();
+  if (mUpdateOnTreeNodeSelect) then
+    OpenChapter();
 end;
 
 procedure TBookFrame.vdtModulesFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -412,7 +414,7 @@ begin
       else
         bookTabState := BookTabInfo.State;
 
-      mMainView.NewBookTab(unicodeSRC, '', bwrHtml.Base, bookTabState, '', true);
+      mMainView.NewBookTab(unicodeSRC, '', bookTabState, '', true);
 
     end
     else
@@ -858,6 +860,7 @@ begin
   // Let the tree know how much data space we need.
   vdtModules.NodeDataSize := SizeOf(TBookNodeData);
 
+  mUpdateOnTreeNodeSelect := true;
   mHistoryOn := true;
   RealignToolBars(Self);
 end;
@@ -933,7 +936,7 @@ begin
   begin
     s := BookTabInfo.Location;
     StrReplace(s, BookTabInfo.Bible.ShortPath, me.mShortPath, false);
-    mMainView.NewBookTab(s, BookTabInfo.SatelliteName, '', BookTabInfo.State, '', true);
+    mMainView.NewBookTab(s, BookTabInfo.SatelliteName, BookTabInfo.State, '', true);
     Exit;
   end;
 end;
@@ -1423,7 +1426,6 @@ end;
 procedure TBookFrame.HistoryItemClick(Sender: TObject);
 var
   menuItem : TMenuItem;
-  command: string;
   historyIndex: integer;
 begin
   if not Assigned(BookTabInfo) then
@@ -1842,14 +1844,22 @@ begin
         if (vdtModules.Expanded[bookNode] = False) then
           vdtModules.Expanded[bookNode] := True;
 
-        vdtModules.Selected[chapterNode] := True;
-        //vdtModules.FocusedNode := chapterNode;
+        mUpdateOnTreeNodeSelect := false;
+        try
+          vdtModules.Selected[chapterNode] := True;
+        finally
+          mUpdateOnTreeNodeSelect := true;
+        end;
       end;
     end
     else
     begin
-      vdtModules.Selected[bookNode] := True;
-      //vdtModules.FocusedNode := bookNode;
+      mUpdateOnTreeNodeSelect := false;
+      try
+        vdtModules.Selected[bookNode] := True;
+      finally
+        mUpdateOnTreeNodeSelect := true;
+      end;
     end;
   end;
 end;
@@ -1877,14 +1887,22 @@ begin
           if (vdtModules.Expanded[bookNode] = False) then
             vdtModules.Expanded[bookNode] := True;
 
-          vdtModules.Selected[chapterNode] := True;
-          vdtModules.FocusedNode := chapterNode;
+            mUpdateOnTreeNodeSelect := false;
+            try
+              vdtModules.Selected[chapterNode] := True;
+            finally
+              mUpdateOnTreeNodeSelect := true;
+            end;
         end;
       end
       else
       begin
-        vdtModules.Selected[bookNode] := True;
-        vdtModules.FocusedNode := bookNode;
+        mUpdateOnTreeNodeSelect := false;
+        try
+          vdtModules.Selected[bookNode] := True;
+        finally
+          mUpdateOnTreeNodeSelect := true;
+        end;
       end;
     end;
   end;

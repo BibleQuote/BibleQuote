@@ -263,7 +263,7 @@ begin
     else
       bookTabInfo := mMainView.CreateBookNewTabInfo();
 
-    mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+    mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
     Handled := true;
   end;
 end;
@@ -283,7 +283,7 @@ begin
   if (tabInfo.GetViewType = vttBook) then
   begin
     bookTabInfo := TBookTabInfo(tabInfo);
-    mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+    mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
   end;
 end;
 
@@ -428,7 +428,7 @@ begin
     bookTabInfo := mMainView.CreateBookNewTabInfo();
   end;
 
-  mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, '', bookTabInfo.State, '', true);
+  mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
 end;
 
 procedure TDockTabsForm.UpdateLibraryView;
