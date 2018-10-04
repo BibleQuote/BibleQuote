@@ -6,11 +6,12 @@ uses
   Winapi.Windows, Winapi.Messages, SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ToolWin,
   HTMLEmbedInterfaces, Htmlview, Vcl.Tabs, Vcl.DockTabSet, Vcl.ExtCtrls,
-  Vcl.Menus, System.ImageList, Vcl.ImgList, MainFrm, TabData, HintTools,
+  System.ImageList, Vcl.ImgList, MainFrm, TabData, HintTools,
   WinApi.ShellApi, StrUtils, BibleQuoteUtils, CommandProcessor, LinksParserIntf,
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
-  System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools;
+  System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
+  Vcl.Menus;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -67,7 +68,6 @@ type
     tbtnSep01: TToolButton;
     tbtnToggleNav: TToolButton;
     tbtnForward: TToolButton;
-    pmHistory: TPopupMenu;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure miCompareClick(Sender: TObject);
@@ -136,6 +136,8 @@ type
     function GetCurrentHistoryIndex(): integer;
     procedure CheckHistoryItem(itemIndex: integer);
 
+    procedure HistoryPopup(Sender: TObject);
+
     function GetModuleText(
       cmd: string;
       refBook: TBible;
@@ -168,6 +170,7 @@ type
 
     mBrowserSearchPosition: Longint;
     mUpdateOnTreeNodeSelect: boolean;
+    pmHistory: PopupFrm.TPopupMenu;
 
     procedure SetMemosVisible(showMemos: Boolean);
 
@@ -860,9 +863,35 @@ begin
   // Let the tree know how much data space we need.
   vdtModules.NodeDataSize := SizeOf(TBookNodeData);
 
+  // Create custom popup menu
+  pmHistory := PopupFrm.TPopupMenu.Create(self);
+  pmHistory.PopupMode := pmCustom;
+  pmHistory.PopupForm := mainView;
+
+  // this will show 10 menu items and the rest will be accessible by scroll bars
+  pmHistory.PopupCount := 10;
+  pmHistory.OnPopup := HistoryPopup;
+
+  // assign custom popup for history forward button
+  tbtnForward.DropdownMenu := pmHistory;
+
   mUpdateOnTreeNodeSelect := true;
   mHistoryOn := true;
   RealignToolBars(Self);
+end;
+
+procedure TBookFrame.HistoryPopup(Sender: TObject);
+var
+  popup: PopupFrm.TPopupForm;
+  histIndex: integer;
+begin
+  if (Sender is PopupFrm.TPopupForm) then
+  begin
+    popup := PopupFrm.TPopupForm(Sender);
+    histIndex := GetCurrentHistoryIndex();
+    if (histIndex >= 0) and (histIndex < pmHistory.Items.Count) then
+      popup.ListBox.TopIndex := GetCurrentHistoryIndex();
+  end;
 end;
 
 procedure TBookFrame.dtsBibleChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);

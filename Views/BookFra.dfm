@@ -188,7 +188,6 @@ object BookFrame: TBookFrame
         Left = 52
         Top = 0
         Caption = 'Forward'
-        DropdownMenu = pmHistory
         ImageIndex = 1
         Style = tbsDropDown
         OnClick = tbtnForwardClick
@@ -367,7 +366,7 @@ object BookFrame: TBookFrame
     Left = 96
     Top = 95
     Bitmap = {
-      494C010113006800980410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010113006800A40410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1111,9 +1110,5 @@ object BookFrame: TBookFrame
       ShortCut = 16470
       OnClick = miMemoPasteClick
     end
-  end
-  object pmHistory: TPopupMenu
-    Left = 170
-    Top = 239
   end
 end
