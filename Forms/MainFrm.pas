@@ -27,7 +27,7 @@ uses
 const
 
   ZOOMFACTOR = 1.5;
-  MAXHISTORY = 15;
+  MAXHISTORY = 30;
   {
     такие увеличенные размеры позволяют сохранять ПРОПОРЦИИ окна
     координаты окна программы вычисляются в относительных единицах
@@ -7820,8 +7820,8 @@ begin
   begin
     with bible do
       newstring :=
-        ShortName + ' ' +
         ShortPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber) + ' ' +
+        ShortName + ' ' +
         InputForm.memValue.Text;
 
     StrReplace(newstring, #13#10, ' ', true);
@@ -8217,9 +8217,9 @@ begin
   InputForm.Font := MainForm.Font;
 
   with GetBookView(self).BookTabInfo.Bible do
-    signature := ShortName + ' ' + ShortPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber) + ' $$$';
+    signature := ShortPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber) + ' ' + ShortName + ' $$$';
 
-  // search for 'RST Быт.1:1 $$$' in Memos.
+  // search for 'Быт.1:1 RST $$$' in Memos.
   i := FindString(Memos, signature);
 
   if i > -1 then // found memo
