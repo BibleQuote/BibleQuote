@@ -58,7 +58,8 @@ uses
   FontManager in 'Core\FontManager.pas',
   LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame},
   ImageUtils in 'Utils\ImageUtils.pas',
-  UITools in 'UI\UITools.pas';
+  UITools in 'UI\UITools.pas',
+  PopupFrm in 'Forms\PopupFrm.pas' {PopupForm};
 
 {$R *.res}
 var
@@ -84,7 +85,6 @@ begin
     else   ReportMemoryLeaksOnShutdown:=false;
   except
   end;
-
 
   Application.Initialize;
 
