@@ -449,10 +449,10 @@ begin
     if Assigned(BookTabInfo) then
     begin
     with BookTabInfo.Bible do
-      HistoryAdd(Format('go %s %d %d %d %d $$$%s %s', [ShortPath, CurBook,
-        CurChapter, mMainView.tbXRef.tag, 0,
+      HistoryAdd(Format('go %s %d %d %d %d $$$%s %s',
+        [ShortPath, CurBook, CurChapter, mMainView.tbXRef.tag, 0,
         // history comment
-        ShortName, FullPassageSignature(CurBook, CurChapter, mMainView.tbXRef.tag, 0)]));
+        FullPassageSignature(CurBook, CurChapter, mMainView.tbXRef.tag, 0), ShortName]));
     end;
 
     if iscontrolDown or (mMainView.pgcMain.Visible and (mMainView.pgcMain.ActivePage = mMainView.tbComments))
@@ -2039,14 +2039,12 @@ begin
             s := Format('go %s %d %d %d 0 $$$%s %s',
               [ShortPath, CurBook, CurChapter, focusVerse,
               // history comment
-              ShortName, FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, 0)])
+              FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, 0), ShortName])
           else
             s := Format('go %s %d %d %d %d $$$%s %s',
               [ShortPath, CurBook, CurChapter, bibleLink.vstart, bibleLink.vend,
               // history comment
-              ShortName,
-              FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, bibleLink.vend)]
-            );
+              FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, bibleLink.vend), ShortName]);
 
         HistoryAdd(s);
 
@@ -2766,10 +2764,10 @@ begin
     // memos...
     if mMainView.MemosOn then
     begin // if notes are enabled
-      with bible do // search for 'RST Быт.1:1 $$$' in Memos.
+      with bible do // search for 'Быт.1:1 RST $$$' in Memos.
         i := FindString(
           mMainView.Memos,
-          ShortName + ' ' + ShortPassageSignature(CurBook, CurChapter, verse, verse) + ' $$$');
+          ShortPassageSignature(CurBook, CurChapter, verse, verse) + ' ' + ShortName + ' $$$');
 
       if i > -1 then
       begin // found memo
