@@ -9,7 +9,7 @@ uses
   System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, BibleQuoteUtils,
   ExceptionFrm, Math, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig;
+  ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig, BookmarksFra;
 
 const
   bsText = 0;
@@ -51,6 +51,7 @@ type
     mBookView: TBookFrame;
     mMemoView: TMemoFrame;
     mLibraryView: TLibraryFrame;
+    mBookmarksView: TBookmarksFrame;
 
     mViewTabs: TList<IViewTabInfo>;
 
@@ -65,11 +66,16 @@ type
     procedure CloseActiveTab();
     procedure UpdateBookView();
     procedure UpdateLibraryView();
+    procedure UpdateBookmarksView();
+
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
+    function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
 
     procedure OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
+
+    procedure CreateNewBookTab();
 
     procedure MakeActive();
     procedure Translate();
@@ -79,6 +85,7 @@ type
     function GetBookView: IBookView;
     function GetMemoView: IMemoView;
     function GetLibraryView: ILibraryView;
+    function GetBookmarksView: IBookmarksView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -94,6 +101,7 @@ type
     property BookView: IBookView read GetBookView;
     property MemoView: IMemoView read GetMemoView;
     property LibraryView: ILibraryView read GetLibraryView;
+    property BookmarksView: IBookmarksView read GetBookmarksView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
   end;
@@ -125,6 +133,11 @@ end;
 function TDockTabsForm.GetLibraryView(): ILibraryView;
 begin
   Result := mLibraryView as ILibraryView;
+end;
+
+function TDockTabsForm.GetBookmarksView(): IBookmarksView;
+begin
+  Result := mBookmarksView as IBookmarksView;
 end;
 
 function TDockTabsForm.GetBibleTabs(): TDockTabSet;
@@ -199,6 +212,7 @@ begin
     ShowFrame(mBookView);
     HideFrame(mMemoView);
     HideFrame(mLibraryView);
+    HideFrame(mBookmarksView);
 
     UpdateBookView();
   end;
@@ -208,6 +222,7 @@ begin
     ShowFrame(mMemoView);
     HideFrame(mBookView);
     HideFrame(mLibraryView);
+    HideFrame(mBookmarksView);
 
     mMainView.UpdateMemoView();
   end;
@@ -217,9 +232,21 @@ begin
     ShowFrame(mLibraryView);
     HideFrame(mBookView);
     HideFrame(mMemoView);
+    HideFrame(mBookmarksView);
 
     UpdateLibraryView();
   end;
+
+  if (tabInfo.GetViewType = vttBookmarks) then
+  begin
+    ShowFrame(mBookmarksView);
+    HideFrame(mBookView);
+    HideFrame(mMemoView);
+    HideFrame(mLibraryView);
+
+    UpdateBookmarksView();
+  end;
+
 end;
 
 procedure TDockTabsForm.ShowFrame(frame: TFrame);
@@ -307,10 +334,14 @@ begin
   mMemoView.Parent := pnlMain;
   mMemoView.Align := alClient;
 
-  mLibraryView := TLibraryFrame.Create(nil, self);
+  mLibraryView := TLibraryFrame.Create(nil);
   mLibraryView.Parent := pnlMain;
   mLibraryView.Align := alClient;
   mLibraryView.OnSelectModule := OnSelectModule;
+
+  mBookmarksView := TBookmarksFrame.Create(nil, mMainView, self, mMainView.Bookmarks);
+  mBookmarksView.Parent := pnlMain;
+  mBookmarksView.Align := alClient;
 
   mBookView := TBookFrame.Create(nil, mMainView, self);
   mBookView.Parent := pnlMain;
@@ -414,6 +445,11 @@ begin
 end;
 
 procedure TDockTabsForm.miNewViewTabClick(Sender: TObject);
+begin
+  CreateNewBookTab();
+end;
+
+procedure TDockTabsForm.CreateNewBookTab();
 var
   activeTabInfo: IViewTabInfo;
   bookTabInfo: TBookTabInfo;
@@ -435,6 +471,11 @@ procedure TDockTabsForm.UpdateLibraryView;
 begin
   mLibraryView.SetModules(mMainView.mModules);
   mMainView.UpdateLibraryView();
+end;
+
+procedure TDockTabsForm.UpdateBookmarksView;
+begin
+  mMainView.UpdateBookmarksView();
 end;
 
 procedure TDockTabsForm.UpdateBookView();
@@ -548,6 +589,21 @@ begin
   newTab.Caption := Lang.SayDefault('TabMemos', 'Memos');
   newTab.Data := newTabInfo;
   newTab.ImageIndex := 17;
+
+  mViewTabs.Add(newTabInfo);
+  UpdateTabContent(newTab);
+
+  Result := newTab;
+end;
+
+function TDockTabsForm.AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
+var
+  newTab: TChromeTab;
+begin
+  newTab := ctViewTabs.Tabs.Add;
+  newTab.Caption := Lang.SayDefault('TabBookmarks', 'Bookmarks');
+  newTab.Data := newTabInfo;
+  //newTab.ImageIndex := 17;
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);

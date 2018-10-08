@@ -22,7 +22,7 @@ uses
   TabData, Favorites, ThinCaptionedDockTree,
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, FontManager;
+  ChromeTabsLog, FontManager, BroadcastList;
 
 const
 
@@ -103,7 +103,6 @@ type
     cbSearch: TComboBox;
     cbList: TComboBox;
     btnFind: TButton;
-    tbGo: TTabSheet;
     chkAll: TCheckBox;
     chkPhrase: TCheckBox;
     chkParts: TCheckBox;
@@ -124,9 +123,6 @@ type
     pnlSelectDic: TPanel;
     cbDic: TComboBox;
     lblDicFoundSeveral: TLabel;
-    lbBookmarks: TListBox;
-    pnlBookmarks: TPanel;
-    lblBookmark: TLabel;
     pnlFindStrongNumber: TPanel;
     trayIcon: TCoolTrayIcon;
     edtDic: TComboBox;
@@ -222,6 +218,7 @@ type
     tbtnNewForm: TToolButton;
     tbtnNewMemoTab: TToolButton;
     tbtnAddLibraryForm: TToolButton;
+    tbtnAddBookmarksTab: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -287,10 +284,7 @@ type
     procedure miQuickSearchClick(Sender: TObject);
     procedure tbtnCopyrightClick(Sender: TObject);
     procedure cbDicFilterChange(Sender: TObject);
-    procedure lbBookmarksDblClick(Sender: TObject);
     procedure bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-    procedure lbBookmarksClick(Sender: TObject);
-    procedure lbBookmarksKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure pnlFindStrongNumberMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pnlFindStrongNumberMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pnlFindStrongNumberClick(Sender: TObject);
@@ -407,6 +401,7 @@ type
     procedure BookSearchComplete(Sender: TObject);
     procedure tbtnNewMemoTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
+    procedure tbtnAddBookmarksTabClick(Sender: TObject);
   public
     SysHotKey: TSysHotKey;
 
@@ -467,7 +462,7 @@ type
     MemosOn: Boolean;
 
     Memos: TStringList;
-    Bookmarks: TStringList;
+    Bookmarks: TBroadcastStringList;
 
     LastAddress: string;
 
@@ -522,6 +517,7 @@ type
     procedure UpdateBookView();
     procedure UpdateMemoView();
     procedure UpdateLibraryView();
+    procedure UpdateBookmarksView();
 
     procedure SetFirstTabInitialLocation(
       wsCommand, wsSecondaryView: string;
@@ -1378,6 +1374,11 @@ begin
         begin
           mTabsView.AddLibraryTab(TLibraryTabInfo.Create());
           addTabResult := true;
+        end
+        else if (tabSettings is TBookmarksTabSettings) then
+        begin
+          mTabsView.AddBookmarksTab(TBookmarksTabInfo.Create());
+          addTabResult := true;
         end;
 
         firstTabInitialized := true;
@@ -1762,8 +1763,6 @@ begin
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
-var
-  i: integer;
 begin
   mFontManager := TFontManager.Create();
   mBqEngine := TBibleQuoteEngine.Create();
@@ -1802,7 +1801,7 @@ begin
 
   MemosOn := false;
 
-  Bookmarks := TStringList.Create;
+  Bookmarks := TBroadcastStringList.Create;
 
   SearchResults := TStringList.Create;
   SearchWords := TStringList.Create;
@@ -1810,7 +1809,7 @@ begin
 
   IsSearching := false;
 
-  pgcMain.ActivePage := tbGo;
+  pgcMain.ActivePage := tbSearch;
 
   // LOADING CONFIGURATION
   LoadConfiguration;
@@ -1847,15 +1846,6 @@ begin
     StrReplace(TextTemplate, 'src=', 'src=' + TemplatePath, false);
 
   FillLanguageMenu();
-
-  lbBookmarks.Items.BeginUpdate;
-  for i := 0 to Bookmarks.Count - 1 do
-    lbBookmarks.Items.Add(Comment(Bookmarks[i]));
-  lbBookmarks.Items.EndUpdate;
-
-  lblBookmark.Caption := '';
-  if Bookmarks.Count > 0 then
-    lblBookmark.Caption := Comment(Bookmarks[0]);
 
   MainMenuInit(false);
 
@@ -1952,7 +1942,6 @@ begin
 
   if not pgcMain.Visible then
     tbtnToggle.Click;
-  pgcMain.ActivePage := tbGo;
 
   Windows.SetFocus(bookView.tedtReference.Handle);
 end;
@@ -3526,6 +3515,9 @@ var
   bible: TBible;
 begin
   bookView := GetBookView(self);
+  if not Assigned(bookView.BookTabInfo) then
+    Exit;
+
   bible := bookView.BookTabInfo.Bible;
 
   if (not bible.isBible) then
@@ -5994,6 +5986,14 @@ begin
   until trCount <= 0;
 end;
 
+procedure TMainForm.tbtnAddBookmarksTabClick(Sender: TObject);
+var
+  newTabInfo: TBookmarksTabInfo;
+begin
+  newTabInfo := TBookmarksTabInfo.Create();
+  mTabsView.AddBookmarksTab(newTabInfo);
+end;
+
 procedure TMainForm.tbtnNewFormClick(Sender: TObject);
 var
   tabsForm: TDockTabsForm;
@@ -6101,6 +6101,13 @@ begin
 end;
 
 procedure TMainForm.UpdateLibraryView();
+begin
+  lblTitle.Caption := '';
+  lblCopyRightNotice.Caption := '';
+  tbtnCopyright.Hint := '';
+end;
+
+procedure TMainForm.UpdateBookmarksView();
 begin
   lblTitle.Caption := '';
   lblCopyRightNotice.Caption := '';
@@ -6392,7 +6399,13 @@ begin
     // TSection(sct).
     bookView := GetBookView(self);
     bookTabInfo := bookView.BookTabInfo;
+    if not Assigned(bookTabInfo) then
+      Exit;
+
     bible := bookTabInfo.Bible;
+    if not Assigned(bible) then
+      Exit;
+
     if vn > 0 then
     begin
       bookTabInfo.FirstVisiblePara := vn;
@@ -7826,8 +7839,6 @@ begin
 
     StrReplace(newstring, #13#10, ' ', true);
 
-    lbBookmarks.Items.Insert(0, newstring);
-
     with bible do
       Bookmarks.Insert(0, Format('go %s %d %d %d %d $$$%s',
         [ShortPath, CurBook, CurChapter, CurVerseNumber, 0, newstring]));
@@ -7875,13 +7886,6 @@ begin
   TagsDbEngine.AddVerseTagged(nd.getText(), bible.CurBook, bible.CurChapter, F, t, bible.ShortPath, true);
 end;
 
-procedure TMainForm.lbBookmarksDblClick(Sender: TObject);
-var bookView: TBookFrame;
-begin
-  bookView := GetBookView(self);
-  bookView.ProcessCommand(bookView.BookTabInfo, Bookmarks[lbBookmarks.ItemIndex], hlDefault);
-end;
-
 procedure TMainForm.bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
   num, code: integer;
@@ -7893,38 +7897,6 @@ begin
     Val(scode, num, code);
     if code = 0 then
       DisplayStrongs(num, (Copy(scode, 1, 1) = '0'));
-  end;
-end;
-
-procedure TMainForm.lbBookmarksClick(Sender: TObject);
-begin
-  lblBookmark.Caption := Comment(Bookmarks[lbBookmarks.ItemIndex]);
-end;
-
-procedure TMainForm.lbBookmarksKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-var
-  i: integer;
-begin
-  if lbBookmarks.Items.Count = 0 then
-    Exit;
-
-  if Key = VK_DELETE then
-  begin
-    if Application.MessageBox('Удалить закладку?', 'Подтвердите удаление',
-      MB_YESNO + MB_DEFBUTTON1) <> ID_YES then
-      Exit;
-
-    i := lbBookmarks.ItemIndex;
-    Bookmarks.Delete(i);
-    lbBookmarks.Items.Delete(i);
-    if i = lbBookmarks.Items.Count then
-      i := i - 1;
-
-    if i < 0 then
-      Exit;
-
-    lbBookmarks.ItemIndex := i;
-    lbBookmarksClick(Sender);
   end;
 end;
 
@@ -8163,11 +8135,7 @@ begin
 
   if not pgcMain.Visible then
     tbtnToggle.Click;
-  if pgcMain.ActivePage <> tbGo then
-  begin
-    pgcMain.ActivePage := tbGo;
-    pgcMainChange(self);
-  end;
+
   bookView.ToggleQuickSearchPanel(true);
   try
     FocusControl(bookView.tedtQuickSearch);
@@ -8459,9 +8427,6 @@ end;
 
 procedure TMainForm.EnableBookTools(enable: boolean);
 begin
-  tbGo.Enabled := enable;
-  SyncChildrenEnabled(tbGo);
-
   tbSearch.Enabled := enable;
   SyncChildrenEnabled(tbSearch);
 
