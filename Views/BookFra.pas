@@ -852,7 +852,7 @@ begin
   mSatelliteForm := TForm.Create(self);
   mSatelliteForm.OnDeactivate := OnSatelliteFormDeactivate;
 
-  mSatelliteLibraryView := TLibraryFrame.Create(nil, mTabsView);
+  mSatelliteLibraryView := TLibraryFrame.Create(nil);
   mSatelliteLibraryView.OnSelectModule := OnSelectSatelliteModule;
   mSatelliteLibraryView.cmbBookType.Enabled := false;
   mSatelliteLibraryView.cmbBookType.ItemIndex := 1;

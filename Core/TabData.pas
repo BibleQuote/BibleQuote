@@ -12,7 +12,8 @@ type
   TViewTabType = (
     vttBook,
     vttMemo,
-    vttLibrary);
+    vttLibrary,
+    vttBookmarks);
 
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
@@ -29,6 +30,10 @@ type
 
   ILibraryView = interface(ITabView)
   ['{48FA0988-E4BA-4A39-9119-34D163959863}']
+  end;
+
+  IBookmarksView = interface(ITabView)
+  ['{4C0D791C-E62D-4EC0-8B32-6019D89CB95A}']
   end;
 
   ITabsView = interface; // forward declaration
@@ -164,6 +169,14 @@ type
     function GetCaption(): string;
   end;
 
+  TBookmarksTabInfo = class(TInterfacedObject, IViewTabInfo)
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+  end;
+
   TViewTabDragObject = class(TDragObjectEx)
   protected
     mViewTabInfo: TBookTabInfo;
@@ -181,6 +194,7 @@ type
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
+    function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
 
     procedure MakeActive();
 
@@ -189,6 +203,7 @@ type
     function GetBookView: IBookView;
     function GetMemoView: IMemoView;
     function GetLibraryView: ILibraryView;
+    function GetBookmarksView: IBookmarksView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -203,6 +218,7 @@ type
     property BookView: IBookView read GetBookView;
     property MemoView: IMemoView read GetMemoView;
     property LibraryView: ILibraryView read GetLibraryView;
+    property BookmarksView: IBookmarksView read GetBookmarksView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
   end;
@@ -403,6 +419,36 @@ begin
 end;
 
 procedure TLibraryTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+{ TBookmarksTabInfo }
+
+function TBookmarksTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabBookmarks', 'Bookmarks');
+end;
+
+function TBookmarksTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttBookmarks;
+end;
+
+function TBookmarksTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TBookmarksTabSettings;
+begin
+  tabSettings := TBookmarksTabSettings.Create;
+  Result := tabSettings;
+end;
+
+procedure TBookmarksTabInfo.SaveState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+procedure TBookmarksTabInfo.RestoreState(const tabsView: ITabsView);
 begin
 // nothing to save
 end;

@@ -37,8 +37,6 @@ type
     mUILock: Boolean;
     mModules: TCachedModules;
 
-    mTabsView: ITabsView;
-
     mFontBookName, mFontCopyright, mFontModType: TFont;
 
     mCoverDefault: TPicture;
@@ -53,7 +51,7 @@ type
     procedure InitCoverDefault();
     function GetModuleTypeText(modType: TModuleType): string;
   public
-    constructor Create(AOwner: TComponent; tabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent); reintroduce;
     procedure SetModules(modules: TCachedModules);
 
     procedure Translate();
@@ -74,12 +72,10 @@ implementation
 
 {$R *.dfm}
 
-constructor TLibraryFrame.Create(AOwner: TComponent; tabsView: ITabsView);
+constructor TLibraryFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   mModules := TCachedModules.Create();
-
-  mTabsView := tabsView;
 
   InitFonts();
   Translate();

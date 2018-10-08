@@ -59,7 +59,9 @@ uses
   LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame},
   ImageUtils in 'Utils\ImageUtils.pas',
   UITools in 'UI\UITools.pas',
-  PopupFrm in 'Forms\PopupFrm.pas' {PopupForm};
+  PopupFrm in 'Forms\PopupFrm.pas' {PopupForm},
+  BookmarksFra in 'Views\BookmarksFra.pas' {BookmarksFrame: TFrame},
+  BroadcastList in 'Collections\BroadcastList.pas';
 
 {$R *.res}
 var
