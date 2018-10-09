@@ -16,8 +16,6 @@ object BookmarksFrame: TBookmarksFrame
     OnClick = lbBookmarksClick
     OnDblClick = lbBookmarksDblClick
     OnKeyUp = lbBookmarksKeyUp
-    ExplicitWidth = 282
-    ExplicitHeight = 207
   end
   object pnlBookmarks: TPanel
     Left = 0
@@ -28,7 +26,6 @@ object BookmarksFrame: TBookmarksFrame
     BevelOuter = bvNone
     BorderWidth = 10
     TabOrder = 1
-    ExplicitWidth = 282
     object lblBookmark: TLabel
       Left = 10
       Top = 10
