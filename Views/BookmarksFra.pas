@@ -79,7 +79,6 @@ end;
 
 procedure TBookmarksFrame.lbBookmarksDblClick(Sender: TObject);
 var
-  bookView: IBookView;
   bookFrame: TBookFrame;
   bookmark: string;
   bookTabInfo: TBookTabInfo;
@@ -95,13 +94,11 @@ begin
 
   if (bookTabInfo <> nil) then
   begin
-    mMainView.NewBookTab(bookmark, bookTabInfo.SatelliteName, bookTabInfo.State, '', false);
+    mMainView.OpenOrCreateBookTab(bookmark, bookTabInfo.SatelliteName, bookTabInfo.State);
   end;
 end;
 
 procedure TBookmarksFrame.lbBookmarksKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-var
-  i: integer;
 begin
   if lbBookmarks.Items.Count = 0 then
     Exit;
@@ -111,17 +108,7 @@ begin
     if Application.MessageBox('Удалить закладку?', 'Подтвердите удаление', MB_YESNO + MB_DEFBUTTON1) <> ID_YES then
       Exit;
 
-    i := lbBookmarks.ItemIndex;
-    mBookmarks.Delete(i);
-    lbBookmarks.Items.Delete(i);
-    if i = lbBookmarks.Items.Count then
-      i := i - 1;
-
-    if i < 0 then
-      Exit;
-
-    lbBookmarks.ItemIndex := i;
-    lbBookmarksClick(Sender);
+    mBookmarks.Delete(lbBookmarks.ItemIndex);
   end;
 end;
 

@@ -191,6 +191,8 @@ type
     procedure CloseActiveTab();
     function GetActiveTabInfo(): IViewTabInfo;
     procedure UpdateBookView();
+    procedure UpdateCurrentTabContent();
+
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
@@ -208,6 +210,8 @@ type
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
     function GetTabInfo(tabIndex: integer): IViewTabInfo;
+    function GetUpdateOnTabChange: boolean;
+    procedure SetUpdateOnTabChange(b: boolean);
 
     // setters
     procedure SetViewName(viewName: string);
@@ -221,6 +225,7 @@ type
     property BookmarksView: IBookmarksView read GetBookmarksView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
+    property UpdateOnTabChange: boolean read GetUpdateOnTabChange write SetUpdateOnTabChange;
   end;
 
 implementation

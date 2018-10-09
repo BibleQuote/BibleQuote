@@ -53,6 +53,8 @@ type
     mLibraryView: TLibraryFrame;
     mBookmarksView: TBookmarksFrame;
 
+    mUpdateOnTabChange: boolean;
+
     mViewTabs: TList<IViewTabInfo>;
 
     procedure ShowFrame(frame: TFrame);
@@ -64,6 +66,7 @@ type
     constructor Create(AOwner: TComponent; mainView: TMainForm); reintroduce;
 
     procedure CloseActiveTab();
+    procedure UpdateCurrentTabContent();
     procedure UpdateBookView();
     procedure UpdateLibraryView();
     procedure UpdateBookmarksView();
@@ -91,6 +94,8 @@ type
     function GetViewName: string;
     function GetTabInfo(tabIndex: integer): IViewTabInfo; overload;
     function GetTabInfo(data: Pointer): IViewTabInfo; overload;
+    function GetUpdateOnTabChange: boolean;
+    procedure SetUpdateOnTabChange(b: boolean);
 
     // setters
     procedure SetViewName(viewName: string);
@@ -104,6 +109,7 @@ type
     property BookmarksView: IBookmarksView read GetBookmarksView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
+    property UpdateOnTabChange: boolean read GetUpdateOnTabChange write SetUpdateOnTabChange;
   end;
 
 implementation
@@ -161,11 +167,21 @@ begin
   try
     if (tabIndex >= 0) and (tabIndex < ctViewTabs.Tabs.Count) then
     begin
-      Result := GetTabInfo(ctViewTabs.ActiveTab.Data);
+      Result := GetTabInfo(ctViewTabs.Tabs[tabIndex].Data);
     end;
   except on e: Exception do
     // just eat everything wrong
   end;
+end;
+
+function TDockTabsForm.GetUpdateOnTabChange: boolean;
+begin
+  Result := mUpdateOnTabChange;
+end;
+
+procedure TDockTabsForm.SetUpdateOnTabChange(b: boolean);
+begin
+  mUpdateOnTabChange := b;
 end;
 
 function TDockTabsForm.GetTabInfo(data: Pointer): IViewTabInfo;
@@ -191,11 +207,18 @@ begin
   inherited Create(AOwner);
   mViewTabs := TList<IViewTabInfo>.Create();
   mMainView := mainView;
+  mUpdateOnTabChange := true;
 end;
 
 procedure TDockTabsForm.ctViewTabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
 begin
-  UpdateTabContent(ATab);
+  if (mUpdateOnTabChange) then
+    UpdateTabContent(ATab);
+end;
+
+procedure TDockTabsForm.UpdateCurrentTabContent();
+begin
+  UpdateTabContent(ctViewTabs.Tabs.ActiveTab);
 end;
 
 procedure TDockTabsForm.UpdateTabContent(ATab: TChromeTab);
@@ -603,7 +626,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabBookmarks', 'Bookmarks');
   newTab.Data := newTabInfo;
-  //newTab.ImageIndex := 17;
+  newTab.ImageIndex := 19;
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -637,6 +660,7 @@ begin
       mBookView.Translate();
       mMemoView.Translate();
       mLibraryView.Translate();
+      mBookmarksView.Translate();
 
       for i := 0 to ctViewTabs.Tabs.Count - 1 do
       begin

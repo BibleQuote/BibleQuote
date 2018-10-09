@@ -537,6 +537,7 @@ type
       history: TStrings = nil;
       historyIndex: integer = -1): Boolean;
 
+    procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
     procedure AddBookmark(caption: string);
@@ -6016,6 +6017,7 @@ begin
     tabsForm.BibleTabs.Tabs.Objects[I] := mFavorites.mModuleEntries[I];
   end;
 
+  tabsForm.Translate;
   tabsForm.ManualDock(pnlModules);
   tabsForm.Show;
 
@@ -7223,6 +7225,41 @@ begin
   pgcMain.ActivePage := tbDic;
 end;
 
+procedure TMainForm.OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
+var
+  i: integer;
+  tabInfo: IViewTabInfo;
+  bookView: TBookFrame;
+  wasUpdateSet: boolean;
+begin
+  ClearVolatileStateData(state);
+
+  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  begin
+    tabInfo := mTabsView.GetTabInfo(i);
+    if not (tabInfo is TBookTabInfo) then
+      continue;
+
+    bookView := GetBookView(self);
+
+    wasUpdateSet := mTabsView.UpdateOnTabChange;
+    mTabsView.UpdateOnTabChange := false;
+    try
+      mTabsView.ChromeTabs.ActiveTabIndex := i;
+    finally
+      mTabsView.UpdateOnTabChange := wasUpdateSet;
+    end;
+
+    MemosOn := vtisShowNotes in state;
+
+    bookView.SafeProcessCommand(TBookTabInfo(tabInfo), command, hlDefault);
+    mTabsView.UpdateCurrentTabContent;
+    Exit;
+  end;
+
+  NewBookTab(command, satellite, state, '', true);
+end;
+
 function TMainForm.NewBookTab(
   const command: string;
   const satellite: string;
@@ -8420,6 +8457,9 @@ begin
       EnableBookTools(false);
     end;
     vttLibrary: begin
+      EnableBookTools(false);
+    end;
+    vttBookmarks: begin
       EnableBookTools(false);
     end;
   end;
