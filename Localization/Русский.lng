@@ -70,11 +70,14 @@ commentaryLoadFail = Не удалось отобразить комментар
 HelpDocumentation = Документация
 SelectParaBible = Выберите вторичную библию
 DeselectSec = Отменить выбор
-MyLib = Моя библиотека
 CollapseAll = Свернуть все
 
 TabLibrary = Библиотека
 TabMemos = Личные заметки
+TabBookmarks = Закладки
+
+DeleteBookmarkTextPrompt = Удалить закладку?
+DeleteBookmarkTitle = Подтвердите удаление
 
 ; ЭЛЕМЕНТЫ ФОРМЫ И МЕНЮ =================================
 
@@ -193,10 +196,8 @@ MainForm.miWebSites.Caption = JesusChrist.ru
 MainForm.miXref.Caption = Параллельные места (TSK)
 MainForm.pgcMain.Hint = Панель инструментов
 MainForm.pnlFindStrongNumber.Caption = найти стихи с этим номером
-MainForm.tbBookmarks.Caption = Закладки
 MainForm.tbComments.Hint = Комментарии
 MainForm.tbDic.Hint = Словари
-MainForm.tbGo.Hint = Навигация
 MainForm.tbHistory.Caption = Журнал
 MainForm.tbList.Hint = Тематические закладки
 MainForm.tbLinksToolBar.Caption = Ссылки
@@ -209,10 +210,14 @@ MainForm.tbtnCloseTab.Caption= Закрыть вкладку
 MainForm.tbtnCloseTab.Hint = Закрыть вкладку (Ctrl+W)
 MainForm.tbtnCopyright.Caption = Авторские права
 MainForm.tbtnDelNode.Caption = Удалить заметку
-MainForm.tbtnLib.Caption = Библиотека
-MainForm.tbtnLib.Hint = Просмотр библиотеки
-MainForm.tbtnNewTab.Caption = Новая вкладка
-MainForm.tbtnNewTab.Hint = Новая вкладка (Ctrl+T)
+MainForm.tbtnAddLibraryTab.Caption = Библиотека
+MainForm.tbtnAddLibraryTab.Hint = Открыть библиотеку
+MainForm.tbtnAddBookmarksTab.Caption = Закладки
+MainForm.tbtnAddBookmarksTab.Hint = Открыть закладки
+MainForm.tbtnAddBookTab.Caption = Новая вкладка
+MainForm.tbtnAddBookTab.Hint = Новая вкладка (Ctrl+T)
+MainForm.tbtnAddMemoTab.Caption = Личные заметки
+MainForm.tbtnAddMemoTab.Hint = Личные заметки
 MainForm.tbtnPreview.Caption = Предварительный просмотр
 MainForm.tbtnPreview.Hint = Предварительный просмотр (Ctrl+F11)
 MainForm.tbtnPrint.Caption = Печать
@@ -311,11 +316,6 @@ ConfigForm.rgHotKeyChoice.Caption = Комбинация клавиш
 ConfigForm.tsCopyOptions.Caption = Опции копирования
 ConfigForm.tsFavouriteEx.Caption = Избранные модули
 ConfigForm.tsOtherOptions.Caption = Другие опции
-
-MyLibraryForm.btnClear.Caption = Очистить
-MyLibraryForm.btnCollapse.Caption = Свернуть все
-MyLibraryForm.btnOK.Caption = OK
-MyLibraryForm.lblNavigate.Caption = Перейти
 
 ExceptionForm.btnHalt.Caption = Аварийный останов
 ExceptionForm.btnOK.Caption = OK
