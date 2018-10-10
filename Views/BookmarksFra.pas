@@ -89,7 +89,7 @@ begin
   bookTabInfo := bookFrame.BookTabInfo;
   if not Assigned(bookTabInfo) then
   begin
-    bookTabInfo := mMainView.CreateBookNewTabInfo();
+    bookTabInfo := mMainView.CreateNewBookTabInfo();
   end;
 
   if (bookTabInfo <> nil) then
@@ -99,13 +99,17 @@ begin
 end;
 
 procedure TBookmarksFrame.lbBookmarksKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  prompt, title: string;
 begin
   if lbBookmarks.Items.Count = 0 then
     Exit;
 
   if Key = VK_DELETE then
   begin
-    if Application.MessageBox('Удалить закладку?', 'Подтвердите удаление', MB_YESNO + MB_DEFBUTTON1) <> ID_YES then
+    prompt := Lang.SayDefault('DeleteBookmarkTextPrompt', 'Удалить закладку?');
+    title := Lang.SayDefault('DeleteBookmarkTitle', 'Подтвердите удаление');
+    if Application.MessageBox(PWideChar(prompt), PWideChar(title), MB_YESNO + MB_DEFBUTTON1) <> ID_YES then
       Exit;
 
     mBookmarks.Delete(lbBookmarks.ItemIndex);

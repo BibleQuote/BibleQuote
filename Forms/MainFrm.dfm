@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 381
+  ClientHeight = 361
   ClientWidth = 881
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 290
     Top = 34
     Width = 8
-    Height = 326
+    Height = 306
     AutoSnap = False
     MinSize = 100
     ExplicitTop = 24
@@ -42,7 +42,7 @@ object MainForm: TMainForm
     Left = 298
     Top = 34
     Width = 583
-    Height = 326
+    Height = 306
     Align = alClient
     DockSite = True
     TabOrder = 0
@@ -92,7 +92,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 290
-    Height = 326
+    Height = 306
     Hint = 'Memos'
     ActivePage = tbComments
     Align = alLeft
@@ -111,7 +111,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 179
         Width = 282
-        Height = 118
+        Height = 98
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -269,7 +269,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 63
+        Height = 43
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -395,7 +395,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 84
+        Height = 64
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -478,7 +478,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 267
+        Height = 247
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -561,7 +561,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 282
-        Height = 297
+        Height = 277
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -612,7 +612,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 52
         Width = 282
-        Height = 245
+        Height = 225
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -767,13 +767,13 @@ object MainForm: TMainForm
         ImageIndex = 14
         OnClick = tbtnNewFormClick
       end
-      object tbtnNewTab: TToolButton
+      object tbtnAddBookTab: TToolButton
         Left = 70
         Top = 0
         Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
-        Caption = 'tbtnNewTab'
+        Caption = 'Add book tab'
         ImageIndex = 10
-        OnClick = miNewTabClick
+        OnClick = miAddBookTabClick
       end
       object tbtnCloseTab: TToolButton
         Left = 102
@@ -789,10 +789,10 @@ object MainForm: TMainForm
         Width = 6
         Style = tbsSeparator
       end
-      object tbtnAddLibraryForm: TToolButton
+      object tbtnAddLibraryTab: TToolButton
         Left = 140
         Top = 0
-        Caption = 'tbtnAddLibraryTab'
+        Caption = 'Add library tab'
         ImageIndex = 7
         OnClick = tbtnAddLibraryTabClick
       end
@@ -803,12 +803,12 @@ object MainForm: TMainForm
         ImageIndex = 16
         OnClick = tbtnAddBookmarksTabClick
       end
-      object tbtnNewMemoTab: TToolButton
+      object tbtnAddMemoTab: TToolButton
         Left = 204
         Top = 0
-        Caption = 'tbtnNewMemoTab'
+        Caption = 'Add memo tab'
         ImageIndex = 15
-        OnClick = tbtnNewMemoTabClick
+        OnClick = tbtnAddMemoTabClick
       end
       object tbtnSep04: TToolButton
         Left = 236
@@ -950,7 +950,7 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 360
+    Top = 340
     Width = 881
     Height = 21
     Align = alBottom
@@ -1131,7 +1131,7 @@ object MainForm: TMainForm
         Caption = #1053#1086#1074#1072#1103' '#1074#1082#1083#1072#1076#1082#1072
         ImageIndex = 30
         ShortCut = 16468
-        OnClick = miNewTabClick
+        OnClick = miAddBookTabClick
       end
       object miCloseTab: TMenuItem
         Caption = #1047#1072#1082#1088#1099#1090#1100' '#1074#1082#1083#1072#1076#1082#1091
@@ -1316,7 +1316,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010133006800A00410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010133006800A40410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000D0000000010020000000000000D0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3050,7 +3050,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01011100E801A80218001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011100E801AC0218001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000078000000010020000000000000B4
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

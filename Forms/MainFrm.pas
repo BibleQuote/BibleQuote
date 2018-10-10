@@ -176,7 +176,7 @@ type
     tbtnSep05: TToolButton;
     tbtnSound: TToolButton;
     tbtnCopyright: TToolButton;
-    tbtnNewTab: TToolButton;
+    tbtnAddBookTab: TToolButton;
     tbtnCloseTab: TToolButton;
     miFileSep2: TMenuItem;
     miNewTab: TMenuItem;
@@ -216,8 +216,8 @@ type
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
     tbtnNewForm: TToolButton;
-    tbtnNewMemoTab: TToolButton;
-    tbtnAddLibraryForm: TToolButton;
+    tbtnAddMemoTab: TToolButton;
+    tbtnAddLibraryTab: TToolButton;
     tbtnAddBookmarksTab: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
@@ -294,7 +294,7 @@ type
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
     procedure edtDicChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure miNewTabClick(Sender: TObject);
+    procedure miAddBookTabClick(Sender: TObject);
     procedure miDeteleBibleTabClick(Sender: TObject);
 
     procedure FormDeactivate(Sender: TObject);
@@ -379,7 +379,7 @@ type
       const SearchText: string;
       var Result: integer);
 
-    function CreateBookNewTabInfo(): TBookTabInfo;
+    function CreateNewBookTabInfo(): TBookTabInfo;
     function CreateTabsView(viewName: string): ITabsView;
     procedure CreateInitialTabsView();
     function GenerateTabsViewName(): string;
@@ -399,7 +399,7 @@ type
     procedure BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);
     procedure BookChangeModule(Sender: TObject);
     procedure BookSearchComplete(Sender: TObject);
-    procedure tbtnNewMemoTabClick(Sender: TObject);
+    procedure tbtnAddMemoTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
     procedure tbtnAddBookmarksTabClick(Sender: TObject);
   public
@@ -956,7 +956,7 @@ var
 begin
   tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
 
-  tabInfo := CreateBookNewTabInfo();
+  tabInfo := CreateNewBookTabInfo();
 
   mTabsView := tabsForm;
   tabsForm.AddBookTab(tabInfo);
@@ -1415,7 +1415,7 @@ begin
   end;
 end;
 
-function TMainForm.CreateBookNewTabInfo(): TBookTabInfo;
+function TMainForm.CreateNewBookTabInfo(): TBookTabInfo;
 var
   book: TBible;
   tabInfo: TBookTabInfo;
@@ -2135,7 +2135,7 @@ begin
   SetButtonHint(tbtnSound, miSound);
 
   SetButtonHint(bookView.tbtnStrongNumbers, miStrong);
-  SetButtonHint(tbtnNewTab, miNewTab);
+  SetButtonHint(tbtnAddBookTab, miNewTab);
   SetButtonHint(tbtnCloseTab, miCloseTab);
 
   bookView.tbtnMemos.Hint := bookView.miMemosToggle.Caption + ' (' + ShortCutToText(bookView.miMemosToggle.ShortCut) + ')';
@@ -3844,7 +3844,7 @@ begin
   end
   else
   begin
-    bookTabInfo := CreateBookNewTabInfo();
+    bookTabInfo := CreateNewBookTabInfo();
     NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', false);
 
     bookTabInfo := bookView.BookTabInfo;
@@ -6025,7 +6025,7 @@ begin
 
   if not Assigned(bookTabInfo) then
   begin
-    bookTabInfo := CreateBookNewTabInfo();
+    bookTabInfo := CreateNewBookTabInfo();
   end;
 
   if Assigned(bookTabInfo) then
@@ -6034,7 +6034,7 @@ begin
   end;
 end;
 
-procedure TMainForm.tbtnNewMemoTabClick(Sender: TObject);
+procedure TMainForm.tbtnAddMemoTabClick(Sender: TObject);
 var
   newTabInfo: TMemoTabInfo;
 begin
@@ -6952,7 +6952,7 @@ procedure TMainForm.miNotepadClick(Sender: TObject);
 begin
   if not pgcMain.Visible then
     tbtnToggle.Click;
-  tbtnNewMemoTabClick(self);
+  tbtnAddMemoTabClick(self);
 end;
 
 procedure TMainForm.ShowComments;
@@ -7229,16 +7229,32 @@ procedure TMainForm.OpenOrCreateBookTab(const command: string; const satellite: 
 var
   i: integer;
   tabInfo: IViewTabInfo;
+  bookTabInfo: TBookTabInfo;
   bookView: TBookFrame;
   wasUpdateSet: boolean;
+  srcPath, dstPath: string;
+  link: TBibleLink;
 begin
   ClearVolatileStateData(state);
+
+  // get module path from the target command
+  link.FromBqStringLocation(command, srcPath);
 
   for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
   begin
     tabInfo := mTabsView.GetTabInfo(i);
     if not (tabInfo is TBookTabInfo) then
       continue;
+
+    bookTabInfo := TBookTabInfo(tabInfo);
+
+    // get module path from the tab's command
+    if (link.FromBqStringLocation(bookTabInfo.Location, dstPath)) then
+    begin
+      // compare if tab's module path matches to target module path
+      if (CompareText(srcPath, dstPath) <> 0) then
+        continue; // paths are not equal, skip the tab
+    end;
 
     bookView := GetBookView(self);
 
@@ -7252,11 +7268,12 @@ begin
 
     MemosOn := vtisShowNotes in state;
 
-    bookView.SafeProcessCommand(TBookTabInfo(tabInfo), command, hlDefault);
+    bookView.SafeProcessCommand(bookTabInfo, command, hlDefault);
     mTabsView.UpdateCurrentTabContent;
     Exit;
   end;
 
+  // no matching tab found, open new tab
   NewBookTab(command, satellite, state, '', true);
 end;
 
@@ -7526,14 +7543,14 @@ begin
   pgcMain.ActivePage := tbDic;
 end;
 
-procedure TMainForm.miNewTabClick(Sender: TObject);
+procedure TMainForm.miAddBookTabClick(Sender: TObject);
 var
   bookTabInfo: TBookTabInfo;
 begin
   bookTabInfo := GetBookView(self).BookTabInfo;
   if not Assigned(bookTabInfo) then
   begin
-    bookTabInfo := CreateBookNewTabInfo();
+    bookTabInfo := CreateNewBookTabInfo();
   end;
 
   if (bookTabInfo <> nil) then

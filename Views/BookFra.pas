@@ -122,7 +122,7 @@ type
     procedure FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
     procedure ToggleQuickSearchPanel(const enable: Boolean);
 
-    function ProcessCommand(bookTabInfo: TBookTabInfo; s: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
+    function ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
     procedure SafeProcessCommand(bookTabInfo: TBookTabInfo; wsLocation: string; hlOption: TbqHLVerseOption);
     function PreProcessAutoCommand(bookTabInfo: TBookTabInfo; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
     function GoAddress(bookTabInfo: TBookTabInfo; var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
@@ -1962,7 +1962,7 @@ begin
   end;
 end;
 
-function TBookFrame.ProcessCommand(bookTabInfo: TBookTabInfo; s: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
+function TBookFrame.ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
 var
   value, dup, path, oldPath, ConcreteCmd: string;
   focusVerse: integer;
@@ -2002,7 +2002,7 @@ begin
 
   Result := false;
 
-  if s = '' then
+  if command = '' then
     Exit; // exit, the command is empty
 
   Screen.Cursor := crHourGlass;
@@ -2016,7 +2016,7 @@ begin
     oldbook := bookTabInfo.Bible.CurBook;
     oldchapter := bookTabInfo.Bible.CurChapter;
 
-    dup := s; // command copy
+    dup := command; // command copy
 
     if bibleLink.FromBqStringLocation(dup) then
     begin
@@ -2065,17 +2065,17 @@ begin
             // looks like
             // "go module_folder book_no Chapter_no verse_start_no 0 mod_shortname
 
-            s := Format('go %s %d %d %d 0 $$$%s %s',
+            command := Format('go %s %d %d %d 0 $$$%s %s',
               [ShortPath, CurBook, CurChapter, focusVerse,
               // history comment
               FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, 0), ShortName])
           else
-            s := Format('go %s %d %d %d %d $$$%s %s',
+            command := Format('go %s %d %d %d %d $$$%s %s',
               [ShortPath, CurBook, CurChapter, bibleLink.vstart, bibleLink.vend,
               // history comment
               FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, bibleLink.vend), ShortName]);
 
-        HistoryAdd(s);
+        HistoryAdd(command);
 
         // here we set proper name to tab
         with bookTabInfo.Bible, mTabsView.ChromeTabs do
@@ -2083,7 +2083,7 @@ begin
           if ActiveTabIndex >= 0 then
             try
               // save the context
-              bookTabInfo.Location := s;
+              bookTabInfo.Location := command;
               bookTabInfo.LocationType := vtlModule;
 
               bookTabInfo.IsCompareTranslation := false;
@@ -2103,7 +2103,7 @@ begin
             end;
         end;
 
-        mMainView.LastAddress := s;
+        mMainView.LastAddress := command;
       except
         on E: TBQPasswordException do
         begin
@@ -2188,10 +2188,10 @@ begin
             BqShowException(E);
         end;
 
-      if (bookTabInfo.History.Count > 0) and (bookTabInfo.History[0] = s) then
+      if (bookTabInfo.History.Count > 0) and (bookTabInfo.History[0] = command) then
         bwrHtml.Position := browserpos;
 
-      HistoryAdd(s);
+      HistoryAdd(command);
 
       if wasSearchHistory then
         bwrHtml.tag := bsSearch
@@ -2200,7 +2200,7 @@ begin
 
       bookTabInfo.Title := Format('%.12s', [value]);
       mTabsView.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
-      bookTabInfo.Location := s;
+      bookTabInfo.Location := command;
       bookTabInfo.LocationType := vtlFile;
 
       bookTabInfo.IsCompareTranslation := false;
@@ -2212,10 +2212,10 @@ begin
     if ExtractFileName(dup) = dup then
       try
         bwrHtml.LoadFromFile(bwrHtml.Base + dup);
-        bookTabInfo.Title := Format('%.12s', [s]);
+        bookTabInfo.Title := Format('%.12s', [command]);
         mTabsView.ChromeTabs.ActiveTab.Caption := BookTabInfo.Title;
 
-        bookTabInfo.Location := s;
+        bookTabInfo.Location := command;
         bookTabInfo.LocationType := vtlFile;
 
         bookTabInfo.IsCompareTranslation := false;
