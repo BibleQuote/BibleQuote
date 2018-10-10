@@ -70,11 +70,14 @@ commentaryLoadFail = Failed to display commentary
 HelpDocumentation = Documentation
 SelectParaBible = Select secondary bible
 DeselectSec = Deselect
-MyLib = My Library
 CollapseAll = Collapse all
 
 TabLibrary = Library
 TabMemos = Memos
+TabBookmarks = Bookmarks
+
+DeleteBookmarkTextPrompt = Delete bookmark?
+DeleteBookmarkTitle = Confirm deletion
 
 ; FORM ELEMENTS AND MENU ITEMS =================================
 
@@ -193,10 +196,8 @@ MainForm.miWebSites.Caption = JesusChrist.ru
 MainForm.miXref.Caption = Cross references
 MainForm.pgcMain.Hint = Toolbar
 MainForm.pnlFindStrongNumber.Caption = find verses with this number
-MainForm.tbBookmarks.Caption = Bookmarks
 MainForm.tbComments.Hint = Commentaries
 MainForm.tbDic.Hint = Dictionaries
-MainForm.tbGo.Hint = Navigate
 MainForm.tbHistory.Caption = History
 MainForm.tbList.Hint = Themed Bookmarks
 MainForm.tbLinksToolBar.Caption = Links
@@ -209,10 +210,14 @@ MainForm.tbtnCloseTab.Caption = Close tab
 MainForm.tbtnCloseTab.Hint = Close Tab (Ctrl+W)
 MainForm.tbtnCopyright.Caption = Copyright
 MainForm.tbtnDelNode.Caption = Delete note
-MainForm.tbtnLib.Caption = Library
-MainForm.tbtnLib.Hint = Browse Library
-MainForm.tbtnNewTab.Caption = New Tab
-MainForm.tbtnNewTab.Hint = New Tab (Ctrl+T)
+MainForm.tbtnAddLibraryTab.Caption = Library
+MainForm.tbtnAddLibraryTab.Hint = Browse Library
+MainForm.tbtnAddBookmarksTab.Caption = Bookmarks
+MainForm.tbtnAddBookmarksTab.Hint = Browse bookmarks
+MainForm.tbtnAddBookTab.Caption = New Tab
+MainForm.tbtnAddBookTab.Hint = New Tab (Ctrl+T)
+MainForm.tbtnAddMemoTab.Caption = Personal memos
+MainForm.tbtnAddMemoTab.Hint = Browse memos
 MainForm.tbtnPreview.Caption = Preview
 MainForm.tbtnPreview.Hint = Print preview (Ctrl+F11)
 MainForm.tbtnPrint.Caption = Print
@@ -311,11 +316,6 @@ ConfigForm.rgHotKeyChoice.Caption = Hotkey combination
 ConfigForm.tsCopyOptions.Caption = Parameters of copying
 ConfigForm.tsFavouriteEx.Caption = Favorite modules
 ConfigForm.tsOtherOptions.Caption = Other options
-
-MyLibraryForm.btnClear.Caption = Clear
-MyLibraryForm.btnCollapse.Caption = Collapse all
-MyLibraryForm.btnOK.Caption = OK
-MyLibraryForm.lblNavigate.Caption = Go to
 
 ExceptionForm.btnHalt.Caption = Abnormal end
 ExceptionForm.btnOK.Caption = OK
