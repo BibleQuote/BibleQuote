@@ -311,7 +311,7 @@ begin
     if (tabInfo.GetViewType = vttBook) then
       bookTabInfo := TBookTabInfo(tabInfo)
     else
-      bookTabInfo := mMainView.CreateBookNewTabInfo();
+      bookTabInfo := mMainView.CreateNewBookTabInfo();
 
     mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
     Handled := true;
@@ -484,7 +484,7 @@ begin
   end
   else
   begin
-    bookTabInfo := mMainView.CreateBookNewTabInfo();
+    bookTabInfo := mMainView.CreateNewBookTabInfo();
   end;
 
   mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
