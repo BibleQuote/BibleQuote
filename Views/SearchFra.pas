@@ -97,8 +97,8 @@ begin
 
   mBookSelectView := TLibraryFrame.Create(nil);
   mBookSelectView.OnSelectModule := OnBookSelect;
-  mBookSelectView.cmbBookType.Enabled := false;
-  mBookSelectView.cmbBookType.ItemIndex := 1;
+  mBookSelectView.cmbBookType.Enabled := true;
+  mBookSelectView.cmbBookType.ItemIndex := 0;
   mBookSelectView.Align := TAlign.alClient;
   mBookSelectView.Parent := mBookSelectForm;
 
