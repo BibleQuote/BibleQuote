@@ -76,6 +76,7 @@ CollapseAll = Згорнути все
 TabLibrary = Библиотека (t)
 TabMemos = Личные заметки (t)
 TabBookmarks = Закладки (t)
+TabSearch = Поиск (t)
 
 DeleteBookmarkTextPrompt = Удалить закладку? (t)
 DeleteBookmarkTitle = Подтвердите удаление (t)

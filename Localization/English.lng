@@ -76,6 +76,7 @@ CollapseAll = Collapse all
 TabLibrary = Library
 TabMemos = Memos
 TabBookmarks = Bookmarks
+TabSearch = Search
 
 DeleteBookmarkTextPrompt = Delete bookmark?
 DeleteBookmarkTitle = Confirm deletion
