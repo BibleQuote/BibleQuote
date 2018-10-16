@@ -1,4 +1,4 @@
-unit bible;
+п»їunit bible;
 
 // {$LONGSTRINGS ON}
 
@@ -69,72 +69,72 @@ const
 
   RussianShortNames: array [1 .. 66] of string =
   // used to translate dictionary references
-    ('Быт. Быт Бт. Бт Бытие Ge. Ge Gen. Gen Gn. Gn Genesis',
-    'Исх. Исх Исход Ex. Ex Exo. Exo Exod. Exod Exodus',
-    'Лев. Лев Лв. Лв Левит Lev. Lev Le. Le Lv. Lv Levit. Levit Leviticus',
-    'Чис. Чис Чс. Чс Числ. Числ Числа Nu. Nu Num. Num Nm. Nm Numb. Numb Numbers',
-    'Втор. Втор Вт. Вт Втрзк. Втрзк Второзаконие De. De Deut. Deut Deu. Deu Dt. Dt  Deuteron. Deuteron Deuteronomy',
-    'Иис.Нав. Иис.Нав Нав. Нав Иисус Навин Jos. Jos Josh. Josh Joshua',
-    'Суд. Суд Сд. Сд Судьи Jdg. Jdg Judg. Judg Judge. Judge Judges',
-    'Руф. Руф Рф. Рф Руфь Ru. Ru Ruth Rth. Rth Rt. Rt',
-    '1Цар. 1Цар 1Цр. 1Цр 1Ц 1Царств. 1Царств 1Sa. 1Sa 1S. 1S 1Sam. 1Sam 1Sm. 1Sm 1Sml. 1Sml 1Samuel',
-    '2Цар. 2Цар 2Цр. 2Цр 2Ц 2Царств. 2Царств 2Sa. 2Sa 2S. 2S 2Sam. 2Sam 2Sm. 2Sm 2Sml. 2Sml 2Samuel',
-    '3Цар. 3Цар 3Цр. 3Цр 3Ц 3Царств. 3Царств 1Ki. 1Ki 1K. 1K 1Kn. 1Kn 1Kg. 1Kg 1King. 1King 1Kng. 1Kng 1Kings',
-    '4Цар. 4Цар 4Цр. 4Цр 4Ц 4Царств. 4Царств 2Ki. 2Ki 2K. 2K 2Kn. 2Kn 2Kg. 2Kg 2King. 2King 2Kng. 2Kng 2Kings',
-    '1Пар. 1Пар 1Пр. 1Пр 1Chr. 1Chr 1Ch. 1Ch 1Chron. 1Chron',
-    '2Пар. 2Пар 2Пр. 2Пр 2Chr. 2Chr 2Ch. 2Ch 2Chron. 2Chron',
-    'Ездр. Ездр Езд. Езд Ез. Ез Ездра Ezr. Ezr Ezra',
-    'Неем. Неем. Нм. Нм Неемия Ne. Ne Neh. Neh Nehem. Nehem Nehemiah',
-    'Есф. Есф Ес. Ес Есфирь Esth. Esth Est. Est Esther',
-    'Иов. Иов Ив. Ив Job. Job Jb. Jb',
-    'Пс. Пс Псалт. Псалт Псал. Псал Псл. Псл Псалом Псалтирь Псалмы Ps. Ps Psa. Psa Psal. Psal Psalm Psalms',
-    'Прит. Прит Притч. Притч Пр. Пр Притчи Притча Pr. Pr Prov. Prov Pro. Pro Proverb Proverbs',
-    'Еккл. Еккл Ек. Ек Екк. Екк Екклесиаст Ec. Ec Eccl. Eccl Ecc. Ecc Ecclesia. Ecclesia',
-    'Песн. Песн Пес. Пес Псн. Псн Песн.Песней Песни Song. Song Songs SS. SS Sol. Sol',
-    'Ис. Ис Иса. Иса Исаия Исайя Isa. Isa Is. Is Isaiah',
-    'Иер. Иер Иерем. Иерем Иеремия Je. Je Jer. Jer Jerem. Jerem Jeremiah',
-    'Плач. Плач Плч. Плч Пл. Пл Пл.Иер. Пл.Иер Плач Иеремии La. La Lam. Lam Lament. Lament Lamentation Lamentations',
-    'Иез. Иез Из. Иезек. Иезек Иезекииль Ez. Ez Eze. Eze Ezek. Ezek Ezekiel',
-    'Дан. Дан Дн. Дн Днл. Днл Даниил Da. Da Dan. Dan Daniel',
-    'Ос. Ос Осия Hos. Hos Ho. Ho Hosea',
-    'Иоил. Иоил Ил. Ил Иоиль Joel. Joel Joe. Joe',
-    'Ам. Ам Амс. Амс Амос Am. Am Amos Amo. Amo',
-    'Авд. Авд Авдий Ob. Ob Obad. Obad. Obadiah Oba. Oba',
-    'Ион. Ион. Иона Jon. Jon Jnh. Jnh. Jona. Jona Jonah',
-    'Мих. Мих Мх. Мх Михей Mi. Mi Mic. Mic Micah',
-    'Наум. Наум Na. Na Nah. Nah Nahum',
-    'Авв. Авв Аввак. Аввак Аввакум Hab. Hab Habak. Habak Habakkuk',
-    'Соф. Соф Софон. Софон Софония Zeph. Zeph  Zep. Zep Zephaniah',
-    'Агг. Агг Аггей Hag. Hag Haggai',
-    'Зах. Зах Зхр. Зхр Захар. Захар Захария Ze. Ze Zec. Zec Zech. Zech Zechariah',
-    'Мал. Мал Малах. Малах Млх. Млх Малахия Mal. Mal Malachi',
-    'Матф. Матф Мтф. Мтф Мф. Мф Мт. Мт Матфея Матфей Мат Мат. Mt. Mt Ma. Ma Matt. Matt Mat. Mat Matthew',
-    'Мар. Мар Марк. Марк Мрк. Мрк Мр. Мр Марка Мк Мк. Mk. Mk Mar. Mar Mr. Mr Mrk. Mrk Mark',
-    'Лук. Лук Лк. Лк Лукa Луки Lk. Lk Lu. Lu Luk. Luk Luke',
-    'Иоан. Иоан Ин. Ин Иоанн Иоанна Jn. Jn Jno. Jno Joh. Joh John',
-    'Деян. Деян Дея. Дея Д.А. Деяния Ac. Ac Act. Act Acts',
-    'Иак. Иак Ик. Ик Иаков Иакова Jas. Jas Ja. Ja Jam. Jam Jms. Jms James',
-    '1Пет. 1Пет 1Пт. 1Пт 1Птр. 1Птр 1Петр. 1Петр 1Петра 1Pe. 1Pe 1Pet. 1Pet 1Peter',
-    '2Пет. 2Пет 2Пт. 2Пт 2Птр. 2Птр 2Петр. 2Петр 2Петра 2Pe. 2Pe 2Pet. 2Pet 2Peter',
-    '1Иоан. 1Иоан 1Ин. 1Ин 1Иоанн 1Иоанна 1Jn. 1Jn 1Jo. 1Jo 1Joh. 1Joh 1Jno. 1Jno 1John',
-    '2Иоан. 2Иоан 2Ин. 2Ин 2Иоанн 2Иоанна 2Jn. 2Jn 2Jo. 2Jo 2Joh. 2Joh 2Jno. 2Jno 2John',
-    '3Иоан. 3Иоан 3Ин. 3Ин 3Иоанн 3Иоанна 3Jn. 3Jn 3Jo. 3Jo 3Joh. 3Joh 3Jno. 3Jno 3John',
-    'Иуд. Иуд Ид. Ид Иуда Иуды Jud. Jud Jude Jd. Jd',
-    'Рим. Рим Римл. Римл Римлянам Ro. Ro Rom. Rom Romans',
-    '1Кор. 1Кор 1Коринф. 1Коринф 1Коринфянам 1Коринфянам 1Co. 1Co 1Cor. 1Cor 1Corinth. 1Corinth 1Corinthians',
-    '2Кор. 2Кор 2Коринф. 2Коринф 2Коринфянам 2Коринфянам 2Co. 2Co 2Cor. 2Cor 2Corinth. 2Corinth 2Corinthians',
-    'Гал. Гал Галат. Галат Галатам Ga. Ga Gal. Gal Galat. Galat Galatians',
-    'Еф. Еф Ефес. Ефес Ефесянам Eph. Eph Ep. Ep Ephes. Ephes Ephesians',
-    'Фил. Фил Флп. Флп Филип. Филип Филиппийцам Php. Php Ph. Ph Phil. Phil Phi. Phi. Philip. Philip Philippians',
-    'Кол. Кол Колос. Колос Колоссянам Col. Col Colos. Colos Colossians',
-    '1Фесс. 1Фесс 1Фес. 1Фес 1Фессалоникийцам 1Сол. 1Сол 1Солунянам 1Th. 1Th 1Thes. 1Thes 1Thess. 1Thess 1Thessalonians',
-    '2Фесс. 2Фесс 2Фес. 2Фес 2Фессалоникийцам 2Сол. 2Сол 2Солунянам 2Th. 2Th 2Thes. 2Thes 2Thess. 2Thess 2Thessalonians',
-    '1Тим. 1Тим  1Тимоф. 1Тимоф 1Тимофею 1Ti. 1Ti 1Tim. 1Tim 1Timothy',
-    '2Тим. 2Тим 2Тимоф. 2Тимоф 2Тимофею 2Ti. 2Ti 2Tim. 2Tim 2Timothy',
-    'Тит. Тит Титу Tit. Tit Ti. Ti Titus',
-    'Флм. Флм Филимон. Филимон Филимону Phm. Phm Phile. Phile Phlm. Phlm Philemon',
-    'Евр. Евр Евреям He. He Heb. Heb Hebr. Hebr Hebrews',
-    'Откр. Откр Отк. Отк Откровен. Откровен Апок. Апок Откровение Апокалипсис Rev. Rev Re. Re Rv. Rv Revelation');
+    ('Р‘С‹С‚. Р‘С‹С‚ Р‘С‚. Р‘С‚ Р‘С‹С‚РёРµ Ge. Ge Gen. Gen Gn. Gn Genesis',
+    'РСЃС…. РСЃС… РСЃС…РѕРґ Ex. Ex Exo. Exo Exod. Exod Exodus',
+    'Р›РµРІ. Р›РµРІ Р›РІ. Р›РІ Р›РµРІРёС‚ Lev. Lev Le. Le Lv. Lv Levit. Levit Leviticus',
+    'Р§РёСЃ. Р§РёСЃ Р§СЃ. Р§СЃ Р§РёСЃР». Р§РёСЃР» Р§РёСЃР»Р° Nu. Nu Num. Num Nm. Nm Numb. Numb Numbers',
+    'Р’С‚РѕСЂ. Р’С‚РѕСЂ Р’С‚. Р’С‚ Р’С‚СЂР·Рє. Р’С‚СЂР·Рє Р’С‚РѕСЂРѕР·Р°РєРѕРЅРёРµ De. De Deut. Deut Deu. Deu Dt. Dt  Deuteron. Deuteron Deuteronomy',
+    'РРёСЃ.РќР°РІ. РРёСЃ.РќР°РІ РќР°РІ. РќР°РІ РРёСЃСѓСЃ РќР°РІРёРЅ Jos. Jos Josh. Josh Joshua',
+    'РЎСѓРґ. РЎСѓРґ РЎРґ. РЎРґ РЎСѓРґСЊРё Jdg. Jdg Judg. Judg Judge. Judge Judges',
+    'Р СѓС„. Р СѓС„ Р С„. Р С„ Р СѓС„СЊ Ru. Ru Ruth Rth. Rth Rt. Rt',
+    '1Р¦Р°СЂ. 1Р¦Р°СЂ 1Р¦СЂ. 1Р¦СЂ 1Р¦ 1Р¦Р°СЂСЃС‚РІ. 1Р¦Р°СЂСЃС‚РІ 1Sa. 1Sa 1S. 1S 1Sam. 1Sam 1Sm. 1Sm 1Sml. 1Sml 1Samuel',
+    '2Р¦Р°СЂ. 2Р¦Р°СЂ 2Р¦СЂ. 2Р¦СЂ 2Р¦ 2Р¦Р°СЂСЃС‚РІ. 2Р¦Р°СЂСЃС‚РІ 2Sa. 2Sa 2S. 2S 2Sam. 2Sam 2Sm. 2Sm 2Sml. 2Sml 2Samuel',
+    '3Р¦Р°СЂ. 3Р¦Р°СЂ 3Р¦СЂ. 3Р¦СЂ 3Р¦ 3Р¦Р°СЂСЃС‚РІ. 3Р¦Р°СЂСЃС‚РІ 1Ki. 1Ki 1K. 1K 1Kn. 1Kn 1Kg. 1Kg 1King. 1King 1Kng. 1Kng 1Kings',
+    '4Р¦Р°СЂ. 4Р¦Р°СЂ 4Р¦СЂ. 4Р¦СЂ 4Р¦ 4Р¦Р°СЂСЃС‚РІ. 4Р¦Р°СЂСЃС‚РІ 2Ki. 2Ki 2K. 2K 2Kn. 2Kn 2Kg. 2Kg 2King. 2King 2Kng. 2Kng 2Kings',
+    '1РџР°СЂ. 1РџР°СЂ 1РџСЂ. 1РџСЂ 1Chr. 1Chr 1Ch. 1Ch 1Chron. 1Chron',
+    '2РџР°СЂ. 2РџР°СЂ 2РџСЂ. 2РџСЂ 2Chr. 2Chr 2Ch. 2Ch 2Chron. 2Chron',
+    'Р•Р·РґСЂ. Р•Р·РґСЂ Р•Р·Рґ. Р•Р·Рґ Р•Р·. Р•Р· Р•Р·РґСЂР° Ezr. Ezr Ezra',
+    'РќРµРµРј. РќРµРµРј. РќРј. РќРј РќРµРµРјРёСЏ Ne. Ne Neh. Neh Nehem. Nehem Nehemiah',
+    'Р•СЃС„. Р•СЃС„ Р•СЃ. Р•СЃ Р•СЃС„РёСЂСЊ Esth. Esth Est. Est Esther',
+    'РРѕРІ. РРѕРІ РРІ. РРІ Job. Job Jb. Jb',
+    'РџСЃ. РџСЃ РџСЃР°Р»С‚. РџСЃР°Р»С‚ РџСЃР°Р». РџСЃР°Р» РџСЃР». РџСЃР» РџСЃР°Р»РѕРј РџСЃР°Р»С‚РёСЂСЊ РџСЃР°Р»РјС‹ Ps. Ps Psa. Psa Psal. Psal Psalm Psalms',
+    'РџСЂРёС‚. РџСЂРёС‚ РџСЂРёС‚С‡. РџСЂРёС‚С‡ РџСЂ. РџСЂ РџСЂРёС‚С‡Рё РџСЂРёС‚С‡Р° Pr. Pr Prov. Prov Pro. Pro Proverb Proverbs',
+    'Р•РєРєР». Р•РєРєР» Р•Рє. Р•Рє Р•РєРє. Р•РєРє Р•РєРєР»РµСЃРёР°СЃС‚ Ec. Ec Eccl. Eccl Ecc. Ecc Ecclesia. Ecclesia',
+    'РџРµСЃРЅ. РџРµСЃРЅ РџРµСЃ. РџРµСЃ РџСЃРЅ. РџСЃРЅ РџРµСЃРЅ.РџРµСЃРЅРµР№ РџРµСЃРЅРё Song. Song Songs SS. SS Sol. Sol',
+    'РСЃ. РСЃ РСЃР°. РСЃР° РСЃР°РёСЏ РСЃР°Р№СЏ Isa. Isa Is. Is Isaiah',
+    'РРµСЂ. РРµСЂ РРµСЂРµРј. РРµСЂРµРј РРµСЂРµРјРёСЏ Je. Je Jer. Jer Jerem. Jerem Jeremiah',
+    'РџР»Р°С‡. РџР»Р°С‡ РџР»С‡. РџР»С‡ РџР». РџР» РџР».РРµСЂ. РџР».РРµСЂ РџР»Р°С‡ РРµСЂРµРјРёРё La. La Lam. Lam Lament. Lament Lamentation Lamentations',
+    'РРµР·. РРµР· РР·. РРµР·РµРє. РРµР·РµРє РРµР·РµРєРёРёР»СЊ Ez. Ez Eze. Eze Ezek. Ezek Ezekiel',
+    'Р”Р°РЅ. Р”Р°РЅ Р”РЅ. Р”РЅ Р”РЅР». Р”РЅР» Р”Р°РЅРёРёР» Da. Da Dan. Dan Daniel',
+    'РћСЃ. РћСЃ РћСЃРёСЏ Hos. Hos Ho. Ho Hosea',
+    'РРѕРёР». РРѕРёР» РР». РР» РРѕРёР»СЊ Joel. Joel Joe. Joe',
+    'РђРј. РђРј РђРјСЃ. РђРјСЃ РђРјРѕСЃ Am. Am Amos Amo. Amo',
+    'РђРІРґ. РђРІРґ РђРІРґРёР№ Ob. Ob Obad. Obad. Obadiah Oba. Oba',
+    'РРѕРЅ. РРѕРЅ. РРѕРЅР° Jon. Jon Jnh. Jnh. Jona. Jona Jonah',
+    'РњРёС…. РњРёС… РњС…. РњС… РњРёС…РµР№ Mi. Mi Mic. Mic Micah',
+    'РќР°СѓРј. РќР°СѓРј Na. Na Nah. Nah Nahum',
+    'РђРІРІ. РђРІРІ РђРІРІР°Рє. РђРІРІР°Рє РђРІРІР°РєСѓРј Hab. Hab Habak. Habak Habakkuk',
+    'РЎРѕС„. РЎРѕС„ РЎРѕС„РѕРЅ. РЎРѕС„РѕРЅ РЎРѕС„РѕРЅРёСЏ Zeph. Zeph  Zep. Zep Zephaniah',
+    'РђРіРі. РђРіРі РђРіРіРµР№ Hag. Hag Haggai',
+    'Р—Р°С…. Р—Р°С… Р—С…СЂ. Р—С…СЂ Р—Р°С…Р°СЂ. Р—Р°С…Р°СЂ Р—Р°С…Р°СЂРёСЏ Ze. Ze Zec. Zec Zech. Zech Zechariah',
+    'РњР°Р». РњР°Р» РњР°Р»Р°С…. РњР°Р»Р°С… РњР»С…. РњР»С… РњР°Р»Р°С…РёСЏ Mal. Mal Malachi',
+    'РњР°С‚С„. РњР°С‚С„ РњС‚С„. РњС‚С„ РњС„. РњС„ РњС‚. РњС‚ РњР°С‚С„РµСЏ РњР°С‚С„РµР№ РњР°С‚ РњР°С‚. Mt. Mt Ma. Ma Matt. Matt Mat. Mat Matthew',
+    'РњР°СЂ. РњР°СЂ РњР°СЂРє. РњР°СЂРє РњСЂРє. РњСЂРє РњСЂ. РњСЂ РњР°СЂРєР° РњРє РњРє. Mk. Mk Mar. Mar Mr. Mr Mrk. Mrk Mark',
+    'Р›СѓРє. Р›СѓРє Р›Рє. Р›Рє Р›СѓРєa Р›СѓРєРё Lk. Lk Lu. Lu Luk. Luk Luke',
+    'РРѕР°РЅ. РРѕР°РЅ РРЅ. РРЅ РРѕР°РЅРЅ РРѕР°РЅРЅР° Jn. Jn Jno. Jno Joh. Joh John',
+    'Р”РµСЏРЅ. Р”РµСЏРЅ Р”РµСЏ. Р”РµСЏ Р”.Рђ. Р”РµСЏРЅРёСЏ Ac. Ac Act. Act Acts',
+    'РР°Рє. РР°Рє РРє. РРє РР°РєРѕРІ РР°РєРѕРІР° Jas. Jas Ja. Ja Jam. Jam Jms. Jms James',
+    '1РџРµС‚. 1РџРµС‚ 1РџС‚. 1РџС‚ 1РџС‚СЂ. 1РџС‚СЂ 1РџРµС‚СЂ. 1РџРµС‚СЂ 1РџРµС‚СЂР° 1Pe. 1Pe 1Pet. 1Pet 1Peter',
+    '2РџРµС‚. 2РџРµС‚ 2РџС‚. 2РџС‚ 2РџС‚СЂ. 2РџС‚СЂ 2РџРµС‚СЂ. 2РџРµС‚СЂ 2РџРµС‚СЂР° 2Pe. 2Pe 2Pet. 2Pet 2Peter',
+    '1РРѕР°РЅ. 1РРѕР°РЅ 1РРЅ. 1РРЅ 1РРѕР°РЅРЅ 1РРѕР°РЅРЅР° 1Jn. 1Jn 1Jo. 1Jo 1Joh. 1Joh 1Jno. 1Jno 1John',
+    '2РРѕР°РЅ. 2РРѕР°РЅ 2РРЅ. 2РРЅ 2РРѕР°РЅРЅ 2РРѕР°РЅРЅР° 2Jn. 2Jn 2Jo. 2Jo 2Joh. 2Joh 2Jno. 2Jno 2John',
+    '3РРѕР°РЅ. 3РРѕР°РЅ 3РРЅ. 3РРЅ 3РРѕР°РЅРЅ 3РРѕР°РЅРЅР° 3Jn. 3Jn 3Jo. 3Jo 3Joh. 3Joh 3Jno. 3Jno 3John',
+    'РСѓРґ. РСѓРґ РРґ. РРґ РСѓРґР° РСѓРґС‹ Jud. Jud Jude Jd. Jd',
+    'Р РёРј. Р РёРј Р РёРјР». Р РёРјР» Р РёРјР»СЏРЅР°Рј Ro. Ro Rom. Rom Romans',
+    '1РљРѕСЂ. 1РљРѕСЂ 1РљРѕСЂРёРЅС„. 1РљРѕСЂРёРЅС„ 1РљРѕСЂРёРЅС„СЏРЅР°Рј 1РљРѕСЂРёРЅС„СЏРЅР°Рј 1Co. 1Co 1Cor. 1Cor 1Corinth. 1Corinth 1Corinthians',
+    '2РљРѕСЂ. 2РљРѕСЂ 2РљРѕСЂРёРЅС„. 2РљРѕСЂРёРЅС„ 2РљРѕСЂРёРЅС„СЏРЅР°Рј 2РљРѕСЂРёРЅС„СЏРЅР°Рј 2Co. 2Co 2Cor. 2Cor 2Corinth. 2Corinth 2Corinthians',
+    'Р“Р°Р». Р“Р°Р» Р“Р°Р»Р°С‚. Р“Р°Р»Р°С‚ Р“Р°Р»Р°С‚Р°Рј Ga. Ga Gal. Gal Galat. Galat Galatians',
+    'Р•С„. Р•С„ Р•С„РµСЃ. Р•С„РµСЃ Р•С„РµСЃСЏРЅР°Рј Eph. Eph Ep. Ep Ephes. Ephes Ephesians',
+    'Р¤РёР». Р¤РёР» Р¤Р»Рї. Р¤Р»Рї Р¤РёР»РёРї. Р¤РёР»РёРї Р¤РёР»РёРїРїРёР№С†Р°Рј Php. Php Ph. Ph Phil. Phil Phi. Phi. Philip. Philip Philippians',
+    'РљРѕР». РљРѕР» РљРѕР»РѕСЃ. РљРѕР»РѕСЃ РљРѕР»РѕСЃСЃСЏРЅР°Рј Col. Col Colos. Colos Colossians',
+    '1Р¤РµСЃСЃ. 1Р¤РµСЃСЃ 1Р¤РµСЃ. 1Р¤РµСЃ 1Р¤РµСЃСЃР°Р»РѕРЅРёРєРёР№С†Р°Рј 1РЎРѕР». 1РЎРѕР» 1РЎРѕР»СѓРЅСЏРЅР°Рј 1Th. 1Th 1Thes. 1Thes 1Thess. 1Thess 1Thessalonians',
+    '2Р¤РµСЃСЃ. 2Р¤РµСЃСЃ 2Р¤РµСЃ. 2Р¤РµСЃ 2Р¤РµСЃСЃР°Р»РѕРЅРёРєРёР№С†Р°Рј 2РЎРѕР». 2РЎРѕР» 2РЎРѕР»СѓРЅСЏРЅР°Рј 2Th. 2Th 2Thes. 2Thes 2Thess. 2Thess 2Thessalonians',
+    '1РўРёРј. 1РўРёРј  1РўРёРјРѕС„. 1РўРёРјРѕС„ 1РўРёРјРѕС„РµСЋ 1Ti. 1Ti 1Tim. 1Tim 1Timothy',
+    '2РўРёРј. 2РўРёРј 2РўРёРјРѕС„. 2РўРёРјРѕС„ 2РўРёРјРѕС„РµСЋ 2Ti. 2Ti 2Tim. 2Tim 2Timothy',
+    'РўРёС‚. РўРёС‚ РўРёС‚Сѓ Tit. Tit Ti. Ti Titus',
+    'Р¤Р»Рј. Р¤Р»Рј Р¤РёР»РёРјРѕРЅ. Р¤РёР»РёРјРѕРЅ Р¤РёР»РёРјРѕРЅСѓ Phm. Phm Phile. Phile Phlm. Phlm Philemon',
+    'Р•РІСЂ. Р•РІСЂ Р•РІСЂРµСЏРј He. He Heb. Heb Hebr. Hebr Hebrews',
+    'РћС‚РєСЂ. РћС‚РєСЂ РћС‚Рє. РћС‚Рє РћС‚РєСЂРѕРІРµРЅ. РћС‚РєСЂРѕРІРµРЅ РђРїРѕРє. РђРїРѕРє РћС‚РєСЂРѕРІРµРЅРёРµ РђРїРѕРєР°Р»РёРїСЃРёСЃ Rev. Rev Re. Re Rv. Rv Revelation');
 
 const
   MAX_BOOKQTY = 256;
@@ -152,7 +152,9 @@ type
   TBibleSet = set of 0 .. 255;
 
 type
+  IBookSearchCallback = interface;
   TBible = class;
+
   TBibleSearchEvent = procedure(
     Sender: TObject;
     NumVersesFound, book, chapter, verse: integer;
@@ -229,8 +231,6 @@ type
     FChapterString, FChapterStringPs, FChapterZeroString: string;
 
     FVersesFound: integer; // run-time counter of words found during search
-    FOnVerseFound: TBibleSearchEvent;
-    FOnSearchComplete: TNotifyEvent;
     FStopSearching: boolean;
 
     FOnChangeModule: TNotifyEvent;
@@ -258,7 +258,7 @@ type
     procedure LoadIniFile(fileName: string);
 
     function SearchOK(source: string; words: TStrings; params: byte): boolean;
-    procedure SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean);
+    procedure SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean; callback: IBookSearchCallback);
     procedure SetHTMLFilter(value: string);
 
     function toInternal(
@@ -354,7 +354,7 @@ type
     function OpenTSKReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
     function OpenRussianReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 
-    procedure Search(s: string; params: byte; bookset: TBibleSet; removeStrongs: boolean);
+    procedure Search(searchText: string; params: byte; bookset: TBibleSet; removeStrongs: boolean; callback: IBookSearchCallback);
     procedure StopSearching;
 
     procedure ClearBuffers;
@@ -404,13 +404,16 @@ type
     property HTMLFilter: string read FHTML write SetHTMLFilter;
     property VersesFound: integer read FVersesFound;
 
-    property OnVerseFound: TBibleSearchEvent read FOnVerseFound write FOnVerseFound;
-    property OnSearchComplete: TNotifyEvent read FOnSearchComplete write FOnSearchComplete;
     property OnChangeModule: TNotifyEvent read FOnChangeModule write FOnChangeModule;
     property OnPasswordRequired: TBiblePasswordRequired read FOnPasswordRequired write FOnPasswordRequired;
     property RecognizeBibleLinks: boolean read mRecognizeBibleLinks write mRecognizeBibleLinks;
     property FuzzyResolve: boolean read mFuzzyResolveLinks write mFuzzyResolveLinks;
 
+  end;
+
+  IBookSearchCallback = interface
+    procedure OnVerseFound(bible: TBible; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);
+    procedure OnSearchComplete(bible: TBible);
   end;
 
 implementation
@@ -721,7 +724,7 @@ begin
 
     FAlphabet :=
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' +
-      'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+      'РђР‘Р’Р“Р”Р•РЃР–Р—РР™РљР›РњРќРћРџР РЎРўРЈР¤РҐР¦Р§РЁР©РЄР«Р¬Р­Р®РЇР°Р±РІРіРґРµС‘Р¶Р·РёР№РєР»РјРЅРѕРїСЂСЃС‚СѓС„С…С†С‡С€С‰СЉС‹СЊСЌСЋСЏ';
 
     FFontName := '';
     FStopSearching := False;
@@ -1176,7 +1179,7 @@ begin
   Result := integer(List.objects[Index1]) - integer(List.objects[Index2]);
 end;
 
-procedure TBible.SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean);
+procedure TBible.SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean; callback: IBookSearchCallback);
 var
   i, chapter, verse: integer;
   btmp, tmpwords: TStringList; // lines buffer from the book
@@ -1274,8 +1277,8 @@ begin
           continue; // filter for exact phrases
 
         Inc(FVersesFound);
-        if assigned(FOnVerseFound) then
-          FOnVerseFound(Self, FVersesFound, book, chapter, verse, BookLines[i], removeStrongs);
+        if Assigned(callback) then
+          callback.OnVerseFound(Self, FVersesFound, book, chapter, verse, BookLines[i], removeStrongs);
       end;
     end;
   end;
@@ -1284,20 +1287,14 @@ begin
   tmpwords.Free;
 end;
 
-procedure TBible.Search(s: string; params: byte; bookset: TBibleSet; removeStrongs: boolean);
+procedure TBible.Search(searchText: string; params: byte; bookset: TBibleSet; removeStrongs: boolean; callback: IBookSearchCallback);
 var
   words: TStrings;
   w: string;
   i: integer;
-{$IFDEF debug_profile}
-  timeStart, time: Cardinal;
-{$ENDIF}
 begin
-{$IFDEF debug_profile}
-  timeStart := GetTickCount();
-{$ENDIF}
   words := TStringList.Create;
-  w := s;
+  w := searchText;
 
   FLines.Clear;
 
@@ -1308,7 +1305,7 @@ begin
     while w <> '' do
       words.Add(DeleteFirstWord(w))
   else
-    words.Add(Trim(s));
+    words.Add(Trim(searchText));
 
   if (params and spWordParts <> spWordParts) then
   begin
@@ -1323,16 +1320,16 @@ begin
       begin
         if FStopSearching then
           break;
-        if assigned(FOnVerseFound) then
-          FOnVerseFound(Self, FVersesFound, i, 0, 0, '', removeStrongs);
+
+        if Assigned(callback) then
+          callback.OnVerseFound(Self, FVersesFound, i, 0, 0, '', removeStrongs);
         // just to know that there is a searching -- fire an event
         try
-          SearchBook(words, params, i, removeStrongs);
+          SearchBook(words, params, i, removeStrongs, callback);
         except
           on e: Exception do
           begin
-            g_ExceptionContext.Add
-              (Format('TBible.Search: s=%s | i(cbook)=%d', [s, i]));
+            g_ExceptionContext.Add(Format('TBible.Search: s=%s | i(cbook)=%d', [searchText, i]));
             BqShowException(e);
           end;
         end;
@@ -1341,12 +1338,9 @@ begin
 
   words.Free;
 
-  if assigned(FOnSearchComplete) then
-    FOnSearchComplete(Self);
-{$IFDEF debug_profile}
-  time := GetTickCount() - timeStart;
-  ShowMessage(Format('Поиск занял: %d', [time]));
-{$ENDIF}
+  if Assigned(callback) then
+    callback.OnSearchComplete(Self);
+
 end;
 
 procedure TBible.StopSearching;
@@ -2172,7 +2166,7 @@ begin
 
   // in English Bible ROMANS (16 chaps) follows ACTS instead of JAMES (5 chaps)
 
-  if not newCovenantOnly then // если не НЗ
+  if not newCovenantOnly then // РµСЃР»Рё РЅРµ РќР—
   begin
     oldCovenantOnly := not trait[bqmtNewCovenant] and trait[bqmtOldCovenant];
     if oldCovenantOnly and (book >= 40) then
@@ -2193,7 +2187,7 @@ begin
     end;
   end
   else
-  begin // если только нз
+  begin // РµСЃР»Рё С‚РѕР»СЊРєРѕ РЅР·
     if englishbible then
     begin
       RUS2ENG(ibook, ichapter, iverse, book, chapter, verse);
@@ -2209,7 +2203,7 @@ begin
       end;
     end
     else
-    begin // не английская библия
+    begin // РЅРµ Р°РЅРіР»РёР№СЃРєР°СЏ Р±РёР±Р»РёСЏ
       if ibook > 39 then
       begin
         book := ibook - 39;

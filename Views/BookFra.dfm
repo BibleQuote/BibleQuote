@@ -11,6 +11,8 @@ object BookFrame: TBookFrame
   Font.Style = []
   ParentDoubleBuffered = False
   ParentFont = False
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   OnMouseActivate = FormMouseActivate
   object pnlMainView: TPanel
@@ -39,9 +41,11 @@ object BookFrame: TBookFrame
       Top = 0
       Width = 359
       Height = 433
+      ParentCustomHint = False
       TabOrder = 0
       Align = alClient
       PopupMenu = pmBrowser
+      ShowHint = True
       BorderStyle = htSingle
       CharSet = DEFAULT_CHARSET
       DefBackground = 14870763
@@ -366,7 +370,7 @@ object BookFrame: TBookFrame
     Left = 96
     Top = 95
     Bitmap = {
-      494C010113006800AC0410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010113006800BC0410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -574,11 +574,7 @@ begin
       wstr := wstr + '--не найдено--';
   end;
 
-  viewer.Hint := '';
   viewer.Hint := wstr;
-  HintWindowClass := HintTools.TbqHintWindow;
-  Application.CancelHint();
-  HintWindowClass := HintTools.TbqHintWindow;
 end;
 
 procedure TBookFrame.bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
@@ -1277,10 +1273,11 @@ begin
   if bwrHtml.SelLength = 0 then
     Exit;
 
-  mMainView.IsSearching := false;
-  mMainView.cbSearch.Text := Trim(bwrHtml.SelText);
-  mMainView.miSearch.Click;
-  mMainView.btnFindClick(Sender);
+// TODO: navigate to search tab
+//  mMainView.IsSearching := false;
+//  mMainView.cbSearch.Text := Trim(bwrHtml.SelText);
+//  mMainView.miSearch.Click;
+//  mMainView.btnFindClick(Sender);
 end;
 
 procedure TBookFrame.pmBrowserPopup(Sender: TObject);

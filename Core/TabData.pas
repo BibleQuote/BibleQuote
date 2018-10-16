@@ -13,7 +13,8 @@ type
     vttBook,
     vttMemo,
     vttLibrary,
-    vttBookmarks);
+    vttBookmarks,
+    vttSearch);
 
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
@@ -34,6 +35,10 @@ type
 
   IBookmarksView = interface(ITabView)
   ['{4C0D791C-E62D-4EC0-8B32-6019D89CB95A}']
+  end;
+
+  ISearchView = interface(ITabView)
+  ['{FA56F7B8-1976-4A01-A041-3D4A91C53B8A}']
   end;
 
   ITabsView = interface; // forward declaration
@@ -177,6 +182,14 @@ type
     function GetCaption(): string;
   end;
 
+  TSearchTabInfo = class(TInterfacedObject, IViewTabInfo)
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+  end;
+
   TViewTabDragObject = class(TDragObjectEx)
   protected
     mViewTabInfo: TBookTabInfo;
@@ -197,6 +210,7 @@ type
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
     function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
+    function AddSearchTab(newTabInfo: TSearchTabInfo): TChromeTab;
 
     procedure MakeActive();
 
@@ -381,11 +395,8 @@ begin
 end;
 
 function TMemoTabInfo.GetSettings(): TTabSettings;
-var
-  tabSettings: TMemoTabSettings;
 begin
-  tabSettings := TMemoTabSettings.Create;
-  Result := tabSettings;
+  Result := TMemoTabSettings.Create;
 end;
 
 procedure TMemoTabInfo.SaveState(const tabsView: ITabsView);
@@ -411,11 +422,8 @@ begin
 end;
 
 function TLibraryTabInfo.GetSettings(): TTabSettings;
-var
-  tabSettings: TLibraryTabSettings;
 begin
-  tabSettings := TLibraryTabSettings.Create;
-  Result := tabSettings;
+  Result := TLibraryTabSettings.Create;
 end;
 
 procedure TLibraryTabInfo.SaveState(const tabsView: ITabsView);
@@ -441,11 +449,8 @@ begin
 end;
 
 function TBookmarksTabInfo.GetSettings(): TTabSettings;
-var
-  tabSettings: TBookmarksTabSettings;
 begin
-  tabSettings := TBookmarksTabSettings.Create;
-  Result := tabSettings;
+  Result := TBookmarksTabSettings.Create;
 end;
 
 procedure TBookmarksTabInfo.SaveState(const tabsView: ITabsView);
@@ -454,6 +459,33 @@ begin
 end;
 
 procedure TBookmarksTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+{ TBookmarksTabInfo }
+
+function TSearchTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabSearch', 'Search');
+end;
+
+function TSearchTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttSearch;
+end;
+
+function TSearchTabInfo.GetSettings(): TTabSettings;
+begin
+  Result := TSearchTabSettings.Create;
+end;
+
+procedure TSearchTabInfo.SaveState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+procedure TSearchTabInfo.RestoreState(const tabsView: ITabsView);
 begin
 // nothing to save
 end;
