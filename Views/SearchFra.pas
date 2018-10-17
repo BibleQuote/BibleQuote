@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
-  HTMLEmbedInterfaces, Htmlview, Vcl.StdCtrls, Vcl.ExtCtrls, BookFra, Bible,
+  HTMLEmbedInterfaces, Htmlview, Vcl.StdCtrls, Vcl.ExtCtrls, Bible,
   StringProcs, LinksParser, MainFrm, LibraryFra, LayoutConfig, IOUtils,
   System.ImageList, Vcl.ImgList, LinksParserIntf, HintTools;
 
@@ -70,6 +70,7 @@ type
     procedure DisplaySearchResults(page: integer);
     procedure Translate();
 
+    procedure SetCurrentBook(shortPath: string);
     procedure OnVerseFound(bible: TBible; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);
     procedure OnSearchComplete(bible: TBible);
   end;
@@ -122,18 +123,8 @@ begin
 end;
 
 procedure TSearchFrame.OnBookSelect(Sender: TObject; modEntry: TModuleEntry);
-var
-  iniPath: string;
-  caption: string;
 begin
-  mCurrentBook := TBible.Create(mMainView);
-
-  iniPath := TPath.Combine(modEntry.mShortPath, 'bibleqt.ini');
-  mCurrentBook.inifile := MainFileExists(iniPath);
-  SearchListInit;
-
-  caption := Format('%s, %s', [mCurrentBook.Name, mCurrentBook.ShortName]);
-  lblBook.Caption := caption.Trim([',', ' ']);
+  SetCurrentBook(modEntry.mShortPath);
 
   PostMessage(mBookSelectForm.Handle, wm_close, 0, 0);
 end;
@@ -578,6 +569,21 @@ begin
   mBookSelectForm.Caption := Lang.SayDefault('SelectBook', 'Select book');
 end;
 
+procedure TSearchFrame.SetCurrentBook(shortPath: string);
+var
+  iniPath: string;
+  caption: string;
+begin
+  mCurrentBook := TBible.Create(mMainView);
+
+  iniPath := TPath.Combine(shortPath, 'bibleqt.ini');
+  mCurrentBook.inifile := MainFileExists(iniPath);
+  SearchListInit;
+
+  caption := Format('%s, %s', [mCurrentBook.Name, mCurrentBook.ShortName]);
+  lblBook.Caption := caption.Trim([',', ' ']);
+end;
+
 procedure TSearchFrame.DisplaySearchResults(page: integer);
 var
   i, limit: integer;
@@ -634,7 +640,13 @@ begin
 
   LastSearchResultsPage := page;
   Screen.Cursor := crDefault;
-  bwrSearch.SetFocus;
+
+  try
+    bwrSearch.SetFocus;
+  except
+    // do nothing
+  end;
+
 end;
 
 procedure TSearchFrame.OnVerseFound(bible: TBible; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);

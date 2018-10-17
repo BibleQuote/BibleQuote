@@ -220,6 +220,7 @@ type
     function GetMemoView: IMemoView;
     function GetLibraryView: ILibraryView;
     function GetBookmarksView: IBookmarksView;
+    function GetSearchView: ISearchView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -236,6 +237,7 @@ type
     property BookView: IBookView read GetBookView;
     property MemoView: IMemoView read GetMemoView;
     property LibraryView: ILibraryView read GetLibraryView;
+    property SearchView: ISearchView read GetSearchView;
     property BookmarksView: IBookmarksView read GetBookmarksView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;

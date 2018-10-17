@@ -70,9 +70,6 @@ type
     procedure CloseActiveTab();
     procedure UpdateCurrentTabContent();
     procedure UpdateBookView();
-    procedure UpdateLibraryView();
-    procedure UpdateBookmarksView();
-    procedure UpdateSearchView();
 
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
@@ -93,6 +90,7 @@ type
     function GetMemoView: IMemoView;
     function GetLibraryView: ILibraryView;
     function GetBookmarksView: IBookmarksView;
+    function GetSearchView: ISearchView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -111,6 +109,7 @@ type
     property MemoView: IMemoView read GetMemoView;
     property LibraryView: ILibraryView read GetLibraryView;
     property BookmarksView: IBookmarksView read GetBookmarksView;
+    property SearchView: ISearchView read GetSearchView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
     property UpdateOnTabChange: boolean read GetUpdateOnTabChange write SetUpdateOnTabChange;
@@ -143,6 +142,11 @@ end;
 function TDockTabsForm.GetLibraryView(): ILibraryView;
 begin
   Result := mLibraryView as ILibraryView;
+end;
+
+function TDockTabsForm.GetSearchView(): ISearchView;
+begin
+  Result := mSearchView as ISearchView;
 end;
 
 function TDockTabsForm.GetBookmarksView(): IBookmarksView;
@@ -253,7 +257,7 @@ begin
     HideFrame(mBookmarksView);
     HideFrame(mSearchView);
 
-    mMainView.UpdateMemoView();
+    mMainView.ClearCopyrights();
   end;
 
   if (tabInfo.GetViewType = vttLibrary) then
@@ -264,7 +268,8 @@ begin
     HideFrame(mBookmarksView);
     HideFrame(mSearchView);
 
-    UpdateLibraryView();
+    mLibraryView.SetModules(mMainView.mModules);
+    mMainView.ClearCopyrights();
   end;
 
   if (tabInfo.GetViewType = vttBookmarks) then
@@ -275,7 +280,7 @@ begin
     HideFrame(mLibraryView);
     HideFrame(mSearchView);
 
-    UpdateBookmarksView();
+    mMainView.ClearCopyrights();
   end;
 
   if (tabInfo.GetViewType = vttSearch) then
@@ -286,7 +291,7 @@ begin
     HideFrame(mBookmarksView);
     HideFrame(mLibraryView);
 
-    UpdateSearchView();
+    mMainView.ClearCopyrights();
   end;
 end;
 
@@ -512,22 +517,6 @@ begin
   mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
 end;
 
-procedure TDockTabsForm.UpdateLibraryView;
-begin
-  mLibraryView.SetModules(mMainView.mModules);
-  mMainView.UpdateLibraryView();
-end;
-
-procedure TDockTabsForm.UpdateSearchView;
-begin
-  // TODO: update search view
-end;
-
-procedure TDockTabsForm.UpdateBookmarksView;
-begin
-  mMainView.UpdateBookmarksView();
-end;
-
 procedure TDockTabsForm.UpdateBookView();
 var
   tabInfo: IViewTabInfo;
@@ -666,7 +655,6 @@ var
   newTab: TChromeTab;
 begin
   newTab := ctViewTabs.Tabs.Add;
-  // TODO: add title to localization file
   newTab.Caption := Lang.SayDefault('TabSearch', 'Search');
   newTab.Data := newTabInfo;
   newTab.ImageIndex := 20;
