@@ -3555,7 +3555,7 @@ begin
       end;
     end;
 
-    if Assigned(bookView) then
+    if Assigned(bookView) and Assigned(bookView.BookTabInfo) then
       bookView.ProcessCommand(bookView.BookTabInfo, bookView.BookTabInfo.Location, TbqHLVerseOption(ord(bookView.BookTabInfo[vtisHighLightVerses])));
   end;
 end;
@@ -5597,19 +5597,15 @@ begin
 
     bookView.tbtnMemos.Down := MemosOn;
 
-    // TODO: figure out what is this
-//    if not tabInfo.Bible.isBible then
-//    begin
-//      cbList.Style := csDropDownList;
-//      try
-//        bookView.LoadSecondBookByName(tabInfo.SatelliteName);
-//      except
-//        on E: Exception do
-//          BqShowException(E);
-//      end;
-//    end
-//    else
-//      cbList.Style := csDropDown;
+    if not tabInfo.Bible.isBible then
+    begin
+      try
+        bookView.LoadSecondBookByName(tabInfo.SatelliteName);
+      except
+        on E: Exception do
+          BqShowException(E);
+      end;
+    end;
 
     bookView.UpdateModuleTree(tabInfo.Bible); // fill lists
     bookView.HistoryClear();
