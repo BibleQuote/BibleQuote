@@ -477,9 +477,7 @@ type
     function CreateNewBibleInstance(): TBible;
 
     procedure UpdateBookView();
-    procedure UpdateMemoView();
-    procedure UpdateLibraryView();
-    procedure UpdateBookmarksView();
+    procedure ClearCopyrights();
 
     procedure SetFirstTabInitialLocation(
       wsCommand, wsSecondaryView: string;
@@ -2863,6 +2861,7 @@ end;
 procedure TMainForm.FormKeyPress(Sender: TObject; var Key: Char);
 var
   tabsView: TDockTabsForm;
+newTabInfo: TSearchTabInfo;
 begin
   if Key = #27 then
   begin
@@ -2876,7 +2875,8 @@ begin
   if Key = #13 then
   begin
     Key := #0;
-    // TODO: Open new search tab
+    newTabInfo := TSearchTabInfo.Create();
+    mTabsView.AddSearchTab(newTabInfo);
   end;
 end;
 
@@ -5548,21 +5548,7 @@ begin
   end;
 end;
 
-procedure TMainForm.UpdateMemoView();
-begin
-  lblTitle.Caption := '';
-  lblCopyRightNotice.Caption := '';
-  tbtnCopyright.Hint := '';
-end;
-
-procedure TMainForm.UpdateLibraryView();
-begin
-  lblTitle.Caption := '';
-  lblCopyRightNotice.Caption := '';
-  tbtnCopyright.Hint := '';
-end;
-
-procedure TMainForm.UpdateBookmarksView();
+procedure TMainForm.ClearCopyrights();
 begin
   lblTitle.Caption := '';
   lblCopyRightNotice.Caption := '';
@@ -7162,6 +7148,8 @@ begin
 end;
 
 procedure TMainForm.miQuickSearchClick(Sender: TObject);
+var
+  bookFrame: TBookFrame;
 begin
   InputForm.tag := 0; // use TEdit
   InputForm.Caption := miQuickSearch.Caption;
@@ -7169,13 +7157,11 @@ begin
 
   if InputForm.ShowModal = mrOk then
   begin
-    // TODO: navigate to search tab, or open new
-//    if not pgcMain.Visible then
-//      tbtnToggle.Click;
-//    pgcMain.ActivePage := tbSearch;
-//
-//    cbSearch.Text := InputForm.edtValue.Text;
-//    btnFind.Click;
+    bookFrame := GetBookView(self);
+    if Assigned(bookFrame.BookTabInfo) then
+    begin
+      bookFrame.NavigateToSearch(InputForm.edtValue.Text);
+    end;
   end;
 end;
 
@@ -7583,19 +7569,11 @@ begin
 end;
 
 procedure TMainForm.ShowSearchTab;
+var
+  newTabInfo: TSearchTabInfo;
 begin
-  if not pgcMain.Visible then
-    tbtnToggle.Click;
-
-// TODO: navigate to search tab
-//  if pgcMain.ActivePage <> tbSearch then
-//  begin
-//    pgcMain.ActivePage := tbSearch;
-//    pgcMainChange(self);
-//  end;
-//
-//  if (cbSearch.Enabled) then
-//    ActiveControl := cbSearch;
+  newTabInfo := TSearchTabInfo.Create();
+  mTabsView.AddSearchTab(newTabInfo);
 end;
 
 procedure TMainForm.ShowTagsTab;
