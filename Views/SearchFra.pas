@@ -580,6 +580,11 @@ begin
   mCurrentBook.inifile := MainFileExists(iniPath);
   SearchListInit;
 
+  if (mCurrentBook.isBible) then
+    cbList.Style := csDropDownList
+  else
+    cbList.Style := csDropDown;
+
   caption := Format('%s, %s', [mCurrentBook.Name, mCurrentBook.ShortName]);
   lblBook.Caption := caption.Trim([',', ' ']);
 end;
