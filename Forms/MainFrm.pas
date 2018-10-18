@@ -540,6 +540,7 @@ type
 
     function TranslateInterface(locFile: string): Boolean;
     function LoadLocalizationFile(locFile: string): boolean;
+    function LoadLocalization(): boolean;
 
     procedure LoadConfiguration;
     procedure SaveConfiguration;
@@ -606,7 +607,6 @@ type
     procedure TranslateConfigForm;
     procedure FillLanguageMenu;
     function GetLocalizationDirectory(): string;
-    function ApplyInitialTranslation(): Boolean;
     procedure TranslateControl(form: TWinControl; fname: string = '');
     procedure ShowReferenceInfo();
     procedure GoReference();
@@ -1797,6 +1797,8 @@ begin
 
   FillLanguageMenu();
 
+  LoadLocalization();
+
   MainMenuInit(false);
 
   LoadTabsViews();
@@ -1804,7 +1806,8 @@ begin
 
   StrongsDir := C_StrongsSubDirectory;
   LoadFontFromFolder(TPath.Combine(LibraryDirectory, StrongsDir));
-  mTranslated := ApplyInitialTranslation();
+
+  mTranslated := TranslateInterface(LastLanguageFile);
 
   StrongHebrew := TDict.Create;
   StrongGreek := TDict.Create;
@@ -2008,6 +2011,51 @@ end;
 procedure SetButtonHint(aButton: TToolButton; aMenuItem: TMenuItem);
 begin
   aButton.Hint := aMenuItem.Caption + ' (' + ShortCutToText(aMenuItem.ShortCut) + ')';
+end;
+
+function TMainForm.LoadLocalization(): boolean;
+var
+  foundmenu: Boolean;
+  i: Integer;
+  locDirectory: string;
+  locFilePath: string;
+  loaded: Boolean;
+begin
+  loaded := false;
+
+  locDirectory := GetLocalizationDirectory();
+  locFilePath := TPath.Combine(locDirectory, LastLanguageFile);
+
+  if (LastLanguageFile <> '') and (TFile.Exists(locFilePath)) then
+    loaded := LoadLocalizationFile(LastLanguageFile);
+
+  if (not loaded) then
+  begin
+    foundmenu := false;
+    for i := 0 to miLanguage.Count - 1 do
+    begin
+      if (miLanguage.Items[i]).Caption = DefaultLanguage then
+      begin
+        foundmenu := true;
+        break;
+      end;
+    end;
+
+    if foundmenu then
+    begin
+      loaded := LoadLocalizationFile(DefaultLanguageFile);
+    end;
+
+    if (not loaded) and (miLanguage.Count > 0) then
+    begin
+      LastLanguageFile := miLanguage.Items[miLanguage.Count - 1].Caption + '.lng';
+
+      loaded := LoadLocalizationFile(LastLanguageFile);
+    end;
+
+  end;
+
+  Result := loaded;
 end;
 
 function TMainForm.LoadLocalizationFile(locFile: string): boolean;
@@ -5241,52 +5289,6 @@ begin
       // Suppress the exception
     end;
   end;
-end;
-
-function TMainForm.ApplyInitialTranslation(): Boolean;
-var
-  foundmenu: Boolean;
-  i: Integer;
-  locDirectory: string;
-  locFilePath: string;
-  translated: Boolean;
-begin
-  translated := false;
-
-  locDirectory := GetLocalizationDirectory();
-  locFilePath := TPath.Combine(locDirectory, LastLanguageFile);
-
-  if (LastLanguageFile <> '') and (TFile.Exists(locFilePath)) then
-    translated := TranslateInterface(LastLanguageFile);
-
-  if (not translated) then
-  begin
-    foundmenu := false;
-    for i := 0 to miLanguage.Count - 1 do
-    begin
-      if (miLanguage.Items[i]).Caption = DefaultLanguage then
-      begin
-        foundmenu := true;
-        break;
-      end;
-    end;
-
-    if foundmenu then
-    begin
-      translated := TranslateInterface(DefaultLanguageFile);
-    end;
-
-    if (not translated) and (miLanguage.Count > 0) then
-    begin
-      LastLanguageFile := miLanguage.Items[miLanguage.Count - 1].Caption + '.lng';
-
-      translated := TranslateInterface(LastLanguageFile);
-    end;
-
-  end;
-
-  result := translated;
-
 end;
 
 function TMainForm.GetLocalizationDirectory(): string;
