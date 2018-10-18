@@ -538,6 +538,7 @@ type
     procedure GoPrevChapter;
     procedure GoNextChapter;
 
+    procedure Translate();
     function TranslateInterface(locFile: string): Boolean;
     function LoadLocalizationFile(locFile: string): boolean;
     function LoadLocalization(): boolean;
@@ -916,6 +917,7 @@ end;
 procedure TMainForm.OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
 var
   tabsView: TDockTabsForm;
+  i, C: integer;
 begin
   if (Sender is TDockTabsForm) then
   begin
@@ -1691,7 +1693,7 @@ begin
           data := tabsView.ChromeTabs.Tabs[i].Data;
           if not Supports(data, IViewTabInfo, tabInfo) then
             continue;
-
+          tabInfo.SaveState(tabsView);
           tabSettings := tabInfo.GetSettings;
 
           if tabInfo = activeTabInfo then
@@ -2044,6 +2046,7 @@ begin
     if foundmenu then
     begin
       loaded := LoadLocalizationFile(DefaultLanguageFile);
+      LastLanguageFile := DefaultLanguageFile;
     end;
 
     if (not loaded) and (miLanguage.Count > 0) then
@@ -2082,20 +2085,14 @@ begin
   end;
 end;
 
-function TMainForm.TranslateInterface(locFile: string): Boolean;
+procedure TMainForm.Translate();
 var
-  i: integer;
   s: string;
   fnt: TFont;
   tabsView: ITabsView;
   tabsForm: TDockTabsForm;
   bookView: TBookFrame;
 begin
-  result := LoadLocalizationFile(locFile);
-
-  if not result then
-    Exit;
-
   UpdateDictionariesCombo();
 
   TranslateControl(ExceptionForm);
@@ -2109,10 +2106,6 @@ begin
       tabsForm.Translate;
     end;
   end;
-
-  for i := 0 to miLanguage.Count - 1 do
-    with miLanguage.Items[i] do
-      Checked := LowerCase(Caption + '.lng') = LowerCase(locFile);
 
   TranslateConfigForm;
 
@@ -2179,7 +2172,22 @@ begin
 
   Update;
   fnt.Free;
+end;
 
+function TMainForm.TranslateInterface(locFile: string): Boolean;
+var i: integer;
+begin
+  result := LoadLocalizationFile(locFile);
+
+  if not result then
+    Exit;
+
+  if (Result = true) then
+    for i := 0 to miLanguage.Count - 1 do
+      with miLanguage.Items[i] do
+        Checked := LowerCase(Caption + '.lng') = LowerCase(locFile);
+
+  Translate();
 end;
 
 procedure TMainForm.tbtnPrintClick(Sender: TObject);
@@ -3162,6 +3170,7 @@ begin
     MainForm.Height := 420;
 
   writeln(NowDateTimeString(), 'FormClose entered');
+
   SaveConfiguration;
 
   for tabsView in mTabsViews do
