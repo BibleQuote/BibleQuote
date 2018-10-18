@@ -70,6 +70,7 @@ type
     procedure CloseActiveTab();
     procedure UpdateCurrentTabContent();
     procedure UpdateBookView();
+    procedure UpdateSearchView();
 
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
@@ -292,6 +293,7 @@ begin
     HideFrame(mLibraryView);
 
     mMainView.ClearCopyrights();
+    UpdateSearchView();
   end;
 end;
 
@@ -515,6 +517,17 @@ begin
   end;
 
   mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
+end;
+
+procedure TDockTabsForm.UpdateSearchView();
+var
+  tabInfo: IViewTabInfo;
+begin
+  tabInfo := GetActiveTabInfo();
+  if (not Assigned(tabInfo)) or (not (tabInfo is TSearchTabInfo)) then
+    Exit;
+
+  tabInfo.RestoreState(self);
 end;
 
 procedure TDockTabsForm.UpdateBookView();

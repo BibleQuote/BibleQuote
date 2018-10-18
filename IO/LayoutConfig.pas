@@ -24,6 +24,18 @@ type
   end;
 
   TSearchTabSettings = class(TTabSettings)
+  private
+    FSearchText: string;
+    FAnyWord, FPhrase, FExactPhrase, FParts, FMatchCase: boolean;
+    FBookPath: string;
+  public
+    property SearchText: string read FSearchText write FSearchText;
+    property AnyWord: boolean read FAnyWord write FAnyWord;
+    property Phrase: boolean read FPhrase write FPhrase;
+    property ExactPhrase: boolean read FExactPhrase write FExactPhrase;
+    property Parts: boolean read FParts write FParts;
+    property MatchCase: boolean read FMatchCase write FMatchCase;
+    property BookPath: string read FBookPath write FBookPath;
   end;
 
   TBookTabSettings = class(TTabSettings)

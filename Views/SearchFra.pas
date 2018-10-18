@@ -42,22 +42,12 @@ type
     mMainView: TMainForm;
     mTabsView: ITabsView;
 
-    SearchPageSize: integer;
-    IsSearching: Boolean;
-    SearchResults: TStrings;
-    SearchWords: TStrings;
-    SearchTime: int64;
-    SearchPage: integer; // what page we are in
-    SearchBrowserPosition: Longint; // list search results pages...
-
-    mblSearchBooksDDAltered: Boolean;
-    mslSearchBooksCache: TStringList;
+    mSearchState: TSearchTabState;
 
     mCurrentBook: TBible;
+
     mBookSelectView: TLibraryFrame;
     mBookSelectForm: TForm;
-
-    LastSearchResultsPage: integer; // to show/hide page results (Ctrl-F3)
 
     procedure SearchListInit;
     procedure BookSearchComplete(bible: TBible);
@@ -70,6 +60,8 @@ type
     procedure DisplaySearchResults(page: integer);
     procedure Translate();
 
+    function GetBookPath(): string;
+    property SearchState: TSearchTabState read mSearchState write mSearchState;
     procedure SetCurrentBook(shortPath: string);
     procedure OnVerseFound(bible: TBible; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);
     procedure OnSearchComplete(bible: TBible);
@@ -85,13 +77,7 @@ begin
   mMainView := mainView;
   mTabsView := tabsView;
 
-  SearchResults := TStringList.Create;
-  SearchWords := TStringList.Create;
-  LastSearchResultsPage := 1;
-
-  IsSearching := false;
-  mslSearchBooksCache := TStringList.Create();
-  mslSearchBooksCache.Duplicates := dupIgnore;
+  mSearchState := TSearchTabState.Create;
 
   mBookSelectForm := TForm.Create(self);
   mBookSelectForm.OnDeactivate := OnBookSelectFormDeactivate;
@@ -131,14 +117,8 @@ end;
 
 destructor TSearchFrame.Destroy();
 begin
-  if Assigned(SearchResults) then
-    FreeAndNil(SearchResults);
-
-  if Assigned(SearchWords) then
-    FreeAndNil(SearchWords);
-
-  if Assigned(mslSearchBooksCache) then
-    FreeAndNil(mslSearchBooksCache);
+  if Assigned(mSearchState) then
+    FreeAndNil(mSearchState);
 
   inherited;
 end;
@@ -267,13 +247,13 @@ begin
     Exit;
 
   if cbQty.ItemIndex < cbQty.Items.Count - 1 then
-    SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex])
+    mSearchState.SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex])
   else
-    SearchPageSize := 50000;
+    mSearchState.SearchPageSize := 50000;
 
-  if IsSearching then
+  if mSearchState.IsSearching then
   begin
-    IsSearching := false;
+    mSearchState.IsSearching := false;
     mCurrentBook.StopSearching;
     Screen.Cursor := crDefault;
     Exit;
@@ -281,7 +261,7 @@ begin
 
   Screen.Cursor := crHourGlass;
   try
-    IsSearching := true;
+    mSearchState.IsSearching := true;
 
     s := [];
 
@@ -297,7 +277,7 @@ begin
     begin // FULL BIBLE SEARCH
       searchText := Trim(cbList.Text);
       linksCnt := cbList.Items.Count - 1;
-      if not mblSearchBooksDDAltered then
+      if not mSearchState.SearchBooksDDAltered then
         if (cbList.ItemIndex < 0) then
           for i := 0 to linksCnt do
             if CompareText(cbList.Items[i], searchText) = 0 then
@@ -306,7 +286,7 @@ begin
               break;
             end;
 
-      if (cbList.ItemIndex < 0) or (mblSearchBooksDDAltered) then
+      if (cbList.ItemIndex < 0) or (mSearchState.SearchBooksDDAltered) then
       begin
         lnks := TStringList.Create;
         try
@@ -335,8 +315,8 @@ begin
 
           end;
           books := Trim(books);
-          if (Length(books) > 0) and (mslSearchBooksCache.IndexOf(books) < 0) then
-            mslSearchBooksCache.Add(books);
+          if (Length(books) > 0) and (mSearchState.SearchBooksCache.IndexOf(books) < 0) then
+            mSearchState.SearchBooksCache.Add(books);
 
         finally
           lnks.Free();
@@ -386,9 +366,9 @@ begin
       if cbSearch.Items.IndexOf(searchText) < 0 then
         cbSearch.Items.Insert(0, searchText);
 
-      SearchResults.Clear;
+      mSearchState.SearchResults.Clear;
 
-      SearchWords.Clear;
+      mSearchState.SearchWords.Clear;
       wrd := cbSearch.Text;
 
       if not chkExactPhrase.Checked then
@@ -397,13 +377,13 @@ begin
         begin
           wrdnew := DeleteFirstWord(wrd);
 
-          SearchWords.Add(wrdnew);
+          mSearchState.SearchWords.Add(wrdnew);
         end;
       end
       else
       begin
         wrdnew := Trim(wrd);
-        SearchWords.Add(wrdnew);
+        mSearchState.SearchWords.Add(wrdnew);
       end;
 
       params :=
@@ -416,7 +396,7 @@ begin
       if (params and spExactPhrase = spExactPhrase) and (params and spWordParts = spWordParts) then
         params := params - spWordParts;
 
-      SearchTime := GetTickCount;
+      mSearchState.SearchTime := GetTickCount;
 
       // TODO: fix search with strongs, currently false
       mCurrentBook.Search(searchText, params, s, false, Self);
@@ -429,9 +409,9 @@ end;
 
 procedure TSearchFrame.BookSearchComplete(bible: TBible);
 begin
-  IsSearching := false;
-  SearchTime := GetTickCount - SearchTime;
-  lblSearch.Caption := lblSearch.Caption + ' (' + IntToStr(SearchTime) + ')';
+  mSearchState.IsSearching := false;
+  mSearchState.SearchTime := GetTickCount - mSearchState.SearchTime;
+  lblSearch.Caption := lblSearch.Caption + ' (' + IntToStr(mSearchState.SearchTime) + ')';
   DisplaySearchResults(1);
 end;
 
@@ -488,19 +468,19 @@ end;
 
 procedure TSearchFrame.bwrSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  SearchBrowserPosition := bwrSearch.Position;
+  mSearchState.SearchBrowserPosition := bwrSearch.Position;
 end;
 
 procedure TSearchFrame.bwrSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  if (Key = VK_NEXT) and (bwrSearch.Position = SearchBrowserPosition) then
-    DisplaySearchResults(SearchPage + 1);
+  if (Key = VK_NEXT) and (bwrSearch.Position = mSearchState.SearchBrowserPosition) then
+    DisplaySearchResults(mSearchState.SearchPage + 1);
 
-  if (Key = VK_PRIOR) and (bwrSearch.Position = SearchBrowserPosition) then
+  if (Key = VK_PRIOR) and (bwrSearch.Position = mSearchState.SearchBrowserPosition) then
   begin
-    if SearchPage = 1 then
+    if mSearchState.SearchPage = 1 then
       Exit;
-    DisplaySearchResults(SearchPage - 1);
+    DisplaySearchResults(mSearchState.SearchPage - 1);
     bwrSearch.PositionTo('endofsearchresults');
   end;
 end;
@@ -510,26 +490,26 @@ begin
   if not Assigned(mCurrentBook) then
     Exit;
 
-  if IsDown(VK_MENU) and (mCurrentBook.isBible) and (mslSearchBooksCache.Count > 0)
+  if IsDown(VK_MENU) and (mCurrentBook.isBible) and (mSearchState.SearchBooksCache.Count > 0)
   then
   begin
-    cbList.Items.Assign(mslSearchBooksCache);
-    mblSearchBooksDDAltered := true;
+    cbList.Items.Assign(mSearchState.SearchBooksCache);
+    mSearchState.SearchBooksDDAltered := true;
   end
   else
   begin
-    if mblSearchBooksDDAltered then
+    if mSearchState.SearchBooksDDAltered then
       SearchListInit();
-    mblSearchBooksDDAltered := false;
+    mSearchState.SearchBooksDDAltered := false;
   end;
 end;
 
 procedure TSearchFrame.cbQtyChange(Sender: TObject);
 begin
   if cbQty.ItemIndex < cbQty.Items.Count - 1 then
-    SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex])
+    mSearchState.SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex])
   else
-    SearchPageSize := 50000;
+    mSearchState.SearchPageSize := 50000;
   DisplaySearchResults(1);
 end;
 
@@ -569,11 +549,25 @@ begin
   mBookSelectForm.Caption := Lang.SayDefault('SelectBook', 'Select book');
 end;
 
+function TSearchFrame.GetBookPath(): string;
+begin
+  Result := '';
+  if Assigned(mCurrentBook) then
+    Result := mCurrentBook.ShortPath;
+end;
+
 procedure TSearchFrame.SetCurrentBook(shortPath: string);
 var
   iniPath: string;
   caption: string;
 begin
+  if (shortPath = '') then
+  begin
+    lblBook.Caption := Lang.SayDefault('SelectBook', 'Select book');
+    mCurrentBook := nil;
+    Exit;
+  end;
+
   mCurrentBook := TBible.Create(mMainView);
 
   iniPath := TPath.Combine(shortPath, 'bibleqt.ini');
@@ -596,43 +590,47 @@ var
   dSource: string;
 begin
   if not Assigned(mCurrentBook) then
-    Exit;
-
-  if (SearchPageSize * (page - 1) > SearchResults.Count) or (SearchResults.Count = 0) then
   begin
-    Screen.Cursor := crDefault;
+    bwrSearch.Clear;
     Exit;
   end;
 
-  SearchPage := page;
+  if (mSearchState.SearchPageSize * (page - 1) > mSearchState.SearchResults.Count) or (mSearchState.SearchResults.Count = 0) then
+  begin
+    Screen.Cursor := crDefault;
+    bwrSearch.Clear;
+    Exit;
+  end;
 
-  dSource := Format('<b>"<font face="%s">%s</font>"</b> (%d) <p>', [mCurrentBook.fontName, cbSearch.Text, SearchResults.Count]);
+  mSearchState.SearchPage := page;
 
-  limit := SearchResults.Count div SearchPageSize + 1;
-  if SearchPageSize * (limit - 1) = SearchResults.Count then
+  dSource := Format('<b>"<font face="%s">%s</font>"</b> (%d) <p>', [mCurrentBook.fontName, cbSearch.Text, mSearchState.SearchResults.Count]);
+
+  limit := mSearchState.SearchResults.Count div mSearchState.SearchPageSize + 1;
+  if mSearchState.SearchPageSize * (limit - 1) = mSearchState.SearchResults.Count then
     limit := limit - 1;
 
   s := '';
   for i := 1 to limit - 1 do
   begin
     if i <> page then
-      s := s + Format('<a href="%d">%d-%d</a> ', [i, SearchPageSize * (i - 1) + 1, SearchPageSize * i])
+      s := s + Format('<a href="%d">%d-%d</a> ', [i, mSearchState.SearchPageSize * (i - 1) + 1, mSearchState.SearchPageSize * i])
     else
-      s := s + Format('%d-%d ', [SearchPageSize * (i - 1) + 1, SearchPageSize * i]);
+      s := s + Format('%d-%d ', [mSearchState.SearchPageSize * (i - 1) + 1, mSearchState.SearchPageSize * i]);
   end;
 
   if limit <> page then
     s := s + Format('<a href="%d">%d-%d</a> ',
-      [limit, SearchPageSize * (limit - 1) + 1, SearchResults.Count])
+      [limit, mSearchState.SearchPageSize * (limit - 1) + 1, mSearchState.SearchResults.Count])
   else
-    s := s + Format('%d-%d ', [SearchPageSize * (limit - 1) + 1, SearchResults.Count]);
+    s := s + Format('%d-%d ', [mSearchState.SearchPageSize * (limit - 1) + 1, mSearchState.SearchResults.Count]);
 
-  limit := SearchPageSize * page - 1;
-  if limit >= SearchResults.Count then
-    limit := SearchResults.Count - 1;
+  limit := mSearchState.SearchPageSize * page - 1;
+  if limit >= mSearchState.SearchResults.Count then
+    limit := mSearchState.SearchResults.Count - 1;
 
-  for i := SearchPageSize * (page - 1) to limit do
-    AddLine(dSource, '<font size=-1>' + IntToStr(i + 1) + '.</font> ' + SearchResults[i]);
+  for i := mSearchState.SearchPageSize * (page - 1) to limit do
+    AddLine(dSource, '<font size=-1>' + IntToStr(i + 1) + '.</font> ' + mSearchState.SearchResults[i]);
 
   AddLine(dSource, '<a name="endofsearchresults"><p>' + s + '<br><p>');
 
@@ -643,7 +641,7 @@ begin
 
   bwrSearch.LoadFromString(dSource);
 
-  LastSearchResultsPage := page;
+  mSearchState.LastSearchResultsPage := page;
   Screen.Cursor := crDefault;
 
   try
@@ -673,10 +671,10 @@ begin
     StrDeleteFirstNumber(s);
 
     // color search result!!!
-    for i := 0 to SearchWords.Count - 1 do
-      StrColorUp(s, SearchWords[i], '<*>', '</*>', chkCase.Checked);
+    for i := 0 to mSearchState.SearchWords.Count - 1 do
+      StrColorUp(s, mSearchState.SearchWords[i], '<*>', '</*>', chkCase.Checked);
 
-    SearchResults.Add(
+    mSearchState.SearchResults.Add(
       Format('<a href="go %s %d %d %d 0">%s</a> <font face="%s">%s</font><br>',
       [bible.ShortPath, book, chapter, verse,
       bible.ShortPassageSignature(book, chapter, verse, verse),

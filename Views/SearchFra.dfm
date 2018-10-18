@@ -12,6 +12,7 @@ object SearchFrame: TSearchFrame
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = -6
     DesignSize = (
       349
       220)
@@ -69,7 +70,6 @@ object SearchFrame: TSearchFrame
       Height = 22
       Anchors = [akTop, akRight]
       Caption = #1053#1072#1081#1090#1080
-      Default = True
       TabOrder = 2
       OnClick = btnFindClick
     end
@@ -188,7 +188,7 @@ object SearchFrame: TSearchFrame
     Left = 264
     Top = 144
     Bitmap = {
-      494C010101000800180018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101010008001C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
