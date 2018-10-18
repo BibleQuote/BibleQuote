@@ -182,12 +182,62 @@ type
     function GetCaption(): string;
   end;
 
+  TSearchTabState = class
+  private
+    mSearchPageSize: integer;
+    mIsSearching: Boolean;
+    mSearchResults: TStrings;
+    mSearchWords: TStrings;
+    mSearchTime: int64;
+    mSearchPage: integer; // what page we are in
+    mSearchBrowserPosition: Longint; // list search results pages...
+    mLastSearchResultsPage: integer; // to show/hide page results (Ctrl-F3)
+
+    mblSearchBooksDDAltered: Boolean;
+    mslSearchBooksCache: TStringList;
+  public
+    property SearchPageSize: integer read mSearchPageSize write mSearchPageSize;
+    property IsSearching: boolean read mIsSearching write mIsSearching;
+    property SearchResults: TStrings read mSearchResults write mSearchResults;
+    property SearchWords: TStrings read mSearchWords write mSearchWords;
+    property SearchTime: int64 read mSearchTime write mSearchTime;
+    property SearchPage: integer read mSearchPage write mSearchPage;
+    property SearchBrowserPosition: integer read mSearchBrowserPosition write mSearchBrowserPosition;
+    property LastSearchResultsPage: integer read mLastSearchResultsPage write mLastSearchResultsPage;
+    property SearchBooksDDAltered: boolean read mblSearchBooksDDAltered write mblSearchBooksDDAltered;
+    property SearchBooksCache: TStringList read mslSearchBooksCache write mslSearchBooksCache;
+
+    constructor Create(); overload;
+    constructor Create(srcObj: TSearchTabState); overload;
+    destructor Destroy(); override;
+  end;
+
   TSearchTabInfo = class(TInterfacedObject, IViewTabInfo)
+  private
+    mSearchText, mSearchInfo: string;
+    mAnyWord, mPhrase, mExactPhrase, mParts, mMatchCase: boolean;
+
+    mSearchState: TSearchTabState;
+    mBookPath: string;
+  public
+    property SearchInfo: string read mSearchInfo write mSearchInfo;
+    property SearchText: string read mSearchText write mSearchText;
+    property AnyWord: boolean read mAnyWord write mAnyWord;
+    property Phrase: boolean read mPhrase write mPhrase;
+    property ExactPhrase: boolean read mExactPhrase write mExactPhrase;
+    property Parts: boolean read mParts write mParts;
+    property MatchCase: boolean read mMatchCase write mMatchCase;
+
+    property SearchState: TSearchTabState read mSearchState write mSearchState;
+
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
+
+    constructor Create(); overload;
+    constructor Create(settings: TSearchTabSettings); overload;
   end;
 
   TViewTabDragObject = class(TDragObjectEx)
@@ -246,7 +296,7 @@ type
 
 implementation
 
-uses BookFra;
+uses BookFra, SearchFra;
 
 constructor TBookTabBrowserState.Create;
 begin
@@ -465,7 +515,26 @@ begin
 // nothing to save
 end;
 
-{ TBookmarksTabInfo }
+{ TSearchTabInfo }
+
+constructor TSearchTabInfo.Create();
+begin
+  mSearchState := TSearchTabState.Create;
+end;
+
+constructor TSearchTabInfo.Create(settings: TSearchTabSettings);
+begin
+  mSearchState := TSearchTabState.Create;
+
+  SearchText := settings.SearchText;
+  AnyWord := settings.AnyWord;
+  Phrase := settings.Phrase;
+  ExactPhrase := settings.ExactPhrase;
+  Parts := settings.Parts;
+  MatchCase := settings.MatchCase;
+
+  mBookPath := settings.BookPath;
+end;
 
 function TSearchTabInfo.GetCaption(): string;
 begin
@@ -478,18 +547,115 @@ begin
 end;
 
 function TSearchTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TSearchTabSettings;
 begin
-  Result := TSearchTabSettings.Create;
+  tabSettings := TSearchTabSettings.Create;
+
+  tabSettings.SearchText := SearchText;
+  tabSettings.AnyWord := AnyWord;
+  tabSettings.Phrase := Phrase;
+  tabSettings.ExactPhrase := ExactPhrase;
+  tabSettings.Parts := Parts;
+  tabSettings.MatchCase := MatchCase;
+  tabSettings.BookPath := mBookPath;
+  
+  Result := tabSettings;
 end;
 
 procedure TSearchTabInfo.SaveState(const tabsView: ITabsView);
+var
+  searchFrame: TSearchFrame;
 begin
-// nothing to save
+  searchFrame := tabsView.SearchView as TSearchFrame;
+  with searchFrame do
+  begin
+    mBookPath := GetBookPath();
+
+    mSearchInfo := lblSearch.Caption;
+    mSearchText := cbSearch.Text;
+    mAnyWord := chkAll.Checked;
+    mPhrase := chkPhrase.Checked;
+    mExactPhrase := chkExactPhrase.Checked;
+    mParts := chkParts.Checked;
+    mMatchCase := chkCase.Checked;
+
+    mSearchState := TSearchTabState.Create(searchFrame.SearchState);
+  end;
 end;
 
 procedure TSearchTabInfo.RestoreState(const tabsView: ITabsView);
+var
+  searchFrame: TSearchFrame;
 begin
-// nothing to save
+  searchFrame := tabsView.SearchView as TSearchFrame;
+  with searchFrame do
+  begin
+    lblSearch.Caption := mSearchInfo;
+    if (lblSearch.Caption = '') then
+      lblSearch.Caption := Lang.SayDefault('DockTabsForm.lblSearch.Caption', '');
+
+    cbSearch.Text := mSearchText;
+    chkAll.Checked := mAnyWord;
+    chkPhrase.Checked := mPhrase;
+    chkExactPhrase.Checked := mExactPhrase;
+    chkParts.Checked := mParts;
+    chkCase.Checked := mMatchCase;
+    
+    SetCurrentBook(mBookPath);
+    searchFrame.SearchState := TSearchTabState.Create(mSearchState);
+
+    DisplaySearchResults(mSearchState.LastSearchResultsPage);
+  end;
+end;
+
+{ TSearchTabState }
+
+constructor TSearchTabState.Create(srcObj: TSearchTabState);
+begin
+  SearchResults := TStringList.Create;
+  SearchWords := TStringList.Create;
+  SearchBooksCache := TStringList.Create();
+  SearchBooksCache.Duplicates := dupIgnore;
+
+  SearchResults.AddStrings(srcObj.SearchResults);
+  SearchWords.AddStrings(srcObj.SearchWords);
+  SearchBooksCache.AddStrings(srcObj.SearchBooksCache);
+
+  LastSearchResultsPage := srcObj.LastSearchResultsPage;
+  SearchPageSize := srcObj.SearchPageSize;
+  SearchTime := srcObj.SearchTime;
+  SearchPage := srcObj.SearchPage;
+  SearchBrowserPosition := srcObj.SearchBrowserPosition;
+  SearchBooksDDAltered := srcObj.SearchBooksDDAltered;
+  IsSearching := srcObj.IsSearching;
+end;
+
+constructor TSearchTabState.Create();
+begin
+  inherited Create();
+
+  SearchResults := TStringList.Create;
+  SearchWords := TStringList.Create;
+  SearchBooksCache := TStringList.Create();
+  SearchBooksCache.Duplicates := dupIgnore;
+
+  LastSearchResultsPage := 1;
+  IsSearching := false;
+end;
+
+destructor TSearchTabState.Destroy;
+begin
+  if Assigned(mSearchResults) then
+    FreeAndNil(mSearchResults);
+
+  if Assigned(mSearchWords) then
+    FreeAndNil(mSearchWords);
+
+  if Assigned(mslSearchBooksCache) then
+    FreeAndNil(mslSearchBooksCache);
+
+  inherited;
 end;
 
 { TViewTabDragObject }

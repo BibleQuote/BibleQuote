@@ -539,6 +539,7 @@ type
     procedure GoNextChapter;
 
     function TranslateInterface(locFile: string): Boolean;
+    function LoadLocalizationFile(locFile: string): boolean;
 
     procedure LoadConfiguration;
     procedure SaveConfiguration;
@@ -1332,7 +1333,7 @@ begin
         end
         else if (tabSettings is TSearchTabSettings) then
         begin
-          mTabsView.AddSearchTab(TSearchTabInfo.Create());
+          mTabsView.AddSearchTab(TSearchTabInfo.Create(TSearchTabSettings(tabSettings)));
           addTabResult := true;
         end;
 
@@ -2009,19 +2010,12 @@ begin
   aButton.Hint := aMenuItem.Caption + ' (' + ShortCutToText(aMenuItem.ShortCut) + ')';
 end;
 
-function TMainForm.TranslateInterface(locFile: string): Boolean;
+function TMainForm.LoadLocalizationFile(locFile: string): boolean;
 var
-  i: integer;
-  s: string;
-  fnt: TFont;
   locDirectory: string;
   locFilePath: string;
-  tabsView: ITabsView;
-  tabsForm: TDockTabsForm;
-  bookView: TBookFrame;
 begin
-  result := false;
-
+  Result := false;
   locDirectory := GetLocalizationDirectory();
   locFilePath := TPath.Combine(locDirectory, locFile);
   try
@@ -2038,6 +2032,18 @@ begin
       Exit;
     end
   end;
+end;
+
+function TMainForm.TranslateInterface(locFile: string): Boolean;
+var
+  i: integer;
+  s: string;
+  fnt: TFont;
+  tabsView: ITabsView;
+  tabsForm: TDockTabsForm;
+  bookView: TBookFrame;
+begin
+  result := LoadLocalizationFile(locFile);
 
   if not result then
     Exit;
@@ -2861,7 +2867,6 @@ end;
 procedure TMainForm.FormKeyPress(Sender: TObject; var Key: Char);
 var
   tabsView: TDockTabsForm;
-newTabInfo: TSearchTabInfo;
 begin
   if Key = #27 then
   begin
@@ -2870,13 +2875,6 @@ begin
     if not tabsView.pnlMain.Visible then
       miPrintPreview.Click; // this turns preview off
     Exit;
-  end;
-
-  if Key = #13 then
-  begin
-    Key := #0;
-    newTabInfo := TSearchTabInfo.Create();
-    mTabsView.AddSearchTab(newTabInfo);
   end;
 end;
 
