@@ -313,6 +313,7 @@ ConfigForm.chkHighlightVerseHits.Caption = Ընդգծել ընտրված խոս�
 ConfigForm.chkMinimizeToTray.Caption = Պատուհանը փոքրացնելիս գցել կրկնատակի վրա
 ConfigForm.chkMinimizeToTray.Hint = Համակարգային ժամերի կողքին կստեղծվի տարբերանշան 
 ConfigForm.lblAvailableModules.Caption = Հասանելի մոդուլներ
+ConfigForm.lblDefaultBible.Caption = Библия по-умолчанию (t)
 ConfigForm.lblFavourites.Caption = Ընտրյալ
 ConfigForm.lblSelectSecondPath.Caption = Լրացուցիչ ուղի դեպի մոդուլները
 ConfigForm.rgHotKeyChoice.Caption = Ստեղների համադրություն

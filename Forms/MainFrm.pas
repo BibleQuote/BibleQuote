@@ -432,6 +432,7 @@ type
     Bookmarks: TBroadcastStringList;
 
     LastAddress: string;
+    DefaultBibleName: string;
 
     HelpFileName: string;
 
@@ -787,6 +788,7 @@ begin
 
     LastLanguageFile := MainCfgIni.SayDefault('LastLanguageFile', '');
     LastAddress := MainCfgIni.SayDefault('LastAddress', '');
+    DefaultBibleName := MainCfgIni.SayDefault('DefaultBible', '');
     G_SecondPath := MainCfgIni.SayDefault('SecondPath', '');
 
     SatelliteBible := MainCfgIni.SayDefault('SatelliteBible', '');
@@ -917,7 +919,6 @@ end;
 procedure TMainForm.OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
 var
   tabsView: TDockTabsForm;
-  i, C: integer;
 begin
   if (Sender is TDockTabsForm) then
   begin
@@ -1606,6 +1607,7 @@ begin
     ini.Learn('LastAddress', LastAddress);
     ini.Learn('LastLanguageFile', LastLanguageFile);
     ini.Learn('SecondPath', G_SecondPath);
+    ini.Learn('DefaultBible', DefaultBibleName);
 
     ini.Learn('MainFormFontName', MainForm.Font.Name);
     ini.Learn('MainFormFontSize', IntToStr(MainForm.Font.Size));
@@ -1673,7 +1675,6 @@ begin
 
       tabCount := tabsView.ChromeTabs.Tabs.Count;
 
-      activeTabInfo := mTabsView.GetActiveTabInfo();
       if (tabsView = mTabsView) then
         tabsViewSettings.Active := true;
 
@@ -1687,6 +1688,7 @@ begin
         tabsViewSettings.Height := tabsForm.Height;
       end;
 
+      activeTabInfo := tabsView.GetActiveTabInfo();
       for i := 0 to tabCount - 1 do
       begin
         try
@@ -7445,6 +7447,7 @@ var
   i, moduleCount: integer;
   sl: TStringList;
   reload: Boolean;
+  defBible: string;
   bookView: TBookFrame;
   bible: TBible;
 begin
@@ -7461,6 +7464,8 @@ begin
     chkHighlightVerseHits.Checked := mFlagHighlightVerses;
     rgHotKeyChoice.ItemIndex := ConfigFormHotKeyChoiceItemIndex;
     moduleCount := mModules.Count - 1;
+
+    // fill the list of available modules for favorites
     cbAvailableModules.Clear();
     sl := TStringList.Create;
     try
@@ -7478,16 +7483,64 @@ begin
       try
         cbAvailableModules.Items.Clear;
         for i := 0 to sl.Count - 1 do
+        begin
           cbAvailableModules.Items.Add(sl[i]);
+        end;
       finally
         cbAvailableModules.Items.EndUpdate();
       end;
-
     finally
       sl.Free;
     end;
+
     if moduleCount >= 0 then
       cbAvailableModules.ItemIndex := 0;
+
+    // fill the list of available modules for default bible
+    cbDefaultBible.Clear();
+    sl := TStringList.Create;
+    try
+      sl.Sorted := true;
+      sl.BeginUpdate;
+      try
+        for i := 0 to moduleCount do
+        begin
+          if (mModules[i].modType = modtypeBible) then
+            sl.Add(mModules[i].mFullName);
+        end;
+      finally
+        sl.EndUpdate();
+      end;
+      cbDefaultBible.Items.BeginUpdate;
+      try
+        cbDefaultBible.Items.Clear;
+        cbDefaultBible.Items.Add('');
+        for i := 0 to sl.Count - 1 do
+        begin
+          cbDefaultBible.Items.Add(sl[i]);
+        end;
+      finally
+        cbDefaultBible.Items.EndUpdate();
+      end;
+
+      if (DefaultBibleName = '') then
+      begin
+        cbDefaultBible.ItemIndex := 0;
+      end
+      else
+      begin
+        for i := 0 to cbDefaultBible.Items.Count - 1 do
+        begin
+          if (OmegaCompareTxt(DefaultBibleName, cbDefaultBible.Items[i], -1, false) = 0) then
+          begin
+            cbDefaultBible.ItemIndex := i;
+            break;
+          end;
+        end;
+      end;
+    finally
+      sl.Free;
+    end;
 
     moduleCount := mFavorites.mModuleEntries.Count - 1;
     lbFavourites.Clear();
@@ -7515,6 +7568,15 @@ begin
         BqShowException(E);
       end;
     end;
+  end;
+
+  if (ConfigForm.cbDefaultBible.ItemIndex >= 0) then
+  begin
+    defBible := ConfigForm.cbDefaultBible.Items[ConfigForm.cbDefaultBible.ItemIndex];
+    if (defBible <> '') and (mModules.ResolveModuleByNames(defBible, '') <> nil) then
+      DefaultBibleName := defBible
+    else
+      DefaultBibleName := '';
   end;
 
   SetFavouritesShortcuts();
