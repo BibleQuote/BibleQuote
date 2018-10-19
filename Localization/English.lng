@@ -313,6 +313,7 @@ ConfigForm.chkHighlightVerseHits.Caption = Highlight verse hits
 ConfigForm.chkMinimizeToTray.Caption = Minimize to tray
 ConfigForm.chkMinimizeToTray.Hint = An icon will be placed near the system clock
 ConfigForm.lblAvailableModules.Caption = Available modules
+ConfigForm.lblDefaultBible.Caption = Default Bible
 ConfigForm.lblFavourites.Caption = Favorites
 ConfigForm.lblSelectSecondPath.Caption = Secondary path for modules
 ConfigForm.rgHotKeyChoice.Caption = Hotkey combination

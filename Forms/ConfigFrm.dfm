@@ -1,10 +1,10 @@
 object ConfigForm: TConfigForm
   Left = 402
   Top = 230
-  BorderStyle = bsDialog
+  BorderStyle = bsSizeToolWin
   Caption = 'ConfigForm'
-  ClientHeight = 343
-  ClientWidth = 475
+  ClientHeight = 396
+  ClientWidth = 378
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,107 +16,142 @@ object ConfigForm: TConfigForm
   Position = poScreenCenter
   ShowHint = True
   OnKeyPress = FormKeyPress
+  DesignSize = (
+    378
+    396)
   PixelsPerInch = 96
   TextHeight = 13
   object pgcOptions: TPageControl
     Left = 0
     Top = 0
-    Width = 475
-    Height = 305
-    ActivePage = tsOtherOptions
+    Width = 378
+    Height = 357
+    ActivePage = tsFavouriteEx
     Align = alTop
+    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
+    ExplicitWidth = 474
+    ExplicitHeight = 328
     object tsCopyOptions: TTabSheet
       Caption = 'tsCopyOptions'
+      ExplicitWidth = 466
+      ExplicitHeight = 277
+      DesignSize = (
+        370
+        329)
       object chkCopyVerseNumbers: TCheckBox
         Left = 13
         Top = 15
-        Width = 343
+        Width = 354
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = 'chkCopyVerseNumbers'
         TabOrder = 0
+        ExplicitWidth = 356
       end
       object chkCopyFontParams: TCheckBox
         Left = 13
         Top = 38
-        Width = 351
+        Width = 354
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = 'chkCopyFontParams'
         TabOrder = 1
+        ExplicitWidth = 356
       end
       object chkAddReference: TCheckBox
         Left = 13
         Top = 62
-        Width = 343
+        Width = 354
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddReference'
         TabOrder = 2
+        ExplicitWidth = 356
       end
       object rgAddReference: TRadioGroup
         Left = 12
         Top = 84
-        Width = 348
+        Width = 355
         Height = 91
+        Anchors = [akLeft, akTop, akRight]
         Items.Strings = (
           'Short reference at the beginning of each verse'
           'Short reference at the end of passage'
           'Full reference at the end of passage')
         TabOrder = 3
+        ExplicitWidth = 364
       end
       object chkAddModuleName: TCheckBox
         Left = 13
         Top = 184
-        Width = 343
+        Width = 354
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddModuleName'
         TabOrder = 4
+        ExplicitWidth = 356
       end
       object chkAddLineBreaks: TCheckBox
         Left = 13
         Top = 208
-        Width = 343
+        Width = 354
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddLineBreaks'
         TabOrder = 5
+        ExplicitWidth = 356
       end
     end
     object tsFavouriteEx: TTabSheet
       Caption = 'tsFavouriteEx'
+      ExplicitWidth = 467
+      ExplicitHeight = 277
       DesignSize = (
-        467
-        277)
+        370
+        329)
       object lblAvailableModules: TLabel
         Left = 3
         Top = 3
-        Width = 206
-        Height = 23
-        AutoSize = False
+        Width = 93
+        Height = 13
         Caption = 'lblAvailableModules'
       end
       object lblFavourites: TLabel
         Left = 3
-        Top = 51
-        Width = 214
-        Height = 23
-        Anchors = [akTop, akRight]
-        AutoSize = False
+        Top = 59
+        Width = 59
+        Height = 13
         Caption = 'lblFavourites'
+      end
+      object lblDefaultBible: TLabel
+        Left = 3
+        Top = 272
+        Width = 67
+        Height = 13
+        Anchors = [akLeft, akBottom]
+        Caption = 'lblDefaultBible'
+        ExplicitTop = 222
       end
       object lbFavourites: TListBox
         Left = 3
         Top = 80
-        Width = 425
-        Height = 185
+        Width = 327
+        Height = 180
+        Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvNone
         ItemHeight = 13
         TabOrder = 0
+        ExplicitWidth = 342
+        ExplicitHeight = 137
       end
       object bbtnUp: TBitBtn
         Tag = -1
-        Left = 434
-        Top = 104
+        Left = 336
+        Top = 80
         Width = 28
         Height = 25
+        Anchors = [akTop, akRight]
         Glyph.Data = {
           0E030000424D0E030000000000003600000028000000120000000D0000000100
           180000000000D8020000120B0000120B00000000000000000000FFFFFFFFFFFF
@@ -145,13 +180,15 @@ object ConfigForm: TConfigForm
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
         TabOrder = 1
         OnClick = favouritesBitBtnClick
+        ExplicitLeft = 351
       end
       object bbtnDown: TBitBtn
         Tag = 1
-        Left = 434
-        Top = 216
+        Left = 336
+        Top = 141
         Width = 28
         Height = 25
+        Anchors = [akTop, akRight]
         Glyph.Data = {
           0E030000424D0E030000000000003600000028000000120000000D0000000100
           180000000000D8020000120B0000120B00000000000000000000FFFFFFFFFFFF
@@ -180,21 +217,25 @@ object ConfigForm: TConfigForm
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
         TabOrder = 2
         OnClick = favouritesBitBtnClick
+        ExplicitLeft = 351
       end
       object cbAvailableModules: TComboBox
         Left = 3
         Top = 24
-        Width = 425
+        Width = 327
         Height = 21
         Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
         DropDownCount = 10
         TabOrder = 3
+        ExplicitWidth = 425
       end
       object bbtnDelete: TBitBtn
-        Left = 434
-        Top = 160
+        Left = 336
+        Top = 111
         Width = 28
         Height = 24
+        Anchors = [akTop, akRight]
         Glyph.Data = {
           CA020000424DCA02000000000000420000002800000012000000120000000100
           10000300000088020000120B0000120B00000000000000000000007C0000E003
@@ -221,12 +262,14 @@ object ConfigForm: TConfigForm
           2961296129612961B572DE7FFF7F}
         TabOrder = 4
         OnClick = favouritesBitBtnClick
+        ExplicitLeft = 351
       end
       object btnAddHotModule: TBitBtn
-        Left = 434
+        Left = 336
         Top = 23
         Width = 28
         Height = 24
+        Anchors = [akTop, akRight]
         Glyph.Data = {
           CA020000424DCA02000000000000420000002800000012000000120000000100
           10000300000088020000120B0000120B00000000000000000000007C0000E003
@@ -253,11 +296,29 @@ object ConfigForm: TConfigForm
           FF7FFF7FFF7FFF7FFF7FFF7FFF7F}
         TabOrder = 5
         OnClick = btnAddHotModuleClick
+        ExplicitLeft = 434
+      end
+      object cbDefaultBible: TComboBox
+        Left = 3
+        Top = 295
+        Width = 327
+        Height = 21
+        Style = csDropDownList
+        Anchors = [akLeft, akRight, akBottom]
+        DropDownCount = 10
+        TabOrder = 6
+        ExplicitTop = 260
+        ExplicitWidth = 336
       end
     end
     object tsOtherOptions: TTabSheet
       Caption = 'tsOtherOptions'
       ImageIndex = 2
+      ExplicitWidth = 467
+      ExplicitHeight = 277
+      DesignSize = (
+        370
+        329)
       object lblSelectSecondPath: TLabel
         Left = 8
         Top = 8
@@ -268,16 +329,19 @@ object ConfigForm: TConfigForm
       object edtSelectPath: TEdit
         Left = 8
         Top = 32
-        Width = 313
+        Width = 308
         Height = 21
+        Anchors = [akLeft, akTop, akRight]
         Enabled = False
         TabOrder = 0
+        ExplicitWidth = 313
       end
       object btnSelectPath: TButton
-        Left = 322
+        Left = 317
         Top = 32
         Width = 25
         Height = 21
+        Anchors = [akTop, akRight]
         Caption = '...'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -287,12 +351,14 @@ object ConfigForm: TConfigForm
         ParentFont = False
         TabOrder = 1
         OnClick = btnSelectPathClick
+        ExplicitLeft = 322
       end
       object btnDeletePath: TButton
-        Left = 346
+        Left = 341
         Top = 32
         Width = 25
         Height = 21
+        Anchors = [akTop, akRight]
         Caption = 'x'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -302,14 +368,17 @@ object ConfigForm: TConfigForm
         ParentFont = False
         TabOrder = 2
         OnClick = btnDeletePathClick
+        ExplicitLeft = 346
       end
       object chkMinimizeToTray: TCheckBox
         Left = 8
         Top = 70
-        Width = 449
-        Height = 17
+        Width = 447
+        Height = 20
+        Anchors = [akLeft, akTop, akRight]
         Caption = 'chkMinimizeToTray'
         TabOrder = 3
+        ExplicitWidth = 449
       end
       object rgHotKeyChoice: TRadioGroup
         Left = 26
@@ -326,37 +395,47 @@ object ConfigForm: TConfigForm
       object chkFullContextOnRestrictedLinks: TCheckBox
         Left = 8
         Top = 193
-        Width = 210
+        Width = 359
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = 'Full context on restricted links'
         TabOrder = 5
+        ExplicitWidth = 361
       end
       object chkHighlightVerseHits: TCheckBox
         Left = 8
         Top = 218
-        Width = 210
+        Width = 359
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = 'Highlight verse hits'
         TabOrder = 6
+        ExplicitWidth = 361
       end
     end
   end
   object btnOK: TButton
-    Left = 251
-    Top = 311
+    Left = 155
+    Top = 363
     Width = 105
     Height = 25
+    Anchors = [akRight, akBottom]
     Caption = 'btnOK'
     TabOrder = 1
     OnClick = btnOKClick
+    ExplicitLeft = 251
+    ExplicitTop = 335
   end
   object btnCancel: TButton
-    Left = 362
-    Top = 312
+    Left = 266
+    Top = 363
     Width = 105
     Height = 25
+    Anchors = [akRight, akBottom]
     Caption = 'btnCancel'
     TabOrder = 2
     OnClick = btnCancelClick
+    ExplicitLeft = 362
+    ExplicitTop = 335
   end
 end

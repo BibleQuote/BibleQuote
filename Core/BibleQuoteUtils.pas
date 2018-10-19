@@ -1678,8 +1678,7 @@ begin
       repeat
         result := TModuleEntry(Items[foundIx]);
         inc(foundIx);
-      until (foundIx > c) or (OmegaCompareTxt(result.mFullName, modName, -1,
-        true) <> 0) or (result.mShortName <> modShortName); // until
+      until (foundIx > c) or (OmegaCompareTxt(result.mFullName, modName, -1, true) <> 0) or (result.mShortName <> modShortName); // until
 
       result := TModuleEntry(Items[foundIx - 1]);
     except

@@ -37,6 +37,8 @@ type
     btnAddHotModule: TBitBtn;
     chkFullContextOnRestrictedLinks: TCheckBox;
     chkHighlightVerseHits: TCheckBox;
+    lblDefaultBible: TLabel;
+    cbDefaultBible: TComboBox;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure btnOKClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);

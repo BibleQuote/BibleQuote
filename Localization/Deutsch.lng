@@ -314,6 +314,7 @@ ConfigForm.chkHighlightVerseHits.Caption = Vers Hits markieren
 ConfigForm.chkMinimizeToTray.Caption = Zum Tray minimieren
 ConfigForm.chkMinimizeToTray.Hint = Ein Icon erscheint neben der Systemuhr
 ConfigForm.lblAvailableModules.Caption = Verfügbare Module
+ConfigForm.lblDefaultBible.Caption = Default Bible (t)
 ConfigForm.lblFavourites.Caption = Lieblingsmodule
 ConfigForm.lblSelectSecondPath.Caption = Zusätzlicher Pfad für Module
 ConfigForm.rgHotKeyChoice.Caption = Hot-Key-Kombination

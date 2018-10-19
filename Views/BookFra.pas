@@ -555,10 +555,11 @@ begin
   else
   begin
     modIx := mMainView.mModules.FindByName(BookTabInfo.SatelliteName);
+    if modIx < 0 then
+      modIx := mMainView.mModules.FindByName(mMainView.DefaultBibleName);
+
     if modIx >= 0 then
-    begin
       replaceModPath := mMainView.mModules[modIx].mShortPath;
-    end;
   end;
   status := PreProcessAutoCommand(BookTabInfo, unicodeSRC, replaceModPath, ConcreteCmd);
   if status > -2 then

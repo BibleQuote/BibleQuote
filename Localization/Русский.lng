@@ -313,6 +313,7 @@ ConfigForm.chkHighlightVerseHits.Caption = Выделять выбранный �
 ConfigForm.chkMinimizeToTray.Caption = Сворачивать в трей при минимизировании окна
 ConfigForm.chkMinimizeToTray.Hint = Возле системных часов будет создана иконка
 ConfigForm.lblAvailableModules.Caption = Доступные модули
+ConfigForm.lblDefaultBible.Caption = Библия по-умолчанию
 ConfigForm.lblFavourites.Caption = Избранное
 ConfigForm.lblSelectSecondPath.Caption = Дополнительный путь к модулям
 ConfigForm.rgHotKeyChoice.Caption = Комбинация клавиш
