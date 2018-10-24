@@ -78,6 +78,7 @@ TabLibrary = Library (t)
 TabMemos = Memos (t)
 TabBookmarks = Էջանշաններ
 TabSearch = Search (t)
+TabTSK = TSK (t)
 
 DeleteBookmarkTextPrompt = Delete bookmark? (t)
 DeleteBookmarkTitle = Confirm deletion (t)
