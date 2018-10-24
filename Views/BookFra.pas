@@ -379,7 +379,7 @@ end;
 
 procedure TBookFrame.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
-  first: integer;
+  first, verse: integer;
   scode, unicodeSRC: string;
   cb: THTMLViewer;
   lr: Boolean;
@@ -447,38 +447,30 @@ begin
   end
   else if Pos('verse ', unicodeSRC) = 1 then
   begin
-    mMainView.tbXRef.tag := StrToInt(Copy(unicodeSRC, 7, Length(unicodeSRC) - 6));
-    mMainView.tbComments.tag := mMainView.tbXRef.tag;
+    verse := StrToInt(Copy(unicodeSRC, 7, Length(unicodeSRC) - 6));
+    mMainView.tbComments.tag := verse;
 
     if Assigned(BookTabInfo) then
     begin
     with BookTabInfo.Bible do
       HistoryAdd(Format('go %s %d %d %d %d $$$%s %s',
-        [ShortPath, CurBook, CurChapter, mMainView.tbXRef.tag, 0,
+        [ShortPath, CurBook, CurChapter, verse, 0,
         // history comment
-        FullPassageSignature(CurBook, CurChapter, mMainView.tbXRef.tag, 0), ShortName]));
+        FullPassageSignature(CurBook, CurChapter, verse, 0), ShortName]));
     end;
 
     if iscontrolDown or (mMainView.pgcMain.Visible and (mMainView.pgcMain.ActivePage = mMainView.tbComments))
     then
-      mMainView.ShowComments
-    else
-    begin
-      try
-        mMainView.ShowXref;
-      finally
-        mMainView.ShowComments;
-      end;
-    end;
+      mMainView.ShowComments;
 
     if not mMainView.pgcMain.Visible then
       mMainView.tbtnToggle.Click;
-    if ((mMainView.pgcMain.ActivePage <> mMainView.tbXRef) or iscontrolDown) and
-      (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
-      if iscontrolDown then
-        mMainView.pgcMain.ActivePage := mMainView.tbComments
-      else
-        mMainView.pgcMain.ActivePage := mMainView.tbXRef;
+
+    if (iscontrolDown) and (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
+       mMainView.pgcMain.ActivePage := mMainView.tbComments;
+
+    // TODO: open tsk tab
+    mMainView.OpenOrCreateTSKTab(BookTabInfo);
   end
   else if Pos('s', unicodeSRC) = 1 then
   begin
@@ -494,7 +486,8 @@ begin
     if Pos('BQNote', cb.LinkAttributes.Text) > 0 then
     begin
       Handled := true;
-      mMainView.bwrXRef.CharSet := BookTabInfo.Bible.desiredCharset;
+      // TODO: change charset of tsk tab. Why?
+      //mMainView.bwrXRef.CharSet := BookTabInfo.Bible.desiredCharset;
       try
         if EndsStr('??', cb.Base) then
         begin
@@ -665,7 +658,7 @@ end;
 
 procedure TBookFrame.bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
-  oxt, oct: integer;
+  verse: integer;
 begin
   if BookTabInfo.LocationType = vtlFile then
     Exit;
@@ -714,21 +707,20 @@ begin
 
   if Key = VK_SPACE then
   begin
-    oxt := mMainView.tbXRef.tag;
-    oct := mMainView.tbComments.tag;
-    mMainView.tbXRef.tag := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, mMainView.CurFromVerse, bwrHtml.FindSourcePos(bwrHtml.CaretPos, true));
-    mMainView.tbComments.tag := mMainView.tbXRef.tag;
-    if (mMainView.pgcMain.ActivePage = mMainView.tbXRef) and (oxt <> mMainView.tbXRef.tag) then
-    begin
-      mMainView.ShowXref;
-      Exit
+    verse := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, mMainView.CurFromVerse, bwrHtml.FindSourcePos(bwrHtml.CaretPos, true));
+    mMainView.tbComments.tag := verse;
 
-    end;
+    // TODO: open tsk tab
+//    if (mMainView.pgcMain.ActivePage = mMainView.tbXRef) and (oxt <> mMainView.tbXRef.tag) then
+//    begin
+//      mMainView.ShowXref;
+//      Exit;
+//    end;
 
-    if (mMainView.pgcMain.ActivePage = mMainView.tbComments) and (oct <> mMainView.tbComments.tag) then
+    if (mMainView.pgcMain.ActivePage = mMainView.tbComments) and (verse <> mMainView.tbComments.tag) then
     begin
       mMainView.ShowComments;
-      Exit
+      Exit;
     end;
   end;
 end;
@@ -2982,14 +2974,15 @@ begin
     Exit;
   end;
 
-  ws := Format('%s '#13#10'<a href="bqnavMw:bqResLnk%s">%s</a><br><hr align=left width=80%%>', [ws, id, psg]);
-
-  doc := mMainView.bwrXRef.DocumentSource;
-  mMainView.bwrXRef.LoadFromString(doc + ws);
-  if mMainView.pgcMain.ActivePage <> mMainView.tbXRef then
-    mMainView.pgcMain.ActivePage := mMainView.tbXRef;
-
-  mMainView.bwrXRef.Position := mMainView.bwrXRef.MaxVertical;
+// TODO: to figure it out
+//  ws := Format('%s '#13#10'<a href="bqnavMw:bqResLnk%s">%s</a><br><hr align=left width=80%%>', [ws, id, psg]);
+//
+//  doc := mMainView.bwrXRef.DocumentSource;
+//  mMainView.bwrXRef.LoadFromString(doc + ws);
+//  if mMainView.pgcMain.ActivePage <> mMainView.tbXRef then
+//    mMainView.pgcMain.ActivePage := mMainView.tbXRef;
+//
+//  mMainView.bwrXRef.Position := mMainView.bwrXRef.MaxVertical;
 end;
 
 function TBookFrame.GetAutoTxt(const cmd: string; maxWords: integer; out fnt: string; out passageSignature: string): string;

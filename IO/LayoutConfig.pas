@@ -55,6 +55,9 @@ type
     property HistoryIndex: integer read FHistoryIndex write FHistoryIndex;
   end;
 
+  TTSKTabSettings = class(TTabSettings)
+  end;
+
   TTabsViewSettings = class
   private
     FBookTabs: TList<TBookTabSettings>;
@@ -62,6 +65,7 @@ type
     FLibraryTabs: TList<TLibraryTabSettings>;
     FBookmarksTabs: TList<TBookmarksTabSettings>;
     FSearchTabs: TList<TSearchTabSettings>;
+    FTSKTabs: TList<TTSKTabSettings>;
 
     FActive: boolean;
     FViewName: string;
@@ -74,6 +78,7 @@ type
     property LibraryTabs: TList<TLibraryTabSettings> read FLibraryTabs write FLibraryTabs;
     property BookmarksTabs: TList<TBookmarksTabSettings> read FBookmarksTabs write FBookmarksTabs;
     property SearchTabs: TList<TSearchTabSettings> read FSearchTabs write FSearchTabs;
+    property TSKTabs: TList<TTSKTabSettings> read FTSKTabs write FTSKTabs;
 
     property Active: boolean read FActive write FActive;
     property ViewName: string read FViewName write FViewName;
@@ -116,6 +121,7 @@ begin
   LibraryTabs := TList<TLibraryTabSettings>.Create();
   BookmarksTabs := TList<TBookmarksTabSettings>.Create();
   SearchTabs := TList<TSearchTabSettings>.Create();
+  TSKTabs := TList<TTSKTabSettings>.Create();
 
   Active := false;
 end;
@@ -136,6 +142,9 @@ begin
 
   if (tabSettings is TSearchTabSettings) then
     SearchTabs.Add(TSearchTabSettings(tabSettings));
+
+  if (tabSettings is TTSKTabSettings) then
+    TSKTabs.Add(TTSKTabSettings(tabSettings));
 end;
 
 function TTabsViewSettings.GetOrderedTabSettings(): TList<TTabSettings>;
@@ -144,7 +153,7 @@ var
   tabs: TList<TTabSettings>;
   tab: TTabSettings;
 begin
-  count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count + BookmarksTabs.Count + SearchTabs.Count;
+  count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count + BookmarksTabs.Count + SearchTabs.Count + TSKTabs.Count;
   tabs := TList<TTabSettings>.Create;
   tabs.Count := count;
 
@@ -169,6 +178,11 @@ begin
   end;
 
   for tab in SearchTabs do
+  begin
+    tabs[tab.Index] := tab;
+  end;
+
+  for tab in TSKTabs do
   begin
     tabs[tab.Index] := tab;
   end;

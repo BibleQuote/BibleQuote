@@ -14,7 +14,8 @@ type
     vttMemo,
     vttLibrary,
     vttBookmarks,
-    vttSearch);
+    vttSearch,
+    vttTSK);
 
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
@@ -39,6 +40,10 @@ type
 
   ISearchView = interface(ITabView)
   ['{FA56F7B8-1976-4A01-A041-3D4A91C53B8A}']
+  end;
+
+  ITSKView = interface(ITabView)
+  ['{4FDFF734-6243-4A50-A867-9DA7F27C5A50}']
   end;
 
   ITabsView = interface; // forward declaration
@@ -240,6 +245,14 @@ type
     constructor Create(settings: TSearchTabSettings); overload;
   end;
 
+  TTSKTabInfo = class(TInterfacedObject, IViewTabInfo)
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+  end;
+
   TViewTabDragObject = class(TDragObjectEx)
   protected
     mViewTabInfo: TBookTabInfo;
@@ -261,6 +274,7 @@ type
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
     function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
     function AddSearchTab(newTabInfo: TSearchTabInfo): TChromeTab;
+    function AddTSKTab(newTabInfo: TTSKTabInfo): TChromeTab;
 
     procedure MakeActive();
 
@@ -271,6 +285,7 @@ type
     function GetLibraryView: ILibraryView;
     function GetBookmarksView: IBookmarksView;
     function GetSearchView: ISearchView;
+    function GetTSKView: ITSKView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -289,6 +304,7 @@ type
     property LibraryView: ILibraryView read GetLibraryView;
     property SearchView: ISearchView read GetSearchView;
     property BookmarksView: IBookmarksView read GetBookmarksView;
+    property TSKView: ITSKView read GetTSKView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
     property UpdateOnTabChange: boolean read GetUpdateOnTabChange write SetUpdateOnTabChange;
@@ -656,6 +672,33 @@ begin
     FreeAndNil(mslSearchBooksCache);
 
   inherited;
+end;
+
+{ TTSKTabInfo }
+
+function TTSKTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabTSK', 'TSK');
+end;
+
+function TTSKTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttTSK;
+end;
+
+function TTSKTabInfo.GetSettings(): TTabSettings;
+begin
+  Result := TTSKTabSettings.Create;
+end;
+
+procedure TTSKTabInfo.SaveState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+procedure TTSKTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+// nothing to save
 end;
 
 { TViewTabDragObject }

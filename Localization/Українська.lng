@@ -77,6 +77,7 @@ TabLibrary = Библиотека (t)
 TabMemos = Личные заметки (t)
 TabBookmarks = Закладки (t)
 TabSearch = Поиск (t)
+TabTSK = TSK (t)
 
 DeleteBookmarkTextPrompt = Удалить закладку? (t)
 DeleteBookmarkTitle = Подтвердите удаление (t)

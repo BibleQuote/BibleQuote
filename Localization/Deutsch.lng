@@ -78,6 +78,7 @@ TabLibrary = Meine Bibliothek
 TabMemos = Notizen
 TabBookmarks = Lesezeichen
 TabSearch = Search (t)
+TabTSK = TSK (t)
 
 DeleteBookmarkTextPrompt = Delete bookmark? (t)
 DeleteBookmarkTitle = Confirm deletion (t)
