@@ -221,6 +221,7 @@ type
   private
     mSearchText, mSearchInfo: string;
     mAnyWord, mPhrase, mExactPhrase, mParts, mMatchCase: boolean;
+    mSelectedBook: string;
 
     mSearchState: TSearchTabState;
     mBookPath: string;
@@ -232,6 +233,7 @@ type
     property ExactPhrase: boolean read mExactPhrase write mExactPhrase;
     property Parts: boolean read mParts write mParts;
     property MatchCase: boolean read mMatchCase write mMatchCase;
+    property SelectedBook: string read mSelectedBook write mSelectedBook;
 
     property SearchState: TSearchTabState read mSearchState write mSearchState;
 
@@ -595,6 +597,7 @@ begin
     mExactPhrase := chkExactPhrase.Checked;
     mParts := chkParts.Checked;
     mMatchCase := chkCase.Checked;
+    mSelectedBook := cbList.Text;
 
     mSearchState := TSearchTabState.Create(searchFrame.SearchState);
   end;
@@ -603,6 +606,7 @@ end;
 procedure TSearchTabInfo.RestoreState(const tabsView: ITabsView);
 var
   searchFrame: TSearchFrame;
+  idx: integer;
 begin
   searchFrame := tabsView.SearchView as TSearchFrame;
   with searchFrame do
@@ -617,8 +621,18 @@ begin
     chkExactPhrase.Checked := mExactPhrase;
     chkParts.Checked := mParts;
     chkCase.Checked := mMatchCase;
-    
+
     SetCurrentBook(mBookPath);
+
+    for idx := 0 to cbList.Items.Count - 1 do
+    begin
+      if (CompareText(cbList.Items[idx], mSelectedBook) = 0) then
+      begin
+        cbList.ItemIndex := idx;
+        break;
+      end;
+    end;
+
     searchFrame.SearchState := TSearchTabState.Create(mSearchState);
 
     DisplaySearchResults(mSearchState.LastSearchResultsPage);

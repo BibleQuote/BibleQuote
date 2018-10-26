@@ -135,7 +135,7 @@ type
     function GetCurrentHistoryItem(): TMenuItem;
     function GetCurrentHistoryIndex(): integer;
     procedure CheckHistoryItem(itemIndex: integer);
-    procedure NavigateToSearch(searchText: string);
+    procedure NavigateToSearch(searchText: string; bookTypeIndex: integer = -1);
 
     procedure HistoryPopup(Sender: TObject);
 
@@ -469,7 +469,6 @@ begin
     if (iscontrolDown) and (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
        mMainView.pgcMain.ActivePage := mMainView.tbComments;
 
-    // TODO: open tsk tab
     mMainView.OpenOrCreateTSKTab(BookTabInfo);
   end
   else if Pos('s', unicodeSRC) = 1 then
@@ -486,8 +485,6 @@ begin
     if Pos('BQNote', cb.LinkAttributes.Text) > 0 then
     begin
       Handled := true;
-      // TODO: change charset of tsk tab. Why?
-      //mMainView.bwrXRef.CharSet := BookTabInfo.Bible.desiredCharset;
       try
         if EndsStr('??', cb.Base) then
         begin
@@ -708,17 +705,12 @@ begin
   if Key = VK_SPACE then
   begin
     verse := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, mMainView.CurFromVerse, bwrHtml.FindSourcePos(bwrHtml.CaretPos, true));
-    mMainView.tbComments.tag := verse;
 
-    // TODO: open tsk tab
-//    if (mMainView.pgcMain.ActivePage = mMainView.tbXRef) and (oxt <> mMainView.tbXRef.tag) then
-//    begin
-//      mMainView.ShowXref;
-//      Exit;
-//    end;
+    mMainView.OpenOrCreateTSKTab(BookTabInfo, verse);
 
     if (mMainView.pgcMain.ActivePage = mMainView.tbComments) and (verse <> mMainView.tbComments.tag) then
     begin
+      mMainView.tbComments.tag := verse;
       mMainView.ShowComments;
       Exit;
     end;
@@ -1267,7 +1259,7 @@ begin
   NavigateToSearch(bwrHtml.SelText);
 end;
 
-procedure TBookFrame.NavigateToSearch(searchText: string);
+procedure TBookFrame.NavigateToSearch(searchText: string; bookTypeIndex: integer = -1);
 var
   searchFrame: TSearchFrame;
   i: integer;
@@ -1318,9 +1310,14 @@ begin
       mTabsView.UpdateOnTabChange := wasUpdateSet;
     end;
 
-    searchFrame.SetCurrentBook(bookPath);
-    searchFrame.cbSearch.Text := Trim(searchText);
     mTabsView.UpdateCurrentTabContent();
+
+    searchFrame.SetCurrentBook(bookPath);
+    if (bookTypeIndex >= 0) then
+      searchFrame.cbList.ItemIndex := bookTypeIndex;
+
+    searchFrame.cbSearch.Text := Trim(searchText);
+
     searchFrame.btnFindClick(Self);
   end;
 end;
@@ -2974,7 +2971,7 @@ begin
     Exit;
   end;
 
-// TODO: to figure it out
+  // TODO: to figure it out
 //  ws := Format('%s '#13#10'<a href="bqnavMw:bqResLnk%s">%s</a><br><hr align=left width=80%%>', [ws, id, psg]);
 //
 //  doc := mMainView.bwrXRef.DocumentSource;

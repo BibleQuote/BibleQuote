@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
-  MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser;
+  MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser, Clipbrd;
 
 type
   TTSKFrame = class(TFrame, ITSKView)
@@ -19,9 +19,12 @@ type
     procedure miRefCopyClick(Sender: TObject);
     procedure miOpenNewViewClick(Sender: TObject);
     procedure miRefPrintClick(Sender: TObject);
+    procedure pmRefPopup(Sender: TObject);
   private
     mMainView: TMainForm;
     mTabsView: ITabsView;
+
+    mXRefVerseCmd: string;
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
     procedure Translate();
@@ -55,44 +58,57 @@ end;
 
 procedure TTSKFrame.bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 begin
-  // TODO: implement
-//var
-//  bookView: TBookFrame;
-//  ti: TBookTabInfo;
-//  wsrc, satBible: string;
-//begin
-//  bookView := GetBookView(self);
-//  wsrc := SRC;
-//  if IsDown(VK_MENU) then
-//  begin
-//    ti := bookView.BookTabInfo;
-//    if Assigned(ti) then
-//      satBible := ti.SatelliteName
-//    else
-//      satBible := '------';
-//
-//    NewBookTab(wsrc, satBible, ti.State, '', true)
-//
-//  end
-//  else
-//    bookView.ProcessCommand(bookView.BookTabInfo, wsrc, hlDefault);
-//
-//  Handled := true;
+  if IsDown(VK_MENU) then
+    mMainView.NewBookTab(SRC, '------', mMainView.DefaultBookTabState, '', true)
+  else
+    mMainView.OpenOrCreateBookTab(SRC, '------', mMainView.DefaultBookTabState);
+
+  Handled := true;
 end;
 
 procedure TTSKFrame.miOpenNewViewClick(Sender: TObject);
+var
+  command: string;
 begin
-// TODO: implement
+  command := Trim(mXRefVerseCmd);
+  if Length(command) <= 0 then
+    Exit;
+
+  mMainView.NewBookTab(command, '------', mMainView.DefaultBookTabState, '', true);
 end;
 
 procedure TTSKFrame.miRefCopyClick(Sender: TObject);
+var
+  trCount: integer;
 begin
-// TODO: implement
+  trCount := 7;
+  repeat
+    try
+      if not(mMainView.CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+        Clipboard.AsText := (pmRef.PopupComponent as THTMLViewer).SelText
+      else
+        (pmRef.PopupComponent as THTMLViewer).CopyToClipboard();
+      trCount := 0;
+    except
+      Dec(trCount);
+      sleep(100);
+    end;
+  until trCount <= 0;
 end;
 
 procedure TTSKFrame.miRefPrintClick(Sender: TObject);
 begin
-// TODO: implement
+  with mMainView.PrintDialog do
+    if Execute then
+      (pmRef.PopupComponent as THTMLViewer).Print(MinPage, MaxPage)
+end;
+
+procedure TTSKFrame.pmRefPopup(Sender: TObject);
+begin
+  miOpenNewView.Visible := true;
+  mXRefVerseCmd := Get_AHREF_VerseCommand(
+    bwrXRef.DocumentSource,
+    bwrXRef.SectionList.FindSourcePos(bwrXRef.RightMouseClickPos));
 end;
 
 procedure TTSKFrame.ShowXref(bookTabInfo: TBookTabInfo; goverse: integer = 0);
@@ -235,6 +251,7 @@ end;
 
 procedure TTSKFrame.Translate();
 begin
+  Lang.TranslateControl(self, 'MainForm');
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
