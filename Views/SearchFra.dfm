@@ -12,7 +12,6 @@ object SearchFrame: TSearchFrame
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = -6
     DesignSize = (
       349
       220)
@@ -165,6 +164,7 @@ object SearchFrame: TSearchFrame
     Height = 198
     TabOrder = 1
     Align = alClient
+    PopupMenu = pmRef
     BorderStyle = htSingle
     CharSet = RUSSIAN_CHARSET
     DefFontName = 'Times New Roman'
@@ -188,7 +188,7 @@ object SearchFrame: TSearchFrame
     Left = 264
     Top = 144
     Bitmap = {
-      494C0101010008001C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010101000800200018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -491,5 +491,23 @@ object SearchFrame: TSearchFrame
       800001000000000000000000FFFFFF000000000000000000FFFFFF0000000000
       00000000FFFFFF00000000000000000000000000000000000000000000000000
       000000000000}
+  end
+  object pmRef: TPopupMenu
+    AutoHotkeys = maManual
+    OnPopup = pmRefPopup
+    Left = 292
+    Top = 165
+    object miRefCopy: TMenuItem
+      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
+      OnClick = miRefCopyClick
+    end
+    object miOpenNewView: TMenuItem
+      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1074' '#1085#1086#1074#1086#1081' '#1074#1082#1083#1072#1076#1082#1077
+      OnClick = miOpenNewViewClick
+    end
+    object miRefPrint: TMenuItem
+      Caption = #1055#1077#1095#1072#1090#1072#1090#1100
+      OnClick = miRefPrintClick
+    end
   end
 end

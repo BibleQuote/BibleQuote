@@ -11,6 +11,7 @@ object TSKFrame: TTSKFrame
     Height = 240
     TabOrder = 0
     Align = alClient
+    PopupMenu = pmRef
     BorderStyle = htSingle
     CharSet = RUSSIAN_CHARSET
     DefFontName = 'Times New Roman'
@@ -24,12 +25,10 @@ object TSKFrame: TTSKFrame
     PrintMarginTop = 2.000000000000000000
     PrintScale = 1.000000000000000000
     OnHotSpotClick = bwrXRefHotSpotClick
-    ExplicitTop = -31
-    ExplicitWidth = 282
-    ExplicitHeight = 271
   end
   object pmRef: TPopupMenu
     AutoHotkeys = maManual
+    OnPopup = pmRefPopup
     Left = 292
     Top = 165
     object miRefCopy: TMenuItem

@@ -496,7 +496,7 @@ type
       history: TStrings = nil;
       historyIndex: integer = -1): Boolean;
 
-    procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo);
+    procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
@@ -3836,14 +3836,15 @@ begin
 end;
 
 procedure TMainForm.miXrefClick(Sender: TObject);
+var
+  bookView: TBookFrame;
+  bookTabInfo: TBookTabInfo;
 begin
-  if not pgcMain.Visible then
-    tbtnToggle.Click;
+  bookView := GetBookView(self);
+  bookTabInfo := bookView.BookTabInfo;
 
-  // TODO: go to tsk tab
-  //tbXRef.tag := 1;
-  //pgcMain.ActivePage := tbXRef;
-  //ShowXref;
+  if Assigned(bookTabInfo) then
+    OpenOrCreateTSKTab(bookTabInfo, 1);
 end;
 
 function CustomControlAtPos(
@@ -6456,7 +6457,7 @@ begin
   pgcMain.ActivePage := tbDic;
 end;
 
-procedure TMainForm.OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo);
+procedure TMainForm.OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
 var
   i: integer;
   tabInfo: IViewTabInfo;
@@ -6490,7 +6491,7 @@ begin
   end;
 
   tskView := mTabsView.TSKView as TTSKFrame;
-  tskView.ShowXref(bookTabInfo);
+  tskView.ShowXref(bookTabInfo, goverse);
 
   mTabsView.UpdateCurrentTabContent;
 end;
@@ -6989,8 +6990,6 @@ begin
     end;
 
     try
-      // TODO: why go to tsk?
-      //ShowXref;
       ShowComments;
     finally
       // do nothing
@@ -7239,34 +7238,45 @@ end;
 procedure TMainForm.pnlFindStrongNumberClick(Sender: TObject);
 var
   bible: TBible;
+  bookFrame: TBookFrame;
+  bookTabInfo: TBookTabInfo;
+  newTabInfo: TSearchTabInfo;
+  searchText: string;
+  bookTypeIndex: integer;
 begin
   if lbStrong.ItemIndex < 0 then
     Exit;
 
-// TODO: search all occurrences of the strong number
-//  pgcMain.ActivePage := tbSearch;
-//  cbSearch.Text := lbStrong.Items[lbStrong.ItemIndex];
-//
-//  bible := GetBookView(self).BookTabInfo.Bible;
-//  if bible.StrongsPrefixed then
-//    cbList.ItemIndex := 0 // full book
-//  else
-//  begin
-//    if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'H' then
-//      cbSearch.Text := '0' + Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
-//    else if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'G' then
-//      cbSearch.Text := Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
-//    else
-//      cbSearch.Text := lbStrong.Items[lbStrong.ItemIndex];
-//
-//    if Copy(cbSearch.Text, 1, 1) = '0' then
-//      cbList.ItemIndex := 1 // old testament
-//    else
-//      cbList.ItemIndex := 2; // new testament
-//  end;
-//
-//  chkParts.Checked := true;
-//  btnFind.Click;
+  bookTypeIndex := -1;
+
+  bookFrame := GetBookView(self);
+  if Assigned(bookFrame.BookTabInfo) then
+  begin
+    searchText := lbStrong.Items[lbStrong.ItemIndex];
+    bookTabInfo := GetBookView(self).BookTabInfo;
+    if Assigned(bookTabInfo) then
+    begin
+      bible := bookTabInfo.Bible;
+      if bible.StrongsPrefixed then
+        bookTypeIndex := 0 // full book
+      else
+      begin
+        if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'H' then
+          searchText := '0' + Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
+        else if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'G' then
+          searchText := Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
+        else
+          searchText := lbStrong.Items[lbStrong.ItemIndex];
+
+        if Copy(searchText, 1, 1) = '0' then
+          bookTypeIndex := 1 // old testament
+        else
+          bookTypeIndex := 2; // new testament
+      end;
+
+      bookFrame.NavigateToSearch(searchText, bookTypeIndex);
+    end;
+  end;
 end;
 
 procedure TMainForm.miCopyOptionsClick(Sender: TObject);
@@ -7654,22 +7664,7 @@ end;
 
 procedure TMainForm.pmRefPopup(Sender: TObject);
 begin
-// TODO: figure out this
-//  if (pgcMain.ActivePage = tbXRef) then
-//  begin
-//    miOpenNewView.Visible := true;
-//    G_XRefVerseCmd := Get_AHREF_VerseCommand(
-//      bwrXRef.DocumentSource,
-//      bwrXRef.SectionList.FindSourcePos(bwrXRef.RightMouseClickPos));
-//  end
-//  else if (pgcMain.ActivePage = tbSearch) then
-//  begin
-//    miOpenNewView.Visible := true;
-//    G_XRefVerseCmd := Get_AHREF_VerseCommand(
-//      bwrSearch.DocumentSource,
-//      bwrSearch.SectionList.FindSourcePos(bwrSearch.RightMouseClickPos));
-//  end
-  {else} if (pgcMain.ActivePage = tbDic) then
+  if (pgcMain.ActivePage = tbDic) then
   begin
     miOpenNewView.Visible := true;
     G_XRefVerseCmd := Get_AHREF_VerseCommand(

@@ -7,7 +7,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
   HTMLEmbedInterfaces, Htmlview, Vcl.StdCtrls, Vcl.ExtCtrls, Bible,
   StringProcs, LinksParser, MainFrm, LibraryFra, LayoutConfig, IOUtils,
-  System.ImageList, Vcl.ImgList, LinksParserIntf, HintTools;
+  System.ImageList, Vcl.ImgList, LinksParserIntf, HintTools, Vcl.Menus,
+  Clipbrd;
 
 type
   TSearchFrame = class(TFrame, ISearchView, IBookSearchCallback)
@@ -27,6 +28,10 @@ type
     btnBookSelect: TButton;
     lblBook: TLabel;
     imgList: TImageList;
+    pmRef: TPopupMenu;
+    miRefCopy: TMenuItem;
+    miOpenNewView: TMenuItem;
+    miRefPrint: TMenuItem;
     procedure bwrSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure bwrSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure bwrSearchHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -38,6 +43,10 @@ type
     procedure btnSearchOptionsClick(Sender: TObject);
     procedure cbQtyChange(Sender: TObject);
     procedure btnBookSelectClick(Sender: TObject);
+    procedure pmRefPopup(Sender: TObject);
+    procedure miRefCopyClick(Sender: TObject);
+    procedure miOpenNewViewClick(Sender: TObject);
+    procedure miRefPrintClick(Sender: TObject);
   private
     mMainView: TMainForm;
     mTabsView: ITabsView;
@@ -48,6 +57,8 @@ type
 
     mBookSelectView: TLibraryFrame;
     mBookSelectForm: TForm;
+
+    mSearchCommand: string;
 
     procedure SearchListInit;
     procedure BookSearchComplete(bible: TBible);
@@ -538,6 +549,7 @@ end;
 
 procedure TSearchFrame.Translate();
 begin
+  Lang.TranslateControl(self, 'MainForm');
   Lang.TranslateControl(self, 'DockTabsForm');
 
   if not Assigned(mCurrentBook) then
@@ -554,6 +566,44 @@ begin
   Result := '';
   if Assigned(mCurrentBook) then
     Result := mCurrentBook.ShortPath;
+end;
+
+procedure TSearchFrame.miOpenNewViewClick(Sender: TObject);
+var
+  command: string;
+begin
+  command := Trim(mSearchCommand);
+  if Length(command) <= 0 then
+    Exit;
+
+  mSearchCommand := '';
+  mMainView.NewBookTab(command, '------', mMainView.DefaultBookTabState, '', true);
+end;
+
+procedure TSearchFrame.miRefCopyClick(Sender: TObject);
+var
+  trCount: integer;
+begin
+  trCount := 7;
+  repeat
+    try
+      if not(mMainView.CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+        Clipboard.AsText := (pmRef.PopupComponent as THTMLViewer).SelText
+      else
+        (pmRef.PopupComponent as THTMLViewer).CopyToClipboard();
+      trCount := 0;
+    except
+      Dec(trCount);
+      sleep(100);
+    end;
+  until trCount <= 0;
+end;
+
+procedure TSearchFrame.miRefPrintClick(Sender: TObject);
+begin
+  with mMainView.PrintDialog do
+    if Execute then
+      (pmRef.PopupComponent as THTMLViewer).Print(MinPage, MaxPage)
 end;
 
 procedure TSearchFrame.SetCurrentBook(shortPath: string);
@@ -682,6 +732,14 @@ begin
   end;
 
   Application.ProcessMessages;
+end;
+
+procedure TSearchFrame.pmRefPopup(Sender: TObject);
+begin
+  miOpenNewView.Visible := true;
+  mSearchCommand := Get_AHREF_VerseCommand(
+    bwrSearch.DocumentSource,
+    bwrSearch.SectionList.FindSourcePos(bwrSearch.RightMouseClickPos));
 end;
 
 procedure TSearchFrame.OnSearchComplete(bible: TBible);
