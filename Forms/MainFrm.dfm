@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 14
+  TextHeight = 15
   object splMain: TSplitter
     Left = 290
     Top = 34
@@ -109,7 +109,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 234
         Width = 282
-        Height = 37
+        Height = 36
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -129,6 +129,7 @@ object MainForm: TMainForm
         OnHotSpotClick = bwrDicHotSpotClick
         OnHotSpotCovered = bwrDicHotSpotCovered
         OnMouseDouble = bwrDicMouseDouble
+        ExplicitHeight = 37
       end
       object pnlDic: TPanel
         Left = 0
@@ -147,7 +148,7 @@ object MainForm: TMainForm
           Left = 4
           Top = 5
           Width = 275
-          Height = 22
+          Height = 23
           Hint = 'Select dictionary to search within'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
@@ -159,7 +160,7 @@ object MainForm: TMainForm
           Left = 4
           Top = 31
           Width = 275
-          Height = 22
+          Height = 23
           Hint = 'ent word to search here'
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 1
@@ -209,15 +210,15 @@ object MainForm: TMainForm
         object lblDicFoundSeveral: TLabel
           Left = 9
           Top = 4
-          Width = 168
-          Height = 14
+          Width = 166
+          Height = 15
           Caption = #1085#1072#1081#1076#1077#1085#1086' '#1074' '#1085#1077#1089#1082#1086#1083#1100#1082#1080#1093' '#1089#1083#1086#1074#1072#1088#1103#1093':'
         end
         object cbDic: TComboBox
           Left = 3
           Top = 26
           Width = 276
-          Height = 22
+          Height = 23
           Hint = 'Select dictionary to show entry from'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
@@ -235,7 +236,7 @@ object MainForm: TMainForm
         Left = 3
         Top = 210
         Width = 276
-        Height = 58
+        Height = 57
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -254,6 +255,7 @@ object MainForm: TMainForm
         ScrollBars = ssVertical
         OnHotSpotClick = bwrStrongHotSpotClick
         OnMouseDouble = bwrStrongMouseDouble
+        ExplicitHeight = 58
       end
       object pnlStrong: TPanel
         Left = 0
@@ -283,7 +285,7 @@ object MainForm: TMainForm
           Width = 277
           Height = 144
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 14
+          ItemHeight = 15
           PopupMenu = pmEmpty
           TabOrder = 1
           OnDblClick = lbStrongDblClick
@@ -318,7 +320,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 30
         Width = 282
-        Height = 241
+        Height = 240
         TabOrder = 0
         Align = alClient
         PopupMenu = pmRef
@@ -335,6 +337,7 @@ object MainForm: TMainForm
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrCommentsHotSpotClick
+        ExplicitHeight = 241
       end
       object pnlComments: TPanel
         Left = 0
@@ -351,7 +354,7 @@ object MainForm: TMainForm
           Left = 1
           Top = 3
           Width = 254
-          Height = 22
+          Height = 23
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 25
@@ -426,7 +429,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 52
         Width = 282
-        Height = 219
+        Height = 218
         Cursor = crArrow
         Margins.Left = 0
         Margins.Top = 0
@@ -479,13 +482,14 @@ object MainForm: TMainForm
         OnResize = vdtTagsVersesResize
         OnShowScrollBar = vdtTagsVersesShowScrollBar
         OnStateChange = vdtTagsVersesStateChange
+        ExplicitHeight = 219
         Columns = <>
       end
       object cbTagsFilter: TComboBox
         Left = 0
         Top = 30
         Width = 282
-        Height = 22
+        Height = 23
         Align = alTop
         BevelInner = bvSpace
         BevelOuter = bvSpace
@@ -510,7 +514,7 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 642
       Top = 4
-      Width = 37
+      Width = 38
       Height = 26
       Margins.Right = 7
       Align = alLeft
@@ -524,13 +528,13 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 14
+      ExplicitHeight = 15
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 689
+      Left = 690
       Top = 4
-      Width = 184
+      Width = 183
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -561,6 +565,7 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 2
+      ExplicitHeight = 29
       object tbtnToggle: TToolButton
         Left = 0
         Top = 0
@@ -703,6 +708,7 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
+      ExplicitHeight = 29
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -746,7 +752,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 136
-        Height = 22
+        Height = 23
         Margins.Top = 0
         Margins.Bottom = 0
         Align = alClient
@@ -1144,7 +1150,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010135006800DC0410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800E00410001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -3010,7 +3016,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01011300E801080318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011300E8010C0318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000078000000010020000000000000B4
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

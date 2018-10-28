@@ -56,6 +56,14 @@ type
   end;
 
   TTSKTabSettings = class(TTabSettings)
+  private
+    FLocation: string;
+    FBook, FChapter, FVerse: integer;
+  public
+    property Location: string read FLocation write FLocation;
+    property Book: integer read FBook write FBook;
+    property Chapter: integer read FChapter write FChapter;
+    property Verse: integer read FVerse write FVerse;
   end;
 
   TTabsViewSettings = class
