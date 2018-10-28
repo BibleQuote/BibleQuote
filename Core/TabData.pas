@@ -248,11 +248,19 @@ type
   end;
 
   TTSKTabInfo = class(TInterfacedObject, IViewTabInfo)
+  private
+    mBiblePath: string;
+    mBook, mChapter: integer;
+    mVerse: integer;
+  public
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
+
+    constructor Create(); overload;
+    constructor Create(settings: TTSKTabSettings); overload;
   end;
 
   TViewTabDragObject = class(TDragObjectEx)
@@ -314,7 +322,7 @@ type
 
 implementation
 
-uses BookFra, SearchFra;
+uses BookFra, SearchFra, TSKFra;
 
 constructor TBookTabBrowserState.Create;
 begin
@@ -690,6 +698,26 @@ end;
 
 { TTSKTabInfo }
 
+constructor TTSKTabInfo.Create();
+begin
+  inherited Create();
+
+  mBiblePath := '';
+  mBook := 0;
+  mChapter := 0;
+  mVerse := 0;
+end;
+
+constructor TTSKTabInfo.Create(settings: TTSKTabSettings);
+begin
+  inherited Create();
+
+  mBiblePath := settings.Location;
+  mBook := settings.Book;
+  mChapter := settings.Chapter;
+  mVerse := settings.Verse;
+end;
+
 function TTSKTabInfo.GetCaption(): string;
 begin
   Result := Lang.SayDefault('TabTSK', 'TSK');
@@ -701,18 +729,42 @@ begin
 end;
 
 function TTSKTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TTSKTabSettings;
 begin
-  Result := TTSKTabSettings.Create;
+  tabSettings := TTSKTabSettings.Create;
+
+  tabSettings.Location := mBiblePath;
+  tabSettings.Book := mBook;
+  tabSettings.Chapter := mChapter;
+  tabSettings.Verse := mVerse;
+
+  Result := tabSettings;
 end;
 
 procedure TTSKTabInfo.SaveState(const tabsView: ITabsView);
+var
+  tskFrame: TTSKFrame;
 begin
-// nothing to save
+  tskFrame := tabsView.TSKView as TTSKFrame;
+  with tskFrame do
+  begin
+    mBiblePath := BiblePath;
+    mBook := Book;
+    mChapter := Chapter;
+    mVerse := Verse;
+  end;
 end;
 
 procedure TTSKTabInfo.RestoreState(const tabsView: ITabsView);
+var
+  tskFrame: TTSKFrame;
 begin
-// nothing to save
+  tskFrame := tabsView.TSKView as TTSKFrame;
+  with tskFrame do
+  begin
+    tskFrame.ShowXref(mBiblePath, mBook, mChapter, mVerse);
+  end;
 end;
 
 { TViewTabDragObject }

@@ -1325,7 +1325,7 @@ begin
         end
         else if (tabSettings is TTSKTabSettings) then
         begin
-          mTabsView.AddTSKTab(TTSKTabInfo.Create());
+          mTabsView.AddTSKTab(TTSKTabInfo.Create(TTSKTabSettings(tabSettings)));
           addTabResult := true;
         end;
 
@@ -6464,6 +6464,7 @@ var
   tskTabInfo: TTSKTabInfo;
   wasUpdateSet: boolean;
   tskView: TTSKFrame;
+  iniPath: string;
 begin
   tskTabInfo := nil;
 
@@ -6491,7 +6492,11 @@ begin
   end;
 
   tskView := mTabsView.TSKView as TTSKFrame;
-  tskView.ShowXref(bookTabInfo, goverse);
+  if Assigned(bookTabInfo) then
+  begin
+    iniPath := TPath.Combine(bookTabInfo.Bible.path, 'bibleqt.ini');
+    tskView.ShowXref(iniPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
+  end;
 
   mTabsView.UpdateCurrentTabContent;
 end;

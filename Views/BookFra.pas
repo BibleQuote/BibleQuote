@@ -463,9 +463,6 @@ begin
     then
       mMainView.ShowComments;
 
-    if not mMainView.pgcMain.Visible then
-      mMainView.tbtnToggle.Click;
-
     if (iscontrolDown) and (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
        mMainView.pgcMain.ActivePage := mMainView.tbComments;
 
@@ -496,9 +493,8 @@ begin
         lr := mMainView.LoadAnchor(mMainView.bwrComments, unicodeSRC, cb.CurrentFile, unicodeSRC);
         if lr then
         begin
-          if not mMainView.pgcMain.Visible then
-            mMainView.tbtnToggle.Click;
-          mMainView.pgcMain.ActivePage := mMainView.tbComments;
+          if mMainView.pgcMain.Visible then
+            mMainView.pgcMain.ActivePage := mMainView.tbComments;
         end;
       except
         g_ExceptionContext.Add('src:' + SRC);

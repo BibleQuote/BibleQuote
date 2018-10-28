@@ -25,10 +25,19 @@ type
     mTabsView: ITabsView;
 
     mXRefVerseCmd: string;
+    mBibleIniPath: string;
+    mBook, mChapter: integer;
+    mVerse: integer;
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
+
+    property BiblePath: string read mBibleIniPath write mBibleIniPath;
+    property Book: integer read mBook write mBook;
+    property Chapter: integer read mChapter write mChapter;
+    property Verse: integer read mVerse write mVerse;
+
     procedure Translate();
-    procedure ShowXref(bookTabInfo: TBookTabInfo; goverse: integer = 0);
+    procedure ShowXref(bibleIniPath: string; bookIndex, chapterIndex: integer; goverse: integer = 0);
   end;
 
 implementation
@@ -111,7 +120,7 @@ begin
     bwrXRef.SectionList.FindSourcePos(bwrXRef.RightMouseClickPos));
 end;
 
-procedure TTSKFrame.ShowXref(bookTabInfo: TBookTabInfo; goverse: integer = 0);
+procedure TTSKFrame.ShowXref(bibleIniPath: string; bookIndex, chapterIndex: integer; goverse: integer = 0);
 var
   ti: TMultiLanguage;
   tf: TSearchRec;
@@ -124,13 +133,21 @@ var
   slink: string;
   diff: integer;
   path: string;
-  mainBible, secBible: TBible;
+  mainBible, secondBible: TBible;
 begin
-  if not Assigned(bookTabInfo) then
+  if bibleIniPath = '' then
     Exit;
 
-  mainBible := bookTabInfo.Bible;
-  secBible := bookTabInfo.SecondBible;
+  mainBible := TBible.Create(mMainView);
+  secondBible := TBible.Create(mMainView);
+
+  mBibleIniPath := bibleIniPath;
+  mBook := bookIndex;
+  mChapter := chapterIndex;
+  mVerse := goverse;
+
+  mainBible.inifile := MainFileExists(bibleIniPath);
+  mainBible.OpenChapter(bookIndex, chapterIndex);
 
   if mMainView.mModules.IndexOf(mainBible.Name) = -1 then
     Exit;
@@ -141,7 +158,7 @@ begin
   RefLines := '';
   Links := TStringList.Create;
 
-  secBible.inifile := mainBible.inifile;
+  secondBible.inifile := mainBible.inifile;
 
   mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, goverse, book, chapter, verse);
   s := IntToStr(book);
@@ -160,13 +177,14 @@ begin
   path := TPath.Combine(LibraryDirectory, C_TSKSubDirectory);
   ti.inifile := TPath.Combine(path, tf.Name);
 
-  secBible.OpenChapter(mainBible.CurBook, mainBible.CurChapter);
+  secondBible.OpenChapter(mainBible.CurBook, mainBible.CurChapter);
 
   tmpverse := goverse;
 
-  if tmpverse > secBible.verseCount() then
-    tmpverse := secBible.verseCount();
-  s := secBible[tmpverse - 1];
+  if tmpverse > secondBible.verseCount() then
+    tmpverse := secondBible.verseCount();
+
+  s := secondBible[tmpverse - 1];
   StrDeleteFirstNumber(s);
   s := DeleteStrongNumbers(s);
 
@@ -186,13 +204,13 @@ begin
     // get xrefs
     for i := 0 to Links.Count - 1 do
     begin
-      if not secBible.OpenTSKReference(Links[i], book, chapter, fromverse, toverse) then
+      if not secondBible.OpenTSKReference(Links[i], book, chapter, fromverse, toverse) then
         continue;
 
       diff := toverse - fromverse;
-      secBible.ENG2RUS(book, chapter, fromverse, book, chapter, fromverse);
+      secondBible.ENG2RUS(book, chapter, fromverse, book, chapter, fromverse);
 
-      if not secBible.InternalToReference(book, chapter, fromverse, book, chapter, fromverse) then
+      if not secondBible.InternalToReference(book, chapter, fromverse, book, chapter, fromverse) then
         continue; // if this module doesn't have the link...
 
       toverse := fromverse + diff;
@@ -203,20 +221,20 @@ begin
         toverse := fromverse; // if one verse
 
       try
-        secBible.OpenChapter(book, chapter);
+        secondBible.OpenChapter(book, chapter);
       except
         continue;
       end;
 
-      if fromverse > secBible.verseCount() then
+      if fromverse > secondBible.verseCount() then
         continue;
-      if toverse > secBible.verseCount then
-        toverse := secBible.verseCount;
+      if toverse > secondBible.verseCount then
+        toverse := secondBible.verseCount;
 
       s := '';
       for j := fromverse to toverse do
       begin
-        snew := secBible.Verses[j - 1];
+        snew := secondBible.Verses[j - 1];
         s := s + ' ' + StrDeleteFirstNumber(snew);
         snew := DeleteStrongNumbers(snew);
         s := s + ' ' + snew;
@@ -225,7 +243,7 @@ begin
 
       StrDeleteFirstNumber(s);
       passageSig := Format('<font face="%s">%s</font>',
-        [mMainView.mBrowserDefaultFontName, secBible.ShortPassageSignature(book, chapter, fromverse, toverse)]);
+        [mMainView.mBrowserDefaultFontName, secondBible.ShortPassageSignature(book, chapter, fromverse, toverse)]);
       if toverse = fromverse then
         RefText := RefText +
           Format
