@@ -87,8 +87,6 @@ type
     pnlPage: TPanel;
     pbPreview: TPaintBox;
     pgcMain: TPageControl;
-    tbSearch: TTabSheet;
-    bwrSearch: THTMLViewer;
     tbDic: TTabSheet;
     tbStrong: TTabSheet;
     bwrDic: THTMLViewer;
@@ -99,24 +97,11 @@ type
     pnlStrong: TPanel;
     edtStrong: TEdit;
     lbStrong: TListBox;
-    pnlSearch: TPanel;
-    cbSearch: TComboBox;
-    cbList: TComboBox;
-    btnFind: TButton;
-    chkAll: TCheckBox;
-    chkPhrase: TCheckBox;
-    chkParts: TCheckBox;
-    chkCase: TCheckBox;
-    chkExactPhrase: TCheckBox;
-    tbXRef: TTabSheet;
-    bwrXRef: THTMLViewer;
     pmRef: TPopupMenu;
     miRefCopy: TMenuItem;
     miRefPrint: TMenuItem;
-    cbQty: TComboBox;
     pnlComments: TPanel;
     cbComments: TComboBox;
-    btnSearchOptions: TButton;
     splMain: TSplitter;
     pmEmpty: TPopupMenu;
     cbDicFilter: TComboBox;
@@ -182,7 +167,6 @@ type
     miNewTab: TMenuItem;
     miCloseTab: TMenuItem;
     tbtnLastSeparator: TToolButton;
-    lblSearch: TLabel;
     cbLinks: TComboBox;
     miDeteleBibleTab: TMenuItem;
     tbLinksToolBar: TToolBar;
@@ -219,6 +203,8 @@ type
     tbtnAddMemoTab: TToolButton;
     tbtnAddLibraryTab: TToolButton;
     tbtnAddBookmarksTab: TToolButton;
+    tbtnAddSearchTab: TToolButton;
+    tbtnAddTSKTab: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -228,7 +214,6 @@ type
     procedure OpenButtonClick(Sender: TObject);
     procedure SearchButtonClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure btnFindClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure miExitClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -248,8 +233,6 @@ type
     procedure miPrintPreviewClick(Sender: TObject);
     procedure miStrongClick(Sender: TObject);
 
-    procedure bwrSearchHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-
     procedure FormShow(Sender: TObject);
     procedure cbLinksChange(Sender: TObject);
     procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -262,23 +245,17 @@ type
     procedure tbtnToggleClick(Sender: TObject);
     procedure lbStrongDblClick(Sender: TObject);
     procedure miAboutClick(Sender: TObject);
-    procedure bwrSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure bwrSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure DicLBKeyPress(Sender: TObject; var Key: Char);
     procedure bwrDicMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
     procedure miNotepadClick(Sender: TObject);
     procedure cbCommentsChange(Sender: TObject);
-    procedure btnSearchOptionsClick(Sender: TObject);
-    procedure chkExactPhraseClick(Sender: TObject);
     procedure cbDicChange(Sender: TObject);
     procedure pgcMainChange(Sender: TObject);
     procedure miDicClick(Sender: TObject);
     procedure miCommentsClick(Sender: TObject);
-    procedure cbQtyChange(Sender: TObject);
     procedure miRefFontConfigClick(Sender: TObject);
     procedure miQuickNavClick(Sender: TObject);
     procedure miQuickSearchClick(Sender: TObject);
@@ -322,9 +299,7 @@ type
     procedure pgcMainMouseLeave(Sender: TObject);
     procedure miRecognizeBibleLinksClick(Sender: TObject);
     procedure miVerseHighlightBGClick(Sender: TObject);
-    procedure cbListDropDown(Sender: TObject);
     procedure tbtnDelNodeClick(Sender: TObject);
-    procedure cbSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure vdtTagsVersesCollapsed(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vdtTagsVersesResize(Sender: TObject);
     procedure vdtTagsVersesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -392,16 +367,15 @@ type
     procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
 
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
-    procedure bwrSearchHotSpotCovered(Sender: TObject; const SRC: string);
     procedure miCloseTabClick(Sender: TObject);
     procedure tbtnNewFormClick(Sender: TObject);
 
-    procedure BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);
     procedure BookChangeModule(Sender: TObject);
-    procedure BookSearchComplete(Sender: TObject);
     procedure tbtnAddMemoTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
     procedure tbtnAddBookmarksTabClick(Sender: TObject);
+    procedure tbtnAddSearchTabClick(Sender: TObject);
+    procedure tbtnAddTSKTabClick(Sender: TObject);
   public
     SysHotKey: TSysHotKey;
 
@@ -414,15 +388,12 @@ type
     mDefaultLocation: string;
     mBibleTabsInCtrlKeyDownState: Boolean;
     mHTMLSelection: string;
-    SearchTime: int64;
 
     mIcn: TIcon;
     mFavorites: TFavoriteModules;
     mInterfaceLock: Boolean;
-    mXRefMisUsed: Boolean;
     hint_expanded: integer; // 0 -not set, 1-short , 2-expanded
-    mblSearchBooksDDAltered: Boolean;
-    mslSearchBooksCache: TStringList;
+
     msbPosition: integer;
     mScrollAcc: integer;
     mscrollbarX: integer;
@@ -439,8 +410,6 @@ type
     mModules: TCachedModules;
 
     BrowserPosition: Longint; // this helps PgUp, PgDn to scroll chapters...
-    SearchBrowserPosition: Longint; // list search results pages...
-    SearchPage: integer; // what page we are in
 
     StrongHebrew, StrongGreek: TDict;
     StrongsDir: string;
@@ -451,11 +420,7 @@ type
 
     MainFormInitialized: Boolean; // for only one entrance into .FormShow
 
-    SearchPageSize: integer;
-
     PrintFootNote: Boolean;
-
-    IsSearching: Boolean;
 
     MainFormMaximized: Boolean;
 
@@ -465,11 +430,7 @@ type
     Bookmarks: TBroadcastStringList;
 
     LastAddress: string;
-
-    SearchResults: TStrings;
-    SearchWords: TStrings;
-
-    LastSearchResultsPage: integer; // to show/hide page results (Ctrl-F3)
+    DefaultBibleName: string;
 
     HelpFileName: string;
 
@@ -515,9 +476,7 @@ type
     function CreateNewBibleInstance(): TBible;
 
     procedure UpdateBookView();
-    procedure UpdateMemoView();
-    procedure UpdateLibraryView();
-    procedure UpdateBookmarksView();
+    procedure ClearCopyrights();
 
     procedure SetFirstTabInitialLocation(
       wsCommand, wsSecondaryView: string;
@@ -537,6 +496,7 @@ type
       history: TStrings = nil;
       historyIndex: integer = -1): Boolean;
 
+    procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
@@ -574,12 +534,14 @@ type
     function DicScrollNode(nd: PVirtualNode): Boolean;
     procedure LoadUserMemos();
     function LoadTaggedBookMarks(): Boolean;
-    procedure SearchListInit;
 
     procedure GoPrevChapter;
     procedure GoNextChapter;
 
+    procedure Translate();
     function TranslateInterface(locFile: string): Boolean;
+    function LoadLocalizationFile(locFile: string): boolean;
+    function LoadLocalization(): boolean;
 
     procedure LoadConfiguration;
     procedure SaveConfiguration;
@@ -600,11 +562,8 @@ type
 
     procedure ConvertClipboard;
 
-    procedure DisplaySearchResults(page: integer);
-
     function DictionaryStartup(maxAdd: integer = maxInt): Boolean;
 
-    procedure ShowXref;
     procedure ShowComments;
     procedure ShowSearchTab();
     procedure ShowTagsTab();
@@ -648,7 +607,6 @@ type
     procedure TranslateConfigForm;
     procedure FillLanguageMenu;
     function GetLocalizationDirectory(): string;
-    function ApplyInitialTranslation(): Boolean;
     procedure TranslateControl(form: TWinControl; fname: string = '');
     procedure ShowReferenceInfo();
     procedure GoReference();
@@ -685,8 +643,7 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
   BibleQuoteConfig,
   ExceptionFrm, AboutFrm, ShellAPI,
   StrUtils, CommCtrl, DockTabsFrm,
-
-  HintTools, sevenZipHelper, BookFra,
+  HintTools, sevenZipHelper, BookFra, TSKFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
   EngineInterfaces, StringProcs, LinksParser;
 
@@ -783,7 +740,7 @@ begin
 
     Prepare(ExtractFilePath(Application.ExeName) + 'biblebooks.cfg', Output);
 
-    with bwrSearch do
+    with bwrDic do
     begin
       DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
       DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
@@ -793,51 +750,29 @@ begin
       DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
     end;
 
-    with bwrDic do
-    begin
-      DefFontName := bwrSearch.DefFontName;
-      DefFontSize := bwrSearch.DefFontSize;
-      DefFontColor := bwrSearch.DefFontColor;
-
-      DefBackGround := bwrSearch.DefBackGround;
-      DefHotSpotColor := bwrSearch.DefHotSpotColor;
-    end;
-
     with bwrStrong do
     begin
-      DefFontName := bwrSearch.DefFontName;
-      DefFontSize := bwrSearch.DefFontSize;
-      DefFontColor := bwrSearch.DefFontColor;
+      DefFontName := bwrDic.DefFontName;
+      DefFontSize := bwrDic.DefFontSize;
+      DefFontColor := bwrDic.DefFontColor;
 
-      DefBackGround := bwrSearch.DefBackGround;
-      DefHotSpotColor := bwrSearch.DefHotSpotColor;
+      DefBackGround := bwrDic.DefBackGround;
+      DefHotSpotColor := bwrDic.DefHotSpotColor;
     end;
 
     with bwrComments do
     begin
-      DefFontName := bwrSearch.DefFontName;
-      DefFontSize := bwrSearch.DefFontSize;
-      DefFontColor := bwrSearch.DefFontColor;
+      DefFontName := bwrDic.DefFontName;
+      DefFontSize := bwrDic.DefFontSize;
+      DefFontColor := bwrDic.DefFontColor;
 
-      DefBackGround := bwrSearch.DefBackGround;
-      DefHotSpotColor := bwrSearch.DefHotSpotColor;
-    end;
-
-    with bwrXRef do
-    begin
-      DefFontName := bwrSearch.DefFontName;
-      DefFontSize := bwrSearch.DefFontSize;
-      DefFontColor := bwrSearch.DefFontColor;
-
-      DefBackGround := bwrSearch.DefBackGround;
-      DefHotSpotColor := bwrSearch.DefHotSpotColor;
-
-      // this browser doesn't have underlines...
-      htOptions := htOptions + [htNoLinkUnderline];
+      DefBackGround := bwrDic.DefBackGround;
+      DefHotSpotColor := bwrDic.DefHotSpotColor;
     end;
 
     LastLanguageFile := MainCfgIni.SayDefault('LastLanguageFile', '');
     LastAddress := MainCfgIni.SayDefault('LastAddress', '');
+    DefaultBibleName := MainCfgIni.SayDefault('DefaultBible', '');
     G_SecondPath := MainCfgIni.SayDefault('SecondPath', '');
 
     SatelliteBible := MainCfgIni.SayDefault('SatelliteBible', '');
@@ -862,7 +797,7 @@ begin
         BqShowException(E)
     end;
     LoadUserMemos();
-    mslSearchBooksCache := TStringList.Create();
+
     LoadMru();
 
     // COPYING OPTIONS
@@ -1204,16 +1139,17 @@ var
 begin
   mi := nil;
 
-  mi := TMemIniFile.Create(UserDir + 'mru.lst', TEncoding.UTF8);
-  mi.Clear();
-  try
-
-    WriteLst(cbSearch.Items, cbSearch.Name);
-    WriteLst(mslSearchBooksCache, 'SearchBooks');
-    mi.UpdateFile();
-  finally
-    mi.Free();
-  end;
+  // TODO: Save search requests
+//  mi := TMemIniFile.Create(UserDir + 'mru.lst', TEncoding.UTF8);
+//  mi.Clear();
+//  try
+//
+//    WriteLst(cbSearch.Items, cbSearch.Name);
+//    WriteLst(mslSearchBooksCache, 'SearchBooks');
+//    mi.UpdateFile();
+//  finally
+//    mi.Free();
+//  end;
 
 end;
 
@@ -1254,19 +1190,20 @@ var
 
 begin
   mi := nil;
-  mi := TMemIniFile.Create(UserDir + 'mru.lst', TEncoding.UTF8);
-  sl := TStringList.Create();
-  sectionVals := TStringList.Create();
-  try
-
-    LoadLst(cbSearch.Items, cbSearch.Name);
-    LoadLst(mslSearchBooksCache, 'SearchBooks');
-
-  finally
-    mi.Free();
-    sl.Free();
-    sectionVals.Free();
-  end;
+  // TODO: Load search requests
+//  mi := TMemIniFile.Create(UserDir + 'mru.lst', TEncoding.UTF8);
+//  sl := TStringList.Create();
+//  sectionVals := TStringList.Create();
+//  try
+//
+//    LoadLst(cbSearch.Items, cbSearch.Name);
+//    LoadLst(mslSearchBooksCache, 'SearchBooks');
+//
+//  finally
+//    mi.Free();
+//    sl.Free();
+//    sectionVals.Free();
+//  end;
 
 end;
 
@@ -1379,6 +1316,16 @@ begin
         else if (tabSettings is TBookmarksTabSettings) then
         begin
           mTabsView.AddBookmarksTab(TBookmarksTabInfo.Create());
+          addTabResult := true;
+        end
+        else if (tabSettings is TSearchTabSettings) then
+        begin
+          mTabsView.AddSearchTab(TSearchTabInfo.Create(TSearchTabSettings(tabSettings)));
+          addTabResult := true;
+        end
+        else if (tabSettings is TTSKTabSettings) then
+        begin
+          mTabsView.AddTSKTab(TTSKTabInfo.Create(TTSKTabSettings(tabSettings)));
           addTabResult := true;
         end;
 
@@ -1601,16 +1548,16 @@ begin
     if (g_VerseBkHlColor <> Color2Hex(clHighlight)) then
       ini.Learn('VerseBkHLColor', g_VerseBkHlColor);
 
-    ini.Learn('RefFontName', bwrSearch.DefFontName);
-    ini.Learn('RefFontSize', IntToStr(bwrSearch.DefFontSize));
+    ini.Learn('RefFontName', bwrDic.DefFontName);
+    ini.Learn('RefFontSize', IntToStr(bwrDic.DefFontSize));
 
     ini.Learn('LibFormWidth', LibFormWidth);
     ini.Learn('LibFormHeight', LibFormHeight);
     ini.Learn('LibFormTop', LibFormTop);
     ini.Learn('LibFormLeft', LibFormLeft);
 
-    if (Color2Hex(bwrSearch.DefFontColor) <> Color2Hex(clWindowText)) then
-      ini.Learn('RefFontColor', Color2Hex(bwrSearch.DefFontColor));
+    if (Color2Hex(bwrDic.DefFontColor) <> Color2Hex(clWindowText)) then
+      ini.Learn('RefFontColor', Color2Hex(bwrDic.DefFontColor));
 
     if (Color2Hex(mTabsView.Browser.DefBackGround) <> Color2Hex(clWindow)) then
       ini.Learn('DefBackground', Color2Hex(mTabsView.Browser.DefBackGround));
@@ -1649,6 +1596,7 @@ begin
     ini.Learn('LastAddress', LastAddress);
     ini.Learn('LastLanguageFile', LastLanguageFile);
     ini.Learn('SecondPath', G_SecondPath);
+    ini.Learn('DefaultBible', DefaultBibleName);
 
     ini.Learn('MainFormFontName', MainForm.Font.Name);
     ini.Learn('MainFormFontSize', IntToStr(MainForm.Font.Size));
@@ -1716,7 +1664,6 @@ begin
 
       tabCount := tabsView.ChromeTabs.Tabs.Count;
 
-      activeTabInfo := mTabsView.GetActiveTabInfo();
       if (tabsView = mTabsView) then
         tabsViewSettings.Active := true;
 
@@ -1730,13 +1677,14 @@ begin
         tabsViewSettings.Height := tabsForm.Height;
       end;
 
+      activeTabInfo := tabsView.GetActiveTabInfo();
       for i := 0 to tabCount - 1 do
       begin
         try
           data := tabsView.ChromeTabs.Tabs[i].Data;
           if not Supports(data, IViewTabInfo, tabInfo) then
             continue;
-
+          tabInfo.SaveState(tabsView);
           tabSettings := tabInfo.GetSettings;
 
           if tabInfo = activeTabInfo then
@@ -1804,13 +1752,7 @@ begin
 
   Bookmarks := TBroadcastStringList.Create;
 
-  SearchResults := TStringList.Create;
-  SearchWords := TStringList.Create;
-  LastSearchResultsPage := 1;
-
-  IsSearching := false;
-
-  pgcMain.ActivePage := tbSearch;
+  pgcMain.ActivePage := tbDic;
 
   // LOADING CONFIGURATION
   LoadConfiguration;
@@ -1848,6 +1790,8 @@ begin
 
   FillLanguageMenu();
 
+  LoadLocalization();
+
   MainMenuInit(false);
 
   LoadTabsViews();
@@ -1855,14 +1799,13 @@ begin
 
   StrongsDir := C_StrongsSubDirectory;
   LoadFontFromFolder(TPath.Combine(LibraryDirectory, StrongsDir));
-  mTranslated := ApplyInitialTranslation();
+
+  mTranslated := TranslateInterface(LastLanguageFile);
 
   StrongHebrew := TDict.Create;
   StrongGreek := TDict.Create;
 
   pgcMainChange(self);
-
-  mslSearchBooksCache.Duplicates := dupIgnore;
 
   Application.OnIdle := self.Idle;
   Application.OnActivate := self.OnActivate;
@@ -2063,19 +2006,58 @@ begin
   aButton.Hint := aMenuItem.Caption + ' (' + ShortCutToText(aMenuItem.ShortCut) + ')';
 end;
 
-function TMainForm.TranslateInterface(locFile: string): Boolean;
+function TMainForm.LoadLocalization(): boolean;
 var
-  i: integer;
-  s: string;
-  fnt: TFont;
+  foundmenu: Boolean;
+  i: Integer;
   locDirectory: string;
   locFilePath: string;
-  tabsView: ITabsView;
-  tabsForm: TDockTabsForm;
-  bookView: TBookFrame;
+  loaded: Boolean;
 begin
-  result := false;
+  loaded := false;
 
+  locDirectory := GetLocalizationDirectory();
+  locFilePath := TPath.Combine(locDirectory, LastLanguageFile);
+
+  if (LastLanguageFile <> '') and (TFile.Exists(locFilePath)) then
+    loaded := LoadLocalizationFile(LastLanguageFile);
+
+  if (not loaded) then
+  begin
+    foundmenu := false;
+    for i := 0 to miLanguage.Count - 1 do
+    begin
+      if (miLanguage.Items[i]).Caption = DefaultLanguage then
+      begin
+        foundmenu := true;
+        break;
+      end;
+    end;
+
+    if foundmenu then
+    begin
+      loaded := LoadLocalizationFile(DefaultLanguageFile);
+      LastLanguageFile := DefaultLanguageFile;
+    end;
+
+    if (not loaded) and (miLanguage.Count > 0) then
+    begin
+      LastLanguageFile := miLanguage.Items[miLanguage.Count - 1].Caption + '.lng';
+
+      loaded := LoadLocalizationFile(LastLanguageFile);
+    end;
+
+  end;
+
+  Result := loaded;
+end;
+
+function TMainForm.LoadLocalizationFile(locFile: string): boolean;
+var
+  locDirectory: string;
+  locFilePath: string;
+begin
+  Result := false;
   locDirectory := GetLocalizationDirectory();
   locFilePath := TPath.Combine(locDirectory, locFile);
   try
@@ -2092,10 +2074,16 @@ begin
       Exit;
     end
   end;
+end;
 
-  if not result then
-    Exit;
-
+procedure TMainForm.Translate();
+var
+  s: string;
+  fnt: TFont;
+  tabsView: ITabsView;
+  tabsForm: TDockTabsForm;
+  bookView: TBookFrame;
+begin
   UpdateDictionariesCombo();
 
   TranslateControl(ExceptionForm);
@@ -2109,10 +2097,6 @@ begin
       tabsForm.Translate;
     end;
   end;
-
-  for i := 0 to miLanguage.Count - 1 do
-    with miLanguage.Items[i] do
-      Checked := LowerCase(Caption + '.lng') = LowerCase(locFile);
 
   TranslateConfigForm;
 
@@ -2139,8 +2123,6 @@ begin
   SetButtonHint(tbtnCloseTab, miCloseTab);
 
   bookView.tbtnMemos.Hint := bookView.miMemosToggle.Caption + ' (' + ShortCutToText(bookView.miMemosToggle.ShortCut) + ')';
-
-  cbList.ItemIndex := 0;
 
   if Lang.Say('HelpFileName') <> 'HelpFileName' then
     HelpFileName := Lang.Say('HelpFileName');
@@ -2170,7 +2152,6 @@ begin
       tbtnCopyright.Hint := s;
 
       bookView.UpdateModuleTree(bookView.BookTabInfo.Bible);
-      SearchListInit;
     end;
   end;
 
@@ -2182,7 +2163,22 @@ begin
 
   Update;
   fnt.Free;
+end;
 
+function TMainForm.TranslateInterface(locFile: string): Boolean;
+var i: integer;
+begin
+  result := LoadLocalizationFile(locFile);
+
+  if not result then
+    Exit;
+
+  if (Result = true) then
+    for i := 0 to miLanguage.Count - 1 do
+      with miLanguage.Items[i] do
+        Checked := LowerCase(Caption + '.lng') = LowerCase(locFile);
+
+  Translate();
 end;
 
 procedure TMainForm.tbtnPrintClick(Sender: TObject);
@@ -2915,52 +2911,17 @@ begin
   ShowSearchTab();
 end;
 
-procedure TMainForm.cbSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-var
-  s: TComboBox;
-begin
-  if Key = VK_RETURN then
-  begin
-    s := (Sender as TComboBox);
-    if s.DroppedDown then
-      s.DroppedDown := false;
-  end;
-end;
-
 procedure TMainForm.FormKeyPress(Sender: TObject; var Key: Char);
 var
   tabsView: TDockTabsForm;
-  bookView: TBookFrame;
 begin
   if Key = #27 then
   begin
     tabsView := GetTabsView(self);
     Key := #0;
     if not tabsView.pnlMain.Visible then
-      { previewing }
-      miPrintPreview.Click // this turns preview off
-    else
-    begin
-      if IsSearching then
-        btnFindClick(Sender)
-      else
-      begin
-        // exit from edtGo (F2) or cbSearch (F3) to Browser
-        bookView := GetBookView(self);
-        if (tabsView.ActiveControl = bookView.tedtReference) or (ActiveControl = cbSearch) then
-          tabsView.ActiveControl := mTabsView.Browser;
-      end;
-    end;
+      miPrintPreview.Click; // this turns preview off
     Exit;
-  end;
-
-  if Key = #13 then
-  begin
-    if pgcMain.ActivePage = tbSearch then
-    begin
-      Key := #0;
-      btnFindClick(Sender);
-    end;
   end;
 end;
 
@@ -3124,283 +3085,6 @@ begin
   mTabsView.AddLibraryTab(newTabInfo);
 end;
 
-procedure TMainForm.btnFindClick(Sender: TObject);
-var
-  s: set of 0 .. 255;
-  data, wrd, wrdnew, books: string;
-  params: byte;
-  lnks: TStringList;
-  book, chapter, v1, v2, linksCnt, i: integer;
-  bookView: TBookFrame;
-  bible: TBible;
-
-  function metabook(const bible: TBible; const str: WideString): Boolean;
-  var
-    wl: string;
-  label success;
-  begin
-    wl := LowerCase(str);
-    if (Pos('нз', wl) = 1) or (Pos('nt', wl) = 1) then
-    begin
-
-      if bible.Trait[bqmtNewCovenant] and bible.InternalToReference(40, 1, 1, book, chapter, v1) then
-      begin
-        s := s + [39 .. 65];
-      end;
-      goto success;
-    end
-    else if (Pos('вз', wl) = 1) or (Pos('ot', wl) = 1) then
-    begin
-      if bible.Trait[bqmtOldCovenant] and bible.InternalToReference(1, 1, 1, book, chapter, v1) then
-      begin
-        s := s + [0 .. 38];
-      end;
-      goto success;
-    end
-    else if (Pos('пят', wl) = 1) or (Pos('pent', wl) = 1) or
-      (Pos('тор', wl) = 1) or (Pos('tor', wl) = 1) then
-    begin
-      if bible.Trait[bqmtOldCovenant] and bible.InternalToReference(1, 1, 1, book, chapter, v1) then
-      begin
-        s := s + [0 .. 4];
-      end;
-      goto success;
-    end
-    else if (Pos('ист', wl) = 1) or (Pos('hist', wl) = 1) then
-    begin
-      if bible.Trait[bqmtOldCovenant] then
-      begin
-        s := s + [0 .. 15];
-      end;
-      goto success;
-    end
-    else if (Pos('уч', wl) = 1) or (Pos('teach', wl) = 1) then
-    begin
-      if bible.Trait[bqmtOldCovenant] then
-      begin
-        s := s + [16 .. 21];
-      end;
-      goto success;
-    end
-    else if (Pos('бпрор', wl) = 1) or (Pos('bproph', wl) = 1) then
-    begin
-      if bible.Trait[bqmtOldCovenant] then
-      begin
-        s := s + [22 .. 26];
-      end;
-      goto success;
-    end
-    else if (Pos('мпрор', wl) = 1) or (Pos('mproph', wl) = 1) then
-    begin
-      if bible.Trait[bqmtOldCovenant] then
-      begin
-        s := s + [27 .. 38];
-      end;
-      goto success;
-    end
-    else if (Pos('прор', wl) = 1) or (Pos('proph', wl) = 1) then
-    begin
-      if bible.Trait[bqmtOldCovenant] then
-      begin
-        s := s + [22 .. 38];
-        if bible.Trait[bqmtNewCovenant] and bible.InternalToReference(66, 1, 1, book, chapter, v1) then
-        begin
-          Include(s, 65);
-        end;
-        goto success;
-      end
-    end
-    else if (Pos('ева', wl) = 1) or (Pos('gos', wl) = 1) then
-    begin
-      if bible.Trait[bqmtNewCovenant] then
-      begin
-        s := s + [39 .. 42];
-      end;
-      goto success;
-    end
-    else if (Pos('пав', wl) = 1) or (Pos('paul', wl) = 1) then
-    begin
-      if bible.Trait[bqmtNewCovenant] and bible.InternalToReference(52, 1, 1, book, chapter, v1) then
-      begin
-        s := s + [book - 1 .. book + 12];
-      end;
-      goto success;
-    end;
-
-    Result := false;
-    Exit;
-  success:
-    Result := true;
-  end;
-
-begin
-  bookView := GetBookView(self);
-  if not Assigned(bookView) then
-    Exit;
-
-  bible := bookView.BookTabInfo.Bible;
-
-  if cbQty.ItemIndex < cbQty.Items.Count - 1 then
-    SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex])
-  else
-    SearchPageSize := 50000;
-
-  if IsSearching then
-  begin
-    IsSearching := false;
-    bible.StopSearching;
-    Screen.Cursor := crDefault;
-    Exit;
-  end;
-
-  Screen.Cursor := crHourGlass;
-  try
-    IsSearching := true;
-
-    s := [];
-
-    if (not bible.isBible)
-    then
-    begin
-      if (cbList.ItemIndex <= 0) then
-        s := [0 .. bible.BookQty - 1]
-      else
-        s := [cbList.ItemIndex - 1];
-    end
-    else
-    begin // FULL BIBLE SEARCH
-      data := Trim(cbList.Text);
-      linksCnt := cbList.Items.Count - 1;
-      if not mblSearchBooksDDAltered then
-        if (cbList.ItemIndex < 0) then
-          for i := 0 to linksCnt do
-            if SysUtils.CompareText(cbList.Items[i], data) = 0 then
-            begin
-              cbList.ItemIndex := i;
-              break;
-            end;
-
-      if (cbList.ItemIndex < 0) or (mblSearchBooksDDAltered) then
-      begin
-        lnks := TStringList.Create;
-        try
-          books := '';
-          StrToLinks(data, lnks);
-          linksCnt := lnks.Count - 1;
-          for i := 0 to linksCnt do
-          begin
-            if metabook(bible, lnks[i]) then
-            begin
-
-              books := books + FirstWord(lnks[i]) + ' ';
-              continue
-            end
-            else if bible.OpenReference(lnks[i], book, chapter, v1, v2) and
-              (book > 0) and (book < 77) then
-            begin
-              Include(s, book - 1);
-              if Pos(bible.ShortNames[book], books) <= 0 then
-              begin
-
-                books := books + bible.ShortNames[book] + ' ';
-              end;
-
-            end;
-
-          end;
-          books := Trim(books);
-          if (Length(books) > 0) and (mslSearchBooksCache.IndexOf(books) < 0)
-          then
-          begin
-            mslSearchBooksCache.Add(books);
-          end;
-
-        finally
-          lnks.Free();
-        end;
-      end
-      else
-        case integer(cbList.Items.Objects[cbList.ItemIndex]) of
-          0:
-            s := [0 .. 65];
-          -1:
-            s := [0 .. 38];
-          -2:
-            s := [39 .. 65];
-          -3:
-            s := [0 .. 4];
-          -4:
-            s := [5 .. 21];
-          -5:
-            s := [22 .. 38];
-          -6:
-            s := [39 .. 43];
-          -7:
-            s := [44 .. 65];
-          -8:
-            begin
-              if bible.Trait[bqmtApocrypha] then
-                s := [66 .. bible.BookQty - 1]
-              else
-                s := [0];
-            end;
-        else
-          s := [cbList.ItemIndex - 8 - ord(bible.Trait[bqmtApocrypha])];
-          // search in single book
-        end;
-    end;
-
-    data := Trim(cbSearch.Text);
-    StrReplace(data, '.', ' ', true);
-    StrReplace(data, ',', ' ', true);
-    StrReplace(data, ';', ' ', true);
-    StrReplace(data, '?', ' ', true);
-    StrReplace(data, '"', ' ', true);
-    data := Trim(data);
-
-    if data <> '' then
-    begin
-      if cbSearch.Items.IndexOf(data) < 0 then
-        cbSearch.Items.Insert(0, data);
-
-      SearchResults.Clear;
-
-      SearchWords.Clear;
-      wrd := cbSearch.Text;
-
-      if not chkExactPhrase.Checked then
-      begin
-        while wrd <> '' do
-        begin
-          wrdnew := DeleteFirstWord(wrd);
-
-          SearchWords.Add(wrdnew);
-        end;
-      end
-      else
-      begin
-        wrdnew := Trim(wrd);
-        SearchWords.Add(wrdnew);
-      end;
-
-      params :=
-        spWordParts * (1 - ord(chkParts.Checked)) +
-        spContainAll * (1 - ord(chkAll.Checked)) +
-        spFreeOrder * (1 - ord(chkPhrase.Checked)) +
-        spAnyCase * (1 - ord(chkCase.Checked)) +
-        spExactPhrase * ord(chkExactPhrase.Checked);
-
-      if (params and spExactPhrase = spExactPhrase) and (params and spWordParts = spWordParts) then
-        params := params - spWordParts;
-
-      SearchTime := GetTickCount;
-      bible.Search(data, params, s, not (vtisShowStrongs in bookView.BookTabInfo.State));
-    end;
-  finally
-    Screen.Cursor := crDefault;
-  end
-end;
-
 procedure TMainForm.FontChanged(delta: integer);
 var
   defFontSz, browserpos: integer;
@@ -3418,10 +3102,11 @@ begin
     mTabsView.Browser.LoadFromString(mTabsView.Browser.DocumentSource);
     mTabsView.Browser.Position := browserpos;
 
-    browserpos := bwrSearch.Position and $FFFF0000;
-    bwrSearch.DefFontSize := defFontSz;
-    bwrSearch.LoadFromString(bwrSearch.DocumentSource);
-    bwrSearch.Position := browserpos;
+    // TODO: change font of all search tabs
+//    browserpos := bwrSearch.Position and $FFFF0000;
+//    bwrSearch.DefFontSize := defFontSz;
+//    bwrSearch.LoadFromString(bwrSearch.DocumentSource);
+//    bwrSearch.Position := browserpos;
 
     browserpos := bwrDic.Position and $FFFF0000;
     bwrDic.DefFontSize := defFontSz;
@@ -3438,10 +3123,11 @@ begin
     bwrComments.LoadFromString(bwrComments.DocumentSource);
     bwrComments.Position := browserpos;
 
-    browserpos := bwrXRef.Position and $FFFF0000;
-    bwrXRef.DefFontSize := defFontSz;
-    bwrXRef.LoadFromString(bwrXRef.DocumentSource);
-    bwrXRef.Position := browserpos;
+// TODO: change font of all tsk tabs
+//    browserpos := bwrXRef.Position and $FFFF0000;
+//    bwrXRef.DefFontSize := defFontSz;
+//    bwrXRef.LoadFromString(bwrXRef.DocumentSource);
+//    bwrXRef.Position := browserpos;
 
   except
   end;
@@ -3476,6 +3162,7 @@ begin
     MainForm.Height := 420;
 
   writeln(NowDateTimeString(), 'FormClose entered');
+
   SaveConfiguration;
 
   for tabsView in mTabsViews do
@@ -3492,80 +3179,18 @@ begin
     GfxRenderers.TbqTagsRenderer.Done();
     FreeAndNil(Memos);
     FreeAndNil(Bookmarks);
-    FreeAndNil(SearchResults);
-    FreeAndNil(SearchWords);
     FreeAndNil(StrongHebrew);
     FreeAndNil(StrongGreek);
     FreeAndNil(PasswordPolicy);
     FreeAndNil(mModules);
     FreeAndNil(mFavorites);
-    FreeAndNil(mslSearchBooksCache);
+
     cleanUpInstalledFonts();
 
     if Assigned(SysHotKey) then
       SysHotKey.Active := false;
     FreeAndNil(SysHotKey);
   except
-  end;
-end;
-
-procedure TMainForm.SearchListInit;
-var
-  i: integer;
-  bookView: TBookFrame;
-  bible: TBible;
-begin
-  bookView := GetBookView(self);
-  if not Assigned(bookView.BookTabInfo) then
-    Exit;
-
-  bible := bookView.BookTabInfo.Bible;
-
-  if (not bible.isBible) then
-    with cbList do
-    begin
-      Items.BeginUpdate;
-      Items.Clear;
-
-      Items.AddObject(Lang.Say('SearchAllBooks'), TObject(0));
-
-      for i := 1 to bible.BookQty do
-        Items.AddObject(bible.FullNames[i], TObject(i));
-
-      Items.EndUpdate;
-      ItemIndex := 0;
-      Exit;
-    end;
-
-  with cbList do
-  begin
-    Items.BeginUpdate;
-    Items.Clear;
-
-    Items.AddObject(Lang.Say('SearchWholeBible'), TObject(0));
-    if bible.Trait[bqmtOldCovenant] and bible.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchOT'), TObject(-1)); // Old Testament
-    if bible.Trait[bqmtNewCovenant] and bible.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchNT'), TObject(-2)); // New Testament
-    if bible.Trait[bqmtOldCovenant] then
-      Items.AddObject(Lang.Say('SearchPT'), TObject(-3)); // Pentateuch
-    if bible.Trait[bqmtOldCovenant] then
-      Items.AddObject(Lang.Say('SearchHP'), TObject(-4));
-    // Historical and Poetical
-    if bible.Trait[bqmtOldCovenant] then
-      Items.AddObject(Lang.Say('SearchPR'), TObject(-5)); // Prophets
-    if bible.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchGA'), TObject(-6)); // Gospels and Acts
-    if bible.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchER'), TObject(-7)); // Epistles and Revelation
-    if bible.Trait[bqmtApocrypha] then
-      Items.AddObject(Lang.Say('SearchAP'), TObject(-8)); // Apocrypha
-
-    for i := 1 to bible.BookQty do
-      Items.AddObject(bible.FullNames[i], TObject(i));
-
-    Items.EndUpdate;
-    ItemIndex := 0;
   end;
 end;
 
@@ -3977,7 +3602,7 @@ begin
       end;
     end;
 
-    if Assigned(bookView) then
+    if Assigned(bookView) and Assigned(bookView.BookTabInfo) then
       bookView.ProcessCommand(bookView.BookTabInfo, bookView.BookTabInfo.Location, TbqHLVerseOption(ord(bookView.BookTabInfo[vtisHighLightVerses])));
   end;
 end;
@@ -4013,8 +3638,9 @@ begin
     end;
   end;
 
-  bwrSearch.DefBackGround := newColor;
-  bwrSearch.Refresh;
+  // TODO: update background of all search tabs
+  //bwrSearch.DefBackGround := newColor;
+  //bwrSearch.Refresh;
 
   bwrDic.DefBackGround := newColor;
   bwrDic.Refresh;
@@ -4025,8 +3651,9 @@ begin
   bwrComments.DefBackGround := newColor;
   bwrComments.Refresh;
 
-  bwrXRef.DefBackGround := newColor;
-  bwrXRef.Refresh;
+  // TODO: update background of all tsk tabs
+  //bwrXRef.DefBackGround := newColor;
+  //bwrXRef.Refresh;
 end;
 
 procedure TMainForm.miHrefConfigClick(Sender: TObject);
@@ -4068,8 +3695,9 @@ begin
     end;
   end;
 
-  bwrSearch.DefHotSpotColor := newColor;
-  bwrSearch.Refresh;
+  // TODO: update hot spot color of all search tabs
+  //bwrSearch.DefHotSpotColor := newColor;
+  //bwrSearch.Refresh;
 
   bwrDic.DefHotSpotColor := newColor;
   bwrDic.Refresh;
@@ -4080,8 +3708,9 @@ begin
   bwrComments.DefHotSpotColor := newColor;
   bwrComments.Refresh;
 
-  bwrXRef.DefHotSpotColor := newColor;
-  bwrXRef.Refresh;
+  // TODO: update hot spot color of all tsk tabs
+  //bwrXRef.DefHotSpotColor := newColor;
+  //bwrXRef.Refresh;
 end;
 
 procedure TMainForm.miFoundTextConfigClick(Sender: TObject);
@@ -4207,13 +3836,15 @@ begin
 end;
 
 procedure TMainForm.miXrefClick(Sender: TObject);
+var
+  bookView: TBookFrame;
+  bookTabInfo: TBookTabInfo;
 begin
-  if not pgcMain.Visible then
-    tbtnToggle.Click;
+  bookView := GetBookView(self);
+  bookTabInfo := bookView.BookTabInfo;
 
-  tbXRef.tag := 1;
-  pgcMain.ActivePage := tbXRef;
-  ShowXref;
+  if Assigned(bookTabInfo) then
+    OpenOrCreateTSKTab(bookTabInfo, 1);
 end;
 
 function CustomControlAtPos(
@@ -4299,148 +3930,12 @@ tail:
   oneEntry := false;
 end;
 
-procedure TMainForm.ShowXref;
+procedure TMainForm.tbtnAddSearchTabClick(Sender: TObject);
 var
-  ti: TMultiLanguage;
-  tf: TSearchRec;
-  s, snew, passageSig: string;
-  verse, tmpverse, book, chapter, fromverse, toverse,
-  i, j: integer;
-  RefLines: string;
-  RefText: string;
-  Links: TStrings;
-  slink: string;
-  diff: integer;
-  path: string;
-  bookTabInfo: TBookTabInfo;
-  mainBible, secBible: TBible;
+  newTabInfo: TSearchTabInfo;
 begin
-  bookTabInfo := GetBookView(self).BookTabInfo;
-  mainBible := bookTabInfo.Bible;
-  secBible := bookTabInfo.SecondBible;
-
-  if mModules.IndexOf(mainBible.Name) = -1 then
-    Exit;
-
-  if not pgcMain.Visible then
-    Exit;
-
-  if pgcMain.ActivePage <> tbXRef then
-    pgcMain.ActivePage := tbXRef;
-
-  if tbXRef.tag = 0 then
-    tbXRef.tag := 1;
-
-  RefLines := '';
-  Links := TStringList.Create;
-
-  secBible.inifile := mainBible.inifile;
-
-  mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, tbXRef.tag, book, chapter, verse);
-  s := IntToStr(book);
-
-  if Length(s) = 1 then
-    s := '0' + s;
-
-  path := TPath.Combine(LibraryDirectory, C_TSKSubDirectory);
-  path := TPath.Combine(path, s + '_*.ini');
-
-  if FindFirst(path, faAnyFile, tf) <> 0 then
-    Exit;
-
-  ti := TMultiLanguage.Create(nil);
-
-  path := TPath.Combine(LibraryDirectory, C_TSKSubDirectory);
-  ti.inifile := TPath.Combine(path, tf.Name);
-
-  secBible.OpenChapter(mainBible.CurBook, mainBible.CurChapter);
-
-  tmpverse := tbXRef.tag;
-
-  if tmpverse > secBible.verseCount() then
-    tmpverse := secBible.verseCount();
-  s := secBible[tmpverse - 1];
-  StrDeleteFirstNumber(s);
-  s := DeleteStrongNumbers(s);
-
-  RefText := Format
-    ('<a name=%d><a href="go %s %d %d %d"><font face=%s>%s%d:%d</font></a><br><font face="%s">%s</font><p>',
-    [tmpverse, mainBible.ShortPath, mainBible.CurBook, mainBible.CurChapter,
-    tmpverse, mBrowserDefaultFontName, mainBible.ShortNames[mainBible.CurBook],
-    mainBible.CurChapter, tmpverse, mainBible.fontName, s]);
-
-  slink := ti.ReadString(IntToStr(chapter), IntToStr(verse), '');
-  if slink = '' then
-    AddLine(RefLines, RefText + '<b>.............</b>')
-  else
-  begin
-    StrToLinks(slink, Links);
-
-    // get xrefs
-    for i := 0 to Links.Count - 1 do
-    begin
-      if not secBible.OpenTSKReference(Links[i], book, chapter, fromverse, toverse) then
-        continue;
-
-      diff := toverse - fromverse;
-      secBible.ENG2RUS(book, chapter, fromverse, book, chapter, fromverse);
-
-      if not secBible.InternalToReference(book, chapter, fromverse, book, chapter, fromverse) then
-        continue; // if this module doesn't have the link...
-
-      toverse := fromverse + diff;
-
-      if fromverse = 0 then
-        fromverse := 1;
-      if toverse < fromverse then
-        toverse := fromverse; // if one verse
-
-      try
-        secBible.OpenChapter(book, chapter);
-      except
-        continue;
-      end;
-
-      if fromverse > secBible.verseCount() then
-        continue;
-      if toverse > secBible.verseCount then
-        toverse := secBible.verseCount;
-
-      s := '';
-      for j := fromverse to toverse do
-      begin
-        snew := secBible.Verses[j - 1];
-        s := s + ' ' + StrDeleteFirstNumber(snew);
-        snew := DeleteStrongNumbers(snew);
-        s := s + ' ' + snew;
-      end;
-      s := Trim(s);
-
-      StrDeleteFirstNumber(s);
-      passageSig := Format('<font face="%s">%s</font>',
-        [mBrowserDefaultFontName, secBible.ShortPassageSignature(book, chapter, fromverse, toverse)]);
-      if toverse = fromverse then
-        RefText := RefText +
-          Format
-          ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, book, chapter, fromverse, 0, passageSig, mainBible.fontName, s])
-      else
-        RefText := RefText +
-          Format
-          ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, book, chapter, fromverse, toverse, passageSig, mainBible.fontName, s]);
-    end;
-
-    AddLine(RefLines, RefText);
-  end;
-
-  AddLine(RefLines, '</font><br><br>');
-
-  bwrXRef.DefFontName := mTabsView.Browser.DefFontName;
-  mXRefMisUsed := false;
-  bwrXRef.LoadFromString(RefLines);
-
-  Links.Free;
+  newTabInfo := TSearchTabInfo.Create();
+  mTabsView.AddSearchTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnSoundClick(Sender: TObject);
@@ -4763,121 +4258,6 @@ begin
     reClipboard.CopyToClipboard;
 end;
 
-procedure TMainForm.DisplaySearchResults(page: integer);
-var
-  i, limit: integer;
-  s: string;
-  dSource: string;
-  bookView: TBookFrame;
-begin
-
-  bookView := GetBookView(self);
-  if not Assigned(bookView) then
-    Exit;
-
-  if (SearchPageSize * (page - 1) > SearchResults.Count) or (SearchResults.Count = 0) then
-  begin
-    Screen.Cursor := crDefault;
-    Exit;
-  end;
-
-  SearchPage := page;
-
-  dSource := Format('<b>"<font face="%s">%s</font>"</b> (%d) <p>', [bookView.BookTabInfo.Bible.fontName, cbSearch.Text, SearchResults.Count]);
-
-  limit := SearchResults.Count div SearchPageSize + 1;
-  if SearchPageSize * (limit - 1) = SearchResults.Count then
-    limit := limit - 1;
-
-  s := '';
-  for i := 1 to limit - 1 do
-  begin
-    if i <> page then
-      s := s + Format('<a href="%d">%d-%d</a> ', [i, SearchPageSize * (i - 1) + 1, SearchPageSize * i])
-    else
-      s := s + Format('%d-%d ', [SearchPageSize * (i - 1) + 1, SearchPageSize * i]);
-  end;
-
-  if limit <> page then
-    s := s + Format('<a href="%d">%d-%d</a> ',
-      [limit, SearchPageSize * (limit - 1) + 1, SearchResults.Count])
-  else
-    s := s + Format('%d-%d ', [SearchPageSize * (limit - 1) + 1, SearchResults.Count]);
-
-  limit := SearchPageSize * page - 1;
-  if limit >= SearchResults.Count then
-    limit := SearchResults.Count - 1;
-
-  for i := SearchPageSize * (page - 1) to limit do
-    AddLine(dSource, '<font size=-1>' + IntToStr(i + 1) + '.</font> ' + SearchResults[i]);
-
-  AddLine(dSource, '<a name="endofsearchresults"><p>' + s + '<br><p>');
-
-  bwrSearch.CharSet := mTabsView.Browser.CharSet;
-
-  StrReplace(dSource, '<*>', '<font color=' + SelTextColor + '>', true);
-  StrReplace(dSource, '</*>', '</font>', true);
-
-  bwrSearch.LoadFromString(dSource);
-
-  LastSearchResultsPage := page;
-  Screen.Cursor := crDefault;
-  ActiveControl := bwrSearch;
-end;
-
-procedure TMainForm.bwrSearchHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-var
-  i, code: integer;
-  book, chapter, fromverse, toverse: integer;
-  wsrc, satBible: string;
-  bookTabInfo: TBookTabInfo;
-  bookView: TBookFrame;
-  bible: TBible;
-begin
-  bookView := GetBookView(self);
-  if not Assigned(bookView) then
-    Exit;
-
-  bookTabInfo := bookView.BookTabInfo;
-  bible := bookTabInfo.Bible;
-
-  wsrc := SRC;
-  Val(wsrc, i, code);
-  if code = 0 then
-    DisplaySearchResults(i)
-  else
-  begin
-    if (Copy(wsrc, 1, 3) <> 'go ') then
-    begin
-      if bible.OpenReference(wsrc, book, chapter, fromverse, toverse) then
-        wsrc := Format('go %s %d %d %d %d', [bible.ShortPath, book, chapter, fromverse, toverse])
-      else
-        wsrc := '';
-    end;
-    if Length(wsrc) > 0 then
-    begin
-      if IsDown(VK_MENU) then
-      begin
-        if Assigned(bookTabInfo) then
-          satBible := bookTabInfo.SatelliteName
-        else
-          satBible := '------';
-
-        NewBookTab(wsrc, satBible, bookTabInfo.State, '', true);
-
-      end
-      else
-       bookView.ProcessCommand(bookView.BookTabInfo, wsrc, hlTrue);
-    end;
-  end;
-  Handled := true;
-end;
-
-procedure TMainForm.bwrSearchHotSpotCovered(Sender: TObject; const SRC: string);
-begin
-  GetBookView(self).BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
-end;
-
 procedure TMainForm.miShowSignaturesClick(Sender: TObject);
 var
   bookView: TBookFrame;
@@ -5024,7 +4404,6 @@ begin
   end;
 
   tbLinksToolBar.Visible := false;
-  cbQty.ItemIndex := 0;
 
   TranslateControl(ExceptionForm);
   TranslateControl(AboutForm);
@@ -5437,6 +4816,14 @@ begin
   TagsDb.TagsDbEngine.AddTag(InputForm.edtValue.Text, dummyTag);
 end;
 
+procedure TMainForm.tbtnAddTSKTabClick(Sender: TObject);
+var
+  newTabInfo: TTSKTabInfo;
+begin
+  newTabInfo := TTSKTabInfo.Create();
+  mTabsView.AddTSKTab(newTabInfo);
+end;
+
 procedure TMainForm.tbtnDelNodeClick(Sender: TObject);
 var
   pvn: PVirtualNode;
@@ -5535,25 +4922,6 @@ begin
   if not Assigned(AboutForm) then
     AboutForm := TAboutForm.Create(self);
   AboutForm.ShowModal();
-end;
-
-procedure TMainForm.bwrSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  if (Key = VK_NEXT) and (bwrSearch.Position = SearchBrowserPosition) then
-    DisplaySearchResults(SearchPage + 1);
-
-  if (Key = VK_PRIOR) and (bwrSearch.Position = SearchBrowserPosition) then
-  begin
-    if SearchPage = 1 then
-      Exit;
-    DisplaySearchResults(SearchPage - 1);
-    bwrSearch.PositionTo('endofsearchresults');
-  end;
-end;
-
-procedure TMainForm.bwrSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  SearchBrowserPosition := bwrSearch.Position;
 end;
 
 function TMainForm.DictionaryStartup(maxAdd: integer = maxInt): Boolean;
@@ -5792,52 +5160,6 @@ begin
   end;
 end;
 
-function TMainForm.ApplyInitialTranslation(): Boolean;
-var
-  foundmenu: Boolean;
-  i: Integer;
-  locDirectory: string;
-  locFilePath: string;
-  translated: Boolean;
-begin
-  translated := false;
-
-  locDirectory := GetLocalizationDirectory();
-  locFilePath := TPath.Combine(locDirectory, LastLanguageFile);
-
-  if (LastLanguageFile <> '') and (TFile.Exists(locFilePath)) then
-    translated := TranslateInterface(LastLanguageFile);
-
-  if (not translated) then
-  begin
-    foundmenu := false;
-    for i := 0 to miLanguage.Count - 1 do
-    begin
-      if (miLanguage.Items[i]).Caption = DefaultLanguage then
-      begin
-        foundmenu := true;
-        break;
-      end;
-    end;
-
-    if foundmenu then
-    begin
-      translated := TranslateInterface(DefaultLanguageFile);
-    end;
-
-    if (not translated) and (miLanguage.Count > 0) then
-    begin
-      LastLanguageFile := miLanguage.Items[miLanguage.Count - 1].Caption + '.lng';
-
-      translated := TranslateInterface(LastLanguageFile);
-    end;
-
-  end;
-
-  result := translated;
-
-end;
-
 function TMainForm.GetLocalizationDirectory(): string;
 begin
   result := TPath.Combine(ExePath, 'Localization');
@@ -5898,31 +5220,6 @@ end;
 procedure TMainForm.bwrDicMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
   DisplayDictionary(Trim(bwrDic.SelText));
-end;
-
-procedure TMainForm.bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-var
-  bookView: TBookFrame;
-  ti: TBookTabInfo;
-  wsrc, satBible: string;
-begin
-  bookView := GetBookView(self);
-  wsrc := SRC;
-  if IsDown(VK_MENU) then
-  begin
-    ti := bookView.BookTabInfo;
-    if Assigned(ti) then
-      satBible := ti.SatelliteName
-    else
-      satBible := '------';
-
-    NewBookTab(wsrc, satBible, ti.State, '', true)
-
-  end
-  else
-    bookView.ProcessCommand(bookView.BookTabInfo, wsrc, hlDefault);
-
-  Handled := true;
 end;
 
 procedure TMainForm.miRefPrintClick(Sender: TObject);
@@ -6095,21 +5392,7 @@ begin
   end;
 end;
 
-procedure TMainForm.UpdateMemoView();
-begin
-  lblTitle.Caption := '';
-  lblCopyRightNotice.Caption := '';
-  tbtnCopyright.Hint := '';
-end;
-
-procedure TMainForm.UpdateLibraryView();
-begin
-  lblTitle.Caption := '';
-  lblCopyRightNotice.Caption := '';
-  tbtnCopyright.Hint := '';
-end;
-
-procedure TMainForm.UpdateBookmarksView();
+procedure TMainForm.ClearCopyrights();
 begin
   lblTitle.Caption := '';
   lblCopyRightNotice.Caption := '';
@@ -6160,22 +5443,17 @@ begin
 
     if not tabInfo.Bible.isBible then
     begin
-      cbList.Style := csDropDownList;
       try
         bookView.LoadSecondBookByName(tabInfo.SatelliteName);
       except
         on E: Exception do
           BqShowException(E);
       end;
-    end
-    else
-      cbList.Style := csDropDown;
+    end;
 
     bookView.UpdateModuleTree(tabInfo.Bible); // fill lists
     bookView.HistoryClear();
     bookView.UpdateHistory();
-
-    SearchListInit();
 
     lblTitle.Font.Name := tabInfo.TitleFont;
     lblTitle.Caption := tabInfo.TitleLocation;
@@ -7139,58 +6417,12 @@ begin
   FilterCommentariesCombo();
 end;
 
-procedure TMainForm.btnSearchOptionsClick(Sender: TObject);
-begin
-  if pnlSearch.Height > chkCase.Top + chkCase.Height then
-  begin // wrap it
-    pnlSearch.Height := chkAll.Top;
-    btnSearchOptions.Caption := '>';
-  end
-  else
-  begin
-    pnlSearch.Height := lblSearch.Top + lblSearch.Height + 10;
-    btnSearchOptions.Caption := '<';
-  end;
-
-  ActiveControl := cbSearch;
-end;
-
 procedure TMainForm.cbTagsFilterChange(Sender: TObject);
 var
   timer: TTimer;
 begin
   timer := GetTagFilterTimer();
   timer.Enabled := true;
-end;
-
-procedure TMainForm.chkExactPhraseClick(Sender: TObject);
-begin
-  if chkExactPhrase.Checked then
-  begin
-    chkAll.Checked := false;
-    chkPhrase.Checked := false;
-    chkParts.Checked := false;
-    chkCase.Checked := false;
-  end;
-end;
-
-procedure TMainForm.cbListDropDown(Sender: TObject);
-var
-  bible: TBible;
-begin
-  bible := GetBookView(self).BookTabInfo.Bible;
-  if IsDown(VK_MENU) and (bible.isBible) and (mslSearchBooksCache.Count > 0)
-  then
-  begin
-    cbList.Items.Assign(mslSearchBooksCache);
-    mblSearchBooksDDAltered := true;
-  end
-  else
-  begin
-    if mblSearchBooksDDAltered then
-      SearchListInit();
-    mblSearchBooksDDAltered := false;
-  end;
 end;
 
 procedure TMainForm.cbDicChange(Sender: TObject);
@@ -7223,6 +6455,50 @@ begin
 
   bwrDic.LoadFromString(tt);
   pgcMain.ActivePage := tbDic;
+end;
+
+procedure TMainForm.OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
+var
+  i: integer;
+  tabInfo: IViewTabInfo;
+  tskTabInfo: TTSKTabInfo;
+  wasUpdateSet: boolean;
+  tskView: TTSKFrame;
+  iniPath: string;
+begin
+  tskTabInfo := nil;
+
+  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  begin
+    tabInfo := mTabsView.GetTabInfo(i);
+    if not (tabInfo is TTSKTabInfo) then
+      continue;
+
+    tskTabInfo := TTSKTabInfo(tabInfo);
+
+    wasUpdateSet := mTabsView.UpdateOnTabChange;
+    mTabsView.UpdateOnTabChange := false;
+    try
+      mTabsView.ChromeTabs.ActiveTabIndex := i;
+    finally
+      mTabsView.UpdateOnTabChange := wasUpdateSet;
+    end;
+  end;
+
+  if not Assigned(tskTabInfo) then
+  begin
+    tskTabInfo := TTSKTabInfo.Create();
+    mTabsView.AddTSKTab(tskTabInfo);
+  end;
+
+  tskView := mTabsView.TSKView as TTSKFrame;
+  if Assigned(bookTabInfo) then
+  begin
+    iniPath := TPath.Combine(bookTabInfo.Bible.path, 'bibleqt.ini');
+    tskView.ShowXref(iniPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
+  end;
+
+  mTabsView.UpdateCurrentTabContent;
 end;
 
 procedure TMainForm.OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
@@ -7375,20 +6651,12 @@ begin
       on E: Exception do
         BqShowException(E)
     end;
-  end
-  else if pgcMain.ActivePage = tbSearch then
-  begin
-    if Length(cbSearch.Text) > 0 then
-      cbSearch.SelectAll();
   end;
 
+  // TODO: review this
   case pgcMain.ActivePageIndex of
     0:
       GetBookView(self).pmMemo.PopupComponent := GetBookView(self).tedtReference;
-    1:
-      begin
-        GetBookView(self).pmMemo.PopupComponent := cbSearch;
-      end;
     2:
       GetBookView(self).pmMemo.PopupComponent := edtDic;
     3:
@@ -7398,12 +6666,6 @@ begin
         GetBookView(self).pmMemo.PopupComponent := bwrComments;
         FilterCommentariesCombo;
       end;
-    5:
-      GetBookView(self).pmMemo.PopupComponent := bwrXRef;
-    6:
-      // TODO: active tags tab of active form
-      //GetBookView(self).pmMemo.PopupComponent := reMemo;
-
   end;
 end;
 
@@ -7526,9 +6788,7 @@ begin
     Result := TBible.Create(self);
     with Result do
     begin
-      OnVerseFound := BookVerseFound;
       OnChangeModule := BookChangeModule;
-      OnSearchComplete := BookSearchComplete;
     end;
   except
     Result.Free();
@@ -7684,27 +6944,18 @@ begin
   Result := true;
 end;
 
-procedure TMainForm.cbQtyChange(Sender: TObject);
-begin
-  if cbQty.ItemIndex < cbQty.Items.Count - 1 then
-    SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex])
-  else
-    SearchPageSize := 50000;
-  DisplaySearchResults(1);
-end;
-
 procedure TMainForm.miRefFontConfigClick(Sender: TObject);
 begin
   with FontDialog do
   begin
-    Font.Name := bwrSearch.DefFontName;
-    Font.color := bwrSearch.DefFontColor;
-    Font.Size := bwrSearch.DefFontSize;
+    Font.Name := bwrDic.DefFontName;
+    Font.color := bwrDic.DefFontColor;
+    Font.Size := bwrDic.DefFontSize;
   end;
 
   if FontDialog.Execute then
   begin
-    with bwrSearch do
+    with bwrDic do
     begin
       DefFontName := FontDialog.Font.Name;
       DefFontColor := FontDialog.Font.color;
@@ -7714,38 +6965,39 @@ begin
 
     with bwrDic do
     begin
-      DefFontName := bwrSearch.DefFontName;
-      DefFontColor := bwrSearch.DefFontColor;
-      DefFontSize := bwrSearch.DefFontSize;
+      DefFontName := bwrDic.DefFontName;
+      DefFontColor := bwrDic.DefFontColor;
+      DefFontSize := bwrDic.DefFontSize;
       LoadFromString(DocumentSource);
     end;
 
     with bwrStrong do
     begin
-      DefFontName := bwrSearch.DefFontName;
-      DefFontColor := bwrSearch.DefFontColor;
-      DefFontSize := bwrSearch.DefFontSize;
+      DefFontName := bwrDic.DefFontName;
+      DefFontColor := bwrDic.DefFontColor;
+      DefFontSize := bwrDic.DefFontSize;
       LoadFromString(DocumentSource);
     end;
 
-    with bwrXRef do
-    begin
-      DefFontName := bwrSearch.DefFontName;
-      DefFontColor := bwrSearch.DefFontColor;
-      DefFontSize := bwrSearch.DefFontSize;
-    end;
+    // TODO: change font of tsk tabs
+//    with bwrXRef do
+//    begin
+//      DefFontName := bwrDic.DefFontName;
+//      DefFontColor := bwrDic.DefFontColor;
+//      DefFontSize := bwrDic.DefFontSize;
+//    end;
 
     with bwrComments do
     begin
-      DefFontName := bwrSearch.DefFontName;
-      DefFontColor := bwrSearch.DefFontColor;
-      DefFontSize := bwrSearch.DefFontSize;
+      DefFontName := bwrDic.DefFontName;
+      DefFontColor := bwrDic.DefFontColor;
+      DefFontSize := bwrDic.DefFontSize;
     end;
 
     try
-      ShowXref;
-    finally
       ShowComments;
+    finally
+      // do nothing
     end;
   end;
 end;
@@ -7778,22 +7030,20 @@ begin
 end;
 
 procedure TMainForm.miQuickSearchClick(Sender: TObject);
+var
+  bookFrame: TBookFrame;
 begin
   InputForm.tag := 0; // use TEdit
   InputForm.Caption := miQuickSearch.Caption;
   InputForm.Font := MainForm.Font;
 
-  with GetBookView(self).BookTabInfo.Bible do
-    InputForm.edtValue.Text := cbSearch.Text;
-
   if InputForm.ShowModal = mrOk then
   begin
-    if not pgcMain.Visible then
-      tbtnToggle.Click;
-    pgcMain.ActivePage := tbSearch;
-
-    cbSearch.Text := InputForm.edtValue.Text;
-    btnFind.Click;
+    bookFrame := GetBookView(self);
+    if Assigned(bookFrame.BookTabInfo) then
+    begin
+      bookFrame.NavigateToSearch(InputForm.edtValue.Text);
+    end;
   end;
 end;
 
@@ -7993,33 +7243,45 @@ end;
 procedure TMainForm.pnlFindStrongNumberClick(Sender: TObject);
 var
   bible: TBible;
+  bookFrame: TBookFrame;
+  bookTabInfo: TBookTabInfo;
+  newTabInfo: TSearchTabInfo;
+  searchText: string;
+  bookTypeIndex: integer;
 begin
   if lbStrong.ItemIndex < 0 then
     Exit;
 
-  pgcMain.ActivePage := tbSearch;
-  cbSearch.Text := lbStrong.Items[lbStrong.ItemIndex];
+  bookTypeIndex := -1;
 
-  bible := GetBookView(self).BookTabInfo.Bible;
-  if bible.StrongsPrefixed then
-    cbList.ItemIndex := 0 // full book
-  else
+  bookFrame := GetBookView(self);
+  if Assigned(bookFrame.BookTabInfo) then
   begin
-    if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'H' then
-      cbSearch.Text := '0' + Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
-    else if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'G' then
-      cbSearch.Text := Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
-    else
-      cbSearch.Text := lbStrong.Items[lbStrong.ItemIndex];
+    searchText := lbStrong.Items[lbStrong.ItemIndex];
+    bookTabInfo := GetBookView(self).BookTabInfo;
+    if Assigned(bookTabInfo) then
+    begin
+      bible := bookTabInfo.Bible;
+      if bible.StrongsPrefixed then
+        bookTypeIndex := 0 // full book
+      else
+      begin
+        if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'H' then
+          searchText := '0' + Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
+        else if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'G' then
+          searchText := Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
+        else
+          searchText := lbStrong.Items[lbStrong.ItemIndex];
 
-    if Copy(cbSearch.Text, 1, 1) = '0' then
-      cbList.ItemIndex := 1 // old testament
-    else
-      cbList.ItemIndex := 2; // new testament
+        if Copy(searchText, 1, 1) = '0' then
+          bookTypeIndex := 1 // old testament
+        else
+          bookTypeIndex := 2; // new testament
+      end;
+
+      bookFrame.NavigateToSearch(searchText, bookTypeIndex);
+    end;
   end;
-
-  chkParts.Checked := true;
-  btnFind.Click;
 end;
 
 procedure TMainForm.miCopyOptionsClick(Sender: TObject);
@@ -8071,6 +7333,7 @@ var
   i, moduleCount: integer;
   sl: TStringList;
   reload: Boolean;
+  defBible: string;
   bookView: TBookFrame;
   bible: TBible;
 begin
@@ -8087,6 +7350,8 @@ begin
     chkHighlightVerseHits.Checked := mFlagHighlightVerses;
     rgHotKeyChoice.ItemIndex := ConfigFormHotKeyChoiceItemIndex;
     moduleCount := mModules.Count - 1;
+
+    // fill the list of available modules for favorites
     cbAvailableModules.Clear();
     sl := TStringList.Create;
     try
@@ -8104,16 +7369,64 @@ begin
       try
         cbAvailableModules.Items.Clear;
         for i := 0 to sl.Count - 1 do
+        begin
           cbAvailableModules.Items.Add(sl[i]);
+        end;
       finally
         cbAvailableModules.Items.EndUpdate();
       end;
-
     finally
       sl.Free;
     end;
+
     if moduleCount >= 0 then
       cbAvailableModules.ItemIndex := 0;
+
+    // fill the list of available modules for default bible
+    cbDefaultBible.Clear();
+    sl := TStringList.Create;
+    try
+      sl.Sorted := true;
+      sl.BeginUpdate;
+      try
+        for i := 0 to moduleCount do
+        begin
+          if (mModules[i].modType = modtypeBible) then
+            sl.Add(mModules[i].mFullName);
+        end;
+      finally
+        sl.EndUpdate();
+      end;
+      cbDefaultBible.Items.BeginUpdate;
+      try
+        cbDefaultBible.Items.Clear;
+        cbDefaultBible.Items.Add('');
+        for i := 0 to sl.Count - 1 do
+        begin
+          cbDefaultBible.Items.Add(sl[i]);
+        end;
+      finally
+        cbDefaultBible.Items.EndUpdate();
+      end;
+
+      if (DefaultBibleName = '') then
+      begin
+        cbDefaultBible.ItemIndex := 0;
+      end
+      else
+      begin
+        for i := 0 to cbDefaultBible.Items.Count - 1 do
+        begin
+          if (OmegaCompareTxt(DefaultBibleName, cbDefaultBible.Items[i], -1, false) = 0) then
+          begin
+            cbDefaultBible.ItemIndex := i;
+            break;
+          end;
+        end;
+      end;
+    finally
+      sl.Free;
+    end;
 
     moduleCount := mFavorites.mModuleEntries.Count - 1;
     lbFavourites.Clear();
@@ -8141,6 +7454,15 @@ begin
         BqShowException(E);
       end;
     end;
+  end;
+
+  if (ConfigForm.cbDefaultBible.ItemIndex >= 0) then
+  begin
+    defBible := ConfigForm.cbDefaultBible.Items[ConfigForm.cbDefaultBible.ItemIndex];
+    if (defBible <> '') and (mModules.ResolveModuleByNames(defBible, '') <> nil) then
+      DefaultBibleName := defBible
+    else
+      DefaultBibleName := '';
   end;
 
   SetFavouritesShortcuts();
@@ -8200,18 +7522,11 @@ begin
 end;
 
 procedure TMainForm.ShowSearchTab;
+var
+  newTabInfo: TSearchTabInfo;
 begin
-  if not pgcMain.Visible then
-    tbtnToggle.Click;
-
-  if pgcMain.ActivePage <> tbSearch then
-  begin
-    pgcMain.ActivePage := tbSearch;
-    pgcMainChange(self);
-  end;
-
-  if (cbSearch.Enabled) then
-    ActiveControl := cbSearch;
+  newTabInfo := TSearchTabInfo.Create();
+  mTabsView.AddSearchTab(newTabInfo);
 end;
 
 procedure TMainForm.ShowTagsTab;
@@ -8354,21 +7669,7 @@ end;
 
 procedure TMainForm.pmRefPopup(Sender: TObject);
 begin
-  if (pgcMain.ActivePage = tbXRef) then
-  begin
-    miOpenNewView.Visible := true;
-    G_XRefVerseCmd := Get_AHREF_VerseCommand(
-      bwrXRef.DocumentSource,
-      bwrXRef.SectionList.FindSourcePos(bwrXRef.RightMouseClickPos));
-  end
-  else if (pgcMain.ActivePage = tbSearch) then
-  begin
-    miOpenNewView.Visible := true;
-    G_XRefVerseCmd := Get_AHREF_VerseCommand(
-      bwrSearch.DocumentSource,
-      bwrSearch.SectionList.FindSourcePos(bwrSearch.RightMouseClickPos));
-  end
-  else if (pgcMain.ActivePage = tbDic) then
+  if (pgcMain.ActivePage = tbDic) then
   begin
     miOpenNewView.Visible := true;
     G_XRefVerseCmd := Get_AHREF_VerseCommand(
@@ -8404,40 +7705,6 @@ begin
   end;
 end;
 
-procedure TMainForm.BookVerseFound(Sender: TObject; NumVersesFound, book, chapter, verse: integer; s: string; removeStrongs: boolean);
-var
-  i: integer;
-  bible: TBible;
-begin
-  bible := Sender as TBible;
-  if not Assigned(bible) then
-    Exit;
-
-  lblSearch.Caption := Format('[%d] %s', [NumVersesFound, bible.FullNames[book]]);
-
-  if s <> '' then
-  begin
-    s := ParseHTML(s, '');
-
-    if bible.Trait[bqmtStrongs] and (removeStrongs = true) then
-      s := DeleteStrongNumbers(s);
-
-    StrDeleteFirstNumber(s);
-
-    // color search result!!!
-    for i := 0 to SearchWords.Count - 1 do
-      StrColorUp(s, SearchWords[i], '<*>', '</*>', chkCase.Checked);
-
-    SearchResults.Add(
-      Format('<a href="go %s %d %d %d 0">%s</a> <font face="%s">%s</font><br>',
-      [bible.ShortPath, book, chapter, verse,
-      bible.ShortPassageSignature(book, chapter, verse, verse),
-      bible.fontName, s]));
-  end;
-
-  Application.ProcessMessages;
-end;
-
 procedure TMainForm.BookChangeModule(Sender: TObject);
 var
   book: TBible;
@@ -8450,18 +7717,9 @@ begin
     bookView.UpdateModuleTree(book);
 
     bookView.tbtnStrongNumbers.Enabled := book.Trait[bqmtStrongs];
-    SearchListInit;
 
     Caption := book.Name + ' — BibleQuote';
   end;
-end;
-
-procedure TMainForm.BookSearchComplete(Sender: TObject);
-begin
-  IsSearching := false;
-  SearchTime := GetTickCount - SearchTime;
-  lblSearch.Caption := lblSearch.Caption + ' (' + IntToStr(SearchTime) + ')';
-  DisplaySearchResults(1);
 end;
 
 procedure TMainForm.UpdateUIForType(tabType: TViewTabType);
@@ -8479,19 +7737,19 @@ begin
     vttBookmarks: begin
       EnableBookTools(false);
     end;
+    vttSearch: begin
+      EnableBookTools(false);
+    end;
+    vttTSK: begin
+      EnableBookTools(false);
+    end;
   end;
 end;
 
 procedure TMainForm.EnableBookTools(enable: boolean);
 begin
-  tbSearch.Enabled := enable;
-  SyncChildrenEnabled(tbSearch);
-
   tbList.Enabled := enable;
   SyncChildrenEnabled(tbList);
-
-  tbXRef.Enabled := enable;
-  SyncChildrenEnabled(tbXRef);
 
   tbStrong.Enabled := enable;
   SyncChildrenEnabled(tbStrong);

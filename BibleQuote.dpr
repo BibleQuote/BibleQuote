@@ -61,7 +61,9 @@ uses
   UITools in 'UI\UITools.pas',
   PopupFrm in 'Forms\PopupFrm.pas' {PopupForm},
   BookmarksFra in 'Views\BookmarksFra.pas' {BookmarksFrame: TFrame},
-  BroadcastList in 'Collections\BroadcastList.pas';
+  BroadcastList in 'Collections\BroadcastList.pas',
+  SearchFra in 'Views\SearchFra.pas' {SearchFrame: TFrame},
+  TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame};
 
 {$R *.res}
 var

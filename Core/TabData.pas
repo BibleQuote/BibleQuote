@@ -13,7 +13,9 @@ type
     vttBook,
     vttMemo,
     vttLibrary,
-    vttBookmarks);
+    vttBookmarks,
+    vttSearch,
+    vttTSK);
 
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
@@ -34,6 +36,14 @@ type
 
   IBookmarksView = interface(ITabView)
   ['{4C0D791C-E62D-4EC0-8B32-6019D89CB95A}']
+  end;
+
+  ISearchView = interface(ITabView)
+  ['{FA56F7B8-1976-4A01-A041-3D4A91C53B8A}']
+  end;
+
+  ITSKView = interface(ITabView)
+  ['{4FDFF734-6243-4A50-A867-9DA7F27C5A50}']
   end;
 
   ITabsView = interface; // forward declaration
@@ -177,6 +187,82 @@ type
     function GetCaption(): string;
   end;
 
+  TSearchTabState = class
+  private
+    mSearchPageSize: integer;
+    mIsSearching: Boolean;
+    mSearchResults: TStrings;
+    mSearchWords: TStrings;
+    mSearchTime: int64;
+    mSearchPage: integer; // what page we are in
+    mSearchBrowserPosition: Longint; // list search results pages...
+    mLastSearchResultsPage: integer; // to show/hide page results (Ctrl-F3)
+
+    mblSearchBooksDDAltered: Boolean;
+    mslSearchBooksCache: TStringList;
+  public
+    property SearchPageSize: integer read mSearchPageSize write mSearchPageSize;
+    property IsSearching: boolean read mIsSearching write mIsSearching;
+    property SearchResults: TStrings read mSearchResults write mSearchResults;
+    property SearchWords: TStrings read mSearchWords write mSearchWords;
+    property SearchTime: int64 read mSearchTime write mSearchTime;
+    property SearchPage: integer read mSearchPage write mSearchPage;
+    property SearchBrowserPosition: integer read mSearchBrowserPosition write mSearchBrowserPosition;
+    property LastSearchResultsPage: integer read mLastSearchResultsPage write mLastSearchResultsPage;
+    property SearchBooksDDAltered: boolean read mblSearchBooksDDAltered write mblSearchBooksDDAltered;
+    property SearchBooksCache: TStringList read mslSearchBooksCache write mslSearchBooksCache;
+
+    constructor Create(); overload;
+    constructor Create(srcObj: TSearchTabState); overload;
+    destructor Destroy(); override;
+  end;
+
+  TSearchTabInfo = class(TInterfacedObject, IViewTabInfo)
+  private
+    mSearchText, mSearchInfo: string;
+    mAnyWord, mPhrase, mExactPhrase, mParts, mMatchCase: boolean;
+    mSelectedBook: string;
+
+    mSearchState: TSearchTabState;
+    mBookPath: string;
+  public
+    property SearchInfo: string read mSearchInfo write mSearchInfo;
+    property SearchText: string read mSearchText write mSearchText;
+    property AnyWord: boolean read mAnyWord write mAnyWord;
+    property Phrase: boolean read mPhrase write mPhrase;
+    property ExactPhrase: boolean read mExactPhrase write mExactPhrase;
+    property Parts: boolean read mParts write mParts;
+    property MatchCase: boolean read mMatchCase write mMatchCase;
+    property SelectedBook: string read mSelectedBook write mSelectedBook;
+
+    property SearchState: TSearchTabState read mSearchState write mSearchState;
+
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+
+    constructor Create(); overload;
+    constructor Create(settings: TSearchTabSettings); overload;
+  end;
+
+  TTSKTabInfo = class(TInterfacedObject, IViewTabInfo)
+  private
+    mBiblePath: string;
+    mBook, mChapter: integer;
+    mVerse: integer;
+  public
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+
+    constructor Create(); overload;
+    constructor Create(settings: TTSKTabSettings); overload;
+  end;
+
   TViewTabDragObject = class(TDragObjectEx)
   protected
     mViewTabInfo: TBookTabInfo;
@@ -197,6 +283,8 @@ type
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
     function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
+    function AddSearchTab(newTabInfo: TSearchTabInfo): TChromeTab;
+    function AddTSKTab(newTabInfo: TTSKTabInfo): TChromeTab;
 
     procedure MakeActive();
 
@@ -206,6 +294,8 @@ type
     function GetMemoView: IMemoView;
     function GetLibraryView: ILibraryView;
     function GetBookmarksView: IBookmarksView;
+    function GetSearchView: ISearchView;
+    function GetTSKView: ITSKView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -222,7 +312,9 @@ type
     property BookView: IBookView read GetBookView;
     property MemoView: IMemoView read GetMemoView;
     property LibraryView: ILibraryView read GetLibraryView;
+    property SearchView: ISearchView read GetSearchView;
     property BookmarksView: IBookmarksView read GetBookmarksView;
+    property TSKView: ITSKView read GetTSKView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
     property UpdateOnTabChange: boolean read GetUpdateOnTabChange write SetUpdateOnTabChange;
@@ -230,7 +322,7 @@ type
 
 implementation
 
-uses BookFra;
+uses BookFra, SearchFra, TSKFra;
 
 constructor TBookTabBrowserState.Create;
 begin
@@ -381,11 +473,8 @@ begin
 end;
 
 function TMemoTabInfo.GetSettings(): TTabSettings;
-var
-  tabSettings: TMemoTabSettings;
 begin
-  tabSettings := TMemoTabSettings.Create;
-  Result := tabSettings;
+  Result := TMemoTabSettings.Create;
 end;
 
 procedure TMemoTabInfo.SaveState(const tabsView: ITabsView);
@@ -411,11 +500,8 @@ begin
 end;
 
 function TLibraryTabInfo.GetSettings(): TTabSettings;
-var
-  tabSettings: TLibraryTabSettings;
 begin
-  tabSettings := TLibraryTabSettings.Create;
-  Result := tabSettings;
+  Result := TLibraryTabSettings.Create;
 end;
 
 procedure TLibraryTabInfo.SaveState(const tabsView: ITabsView);
@@ -441,11 +527,8 @@ begin
 end;
 
 function TBookmarksTabInfo.GetSettings(): TTabSettings;
-var
-  tabSettings: TBookmarksTabSettings;
 begin
-  tabSettings := TBookmarksTabSettings.Create;
-  Result := tabSettings;
+  Result := TBookmarksTabSettings.Create;
 end;
 
 procedure TBookmarksTabInfo.SaveState(const tabsView: ITabsView);
@@ -456,6 +539,232 @@ end;
 procedure TBookmarksTabInfo.RestoreState(const tabsView: ITabsView);
 begin
 // nothing to save
+end;
+
+{ TSearchTabInfo }
+
+constructor TSearchTabInfo.Create();
+begin
+  mSearchState := TSearchTabState.Create;
+end;
+
+constructor TSearchTabInfo.Create(settings: TSearchTabSettings);
+begin
+  mSearchState := TSearchTabState.Create;
+
+  SearchText := settings.SearchText;
+  AnyWord := settings.AnyWord;
+  Phrase := settings.Phrase;
+  ExactPhrase := settings.ExactPhrase;
+  Parts := settings.Parts;
+  MatchCase := settings.MatchCase;
+
+  mBookPath := settings.BookPath;
+end;
+
+function TSearchTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabSearch', 'Search');
+end;
+
+function TSearchTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttSearch;
+end;
+
+function TSearchTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TSearchTabSettings;
+begin
+  tabSettings := TSearchTabSettings.Create;
+
+  tabSettings.SearchText := SearchText;
+  tabSettings.AnyWord := AnyWord;
+  tabSettings.Phrase := Phrase;
+  tabSettings.ExactPhrase := ExactPhrase;
+  tabSettings.Parts := Parts;
+  tabSettings.MatchCase := MatchCase;
+  tabSettings.BookPath := mBookPath;
+  
+  Result := tabSettings;
+end;
+
+procedure TSearchTabInfo.SaveState(const tabsView: ITabsView);
+var
+  searchFrame: TSearchFrame;
+begin
+  searchFrame := tabsView.SearchView as TSearchFrame;
+  with searchFrame do
+  begin
+    mBookPath := GetBookPath();
+
+    mSearchInfo := lblSearch.Caption;
+    mSearchText := cbSearch.Text;
+    mAnyWord := chkAll.Checked;
+    mPhrase := chkPhrase.Checked;
+    mExactPhrase := chkExactPhrase.Checked;
+    mParts := chkParts.Checked;
+    mMatchCase := chkCase.Checked;
+    mSelectedBook := cbList.Text;
+
+    mSearchState := TSearchTabState.Create(searchFrame.SearchState);
+  end;
+end;
+
+procedure TSearchTabInfo.RestoreState(const tabsView: ITabsView);
+var
+  searchFrame: TSearchFrame;
+  idx: integer;
+begin
+  searchFrame := tabsView.SearchView as TSearchFrame;
+  with searchFrame do
+  begin
+    lblSearch.Caption := mSearchInfo;
+    if (lblSearch.Caption = '') then
+      lblSearch.Caption := Lang.SayDefault('DockTabsForm.lblSearch.Caption', '');
+
+    cbSearch.Text := mSearchText;
+    chkAll.Checked := mAnyWord;
+    chkPhrase.Checked := mPhrase;
+    chkExactPhrase.Checked := mExactPhrase;
+    chkParts.Checked := mParts;
+    chkCase.Checked := mMatchCase;
+
+    SetCurrentBook(mBookPath);
+
+    for idx := 0 to cbList.Items.Count - 1 do
+    begin
+      if (CompareText(cbList.Items[idx], mSelectedBook) = 0) then
+      begin
+        cbList.ItemIndex := idx;
+        break;
+      end;
+    end;
+
+    searchFrame.SearchState := TSearchTabState.Create(mSearchState);
+
+    DisplaySearchResults(mSearchState.LastSearchResultsPage);
+  end;
+end;
+
+{ TSearchTabState }
+
+constructor TSearchTabState.Create(srcObj: TSearchTabState);
+begin
+  SearchResults := TStringList.Create;
+  SearchWords := TStringList.Create;
+  SearchBooksCache := TStringList.Create();
+  SearchBooksCache.Duplicates := dupIgnore;
+
+  SearchResults.AddStrings(srcObj.SearchResults);
+  SearchWords.AddStrings(srcObj.SearchWords);
+  SearchBooksCache.AddStrings(srcObj.SearchBooksCache);
+
+  LastSearchResultsPage := srcObj.LastSearchResultsPage;
+  SearchPageSize := srcObj.SearchPageSize;
+  SearchTime := srcObj.SearchTime;
+  SearchPage := srcObj.SearchPage;
+  SearchBrowserPosition := srcObj.SearchBrowserPosition;
+  SearchBooksDDAltered := srcObj.SearchBooksDDAltered;
+  IsSearching := srcObj.IsSearching;
+end;
+
+constructor TSearchTabState.Create();
+begin
+  inherited Create();
+
+  SearchResults := TStringList.Create;
+  SearchWords := TStringList.Create;
+  SearchBooksCache := TStringList.Create();
+  SearchBooksCache.Duplicates := dupIgnore;
+
+  LastSearchResultsPage := 1;
+  IsSearching := false;
+end;
+
+destructor TSearchTabState.Destroy;
+begin
+  if Assigned(mSearchResults) then
+    FreeAndNil(mSearchResults);
+
+  if Assigned(mSearchWords) then
+    FreeAndNil(mSearchWords);
+
+  if Assigned(mslSearchBooksCache) then
+    FreeAndNil(mslSearchBooksCache);
+
+  inherited;
+end;
+
+{ TTSKTabInfo }
+
+constructor TTSKTabInfo.Create();
+begin
+  inherited Create();
+
+  mBiblePath := '';
+  mBook := 0;
+  mChapter := 0;
+  mVerse := 0;
+end;
+
+constructor TTSKTabInfo.Create(settings: TTSKTabSettings);
+begin
+  inherited Create();
+
+  mBiblePath := settings.Location;
+  mBook := settings.Book;
+  mChapter := settings.Chapter;
+  mVerse := settings.Verse;
+end;
+
+function TTSKTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabTSK', 'TSK');
+end;
+
+function TTSKTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttTSK;
+end;
+
+function TTSKTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TTSKTabSettings;
+begin
+  tabSettings := TTSKTabSettings.Create;
+
+  tabSettings.Location := mBiblePath;
+  tabSettings.Book := mBook;
+  tabSettings.Chapter := mChapter;
+  tabSettings.Verse := mVerse;
+
+  Result := tabSettings;
+end;
+
+procedure TTSKTabInfo.SaveState(const tabsView: ITabsView);
+var
+  tskFrame: TTSKFrame;
+begin
+  tskFrame := tabsView.TSKView as TTSKFrame;
+  with tskFrame do
+  begin
+    mBiblePath := BiblePath;
+    mBook := Book;
+    mChapter := Chapter;
+    mVerse := Verse;
+  end;
+end;
+
+procedure TTSKTabInfo.RestoreState(const tabsView: ITabsView);
+var
+  tskFrame: TTSKFrame;
+begin
+  tskFrame := tabsView.TSKView as TTSKFrame;
+  with tskFrame do
+  begin
+    tskFrame.ShowXref(mBiblePath, mBook, mChapter, mVerse);
+  end;
 end;
 
 { TViewTabDragObject }

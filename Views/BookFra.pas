@@ -11,7 +11,7 @@ uses
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
-  Vcl.Menus;
+  Vcl.Menus, SearchFra;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -135,6 +135,7 @@ type
     function GetCurrentHistoryItem(): TMenuItem;
     function GetCurrentHistoryIndex(): integer;
     procedure CheckHistoryItem(itemIndex: integer);
+    procedure NavigateToSearch(searchText: string; bookTypeIndex: integer = -1);
 
     procedure HistoryPopup(Sender: TObject);
 
@@ -378,7 +379,7 @@ end;
 
 procedure TBookFrame.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
-  first: integer;
+  first, verse: integer;
   scode, unicodeSRC: string;
   cb: THTMLViewer;
   lr: Boolean;
@@ -446,38 +447,26 @@ begin
   end
   else if Pos('verse ', unicodeSRC) = 1 then
   begin
-    mMainView.tbXRef.tag := StrToInt(Copy(unicodeSRC, 7, Length(unicodeSRC) - 6));
-    mMainView.tbComments.tag := mMainView.tbXRef.tag;
+    verse := StrToInt(Copy(unicodeSRC, 7, Length(unicodeSRC) - 6));
+    mMainView.tbComments.tag := verse;
 
     if Assigned(BookTabInfo) then
     begin
     with BookTabInfo.Bible do
       HistoryAdd(Format('go %s %d %d %d %d $$$%s %s',
-        [ShortPath, CurBook, CurChapter, mMainView.tbXRef.tag, 0,
+        [ShortPath, CurBook, CurChapter, verse, 0,
         // history comment
-        FullPassageSignature(CurBook, CurChapter, mMainView.tbXRef.tag, 0), ShortName]));
+        FullPassageSignature(CurBook, CurChapter, verse, 0), ShortName]));
     end;
 
     if iscontrolDown or (mMainView.pgcMain.Visible and (mMainView.pgcMain.ActivePage = mMainView.tbComments))
     then
-      mMainView.ShowComments
-    else
-    begin
-      try
-        mMainView.ShowXref;
-      finally
-        mMainView.ShowComments;
-      end;
-    end;
+      mMainView.ShowComments;
 
-    if not mMainView.pgcMain.Visible then
-      mMainView.tbtnToggle.Click;
-    if ((mMainView.pgcMain.ActivePage <> mMainView.tbXRef) or iscontrolDown) and
-      (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
-      if iscontrolDown then
-        mMainView.pgcMain.ActivePage := mMainView.tbComments
-      else
-        mMainView.pgcMain.ActivePage := mMainView.tbXRef;
+    if (iscontrolDown) and (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
+       mMainView.pgcMain.ActivePage := mMainView.tbComments;
+
+    mMainView.OpenOrCreateTSKTab(BookTabInfo);
   end
   else if Pos('s', unicodeSRC) = 1 then
   begin
@@ -493,7 +482,6 @@ begin
     if Pos('BQNote', cb.LinkAttributes.Text) > 0 then
     begin
       Handled := true;
-      mMainView.bwrXRef.CharSet := BookTabInfo.Bible.desiredCharset;
       try
         if EndsStr('??', cb.Base) then
         begin
@@ -505,9 +493,8 @@ begin
         lr := mMainView.LoadAnchor(mMainView.bwrComments, unicodeSRC, cb.CurrentFile, unicodeSRC);
         if lr then
         begin
-          if not mMainView.pgcMain.Visible then
-            mMainView.tbtnToggle.Click;
-          mMainView.pgcMain.ActivePage := mMainView.tbComments;
+          if mMainView.pgcMain.Visible then
+            mMainView.pgcMain.ActivePage := mMainView.tbComments;
         end;
       except
         g_ExceptionContext.Add('src:' + SRC);
@@ -554,10 +541,11 @@ begin
   else
   begin
     modIx := mMainView.mModules.FindByName(BookTabInfo.SatelliteName);
+    if modIx < 0 then
+      modIx := mMainView.mModules.FindByName(mMainView.DefaultBibleName);
+
     if modIx >= 0 then
-    begin
       replaceModPath := mMainView.mModules[modIx].mShortPath;
-    end;
   end;
   status := PreProcessAutoCommand(BookTabInfo, unicodeSRC, replaceModPath, ConcreteCmd);
   if status > -2 then
@@ -574,11 +562,7 @@ begin
       wstr := wstr + '--не найдено--';
   end;
 
-  viewer.Hint := '';
   viewer.Hint := wstr;
-  HintWindowClass := HintTools.TbqHintWindow;
-  Application.CancelHint();
-  HintWindowClass := HintTools.TbqHintWindow;
 end;
 
 procedure TBookFrame.bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
@@ -667,7 +651,7 @@ end;
 
 procedure TBookFrame.bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
-  oxt, oct: integer;
+  verse: integer;
 begin
   if BookTabInfo.LocationType = vtlFile then
     Exit;
@@ -716,21 +700,15 @@ begin
 
   if Key = VK_SPACE then
   begin
-    oxt := mMainView.tbXRef.tag;
-    oct := mMainView.tbComments.tag;
-    mMainView.tbXRef.tag := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, mMainView.CurFromVerse, bwrHtml.FindSourcePos(bwrHtml.CaretPos, true));
-    mMainView.tbComments.tag := mMainView.tbXRef.tag;
-    if (mMainView.pgcMain.ActivePage = mMainView.tbXRef) and (oxt <> mMainView.tbXRef.tag) then
-    begin
-      mMainView.ShowXref;
-      Exit
+    verse := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, mMainView.CurFromVerse, bwrHtml.FindSourcePos(bwrHtml.CaretPos, true));
 
-    end;
+    mMainView.OpenOrCreateTSKTab(BookTabInfo, verse);
 
-    if (mMainView.pgcMain.ActivePage = mMainView.tbComments) and (oct <> mMainView.tbComments.tag) then
+    if (mMainView.pgcMain.ActivePage = mMainView.tbComments) and (verse <> mMainView.tbComments.tag) then
     begin
+      mMainView.tbComments.tag := verse;
       mMainView.ShowComments;
-      Exit
+      Exit;
     end;
   end;
 end;
@@ -1274,13 +1252,70 @@ end;
 
 procedure TBookFrame.miSearchWordClick(Sender: TObject);
 begin
-  if bwrHtml.SelLength = 0 then
+  NavigateToSearch(bwrHtml.SelText);
+end;
+
+procedure TBookFrame.NavigateToSearch(searchText: string; bookTypeIndex: integer = -1);
+var
+  searchFrame: TSearchFrame;
+  i: integer;
+  tabInfo: IViewTabInfo;
+  searchTabInfo: TSearchTabInfo;
+  wasUpdateSet: boolean;
+  bookPath: string;
+  tabIndex: integer;
+begin
+  searchText := Trim(searchText);
+
+  if searchText.Length <= 0 then
     Exit;
 
-  mMainView.IsSearching := false;
-  mMainView.cbSearch.Text := Trim(bwrHtml.SelText);
-  mMainView.miSearch.Click;
-  mMainView.btnFindClick(Sender);
+  searchTabInfo := nil;
+  tabIndex := -1;
+  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  begin
+    tabInfo := mTabsView.GetTabInfo(i);
+    if tabInfo.GetViewType = vttSearch then
+    begin
+      // search tab exists
+      searchTabInfo := TSearchTabInfo(tabInfo);
+      tabIndex := i;
+      break;
+    end;
+  end;
+
+  searchFrame := mTabsView.SearchView as TSearchFrame;
+
+  if Assigned(BookTabInfo) and Assigned(BookTabInfo.Bible) then
+  begin
+    bookPath := BookTabInfo.Bible.ShortPath;
+
+    // create search tab if it doesn't exist
+    if not Assigned(searchTabInfo) then
+    begin
+      searchTabInfo := TSearchTabInfo.Create();
+      mTabsView.AddSearchTab(searchTabInfo);
+      tabIndex := mTabsView.ChromeTabs.Tabs.Count - 1;
+    end;
+
+    wasUpdateSet := mTabsView.UpdateOnTabChange;
+    mTabsView.UpdateOnTabChange := false;
+    try
+      mTabsView.ChromeTabs.ActiveTabIndex := tabIndex;
+    finally
+      mTabsView.UpdateOnTabChange := wasUpdateSet;
+    end;
+
+    mTabsView.UpdateCurrentTabContent();
+
+    searchFrame.SetCurrentBook(bookPath);
+    if (bookTypeIndex >= 0) then
+      searchFrame.cbList.ItemIndex := bookTypeIndex;
+
+    searchFrame.cbSearch.Text := Trim(searchText);
+
+    searchFrame.btnFindClick(Self);
+  end;
 end;
 
 procedure TBookFrame.pmBrowserPopup(Sender: TObject);
@@ -2932,14 +2967,15 @@ begin
     Exit;
   end;
 
-  ws := Format('%s '#13#10'<a href="bqnavMw:bqResLnk%s">%s</a><br><hr align=left width=80%%>', [ws, id, psg]);
-
-  doc := mMainView.bwrXRef.DocumentSource;
-  mMainView.bwrXRef.LoadFromString(doc + ws);
-  if mMainView.pgcMain.ActivePage <> mMainView.tbXRef then
-    mMainView.pgcMain.ActivePage := mMainView.tbXRef;
-
-  mMainView.bwrXRef.Position := mMainView.bwrXRef.MaxVertical;
+  // TODO: to figure it out
+//  ws := Format('%s '#13#10'<a href="bqnavMw:bqResLnk%s">%s</a><br><hr align=left width=80%%>', [ws, id, psg]);
+//
+//  doc := mMainView.bwrXRef.DocumentSource;
+//  mMainView.bwrXRef.LoadFromString(doc + ws);
+//  if mMainView.pgcMain.ActivePage <> mMainView.tbXRef then
+//    mMainView.pgcMain.ActivePage := mMainView.tbXRef;
+//
+//  mMainView.bwrXRef.Position := mMainView.bwrXRef.MaxVertical;
 end;
 
 function TBookFrame.GetAutoTxt(const cmd: string; maxWords: integer; out fnt: string; out passageSignature: string): string;

@@ -23,6 +23,21 @@ type
   TBookmarksTabSettings = class(TTabSettings)
   end;
 
+  TSearchTabSettings = class(TTabSettings)
+  private
+    FSearchText: string;
+    FAnyWord, FPhrase, FExactPhrase, FParts, FMatchCase: boolean;
+    FBookPath: string;
+  public
+    property SearchText: string read FSearchText write FSearchText;
+    property AnyWord: boolean read FAnyWord write FAnyWord;
+    property Phrase: boolean read FPhrase write FPhrase;
+    property ExactPhrase: boolean read FExactPhrase write FExactPhrase;
+    property Parts: boolean read FParts write FParts;
+    property MatchCase: boolean read FMatchCase write FMatchCase;
+    property BookPath: string read FBookPath write FBookPath;
+  end;
+
   TBookTabSettings = class(TTabSettings)
   private
     FLocation: string;
@@ -40,12 +55,25 @@ type
     property HistoryIndex: integer read FHistoryIndex write FHistoryIndex;
   end;
 
+  TTSKTabSettings = class(TTabSettings)
+  private
+    FLocation: string;
+    FBook, FChapter, FVerse: integer;
+  public
+    property Location: string read FLocation write FLocation;
+    property Book: integer read FBook write FBook;
+    property Chapter: integer read FChapter write FChapter;
+    property Verse: integer read FVerse write FVerse;
+  end;
+
   TTabsViewSettings = class
   private
     FBookTabs: TList<TBookTabSettings>;
     FMemoTabs: TList<TMemoTabSettings>;
     FLibraryTabs: TList<TLibraryTabSettings>;
     FBookmarksTabs: TList<TBookmarksTabSettings>;
+    FSearchTabs: TList<TSearchTabSettings>;
+    FTSKTabs: TList<TTSKTabSettings>;
 
     FActive: boolean;
     FViewName: string;
@@ -57,6 +85,8 @@ type
     property MemoTabs: TList<TMemoTabSettings> read FMemoTabs write FMemoTabs;
     property LibraryTabs: TList<TLibraryTabSettings> read FLibraryTabs write FLibraryTabs;
     property BookmarksTabs: TList<TBookmarksTabSettings> read FBookmarksTabs write FBookmarksTabs;
+    property SearchTabs: TList<TSearchTabSettings> read FSearchTabs write FSearchTabs;
+    property TSKTabs: TList<TTSKTabSettings> read FTSKTabs write FTSKTabs;
 
     property Active: boolean read FActive write FActive;
     property ViewName: string read FViewName write FViewName;
@@ -98,6 +128,8 @@ begin
   MemoTabs := TList<TMemoTabSettings>.Create();
   LibraryTabs := TList<TLibraryTabSettings>.Create();
   BookmarksTabs := TList<TBookmarksTabSettings>.Create();
+  SearchTabs := TList<TSearchTabSettings>.Create();
+  TSKTabs := TList<TTSKTabSettings>.Create();
 
   Active := false;
 end;
@@ -115,6 +147,12 @@ begin
 
   if (tabSettings is TBookmarksTabSettings) then
     BookmarksTabs.Add(TBookmarksTabSettings(tabSettings));
+
+  if (tabSettings is TSearchTabSettings) then
+    SearchTabs.Add(TSearchTabSettings(tabSettings));
+
+  if (tabSettings is TTSKTabSettings) then
+    TSKTabs.Add(TTSKTabSettings(tabSettings));
 end;
 
 function TTabsViewSettings.GetOrderedTabSettings(): TList<TTabSettings>;
@@ -123,7 +161,7 @@ var
   tabs: TList<TTabSettings>;
   tab: TTabSettings;
 begin
-  count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count + BookmarksTabs.Count;
+  count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count + BookmarksTabs.Count + SearchTabs.Count + TSKTabs.Count;
   tabs := TList<TTabSettings>.Create;
   tabs.Count := count;
 
@@ -143,6 +181,16 @@ begin
   end;
 
   for tab in BookmarksTabs do
+  begin
+    tabs[tab.Index] := tab;
+  end;
+
+  for tab in SearchTabs do
+  begin
+    tabs[tab.Index] := tab;
+  end;
+
+  for tab in TSKTabs do
   begin
     tabs[tab.Index] := tab;
   end;

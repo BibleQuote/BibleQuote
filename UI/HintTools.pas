@@ -7,6 +7,7 @@ uses Controls, Classes, Windows, Forms, SysUtils;
 type
   TbqHintWindow = class(THintWindow)
     procedure ActivateHint(Rect: TRect; const AHint: string); override;
+    function CalcHintRect(MaxWidth: Integer; const AHint: string; AData: Pointer): TRect; override;
   end;
 
 implementation
@@ -17,7 +18,7 @@ uses Types;
 
 procedure TbqHintWindow.ActivateHint(Rect: TRect; const AHint: string);
 var
-  r, maxOffset: integer;
+  r, maxOffset: Integer;
 
 begin
   r := Screen.DesktopRect.Right - Rect.Right - 30;
@@ -30,6 +31,30 @@ begin
   end;
 
   inherited;
+end;
+
+function TbqHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: string; AData: Pointer): TRect;
+var
+  h, w: Integer;
+begin
+  Canvas.Font.Assign(Screen.HintFont);
+  Result := Rect(0, 0, MaxWidth, 0);
+  h := DrawText(Canvas.Handle, Pointer(AHint), -1, Result, DT_CALCRECT or DT_LEFT or DT_WORDBREAK or DT_NOPREFIX);
+  if (h < Screen.Height) and (Result.Right * 3 >= Screen.Width) then
+  begin
+    w := round(Sqrt(7 * h * Result.Right / 3) * 10 / 9);
+    if w * 3 < Screen.Width then
+      w := Screen.Width div 3;
+    repeat
+      w := w * 9 div 10;
+      Result := Rect(0, 1, w, 0);
+      h := DrawText(
+        Canvas.Handle, Pointer(AHint), -1, Result,
+        DT_CALCRECT or DT_LEFT or DT_EXTERNALLEADING or DT_WORDBREAK or DT_NOPREFIX or DT_EDITCONTROL or DrawTextBiDiModeFlagsReadingOnly);
+    until (h < Screen.Height - 50) or (w < 100);
+  end;
+  Inc(Result.Right, 8);
+  Inc(Result.Bottom, 4);
 end;
 
 end.
