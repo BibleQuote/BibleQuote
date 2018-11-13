@@ -66,6 +66,12 @@ type
     property Verse: integer read FVerse write FVerse;
   end;
 
+  TTagsVersesTabSettings = class(TTabSettings)
+  end;
+
+  TDictionaryTabSettings = class(TTabSettings)
+  end;
+
   TTabsViewSettings = class
   private
     FBookTabs: TList<TBookTabSettings>;
@@ -74,6 +80,8 @@ type
     FBookmarksTabs: TList<TBookmarksTabSettings>;
     FSearchTabs: TList<TSearchTabSettings>;
     FTSKTabs: TList<TTSKTabSettings>;
+    FTagsVersesTabs: TList<TTagsVersesTabSettings>;
+    FDictionaryTabs: TList<TDictionaryTabSettings>;
 
     FActive: boolean;
     FViewName: string;
@@ -87,6 +95,8 @@ type
     property BookmarksTabs: TList<TBookmarksTabSettings> read FBookmarksTabs write FBookmarksTabs;
     property SearchTabs: TList<TSearchTabSettings> read FSearchTabs write FSearchTabs;
     property TSKTabs: TList<TTSKTabSettings> read FTSKTabs write FTSKTabs;
+    property TagsVersesTabs: TList<TTagsVersesTabSettings> read FTagsVersesTabs write FTagsVersesTabs;
+    property DictionaryTabs: TList<TDictionaryTabSettings> read FDictionaryTabs write FDictionaryTabs;
 
     property Active: boolean read FActive write FActive;
     property ViewName: string read FViewName write FViewName;
@@ -130,6 +140,8 @@ begin
   BookmarksTabs := TList<TBookmarksTabSettings>.Create();
   SearchTabs := TList<TSearchTabSettings>.Create();
   TSKTabs := TList<TTSKTabSettings>.Create();
+  TagsVersesTabs := TList<TTagsVersesTabSettings>.Create();
+  DictionaryTabs := TList<TDictionaryTabSettings>.Create();
 
   Active := false;
 end;
@@ -153,6 +165,12 @@ begin
 
   if (tabSettings is TTSKTabSettings) then
     TSKTabs.Add(TTSKTabSettings(tabSettings));
+
+  if (tabSettings is TTagsVersesTabSettings) then
+    TagsVersesTabs.Add(TTagsVersesTabSettings(tabSettings));
+
+  if (tabSettings is TDictionaryTabSettings) then
+    DictionaryTabs.Add(TDictionaryTabSettings(tabSettings));
 end;
 
 function TTabsViewSettings.GetOrderedTabSettings(): TList<TTabSettings>;
@@ -161,7 +179,10 @@ var
   tabs: TList<TTabSettings>;
   tab: TTabSettings;
 begin
-  count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count + BookmarksTabs.Count + SearchTabs.Count + TSKTabs.Count;
+  count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count +
+    BookmarksTabs.Count + SearchTabs.Count + TSKTabs.Count +
+    TagsVersesTabs.Count + DictionaryTabs.Count;
+
   tabs := TList<TTabSettings>.Create;
   tabs.Count := count;
 
@@ -191,6 +212,16 @@ begin
   end;
 
   for tab in TSKTabs do
+  begin
+    tabs[tab.Index] := tab;
+  end;
+
+  for tab in TagsVersesTabs do
+  begin
+    tabs[tab.Index] := tab;
+  end;
+
+  for tab in DictionaryTabs do
   begin
     tabs[tab.Index] := tab;
   end;

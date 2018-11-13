@@ -15,7 +15,9 @@ type
     vttLibrary,
     vttBookmarks,
     vttSearch,
-    vttTSK);
+    vttTSK,
+    vttTagsVerses,
+    vttDictionary);
 
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
@@ -44,6 +46,14 @@ type
 
   ITSKView = interface(ITabView)
   ['{4FDFF734-6243-4A50-A867-9DA7F27C5A50}']
+  end;
+
+  ITagsVersesView = interface(ITabView)
+  ['{B8822B40-4C89-4943-8461-84ADDCB92401}']
+  end;
+
+  IDictionaryView = interface(ITabView)
+  ['{C3D8CC95-1D9D-4F01-A31A-5133BADFA598}']
   end;
 
   ITabsView = interface; // forward declaration
@@ -263,6 +273,28 @@ type
     constructor Create(settings: TTSKTabSettings); overload;
   end;
 
+  TTagsVersesTabInfo = class(TInterfacedObject, IViewTabInfo)
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+
+    constructor Create(); overload;
+    constructor Create(settings: TTagsVersesTabSettings); overload;
+  end;
+
+  TDictionaryTabInfo = class(TInterfacedObject, IViewTabInfo)
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+
+    constructor Create(); overload;
+    constructor Create(settings: TDictionaryTabSettings); overload;
+  end;
+
   TViewTabDragObject = class(TDragObjectEx)
   protected
     mViewTabInfo: TBookTabInfo;
@@ -285,6 +317,8 @@ type
     function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
     function AddSearchTab(newTabInfo: TSearchTabInfo): TChromeTab;
     function AddTSKTab(newTabInfo: TTSKTabInfo): TChromeTab;
+    function AddTagsVersesTab(newTabInfo: TTagsVersesTabInfo): TChromeTab;
+    function AddDictionaryTab(newTabInfo: TDictionaryTabInfo): TChromeTab;
 
     procedure MakeActive();
 
@@ -296,6 +330,7 @@ type
     function GetBookmarksView: IBookmarksView;
     function GetSearchView: ISearchView;
     function GetTSKView: ITSKView;
+    function GetTagsVersesView: ITagsVersesView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -765,6 +800,80 @@ begin
   begin
     tskFrame.ShowXref(mBiblePath, mBook, mChapter, mVerse);
   end;
+end;
+
+{ TTagsVersesTabInfo }
+
+constructor TTagsVersesTabInfo.Create();
+begin
+  inherited Create();
+end;
+
+constructor TTagsVersesTabInfo.Create(settings: TTagsVersesTabSettings);
+begin
+  inherited Create();
+end;
+
+function TTagsVersesTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabTagsVerses', 'Themed bookmarks');
+end;
+
+function TTagsVersesTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttTagsVerses;
+end;
+
+function TTagsVersesTabInfo.GetSettings(): TTabSettings;
+begin
+  Result := TTagsVersesTabSettings.Create;
+end;
+
+procedure TTagsVersesTabInfo.SaveState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+procedure TTagsVersesTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+{ TDictionaryTabInfo }
+
+constructor TDictionaryTabInfo.Create();
+begin
+  inherited Create();
+end;
+
+constructor TDictionaryTabInfo.Create(settings: TDictionaryTabSettings);
+begin
+  inherited Create();
+end;
+
+function TDictionaryTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttDictionary;
+end;
+
+function TDictionaryTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabDictionary', 'Dictionary');
+end;
+
+function TDictionaryTabInfo.GetSettings(): TTabSettings;
+begin
+  Result := TDictionaryTabSettings.Create;
+end;
+
+procedure TDictionaryTabInfo.SaveState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+procedure TDictionaryTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+// nothing to save
 end;
 
 { TViewTabDragObject }

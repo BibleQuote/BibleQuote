@@ -50,7 +50,6 @@ begin
   mMainView := AMainView;
   mTabsView := ATabsView;
 
-
   with bwrXRef do
   begin
     DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');

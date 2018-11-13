@@ -11,8 +11,7 @@ type
     bqsDictionariesListCreating,
     bqsDictionariesListCreated,
     bqsVerseListEngineInitializing,
-    bqsVerseListEngineInitialized,
-    bqsTaggedBookmarksCached);
+    bqsVerseListEngineInitialized);
 
   TBibleQuoteState = set of TBibleQuoteStateEntries;
 

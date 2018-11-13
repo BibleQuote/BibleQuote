@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf,
   FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  BibleQuoteUtils, LinksParserIntf;
+  BibleQuoteUtils, LinksParserIntf, JclNotify, NotifyMessages;
 
 type
   TVersesNodeType = (bqvntTag, bqvntVerse);
@@ -41,16 +41,6 @@ type
   TbqVerseTagsList = class(TObjectList)
     function FindTagItem(const txt: string): TVersesNodeData;
     function FindItemIxById(id: int64; startIx: integer): integer;
-    function FindItemByTagPointer(ptr: Pointer; startIx: integer): integer;
-  end;
-
-  IuiVerseOperations = interface
-    ['{14ED0EC0-45FE-1FD6-F1F0-54DF5DE47A78}']
-    procedure VerseAdded(verse_id, tagId: int64; const cmd: string; show: boolean);
-    procedure VerseDeleted(verse_id, tagId: int64);
-    procedure TagAdded(tagId: int64; const txt: string; show: boolean);
-    procedure TagDeleted(tagId: int64; const txt: string);
-    procedure TagRenamed(tagId: int64; const newTxt: string);
   end;
 
   TTagsDbEngine = class(TDataModule)
@@ -77,10 +67,11 @@ type
     tlbTagNamesTagName: TWideStringField;
     tlbVLocationsLOCID: TIntegerField;
     tlbVLocationsLocStringID: TWideStringField;
+    procedure DataModuleCreate(Sender: TObject);
   private
     { Private declarations }
     mInitialized: boolean;
-    mUI: IuiVerseOperations;
+    mNotifier: IJclNotifier;
 
     function CreateDB(const path: string): integer;
     function InternalAddTag(const tag: string; out dbTagid: int64): integer;
@@ -88,19 +79,20 @@ type
     function InternalAddLocation(loc: string; out dbLocId: int64): HRESULT;
     function InternalAddRelation(dbTagid, dbVerseId, relationId: int64; show: boolean): HRESULT;
     function RelationFromChar(ch: Char): integer;
-    function InternalDeleteTag(const tn: string; dbTagid: int64; uiRelaxed: boolean): integer;
+    function InternalDeleteTag(const tn: string; dbTagid: int64): integer;
     function InternalDeleteVerse(const verseId: int64): HRESULT;
   public
     { Public declarations }
 
-    procedure InitVerseListEngine(const fromPath: string; UI: IuiVerseOperations);
+    procedure InitVerseListEngine(const fromPath: string);
     function SeedNodes(NodeLst: TObjectList): integer;
     function InitNodeChildren(const vnd: TVersesNodeData; verse_tags_cache: TbqVerseTagsList): integer;
     procedure AddVerseTagged(tagsList: string; bk, ch, vs, ve: integer; const loc: string; show: boolean);
     function AddTag(const tn: string; out dbTagid: int64): HRESULT;
-    function DeleteTag(const tn: string; dbTagid: int64; uiRelaxed: boolean = false): integer;
+    function DeleteTag(const tn: string; dbTagid: int64): integer;
     function DeleteVerseFromTag(const verseId: int64; const dbTagName: string; uiRelaxed: boolean = false): HRESULT;
     function RenameTag(const tagId: int64; const newName: string): HRESULT;
+    function GetNotifier: IJclNotifier;
   end;
 
 var
@@ -264,7 +256,12 @@ begin
   end;
 end;
 
-function TTagsDbEngine.DeleteTag(const tn: string; dbTagid: int64; uiRelaxed: boolean = false): integer;
+procedure TTagsDbEngine.DataModuleCreate(Sender: TObject);
+begin
+  mNotifier := TJclBaseNotifier.Create;
+end;
+
+function TTagsDbEngine.DeleteTag(const tn: string; dbTagid: int64): integer;
 var
   verseId: int64;
   i, c: integer;
@@ -312,7 +309,7 @@ begin
     verseIdList.Free();
   end;
 
-  result := InternalDeleteTag(tn, dbTagid, uiRelaxed);
+  result := InternalDeleteTag(tn, dbTagid);
 end;
 
 function TTagsDbEngine.DeleteVerseFromTag(const verseId: int64; const dbTagName: string; uiRelaxed: boolean): HRESULT;
@@ -335,7 +332,7 @@ begin
       BqShowException(e);
   end;
   result := InternalDeleteVerse(verseId);
-  mUI.VerseDeleted(verseId, dbTagid);
+  mNotifier.Notify(TVerseDeletedMessage.Create(verseId, dbTagid));
 end;
 
 function TTagsDbEngine.InitNodeChildren(const vnd: TVersesNodeData; verse_tags_cache: TbqVerseTagsList): integer;
@@ -349,8 +346,7 @@ begin
   begin
 
     tlbVRelations.SQL.Text :=
-      Format('SELECT * from [VTRelations] where (TAGID=%d) ORDER BY [VerseId]',
-      [vnd.SelfId]);
+      Format('SELECT * from [VTRelations] where (TAGID=%d) ORDER BY [VerseId]', [vnd.SelfId]);
 
     tlbVRelations.Open();
     Include(vnd.nodeState, bqvnsInitialized);
@@ -362,7 +358,7 @@ begin
       // check and create node if not exists
       TVersesNodeData.FindNodeById(verse_tags_cache, cVid, bqvntVerse, vndChild);
 
-      mUI.VerseAdded(cVid, vnd.SelfId, '', false);
+      mNotifier.Notify(TVerseAddedMessage.Create(cVid, vnd.SelfId, '', false));
       tlbVRelations.Next();
     end;
 
@@ -370,11 +366,10 @@ begin
 
 end;
 
-procedure TTagsDbEngine.InitVerseListEngine(const fromPath: string; UI: IuiVerseOperations);
+procedure TTagsDbEngine.InitVerseListEngine(const fromPath: string);
 begin
   try
     mInitialized := true;
-    mUI := UI;
     if not FileExists(fromPath) then
       CreateDB(fromPath)
     else
@@ -422,7 +417,7 @@ begin
     'values (%d,%d,%d)', [dbTagid, dbVerseId, relationId]));
 
   if (result > 0) then
-    mUI.VerseAdded(dbVerseId, dbTagid, '', show);
+    mNotifier.Notify(TVerseAddedMessage.Create(dbVerseId, dbTagid, '', show));
 end;
 
 function is_not_unique_msg(const msg: string): boolean;
@@ -430,8 +425,7 @@ begin
   result := pos('UNIQUE constraint', msg) > 0;
 end;
 
-function TTagsDbEngine.InternalAddTag(const tag: string;
-  out dbTagid: int64): integer;
+function TTagsDbEngine.InternalAddTag(const tag: string; out dbTagid: int64): integer;
 var
   effectiveAdded: boolean;
   insertStatement: string;
@@ -452,13 +446,12 @@ begin
   begin
     dbTagid := tlbTagNamesTAGID.Value;
     if effectiveAdded then
-      mUI.TagAdded(dbTagid, tag, true); // mTagAdded(dbTagId, ws);
+      mNotifier.Notify(TTagAddedMessage.Create(dbTagid, tag, true));
   end;
 
 end;
 
-function TTagsDbEngine.InternalAddVerse(bk, ch, vs, ve: integer;
-  const loc: string; out dbVerseId: int64): HRESULT;
+function TTagsDbEngine.InternalAddVerse(bk, ch, vs, ve: integer; const loc: string; out dbVerseId: int64): HRESULT;
 var
   locID: int64;
 begin
@@ -483,7 +476,7 @@ begin
 
 end;
 
-function TTagsDbEngine.InternalDeleteTag(const tn: string; dbTagid: int64; uiRelaxed: boolean): integer;
+function TTagsDbEngine.InternalDeleteTag(const tn: string; dbTagid: int64): integer;
 begin
   result := -1;
   try
@@ -495,14 +488,12 @@ begin
       BqShowException(e);
   end;
   try
-    result := fdTagsConnection.ExecSQL
-      ('Delete from TagNames where TagName like"' + tn + '"');
+    result := fdTagsConnection.ExecSQL('Delete from TagNames where TagName like"' + tn + '"');
+    mNotifier.Notify(TTagDeletedMessage.Create(dbTagid, tn));
   except
     on e: Exception do
       BqShowException(e);
   end;
-  if (not uiRelaxed) and (result = 0) then
-    mUI.TagDeleted(-1, tn); // mTagDeleted(-1, tn);
 end;
 
 function TTagsDbEngine.InternalDeleteVerse(const verseId: int64): HRESULT;
@@ -531,15 +522,19 @@ begin
   end;
 end;
 
-function TTagsDbEngine.RenameTag(const tagId: int64;
-  const newName: string): HRESULT;
+function TTagsDbEngine.GetNotifier: IJclNotifier;
+begin
+  Result := mNotifier;
+end;
+
+function TTagsDbEngine.RenameTag(const tagId: int64; const newName: string): HRESULT;
 begin
   try
     result := fdTagsConnection.ExecSQL(Format(
       'UPDATE [TagNames] SET [TagName]="%s" Where TAGID=%d',
       [newName, tagId]));
 
-    mUI.TagRenamed(tagId, newName);
+    mNotifier.Notify(TTagRenamedMessage.Create(tagId, newName));
   except
     on e: EDatabaseError do
     begin
@@ -616,8 +611,7 @@ begin
   c := lst.Count - 1;
 
   for i := 0 to c do
-    if (TVersesNodeData(lst[i]).SelfId = id) and
-      (TVersesNodeData(lst[i]).nodeType = nodeType) then
+    if (TVersesNodeData(lst[i]).SelfId = id) and (TVersesNodeData(lst[i]).nodeType = nodeType) then
     begin
       result := i;
       break;
@@ -721,25 +715,6 @@ fail:
 end;
 
 { TbqVerseTagsList }
-
-function TbqVerseTagsList.FindItemByTagPointer(ptr: Pointer; startIx: integer): integer;
-var
-  i, c: integer;
-  vnd: TVersesNodeData;
-begin
-  c := Count - 1;
-  for i := startIx to c do
-  begin
-    vnd := TVersesNodeData(Items[i]);
-    if (vnd.nodeType = bqvntVerse) and (assigned(vnd.Parents)) and
-      (vnd.Parents.IndexOf(ptr) >= 0) then
-    begin
-      result := i;
-      exit;
-    end;
-  end;
-  result := -1;
-end;
 
 function TbqVerseTagsList.FindItemIxById(id: int64; startIx: integer): integer;
 var
