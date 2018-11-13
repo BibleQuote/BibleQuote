@@ -22,7 +22,6 @@ type
     mEvent, mDoneOperationEvent: TSimpleEvent;
     mDictionariesPath: string;
     mDictionaryTokens: TBQStringList;
-    mUI: IuiVerseOperations;
     mOperation: TbqWorkerRequiredOperation;
 
     mBusy: boolean;
@@ -32,14 +31,14 @@ type
     function _LoadDictionaries(const path: string): HRESULT;
     function getAsynInface(): IbqEngineAsyncTraits;
     function _InitDictionaryItemsList(lst: TBQStringList): HRESULT;
-    function _InitVerseListEngine(ui: IuiVerseOperations): HRESULT;
+    function _InitVerseListEngine(): HRESULT;
     function GetBusy(): boolean;
     procedure SetBusy(aVal: boolean);
 
   public
     function LoadDictionaries(const fromPath: string; foreground: boolean): HRESULT;
     function InitDictionaryItemsList(lst: TBQStringList; foreground: boolean = false): HRESULT;
-    function InitVerseListEngine(ui: IuiVerseOperations; foreground: boolean): HRESULT;
+    function InitVerseListEngine(foreground: boolean): HRESULT;
     function WaitUntilDone(dwTime: DWORD): TWaitResult;
     constructor Create(iEngine: IInterface);
     procedure Finalize();
@@ -127,10 +126,10 @@ begin
   result := S_OK;
 end;
 
-function TbqWorker._InitVerseListEngine(ui: IuiVerseOperations): HRESULT;
+function TbqWorker._InitVerseListEngine(): HRESULT;
 begin
   try
-    TagsDbEngine.InitVerseListEngine(ExePath + 'TagsDb.bqd', ui);
+    TagsDbEngine.InitVerseListEngine(ExePath + 'TagsDb.bqd');
     result := S_OK;
   except
     on e: Exception do
@@ -228,11 +227,10 @@ begin
       end
       else if mOperation = wroInitVerseListEngine then
       begin
-        mResult := _InitVerseListEngine(mUI);
+        mResult := _InitVerseListEngine();
         engine := getAsynInface();
         if assigned(engine) then
           engine.AsyncStateCompleted(bqsVerseListEngineInitializing, mResult);
-        mUI := nil;
       end;
       // SetName;
     except
@@ -263,7 +261,6 @@ begin
     mEvent.SetEvent();
   end;
   WaitFor();
-  mUI := nil;
   mEngine := nil;
 end;
 
@@ -307,18 +304,17 @@ begin
   result := S_OK;
 end;
 
-function TbqWorker.InitVerseListEngine(ui: IuiVerseOperations; foreground: boolean): HRESULT;
+function TbqWorker.InitVerseListEngine(foreground: boolean): HRESULT;
 begin
   if foreground then
   begin
-    result := _InitVerseListEngine(ui);
+    result := _InitVerseListEngine();
     exit
   end;
   result := S_FALSE;
   if Busy then
     exit;
   mOperation := wroInitVerseListEngine;
-  mUI := ui;
   mEvent.SetEvent();
   result := S_OK;
 end;

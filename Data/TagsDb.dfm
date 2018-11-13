@@ -1,5 +1,6 @@
 object TagsDbEngine: TTagsDbEngine
   OldCreateOrder = False
+  OnCreate = DataModuleCreate
   Height = 304
   Width = 231
   object fdSQLiteDriver: TFDPhysSQLiteDriverLink

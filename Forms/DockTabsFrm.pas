@@ -10,7 +10,7 @@ uses
   ExceptionFrm, Math, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig, BookmarksFra,
-  SearchFra, TSKFra;
+  SearchFra, TSKFra, TagsVersesFra, DictionaryFra;
 
 const
   bsText = 0;
@@ -55,6 +55,8 @@ type
     mBookmarksView: TBookmarksFrame;
     mSearchView: TSearchFrame;
     mTSKView: TTSKFrame;
+    mTagsVersesView: TTagsVersesFrame;
+    mDictionaryView: TDictionaryFrame;
 
     mUpdateOnTabChange: boolean;
 
@@ -73,6 +75,8 @@ type
     procedure UpdateBookView();
     procedure UpdateSearchView();
     procedure UpdateTSKView();
+    procedure UpdateTagsVersesView();
+    procedure UpdateDictionaryView();
 
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
@@ -80,6 +84,8 @@ type
     function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
     function AddSearchTab(newTabInfo: TSearchTabInfo): TChromeTab;
     function AddTSKTab(newTabInfo: TTSKTabInfo): TChromeTab;
+    function AddTagsVersesTab(newTabInfo: TTagsVersesTabInfo): TChromeTab;
+    function AddDictionaryTab(newTabInfo: TDictionaryTabInfo): TChromeTab;
 
     procedure OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
 
@@ -96,6 +102,7 @@ type
     function GetBookmarksView: IBookmarksView;
     function GetSearchView: ISearchView;
     function GetTSKView: ITSKView;
+    function GetTagsVersesView: ITagsVersesView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -162,6 +169,11 @@ end;
 function TDockTabsForm.GetTSKView(): ITSKView;
 begin
   Result := mTSKView as ITSKView;
+end;
+
+function TDockTabsForm.GetTagsVersesView(): ITagsVersesView;
+begin
+  Result := mTagsVersesView as ITagsVersesView;
 end;
 
 function TDockTabsForm.GetBibleTabs(): TDockTabSet;
@@ -251,11 +263,14 @@ begin
   if (tabInfo.GetViewType = vttBook) then
   begin
     ShowFrame(mBookView);
+
     HideFrame(mMemoView);
     HideFrame(mLibraryView);
     HideFrame(mBookmarksView);
     HideFrame(mSearchView);
     HideFrame(mTSKView);
+    HideFrame(mTagsVersesView);
+    HideFrame(mDictionaryView);
 
     UpdateBookView();
   end;
@@ -263,11 +278,14 @@ begin
   if (tabInfo.GetViewType = vttMemo) then
   begin
     ShowFrame(mMemoView);
+
     HideFrame(mBookView);
     HideFrame(mLibraryView);
     HideFrame(mBookmarksView);
     HideFrame(mSearchView);
     HideFrame(mTSKView);
+    HideFrame(mTagsVersesView);
+    HideFrame(mDictionaryView);
 
     mMainView.ClearCopyrights();
   end;
@@ -280,6 +298,8 @@ begin
     HideFrame(mBookmarksView);
     HideFrame(mSearchView);
     HideFrame(mTSKView);
+    HideFrame(mTagsVersesView);
+    HideFrame(mDictionaryView);
 
     mLibraryView.SetModules(mMainView.mModules);
     mMainView.ClearCopyrights();
@@ -293,6 +313,8 @@ begin
     HideFrame(mLibraryView);
     HideFrame(mSearchView);
     HideFrame(mTSKView);
+    HideFrame(mTagsVersesView);
+    HideFrame(mDictionaryView);
 
     mMainView.ClearCopyrights();
   end;
@@ -305,6 +327,8 @@ begin
     HideFrame(mBookmarksView);
     HideFrame(mLibraryView);
     HideFrame(mTSKView);
+    HideFrame(mTagsVersesView);
+    HideFrame(mDictionaryView);
 
     mMainView.ClearCopyrights();
     UpdateSearchView();
@@ -319,9 +343,43 @@ begin
     HideFrame(mMemoView);
     HideFrame(mLibraryView);
     HideFrame(mSearchView);
+    HideFrame(mTagsVersesView);
+    HideFrame(mDictionaryView);
 
     mMainView.ClearCopyrights();
     UpdateTSKView();
+  end;
+
+  if (tabInfo.GetViewType = vttTagsVerses) then
+  begin
+    ShowFrame(mTagsVersesView);
+
+    HideFrame(mBookmarksView);
+    HideFrame(mBookView);
+    HideFrame(mMemoView);
+    HideFrame(mLibraryView);
+    HideFrame(mSearchView);
+    HideFrame(mTSKView);
+    HideFrame(mDictionaryView);
+
+    mMainView.ClearCopyrights();
+    UpdateTagsVersesView();
+  end;
+
+  if (tabInfo.GetViewType = vttDictionary) then
+  begin
+    ShowFrame(mDictionaryView);
+
+    HideFrame(mTagsVersesView);
+    HideFrame(mBookmarksView);
+    HideFrame(mBookView);
+    HideFrame(mMemoView);
+    HideFrame(mLibraryView);
+    HideFrame(mSearchView);
+    HideFrame(mTSKView);
+
+    mMainView.ClearCopyrights();
+    UpdateDictionaryView();
   end;
 end;
 
@@ -432,6 +490,14 @@ begin
   mTSKView := TTSKFrame.Create(nil, mMainView, self);
   mTSKView.Parent := pnlMain;
   mTSKView.Align := alClient;
+
+  mTagsVersesView := TTagsVersesFrame.Create(nil, mMainView, self);
+  mTagsVersesView.Parent := pnlMain;
+  mTagsVersesView.Align := alClient;
+
+  mDictionaryView := TDictionaryFrame.Create(nil, mMainView, self);
+  mDictionaryView.Parent := pnlMain;
+  mDictionaryView.Align := alClient;
 end;
 
 procedure TDockTabsForm.FormDeactivate(Sender: TObject);
@@ -568,6 +634,28 @@ var
 begin
   tabInfo := GetActiveTabInfo();
   if (not Assigned(tabInfo)) or (not (tabInfo is TTSKTabInfo)) then
+    Exit;
+
+  tabInfo.RestoreState(self);
+end;
+
+procedure TDockTabsForm.UpdateTagsVersesView();
+var
+  tabInfo: IViewTabInfo;
+begin
+  tabInfo := GetActiveTabInfo();
+  if (not Assigned(tabInfo)) or (not (tabInfo is TTagsVersesTabInfo)) then
+    Exit;
+
+  tabInfo.RestoreState(self);
+end;
+
+procedure TDockTabsForm.UpdateDictionaryView();
+var
+  tabInfo: IViewTabInfo;
+begin
+  tabInfo := GetActiveTabInfo();
+  if (not Assigned(tabInfo)) or (not (tabInfo is TDictionaryTabInfo)) then
     Exit;
 
   tabInfo.RestoreState(self);
@@ -751,6 +839,36 @@ begin
   Result := newTab;
 end;
 
+function TDockTabsForm.AddTagsVersesTab(newTabInfo: TTagsVersesTabInfo): TChromeTab;
+var
+  newTab: TChromeTab;
+begin
+  newTab := ctViewTabs.Tabs.Add;
+  newTab.Caption := Lang.SayDefault('TabTagsVerses', 'Themed Bookmarks');
+  newTab.Data := newTabInfo;
+  newTab.ImageIndex := 22;
+
+  mViewTabs.Add(newTabInfo);
+  UpdateTabContent(newTab);
+
+  Result := newTab;
+end;
+
+function TDockTabsForm.AddDictionaryTab(newTabInfo: TDictionaryTabInfo): TChromeTab;
+var
+  newTab: TChromeTab;
+begin
+  newTab := ctViewTabs.Tabs.Add;
+  newTab.Caption := Lang.SayDefault('TabDictionary', 'Dictionary');
+  newTab.Data := newTabInfo;
+  newTab.ImageIndex := 23;
+
+  mViewTabs.Add(newTabInfo);
+  UpdateTabContent(newTab);
+
+  Result := newTab;
+end;
+
 procedure TDockTabsForm.Translate();
 var
   chromeTab: TChromeTab;
@@ -764,6 +882,8 @@ begin
       mLibraryView.Translate();
       mBookmarksView.Translate();
       mSearchView.Translate();
+      mTagsVersesView.Translate();
+      mDictionaryView.Translate();
 
       for i := 0 to ctViewTabs.Tabs.Count - 1 do
       begin

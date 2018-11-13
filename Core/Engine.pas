@@ -20,7 +20,7 @@ type
     mWorker: TbqWorker;
     mDicList: TBQStringList;
     mBackOpsActive: boolean;
-    mTags_n_VersesList: TbqVerseTagsList;
+
     function GetState(stateEntryName: TBibleQuoteStateEntries): boolean; inline;
     procedure AsyncStateCompleted(state: TBibleQuoteStateEntries; res: HRESULT);
     function GetDictionary(aIndex: Cardinal): TDict;
@@ -32,15 +32,13 @@ type
     procedure Initilize();
     function LoadDictionaries(const Path: string; foreground: boolean): HRESULT;
     function InitDictionaryItemsList(foreground: boolean): HRESULT;
-    function InitVerseListEngine(ui: IuiVerseOperations; foreground: boolean): HRESULT;
+    function InitVerseListEngine(foreground: boolean): HRESULT;
     function DictionariesCount(): Cardinal;
-    function CacheTagNames(): HRESULT;
     constructor Create();
     destructor Destroy; override;
     property state[TBibleQuoteStateEntries: TBibleQuoteStateEntries]: boolean read GetState; default;
     property Dictionaries[i: Cardinal]: TDict read GetDictionary;
     property DictionaryTokens: TBQStringList read mDicList;
-    property VersesTagsList: TbqVerseTagsList read mTags_n_VersesList;
   end;
 
 implementation
@@ -60,21 +58,6 @@ begin
   mBackOpsActive := false;
 end;
 
-function TBibleQuoteEngine.CacheTagNames: HRESULT;
-begin
-  Result := S_OK;
-  if state[bqsTaggedBookmarksCached] then
-  begin
-    Result := S_OK;
-    exit;
-  end;
-  if not Assigned(mTags_n_VersesList) then
-    mTags_n_VersesList := TbqVerseTagsList.Create(true);
-
-  TagsDbEngine.SeedNodes(mTags_n_VersesList);
-  Include(mState, bqsTaggedBookmarksCached);
-end;
-
 constructor TBibleQuoteEngine.Create();
 begin
   inherited Create();
@@ -89,7 +72,6 @@ begin
   Finalize();
   FreeAndNil(mDics);
   FreeAndNil(mDicList);
-  FreeAndNil(mTags_n_VersesList);
   FreeAndNil(mWorker);
 end;
 
@@ -155,10 +137,8 @@ begin
     mWorker.Finalize();
 end;
 
-function TBibleQuoteEngine.InitVerseListEngine(ui: IuiVerseOperations; foreground: boolean): HRESULT;
+function TBibleQuoteEngine.InitVerseListEngine(foreground: boolean): HRESULT;
 begin
-  if not Assigned(TagsDbEngine) then
-    Application.CreateForm(TTagsDbEngine, TagsDbEngine);
   if bqsVerseListEngineInitialized in mState then
   begin
     Result := S_OK;
@@ -176,7 +156,7 @@ begin
       Result := S_OK;
       exit;
     end;
-  Result := mWorker.InitVerseListEngine(ui, foreground);
+  Result := mWorker.InitVerseListEngine(foreground);
   if foreground then
   begin
     Exclude(mState, bqsVerseListEngineInitializing);

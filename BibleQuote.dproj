@@ -115,9 +115,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_Build>354</VerInfo_Build>
+        <VerInfo_Build>382</VerInfo_Build>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.0.1.354;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.0.1.382;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
     </PropertyGroup>
     <ProjectExtensions>
@@ -706,6 +706,17 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Views\TagsVersesFra.pas">
+            <Form>TagsVersesFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\DictionaryFra.pas">
+            <Form>DictionaryFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Core\NotifyMessages.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>
@@ -730,7 +741,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -738,7 +749,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
@@ -746,7 +757,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
@@ -754,7 +765,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>

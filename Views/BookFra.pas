@@ -11,7 +11,7 @@ uses
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
-  Vcl.Menus, SearchFra;
+  Vcl.Menus, SearchFra, TagsDb, InputFrm;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -75,7 +75,6 @@ type
     procedure miCopyPassageClick(Sender: TObject);
     procedure miCopyVerseClick(Sender: TObject);
     procedure miAddBookmarkClick(Sender: TObject);
-    procedure miAddBookmarkTaggedClick(Sender: TObject);
     procedure miAddMemoClick(Sender: TObject);
     procedure miMemosToggleClick(Sender: TObject);
     procedure miMemoCopyClick(Sender: TObject);
@@ -187,6 +186,8 @@ type
     procedure SelectModuleTreeNode(bible: TBible);
     function GetChildNodeByIndex(parentNode: PVirtualNode; index: Integer): PVirtualNode;
     procedure UpdateModuleTreeFont(book: TBible);
+    procedure AddBookmarkTagged(tagName: string);
+    procedure AddThemedBookmarkClick(Sender: TObject);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
@@ -271,6 +272,12 @@ begin
     bible := BookTabInfo.Bible;
     command := Format('go %s %d %d', [bible.ShortPath, bookIndex, chapterIndex]);
     Result := ProcessCommand(BookTabInfo, command, hlDefault);
+
+    try
+      mMainView.ShowComments;
+    except
+      // skip error
+    end;
   end;
 end;
 
@@ -729,7 +736,8 @@ begin
   end
   else
   begin
-    mMainView.DisplayDictionary(Trim(bwrHtml.SelText));
+    // TODO: open dictionary tab
+    //mMainView.DisplayDictionary(Trim(bwrHtml.SelText));
   end;
 
   if not mMainView.pgcMain.Visible then
@@ -1122,11 +1130,6 @@ begin
   mMainView.AddBookmark(miAddBookmark.Caption);
 end;
 
-procedure TBookFrame.miAddBookmarkTaggedClick(Sender: TObject);
-begin
-  mMainView.AddBookmarkTagged();
-end;
-
 procedure TBookFrame.miAddMemoClick(Sender: TObject);
 begin
   if (mMainView.AddMemo(miAddMemo.Caption)) then
@@ -1322,6 +1325,9 @@ procedure TBookFrame.pmBrowserPopup(Sender: TObject);
 var
   s, scap: string;
   i: integer;
+  tagsVersesList: TbqVerseTagsList;
+  menuText: string;
+  tagMenu: TMenuItem;
 begin
   if bwrHtml.tag <> bsText then
   begin
@@ -1355,6 +1361,26 @@ begin
   end;
 
   miCopyPassage.Visible := (mMainView.CurSelStart < mMainView.CurSelEnd);
+
+  miAddBookmarkTagged.Clear;
+  tagsVersesList := TbqVerseTagsList.Create(true);
+  try
+    try
+      TagsDbEngine.SeedNodes(tagsVersesList);
+      for i := 0 to tagsVersesList.Count - 1 do
+      begin
+        tagMenu := TMenuItem.Create(miAddBookmarkTagged);
+        tagMenu.Caption := TVersesNodeData(tagsVersesList.Items[i]).getText();
+        tagMenu.OnClick := AddThemedBookmarkClick;
+        miAddBookmarkTagged.Add(tagMenu);
+      end;
+      miAddBookmarkTagged.Enabled := tagsVersesList.Count > 0;
+    finally
+      tagsVersesList.Free;
+    end;
+  except
+    // skip error
+  end;
 
   if mMainView.CurVerseNumber = 0 then
   begin
@@ -3239,6 +3265,38 @@ end;
 procedure TBookFrame.RealignToolBars(AParent: TWinControl);
 begin
   EnumControls(AParent, TUITools.RealignToolBars);
+end;
+
+procedure TBookFrame.AddBookmarkTagged(tagName: string);
+var
+  pn, ParentNode: PVirtualNode;
+  nd: TVersesNodeData;
+  F, t: integer;
+  bible: TBible;
+begin
+  InputForm.tag := 0;
+
+  if mMainView.CurSelStart < mMainView.CurSelEnd then
+  begin
+    F := mMainView.CurSelStart;
+    t := mMainView.CurSelEnd;
+  end
+  else
+  begin
+    F := mMainView.CurVerseNumber;
+    t := mMainView.CurVerseNumber;
+  end;
+
+  bible := BookTabInfo.Bible;
+  TagsDbEngine.AddVerseTagged(tagName, bible.CurBook, bible.CurChapter, F, t, bible.ShortPath, true);
+end;
+
+procedure TBookFrame.AddThemedBookmarkClick(Sender: TObject);
+var
+  menuItem: TMenuItem;
+begin
+  menuItem := TMenuItem(Sender);
+  AddBookmarkTagged(menuItem.Caption);
 end;
 
 end.

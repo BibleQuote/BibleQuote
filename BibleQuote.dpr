@@ -63,7 +63,10 @@ uses
   BookmarksFra in 'Views\BookmarksFra.pas' {BookmarksFrame: TFrame},
   BroadcastList in 'Collections\BroadcastList.pas',
   SearchFra in 'Views\SearchFra.pas' {SearchFrame: TFrame},
-  TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame};
+  TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame},
+  TagsVersesFra in 'Views\TagsVersesFra.pas' {TagsVersesFrame: TFrame},
+  DictionaryFra in 'Views\DictionaryFra.pas' {DictionaryFrame: TFrame},
+  NotifyMessages in 'Core\NotifyMessages.pas';
 
 {$R *.res}
 var
@@ -92,6 +95,8 @@ begin
 
   Application.Initialize;
 
+  if not Assigned(TagsDbEngine) then
+    Application.CreateForm(TTagsDbEngine, TagsDbEngine);
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TExceptionForm, ExceptionForm);
   Application.CreateForm(TAboutForm, AboutForm);
