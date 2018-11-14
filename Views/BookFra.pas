@@ -732,16 +732,15 @@ begin
   Val(Trim(bwrHtml.SelText), num, code);
   if code = 0 then
   begin
+    if not mMainView.pgcMain.Visible then
+      mMainView.tbtnToggle.Click;
+
     mMainView.DisplayStrongs(num, (BookTabInfo.Bible.CurBook < 40) and (BookTabInfo.Bible.Trait[bqmtOldCovenant]));
   end
   else
   begin
-    // TODO: open dictionary tab
-    //mMainView.DisplayDictionary(Trim(bwrHtml.SelText));
+    mMainView.OpenOrCreateDictionaryTab(Trim(bwrHtml.SelText));
   end;
-
-  if not mMainView.pgcMain.Visible then
-    mMainView.tbtnToggle.Click;
 end;
 
 procedure TBookFrame.bwrHtmlMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

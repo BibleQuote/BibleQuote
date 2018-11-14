@@ -890,16 +890,7 @@ var
   dicFrame: TDictionaryFrame;
 begin
   dicFrame := tabsView.DictionaryView as TDictionaryFrame;
-  with dicFrame do
-  begin
-    edtDic.Text := mSearchText;
-    if (mDictionaryIndex >= 0) then
-      cbDicFilter.ItemIndex := mDictionaryIndex;
-
-    bwrDic.Clear;
-    vstDicList.ClearSelection;
-    DisplayDictionary(edtDic.Text);
-  end;
+  dicFrame.UpdateSearch(mSearchText, mDictionaryIndex);
 end;
 
 { TViewTabDragObject }
