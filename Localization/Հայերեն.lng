@@ -79,6 +79,7 @@ TabMemos = Memos (t)
 TabBookmarks = Էջանշաններ
 TabSearch = Search (t)
 TabTSK = TSK (t)
+TabDictionary = Dictionary (t)
 TabTagsVerses = Themed bookmarks (t)
 
 DeleteBookmarkTextPrompt = Delete bookmark? (t)
@@ -122,7 +123,6 @@ MainForm.edtStrong.Hint = Մուտքագրեք արմատական բառի թի�
 MainForm.lbBook.Hint = Ընտրեք գիրքը, որը ցանկանում եք դիտել
 MainForm.lbChapter.Hint = Ընտրեք գլուխը, որը ցանկանում եք դիտել
 MainForm.lblCtrl1.Caption = Ctrl+1
-MainForm.lblDicFoundSeveral.Caption = գտնվել է մի քանի բառարաններում
 MainForm.lblMemo.Caption = ....
 MainForm.miAbout.Caption = Այս ծրագրի մասին
 MainForm.miActions.Caption = Գործողություններ
@@ -243,6 +243,7 @@ DockTabsForm.chkParts.Hint = Օրինակ. որոնել «օրհներ», այլ
 DockTabsForm.chkPhrase.Caption = բառերը նշված հերթականությամբ են
 DockTabsForm.chkPhrase.Hint = Օրինակ. գտնել այն խոսքերը, որոնցում հանդիպում է «Հիսուս Քրիստոս», այլ ոչ թե «Քրիստոս Հիսուս»
 DockTabsForm.edtFilter.Hint = Enter word or expression to search (t)
+DockTabsForm.lblDicFoundSeveral.Caption = գտնվել է մի քանի բառարաններում
 DockTabsForm.lblSearch.Caption = Մուտքագրեք որոնման հատկանիշները
 DockTabsForm.lblSearch.Hint = Որոնման տիրույթը նեղացնելով և հստակ պարամետրեր նշելով կարելի ավելի լավ արդյունքներ ստանալ
 DockTabsForm.miAddBookmark.Caption = Ավելացնել էջանշան...

@@ -45,6 +45,7 @@ type
     mBqEngine: TBibleQuoteEngine;
     mscrollbarX: integer;
 
+    mBookTabInfo: TBookTabInfo;
     mTagsVersesList: TbqVerseTagsList;
     mTagsVersesCached: Boolean;
 
@@ -64,7 +65,7 @@ type
     procedure TagDeleted(id: int64; const txt: string);
     procedure VerseAdded(verseId, tagId: int64; const cmd: string; Show: Boolean);
     procedure VerseDeleted(verseId, tagId: int64);
-    procedure Notification(msg: IJclNotificationMessage); stdcall;
+    procedure Notification(msg: IJclNotificationMessage); reintroduce; stdcall;
 
     procedure GetTextInfo(tree: TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect; var Text: string);
     procedure SetNodeText(tree: TVirtualDrawTree; Node: PVirtualNode; Column: TColumnIndex; const Text: string);
@@ -86,6 +87,8 @@ begin
 
   mTagsVersesCached := false;
   mBqEngine := mMainView.BqEngine;
+
+  mBookTabInfo := mMainView.CreateNewBookTabInfo();
 
   TagsDbEngine.GetNotifier.Add(self);
   LoadTaggedBookMarks();
@@ -319,7 +322,6 @@ var
   rct: TRect;
   pt: TPoint;
   ble: TBibleLinkEx;
-  bookView: TBookFrame;
 begin
   if not(Sender is TVirtualDrawTree) then
   begin
@@ -343,7 +345,7 @@ begin
   vdt.Canvas.Font := vdt.Font;
 
   R := GfxRenderers.TbqTagsRenderer.GetContentTypeAt
-    (pt.X - vdt.Margin - levelIndent, pt.Y - nodeTop, vdt.Canvas, nd, rct);
+    (mBookTabInfo, pt.X - vdt.Margin - levelIndent, pt.Y - nodeTop, vdt.Canvas, nd, rct);
 
   if R <> tvcPlainTxt then
     Exit;
@@ -445,7 +447,7 @@ begin
     if (nd.nodeType = bqvntVerse) then
     begin
       TargetCanvas.Font := vdt.Font;
-      NodeHeight := TbqTagsRenderer.RenderVerseNode(TargetCanvas, nd, true, rct);
+      NodeHeight := TbqTagsRenderer.RenderVerseNode(mBookTabInfo, TargetCanvas, nd, true, rct) + 4;
       Exit;
     end
     else
@@ -523,7 +525,7 @@ begin
     rct := PaintInfo.CellRect;
 
     PaintInfo.Canvas.Font := vdt.Font;
-    TbqTagsRenderer.RenderVerseNode(PaintInfo.Canvas, nd, false, rct);
+    TbqTagsRenderer.RenderVerseNode(mBookTabInfo, PaintInfo.Canvas, nd, false, rct);
     PaintInfo.Canvas.Brush.color := save_brushColor;
     PaintInfo.Canvas.Pen.color := savePenColor;
     Exit;
@@ -629,7 +631,7 @@ begin
 
   vdt.Canvas.Font := vdt.Font;
   R := GfxRenderers.TbqTagsRenderer.GetContentTypeAt
-    (X - vdt.Margin - levelIndent, Y - nodeTop, vdt.Canvas, nd, rct);
+    (mBookTabInfo, X - vdt.Margin - levelIndent, Y - nodeTop, vdt.Canvas, nd, rct);
   case R of
     tvcLink:
       vdt.Cursor := crHandPoint;
@@ -820,6 +822,7 @@ var
   msgTagAdded: ITagAddedMessage;
   msgTagDeleted: ITagDeletedMessage;
   msgTagRenamed: ITagRenamedMessage;
+  msgDefaultBibleChanged: IDefaultBibleChangedMessage;
 begin
   if Supports(msg, IVerseAddedMessage, msgVerseAdded) then
   begin
@@ -845,6 +848,12 @@ begin
   begin
     TagRenamed(msgTagRenamed.GetTagId, msgTagRenamed.GetNewText);
   end;
+
+  if Supports(msg, IDefaultBibleChangedMessage, msgDefaultBibleChanged) then
+  begin
+    LoadTaggedBookMarks();
+  end;
+
 end;
 
 procedure TTagsVersesFrame.TagAdded(tagId: int64; const txt: string; Show: Boolean);

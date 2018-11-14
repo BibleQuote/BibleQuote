@@ -43,6 +43,11 @@ type
     ['{B7FDB2F5-2C2D-41A4-882D-E522773EEABF}']
   end;
 
+  IDefaultBibleChangedMessage = interface
+    ['{4C399C9E-875F-4DFB-B3F4-AF7532AA41C3}']
+    function GetBibleName: string;
+  end;
+
   TVerseAddedMessage = class (TJclBaseNotificationMessage, IVerseAddedMessage)
   private
     FVerseId: int64;
@@ -106,6 +111,14 @@ type
 
   TDictionariesLoadedMessage = class(TJclBaseNotificationMessage, IDictionariesLoadedMessage)
 
+  end;
+
+  TDefaultBibleChangedMessage = class(TJclBaseNotificationMessage, IDefaultBibleChangedMessage)
+  private
+    FBibleName: string;
+  public
+    constructor Create(bibleName: string);
+    function GetBibleName: string;
   end;
 
 implementation
@@ -218,4 +231,15 @@ begin
   Result := FNewText;
 end;
 
+{ TDefaultBibleChangedMessage }
+
+constructor TDefaultBibleChangedMessage.Create(bibleName: string);
+begin
+  FBibleName := bibleName;
+end;
+
+function TDefaultBibleChangedMessage.GetBibleName: string;
+begin
+  Result := FBibleName;
+end;
 end.

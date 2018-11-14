@@ -24,8 +24,6 @@ type
     miRefCopy: TMenuItem;
     miOpenNewView: TMenuItem;
     miRefPrint: TMenuItem;
-    pmEmpty: TPopupMenu;
-    miDeteleBibleTab: TMenuItem;
     procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
     procedure bwrDicMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -51,10 +49,9 @@ type
     function DicScrollNode(nd: PVirtualNode): Boolean;
     function DicSelectedItemIndex(out pn: PVirtualNode): integer; overload;
     function DicSelectedItemIndex: integer; overload;
-    procedure DisplayDictionary(const s: string);
     function DictionaryStartup(maxAdd: integer = maxInt): Boolean;
     procedure UpdateDictionariesCombo;
-    procedure Notification(msg: IJclNotificationMessage); stdcall;
+    procedure Notification(msg: IJclNotificationMessage); reintroduce; stdcall;
     procedure DisplayDictionaries;
 
     // finds the closest match for a word in merged
@@ -64,6 +61,7 @@ type
     constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
 
     procedure Translate();
+    procedure DisplayDictionary(const s: string);
   end;
 
 implementation
@@ -74,7 +72,6 @@ uses BookFra;
 procedure TDictionaryFrame.bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
   concreteCmd: string;
-  bookView: TBookFrame;
   status: integer;
   modIx: integer;
   modPath: string;
@@ -123,7 +120,6 @@ procedure TDictionaryFrame.cbDicChange(Sender: TObject);
 var
   i: integer;
   res, tt: string;
-  bookTabInfo: TBookTabInfo;
   blResolveLinks, blFuzzy: Boolean;
   dicCount: integer;
 begin
@@ -267,6 +263,7 @@ end;
 procedure TDictionaryFrame.Translate();
 begin
   UpdateDictionariesCombo();
+  Lang.TranslateControl(self, 'MainForm');
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 

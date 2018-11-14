@@ -278,15 +278,7 @@ type
     procedure imgLoadProgressClick(Sender: TObject);
     procedure cbCommentsDropDown(Sender: TObject);
 
-    procedure vstDicListAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure miShowSignaturesClick(Sender: TObject);
-
-    procedure vstDicListGetText(
-      Sender: TBaseVirtualTree;
-      Node: PVirtualNode;
-      Column: TColumnIndex;
-      TextType: TVSTTextType;
-      var CellText: string);
 
     function CreateNewBookTabInfo(): TBookTabInfo;
     function CreateTabsView(viewName: string): ITabsView;
@@ -538,6 +530,7 @@ type
     property CurPreviewPage: integer read FCurPreviewPage write SetCurPreviewPage;
 
     function GetAutoTxt(
+      btInfo: TBookTabInfo;
       const cmd: string;
       maxWords: integer;
       out fnt: string;
@@ -721,6 +714,7 @@ begin
 end;
 
 function TMainForm.GetAutoTxt(
+  btInfo: TBookTabInfo;
   const cmd: string;
   maxWords: integer;
   out fnt: string;
@@ -731,7 +725,7 @@ begin
   Result := '';
   bookView := GetBookView(self);
   if Assigned(bookView) then
-    Result := bookView.GetAutoTxt(cmd, maxWords, fnt, passageSignature);
+    Result := bookView.GetAutoTxt(btInfo, cmd, maxWords, fnt, passageSignature);
 end;
 
 function TMainForm.CreateTabsView(viewName: string): ITabsView;
@@ -4883,33 +4877,6 @@ begin
   end;
 end;
 
-procedure TMainForm.vstDicListAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
-begin
-  //
-end;
-
-procedure TMainForm.vstDicListGetText(
-  Sender: TBaseVirtualTree;
-  Node: PVirtualNode;
-  Column: TColumnIndex;
-  TextType: TVSTTextType;
-  var CellText: string);
-var
-  ix: integer;
-begin
-  if not Assigned(Node) then
-    Exit;
-  try
-    ix := integer(Sender.GetNodeData(Node)^);
-    CellText := mBqEngine.DictionaryTokens[ix];
-  except
-    on E: Exception do
-    begin
-      BqShowException(E)
-    end
-  end;
-end;
-
 procedure TMainForm.VSCrollTracker(Sender: TObject);
 var
   sectionIx, sectionCnt, sourcePos, scrollPos, BottomPos, vn, ch, ve, delta: integer;
@@ -6098,6 +6065,8 @@ begin
       DefaultBibleName := defBible
     else
       DefaultBibleName := '';
+
+    mNotifier.Notify(TDefaultBibleChangedMessage.Create(DefaultBibleName));
   end;
 
   SetFavouritesShortcuts();
