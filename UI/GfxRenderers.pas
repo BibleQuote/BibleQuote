@@ -3,7 +3,7 @@ unit GfxRenderers;
 interface
 
 uses TagsDb, Graphics, Windows, ICommandProcessor, WinUIServices, Htmlsubs,
-  System.UITypes;
+  System.UITypes, TabData;
 
 type
   TbqTagVersesContent = (tvcTag, tvcPlainTxt, tvcLink);
@@ -17,7 +17,7 @@ type
     class var mSaveBrush: TBrush;
     class var mTagFont, mDefaultVerseFont: TFont;
 
-    class function EffectiveGetVerseNodeText(var nd: TVersesNodeData; var usedFnt: string): string; static;
+    class function EffectiveGetVerseNodeText(btInfo: TBookTabInfo; var nd: TVersesNodeData; var usedFnt: string): string; static;
     class function GetHTMLRenderer(id: int64; out match: boolean): TSectionList; static;
     class procedure ResetRendererStyles(renderer: TSectionList; prefFnt: string);
 
@@ -43,6 +43,7 @@ type
       selected, calcOnly: boolean; var rect: TRect): integer; static;
 
     class function RenderVerseNode(
+      btInfo: TBookTabInfo;
       canvas: TCanvas;
       var nodeData: TVersesNodeData;
       calcOnly: boolean; var rect: TRect): integer; static;
@@ -51,6 +52,7 @@ type
     class procedure InvalidateRenderers(); static;
 
     class function GetContentTypeAt(
+      btInfo: TBookTabInfo;
       x, y: integer;
       canvas: TCanvas;
       var nodeData: TVersesNodeData;
@@ -100,7 +102,7 @@ begin
   mCurrentRenderer := nil;
 end;
 
-class function TbqTagsRenderer.EffectiveGetVerseNodeText(var nd: TVersesNodeData; var usedFnt: string): string;
+class function TbqTagsRenderer.EffectiveGetVerseNodeText(btInfo: TBookTabInfo; var nd: TVersesNodeData; var usedFnt: string): string;
 var
   cmd, verseSig, verseText: string;
   commandType: TbqCommandType;
@@ -123,13 +125,14 @@ begin
       nd.cachedTxt := ''; // clear txt so that initialize to cmd
       cmd := nd.getText(); // rebuild cmd from db values
     end;
-    verseText := miCommandProcessor.GetAutoTxt(cmd, 20, usedFnt, verseSig);
+    verseText := miCommandProcessor.GetAutoTxt(btInfo, cmd, 20, usedFnt, verseSig);
     nd.packCached(verseSig, verseText, usedFnt);
   end;
   result := BuildVerseHTML(verseText, cmd, verseSig);
 end;
 
 class function TbqTagsRenderer.GetContentTypeAt(
+  btInfo: TBookTabInfo;
   x, y: integer;
   canvas: TCanvas;
   var nodeData: TVersesNodeData;
@@ -157,7 +160,7 @@ begin
     mCurrentRenderer := renderer;
     if not match then
     begin
-      txt := EffectiveGetVerseNodeText(nodeData, usedFnt);
+      txt := EffectiveGetVerseNodeText(btInfo, nodeData, usedFnt);
       ResetRendererStyles(renderer, usedFnt);
       ParseHTMLString(txt, renderer, nil, nil, nil, nil);
       renderer.DoLogic(canvas, rect.Top + VMargin, rect.Right - rect.Left - HMargin - HMargin, 500, 0, sw, cur);
@@ -299,6 +302,7 @@ begin
 end;
 
 class function TbqTagsRenderer.RenderVerseNode(
+  btInfo: TBookTabInfo;
   canvas: TCanvas;
   var nodeData: TVersesNodeData;
   calcOnly: boolean;
@@ -311,7 +315,7 @@ var
   match: boolean;
 begin
   result := 0;
-  txt := EffectiveGetVerseNodeText(nodeData, usedFont);
+  txt := EffectiveGetVerseNodeText(btInfo, nodeData, usedFont);
   renderer := GetHTMLRenderer(nodeData.SelfId, match);
   try
     mCurrentRenderer := renderer;

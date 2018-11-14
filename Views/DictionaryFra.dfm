@@ -50,7 +50,6 @@ object DictionaryFrame: TDictionaryFrame
       Hint = 'Select dictionary to search within'
       Style = csDropDownList
       Anchors = [akLeft, akTop, akRight]
-      PopupMenu = pmEmpty
       TabOrder = 0
       OnChange = cbDicFilterChange
     end
@@ -120,7 +119,6 @@ object DictionaryFrame: TDictionaryFrame
       Hint = 'Select dictionary to show entry from'
       Style = csDropDownList
       Anchors = [akLeft, akTop, akRight]
-      PopupMenu = pmEmpty
       TabOrder = 0
       OnChange = cbDicChange
     end
@@ -141,13 +139,6 @@ object DictionaryFrame: TDictionaryFrame
     object miRefPrint: TMenuItem
       Caption = #1055#1077#1095#1072#1090#1072#1090#1100
       OnClick = miRefPrintClick
-    end
-  end
-  object pmEmpty: TPopupMenu
-    Left = 328
-    Top = 163
-    object miDeteleBibleTab: TMenuItem
-      Caption = #1059#1076#1072#1083#1080#1090#1100
     end
   end
 end

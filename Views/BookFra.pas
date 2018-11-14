@@ -4,8 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ToolWin,
-  HTMLEmbedInterfaces, Htmlview, Vcl.Tabs, Vcl.DockTabSet, Vcl.ExtCtrls,
+  System.Contnrs, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ComCtrls, Vcl.ToolWin, HTMLEmbedInterfaces, Htmlview, Vcl.Tabs, Vcl.DockTabSet, Vcl.ExtCtrls,
   System.ImageList, Vcl.ImgList, MainFrm, TabData, HintTools,
   WinApi.ShellApi, StrUtils, BibleQuoteUtils, CommandProcessor, LinksParserIntf,
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
@@ -197,7 +197,7 @@ type
     procedure AdjustBibleTabs(moduleName: string = '');
     procedure LoadSecondBookByName(const name: string);
     procedure LoadBibleToXref(cmd: string; const id: string);
-    function GetAutoTxt(const cmd: string; maxWords: integer; out fnt: string; out passageSignature: string): string;
+    function GetAutoTxt(btinfo: TBookTabInfo; const cmd: string; maxWords: integer; out fnt: string; out passageSignature: string): string;
     procedure GoRandomPlace;
 
     function GetBookTabInfo: TBookTabInfo;
@@ -1326,7 +1326,6 @@ var
   s, scap: string;
   i: integer;
   tagsVersesList: TbqVerseTagsList;
-  menuText: string;
   tagMenu: TMenuItem;
 begin
   if bwrHtml.tag <> bsText then
@@ -3004,7 +3003,7 @@ begin
 //  mMainView.bwrXRef.Position := mMainView.bwrXRef.MaxVertical;
 end;
 
-function TBookFrame.GetAutoTxt(const cmd: string; maxWords: integer; out fnt: string; out passageSignature: string): string;
+function TBookFrame.GetAutoTxt(btinfo: TBookTabInfo; const cmd: string; maxWords: integer; out fnt: string; out passageSignature: string): string;
 var
   autoCmd: Boolean;
   currentModule: TBible;
@@ -3017,28 +3016,28 @@ begin
 
   if autoCmd then
   begin
-    if not Assigned(bookTabInfo) then
+    if not Assigned(btinfo) then
     begin
       Result := '';
       Exit;
     end;
 
-    currentModule := bookTabInfo.Bible;
+    currentModule := btinfo.Bible;
     if (currentModule.ModuleType = bqmBible) then
       prefBible := currentModule.ShortPath
     else
       prefBible := '';
-    status_GetModTxt := PreProcessAutoCommand(BookTabInfo, cmd, prefBible, Result);
+    status_GetModTxt := PreProcessAutoCommand(btinfo, cmd, prefBible, Result);
   end
   else
     Result := cmd;
 
   if status_GetModTxt > -2 then
   begin
-    if Assigned(bookTabInfo) then
+    if Assigned(btinfo) then
     begin
       status_GetModTxt := GetModuleText(
-        Result, bookTabInfo.ReferenceBible, fnt, bl, txt, passageSignature,
+        Result, btinfo.ReferenceBible, fnt, bl, txt, passageSignature,
         [gmtBulletDelimited, gmtEffectiveAddress, gmtLookupRefBibles], maxWords);
     end;
   end;
@@ -3269,8 +3268,6 @@ end;
 
 procedure TBookFrame.AddBookmarkTagged(tagName: string);
 var
-  pn, ParentNode: PVirtualNode;
-  nd: TVersesNodeData;
   F, t: integer;
   bible: TBible;
 begin

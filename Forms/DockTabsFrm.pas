@@ -103,6 +103,7 @@ type
     function GetSearchView: ISearchView;
     function GetTSKView: ITSKView;
     function GetTagsVersesView: ITagsVersesView;
+    function GetDictionaryView: IDictionaryView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -174,6 +175,11 @@ end;
 function TDockTabsForm.GetTagsVersesView(): ITagsVersesView;
 begin
   Result := mTagsVersesView as ITagsVersesView;
+end;
+
+function TDockTabsForm.GetDictionaryView(): IDictionaryView;
+begin
+  Result := mDictionaryView as IDictionaryView;
 end;
 
 function TDockTabsForm.GetBibleTabs(): TDockTabSet;

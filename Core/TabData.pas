@@ -285,6 +285,10 @@ type
   end;
 
   TDictionaryTabInfo = class(TInterfacedObject, IViewTabInfo)
+  private
+    mDictionaryIndex: integer;
+    mSearchText: string;
+  public
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
@@ -330,6 +334,7 @@ type
     function GetBookmarksView: IBookmarksView;
     function GetSearchView: ISearchView;
     function GetTSKView: ITSKView;
+    function GetDictionaryView: IDictionaryView;
     function GetTagsVersesView: ITagsVersesView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
@@ -350,6 +355,8 @@ type
     property SearchView: ISearchView read GetSearchView;
     property BookmarksView: IBookmarksView read GetBookmarksView;
     property TSKView: ITSKView read GetTSKView;
+    property TagsVerserView: ITagsVersesView read GetTagsVersesView;
+    property DictionaryView: IDictionaryView read GetDictionaryView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
     property UpdateOnTabChange: boolean read GetUpdateOnTabChange write SetUpdateOnTabChange;
@@ -357,7 +364,7 @@ type
 
 implementation
 
-uses BookFra, SearchFra, TSKFra;
+uses BookFra, SearchFra, TSKFra, DictionaryFra;
 
 constructor TBookTabBrowserState.Create;
 begin
@@ -867,13 +874,32 @@ begin
 end;
 
 procedure TDictionaryTabInfo.SaveState(const tabsView: ITabsView);
+var
+  dicFrame: TDictionaryFrame;
 begin
-// nothing to save
+  dicFrame := tabsView.DictionaryView as TDictionaryFrame;
+  with dicFrame do
+  begin
+    mSearchText := edtDic.Text;
+    mDictionaryIndex := cbDicFilter.ItemIndex;
+  end;
 end;
 
 procedure TDictionaryTabInfo.RestoreState(const tabsView: ITabsView);
+var
+  dicFrame: TDictionaryFrame;
 begin
-// nothing to save
+  dicFrame := tabsView.DictionaryView as TDictionaryFrame;
+  with dicFrame do
+  begin
+    edtDic.Text := mSearchText;
+    if (mDictionaryIndex >= 0) then
+      cbDicFilter.ItemIndex := mDictionaryIndex;
+
+    bwrDic.Clear;
+    vstDicList.ClearSelection;
+    DisplayDictionary(edtDic.Text);
+  end;
 end;
 
 { TViewTabDragObject }
