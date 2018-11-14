@@ -427,6 +427,7 @@ type
 
     procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
+    procedure OpenOrCreateDictionaryTab(const searchText: string);
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
     procedure AddBookmark(caption: string);
@@ -549,7 +550,7 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
   BibleQuoteConfig,
   ExceptionFrm, AboutFrm, ShellAPI,
   StrUtils, CommCtrl, DockTabsFrm,
-  HintTools, sevenZipHelper, BookFra, TSKFra,
+  HintTools, sevenZipHelper, BookFra, TSKFra, DictionaryFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
   EngineInterfaces, StringProcs, LinksParser;
 
@@ -4253,8 +4254,7 @@ begin
   if code = 0 then
     DisplayStrongs(num, Copy(Trim(bwrStrong.SelText), 1, 1) = '0')
   else
-    // TODO: open dictionary tab
-    //DisplayDictionary(Trim(bwrStrong.SelText));
+    OpenOrCreateDictionaryTab(Trim(bwrStrong.SelText));
 end;
 
 procedure TMainForm.SplitterMoved(Sender: TObject);
@@ -5300,6 +5300,48 @@ begin
   NewBookTab(command, satellite, state, '', true);
 end;
 
+procedure TMainForm.OpenOrCreateDictionaryTab(const searchText: string);
+var
+  i: integer;
+  tabInfo: IViewTabInfo;
+  dicTabInfo: TDictionaryTabInfo;
+  wasUpdateSet: boolean;
+  dictionaryView: TDictionaryFrame;
+begin
+  dicTabInfo := nil;
+
+  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  begin
+    tabInfo := mTabsView.GetTabInfo(i);
+    if not (tabInfo is TDictionaryTabInfo) then
+      continue;
+
+    dicTabInfo := TDictionaryTabInfo(tabInfo);
+
+    wasUpdateSet := mTabsView.UpdateOnTabChange;
+    mTabsView.UpdateOnTabChange := false;
+    try
+      mTabsView.ChromeTabs.ActiveTabIndex := i;
+    finally
+      mTabsView.UpdateOnTabChange := wasUpdateSet;
+    end;
+  end;
+
+  if not Assigned(dicTabInfo) then
+  begin
+    dicTabInfo := TDictionaryTabInfo.Create();
+    mTabsView.AddDictionaryTab(dicTabInfo);
+  end;
+
+  if (searchText.Length > 0) then
+  begin
+    dictionaryView := mTabsView.DictionaryView as TDictionaryFrame;
+    dictionaryView.UpdateSearch(searchText);
+  end;
+
+  mTabsView.UpdateCurrentTabContent;
+end;
+
 function TMainForm.NewBookTab(
   const command: string;
   const satellite: string;
@@ -5492,11 +5534,7 @@ end;
 
 procedure TMainForm.miDicClick(Sender: TObject);
 begin
-  // TODO: open dictionary tab
-//  if not pgcMain.Visible then
-//    tbtnToggle.Click;
-//
-//  pgcMain.ActivePage := tbDic;
+  OpenOrCreateDictionaryTab('');
 end;
 
 procedure TMainForm.miAddBookTabClick(Sender: TObject);

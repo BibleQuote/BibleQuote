@@ -78,7 +78,7 @@ TabMemos = Личные заметки
 TabBookmarks = Закладки
 TabSearch = Поиск
 TabTSK = TSK
-TabDictionary = Словарь
+TabDictionary = Словари
 TabTagsVerses = Тематические закладки
 
 DeleteBookmarkTextPrompt = Удалить закладку?

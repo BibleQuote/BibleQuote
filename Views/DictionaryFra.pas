@@ -62,6 +62,7 @@ type
 
     procedure Translate();
     procedure DisplayDictionary(const s: string);
+    procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1);
   end;
 
 implementation
@@ -534,6 +535,17 @@ procedure TDictionaryFrame.DisplayDictionaries();
 begin
   UpdateDictionariesCombo();
   DictionaryStartup();
+end;
+
+procedure TDictionaryFrame.UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1);
+begin
+  edtDic.Text := searchText;
+  if (dictionaryIndex >= 0) then
+    cbDicFilter.ItemIndex := dictionaryIndex;
+
+  bwrDic.Clear;
+  vstDicList.ClearSelection;
+  DisplayDictionary(searchText);
 end;
 
 end.
