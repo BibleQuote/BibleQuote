@@ -5333,13 +5333,12 @@ begin
     mTabsView.AddDictionaryTab(dicTabInfo);
   end;
 
+  mTabsView.UpdateCurrentTabContent;
   if (searchText.Length > 0) then
   begin
     dictionaryView := mTabsView.DictionaryView as TDictionaryFrame;
     dictionaryView.UpdateSearch(searchText);
   end;
-
-  mTabsView.UpdateCurrentTabContent;
 end;
 
 function TMainForm.NewBookTab(
@@ -6320,6 +6319,9 @@ begin
       EnableBookTools(false);
     end;
     vttTSK: begin
+      EnableBookTools(false);
+    end;
+    vttDictionary: begin
       EnableBookTools(false);
     end;
   end;
