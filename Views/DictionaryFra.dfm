@@ -18,6 +18,7 @@ object DictionaryFrame: TDictionaryFrame
     DefPreFontName = 'Courier New'
     HistoryMaxCount = 0
     HtOptions = []
+    ImageCacheCount = 0
     NoSelect = False
     PrintMarginBottom = 2.000000000000000000
     PrintMarginLeft = 2.000000000000000000
