@@ -26,6 +26,7 @@ type
     property Words: TStrings read FWords;
     property Name: string read FName;
     property Path: string read FPath;
+    property Dict: string read FDict;
   end;
 
 implementation

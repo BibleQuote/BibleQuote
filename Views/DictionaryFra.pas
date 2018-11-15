@@ -145,6 +145,7 @@ begin
   else
     tt := res;
 
+  bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].Dict);
   bwrDic.LoadFromString(tt);
 end;
 
