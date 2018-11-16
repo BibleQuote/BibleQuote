@@ -8,7 +8,8 @@ uses
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, Htmlview, VirtualTrees,
   HTMLEmbedInterfaces, Dict, Bible, ExceptionFrm, BibleQuoteConfig,
-  StringProcs, BibleLinkParser, Clipbrd, Engine, JclNotify, NotifyMessages;
+  StringProcs, BibleLinkParser, Clipbrd, Engine, JclNotify, NotifyMessages,
+  System.Contnrs;
 
 type
   TDictionaryFrame = class(TFrame, IDictionaryView, IJclListener)
@@ -45,6 +46,7 @@ type
     mMainView: TMainForm;
     mXRefVerseCmd: string;
     mBqEngine: TBibleQuoteEngine;
+    mTokenNodes: TObjectList;
 
     function DicScrollNode(nd: PVirtualNode): Boolean;
     function DicSelectedItemIndex(out pn: PVirtualNode): integer; overload;
@@ -59,10 +61,11 @@ type
     function LocateDicItem: integer;
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
+    destructor Destroy; override;
 
     procedure Translate();
-    procedure DisplayDictionary(const s: string);
-    procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1);
+    procedure DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
+    procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1; const foundDictionaryIndex: integer = -1);
   end;
 
 implementation
@@ -119,7 +122,7 @@ end;
 
 procedure TDictionaryFrame.cbDicChange(Sender: TObject);
 var
-  i: integer;
+  i, idx: integer;
   res, tt: string;
   blResolveLinks, blFuzzy: Boolean;
   dicCount: integer;
@@ -128,8 +131,12 @@ begin
   for i := 0 to dicCount do
     if mBqEngine.Dictionaries[i].Name = cbDic.Items[cbDic.ItemIndex] then
     begin
-      res := mBqEngine.Dictionaries[i].Lookup(mBqEngine.DictionaryTokens[DicSelectedItemIndex()]);
-      break;
+      idx := DicSelectedItemIndex();
+      if (idx >= 0) then
+      begin
+        res := mBqEngine.Dictionaries[i].Lookup(mBqEngine.DictionaryTokens[idx]);
+        break;
+      end;
     end;
   blResolveLinks := true;
   blFuzzy := true;
@@ -145,7 +152,9 @@ begin
   else
     tt := res;
 
-  bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].Dict);
+  if (i >= 0) and (i < mBqEngine.DictionariesCount) then
+    bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].Dict);
+
   bwrDic.LoadFromString(tt);
 end;
 
@@ -161,7 +170,9 @@ begin
     dictionary := mBqEngine.Dictionaries[cbDicFilter.ItemIndex - 1];
     vstDicList.BeginUpdate();
     try
+      mTokenNodes.Clear;
       vstDicList.Clear;
+
       lst := mBqEngine.DictionaryTokens;
       lst.BeginUpdate();
       try
@@ -177,7 +188,8 @@ begin
       for wordIx := 0 to wordCount do
       begin
         pvn := vstDicList.InsertNode(nil, amAddChildLast, Pointer(wordIx));
-        lst.Objects[wordIx] := TObject(pvn);
+        mTokenNodes.Add(TObject(pvn));
+
         if wordIx and $FFF = $FFF then
           Application.ProcessMessages;
       end;
@@ -202,6 +214,7 @@ begin
 
   vstDicList.DefaultNodeHeight := mMainView.Canvas.TextHeight('X');
   mMainView.GetNotifier.Add(self);
+  mTokenNodes := TObjectList.Create(false);
 
   with bwrDic do
   begin
@@ -212,6 +225,17 @@ begin
     DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
     DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
   end;
+end;
+
+destructor TDictionaryFrame.Destroy;
+begin
+  if Assigned(mTokenNodes) then
+  begin
+    mTokenNodes.Clear();
+    FreeAndNil(mTokenNodes);
+  end;
+
+  inherited;
 end;
 
 procedure TDictionaryFrame.edtDicChange(Sender: TObject);
@@ -233,7 +257,7 @@ begin
     R := lst.LocateLastStartedWith(name);
     if R >= 0 then
     begin // DicLB.ItemIndex:=r;
-      nd := PVirtualNode(lst.Objects[R]);
+      nd := PVirtualNode(mTokenNodes[R]);
       vstDicList.Selected[nd] := true;
       DicScrollNode(nd);
     end;
@@ -340,7 +364,7 @@ begin
   Result := integer(vstDicList.GetNodeData(pn)^);
 end;
 
-procedure TDictionaryFrame.DisplayDictionary(const s: string);
+procedure TDictionaryFrame.DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
 var
   res: string;
   i, j: integer;
@@ -363,7 +387,7 @@ begin
     Exit
   end;
 
-  nd := PVirtualNode(mBqEngine.DictionaryTokens.Objects[dc_ix]);
+  nd := PVirtualNode(mTokenNodes[dc_ix]);
   vstDicList.Selected[nd] := true;
   DicScrollNode(nd);
   cbDic.Items.BeginUpdate;
@@ -382,8 +406,13 @@ begin
         j := cbDic.Items.Count - 1;
     end;
 
-    if cbDic.Items.Count > 0 then
-      cbDic.ItemIndex := j;
+    if (foundDictionaryIndex >= 0) and (foundDictionaryIndex < cbDic.Items.Count) then
+    begin
+      cbDic.ItemIndex := foundDictionaryIndex;
+    end
+    else
+      if cbDic.Items.Count > 0 then
+        cbDic.ItemIndex := j;
   finally
     cbDic.Items.EndUpdate;
   end;
@@ -413,11 +442,12 @@ begin
     tokens := mBqEngine.DictionaryTokens;
     wordCount := tokens.Count - 1;
     vstDicList.Clear();
+    mTokenNodes.Clear();
 
     for i := 0 to wordCount do
     begin
       pvn := vstDicList.InsertNode(nil, amAddChildLast, Pointer(i));
-      tokens.Objects[i] := TObject(pvn);
+      mTokenNodes.Add(TObject(pvn));
     end; // for
 
   finally
@@ -538,7 +568,7 @@ begin
   DictionaryStartup();
 end;
 
-procedure TDictionaryFrame.UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1);
+procedure TDictionaryFrame.UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1; const foundDictionaryIndex: integer = -1);
 begin
   edtDic.Text := searchText;
   if (dictionaryIndex >= 0) then
@@ -546,7 +576,7 @@ begin
 
   bwrDic.Clear;
   vstDicList.ClearSelection;
-  DisplayDictionary(searchText);
+  DisplayDictionary(searchText, foundDictionaryIndex);
 end;
 
 end.

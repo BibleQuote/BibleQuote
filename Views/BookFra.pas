@@ -723,13 +723,15 @@ end;
 procedure TBookFrame.bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   num, code: integer;
+  text: string;
 begin
   if not mMainView.mDictionariesFullyInitialized then
   begin
     mMainView.LoadDictionaries(true);
   end;
 
-  Val(Trim(bwrHtml.SelText), num, code);
+  text := Trim(bwrHtml.SelText);
+  Val(text, num, code);
   if code = 0 then
   begin
     if not mMainView.pgcMain.Visible then
@@ -739,7 +741,8 @@ begin
   end
   else
   begin
-    mMainView.OpenOrCreateDictionaryTab(Trim(bwrHtml.SelText));
+    if (text.Length > 0) then
+      mMainView.OpenOrCreateDictionaryTab(text);
   end;
 end;
 
