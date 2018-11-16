@@ -288,6 +288,7 @@ type
   private
     mDictionaryIndex: integer;
     mSearchText: string;
+    mFoundDictionaryIndex: integer;
   public
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
@@ -313,7 +314,7 @@ type
     procedure CloseActiveTab();
     function GetActiveTabInfo(): IViewTabInfo;
     procedure UpdateBookView();
-    procedure UpdateCurrentTabContent();
+    procedure UpdateCurrentTabContent(restoreState: boolean = true);
 
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
@@ -882,6 +883,7 @@ begin
   begin
     mSearchText := edtDic.Text;
     mDictionaryIndex := cbDicFilter.ItemIndex;
+    mFoundDictionaryIndex := cbDic.ItemIndex;
   end;
 end;
 
@@ -890,7 +892,7 @@ var
   dicFrame: TDictionaryFrame;
 begin
   dicFrame := tabsView.DictionaryView as TDictionaryFrame;
-  dicFrame.UpdateSearch(mSearchText, mDictionaryIndex);
+  dicFrame.UpdateSearch(mSearchText, mDictionaryIndex, mFoundDictionaryIndex);
 end;
 
 { TViewTabDragObject }

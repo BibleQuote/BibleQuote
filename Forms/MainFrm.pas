@@ -5331,13 +5331,16 @@ begin
   begin
     dicTabInfo := TDictionaryTabInfo.Create();
     mTabsView.AddDictionaryTab(dicTabInfo);
-  end;
-
-  mTabsView.UpdateCurrentTabContent;
-  if (searchText.Length > 0) then
+    mTabsView.UpdateCurrentTabContent;
+  end
+  else
   begin
-    dictionaryView := mTabsView.DictionaryView as TDictionaryFrame;
-    dictionaryView.UpdateSearch(searchText);
+    if (searchText.Length > 0) then
+    begin
+      dictionaryView := mTabsView.DictionaryView as TDictionaryFrame;
+      dictionaryView.UpdateSearch(searchText);
+    end;
+    mTabsView.UpdateCurrentTabContent(false);
   end;
 end;
 

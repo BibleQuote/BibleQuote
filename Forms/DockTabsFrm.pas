@@ -64,14 +64,14 @@ type
 
     procedure ShowFrame(frame: TFrame);
     procedure HideFrame(frame: TFrame);
-    procedure UpdateTabContent(ATab: TChromeTab);
+    procedure UpdateTabContent(ATab: TChromeTab; restoreState: boolean = true);
   public
     { Public declarations }
 
     constructor Create(AOwner: TComponent; mainView: TMainForm); reintroduce;
 
     procedure CloseActiveTab();
-    procedure UpdateCurrentTabContent();
+    procedure UpdateCurrentTabContent(restoreState: boolean);
     procedure UpdateBookView();
     procedure UpdateSearchView();
     procedure UpdateTSKView();
@@ -252,12 +252,12 @@ begin
     UpdateTabContent(ATab);
 end;
 
-procedure TDockTabsForm.UpdateCurrentTabContent();
+procedure TDockTabsForm.UpdateCurrentTabContent(restoreState: boolean);
 begin
-  UpdateTabContent(ctViewTabs.Tabs.ActiveTab);
+  UpdateTabContent(ctViewTabs.Tabs.ActiveTab, restoreState);
 end;
 
-procedure TDockTabsForm.UpdateTabContent(ATab: TChromeTab);
+procedure TDockTabsForm.UpdateTabContent(ATab: TChromeTab; restoreState: boolean);
 var
   tabInfo: IViewTabInfo;
 begin
@@ -385,7 +385,8 @@ begin
     HideFrame(mTSKView);
 
     mMainView.ClearCopyrights();
-    UpdateDictionaryView();
+    if (restoreState) then
+      UpdateDictionaryView();
   end;
 end;
 
