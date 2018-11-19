@@ -9,12 +9,13 @@ uses
 
 type
   TAboutForm = class(TForm)
-    shpHeader: TShape;
-    lblTitle: TLabel;
-    memDevs: TMemo;
-    btnOK: TButton;
+    imgBackground: TImage;
+    lblDevs: TLabel;
 
     procedure FormCreate(Sender: TObject);
+    procedure FormClick(Sender: TObject);
+    procedure imgBackgroundClick(Sender: TObject);
+    procedure lblDevsClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -30,9 +31,29 @@ implementation
 uses AppInfo;
 {$R *.DFM}
 
-procedure TAboutForm.FormCreate(Sender: TObject);
+procedure TAboutForm.FormClick(Sender: TObject);
 begin
-  memDevs.Lines.Insert(0, 'Версия ' + GetAppVersionStr());
+  Close;
+end;
+
+procedure TAboutForm.FormCreate(Sender: TObject);
+
+begin
+  lblDevs.Caption := String.Join(sLineBreak,
+    ['Версия ' + GetAppVersionStr(),
+     '',
+     'Благодарности:',
+     'Александр Снигерев, Samuel A. Kim, Тимофей Ха']);
+end;
+
+procedure TAboutForm.imgBackgroundClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TAboutForm.lblDevsClick(Sender: TObject);
+begin
+  Close;
 end;
 
 end.
