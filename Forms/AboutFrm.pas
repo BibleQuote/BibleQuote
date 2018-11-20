@@ -16,7 +16,7 @@ type
     procedure FormClick(Sender: TObject);
     procedure imgBackgroundClick(Sender: TObject);
     procedure lblDevsClick(Sender: TObject);
-
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -37,13 +37,18 @@ begin
 end;
 
 procedure TAboutForm.FormCreate(Sender: TObject);
-
 begin
   lblDevs.Caption := String.Join(sLineBreak,
     ['Версия ' + GetAppVersionStr(),
      '',
      'Благодарности:',
      'Александр Снигерев, Samuel A. Kim, Тимофей Ха']);
+end;
+
+procedure TAboutForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then Close;
+  if Key = VK_RETURN then Close;
 end;
 
 procedure TAboutForm.imgBackgroundClick(Sender: TObject);

@@ -3,32 +3,31 @@ object AboutForm: TAboutForm
   Top = 0
   Cursor = crArrow
   BorderIcons = [biSystemMenu]
-  BorderStyle = bsToolWindow
+  BorderStyle = bsNone
   Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
-  ClientHeight = 370
-  ClientWidth = 533
+  ClientHeight = 364
+  ClientWidth = 539
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -14
   Font.Name = 'Tahoma'
   Font.Style = []
   FormStyle = fsStayOnTop
+  KeyPreview = True
   OldCreateOrder = False
   Position = poScreenCenter
   OnClick = FormClick
   OnCreate = FormCreate
-  DesignSize = (
-    533
-    370)
+  OnKeyUp = FormKeyUp
   PixelsPerInch = 120
   TextHeight = 17
   object imgBackground: TImage
     Left = 0
-    Top = 0
-    Width = 535
-    Height = 371
-    Anchors = [akLeft, akTop, akRight, akBottom]
+    Top = -8
+    Width = 541
+    Height = 400
     Picture.Data = {
       0954506E67496D61676589504E470D0A1A0A0000000D49484452000008560000
       05C8080200000015A34F7100000A376943435073524742204945433631393636
@@ -1891,8 +1890,6 @@ object AboutForm: TAboutForm
     Proportional = True
     Stretch = True
     OnClick = imgBackgroundClick
-    ExplicitWidth = 533
-    ExplicitHeight = 370
   end
   object lblDevs: TLabel
     Left = 8
