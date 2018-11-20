@@ -4410,6 +4410,8 @@ procedure TMainForm.miAboutClick(Sender: TObject);
 begin
   if not Assigned(AboutForm) then
     AboutForm := TAboutForm.Create(self);
+
+  AboutForm.Position := poScreenCenter;
   AboutForm.ShowModal();
 end;
 
