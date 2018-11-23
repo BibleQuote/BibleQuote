@@ -17,7 +17,8 @@ type
     vttSearch,
     vttTSK,
     vttTagsVerses,
-    vttDictionary);
+    vttDictionary,
+    vttStrong);
 
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
@@ -54,6 +55,10 @@ type
 
   IDictionaryView = interface(ITabView)
   ['{C3D8CC95-1D9D-4F01-A31A-5133BADFA598}']
+  end;
+
+  IStrongView = interface(ITabView)
+  ['{840F8BE2-3C68-4853-8E43-B048DE7E6855}']
   end;
 
   ITabsView = interface; // forward declaration
@@ -197,6 +202,17 @@ type
     function GetCaption(): string;
   end;
 
+  TStrongTabInfo = class(TInterfacedObject, IViewTabInfo)
+    procedure SaveState(const tabsView: ITabsView);
+    procedure RestoreState(const tabsView: ITabsView);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+
+    constructor Create(); overload;
+    constructor Create(settings: TStrongTabSettings); overload;
+  end;
+
   TSearchTabState = class
   private
     mSearchPageSize: integer;
@@ -324,6 +340,7 @@ type
     function AddTSKTab(newTabInfo: TTSKTabInfo): TChromeTab;
     function AddTagsVersesTab(newTabInfo: TTagsVersesTabInfo): TChromeTab;
     function AddDictionaryTab(newTabInfo: TDictionaryTabInfo): TChromeTab;
+    function AddStrongTab(newTabInfo: TStrongTabInfo): TChromeTab;
 
     procedure MakeActive();
 
@@ -336,6 +353,7 @@ type
     function GetSearchView: ISearchView;
     function GetTSKView: ITSKView;
     function GetDictionaryView: IDictionaryView;
+    function GetStrongView: IStrongView;
     function GetTagsVersesView: ITagsVersesView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
@@ -358,6 +376,7 @@ type
     property TSKView: ITSKView read GetTSKView;
     property TagsVerserView: ITagsVersesView read GetTagsVersesView;
     property DictionaryView: IDictionaryView read GetDictionaryView;
+    property StrongView: IStrongView read GetStrongView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
     property UpdateOnTabChange: boolean read GetUpdateOnTabChange write SetUpdateOnTabChange;
@@ -893,6 +912,44 @@ var
 begin
   dicFrame := tabsView.DictionaryView as TDictionaryFrame;
   dicFrame.UpdateSearch(mSearchText, mDictionaryIndex, mFoundDictionaryIndex);
+end;
+
+{ TStrongTabInfo }
+
+constructor TStrongTabInfo.Create();
+begin
+  inherited Create();
+end;
+
+constructor TStrongTabInfo.Create(settings: TStrongTabSettings);
+begin
+  inherited Create();
+end;
+
+function TStrongTabInfo.GetCaption(): string;
+begin
+  // TODO: add translation
+  Result := Lang.SayDefault('TabStrong', 'Strong');
+end;
+
+function TStrongTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttStrong;
+end;
+
+function TStrongTabInfo.GetSettings(): TTabSettings;
+begin
+  Result := TStrongTabSettings.Create;
+end;
+
+procedure TStrongTabInfo.SaveState(const tabsView: ITabsView);
+begin
+// nothing to save
+end;
+
+procedure TStrongTabInfo.RestoreState(const tabsView: ITabsView);
+begin
+// nothing to save
 end;
 
 { TViewTabDragObject }

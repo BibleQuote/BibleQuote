@@ -394,6 +394,7 @@ var
   iscontrolDown: Boolean;
   bookTabState: TBookTabInfoState;
   Key: Char;
+  num, code: integer;
 begin
   unicodeSRC := SRC;
   iscontrolDown := IsDown(VK_CONTROL);
@@ -478,10 +479,9 @@ begin
   else if Pos('s', unicodeSRC) = 1 then
   begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
-
-    mMainView.edtStrong.Text := scode;
-    Key := #13;
-    mMainView.edtStrongKeyPress(Sender, Key);
+    Val(scode, num, code);
+    if (code = 0) then
+      mMainView.OpenOrCreateStrongTab(BookTabInfo, num);
   end
   else
   begin
@@ -737,7 +737,7 @@ begin
     if not mMainView.pgcMain.Visible then
       mMainView.tbtnToggle.Click;
 
-    mMainView.DisplayStrongs(num, (BookTabInfo.Bible.CurBook < 40) and (BookTabInfo.Bible.Trait[bqmtOldCovenant]));
+    mMainView.OpenOrCreateStrongTab(BookTabInfo, num);
   end
   else
   begin
@@ -1261,66 +1261,16 @@ begin
 end;
 
 procedure TBookFrame.NavigateToSearch(searchText: string; bookTypeIndex: integer = -1);
-var
-  searchFrame: TSearchFrame;
-  i: integer;
-  tabInfo: IViewTabInfo;
-  searchTabInfo: TSearchTabInfo;
-  wasUpdateSet: boolean;
-  bookPath: string;
-  tabIndex: integer;
 begin
   searchText := Trim(searchText);
 
   if searchText.Length <= 0 then
     Exit;
 
-  searchTabInfo := nil;
-  tabIndex := -1;
-  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
-  begin
-    tabInfo := mTabsView.GetTabInfo(i);
-    if tabInfo.GetViewType = vttSearch then
-    begin
-      // search tab exists
-      searchTabInfo := TSearchTabInfo(tabInfo);
-      tabIndex := i;
-      break;
-    end;
-  end;
+  if not Assigned(BookTabInfo) then
+    Exit;
 
-  searchFrame := mTabsView.SearchView as TSearchFrame;
-
-  if Assigned(BookTabInfo) and Assigned(BookTabInfo.Bible) then
-  begin
-    bookPath := BookTabInfo.Bible.ShortPath;
-
-    // create search tab if it doesn't exist
-    if not Assigned(searchTabInfo) then
-    begin
-      searchTabInfo := TSearchTabInfo.Create();
-      mTabsView.AddSearchTab(searchTabInfo);
-      tabIndex := mTabsView.ChromeTabs.Tabs.Count - 1;
-    end;
-
-    wasUpdateSet := mTabsView.UpdateOnTabChange;
-    mTabsView.UpdateOnTabChange := false;
-    try
-      mTabsView.ChromeTabs.ActiveTabIndex := tabIndex;
-    finally
-      mTabsView.UpdateOnTabChange := wasUpdateSet;
-    end;
-
-    mTabsView.UpdateCurrentTabContent();
-
-    searchFrame.SetCurrentBook(bookPath);
-    if (bookTypeIndex >= 0) then
-      searchFrame.cbList.ItemIndex := bookTypeIndex;
-
-    searchFrame.cbSearch.Text := Trim(searchText);
-
-    searchFrame.btnFindClick(Self);
-  end;
+  mMainView.OpenOrCreateSearchTab(BookTabInfo.Bible.ShortPath, searchText, bookTypeIndex);
 end;
 
 procedure TBookFrame.pmBrowserPopup(Sender: TObject);

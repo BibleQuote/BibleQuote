@@ -10,7 +10,7 @@ uses
   ExceptionFrm, Math, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig, BookmarksFra,
-  SearchFra, TSKFra, TagsVersesFra, DictionaryFra;
+  SearchFra, TSKFra, TagsVersesFra, DictionaryFra, StrongFra;
 
 const
   bsText = 0;
@@ -57,6 +57,7 @@ type
     mTSKView: TTSKFrame;
     mTagsVersesView: TTagsVersesFrame;
     mDictionaryView: TDictionaryFrame;
+    mStrongView: TStrongFrame;
 
     mUpdateOnTabChange: boolean;
 
@@ -77,6 +78,7 @@ type
     procedure UpdateTSKView();
     procedure UpdateTagsVersesView();
     procedure UpdateDictionaryView();
+    procedure UpdateStrongView();
 
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
@@ -86,6 +88,7 @@ type
     function AddTSKTab(newTabInfo: TTSKTabInfo): TChromeTab;
     function AddTagsVersesTab(newTabInfo: TTagsVersesTabInfo): TChromeTab;
     function AddDictionaryTab(newTabInfo: TDictionaryTabInfo): TChromeTab;
+    function AddStrongTab(newTabInfo: TStrongTabInfo): TChromeTab;
 
     procedure OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
 
@@ -104,6 +107,7 @@ type
     function GetTSKView: ITSKView;
     function GetTagsVersesView: ITagsVersesView;
     function GetDictionaryView: IDictionaryView;
+    function GetStrongView: IStrongView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -180,6 +184,11 @@ end;
 function TDockTabsForm.GetDictionaryView(): IDictionaryView;
 begin
   Result := mDictionaryView as IDictionaryView;
+end;
+
+function TDockTabsForm.GetStrongView(): IStrongView;
+begin
+  Result := mStrongView as IStrongView;
 end;
 
 function TDockTabsForm.GetBibleTabs(): TDockTabSet;
@@ -277,6 +286,7 @@ begin
     HideFrame(mTSKView);
     HideFrame(mTagsVersesView);
     HideFrame(mDictionaryView);
+    HideFrame(mStrongView);
 
     UpdateBookView();
   end;
@@ -292,6 +302,7 @@ begin
     HideFrame(mTSKView);
     HideFrame(mTagsVersesView);
     HideFrame(mDictionaryView);
+    HideFrame(mStrongView);
 
     mMainView.ClearCopyrights();
   end;
@@ -299,6 +310,7 @@ begin
   if (tabInfo.GetViewType = vttLibrary) then
   begin
     ShowFrame(mLibraryView);
+
     HideFrame(mBookView);
     HideFrame(mMemoView);
     HideFrame(mBookmarksView);
@@ -306,6 +318,7 @@ begin
     HideFrame(mTSKView);
     HideFrame(mTagsVersesView);
     HideFrame(mDictionaryView);
+    HideFrame(mStrongView);
 
     mLibraryView.SetModules(mMainView.mModules);
     mMainView.ClearCopyrights();
@@ -314,6 +327,7 @@ begin
   if (tabInfo.GetViewType = vttBookmarks) then
   begin
     ShowFrame(mBookmarksView);
+
     HideFrame(mBookView);
     HideFrame(mMemoView);
     HideFrame(mLibraryView);
@@ -321,6 +335,7 @@ begin
     HideFrame(mTSKView);
     HideFrame(mTagsVersesView);
     HideFrame(mDictionaryView);
+    HideFrame(mStrongView);
 
     mMainView.ClearCopyrights();
   end;
@@ -335,6 +350,7 @@ begin
     HideFrame(mTSKView);
     HideFrame(mTagsVersesView);
     HideFrame(mDictionaryView);
+    HideFrame(mStrongView);
 
     mMainView.ClearCopyrights();
     UpdateSearchView();
@@ -351,6 +367,7 @@ begin
     HideFrame(mSearchView);
     HideFrame(mTagsVersesView);
     HideFrame(mDictionaryView);
+    HideFrame(mStrongView);
 
     mMainView.ClearCopyrights();
     UpdateTSKView();
@@ -367,6 +384,7 @@ begin
     HideFrame(mSearchView);
     HideFrame(mTSKView);
     HideFrame(mDictionaryView);
+    HideFrame(mStrongView);
 
     mMainView.ClearCopyrights();
     UpdateTagsVersesView();
@@ -383,10 +401,28 @@ begin
     HideFrame(mLibraryView);
     HideFrame(mSearchView);
     HideFrame(mTSKView);
+    HideFrame(mStrongView);
 
     mMainView.ClearCopyrights();
     if (restoreState) then
       UpdateDictionaryView();
+  end;
+
+  if (tabInfo.GetViewType = vttStrong) then
+  begin
+    ShowFrame(mStrongView);
+
+    HideFrame(mTagsVersesView);
+    HideFrame(mBookmarksView);
+    HideFrame(mBookView);
+    HideFrame(mMemoView);
+    HideFrame(mLibraryView);
+    HideFrame(mSearchView);
+    HideFrame(mTSKView);
+    HideFrame(mDictionaryView);
+
+    mMainView.ClearCopyrights();
+    UpdateStrongView();
   end;
 end;
 
@@ -505,6 +541,10 @@ begin
   mDictionaryView := TDictionaryFrame.Create(nil, mMainView, self);
   mDictionaryView.Parent := pnlMain;
   mDictionaryView.Align := alClient;
+
+  mStrongView := TStrongFrame.Create(nil, mMainView, self);
+  mStrongView.Parent := pnlMain;
+  mStrongView.Align := alClient;
 end;
 
 procedure TDockTabsForm.FormDeactivate(Sender: TObject);
@@ -663,6 +703,17 @@ var
 begin
   tabInfo := GetActiveTabInfo();
   if (not Assigned(tabInfo)) or (not (tabInfo is TDictionaryTabInfo)) then
+    Exit;
+
+  tabInfo.RestoreState(self);
+end;
+
+procedure TDockTabsForm.UpdateStrongView();
+var
+  tabInfo: IViewTabInfo;
+begin
+  tabInfo := GetActiveTabInfo();
+  if (not Assigned(tabInfo)) or (not (tabInfo is TStrongTabInfo)) then
     Exit;
 
   tabInfo.RestoreState(self);
@@ -876,6 +927,23 @@ begin
   Result := newTab;
 end;
 
+function TDockTabsForm.AddStrongTab(newTabInfo: TStrongTabInfo): TChromeTab;
+var
+  newTab: TChromeTab;
+begin
+  newTab := ctViewTabs.Tabs.Add;
+  // add translation
+  newTab.Caption := Lang.SayDefault('TabStrong', 'Strong');
+  newTab.Data := newTabInfo;
+  // add tab icon
+  newTab.ImageIndex := 23;
+
+  mViewTabs.Add(newTabInfo);
+  UpdateTabContent(newTab);
+
+  Result := newTab;
+end;
+
 procedure TDockTabsForm.Translate();
 var
   chromeTab: TChromeTab;
@@ -891,6 +959,7 @@ begin
       mSearchView.Translate();
       mTagsVersesView.Translate();
       mDictionaryView.Translate();
+      mStrongView.Translate();
 
       for i := 0 to ctViewTabs.Tabs.Count - 1 do
       begin

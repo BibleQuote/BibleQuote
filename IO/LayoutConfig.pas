@@ -72,6 +72,9 @@ type
   TDictionaryTabSettings = class(TTabSettings)
   end;
 
+  TStrongTabSettings = class(TTabSettings)
+  end;
+
   TTabsViewSettings = class
   private
     FBookTabs: TList<TBookTabSettings>;
@@ -82,6 +85,7 @@ type
     FTSKTabs: TList<TTSKTabSettings>;
     FTagsVersesTabs: TList<TTagsVersesTabSettings>;
     FDictionaryTabs: TList<TDictionaryTabSettings>;
+    FStrongTabs: TList<TStrongTabSettings>;
 
     FActive: boolean;
     FViewName: string;
@@ -97,6 +101,7 @@ type
     property TSKTabs: TList<TTSKTabSettings> read FTSKTabs write FTSKTabs;
     property TagsVersesTabs: TList<TTagsVersesTabSettings> read FTagsVersesTabs write FTagsVersesTabs;
     property DictionaryTabs: TList<TDictionaryTabSettings> read FDictionaryTabs write FDictionaryTabs;
+    property StrongTabs: TList<TStrongTabSettings> read FStrongTabs write FStrongTabs;
 
     property Active: boolean read FActive write FActive;
     property ViewName: string read FViewName write FViewName;
@@ -142,6 +147,7 @@ begin
   TSKTabs := TList<TTSKTabSettings>.Create();
   TagsVersesTabs := TList<TTagsVersesTabSettings>.Create();
   DictionaryTabs := TList<TDictionaryTabSettings>.Create();
+  StrongTabs := TList<TStrongTabSettings>.Create();
 
   Active := false;
 end;
@@ -171,6 +177,9 @@ begin
 
   if (tabSettings is TDictionaryTabSettings) then
     DictionaryTabs.Add(TDictionaryTabSettings(tabSettings));
+
+  if (tabSettings is TStrongTabSettings) then
+    StrongTabs.Add(TStrongTabSettings(tabSettings));
 end;
 
 function TTabsViewSettings.GetOrderedTabSettings(): TList<TTabSettings>;
@@ -181,7 +190,7 @@ var
 begin
   count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count +
     BookmarksTabs.Count + SearchTabs.Count + TSKTabs.Count +
-    TagsVersesTabs.Count + DictionaryTabs.Count;
+    TagsVersesTabs.Count + DictionaryTabs.Count + StrongTabs.Count;
 
   tabs := TList<TTabSettings>.Create;
   tabs.Count := count;
@@ -222,6 +231,11 @@ begin
   end;
 
   for tab in DictionaryTabs do
+  begin
+    tabs[tab.Index] := tab;
+  end;
+
+  for tab in StrongTabs do
   begin
     tabs[tab.Index] := tab;
   end;

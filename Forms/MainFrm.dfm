@@ -94,7 +94,7 @@ object MainForm: TMainForm
     Width = 290
     Height = 300
     Hint = 'Memos'
-    ActivePage = tbStrong
+    ActivePage = tbComments
     Align = alLeft
     Images = ilImages
     TabOrder = 2
@@ -102,101 +102,8 @@ object MainForm: TMainForm
     OnChange = pgcMainChange
     OnMouseLeave = pgcMainMouseLeave
     OnMouseMove = pgcMainMouseMove
-    object tbStrong: TTabSheet
-      Hint = 'Strong'#39's Dictionary'
-      ImageIndex = 18
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object bwrStrong: THTMLViewer
-        AlignWithMargins = True
-        Left = 3
-        Top = 210
-        Width = 276
-        Height = 58
-        TabOrder = 0
-        Align = alClient
-        PopupMenu = pmRef
-        BorderStyle = htSingle
-        CharSet = RUSSIAN_CHARSET
-        DefFontName = 'Times New Roman'
-        DefPreFontName = 'Courier New'
-        HistoryMaxCount = 0
-        HtOptions = [htNoLinkUnderline]
-        NoSelect = False
-        PrintMarginBottom = 2.000000000000000000
-        PrintMarginLeft = 2.000000000000000000
-        PrintMarginRight = 2.000000000000000000
-        PrintMarginTop = 2.000000000000000000
-        PrintScale = 1.000000000000000000
-        ScrollBars = ssVertical
-        OnHotSpotClick = bwrStrongHotSpotClick
-        OnMouseDouble = bwrStrongMouseDouble
-      end
-      object pnlStrong: TPanel
-        Left = 0
-        Top = 0
-        Width = 282
-        Height = 181
-        Align = alTop
-        Anchors = []
-        BevelOuter = bvNone
-        TabOrder = 1
-        DesignSize = (
-          282
-          181)
-        object edtStrong: TEdit
-          Left = 4
-          Top = 4
-          Width = 277
-          Height = 22
-          Hint = 'Strong number to show'
-          Anchors = [akLeft, akTop, akRight]
-          TabOrder = 0
-          OnKeyPress = edtStrongKeyPress
-        end
-        object lbStrong: TListBox
-          Left = 4
-          Top = 32
-          Width = 277
-          Height = 144
-          Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 14
-          PopupMenu = pmEmpty
-          TabOrder = 1
-          OnDblClick = lbStrongDblClick
-        end
-      end
-      object pnlFindStrongNumber: TPanel
-        Left = 0
-        Top = 181
-        Width = 282
-        Height = 26
-        Cursor = crHandPoint
-        Align = alTop
-        Anchors = []
-        BevelEdges = []
-        BevelOuter = bvNone
-        Caption = '# search'
-        Font.Charset = RUSSIAN_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -17
-        Font.Name = 'Arial Unicode MS'
-        Font.Style = [fsUnderline]
-        ParentFont = False
-        TabOrder = 2
-        OnClick = pnlFindStrongNumberClick
-        OnMouseDown = pnlFindStrongNumberMouseDown
-        OnMouseUp = pnlFindStrongNumberMouseUp
-      end
-    end
     object tbComments: TTabSheet
       Hint = 'Commentaries'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object bwrComments: THTMLViewer
         Left = 0
         Top = 30
@@ -218,7 +125,6 @@ object MainForm: TMainForm
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
         OnHotSpotClick = bwrCommentsHotSpotClick
-        ExplicitHeight = 285
       end
       object pnlComments: TPanel
         Left = 0
@@ -293,10 +199,10 @@ object MainForm: TMainForm
     GradientEndColor = clBtnFace
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 706
+      Left = 738
       Top = 4
       Width = 37
-      Height = 14
+      Height = 26
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -309,12 +215,13 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
+      ExplicitHeight = 14
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 753
+      Left = 785
       Top = 4
-      Width = 183
+      Width = 151
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -331,8 +238,7 @@ object MainForm: TMainForm
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 510
-      Height = 29
+      Width = 542
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -409,76 +315,82 @@ object MainForm: TMainForm
         ImageIndex = 18
         OnClick = tbtnAddTSKTabClick
       end
-      object tbtnAddSearchTab: TToolButton
+      object tbtnAddStrongTab: TToolButton
         Left = 236
+        Top = 0
+        Caption = 'Add strong tab'
+        OnClick = tbtnAddStrongTabClick
+      end
+      object tbtnAddSearchTab: TToolButton
+        Left = 268
         Top = 0
         Caption = 'Search'
         ImageIndex = 17
         OnClick = tbtnAddSearchTabClick
       end
       object tbtnAddBookmarksTab: TToolButton
-        Left = 268
+        Left = 300
         Top = 0
         Caption = 'Bookmarks'
         ImageIndex = 16
         OnClick = tbtnAddBookmarksTabClick
       end
       object tbtnAddTagsVersesTab: TToolButton
-        Left = 300
+        Left = 332
         Top = 0
         Caption = 'tbtnAddTagsVersesTab'
         ImageIndex = 19
         OnClick = tbtnAddTagsVersesTabClick
       end
       object tbtnAddMemoTab: TToolButton
-        Left = 332
+        Left = 364
         Top = 0
         Caption = 'Add memo tab'
         ImageIndex = 15
         OnClick = tbtnAddMemoTabClick
       end
       object tbtnSep04: TToolButton
-        Left = 364
+        Left = 396
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnPreview: TToolButton
-        Left = 370
+        Left = 402
         Top = 0
         Caption = 'Preview'
         ImageIndex = 2
         OnClick = tbtnPreviewClick
       end
       object tbtnPrint: TToolButton
-        Left = 402
+        Left = 434
         Top = 0
         Caption = 'Print'
         ImageIndex = 9
         OnClick = tbtnPrintClick
       end
       object tbtnSep05: TToolButton
-        Left = 434
+        Left = 466
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnSound: TToolButton
-        Left = 440
+        Left = 472
         Top = 0
         Caption = 'Sound'
         ImageIndex = 6
         OnClick = tbtnSoundClick
       end
       object tbtnCopyright: TToolButton
-        Left = 472
+        Left = 504
         Top = 0
         Caption = 'Copyright'
         ImageIndex = 8
         OnClick = tbtnCopyrightClick
       end
       object tbtnLastSeparator: TToolButton
-        Left = 504
+        Left = 536
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -487,10 +399,9 @@ object MainForm: TMainForm
       end
     end
     object tlbResolveLnks: TToolBar
-      Left = 511
+      Left = 543
       Top = 1
       Width = 56
-      Height = 29
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
@@ -526,10 +437,9 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 567
+      Left = 599
       Top = 1
       Width = 136
-      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -945,7 +855,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010135006800340510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800440510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2811,7 +2721,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01011500E801780318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011500E801880318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49
