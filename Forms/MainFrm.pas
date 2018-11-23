@@ -87,13 +87,8 @@ type
     pnlPage: TPanel;
     pbPreview: TPaintBox;
     pgcMain: TPageControl;
-    tbStrong: TTabSheet;
-    bwrStrong: THTMLViewer;
     tbComments: TTabSheet;
     bwrComments: THTMLViewer;
-    pnlStrong: TPanel;
-    edtStrong: TEdit;
-    lbStrong: TListBox;
     pmRef: TPopupMenu;
     miRefCopy: TMenuItem;
     miRefPrint: TMenuItem;
@@ -101,7 +96,6 @@ type
     cbComments: TComboBox;
     splMain: TSplitter;
     pmEmpty: TPopupMenu;
-    pnlFindStrongNumber: TPanel;
     trayIcon: TCoolTrayIcon;
     mmGeneral: TMainMenu;
     miFile: TMenuItem;
@@ -192,6 +186,7 @@ type
     tbtnAddTSKTab: TToolButton;
     tbtnAddTagsVersesTab: TToolButton;
     tbtnAddDictionaryTab: TToolButton;
+    tbtnAddStrongTab: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure SaveButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
@@ -224,11 +219,7 @@ type
     procedure cbLinksChange(Sender: TObject);
     procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure bwrCommentsHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-    procedure bwrStrongMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure SplitterMoved(Sender: TObject);
-    procedure edtStrongKeyPress(Sender: TObject; var Key: Char);
     procedure tbtnToggleClick(Sender: TObject);
-    procedure lbStrongDblClick(Sender: TObject);
     procedure miAboutClick(Sender: TObject);
     procedure edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure miRefPrintClick(Sender: TObject);
@@ -242,10 +233,6 @@ type
     procedure miQuickNavClick(Sender: TObject);
     procedure miQuickSearchClick(Sender: TObject);
     procedure tbtnCopyrightClick(Sender: TObject);
-    procedure bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-    procedure pnlFindStrongNumberMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure pnlFindStrongNumberMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure pnlFindStrongNumberClick(Sender: TObject);
     procedure miCopyOptionsClick(Sender: TObject);
     procedure miOptionsClick(Sender: TObject);
     procedure trayIconClick(Sender: TObject);
@@ -304,6 +291,7 @@ type
     procedure tbtnAddTSKTabClick(Sender: TObject);
     procedure tbtnAddTagsVersesTabClick(Sender: TObject);
     procedure tbtnAddDictionaryTabClick(Sender: TObject);
+    procedure tbtnAddStrongTabClick(Sender: TObject);
   public
     SysHotKey: TSysHotKey;
 
@@ -339,9 +327,6 @@ type
     mModules: TCachedModules;
 
     BrowserPosition: Longint; // this helps PgUp, PgDn to scroll chapters...
-
-    StrongHebrew, StrongGreek: TDict;
-    StrongsDir: string;
 
     SatelliteBible: string;
 
@@ -428,6 +413,9 @@ type
     procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
     procedure OpenOrCreateDictionaryTab(const searchText: string);
+    procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
+    procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1);
+
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
     procedure AddBookmark(caption: string);
@@ -481,8 +469,6 @@ type
     procedure HotKeyClick(Sender: TObject);
 
     function CopyPassage(fromverse, toverse: integer): string;
-
-    procedure DisplayStrongs(num: integer; hebrew: Boolean);
 
     procedure ConvertClipboard;
 
@@ -552,7 +538,7 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
   StrUtils, CommCtrl, DockTabsFrm,
   HintTools, sevenZipHelper, BookFra, TSKFra, DictionaryFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
-  EngineInterfaces, StringProcs, LinksParser;
+  EngineInterfaces, StringProcs, LinksParser, StrongFra, SearchFra;
 
 {$R *.DFM}
 
@@ -647,7 +633,7 @@ begin
 
     Prepare(ExtractFilePath(Application.ExeName) + 'biblebooks.cfg', Output);
 
-    with bwrStrong do
+    with bwrComments do
     begin
       DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
       DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
@@ -655,16 +641,6 @@ begin
 
       DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
       DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
-    end;
-
-    with bwrComments do
-    begin
-      DefFontName := bwrStrong.DefFontName;
-      DefFontSize := bwrStrong.DefFontSize;
-      DefFontColor := bwrStrong.DefFontColor;
-
-      DefBackGround := bwrStrong.DefBackGround;
-      DefHotSpotColor := bwrStrong.DefHotSpotColor;
     end;
 
     LastLanguageFile := MainCfgIni.SayDefault('LastLanguageFile', '');
@@ -1233,6 +1209,11 @@ begin
         begin
           mTabsView.AddDictionaryTab(TDictionaryTabInfo.Create(TDictionaryTabSettings(tabSettings)));
           addTabResult := true;
+        end
+        else if (tabSettings is TStrongTabSettings) then
+        begin
+          mTabsView.AddStrongTab(TStrongTabInfo.Create(TStrongTabSettings(tabSettings)));
+          addTabResult := true;
         end;
 
         firstTabInitialized := true;
@@ -1370,16 +1351,16 @@ begin
     if (g_VerseBkHlColor <> Color2Hex(clHighlight)) then
       ini.Learn('VerseBkHLColor', g_VerseBkHlColor);
 
-    ini.Learn('RefFontName', bwrStrong.DefFontName);
-    ini.Learn('RefFontSize', IntToStr(bwrStrong.DefFontSize));
+    ini.Learn('RefFontName', bwrComments.DefFontName);
+    ini.Learn('RefFontSize', IntToStr(bwrComments.DefFontSize));
 
     ini.Learn('LibFormWidth', LibFormWidth);
     ini.Learn('LibFormHeight', LibFormHeight);
     ini.Learn('LibFormTop', LibFormTop);
     ini.Learn('LibFormLeft', LibFormLeft);
 
-    if (Color2Hex(bwrStrong.DefFontColor) <> Color2Hex(clWindowText)) then
-      ini.Learn('RefFontColor', Color2Hex(bwrStrong.DefFontColor));
+    if (Color2Hex(bwrComments.DefFontColor) <> Color2Hex(clWindowText)) then
+      ini.Learn('RefFontColor', Color2Hex(bwrComments.DefFontColor));
 
     if (Color2Hex(mTabsView.Browser.DefBackGround) <> Color2Hex(clWindow)) then
       ini.Learn('DefBackground', Color2Hex(mTabsView.Browser.DefBackGround));
@@ -1621,13 +1602,9 @@ begin
   LoadTabsViews();
   LoadHotModulesConfig();
 
-  StrongsDir := C_StrongsSubDirectory;
-  LoadFontFromFolder(TPath.Combine(LibraryDirectory, StrongsDir));
+  LoadFontFromFolder(TPath.Combine(LibraryDirectory, C_StrongsSubDirectory));
 
   mTranslated := TranslateInterface(LastLanguageFile);
-
-  StrongHebrew := TDict.Create;
-  StrongGreek := TDict.Create;
 
   pgcMainChange(self);
 
@@ -2781,10 +2758,11 @@ begin
 //    bwrDic.LoadFromString(bwrDic.DocumentSource);
 //    bwrDic.Position := browserpos;
 
-    browserpos := bwrStrong.Position and $FFFF0000;
-    bwrStrong.DefFontSize := defFontSz;
-    bwrStrong.LoadFromString(bwrStrong.DocumentSource);
-    bwrStrong.Position := browserpos;
+    // TODO: change font of all strong tabs
+//    browserpos := bwrStrong.Position and $FFFF0000;
+//    bwrStrong.DefFontSize := defFontSz;
+//    bwrStrong.LoadFromString(bwrStrong.DocumentSource);
+//    bwrStrong.Position := browserpos;
 
     browserpos := bwrComments.Position and $FFFF0000;
     bwrComments.DefFontSize := defFontSz;
@@ -2847,8 +2825,6 @@ begin
     GfxRenderers.TbqTagsRenderer.Done();
     FreeAndNil(Memos);
     FreeAndNil(Bookmarks);
-    FreeAndNil(StrongHebrew);
-    FreeAndNil(StrongGreek);
     FreeAndNil(PasswordPolicy);
     FreeAndNil(mModules);
     FreeAndNil(mFavorites);
@@ -3313,8 +3289,9 @@ begin
   //bwrDic.DefBackGround := newColor;
   //bwrDic.Refresh;
 
-  bwrStrong.DefBackGround := newColor;
-  bwrStrong.Refresh;
+  // TODO: update background of all strong tabs
+  //bwrStrong.DefBackGround := newColor;
+  //bwrStrong.Refresh;
 
   bwrComments.DefBackGround := newColor;
   bwrComments.Refresh;
@@ -3371,8 +3348,9 @@ begin
   //bwrDic.DefHotSpotColor := newColor;
   //bwrDic.Refresh;
 
-  bwrStrong.DefHotSpotColor := newColor;
-  bwrStrong.Refresh;
+  // TODO: update hot spot color of all strong tabs
+  //bwrStrong.DefHotSpotColor := newColor;
+  //bwrStrong.Refresh;
 
   bwrComments.DefHotSpotColor := newColor;
   bwrComments.Refresh;
@@ -3607,6 +3585,14 @@ begin
   mTabsView.AddSearchTab(newTabInfo);
 end;
 
+procedure TMainForm.tbtnAddStrongTabClick(Sender: TObject);
+var
+  newTabInfo: TStrongTabInfo;
+begin
+  newTabInfo := TStrongTabInfo.Create();
+  mTabsView.AddStrongTab(newTabInfo);
+end;
+
 procedure TMainForm.tbtnSoundClick(Sender: TObject);
 var
   book, chapter, verse: integer;
@@ -3733,80 +3719,6 @@ end;
 procedure TMainForm.miCopyPassageClick(Sender: TObject);
 begin
   CopyPassageToClipboard();
-end;
-
-procedure TMainForm.DisplayStrongs(num: integer; hebrew: Boolean);
-var
-  res, s, Copyright: string;
-  i: integer;
-  fullDir: string;
-  bible: TBible;
-begin
-  s := IntToStr(num);
-  for i := Length(s) to 4 do
-    s := '0' + s;
-
-  bible := GetBookView(self).BookTabInfo.Bible;
-
-  StrongsDir := bible.StrongsDirectory;
-
-  if StrongsDir = '' then
-    StrongsDir := C_StrongsSubDirectory;
-
-  fullDir := TPath.Combine(LibraryDirectory, StrongsDir);
-
-  try
-    if hebrew or (num = 0) then
-    begin
-      if not(StrongHebrew.Initialize(TPath.Combine(fullDir, 'hebrew.idx'), TPath.Combine(fullDir, 'hebrew.htm'))) then
-        ShowMessage('Error in' + TPath.Combine(fullDir, 'hebrew.*'));
-
-      res := StrongHebrew.Lookup(s);
-      StrReplace(res, '<h4>', '<h4>H', false);
-      Copyright := StrongHebrew.Name;
-    end
-    else
-    begin
-      if not(StrongGreek.Initialize(TPath.Combine(fullDir, 'greek.idx'), TPath.Combine(fullDir, 'greek.htm'))) then
-        ShowMessage('Error in' + TPath.Combine(fullDir, 'greek.*'));
-
-      res := StrongGreek.Lookup(s);
-      StrReplace(res, '<h4>', '<h4>G', false);
-      Copyright := StrongGreek.Name;
-    end;
-  except
-    on e: Exception do
-    begin
-
-      BqShowException(e);
-    end;
-  end;
-
-  pgcMain.ActivePage := tbStrong;
-
-  if res <> '' then
-  begin
-    res := FormatStrongNumbers(res, false, false);
-
-    AddLine(res, '<p><font size=-1>' + Copyright + '</font>');
-    bwrStrong.LoadFromString(res);
-
-    s := IntToStr(num);
-    if hebrew then
-      s := 'H' + s
-    else
-      s := 'G' + s;
-
-    i := lbStrong.Items.IndexOf(s);
-    if i = -1 then
-    begin
-      lbStrong.Items.Add(s);
-      lbStrong.ItemIndex := lbStrong.Items.Count - 1;
-    end
-    else
-      lbStrong.ItemIndex := i;
-  end;
-
 end;
 
 procedure TMainForm.miPrintPreviewClick(Sender: TObject);
@@ -4245,61 +4157,6 @@ begin
   end;
 end;
 
-procedure TMainForm.bwrStrongMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-var
-  num, code: integer;
-begin
-  Val(Trim(bwrStrong.SelText), num, code);
-
-  if code = 0 then
-    DisplayStrongs(num, Copy(Trim(bwrStrong.SelText), 1, 1) = '0')
-  else
-    OpenOrCreateDictionaryTab(Trim(bwrStrong.SelText));
-end;
-
-procedure TMainForm.SplitterMoved(Sender: TObject);
-begin
-  lbStrong.Height := pnlStrong.Height - edtStrong.Height - 15;
-  lbStrong.Top := edtStrong.Top + 27;
-end;
-
-procedure TMainForm.edtStrongKeyPress(Sender: TObject; var Key: Char);
-var
-  num, code: integer;
-  hebrew: Boolean;
-  stext: string;
-begin
-  if Key = #13 then
-  begin
-    Key := #0;
-
-    stext := Trim(edtStrong.Text);
-
-    if Copy(stext, 1, 1) = '0' then
-      hebrew := true
-    else if Copy(stext, 1, 1) = 'H' then
-    begin
-      hebrew := true;
-      stext := Copy(stext, 2, Length(stext) - 1);
-    end
-    else if Copy(stext, 1, 1) = 'G' then
-    begin
-      hebrew := false;
-      stext := Copy(stext, 2, Length(stext) - 1);
-    end
-    else
-      hebrew := false;
-
-    try
-      Val(Trim(stext), num, code);
-    finally
-    end;
-
-    if code = 0 then
-      DisplayStrongs(num, hebrew)
-  end;
-end;
-
 procedure TMainForm.WMQueryEndSession(var Message: TWMQueryEndSession);
 begin
   inherited;
@@ -4365,44 +4222,6 @@ begin
   try
     MainForm.FocusControl(mTabsView.Browser);
   except
-  end;
-end;
-
-procedure TMainForm.lbStrongDblClick(Sender: TObject);
-var
-  num, code: integer;
-  hebrew: Boolean;
-  stext: string;
-begin
-
-  if lbStrong.ItemIndex <> -1 then
-  begin
-
-    stext := Trim(lbStrong.Items[lbStrong.ItemIndex]);
-
-    if Copy(stext, 1, 1) = '0' then
-      hebrew := true
-    else if Copy(stext, 1, 1) = 'H' then
-    begin
-      hebrew := true;
-      stext := Copy(stext, 2, Length(stext) - 1);
-    end
-    else if Copy(stext, 1, 1) = 'G' then
-    begin
-      hebrew := false;
-      stext := Copy(stext, 2, Length(stext) - 1);
-    end
-    else
-      hebrew := false;
-
-    try
-      Val(Trim(stext), num, code);
-    finally
-    end;
-
-    if code = 0 then
-      DisplayStrongs(num, hebrew);
-
   end;
 end;
 
@@ -5206,6 +5025,94 @@ begin
   FilterCommentariesCombo();
 end;
 
+procedure TMainForm.OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
+var
+  i: integer;
+  tabInfo: IViewTabInfo;
+  strongTabInfo: TStrongTabInfo;
+  wasUpdateSet: boolean;
+  strongView: TStrongFrame;
+begin
+  strongTabInfo := nil;
+
+  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  begin
+    tabInfo := mTabsView.GetTabInfo(i);
+    if not (tabInfo is TStrongTabInfo) then
+      continue;
+
+    strongTabInfo := TStrongTabInfo(tabInfo);
+
+    wasUpdateSet := mTabsView.UpdateOnTabChange;
+    mTabsView.UpdateOnTabChange := false;
+    try
+      mTabsView.ChromeTabs.ActiveTabIndex := i;
+    finally
+      mTabsView.UpdateOnTabChange := wasUpdateSet;
+    end;
+  end;
+
+  if not Assigned(strongTabInfo) then
+  begin
+    strongTabInfo := TStrongTabInfo.Create();
+    mTabsView.AddStrongTab(strongTabInfo);
+  end;
+
+  strongView := mTabsView.StrongView as TStrongFrame;
+  if Assigned(bookTabInfo) then
+  begin
+    strongView.SetCurrentBook(bookTabInfo.Bible.ShortPath);
+    strongView.DisplayStrongs(num, (bookTabInfo.Bible.CurBook < 40) and (bookTabInfo.Bible.Trait[bqmtOldCovenant]));
+  end;
+
+  mTabsView.UpdateCurrentTabContent;
+end;
+
+procedure TMainForm.OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1);
+var
+  i: integer;
+  tabInfo: IViewTabInfo;
+  searchTabInfo: TSearchTabInfo;
+  wasUpdateSet: boolean;
+  searchView: TSearchFrame;
+begin
+  searchTabInfo := nil;
+
+  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  begin
+    tabInfo := mTabsView.GetTabInfo(i);
+    if not (tabInfo is TSearchTabInfo) then
+      continue;
+
+    searchTabInfo := TSearchTabInfo(tabInfo);
+
+    wasUpdateSet := mTabsView.UpdateOnTabChange;
+    mTabsView.UpdateOnTabChange := false;
+    try
+      mTabsView.ChromeTabs.ActiveTabIndex := i;
+    finally
+      mTabsView.UpdateOnTabChange := wasUpdateSet;
+    end;
+  end;
+
+  if not Assigned(searchTabInfo) then
+  begin
+    searchTabInfo := TSearchTabInfo.Create();
+    mTabsView.AddSearchTab(searchTabInfo);
+  end;
+
+  searchView := mTabsView.SearchView as TSearchFrame;
+  mTabsView.UpdateCurrentTabContent;
+
+  searchView.SetCurrentBook(bookPath);
+  if (bookTypeIndex >= 0) then
+    searchView.cbList.ItemIndex := bookTypeIndex;
+
+  searchView.cbSearch.Text := Trim(searchText);
+
+  searchView.btnFindClick(Self);
+end;
+
 procedure TMainForm.OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
 var
   i: integer;
@@ -5441,8 +5348,6 @@ begin
   case pgcMain.ActivePageIndex of
     0:
       GetBookView(self).pmMemo.PopupComponent := GetBookView(self).tedtReference;
-    3:
-      GetBookView(self).pmMemo.PopupComponent := edtStrong;
     4:
       begin
         GetBookView(self).pmMemo.PopupComponent := bwrComments;
@@ -5686,20 +5591,21 @@ procedure TMainForm.miRefFontConfigClick(Sender: TObject);
 begin
   with FontDialog do
   begin
-    Font.Name := bwrStrong.DefFontName;
-    Font.color := bwrStrong.DefFontColor;
-    Font.Size := bwrStrong.DefFontSize;
+    Font.Name := bwrComments.DefFontName;
+    Font.color := bwrComments.DefFontColor;
+    Font.Size := bwrComments.DefFontSize;
   end;
 
   if FontDialog.Execute then
   begin
-    with bwrStrong do
-    begin
-      DefFontName := FontDialog.Font.Name;
-      DefFontColor := FontDialog.Font.color;
-      DefFontSize := FontDialog.Font.Size;
-      LoadFromString(DocumentSource);
-    end;
+    // TODO: change font of tsk tabs
+//    with bwrStrong do
+//    begin
+//      DefFontName := FontDialog.Font.Name;
+//      DefFontColor := FontDialog.Font.color;
+//      DefFontSize := FontDialog.Font.Size;
+//      LoadFromString(DocumentSource);
+//    end;
 
     // TODO: change font of tsk tabs
 //    with bwrXRef do
@@ -5720,9 +5626,9 @@ begin
 
     with bwrComments do
     begin
-      DefFontName := bwrStrong.DefFontName;
-      DefFontColor := bwrStrong.DefFontColor;
-      DefFontSize := bwrStrong.DefFontSize;
+      DefFontName := FontDialog.Font.Name;
+      DefFontColor := FontDialog.Font.color;
+      DefFontSize := FontDialog.Font.Size;
     end;
 
     try
@@ -5837,20 +5743,6 @@ begin
   end;
 end;
 
-procedure TMainForm.bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-var
-  num, code: integer;
-  scode: string;
-begin
-  if Pos('s', SRC) = 1 then
-  begin
-    scode := Copy(SRC, 2, Length(SRC) - 1);
-    Val(scode, num, code);
-    if code = 0 then
-      DisplayStrongs(num, (Copy(scode, 1, 1) = '0'));
-  end;
-end;
-
 procedure TMainForm.btnOnlyMeaningfulClick(Sender: TObject);
 var
   btn: TrkGlassButton;
@@ -5858,16 +5750,6 @@ begin
   btn := Sender as TrkGlassButton;
   btn.Down := not btn.Down;
   FilterCommentariesCombo();
-end;
-
-procedure TMainForm.pnlFindStrongNumberMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-begin
-  pnlFindStrongNumber.BevelOuter := bvNone;
-end;
-
-procedure TMainForm.pnlFindStrongNumberMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-begin
-  pnlFindStrongNumber.BevelOuter := bvRaised;
 end;
 
 function TMainForm.FindTaggedTopMenuItem(tag: integer): TMenuItem;
@@ -5884,48 +5766,6 @@ begin
       break
     end // if
   end; // for
-end;
-
-// find selected Strongs number in the whole Bible...
-procedure TMainForm.pnlFindStrongNumberClick(Sender: TObject);
-var
-  bible: TBible;
-  bookFrame: TBookFrame;
-  bookTabInfo: TBookTabInfo;
-  searchText: string;
-  bookTypeIndex: integer;
-begin
-  if lbStrong.ItemIndex < 0 then
-    Exit;
-
-  bookFrame := GetBookView(self);
-  if Assigned(bookFrame.BookTabInfo) then
-  begin
-    searchText := lbStrong.Items[lbStrong.ItemIndex];
-    bookTabInfo := GetBookView(self).BookTabInfo;
-    if Assigned(bookTabInfo) then
-    begin
-      bible := bookTabInfo.Bible;
-      if bible.StrongsPrefixed then
-        bookTypeIndex := 0 // full book
-      else
-      begin
-        if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'H' then
-          searchText := '0' + Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
-        else if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'G' then
-          searchText := Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
-        else
-          searchText := lbStrong.Items[lbStrong.ItemIndex];
-
-        if Copy(searchText, 1, 1) = '0' then
-          bookTypeIndex := 1 // old testament
-        else
-          bookTypeIndex := 2; // new testament
-      end;
-
-      bookFrame.NavigateToSearch(searchText, bookTypeIndex);
-    end;
-  end;
 end;
 
 procedure TMainForm.miCopyOptionsClick(Sender: TObject);
@@ -6308,35 +6148,13 @@ end;
 procedure TMainForm.UpdateUIForType(tabType: TViewTabType);
 begin
   case tabType of
-    vttBook: begin
-      EnableBookTools(true);
-    end;
-    vttMemo: begin
-      EnableBookTools(false);
-    end;
-    vttLibrary: begin
-      EnableBookTools(false);
-    end;
-    vttBookmarks: begin
-      EnableBookTools(false);
-    end;
-    vttSearch: begin
-      EnableBookTools(false);
-    end;
-    vttTSK: begin
-      EnableBookTools(false);
-    end;
-    vttDictionary: begin
-      EnableBookTools(false);
-    end;
+    vttBook: EnableBookTools(true);
+    else EnableBookTools(false);
   end;
 end;
 
 procedure TMainForm.EnableBookTools(enable: boolean);
 begin
-  tbStrong.Enabled := enable;
-  SyncChildrenEnabled(tbStrong);
-
   tbComments.Enabled := enable;
   SyncChildrenEnabled(tbComments);
 

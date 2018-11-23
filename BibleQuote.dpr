@@ -66,7 +66,8 @@ uses
   TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame},
   TagsVersesFra in 'Views\TagsVersesFra.pas' {TagsVersesFrame: TFrame},
   DictionaryFra in 'Views\DictionaryFra.pas' {DictionaryFrame: TFrame},
-  NotifyMessages in 'Core\NotifyMessages.pas';
+  NotifyMessages in 'Core\NotifyMessages.pas',
+  StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame};
 
 {$R *.res}
 var
