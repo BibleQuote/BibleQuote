@@ -43,6 +43,7 @@ type
     procedure DisplayStrongs(num: integer; hebrew: Boolean);
     procedure SetCurrentBook(shortPath: string);
     procedure Translate();
+    function GetBookPath(): string;
   end;
 
 implementation
@@ -326,6 +327,13 @@ begin
       lbStrong.ItemIndex := i;
   end;
 
+end;
+
+function TStrongFrame.GetBookPath(): string;
+begin
+  Result := '';
+  if Assigned(mCurrentBook) then
+    Result := mCurrentBook.ShortPath;
 end;
 
 procedure TStrongFrame.Translate();

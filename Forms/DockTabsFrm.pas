@@ -932,11 +932,9 @@ var
   newTab: TChromeTab;
 begin
   newTab := ctViewTabs.Tabs.Add;
-  // add translation
   newTab.Caption := Lang.SayDefault('TabStrong', 'Strong');
   newTab.Data := newTabInfo;
-  // add tab icon
-  newTab.ImageIndex := 23;
+  newTab.ImageIndex := 3;
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
