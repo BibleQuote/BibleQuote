@@ -5328,23 +5328,6 @@ procedure TMainForm.pgcMainChange(Sender: TObject);
 var
   saveCursor: TCursor;
 begin
-// TODO: is it needed?
-//  if (pgcMain.ActivePage = tbDic) and (not mDictionariesFullyInitialized) then
-//  begin
-//    saveCursor := self.Cursor;
-//    Screen.Cursor := crHourGlass;
-//    try
-//      LoadDictionaries(true);
-//    except
-//      on E: Exception do
-//      begin
-//        BqShowException(E);
-//      end;
-//    end;
-//    Screen.Cursor := saveCursor;
-//  end;
-
-  // TODO: review this
   case pgcMain.ActivePageIndex of
     0:
       GetBookView(self).pmMemo.PopupComponent := GetBookView(self).tedtReference;

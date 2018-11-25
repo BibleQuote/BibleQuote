@@ -203,6 +203,16 @@ type
   end;
 
   TStrongTabInfo = class(TInterfacedObject, IViewTabInfo)
+  private
+    mBookPath: string;
+    mStrongsList: TStrings;
+    mSearchText: string;
+    mStrongText: string;
+  public
+    property StrongsList: TStrings read mStrongsList write mStrongsList;
+    property SearchText: string read mSearchText write mSearchText;
+    property StrongText: string read mStrongText write mStrongText;
+
     procedure SaveState(const tabsView: ITabsView);
     procedure RestoreState(const tabsView: ITabsView);
     function GetViewType(): TViewTabType;
@@ -384,7 +394,7 @@ type
 
 implementation
 
-uses BookFra, SearchFra, TSKFra, DictionaryFra;
+uses BookFra, SearchFra, TSKFra, DictionaryFra, StrongFra;
 
 constructor TBookTabBrowserState.Create;
 begin
@@ -919,16 +929,19 @@ end;
 constructor TStrongTabInfo.Create();
 begin
   inherited Create();
+
+  mStrongsList := TStringList.Create();
 end;
 
 constructor TStrongTabInfo.Create(settings: TStrongTabSettings);
 begin
   inherited Create();
+
+  mStrongsList := TStringList.Create();
 end;
 
 function TStrongTabInfo.GetCaption(): string;
 begin
-  // TODO: add translation
   Result := Lang.SayDefault('TabStrong', 'Strong');
 end;
 
@@ -943,13 +956,35 @@ begin
 end;
 
 procedure TStrongTabInfo.SaveState(const tabsView: ITabsView);
+var
+  strongFrame: TStrongFrame;
 begin
-// nothing to save
+  strongFrame := tabsView.StrongView as TStrongFrame;
+  with strongFrame do
+  begin
+    mSearchText := edtStrong.Text;
+    mStrongText := bwrStrong.DocumentSource;
+
+    mStrongsList.Clear;
+    mStrongsList.AddStrings(lbStrong.Items);
+    mBookPath := GetBookPath();
+  end;
 end;
 
 procedure TStrongTabInfo.RestoreState(const tabsView: ITabsView);
+var
+  strongFrame: TStrongFrame;
 begin
-// nothing to save
+  strongFrame := tabsView.StrongView as TStrongFrame;
+  with strongFrame do
+  begin
+    edtStrong.Text := mSearchText;
+    bwrStrong.LoadFromString(mStrongText);
+
+    lbStrong.Items.Clear;
+    lbStrong.Items.AddStrings(mStrongsList);
+    SetCurrentBook(mBookPath);
+  end;
 end;
 
 { TViewTabDragObject }
