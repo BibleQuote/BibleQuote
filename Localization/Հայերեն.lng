@@ -65,6 +65,7 @@ LibTabsTags = Պիտակներ
 bqVerseTagNotUnique = Հնարավոր չէ անվանափոխել պիտակը, քանի որ այդ անունով պիտակ արդեն գոյություն ունի
 bqErrorUnknown = Անհայտ սխալ
 bqError = Սխալ
+bqStrongBibleNotDefined = To perform a search, select the module with Strong's lexicons in the settings. (t)
 
 commentaryLoadFail = Մեկնաբանությունը ցուցադրելը չի ստացվում
 
@@ -325,6 +326,7 @@ ConfigForm.chkMinimizeToTray.Caption = Պատուհանը փոքրացնելիս
 ConfigForm.chkMinimizeToTray.Hint = Համակարգային ժամերի կողքին կստեղծվի տարբերանշան 
 ConfigForm.lblAvailableModules.Caption = Հասանելի մոդուլներ
 ConfigForm.lblDefaultBible.Caption = Библия по-умолчанию (t)
+ConfigForm.lblDefaultStrongBible.Caption = Библия с номерами Стронга (t)
 ConfigForm.lblFavourites.Caption = Ընտրյալ
 ConfigForm.lblSelectSecondPath.Caption = Լրացուցիչ ուղի դեպի մոդուլները
 ConfigForm.rgHotKeyChoice.Caption = Ստեղների համադրություն

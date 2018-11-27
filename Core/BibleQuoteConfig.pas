@@ -10,7 +10,7 @@ const
   C_DictionariesSubDirectory = 'Dictionaries';
   C_BooksSubDirectory = 'Books';
   C_TSKSubDirectory = 'System\TSK';
-  C_StrongsSubDirectory = 'System\Strongs';
+  C_StrongSubDirectory = 'System\Strong';
 
   C_ModuleIniName = 'bibleqt.ini';
   C_PasswordPolicyFileName = 'bq.pol';
@@ -33,6 +33,9 @@ const
 const
   C_TagRenameError: string =
     'Cannot rename tag, another on with same name already exists';
+
+  C_StrongBibleNotDefined: string =
+    'To perform a search, select the module with Strong''s lexicons in the settings.';
 
   C_bqError: string = 'Error';
 

@@ -64,6 +64,7 @@ LibTabsTags = Теги
 bqVerseTagNotUnique = Невозможно переименовать тег, другой с тем же именем уже существует
 bqErrorUnknown = Неизвестная ошибка
 bqError = Ошибка
+bqStrongBibleNotDefined = Для осуществления поиска выберите в настройках модуль с поддержкой номеров Стронга.
 
 commentaryLoadFail = Не удалось отобразить комментарий
 
@@ -326,6 +327,7 @@ ConfigForm.chkMinimizeToTray.Caption = Сворачивать в трей при
 ConfigForm.chkMinimizeToTray.Hint = Возле системных часов будет создана иконка
 ConfigForm.lblAvailableModules.Caption = Доступные модули
 ConfigForm.lblDefaultBible.Caption = Библия по-умолчанию
+ConfigForm.lblDefaultStrongBible.Caption = Библия с номерами Стронга
 ConfigForm.lblFavourites.Caption = Избранное
 ConfigForm.lblSelectSecondPath.Caption = Дополнительный путь к модулям
 ConfigForm.rgHotKeyChoice.Caption = Комбинация клавиш

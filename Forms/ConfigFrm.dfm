@@ -3,7 +3,7 @@ object ConfigForm: TConfigForm
   Top = 230
   BorderStyle = bsSizeToolWin
   Caption = 'ConfigForm'
-  ClientHeight = 396
+  ClientHeight = 457
   ClientWidth = 378
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,27 +18,23 @@ object ConfigForm: TConfigForm
   OnKeyPress = FormKeyPress
   DesignSize = (
     378
-    396)
+    457)
   PixelsPerInch = 96
   TextHeight = 13
   object pgcOptions: TPageControl
     Left = 0
     Top = 0
     Width = 378
-    Height = 357
+    Height = 418
     ActivePage = tsFavouriteEx
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
-    ExplicitWidth = 474
-    ExplicitHeight = 328
     object tsCopyOptions: TTabSheet
       Caption = 'tsCopyOptions'
-      ExplicitWidth = 466
-      ExplicitHeight = 277
       DesignSize = (
         370
-        329)
+        390)
       object chkCopyVerseNumbers: TCheckBox
         Left = 13
         Top = 15
@@ -47,7 +43,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkCopyVerseNumbers'
         TabOrder = 0
-        ExplicitWidth = 356
       end
       object chkCopyFontParams: TCheckBox
         Left = 13
@@ -57,7 +52,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkCopyFontParams'
         TabOrder = 1
-        ExplicitWidth = 356
       end
       object chkAddReference: TCheckBox
         Left = 13
@@ -67,7 +61,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddReference'
         TabOrder = 2
-        ExplicitWidth = 356
       end
       object rgAddReference: TRadioGroup
         Left = 12
@@ -80,7 +73,6 @@ object ConfigForm: TConfigForm
           'Short reference at the end of passage'
           'Full reference at the end of passage')
         TabOrder = 3
-        ExplicitWidth = 364
       end
       object chkAddModuleName: TCheckBox
         Left = 13
@@ -90,7 +82,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddModuleName'
         TabOrder = 4
-        ExplicitWidth = 356
       end
       object chkAddLineBreaks: TCheckBox
         Left = 13
@@ -100,16 +91,13 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddLineBreaks'
         TabOrder = 5
-        ExplicitWidth = 356
       end
     end
     object tsFavouriteEx: TTabSheet
       Caption = 'tsFavouriteEx'
-      ExplicitWidth = 467
-      ExplicitHeight = 277
       DesignSize = (
         370
-        329)
+        390)
       object lblAvailableModules: TLabel
         Left = 3
         Top = 3
@@ -126,24 +114,29 @@ object ConfigForm: TConfigForm
       end
       object lblDefaultBible: TLabel
         Left = 3
-        Top = 272
+        Top = 293
         Width = 67
         Height = 13
         Anchors = [akLeft, akBottom]
         Caption = 'lblDefaultBible'
-        ExplicitTop = 222
+      end
+      object lblDefaultStrongBible: TLabel
+        Left = 3
+        Top = 339
+        Width = 98
+        Height = 13
+        Anchors = [akLeft, akBottom]
+        Caption = 'lblDefaultStrongBible'
       end
       object lbFavourites: TListBox
         Left = 3
         Top = 80
         Width = 327
-        Height = 180
+        Height = 201
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvNone
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 342
-        ExplicitHeight = 137
       end
       object bbtnUp: TBitBtn
         Tag = -1
@@ -180,7 +173,6 @@ object ConfigForm: TConfigForm
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
         TabOrder = 1
         OnClick = favouritesBitBtnClick
-        ExplicitLeft = 351
       end
       object bbtnDown: TBitBtn
         Tag = 1
@@ -217,7 +209,6 @@ object ConfigForm: TConfigForm
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
         TabOrder = 2
         OnClick = favouritesBitBtnClick
-        ExplicitLeft = 351
       end
       object cbAvailableModules: TComboBox
         Left = 3
@@ -228,7 +219,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 10
         TabOrder = 3
-        ExplicitWidth = 425
       end
       object bbtnDelete: TBitBtn
         Left = 336
@@ -262,7 +252,6 @@ object ConfigForm: TConfigForm
           2961296129612961B572DE7FFF7F}
         TabOrder = 4
         OnClick = favouritesBitBtnClick
-        ExplicitLeft = 351
       end
       object btnAddHotModule: TBitBtn
         Left = 336
@@ -296,29 +285,34 @@ object ConfigForm: TConfigForm
           FF7FFF7FFF7FFF7FFF7FFF7FFF7F}
         TabOrder = 5
         OnClick = btnAddHotModuleClick
-        ExplicitLeft = 434
       end
       object cbDefaultBible: TComboBox
         Left = 3
-        Top = 295
+        Top = 312
         Width = 327
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akRight, akBottom]
         DropDownCount = 10
         TabOrder = 6
-        ExplicitTop = 260
-        ExplicitWidth = 336
+      end
+      object cbDefaultStrongBible: TComboBox
+        Left = 3
+        Top = 358
+        Width = 327
+        Height = 21
+        Style = csDropDownList
+        Anchors = [akLeft, akRight, akBottom]
+        DropDownCount = 10
+        TabOrder = 7
       end
     end
     object tsOtherOptions: TTabSheet
       Caption = 'tsOtherOptions'
       ImageIndex = 2
-      ExplicitWidth = 467
-      ExplicitHeight = 277
       DesignSize = (
         370
-        329)
+        390)
       object lblSelectSecondPath: TLabel
         Left = 8
         Top = 8
@@ -334,7 +328,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Enabled = False
         TabOrder = 0
-        ExplicitWidth = 313
       end
       object btnSelectPath: TButton
         Left = 317
@@ -351,7 +344,6 @@ object ConfigForm: TConfigForm
         ParentFont = False
         TabOrder = 1
         OnClick = btnSelectPathClick
-        ExplicitLeft = 322
       end
       object btnDeletePath: TButton
         Left = 341
@@ -368,7 +360,6 @@ object ConfigForm: TConfigForm
         ParentFont = False
         TabOrder = 2
         OnClick = btnDeletePathClick
-        ExplicitLeft = 346
       end
       object chkMinimizeToTray: TCheckBox
         Left = 8
@@ -378,7 +369,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkMinimizeToTray'
         TabOrder = 3
-        ExplicitWidth = 449
       end
       object rgHotKeyChoice: TRadioGroup
         Left = 26
@@ -400,7 +390,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Full context on restricted links'
         TabOrder = 5
-        ExplicitWidth = 361
       end
       object chkHighlightVerseHits: TCheckBox
         Left = 8
@@ -410,32 +399,27 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Highlight verse hits'
         TabOrder = 6
-        ExplicitWidth = 361
       end
     end
   end
   object btnOK: TButton
     Left = 155
-    Top = 363
+    Top = 424
     Width = 105
     Height = 25
     Anchors = [akRight, akBottom]
     Caption = 'btnOK'
     TabOrder = 1
     OnClick = btnOKClick
-    ExplicitLeft = 251
-    ExplicitTop = 335
   end
   object btnCancel: TButton
     Left = 266
-    Top = 363
+    Top = 424
     Width = 105
     Height = 25
     Anchors = [akRight, akBottom]
     Caption = 'btnCancel'
     TabOrder = 2
     OnClick = btnCancelClick
-    ExplicitLeft = 362
-    ExplicitTop = 335
   end
 end
