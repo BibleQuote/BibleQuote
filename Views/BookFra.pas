@@ -393,7 +393,6 @@ var
   ws: string;
   iscontrolDown: Boolean;
   bookTabState: TBookTabInfoState;
-  Key: Char;
   num, code: integer;
 begin
   unicodeSRC := SRC;

@@ -208,7 +208,6 @@ type
     FAlphabet: string; // ALL letters that can be parts of text in the module
 
     FSoundDir: string;
-    FStrongsDir: string;
     FStrongsPrefixed: boolean; // Gxxxx and Hxxx numbers or not?
 
     FModuleName: string;
@@ -341,7 +340,6 @@ type
     property Verses[i: Cardinal]: string read GetVerse; default;
 
     property SoundDirectory: string read FSoundDir;
-    property StrongsDirectory: string read FStrongsDir;
     property StrongsPrefixed: boolean read FStrongsPrefixed;
 
     constructor Create(uiServices: IBibleWinUIServices); reintroduce;
@@ -732,7 +730,6 @@ begin
     FRememberPlace := true;
 
     FSoundDir := '';
-    FStrongsDir := '';
     FStrongsPrefixed := False;
 
     FBible := true;
@@ -865,10 +862,6 @@ begin
       else if dFirstPart = 'SoundDirectory' then
       begin
         FSoundDir := dSecondPart;
-      end
-      else if dFirstPart = 'StrongsDirectory' then
-      begin
-        FStrongsDir := dSecondPart;
       end
       else if dFirstPart = 'StrongsPrefixed' then
       begin

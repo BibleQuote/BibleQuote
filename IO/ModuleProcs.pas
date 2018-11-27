@@ -253,7 +253,8 @@ begin
           tempBook.GetStucture(),
           tempBook.Categories,
           tempBook.Author,
-          tempBook.ModuleImage
+          tempBook.ModuleImage,
+          tempBook.trait[bqmtStrongs]
         );
 
         mCachedModules.Add(modEntry);
@@ -310,7 +311,8 @@ begin
             tempBook.GetStucture(),
             tempBook.Categories,
             tempBook.Author,
-            tempBook.ModuleImage
+            tempBook.ModuleImage,
+            tempBook.trait[bqmtStrongs]
           );
 
           mCachedModules.Add(modEntry);
@@ -340,6 +342,7 @@ var
   modType: TModuleType;
   cats: string;
   bookNames: string;
+  hasStrong: boolean;
   cachedModsFilePath: string;
 begin
   try
@@ -354,13 +357,13 @@ begin
       cachedModulesList.LoadFromFile(cachedModsFilePath);
       mCachedModules.Clear();
       i := 1;
-      if cachedModulesList[0] <> 'v4' then
+      if cachedModulesList[0] <> 'v5' then
       begin
         Result := false;
         Exit;
       end;
       linecount := cachedModulesList.Count - 1;
-      if linecount < 9 then
+      if linecount < 10 then
         abort;
       repeat
         modIx := mCachedModules.IndexOf(cachedModulesList[i + 1]);
@@ -369,6 +372,7 @@ begin
 {$R+}
           modType := TModuleType(StrToInt(cachedModulesList[i]));
           cats := cachedModulesList[i + 6];
+          hasStrong := StrToBool(cachedModulesList[i + 9]);
 
           if cats = '***' then
             cats := '';
@@ -383,17 +387,18 @@ begin
             bookNames,
             cats,
             cachedModulesList[i + 7],
-            cachedModulesList[i + 8]
+            cachedModulesList[i + 8],
+            hasStrong
           );
 {$R-}
           mCachedModules.Add(modEntry);
         end;
-        inc(i, 8);
+        inc(i, 9);
         while (i <= linecount) and (cachedModulesList[i] <> '***') do
           inc(i);
         inc(i);
 
-      until (i + 9) > linecount;
+      until (i + 10) > linecount;
       Result := true;
       mCachedModules._Sort();
     finally
@@ -419,7 +424,7 @@ begin
     count := mCachedModules.Count - 1;
     if count <= 0 then
       Exit;
-    modStringList.Add('v4');
+    modStringList.Add('v5');
     for i := 0 to count do
     begin
       moduleEntry := TModuleEntry(mCachedModules[i]);
@@ -434,6 +439,7 @@ begin
         Add(modCats);
         Add(mAuthor);
         Add(mCoverPath);
+        Add(BoolToStr(mHasStrong));
         Add('***');
       end;
     end;

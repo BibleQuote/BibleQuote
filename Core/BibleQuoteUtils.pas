@@ -77,6 +77,7 @@ type
 
     mAuthor: string;
     mCoverPath: string;
+    mHasStrong: Boolean;
 
     mRects: PRectArray;
     mCatsCnt: integer;
@@ -90,7 +91,8 @@ type
       aBookNames: string;
       modCats: TStrings;
       anAuthor: string;
-      aCoverPath: string); overload;
+      aCoverPath: string;
+      hasStrong: boolean); overload;
 
     constructor Create(
       amodType: TModuleType;
@@ -98,7 +100,8 @@ type
       aBookNames: string;
       modCats: string;
       anAuthor: string;
-      aCoverPath: string); overload;
+      aCoverPath: string;
+      hasStrong: boolean); overload;
 
     constructor Create(me: TModuleEntry); overload;
     destructor Destroy; override;
@@ -109,7 +112,8 @@ type
       aBookNames: string;
       modCatsLst: TStrings;
       anAuthor: string;
-      aCoverPath: string); overload;
+      aCoverPath: string;
+      hasStrong: boolean); overload;
 
     procedure Init(
       amodType: TModuleType;
@@ -117,7 +121,8 @@ type
       aBookNames: string;
       amodCats: string;
       anAuthor: string;
-      aCoverPath: string); overload;
+      aCoverPath: string;
+      hasStrong: boolean); overload;
 
     procedure Assign(source: TModuleEntry);
     function Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
@@ -1100,7 +1105,7 @@ end;
 procedure TModuleEntry.Assign(source: TModuleEntry);
 begin
   Init(source.modType, source.mFullName, source.mShortName,
-    source.mShortPath, source.mFullPath, source.modBookNames, source.modCats, source.mAuthor, source.mCoverPath);
+    source.mShortPath, source.mFullPath, source.modBookNames, source.modCats, source.mAuthor, source.mCoverPath, source.mHasStrong);
   mMatchInfo := source.mMatchInfo;
 end;
 
@@ -1110,11 +1115,12 @@ constructor TModuleEntry.Create(
   aBookNames: string;
   modCats: TStrings;
   anAuthor: string;
-  aCoverPath: string);
+  aCoverPath: string;
+  hasStrong: boolean);
 begin
   inherited Create;
 
-  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats, anAuthor, aCoverPath);
+  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats, anAuthor, aCoverPath, hasStrong);
 end;
 
 constructor TModuleEntry.Create(me: TModuleEntry);
@@ -1159,9 +1165,10 @@ constructor TModuleEntry.Create(
   aBookNames: string;
   modCats: string;
   anAuthor: string;
-  aCoverPath: string);
+  aCoverPath: string;
+  hasStrong: boolean);
 begin
-  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats, anAuthor, aCoverPath);
+  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats, anAuthor, aCoverPath, hasStrong);
 end;
 
 procedure TModuleEntry.Init(
@@ -1170,7 +1177,8 @@ procedure TModuleEntry.Init(
   aBookNames: string;
   amodCats: string;
   anAuthor: string;
-  aCoverPath: string);
+  aCoverPath: string;
+  hasStrong: boolean);
 begin
   modType := amodType;
   mFullName := aFullName;
@@ -1190,6 +1198,7 @@ begin
   mAuthor := anAuthor;
   mCoverPath := aCoverPath;
   mCachedCoverLock := TCriticalSection.Create;
+  mHasStrong := hasStrong;
 end;
 
 function TModuleEntry.Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
@@ -1438,7 +1447,8 @@ begin
     aBookNames: string;
     modCatsLst: TStrings;
     anAuthor: string;
-    aCoverPath: string);
+    aCoverPath: string;
+    hasStrong: boolean);
   begin
     modType := amodType;
     mFullName := aFullName;
@@ -1455,6 +1465,7 @@ begin
     mCoverPath := aCoverPath;
     mCachedCover := nil;
     mCachedCoverLock := TCriticalSection.Create;
+    mHasStrong := hasStrong;
   end;
 
   { TCachedModules }

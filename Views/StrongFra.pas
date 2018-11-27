@@ -33,7 +33,6 @@ type
     mTabsView: ITabsView;
     mMainView: TMainForm;
 
-    mStrongsDir: string;
     StrongHebrew, StrongGreek: TDict;
 
     mCurrentBook: TBible;
@@ -215,15 +214,31 @@ procedure TStrongFrame.pnlFindStrongNumberClick(Sender: TObject);
 var
   searchText: string;
   bookTypeIndex: integer;
+  bookPath: string;
+  defaultModIx: integer;
+  book: TBible;
 begin
   if lbStrong.ItemIndex < 0 then
     Exit;
 
-  if Assigned(mCurrentBook) then
+  book := mCurrentBook;
+  if not Assigned(book) then
+  begin
+    defaultModIx := mMainView.mModules.FindByName(mMainView.DefaultStrongBibleName);
+
+    if defaultModIx >= 0 then
+    begin
+      book := TBible.Create(mMainView);
+      bookPath := TPath.Combine(mMainView.mModules[defaultModIx].mShortPath, 'bibleqt.ini');
+      book.inifile := MainFileExists(bookPath);
+    end;
+  end;
+
+  if Assigned(book) then
   begin
     searchText := lbStrong.Items[lbStrong.ItemIndex];
 
-    if mCurrentBook.StrongsPrefixed then
+    if book.StrongsPrefixed then
       bookTypeIndex := 0 // full book
     else
     begin
@@ -240,7 +255,15 @@ begin
         bookTypeIndex := 2; // new testament
     end;
 
-    mMainView.OpenOrCreateSearchTab(mCurrentBook.path, searchText, bookTypeIndex);
+    mMainView.OpenOrCreateSearchTab(book.path, searchText, bookTypeIndex);
+  end
+  else
+  begin
+    MessageBox(
+        self.Handle,
+        Pointer(Lang.SayDefault('bqStrongBibleNotDefined', C_TagRenameError)),
+        Pointer(Lang.SayDefault('bqError', 'Error')),
+        MB_OK or MB_ICONERROR);
   end;
 end;
 
@@ -259,23 +282,12 @@ var
   res, s, Copyright: string;
   i: integer;
   fullDir: string;
-  bible: TBible;
 begin
-  if not Assigned(mCurrentBook) then
-    Exit;
-
   s := IntToStr(num);
   for i := Length(s) to 4 do
     s := '0' + s;
 
-  bible := mCurrentBook;
-
-  mStrongsDir := bible.StrongsDirectory;
-
-  if mStrongsDir = '' then
-    mStrongsDir := C_StrongsSubDirectory;
-
-  fullDir := TPath.Combine(LibraryDirectory, mStrongsDir);
+  fullDir := TPath.Combine(LibraryDirectory, C_StrongSubDirectory);
 
   try
     if hebrew or (num = 0) then
@@ -332,6 +344,7 @@ end;
 function TStrongFrame.GetBookPath(): string;
 begin
   Result := '';
+
   if Assigned(mCurrentBook) then
     Result := mCurrentBook.ShortPath;
 end;

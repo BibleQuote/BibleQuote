@@ -292,6 +292,8 @@ type
     procedure tbtnAddTagsVersesTabClick(Sender: TObject);
     procedure tbtnAddDictionaryTabClick(Sender: TObject);
     procedure tbtnAddStrongTabClick(Sender: TObject);
+  private
+    procedure PrepareConfigForm();
   public
     SysHotKey: TSysHotKey;
 
@@ -345,6 +347,7 @@ type
 
     LastAddress: string;
     DefaultBibleName: string;
+    DefaultStrongBibleName: string;
 
     HelpFileName: string;
 
@@ -646,6 +649,7 @@ begin
     LastLanguageFile := MainCfgIni.SayDefault('LastLanguageFile', '');
     LastAddress := MainCfgIni.SayDefault('LastAddress', '');
     DefaultBibleName := MainCfgIni.SayDefault('DefaultBible', '');
+    DefaultStrongBibleName := MainCfgIni.SayDefault('DefaultStrongBible', '');
     G_SecondPath := MainCfgIni.SayDefault('SecondPath', '');
 
     SatelliteBible := MainCfgIni.SayDefault('SatelliteBible', '');
@@ -703,6 +707,156 @@ begin
   bookView := GetBookView(self);
   if Assigned(bookView) then
     Result := bookView.GetAutoTxt(btInfo, cmd, maxWords, fnt, passageSignature);
+end;
+
+procedure TMainForm.PrepareConfigForm();
+var
+  allBibles: TStringList;
+  strongBibles: TSTringList;
+  i: integer;
+  moduleCount: integer;
+begin
+  with ConfigForm do
+  begin
+    Font.Assign(self.Font);
+    Left := (Screen.Width - Width) div 2;
+    Top := (Screen.Height - Height) div 2;
+    edtSelectPath.Text := G_SecondPath;
+    chkMinimizeToTray.Checked := trayIcon.MinimizeToTray;
+    chkFullContextOnRestrictedLinks.Checked := mFlagFullcontextLinks;
+    chkHighlightVerseHits.Checked := mFlagHighlightVerses;
+    rgHotKeyChoice.ItemIndex := ConfigFormHotKeyChoiceItemIndex;
+    moduleCount := mModules.Count - 1;
+
+    // fill the list of available modules for favorites
+    cbAvailableModules.Clear;
+    allBibles := TStringList.Create;
+    try
+      allBibles.Sorted := true;
+
+      allBibles.BeginUpdate;
+      try
+        for i := 0 to moduleCount do
+        begin
+          allBibles.Add(mModules[i].mFullName);
+        end;
+      finally
+        allBibles.EndUpdate;
+      end;
+
+      cbAvailableModules.Items.BeginUpdate;
+      try
+        cbAvailableModules.Items.Clear;
+        for i := 0 to allBibles.Count - 1 do
+        begin
+          cbAvailableModules.Items.Add(allBibles[i]);
+        end;
+      finally
+        cbAvailableModules.Items.EndUpdate;
+      end;
+    finally
+      allBibles.Free;
+    end;
+
+    if moduleCount >= 0 then
+      cbAvailableModules.ItemIndex := 0;
+
+    // fill the list of available modules for default bible
+    cbDefaultBible.Clear;
+    allBibles := TStringList.Create;
+    strongBibles := TStringList.Create;
+    try
+      allBibles.Sorted := true;
+      strongBibles.Sorted := true;
+
+      allBibles.BeginUpdate;
+      strongBibles.BeginUpdate;
+      try
+        for i := 0 to moduleCount do
+        begin
+          if (mModules[i].modType = modtypeBible) then
+          begin
+            allBibles.Add(mModules[i].mFullName);
+
+            if (mModules[i].mHasStrong) then
+              strongBibles.Add(mModules[i].mFullName);
+          end;
+        end;
+      finally
+        allBibles.EndUpdate;
+        strongBibles.EndUpdate;
+      end;
+      cbDefaultBible.Items.BeginUpdate;
+
+      try
+        cbDefaultBible.Items.Clear;
+        cbDefaultBible.Items.Add('');
+        for i := 0 to allBibles.Count - 1 do
+        begin
+          cbDefaultBible.Items.Add(allBibles[i]);
+        end;
+      finally
+        cbDefaultBible.Items.EndUpdate;
+      end;
+
+      if (DefaultBibleName = '') then
+      begin
+        cbDefaultBible.ItemIndex := 0;
+      end
+      else
+      begin
+        for i := 0 to cbDefaultBible.Items.Count - 1 do
+        begin
+          if (OmegaCompareTxt(DefaultBibleName, cbDefaultBible.Items[i], -1, false) = 0) then
+          begin
+            cbDefaultBible.ItemIndex := i;
+            break;
+          end;
+        end;
+      end;
+
+      cbDefaultStrongBible.Items.BeginUpdate;
+      try
+        cbDefaultStrongBible.Items.Clear;
+        cbDefaultStrongBible.Items.Add('');
+        for i := 0 to strongBibles.Count - 1 do
+        begin
+          cbDefaultStrongBible.Items.Add(strongBibles[i]);
+        end;
+      finally
+        cbDefaultStrongBible.Items.EndUpdate;
+      end;
+
+      if (DefaultStrongBibleName = '') then
+      begin
+        cbDefaultStrongBible.ItemIndex := 0;
+      end
+      else
+      begin
+        for i := 0 to cbDefaultStrongBible.Items.Count - 1 do
+        begin
+          if (OmegaCompareTxt(DefaultStrongBibleName, cbDefaultStrongBible.Items[i], -1, false) = 0) then
+          begin
+            cbDefaultStrongBible.ItemIndex := i;
+            break;
+          end;
+        end;
+      end;
+
+    finally
+      allBibles.Free;
+      strongBibles.Free;
+    end;
+
+    moduleCount := mFavorites.mModuleEntries.Count - 1;
+    lbFavourites.Clear;
+    lbFavourites.Items.BeginUpdate;
+    for i := 0 to moduleCount do
+    begin
+      lbFavourites.Items.Add(mFavorites.mModuleEntries[i].mFullName);
+    end;
+    lbFavourites.Items.EndUpdate;
+  end;
 end;
 
 function TMainForm.CreateTabsView(viewName: string): ITabsView;
@@ -1400,6 +1554,7 @@ begin
     ini.Learn('LastLanguageFile', LastLanguageFile);
     ini.Learn('SecondPath', G_SecondPath);
     ini.Learn('DefaultBible', DefaultBibleName);
+    ini.Learn('DefaultStrongBible', DefaultStrongBibleName);
 
     ini.Learn('MainFormFontName', MainForm.Font.Name);
     ini.Learn('MainFormFontSize', IntToStr(MainForm.Font.Size));
@@ -1602,7 +1757,7 @@ begin
   LoadTabsViews();
   LoadHotModulesConfig();
 
-  LoadFontFromFolder(TPath.Combine(LibraryDirectory, C_StrongsSubDirectory));
+  LoadFontFromFolder(TPath.Combine(LibraryDirectory, C_StrongSubDirectory));
 
   mTranslated := TranslateInterface(LastLanguageFile);
 
@@ -5798,112 +5953,14 @@ end;
 procedure TMainForm.ShowConfigDialog;
 var
   i, moduleCount: integer;
-  sl: TStringList;
   reload: Boolean;
-  defBible: string;
+  defBible, defStrongBible: string;
   bookView: TBookFrame;
   bible: TBible;
 begin
   reload := false;
   ForceForegroundLoad();
-  with ConfigForm do
-  begin
-    Font.Assign(self.Font);
-    Left := (Screen.Width - Width) div 2;
-    Top := (Screen.Height - Height) div 2;
-    edtSelectPath.Text := G_SecondPath;
-    chkMinimizeToTray.Checked := trayIcon.MinimizeToTray;
-    chkFullContextOnRestrictedLinks.Checked := mFlagFullcontextLinks;
-    chkHighlightVerseHits.Checked := mFlagHighlightVerses;
-    rgHotKeyChoice.ItemIndex := ConfigFormHotKeyChoiceItemIndex;
-    moduleCount := mModules.Count - 1;
-
-    // fill the list of available modules for favorites
-    cbAvailableModules.Clear();
-    sl := TStringList.Create;
-    try
-      sl.Sorted := true;
-      sl.BeginUpdate;
-      try
-        for i := 0 to moduleCount do
-        begin
-          sl.Add(mModules[i].mFullName);
-        end;
-      finally
-        sl.EndUpdate();
-      end;
-      cbAvailableModules.Items.BeginUpdate;
-      try
-        cbAvailableModules.Items.Clear;
-        for i := 0 to sl.Count - 1 do
-        begin
-          cbAvailableModules.Items.Add(sl[i]);
-        end;
-      finally
-        cbAvailableModules.Items.EndUpdate();
-      end;
-    finally
-      sl.Free;
-    end;
-
-    if moduleCount >= 0 then
-      cbAvailableModules.ItemIndex := 0;
-
-    // fill the list of available modules for default bible
-    cbDefaultBible.Clear();
-    sl := TStringList.Create;
-    try
-      sl.Sorted := true;
-      sl.BeginUpdate;
-      try
-        for i := 0 to moduleCount do
-        begin
-          if (mModules[i].modType = modtypeBible) then
-            sl.Add(mModules[i].mFullName);
-        end;
-      finally
-        sl.EndUpdate();
-      end;
-      cbDefaultBible.Items.BeginUpdate;
-      try
-        cbDefaultBible.Items.Clear;
-        cbDefaultBible.Items.Add('');
-        for i := 0 to sl.Count - 1 do
-        begin
-          cbDefaultBible.Items.Add(sl[i]);
-        end;
-      finally
-        cbDefaultBible.Items.EndUpdate();
-      end;
-
-      if (DefaultBibleName = '') then
-      begin
-        cbDefaultBible.ItemIndex := 0;
-      end
-      else
-      begin
-        for i := 0 to cbDefaultBible.Items.Count - 1 do
-        begin
-          if (OmegaCompareTxt(DefaultBibleName, cbDefaultBible.Items[i], -1, false) = 0) then
-          begin
-            cbDefaultBible.ItemIndex := i;
-            break;
-          end;
-        end;
-      end;
-    finally
-      sl.Free;
-    end;
-
-    moduleCount := mFavorites.mModuleEntries.Count - 1;
-    lbFavourites.Clear();
-    lbFavourites.Items.BeginUpdate();
-    for i := 0 to moduleCount do
-    begin
-      lbFavourites.Items.Add(mFavorites.mModuleEntries[i].mFullName);
-    end;
-    lbFavourites.Items.EndUpdate();
-  end;
+  PrepareConfigForm();
 
   if ConfigForm.ShowModal = mrCancel then
     Exit;
@@ -5932,6 +5989,15 @@ begin
       DefaultBibleName := '';
 
     mNotifier.Notify(TDefaultBibleChangedMessage.Create(DefaultBibleName));
+  end;
+
+  if (ConfigForm.cbDefaultStrongBible.ItemIndex >= 0) then
+  begin
+    defStrongBible := ConfigForm.cbDefaultStrongBible.Items[ConfigForm.cbDefaultStrongBible.ItemIndex];
+    if (defStrongBible <> '') and (mModules.ResolveModuleByNames(defStrongBible, '') <> nil) then
+      DefaultStrongBibleName := defStrongBible
+    else
+      DefaultStrongBibleName := '';
   end;
 
   SetFavouritesShortcuts();
@@ -5968,7 +6034,6 @@ begin
   end;
   if reload then
     DeferredReloadViewPages();
-
 end;
 
 procedure TMainForm.ShowQuickSearch;

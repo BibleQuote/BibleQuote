@@ -39,6 +39,8 @@ type
     chkHighlightVerseHits: TCheckBox;
     lblDefaultBible: TLabel;
     cbDefaultBible: TComboBox;
+    lblDefaultStrongBible: TLabel;
+    cbDefaultStrongBible: TComboBox;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure btnOKClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);

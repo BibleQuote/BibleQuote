@@ -64,6 +64,7 @@ LibTabsTags = Tags
 bqVerseTagNotUnique = Cannot rename tag, another on with same name already exists
 bqErrorUnknown = Unknown Error
 bqError = Error
+bqStrongBibleNotDefined = To perform a search, select the module with Strong's lexicons in the settings.
 
 commentaryLoadFail = Failed to display commentary
 
@@ -326,6 +327,7 @@ ConfigForm.chkMinimizeToTray.Caption = Minimize to tray
 ConfigForm.chkMinimizeToTray.Hint = An icon will be placed near the system clock
 ConfigForm.lblAvailableModules.Caption = Available modules
 ConfigForm.lblDefaultBible.Caption = Default Bible
+ConfigForm.lblDefaultStrongBible.Caption = Default Bible with Strong's Lexicons
 ConfigForm.lblFavourites.Caption = Favorites
 ConfigForm.lblSelectSecondPath.Caption = Secondary path for modules
 ConfigForm.rgHotKeyChoice.Caption = Hotkey combination
