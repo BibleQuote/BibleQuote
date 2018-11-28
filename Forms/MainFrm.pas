@@ -417,7 +417,7 @@ type
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
     procedure OpenOrCreateDictionaryTab(const searchText: string);
     procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
-    procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1);
+    procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
 
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
@@ -5223,7 +5223,7 @@ begin
   mTabsView.UpdateCurrentTabContent;
 end;
 
-procedure TMainForm.OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1);
+procedure TMainForm.OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
 var
   i: integer;
   tabInfo: IViewTabInfo;
@@ -5265,6 +5265,7 @@ begin
 
   searchView.cbSearch.Text := Trim(searchText);
 
+  searchView.chkParts.Checked := wholeWord;
   searchView.btnFindClick(Self);
 end;
 

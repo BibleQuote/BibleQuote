@@ -205,11 +205,11 @@ type
   TStrongTabInfo = class(TInterfacedObject, IViewTabInfo)
   private
     mBookPath: string;
-    mStrongsList: TStrings;
+    mSelectedStrong: string;
     mSearchText: string;
     mStrongText: string;
   public
-    property StrongsList: TStrings read mStrongsList write mStrongsList;
+    property SelectedStrong: string read mSelectedStrong write mSelectedStrong;
     property SearchText: string read mSearchText write mSearchText;
     property StrongText: string read mStrongText write mStrongText;
 
@@ -929,15 +929,11 @@ end;
 constructor TStrongTabInfo.Create();
 begin
   inherited Create();
-
-  mStrongsList := TStringList.Create();
 end;
 
 constructor TStrongTabInfo.Create(settings: TStrongTabSettings);
 begin
   inherited Create();
-
-  mStrongsList := TStringList.Create();
 end;
 
 function TStrongTabInfo.GetCaption(): string;
@@ -964,10 +960,7 @@ begin
   begin
     mSearchText := edtStrong.Text;
     mStrongText := bwrStrong.DocumentSource;
-
-    // TODO: remove it
-    //mStrongsList.Clear;
-    //mStrongsList.AddStrings(lbStrong.Items);
+    mSelectedStrong := GetSelectedStrong();
     mBookPath := GetBookPath();
   end;
 end;
@@ -982,9 +975,7 @@ begin
     edtStrong.Text := mSearchText;
     bwrStrong.LoadFromString(mStrongText);
 
-    // TODO: remove it
-    //lbStrong.Items.Clear;
-    //lbStrong.Items.AddStrings(mStrongsList);
+    SelectStrongWord(mSelectedStrong);
     SetCurrentBook(mBookPath);
   end;
 end;
