@@ -111,13 +111,9 @@ object StrongFrame: TStrongFrame
         TabOrder = 1
         TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toThemeAware, toUseBlendedImages, toUseBlendedSelection, toUseExplorerTheme]
         TreeOptions.SelectionOptions = [toFullRowSelect]
-        OnDblClick = vstStrongDblClick
+        OnAddToSelection = vstStrongAddToSelection
         OnGetText = vstStrongGetText
         OnKeyPress = vstStrongKeyPress
-        ExplicitLeft = -49
-        ExplicitTop = 60
-        ExplicitWidth = 349
-        ExplicitHeight = 115
         Columns = <>
       end
     end
@@ -164,7 +160,7 @@ object StrongFrame: TStrongFrame
     Left = 96
     Top = 95
     Bitmap = {
-      494C0101020068002C0510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102006800340510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       000000000000000000000000000000000000000000005B554B00585348005651
       460055504500534E4300524C41004F4A3F004F493E004C473B004B453A004943

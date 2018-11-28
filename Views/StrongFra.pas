@@ -34,10 +34,10 @@ type
     procedure miRefPrintClick(Sender: TObject);
     procedure tbtnSearchClick(Sender: TObject);
     procedure tbtnTogglePanelClick(Sender: TObject);
-    procedure vstStrongDblClick(Sender: TObject);
     procedure vstStrongGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure vstStrongKeyPress(Sender: TObject; var Key: Char);
+    procedure vstStrongAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
   private
     mTabsView: ITabsView;
     mMainView: TMainForm;
@@ -50,6 +50,7 @@ type
 
     procedure ShowStrong(stext: string);
     procedure CMShowingChanged(var Message: TMessage); MESSAGE CM_SHOWINGCHANGED;
+    function GetStrongWordByIndex(ix: Integer): string;
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
 
@@ -60,9 +61,11 @@ type
 
     procedure EnsureStrongHebrewLoaded(reportError: boolean);
     procedure EnsureStrongGreekLoaded(reportError: boolean);
-    procedure DisplayNumbers(dict: TDict; hebrew: boolean);
     procedure LoadStrongDictionaries();
     procedure SearchText(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
+    procedure DisplaySelectedItem();
+    function GetSelectedStrong(): string;
+    procedure SelectStrongWord(word: string);
   end;
 
 implementation
@@ -82,62 +85,74 @@ begin
   mCurrentBook.inifile := MainFileExists(iniPath);
 end;
 
+function TStrongFrame.GetSelectedStrong(): string;
+var
+  pn: PVirtualNode;
+begin
+  pn := vstStrong.GetFirstSelected();
+  if not Assigned(pn) then
+    Exit;
+
+  Result := GetStrongWordByIndex(pn.Index);
+end;
+
 procedure TStrongFrame.tbtnSearchClick(Sender: TObject);
 var
-  searchText: string;
+  searchText, word: string;
   bookTypeIndex: integer;
   bookPath: string;
   defaultModIx: integer;
   book: TBible;
+  pn: PVirtualNode;
 begin
-// TODO: implement it
-//  if lbStrong.ItemIndex < 0 then
-//    Exit;
-//
-//  book := mCurrentBook;
-//  if not Assigned(book) then
-//  begin
-//    defaultModIx := mMainView.mModules.FindByName(mMainView.DefaultStrongBibleName);
-//
-//    if defaultModIx >= 0 then
-//    begin
-//      book := TBible.Create(mMainView);
-//      bookPath := TPath.Combine(mMainView.mModules[defaultModIx].mShortPath, 'bibleqt.ini');
-//      book.inifile := MainFileExists(bookPath);
-//    end;
-//  end;
-//
-//  if Assigned(book) then
-//  begin
-//    searchText := lbStrong.Items[lbStrong.ItemIndex];
-//
-//    if book.StrongsPrefixed then
-//      bookTypeIndex := 0 // full book
-//    else
-//    begin
-//      if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'H' then
-//        searchText := '0' + Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
-//      else if Copy(lbStrong.Items[lbStrong.ItemIndex], 1, 1) = 'G' then
-//        searchText := Copy(lbStrong.Items[lbStrong.ItemIndex], 2, 100)
-//      else
-//        searchText := lbStrong.Items[lbStrong.ItemIndex];
-//
-//      if Copy(searchText, 1, 1) = '0' then
-//        bookTypeIndex := 1 // old testament
-//      else
-//        bookTypeIndex := 2; // new testament
-//    end;
-//
-//    mMainView.OpenOrCreateSearchTab(book.path, searchText, bookTypeIndex);
-//  end
-//  else
-//  begin
-//    MessageBox(
-//        self.Handle,
-//        Pointer(Lang.SayDefault('bqStrongBibleNotDefined', C_TagRenameError)),
-//        Pointer(Lang.SayDefault('bqError', 'Error')),
-//        MB_OK or MB_ICONERROR);
-//  end;
+  pn := vstStrong.GetFirstSelected();
+  if not Assigned(pn) then
+    Exit;
+
+  book := mCurrentBook;
+  if not Assigned(book) then
+  begin
+    defaultModIx := mMainView.mModules.FindByName(mMainView.DefaultStrongBibleName);
+
+    if defaultModIx >= 0 then
+    begin
+      book := TBible.Create(mMainView);
+      bookPath := TPath.Combine(mMainView.mModules[defaultModIx].mShortPath, 'bibleqt.ini');
+      book.inifile := MainFileExists(bookPath);
+    end;
+  end;
+
+  if Assigned(book) then
+  begin
+    word := GetStrongWordByIndex(pn.Index);
+
+    if book.StrongsPrefixed then
+      bookTypeIndex := 0 // full book
+    else
+    begin
+      if Copy(word, 1, 1) = 'H' then
+        searchText := '0' + Copy(word, 2, 100)
+      else if Copy(word, 1, 1) = 'G' then
+        searchText := Copy(word, 2, 100)
+      else
+        searchText := word;
+
+      if Copy(searchText, 1, 1) = '0' then
+        bookTypeIndex := 1 // old testament
+      else
+        bookTypeIndex := 2; // new testament
+    end;
+
+    mMainView.OpenOrCreateSearchTab(book.path, searchText, bookTypeIndex, true);
+  end
+  else
+  begin
+    MessageBox(
+        self.Handle,
+        Pointer(Lang.SayDefault('bqStrongBibleNotDefined', C_TagRenameError)),
+        Pointer(Lang.SayDefault('bqError', 'Error')),
+        MB_OK or MB_ICONERROR);
+  end;
 end;
 
 procedure TStrongFrame.tbtnTogglePanelClick(Sender: TObject);
@@ -223,27 +238,6 @@ begin
     ShowMessage('Error in ' + TPath.Combine(strongDir, 'greek.*'));
 end;
 
-procedure TStrongFrame.DisplayNumbers(dict: TDict; hebrew: boolean);
-var
-  wordCount: integer;
-  wordIx: integer;
-  num: integer;
-  word: string;
-begin
-  wordCount := dict.Words.Count - 1;
-  for wordIx := 0 to wordCount do
-  begin
-    num := StrToInt(dict.Words[wordIx]);
-    word := IntToStr(num);
-    if hebrew then
-      word := 'H' + word
-    else
-      word := 'G' + word;
-
-    vstStrong.InsertNode(nil, amAddChildLast, Pointer(wordIx));
-  end;
-end;
-
 procedure TStrongFrame.ShowStrong(stext: string);
 var
   hebrew: Boolean;
@@ -314,12 +308,33 @@ end;
 
 procedure TStrongFrame.SearchText(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
 var
-  ix, num: integer;
   word, sText: string;
-  hebrew: boolean;
 begin
+  word := GetStrongWordByIndex(Node.Index);
 
-  ix := Node.Index;
+  sText := string(data);
+  if Length(sText) > 0 then
+  begin
+    if sText = word then
+    begin
+      Sender.Selected[Node] := true;
+      Abort := true;
+    end;
+  end;
+end;
+
+procedure TStrongFrame.SelectStrongWord(word: string);
+begin
+  if (word <> '') then
+    vstStrong.IterateSubtree(nil, SearchText, PChar(word));
+end;
+
+function TStrongFrame.GetStrongWordByIndex(ix: Integer): string;
+var
+  hebrew: Boolean;
+  num: Integer;
+  word: string;
+begin
   if (ix < StrongHebrew.Words.Count) then
   begin
     word := StrongHebrew.Words[ix];
@@ -334,21 +349,13 @@ begin
 
   num := StrToInt(word);
   word := IntToStr(num);
+
   if hebrew then
     word := 'H' + word
   else
     word := 'G' + word;
 
-  Abort := false;
-  sText := string(data);
-  if Length(sText) > 0 then
-  begin
-    if sText = word then
-    begin
-      Sender.Selected[Node] := true;
-      Abort := true;
-    end;
-  end;
+  Result := word;
 end;
 
 procedure TStrongFrame.DisplayStrongs(num: integer; hebrew: Boolean);
@@ -398,7 +405,7 @@ begin
     else
       s := 'G' + s;
 
-    vstStrong.IterateSubtree(nil, SearchText, PChar(s));
+    SelectStrongWord(s);
   end;
 
 end;
@@ -417,7 +424,12 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
-procedure TStrongFrame.vstStrongDblClick(Sender: TObject);
+procedure TStrongFrame.vstStrongAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
+begin
+  DisplaySelectedItem();
+end;
+
+procedure TStrongFrame.DisplaySelectedItem();
 var
   pn: PVirtualNode;
 begin
@@ -429,34 +441,12 @@ begin
 end;
 
 procedure TStrongFrame.vstStrongGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
-var
-  ix, num: integer;
-  word: string;
-  hebrew: boolean;
 begin
   if not Assigned(Node) then
     Exit;
 
   try
-    ix := Node.Index;
-    if (ix < StrongHebrew.Words.Count) then
-    begin
-      word := StrongHebrew.Words[ix];
-      hebrew := true;
-    end
-    else
-    begin
-      ix := ix - StrongHebrew.Words.Count;
-      word := StrongGreek.Words[ix];
-      hebrew := false;
-    end;
-
-    num := StrToInt(word);
-    word := IntToStr(num);
-    if hebrew then
-      CellText := 'H' + word
-    else
-      CellText := 'G' + word;
+    CellText := GetStrongWordByIndex(Node.Index);
   except
     on E: Exception do
     begin
