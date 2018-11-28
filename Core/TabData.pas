@@ -965,8 +965,9 @@ begin
     mSearchText := edtStrong.Text;
     mStrongText := bwrStrong.DocumentSource;
 
-    mStrongsList.Clear;
-    mStrongsList.AddStrings(lbStrong.Items);
+    // TODO: remove it
+    //mStrongsList.Clear;
+    //mStrongsList.AddStrings(lbStrong.Items);
     mBookPath := GetBookPath();
   end;
 end;
@@ -981,8 +982,9 @@ begin
     edtStrong.Text := mSearchText;
     bwrStrong.LoadFromString(mStrongText);
 
-    lbStrong.Items.Clear;
-    lbStrong.Items.AddStrings(mStrongsList);
+    // TODO: remove it
+    //lbStrong.Items.Clear;
+    //lbStrong.Items.AddStrings(mStrongsList);
     SetCurrentBook(mBookPath);
   end;
 end;

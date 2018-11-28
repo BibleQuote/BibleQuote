@@ -543,6 +543,7 @@ begin
   mDictionaryView.Align := alClient;
 
   mStrongView := TStrongFrame.Create(nil, mMainView, self);
+  mStrongView.Hide;
   mStrongView.Parent := pnlMain;
   mStrongView.Align := alClient;
 end;
