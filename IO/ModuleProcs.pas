@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, SysUtils, IOUtils, Contnrs, bible, BibleQuoteUtils, BibleQuoteConfig,
-  Engine, EngineInterfaces;
+  Engine, EngineInterfaces, AppPaths;
 
 const
   C_NumOfModulesToScan = 5;
@@ -101,19 +101,19 @@ begin
   try
     if not background then
     begin
-      AddFolderModules(TPath.Combine(LibraryDirectory, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
-      AddFolderModules(TPath.Combine(LibraryDirectory, C_BooksSubDirectory), tmpBook, background, modtypeBook);
+      AddFolderModules(TLibraryDirectories.Bibles, tmpBook, background, modtypeBible);
+      AddFolderModules(TLibraryDirectories.Books, tmpBook, background, modtypeBook);
 
-      AddArchivedModules(CompressedModulesDirectory, tmpBook, background);
+      AddArchivedModules(TLibraryDirectories.CompressedModules, tmpBook, background);
 
-      if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(LibraryDirectory)) then
+      if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
       begin
         AddFolderModules(TPath.Combine(G_SecondPath, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
         AddFolderModules(TPath.Combine(G_SecondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
       end;
 
-      AddFolderModules(TPath.Combine(LibraryDirectory, C_CommentariesSubDirectory), tmpBook, background, modtypeComment);
-      AddArchivedModules(TPath.Combine(CompressedModulesDirectory, C_CommentariesSubDirectory), tmpBook, background, true);
+      AddFolderModules(TLibraryDirectories.Commentaries, tmpBook, background, modtypeComment);
+      AddArchivedModules(TPath.Combine(TLibraryDirectories.CompressedModules, C_CommentariesSubDirectory), tmpBook, background, true);
 
       mScanDone := true;
       Result := true;
@@ -123,7 +123,7 @@ begin
       if not mFolderBiblesScanned then
       begin
         mFolderBiblesScanned := AddFolderModules(
-          TPath.Combine(LibraryDirectory, C_BiblesSubDirectory),
+          TLibraryDirectories.Bibles,
           tmpBook,
           background,
           modtypeBible);
@@ -134,7 +134,7 @@ begin
       if not mFolderBooksScanned then
       begin
         mFolderBooksScanned := AddFolderModules(
-          TPath.Combine(LibraryDirectory, C_BooksSubDirectory),
+          TLibraryDirectories.Books,
           tmpBook,
           background,
           modtypeBook);
@@ -144,13 +144,13 @@ begin
 
       if not mArchivedModulesScanned then
       begin
-        mArchivedModulesScanned := AddArchivedModules(CompressedModulesDirectory, tmpBook, background);
+        mArchivedModulesScanned := AddArchivedModules(TLibraryDirectories.CompressedModules, tmpBook, background);
         Exit;
       end;
 
       if not mSecondFolderBiblesScanned then
       begin
-        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(LibraryDirectory)) then
+        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
         begin
           mSecondFolderBiblesScanned := AddFolderModules(
             TPath.Combine(G_SecondPath, C_BiblesSubDirectory),
@@ -166,7 +166,7 @@ begin
 
       if not mSecondFolderBooksScanned then
       begin
-        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(LibraryDirectory)) then
+        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
         begin
           mSecondFolderBooksScanned := AddFolderModules(
             TPath.Combine(G_SecondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
@@ -179,7 +179,7 @@ begin
       if not mFolderCommentsScanned then
       begin
         mFolderCommentsScanned := AddFolderModules(
-          TPath.Combine(LibraryDirectory, C_CommentariesSubDirectory),
+          TLibraryDirectories.Commentaries,
           tmpBook,
           background,
           modtypeComment);
@@ -190,7 +190,7 @@ begin
       if not mArchivedCommentsScanned then
       begin
         mArchivedCommentsScanned := AddArchivedModules(
-          TPath.Combine(CompressedModulesDirectory, C_CommentariesSubDirectory),
+          TPath.Combine(TLibraryDirectories.CompressedModules, C_CommentariesSubDirectory),
           tmpBook,
           background);
 
@@ -348,7 +348,7 @@ begin
   try
     cachedModulesList := TStringList.Create();
     try
-      cachedModsFilePath := GetCachedModulesListDir() + C_CachedModsFileName;
+      cachedModsFilePath := TPath.Combine(TAppDirectories.UserSettings, C_CachedModsFileName);
       if not FileExists(cachedModsFilePath) then begin
         Result := false;
         Exit;
@@ -443,8 +443,8 @@ begin
         Add('***');
       end;
     end;
-    wsFolder := GetCachedModulesListDir();
-    modStringList.SaveToFile(wsFolder + C_CachedModsFileName, TEncoding.UTF8);
+    wsFolder := TAppDirectories.UserSettings;
+    modStringList.SaveToFile(TPath.Combine(wsFolder, C_CachedModsFileName), TEncoding.UTF8);
   finally
     modStringList.Free()
   end;

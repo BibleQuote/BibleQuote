@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, SystemInfo;
+  Dialogs, StdCtrls, SystemInfo, IOUtils;
 
 type
   TExceptionForm = class(TForm)
@@ -25,7 +25,7 @@ var
 
 implementation
 
-uses JclDebug, BibleQuoteUtils, PlainUtils, AppInfo;
+uses JclDebug, BibleQuoteUtils, PlainUtils, AppInfo, AppPaths;
 {$R *.dfm}
 
 var
@@ -34,7 +34,7 @@ var
 function getExceptionLog(): TbqTextFileWriter;
 begin
   if not assigned(bqExceptionLog) then
-    bqExceptionLog := TbqTextFileWriter.Create(CreateAndGetConfigFolder() + 'bqErr.log');
+    bqExceptionLog := TbqTextFileWriter.Create(TPath.Combine(TAppDirectories.UserSettings, 'bqErr.log'));
 
   result := bqExceptionLog;
 end;

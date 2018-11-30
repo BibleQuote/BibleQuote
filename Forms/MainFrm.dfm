@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 15
+  TextHeight = 14
   object splMain: TSplitter
     Left = 290
     Top = 34
@@ -104,6 +104,10 @@ object MainForm: TMainForm
     OnMouseMove = pgcMainMouseMove
     object tbComments: TTabSheet
       Hint = 'Commentaries'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object bwrComments: THTMLViewer
         Left = 0
         Top = 30
@@ -201,8 +205,8 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 738
       Top = 4
-      Width = 38
-      Height = 26
+      Width = 37
+      Height = 14
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -215,7 +219,6 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 15
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
@@ -239,6 +242,7 @@ object MainForm: TMainForm
       Left = 1
       Top = 1
       Width = 542
+      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -403,6 +407,7 @@ object MainForm: TMainForm
       Left = 543
       Top = 1
       Width = 56
+      Height = 29
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
@@ -441,6 +446,7 @@ object MainForm: TMainForm
       Left = 599
       Top = 1
       Width = 136
+      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -856,7 +862,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010135006800600510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800640510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2722,7 +2728,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01011600E801A40318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801A80318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

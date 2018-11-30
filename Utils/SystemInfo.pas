@@ -4,33 +4,14 @@ interface
 
 uses ShlObj, Windows, COperatingSystemInfo, JclSysInfo, SysUtils;
 
-function WindowsUserName(const aDefault: string = 'default'): string;
 function GetMyDocuments: string;
 function OSinfo(): TOperatingSystemInfo;
 function WinInfoString(): string;
-function IsWindows64(): Boolean;
 
 implementation
 
 var
   _osInfo: TOperatingSystemInfo = nil;
-
-function WindowsUserName(const aDefault: string = 'default'): string;
-const
-  maxUserNameLen = 254;
-var
-  userName      : string;
-  dwUserNameLen : DWord;
-begin
-  dwUserNameLen := maxUserNameLen - 1;
-  SetLength(userName, maxUserNameLen);
-  GetUserName(PChar(userName), dwUserNameLen);
-  SetLength(userName, dwUserNameLen);
-  Result := userName;
-
-  if Result = '' then
-    Result := aDefault;
-end;
 
 function GetWindowsProductString: string;
 begin
@@ -41,47 +22,13 @@ end;
 
 function GetMyDocuments: string;
 var
-  r: Bool;
-  path: array [0 .. Max_Path] of Char;
+  path: string;
 begin
-  r := ShGetSpecialFolderPath(0, path, CSIDL_Personal, false);
-  if not r then
-    Result := 'C:\TEMP'
-  else
-    Result := path;
-end;
+  path := GetPersonalFolder();
+  if (path = '') then
+    path := GetAppdataFolder();
 
-function IsWindows64(): Boolean;
-type
-  TIsWow64Process = function(aHandle: THandle; var AIsWow64: BOOL) : BOOL; stdcall;
-var
-  vKernel32Handle: DWORD;
-  vIsWow64Process: TIsWow64Process;
-  vIsWow64: BOOL;
-begin
-  // 1) assume that we are not running under Windows 64 bit
-  result := false;
-
-  // 2) Load kernel32.dll library
-  vKernel32Handle := LoadLibrary('kernel32.dll');
-  if (vKernel32Handle = 0) then
-    exit; // Loading kernel32.dll was failed, just return
-
-  try
-
-    // 3) Load windows api IsWow64Process
-    @vIsWow64Process := GetProcAddress(vKernel32Handle, 'IsWow64Process');
-    if not assigned(vIsWow64Process) then
-      exit; // Loading IsWow64Process was failed, just return
-
-    // 4) Execute IsWow64Process against our own process
-    vIsWow64 := false;
-    if (vIsWow64Process(GetCurrentProcess, vIsWow64)) then
-      result := vIsWow64; // use the returned value
-
-  finally
-    FreeLibrary(vKernel32Handle); // unload the library
-  end;
+  Result := path;
 end;
 
 function OSinfo(): TOperatingSystemInfo;

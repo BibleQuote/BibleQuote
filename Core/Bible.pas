@@ -7,7 +7,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, IOUtils, Types,
   Graphics, Controls, Forms, Dialogs, IOProcs,
-  StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices;
+  StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices, AppPaths;
 
 const
   RusToEngTable: array [1 .. 27] of integer = (1, 2, 3, 4, 5, 20, 21, 22, 23,
@@ -920,14 +920,14 @@ begin
     if isCompressed then
     begin
       FPath := GetArchiveFromSpecial(fileName) + '??';
-      FShortPath := ExtractRelativePath('?' + ExePath, FPath);
+      FShortPath := ExtractRelativePath('?' + TAppDirectories.Root, FPath);
       FShortPath := GetArchiveFromSpecial(FShortPath);
       FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
     end
     else
     begin
       FPath := ExtractFilePath(fileName);
-      FShortPath := ExtractRelativePath(ExePath, FPath);
+      FShortPath := ExtractRelativePath(TAppDirectories.Root, FPath);
       FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
     end;
 

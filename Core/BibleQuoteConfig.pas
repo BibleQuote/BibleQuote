@@ -3,15 +3,6 @@
 interface
 
 const
-  C_LibraryDirectory = 'Library';
-  C_CompressedLibraryDirectory = 'Library\Compressed';
-  C_BiblesSubDirectory = 'Bibles';
-  C_CommentariesSubDirectory = 'Commentaries';
-  C_DictionariesSubDirectory = 'Dictionaries';
-  C_BooksSubDirectory = 'Books';
-  C_TSKSubDirectory = 'System\TSK';
-  C_StrongSubDirectory = 'System\Strong';
-
   C_ModuleIniName = 'bibleqt.ini';
   C_PasswordPolicyFileName = 'bq.pol';
   C_CachedModsFileName = 'cached.lst';

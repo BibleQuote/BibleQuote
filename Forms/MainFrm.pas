@@ -380,7 +380,6 @@ type
     mFontManager: TFontManager;
 
     ConfigFormHotKeyChoiceItemIndex: integer;
-    UserDir: string;
     PasswordPolicy: TPasswordPolicy;
     tempBook: TBible;
     G_XRefVerseCmd: string;
@@ -502,7 +501,6 @@ type
     function InstallFont(const specialPath: string): HRESULT;
     procedure TranslateConfigForm;
     procedure FillLanguageMenu;
-    function GetLocalizationDirectory(): string;
     procedure TranslateControl(form: TWinControl; fname: string = '');
     procedure ShowReferenceInfo();
     procedure GoReference();
@@ -541,7 +539,7 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
   StrUtils, CommCtrl, DockTabsFrm,
   HintTools, sevenZipHelper, BookFra, TSKFra, DictionaryFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
-  EngineInterfaces, StringProcs, LinksParser, StrongFra, SearchFra;
+  EngineInterfaces, StringProcs, LinksParser, StrongFra, SearchFra, AppPaths;
 
 {$R *.DFM}
 
@@ -584,9 +582,8 @@ var
   fnt: TFont;
 begin
   try
-    UserDir := CreateAndGetConfigFolder;
     try
-      PasswordPolicy := TPasswordPolicy.Create(UserDir + C_PasswordPolicyFileName);
+      PasswordPolicy := TPasswordPolicy.Create(TPath.Combine(TAppDirectories.UserSettings, C_PasswordPolicyFileName));
     except
       on E: Exception do
       begin
@@ -596,7 +593,7 @@ begin
     end;
     MainCfgIni := TMultiLanguage.Create(self);
     try
-      MainCfgIni.inifile := UserDir + C_ModuleIniName;
+      MainCfgIni.inifile := TPath.Combine(TAppDirectories.UserSettings, C_ModuleIniName);
     except
       on E: Exception do
         BqShowException(E, 'Cannot Load Configuration file!');
@@ -666,7 +663,7 @@ begin
     mFlagHighlightVerses := MainCfgIni.SayDefault(C_opt_HighlightVerseHits, '1') = '1';
 
     try
-      fname := UserDir + 'bibleqt_bookmarks.ini';
+      fname := TPath.Combine(TAppDirectories.UserSettings, 'bibleqt_bookmarks.ini');
       if FileExists(fname) then
         Bookmarks.LoadFromFile(fname);
     except
@@ -1008,7 +1005,7 @@ begin
         tabsView.BibleTabs.Tabs.Add('***');
     end;
 
-    fn1 := CreateAndGetConfigFolder() + C_HotModulessFileName;
+    fn1 := TPath.Combine(TAppDirectories.UserSettings, C_HotModulessFileName);
     f1Exists := FileExists(fn1);
     if f1Exists then
     begin
@@ -1016,7 +1013,7 @@ begin
     end
     else
     begin
-      fn2 := ExePath + 'hotlist.txt';
+      fn2 := TPath.Combine(TAppDirectories.UserSettings, 'hotlist.txt');
       f2Exists := FileExists(fn2);
       if f2Exists then
       begin
@@ -1036,7 +1033,7 @@ end;
 
 procedure TMainForm.SaveHotModulesConfig(aMUIEngine: TMultiLanguage);
 begin
-  mFavorites.SaveModules(CreateAndGetConfigFolder + C_HotModulessFileName);
+  mFavorites.SaveModules(TPath.Combine(TAppDirectories.UserSettings, C_HotModulessFileName));
 end;
 
 function TMainForm.LoadDictionaries(foreground: Boolean): Boolean;
@@ -1055,7 +1052,7 @@ begin
     imgLoadProgress.Picture.Graphic := mIcn;
     imgLoadProgress.Show();
 
-    mBqEngine.LoadDictionaries(TPath.Combine(LibraryDirectory, C_DictionariesSubDirectory), foreground);
+    mBqEngine.LoadDictionaries(TLibraryDirectories.Dictionaries, foreground);
     if not foreground then
       Exit;
   end;
@@ -1266,8 +1263,8 @@ var
   bookTabSettings: TBookTabSettings;
   history: TStrings;
 begin
-  tabsConfigPath := UserDir + 'tabs_config.json';
-  layoutConfigPath := UserDir + 'layout_forms.dat';
+  tabsConfigPath := TPath.Combine(TAppDirectories.UserSettings, 'tabs_config.json');
+  layoutConfigPath := TPath.Combine(TAppDirectories.UserSettings, 'layout_forms.dat');
 
   firstTabInitialized := false;
   try
@@ -1425,13 +1422,13 @@ var
   s: string;
 begin
   try
-    newpath := UserDir + 'UserMemos.mls';
+    newpath := TPath.Combine(TAppDirectories.UserSettings, 'UserMemos.mls');
     if FileExists(newpath) then
     begin
       Memos.LoadFromFile(newpath);
       Exit;
     end;
-    oldPath := UserDir + 'bibleqt_memos.ini';
+    oldPath := TPath.Combine(TAppDirectories.UserSettings, 'bibleqt_memos.ini');
     if not FileExists(oldPath) then
       Exit;
     sl := nil;
@@ -1463,9 +1460,7 @@ var
   fname: string;
 begin
   try
-
-    UserDir := CreateAndGetConfigFolder;
-    writeln(NowDateTimeString(), ':SaveConfiguration, userdir:', UserDir);
+    writeln(NowDateTimeString(), ':SaveConfiguration, userdir:', TAppDirectories.UserSettings);
 
     SaveTabsViews();
     try
@@ -1476,10 +1471,10 @@ begin
         BqShowException(E);
       end;
     end;
-    PasswordPolicy.SaveToFile(UserDir + C_PasswordPolicyFileName);
+    PasswordPolicy.SaveToFile(TPath.Combine(TAppDirectories.UserSettings, C_PasswordPolicyFileName));
 
     ini := TMultiLanguage.Create(self);
-    ini.inifile := UserDir + C_ModuleIniName;
+    ini.inifile := TPath.Combine(TAppDirectories.UserSettings, C_ModuleIniName);
 
     if MainForm.WindowState = wsMaximized then
       ini.Learn('MainFormMaximized', '1')
@@ -1571,7 +1566,7 @@ begin
     end;
 
     try
-      fname := UserDir + 'bibleqt_bookmarks.ini';
+      fname := TPath.Combine(TAppDirectories.UserSettings, 'bibleqt_bookmarks.ini');
       if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
         Bookmarks.SaveToFile(fname, TEncoding.UTF8);
     except
@@ -1579,7 +1574,7 @@ begin
         BqShowException(E)
     end;
     try
-      fname := UserDir + 'UserMemos.mls';
+      fname := TPath.Combine(TAppDirectories.UserSettings, 'UserMemos.mls');
       if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
         Memos.SaveToFile(fname, TEncoding.UTF8);
     except
@@ -1657,9 +1652,9 @@ begin
       layoutConfig.TabsViewList.Add(tabsViewSettings);
     end;
 
-    layoutConfig.Save(UserDir + 'tabs_config.json');
+    layoutConfig.Save(TPath.Combine(TAppDirectories.UserSettings, 'tabs_config.json'));
 
-    fileStream := TFileStream.Create(UserDir + 'layout_forms.dat', fmCreate);
+    fileStream := TFileStream.Create(TPath.Combine(TAppDirectories.UserSettings, 'layout_forms.dat'), fmCreate);
     pnlModules.DockManager.SaveToStream(fileStream);
     fileStream.Free;
 
@@ -1735,10 +1730,10 @@ begin
       MainForm.WindowState := wsMaximized;
   end;
 
-  TemplatePath := ExePath + 'templates\default\';
+  TemplatePath := TPath.Combine(TAppDirectories.Root, 'templates\default\');
 
-  if FileExists(TemplatePath + 'text.htm') then
-    TextTemplate := TextFromFile(TemplatePath + 'text.htm')
+  if FileExists(TPath.Combine(TemplatePath, 'text.htm')) then
+    TextTemplate := TextFromFile(TPath.Combine(TemplatePath, 'text.htm'))
   else
     TextTemplate := DefaultTextTemplate;
 
@@ -1757,7 +1752,7 @@ begin
   LoadTabsViews();
   LoadHotModulesConfig();
 
-  LoadFontFromFolder(TPath.Combine(LibraryDirectory, C_StrongSubDirectory));
+  LoadFontFromFolder(TLibraryDirectories.Strong);
 
   mTranslated := TranslateInterface(LastLanguageFile);
 
@@ -1953,7 +1948,7 @@ var
 begin
   loaded := false;
 
-  locDirectory := GetLocalizationDirectory();
+  locDirectory := TAppDirectories.Localization;
   locFilePath := TPath.Combine(locDirectory, LastLanguageFile);
 
   if (LastLanguageFile <> '') and (TFile.Exists(locFilePath)) then
@@ -1995,7 +1990,7 @@ var
   locFilePath: string;
 begin
   Result := false;
-  locDirectory := GetLocalizationDirectory();
+  locDirectory := TAppDirectories.Localization;
   locFilePath := TPath.Combine(locDirectory, locFile);
   try
     result := Lang.LoadIniFile(locFilePath);
@@ -2749,7 +2744,7 @@ begin
   with OpenDialog do
   begin
     if InitialDir = '' then
-      InitialDir := ExePath;
+      InitialDir := TAppDirectories.Root;
 
     Filter := 'HTML (*.htm, *.html)|*.htm;*.html|*.*|*.*';
 
@@ -3122,7 +3117,7 @@ begin
     shfOP.Wnd := 0;
     shfOP.wFunc := FO_COPY;
     shfOP.pFrom := Pointer(path + #0);
-    shfOP.pTo := Pointer(CompressedModulesDirectory() + '\' + ExtractFileName(path) + #0);
+    shfOP.pTo := Pointer(TLibraryDirectories.CompressedModules + '\' + ExtractFileName(path) + #0);
     shfOP.fFlags := FOF_ALLOWUNDO or FOF_FILESONLY;
     shfOP.fAnyOperationsAborted := false;
     shfOP.hNameMappings := nil;
@@ -4568,18 +4563,13 @@ begin
   end;
 end;
 
-function TMainForm.GetLocalizationDirectory(): string;
-begin
-  result := TPath.Combine(ExePath, 'Localization');
-end;
-
 procedure TMainForm.FillLanguageMenu;
 var
   F: TSearchRec;
   mi: TMenuItem;
   locDirectory, langPattern: string;
 begin
-  locDirectory := GetLocalizationDirectory;
+  locDirectory := TAppDirectories.Localization;
   langPattern := TPath.Combine(locDirectory, '*.lng');
 
   if FindFirst(langPattern, faAnyFile, F) = 0 then

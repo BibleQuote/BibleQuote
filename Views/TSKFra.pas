@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
-  MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser, Clipbrd;
+  MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser, Clipbrd,
+  AppPaths;
 
 type
   TTSKFrame = class(TFrame, ITSKView)
@@ -165,7 +166,7 @@ begin
   if Length(s) = 1 then
     s := '0' + s;
 
-  path := TPath.Combine(LibraryDirectory, C_TSKSubDirectory);
+  path := TLibraryDirectories.TSK;
   path := TPath.Combine(path, s + '_*.ini');
 
   if FindFirst(path, faAnyFile, tf) <> 0 then
@@ -173,7 +174,7 @@ begin
 
   ti := TMultiLanguage.Create(nil);
 
-  path := TPath.Combine(LibraryDirectory, C_TSKSubDirectory);
+  path := TLibraryDirectories.TSK;
   ti.inifile := TPath.Combine(path, tf.Name);
 
   secondBible.OpenChapter(mainBible.CurBook, mainBible.CurChapter);
