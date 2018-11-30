@@ -8,7 +8,7 @@ uses
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, HTMLEmbedInterfaces,
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
-  ExceptionFrm, Dict, System.Threading, VirtualTrees;
+  ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -219,7 +219,7 @@ var
   loaded: boolean;
   strongDir: string;
 begin
-  strongDir := TPath.Combine(LibraryDirectory, C_StrongSubDirectory);
+  strongDir := TLibraryDirectories.Strong;
   loaded := StrongHebrew.Initialize(TPath.Combine(strongDir, 'hebrew.idx'), TPath.Combine(strongDir, 'hebrew.htm'));
 
   if (not loaded) and (reportError) then
@@ -231,7 +231,7 @@ var
   loaded: boolean;
   strongDir: string;
 begin
-  strongDir := TPath.Combine(LibraryDirectory, C_StrongSubDirectory);
+  strongDir := TLibraryDirectories.Strong;
   loaded := StrongGreek.Initialize(TPath.Combine(strongDir, 'greek.idx'), TPath.Combine(strongDir, 'greek.htm'));
 
   if (not loaded) and (reportError) then

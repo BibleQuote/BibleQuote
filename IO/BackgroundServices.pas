@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, SyncObjs, SysUtils, Dict, Windows, BibleQuoteUtils, EngineInterfaces,
-  TagsDb, Types, IOUtils;
+  TagsDb, Types, IOUtils, AppPaths;
 
 type
 
@@ -129,7 +129,7 @@ end;
 function TbqWorker._InitVerseListEngine(): HRESULT;
 begin
   try
-    TagsDbEngine.InitVerseListEngine(ExePath + 'TagsDb.bqd');
+    TagsDbEngine.InitVerseListEngine(TPath.Combine(TAppDirectories.UserSettings, 'TagsDb.bqd'));
     result := S_OK;
   except
     on e: Exception do

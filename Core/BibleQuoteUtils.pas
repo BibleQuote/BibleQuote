@@ -6,7 +6,7 @@ interface
 
 uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils, JCLDebug, PlainUtils,
   Contnrs, Windows, SysUtils, Classes, SystemInfo, CRC32, Vcl.Graphics,
-  ImageUtils, SyncObjs;
+  ImageUtils, SyncObjs, ShlObj, AppPaths;
 
 type
   TPasswordPolicy = class
@@ -219,7 +219,6 @@ resourcestring
 
 function GetArchiveFromSpecial(const aSpecial: string): string; overload;
 function GetArchiveFromSpecial(const aSpecial: string; out filename: string): string; overload;
-function GetCachedModulesListDir(): string;
 function FileExistsEx(aPath: string): integer;
 function ArchiveFileSize(path: string): integer;
 function SpecialIO(const fileName: string; strings: TStrings; obf: int64; read: boolean = true): boolean;
@@ -240,13 +239,9 @@ function GetTokenFromString(pStr: PChar; delim: Char; out len: integer): PChar;
 function PeekToken(pC: PChar; delim: Char): string;
 
 function MainFileExists(s: string): string;
-function ExePath(): string;
-function LibraryDirectory(): string;
-function CompressedModulesDirectory(): string;
 function GetCallerEIP(): Pointer;
 function GetCallerEbP(): Pointer;
 procedure cleanUpInstalledFonts();
-function CreateAndGetConfigFolder: string;
 
 type
   PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector; p4: LPDWORD): THandle; stdcall;
@@ -270,9 +265,6 @@ implementation
 
 uses JclSysInfo, MainFrm, Controls, Forms, Clipbrd, StrUtils, BibleQuoteConfig,
   StringProcs, JclBase;
-
-var
-  __exe__path: string;
 
 function GetArchiveFromSpecial(const aSpecial: string): string; overload;
 var
@@ -371,23 +363,6 @@ begin
   if p2 = 0 then
     p2 := $FFF;
   result := Copy(tknString, p, p2 - p);
-end;
-
-var
-  __cachedModulesListFolder: string;
-
-function GetCachedModulesListDir(): string;
-begin
-  if Length(__cachedModulesListFolder) <= 0 then
-  begin
-
-    __cachedModulesListFolder := CreateAndGetConfigFolder();
-    __cachedModulesListFolder := ExtractFilePath(
-        Copy(__cachedModulesListFolder,
-        1,
-        Length(__cachedModulesListFolder) - 1));
-  end;
-  result := __cachedModulesListFolder;
 end;
 
 function ArchiveFileSize(path: string): integer;
@@ -622,7 +597,7 @@ var
   len: integer;
   data: int64;
 begin
-  userFolder := UpperCase(CreateAndGetConfigFolder());
+  userFolder := UpperCase(TAppDirectories.UserSettings);
   len := Length(userFolder);
   if len <= 0 then
   begin
@@ -1930,69 +1905,14 @@ begin
     // compressed modules take precedence over other modules
     filePath := ExtractFilePath(s);
     modfolder := Copy(filePath, 1, Length(filePath) - 1);
-    fullPath := TPath.Combine(ExePath, modfolder + '.bqb');
+    fullPath := TPath.Combine(TAppDirectories.Root, modfolder + '.bqb');
 
     if FileExists(fullPath) then
       result := '?' + fullPath + '??' + C_ModuleIniName
-    else if FileExists(TPath.Combine(ExePath, s)) then
-      result := TPath.Combine(ExePath, s)
+    else if FileExists(TPath.Combine(TAppDirectories.Root, s)) then
+      result := TPath.Combine(TAppDirectories.Root, s)
     else if FileExists(TPath.Combine(G_SecondPath, s)) then
       result := TPath.Combine(G_SecondPath, s)
-  end;
-
-  procedure __init_vars();
-  var
-    buff: PChar;
-  begin
-    GetMem(buff, 4096);
-    Windows.GetModuleFileName(0, buff, 2047);
-    __exe__path := ExtractFilePath(buff);
-
-    FreeMem(buff);
-  end;
-
-  function ExePath(): string;
-  begin
-    result := __exe__path;
-  end;
-
-  function LibraryDirectory(): string;
-  begin
-    result := TPath.Combine(ExePath(), C_LibraryDirectory);
-  end;
-
-  function CompressedModulesDirectory(): string;
-  begin
-    result := TPath.Combine(ExePath(), C_CompressedLibraryDirectory);
-  end;
-
-  function CreateAndGetConfigFolder: string;
-  var
-    dUserName: string;
-    dPath: string;
-    wsPath: string;
-  begin
-    wsPath := ExtractFileName(ExtractFileDir(ExePath()));
-
-    if Pos('Portable', wsPath) <> 0 then
-      dUserName := 'CommonProfile'
-    else
-      dUserName := WindowsUserName();
-
-    result := ExePath + 'users\' + DumpFileName(dUserName) + '\';
-    if ForceDirectories(result) then
-      exit;
-
-    dPath := GetAppDataFolder;
-    if dPath <> '' then
-    begin
-      result := dPath + 'BibleQuoteUni\';
-      if ForceDirectories(result) then
-        exit;
-    end;
-    MessageBox(0, 'Cannot Found BibleQute data folder', 'BibleQute Error', MB_OK or MB_ICONERROR);
-    result := '';
-
   end;
 
   function GetCallerEIP(): Pointer; assembler;
@@ -2067,7 +1987,6 @@ Include(JclStackTrackingOptions, stStack);
 // Initialize Exception tracking
 g_ExceptionContext := TbqExceptionContext.Create();
 JclStartExceptionTracking;
-__init_vars();
 G_InstalledFonts := TStringList.Create;
 G_InstalledFonts.Sorted := true;
 G_InstalledFonts.Duplicates := dupIgnore;
