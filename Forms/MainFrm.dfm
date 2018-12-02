@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 14
+  TextHeight = 15
   object splMain: TSplitter
     Left = 290
     Top = 34
@@ -104,10 +104,6 @@ object MainForm: TMainForm
     OnMouseMove = pgcMainMouseMove
     object tbComments: TTabSheet
       Hint = 'Commentaries'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object bwrComments: THTMLViewer
         Left = 0
         Top = 30
@@ -205,8 +201,8 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 738
       Top = 4
-      Width = 37
-      Height = 14
+      Width = 38
+      Height = 26
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -219,6 +215,7 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
+      ExplicitHeight = 15
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
@@ -242,7 +239,6 @@ object MainForm: TMainForm
       Left = 1
       Top = 1
       Width = 542
-      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -282,7 +278,7 @@ object MainForm: TMainForm
         Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
         Caption = 'Add book tab'
         ImageIndex = 10
-        OnClick = miAddBookTabClick
+        OnClick = tbtnAddBookTabClick
       end
       object tbtnCloseTab: TToolButton
         Left = 102
@@ -290,7 +286,7 @@ object MainForm: TMainForm
         Hint = #1059#1076#1072#1083#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
         Caption = 'tbtnCloseTab'
         ImageIndex = 4
-        OnClick = miCloseTabClick
+        OnClick = tbtnCloseTabClick
       end
       object tbtnSep06: TToolButton
         Left = 134
@@ -407,7 +403,6 @@ object MainForm: TMainForm
       Left = 543
       Top = 1
       Width = 56
-      Height = 29
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
@@ -446,7 +441,6 @@ object MainForm: TMainForm
       Left = 599
       Top = 1
       Width = 136
-      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -650,18 +644,6 @@ object MainForm: TMainForm
         ShortCut = 16506
         OnClick = miPrintPreviewClick
       end
-      object miSave: TMenuItem
-        Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1082#1072#1082'...'
-        ImageIndex = 10
-        ShortCut = 123
-        OnClick = SaveButtonClick
-      end
-      object miOpen: TMenuItem
-        Caption = #1054#1090#1082#1088#1099#1090#1100'...'
-        ImageIndex = 9
-        ShortCut = 16507
-        OnClick = OpenButtonClick
-      end
       object miFileSep1: TMenuItem
         Caption = '-'
       end
@@ -671,21 +653,6 @@ object MainForm: TMainForm
         OnClick = miOptionsClick
       end
       object miFileSep2: TMenuItem
-        Caption = '-'
-      end
-      object miNewTab: TMenuItem
-        Caption = #1053#1086#1074#1072#1103' '#1074#1082#1083#1072#1076#1082#1072
-        ImageIndex = 30
-        ShortCut = 16468
-        OnClick = miAddBookTabClick
-      end
-      object miCloseTab: TMenuItem
-        Caption = #1047#1072#1082#1088#1099#1090#1100' '#1074#1082#1083#1072#1076#1082#1091
-        ImageIndex = 31
-        ShortCut = 16471
-        OnClick = miCloseTabClick
-      end
-      object miFileSep3: TMenuItem
         Caption = '-'
       end
       object miExit: TMenuItem
@@ -736,69 +703,15 @@ object MainForm: TMainForm
     end
     object miActions: TMenuItem
       Caption = #1054#1087#1077#1088#1072#1094#1080#1080
-      object miMyLibrary: TMenuItem
-        Caption = 'My Librar&y'
-        ImageIndex = 33
-        ShortCut = 16460
-        OnClick = tbtnAddLibraryTabClick
-      end
-      object miToggle: TMenuItem
-        Caption = #1042#1082#1083'/'#1074#1099#1082#1083#1102#1095#1080#1090#1100' '#1083#1077#1074#1091#1102' '#1087#1072#1085#1077#1083#1100
-        ImageIndex = 16
-        ShortCut = 16496
-        OnClick = tbtnToggleClick
-      end
-      object miOpenPassage: TMenuItem
-        Caption = #1055#1086#1082#1072#1079#1072#1090#1100' '#1086#1090#1088#1099#1074#1086#1082
-        ImageIndex = 5
-        ShortCut = 113
-        OnClick = GoButtonClick
-      end
       object miQuickNav: TMenuItem
         Caption = #1041#1099#1089#1090#1088#1086#1077' '#1086#1090#1082#1088#1099#1090#1080#1077' '#1086#1090#1088#1099#1074#1082#1072
         ShortCut = 16497
         OnClick = miQuickNavClick
       end
-      object miSearch: TMenuItem
-        Caption = #1055#1086#1080#1089#1082'...'
-        ImageIndex = 1
-        ShortCut = 114
-        OnClick = SearchButtonClick
-      end
       object miQuickSearch: TMenuItem
         Caption = #1041#1099#1089#1090#1088#1086#1077' '#1086#1090#1082#1088#1099#1090#1080#1077' '#1087#1086#1080#1089#1082#1072
         ShortCut = 16498
         OnClick = miQuickSearchClick
-      end
-      object miDic: TMenuItem
-        Caption = #1057#1083#1086#1074#1072#1088#1080
-        ImageIndex = 17
-        ShortCut = 115
-        OnClick = miDicClick
-      end
-      object miStrong: TMenuItem
-        Caption = #1053#1086#1084#1077#1088#1072' '#1057#1090#1088#1086#1085#1075#1072
-        ImageIndex = 18
-        ShortCut = 116
-        OnClick = miStrongClick
-      end
-      object miComments: TMenuItem
-        Caption = #1050#1086#1084#1084#1077#1085#1090#1072#1088#1080#1080
-        ImageIndex = 0
-        ShortCut = 117
-        OnClick = miCommentsClick
-      end
-      object miXref: TMenuItem
-        Caption = #1055#1072#1088#1072#1083#1083#1077#1083#1100#1085#1099#1077' '#1084#1077#1089#1090#1072
-        ImageIndex = 19
-        ShortCut = 118
-        OnClick = miXrefClick
-      end
-      object miNotepad: TMenuItem
-        Caption = #1052#1080#1085#1080'-'#1088#1077#1076#1072#1082#1090#1086#1088
-        ImageIndex = 2
-        ShortCut = 119
-        OnClick = miNotepadClick
       end
       object miChooseSatelliteBible: TMenuItem
         Caption = #1042#1099#1073#1088#1072#1090#1100' '#1074#1090#1086#1088#1080#1095#1085#1099#1081' '#1074#1080#1076'...'
@@ -822,20 +735,6 @@ object MainForm: TMainForm
         ImageIndex = 15
         ShortCut = 16500
         OnClick = CopySelectionClick
-      end
-      object miCopyOptions: TMenuItem
-        Caption = #1054#1087#1094#1080#1080' '#1082#1086#1087#1080#1088#1086#1074#1072#1085#1080#1103
-        ShortCut = 8308
-        OnClick = miCopyOptionsClick
-      end
-      object miActionsSep2: TMenuItem
-        Caption = '-'
-      end
-      object miSound: TMenuItem
-        Caption = #1055#1088#1086#1089#1083#1091#1096#1072#1090#1100' '#1079#1072#1087#1080#1089#1100' ('#1077#1089#1083#1080' '#1077#1089#1090#1100')'
-        ImageIndex = 14
-        ShortCut = 16505
-        OnClick = tbtnSoundClick
       end
     end
     object miFavorites: TMenuItem
@@ -862,7 +761,7 @@ object MainForm: TMainForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010135006800640510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800680510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2728,7 +2627,7 @@ object MainForm: TMainForm
     Left = 506
     Top = 329
     Bitmap = {
-      494C01011600E801A80318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801AC0318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

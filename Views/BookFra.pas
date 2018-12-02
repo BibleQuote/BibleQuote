@@ -1534,9 +1534,8 @@ end;
 procedure TBookFrame.ToggleStrongNumbers();
 var savePosition: integer;
 begin
-  mMainView.miStrong.Checked := not mMainView.miStrong.Checked;
-  tbtnStrongNumbers.Down := mMainView.miStrong.Checked;
-  BookTabInfo[vtisShowStrongs] := mMainView.miStrong.Checked;
+  tbtnStrongNumbers.Down := not tbtnStrongNumbers.Down;
+  BookTabInfo[vtisShowStrongs] := tbtnStrongNumbers.Down;
 
   if not BookTabInfo.Bible.Trait[bqmtStrongs] then
   begin
