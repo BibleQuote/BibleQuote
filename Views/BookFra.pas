@@ -274,7 +274,8 @@ begin
     Result := ProcessCommand(BookTabInfo, command, hlDefault);
 
     try
-      mMainView.ShowComments;
+      // TODO: display commentaries in all commentary tabs
+      //mMainView.ShowComments;
     except
       // skip error
     end;
@@ -455,7 +456,6 @@ begin
   else if Pos('verse ', unicodeSRC) = 1 then
   begin
     verse := StrToInt(Copy(unicodeSRC, 7, Length(unicodeSRC) - 6));
-    mMainView.tbComments.tag := verse;
 
     if Assigned(BookTabInfo) then
     begin
@@ -466,12 +466,12 @@ begin
         FullPassageSignature(CurBook, CurChapter, verse, 0), ShortName]));
     end;
 
-    if iscontrolDown or (mMainView.pgcMain.Visible and (mMainView.pgcMain.ActivePage = mMainView.tbComments))
-    then
-      mMainView.ShowComments;
-
-    if (iscontrolDown) and (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
-       mMainView.pgcMain.ActivePage := mMainView.tbComments;
+   // TODO: display commentaries in all commentary tabs
+   // if iscontrolDown or (mMainView.pgcMain.Visible and (mMainView.pgcMain.ActivePage = mMainView.tbComments))
+   // then
+   //   mMainView.ShowComments;
+   // if (iscontrolDown) and (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
+   //   mMainView.pgcMain.ActivePage := mMainView.tbComments;
 
     mMainView.OpenOrCreateTSKTab(BookTabInfo);
   end
@@ -496,12 +496,13 @@ begin
         else
           unicodeSRC := cb.HtmlExpandFilename(SRC);
 
-        lr := mMainView.LoadAnchor(mMainView.bwrComments, unicodeSRC, cb.CurrentFile, unicodeSRC);
-        if lr then
-        begin
-          if mMainView.pgcMain.Visible then
-            mMainView.pgcMain.ActivePage := mMainView.tbComments;
-        end;
+        // TODO: load anchors to all comments tabs
+        //lr := mMainView.LoadAnchor(mMainView.bwrComments, unicodeSRC, cb.CurrentFile, unicodeSRC);
+        //if lr then
+        //begin
+        //  if mMainView.pgcMain.Visible then
+        //  mMainView.pgcMain.ActivePage := mMainView.tbComments;
+        // end;
       except
         g_ExceptionContext.Add('src:' + SRC);
         g_ExceptionContext.Add('base:' + cb.Base);
@@ -710,12 +711,13 @@ begin
 
     mMainView.OpenOrCreateTSKTab(BookTabInfo, verse);
 
-    if (mMainView.pgcMain.ActivePage = mMainView.tbComments) and (verse <> mMainView.tbComments.tag) then
-    begin
-      mMainView.tbComments.tag := verse;
-      mMainView.ShowComments;
-      Exit;
-    end;
+    // TODO: display commentaries in all commentary tabs
+    //    if (mMainView.pgcMain.ActivePage = mMainView.tbComments) and (verse <> mMainView.tbComments.tag) then
+    //    begin
+    //      mMainView.tbComments.tag := verse;
+    //      mMainView.ShowComments;
+    //      Exit;
+    //    end;
   end;
 end;
 
@@ -732,12 +734,7 @@ begin
   text := Trim(bwrHtml.SelText);
   Val(text, num, code);
   if code = 0 then
-  begin
-    if not mMainView.pgcMain.Visible then
-      mMainView.tbtnToggle.Click;
-
-    mMainView.OpenOrCreateStrongTab(BookTabInfo, num);
-  end
+    mMainView.OpenOrCreateStrongTab(BookTabInfo, num)
   else
   begin
     if (text.Length > 0) then

@@ -2,8 +2,8 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 355
-  ClientWidth = 944
+  ClientHeight = 442
+  ClientWidth = 831
   Color = clBtnFace
   Constraints.MinHeight = 414
   Constraints.MinWidth = 581
@@ -27,25 +27,18 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 15
-  object splMain: TSplitter
-    Left = 290
-    Top = 34
-    Width = 8
-    Height = 300
-    AutoSnap = False
-    MinSize = 100
-    ExplicitTop = 24
-    ExplicitHeight = 553
-  end
+  TextHeight = 14
   object pnlModules: TPanel
-    Left = 298
+    Left = 0
     Top = 34
-    Width = 646
-    Height = 300
+    Width = 831
+    Height = 387
     Align = alClient
     DockSite = True
     TabOrder = 0
+    ExplicitLeft = 298
+    ExplicitWidth = 646
+    ExplicitHeight = 300
   end
   object sbxPreview: TScrollBox
     Left = 299
@@ -84,103 +77,8 @@ object MainForm: TMainForm
           Align = alClient
           OnMouseDown = pbPreviewMouseDown
           OnPaint = pbPreviewPaint
-        end
-      end
-    end
-  end
-  object pgcMain: TPageControl
-    Left = 0
-    Top = 34
-    Width = 290
-    Height = 300
-    Hint = 'Memos'
-    ActivePage = tbComments
-    Align = alLeft
-    Images = ilImages
-    TabOrder = 2
-    TabWidth = 27
-    OnChange = pgcMainChange
-    OnMouseLeave = pgcMainMouseLeave
-    OnMouseMove = pgcMainMouseMove
-    object tbComments: TTabSheet
-      Hint = 'Commentaries'
-      object bwrComments: THTMLViewer
-        Left = 0
-        Top = 30
-        Width = 282
-        Height = 240
-        TabOrder = 0
-        Align = alClient
-        PopupMenu = pmRef
-        BorderStyle = htSingle
-        CharSet = RUSSIAN_CHARSET
-        DefFontName = 'Times New Roman'
-        DefPreFontName = 'Courier New'
-        HistoryMaxCount = 0
-        HtOptions = []
-        NoSelect = False
-        PrintMarginBottom = 2.000000000000000000
-        PrintMarginLeft = 2.000000000000000000
-        PrintMarginRight = 2.000000000000000000
-        PrintMarginTop = 2.000000000000000000
-        PrintScale = 1.000000000000000000
-        OnHotSpotClick = bwrCommentsHotSpotClick
-      end
-      object pnlComments: TPanel
-        Left = 0
-        Top = 0
-        Width = 282
-        Height = 30
-        Align = alTop
-        BevelOuter = bvNone
-        TabOrder = 1
-        DesignSize = (
-          282
-          30)
-        object cbComments: TComboBox
-          Left = 1
-          Top = 3
-          Width = 254
-          Height = 23
-          Style = csDropDownList
-          Anchors = [akLeft, akTop, akRight]
-          DropDownCount = 25
-          PopupMenu = pmEmpty
-          TabOrder = 0
-          OnChange = cbCommentsChange
-          OnCloseUp = cbCommentsCloseUp
-          OnDropDown = cbCommentsDropDown
-        end
-        object btnOnlyMeaningful: TrkGlassButton
-          Left = 258
-          Top = 4
-          Width = 22
-          Height = 20
-          AltFocus = True
-          AltRender = False
-          Anchors = [akTop, akRight]
-          Color = clWhite
-          ColorDown = 15182972
-          ColorFocused = clActiveBorder
-          ColorFrame = clBlack
-          ColorShadow = 15648678
-          Down = True
-          DropDownAlignment = paLeft
-          Flat = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWhite
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          GlossyLevel = 36
-          GlyphPos = gpLeft
-          ImageIndex = 40
-          Images = ilImages
-          LightHeight = 27
-          ParentFont = False
-          TabOrder = 1
-          TextAlign = taLeft
-          OnClick = btnOnlyMeaningfulClick
+          ExplicitLeft = 32
+          ExplicitTop = -41
         end
       end
     end
@@ -188,20 +86,21 @@ object MainForm: TMainForm
   object tlbPanel: TGradientPanel
     Left = 0
     Top = 0
-    Width = 944
+    Width = 831
     Height = 34
     Align = alTop
     BevelEdges = [beBottom]
     ParentBackground = False
-    TabOrder = 3
+    TabOrder = 2
     GradientDirection = gdVertical
     GradientStartColor = clWindow
     GradientEndColor = clBtnFace
+    ExplicitWidth = 944
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 738
+      Left = 700
       Top = 4
-      Width = 38
+      Width = 37
       Height = 26
       Margins.Right = 7
       Align = alLeft
@@ -215,13 +114,14 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 15
+      ExplicitLeft = 738
+      ExplicitHeight = 14
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 786
+      Left = 747
       Top = 4
-      Width = 150
+      Width = 76
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -238,7 +138,7 @@ object MainForm: TMainForm
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 542
+      Width = 504
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -252,28 +152,15 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 2
-      object tbtnToggle: TToolButton
-        Left = 0
-        Top = 0
-        Caption = 'Toggle'
-        ImageIndex = 3
-        OnClick = tbtnToggleClick
-      end
-      object tbtnSep01: TToolButton
-        Left = 32
-        Top = 0
-        Width = 6
-        Style = tbsSeparator
-      end
       object tbtnNewForm: TToolButton
-        Left = 38
+        Left = 0
         Top = 0
         Caption = 'New Form'
         ImageIndex = 14
         OnClick = tbtnNewFormClick
       end
       object tbtnAddBookTab: TToolButton
-        Left = 70
+        Left = 32
         Top = 0
         Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
         Caption = 'Add book tab'
@@ -281,7 +168,7 @@ object MainForm: TMainForm
         OnClick = tbtnAddBookTabClick
       end
       object tbtnCloseTab: TToolButton
-        Left = 102
+        Left = 64
         Top = 0
         Hint = #1059#1076#1072#1083#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
         Caption = 'tbtnCloseTab'
@@ -289,109 +176,109 @@ object MainForm: TMainForm
         OnClick = tbtnCloseTabClick
       end
       object tbtnSep06: TToolButton
-        Left = 134
+        Left = 96
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnAddLibraryTab: TToolButton
-        Left = 140
+        Left = 102
         Top = 0
         Caption = 'Add library tab'
         ImageIndex = 7
         OnClick = tbtnAddLibraryTabClick
       end
       object tbtnAddDictionaryTab: TToolButton
-        Left = 172
+        Left = 134
         Top = 0
         Caption = 'tbtnAddDictionaryTab'
         ImageIndex = 20
         OnClick = tbtnAddDictionaryTabClick
       end
       object tbtnAddTSKTab: TToolButton
-        Left = 204
+        Left = 166
         Top = 0
         Caption = 'Add TSK tab'
         ImageIndex = 18
         OnClick = tbtnAddTSKTabClick
       end
       object tbtnAddStrongTab: TToolButton
-        Left = 236
+        Left = 198
         Top = 0
         Caption = 'Add strong tab'
         ImageIndex = 21
         OnClick = tbtnAddStrongTabClick
       end
       object tbtnAddSearchTab: TToolButton
-        Left = 268
+        Left = 230
         Top = 0
         Caption = 'Search'
         ImageIndex = 17
         OnClick = tbtnAddSearchTabClick
       end
       object tbtnAddBookmarksTab: TToolButton
-        Left = 300
+        Left = 262
         Top = 0
         Caption = 'Bookmarks'
         ImageIndex = 16
         OnClick = tbtnAddBookmarksTabClick
       end
       object tbtnAddTagsVersesTab: TToolButton
-        Left = 332
+        Left = 294
         Top = 0
         Caption = 'tbtnAddTagsVersesTab'
         ImageIndex = 19
         OnClick = tbtnAddTagsVersesTabClick
       end
       object tbtnAddMemoTab: TToolButton
-        Left = 364
+        Left = 326
         Top = 0
         Caption = 'Add memo tab'
         ImageIndex = 15
         OnClick = tbtnAddMemoTabClick
       end
       object tbtnSep04: TToolButton
-        Left = 396
+        Left = 358
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnPreview: TToolButton
-        Left = 402
+        Left = 364
         Top = 0
         Caption = 'Preview'
         ImageIndex = 2
         OnClick = tbtnPreviewClick
       end
       object tbtnPrint: TToolButton
-        Left = 434
+        Left = 396
         Top = 0
         Caption = 'Print'
         ImageIndex = 9
         OnClick = tbtnPrintClick
       end
       object tbtnSep05: TToolButton
-        Left = 466
+        Left = 428
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnSound: TToolButton
-        Left = 472
+        Left = 434
         Top = 0
         Caption = 'Sound'
         ImageIndex = 6
         OnClick = tbtnSoundClick
       end
       object tbtnCopyright: TToolButton
-        Left = 504
+        Left = 466
         Top = 0
         Caption = 'Copyright'
         ImageIndex = 8
         OnClick = tbtnCopyrightClick
       end
       object tbtnLastSeparator: TToolButton
-        Left = 536
+        Left = 498
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -400,7 +287,7 @@ object MainForm: TMainForm
       end
     end
     object tlbResolveLnks: TToolBar
-      Left = 543
+      Left = 505
       Top = 1
       Width = 56
       Margins.Top = 0
@@ -415,6 +302,7 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
+      ExplicitLeft = 543
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -438,7 +326,7 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 599
+      Left = 561
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -454,11 +342,12 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
+      ExplicitLeft = 599
       object cbLinks: TComboBox
         Left = 0
         Top = 0
         Width = 136
-        Height = 23
+        Height = 22
         Margins.Top = 0
         Margins.Bottom = 0
         Align = alClient
@@ -472,8 +361,8 @@ object MainForm: TMainForm
     end
   end
   object reClipboard: TRichEdit
-    Left = 304
-    Top = 89
+    Left = 8
+    Top = 40
     Width = 95
     Height = 129
     Font.Charset = ANSI_CHARSET
@@ -484,21 +373,23 @@ object MainForm: TMainForm
     Lines.Strings = (
       'TRE')
     ParentFont = False
-    TabOrder = 4
+    TabOrder = 3
     Visible = False
     Zoom = 100
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 334
-    Width = 944
+    Top = 421
+    Width = 831
     Height = 21
     Align = alBottom
-    TabOrder = 5
+    TabOrder = 4
+    ExplicitTop = 334
+    ExplicitWidth = 944
     object imgLoadProgress: TImage
       Tag = 1
       AlignWithMargins = True
-      Left = 924
+      Left = 811
       Top = 1
       Width = 19
       Height = 19
@@ -516,14 +407,14 @@ object MainForm: TMainForm
     end
   end
   object OpenDialog: TOpenDialog
-    Left = 681
-    Top = 321
+    Left = 177
+    Top = 113
   end
   object SaveFileDialog: TSaveDialog
     InitialDir = 'c:\'
     Options = [ofOverwritePrompt, ofHideReadOnly]
-    Left = 721
-    Top = 321
+    Left = 129
+    Top = 113
   end
   object PrintDialog: TPrintDialog
     FromPage = 1
@@ -531,12 +422,12 @@ object MainForm: TMainForm
     MaxPage = 9999
     Options = [poPageNums]
     ToPage = 1
-    Left = 552
-    Top = 328
+    Left = 144
+    Top = 200
   end
   object ColorDialog: TColorDialog
-    Left = 595
-    Top = 324
+    Left = 275
+    Top = 116
   end
   object FontDialog: TFontDialog
     Font.Charset = DEFAULT_CHARSET
@@ -544,14 +435,14 @@ object MainForm: TMainForm
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = []
-    Left = 643
-    Top = 324
+    Left = 227
+    Top = 116
   end
   object pmRef: TPopupMenu
     AutoHotkeys = maManual
     OnPopup = pmRefPopup
-    Left = 550
-    Top = 165
+    Left = 174
+    Top = 45
     object miRefCopy: TMenuItem
       Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
       OnClick = miRefCopyClick
@@ -566,8 +457,8 @@ object MainForm: TMainForm
     end
   end
   object pmEmpty: TPopupMenu
-    Left = 620
-    Top = 163
+    Left = 268
+    Top = 43
     object miDeteleBibleTab: TMenuItem
       Caption = #1059#1076#1072#1083#1080#1090#1100
       OnClick = miDeteleBibleTabClick
@@ -622,14 +513,14 @@ object MainForm: TMainForm
       00000000000080010000C0030000E0070000F00F0000F81F0000FC3F0000}
     IconIndex = 0
     OnClick = trayIconClick
-    Left = 416
-    Top = 328
+    Left = 16
+    Top = 200
   end
   object mmGeneral: TMainMenu
     AutoHotkeys = maManual
     Images = ilImages
-    Left = 621
-    Top = 118
+    Left = 221
+    Top = 46
     object miFile: TMenuItem
       Caption = #1060#1072#1081#1083
       object miPrint: TMenuItem
@@ -758,10 +649,10 @@ object MainForm: TMainForm
     end
   end
   object ilImages: TImageList
-    Left = 464
-    Top = 328
+    Left = 56
+    Top = 200
     Bitmap = {
-      494C010135006800680510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800700510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2618,16 +2509,16 @@ object MainForm: TMainForm
   end
   object appEvents: TApplicationEvents
     OnException = appEventsException
-    Left = 691
-    Top = 115
+    Left = 315
+    Top = 51
   end
   object ilPictures24: TImageList
     Height = 24
     Width = 24
-    Left = 506
-    Top = 329
+    Left = 98
+    Top = 201
     Bitmap = {
-      494C01011600E801AC0318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801B40318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49
@@ -4419,8 +4310,8 @@ object MainForm: TMainForm
   object pmRecLinksOptions: TPopupMenu
     Images = ilPictures24
     OnChange = pmRecLinksOptionsChange
-    Left = 584
-    Top = 118
+    Left = 128
+    Top = 46
     object miStrictLogic: TMenuItem
       AutoCheck = True
       Caption = 'Use only strict logic'
