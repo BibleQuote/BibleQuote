@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 442
+  ClientHeight = 422
   ClientWidth = 831
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,13 +32,10 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 831
-    Height = 387
+    Height = 367
     Align = alClient
     DockSite = True
     TabOrder = 0
-    ExplicitLeft = 298
-    ExplicitWidth = 646
-    ExplicitHeight = 300
   end
   object sbxPreview: TScrollBox
     Left = 299
@@ -95,10 +92,9 @@ object MainForm: TMainForm
     GradientDirection = gdVertical
     GradientStartColor = clWindow
     GradientEndColor = clBtnFace
-    ExplicitWidth = 944
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 700
+      Left = 534
       Top = 4
       Width = 37
       Height = 26
@@ -114,14 +110,14 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 738
+      ExplicitLeft = 700
       ExplicitHeight = 14
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 747
+      Left = 581
       Top = 4
-      Width = 76
+      Width = 242
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -138,7 +134,7 @@ object MainForm: TMainForm
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 504
+      Width = 338
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -159,126 +155,83 @@ object MainForm: TMainForm
         ImageIndex = 14
         OnClick = tbtnNewFormClick
       end
-      object tbtnAddBookTab: TToolButton
-        Left = 32
-        Top = 0
-        Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
-        Caption = 'Add book tab'
-        ImageIndex = 10
-        OnClick = tbtnAddBookTabClick
-      end
-      object tbtnCloseTab: TToolButton
-        Left = 64
-        Top = 0
-        Hint = #1059#1076#1072#1083#1080#1090#1100' '#1074#1082#1083#1072#1076#1082#1091' '#1074#1080#1076#1072
-        Caption = 'tbtnCloseTab'
-        ImageIndex = 4
-        OnClick = tbtnCloseTabClick
-      end
       object tbtnSep06: TToolButton
-        Left = 96
+        Left = 32
         Top = 0
         Width = 6
         Style = tbsSeparator
       end
       object tbtnAddLibraryTab: TToolButton
-        Left = 102
+        Left = 38
         Top = 0
         Caption = 'Add library tab'
         ImageIndex = 7
         OnClick = tbtnAddLibraryTabClick
       end
       object tbtnAddDictionaryTab: TToolButton
-        Left = 134
+        Left = 70
         Top = 0
         Caption = 'tbtnAddDictionaryTab'
         ImageIndex = 20
         OnClick = tbtnAddDictionaryTabClick
       end
       object tbtnAddTSKTab: TToolButton
-        Left = 166
+        Left = 102
         Top = 0
         Caption = 'Add TSK tab'
         ImageIndex = 18
         OnClick = tbtnAddTSKTabClick
       end
       object tbtnAddStrongTab: TToolButton
-        Left = 198
+        Left = 134
         Top = 0
         Caption = 'Add strong tab'
         ImageIndex = 21
         OnClick = tbtnAddStrongTabClick
       end
       object tbtnAddSearchTab: TToolButton
-        Left = 230
+        Left = 166
         Top = 0
         Caption = 'Search'
         ImageIndex = 17
         OnClick = tbtnAddSearchTabClick
       end
       object tbtnAddBookmarksTab: TToolButton
-        Left = 262
+        Left = 198
         Top = 0
         Caption = 'Bookmarks'
         ImageIndex = 16
         OnClick = tbtnAddBookmarksTabClick
       end
       object tbtnAddTagsVersesTab: TToolButton
-        Left = 294
+        Left = 230
         Top = 0
         Caption = 'tbtnAddTagsVersesTab'
         ImageIndex = 19
         OnClick = tbtnAddTagsVersesTabClick
       end
       object tbtnAddMemoTab: TToolButton
-        Left = 326
+        Left = 262
         Top = 0
         Caption = 'Add memo tab'
         ImageIndex = 15
         OnClick = tbtnAddMemoTabClick
       end
       object tbtnSep04: TToolButton
-        Left = 358
+        Left = 294
         Top = 0
         Width = 6
         Style = tbsSeparator
-      end
-      object tbtnPreview: TToolButton
-        Left = 364
-        Top = 0
-        Caption = 'Preview'
-        ImageIndex = 2
-        OnClick = tbtnPreviewClick
-      end
-      object tbtnPrint: TToolButton
-        Left = 396
-        Top = 0
-        Caption = 'Print'
-        ImageIndex = 9
-        OnClick = tbtnPrintClick
-      end
-      object tbtnSep05: TToolButton
-        Left = 428
-        Top = 0
-        Width = 6
-        Style = tbsSeparator
-      end
-      object tbtnSound: TToolButton
-        Left = 434
-        Top = 0
-        Caption = 'Sound'
-        ImageIndex = 6
-        OnClick = tbtnSoundClick
       end
       object tbtnCopyright: TToolButton
-        Left = 466
+        Left = 300
         Top = 0
         Caption = 'Copyright'
         ImageIndex = 8
         OnClick = tbtnCopyrightClick
       end
       object tbtnLastSeparator: TToolButton
-        Left = 498
+        Left = 332
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -287,7 +240,7 @@ object MainForm: TMainForm
       end
     end
     object tlbResolveLnks: TToolBar
-      Left = 505
+      Left = 339
       Top = 1
       Width = 56
       Margins.Top = 0
@@ -302,7 +255,7 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
-      ExplicitLeft = 543
+      ExplicitLeft = 505
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -326,7 +279,7 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 561
+      Left = 395
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -342,7 +295,7 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
-      ExplicitLeft = 599
+      ExplicitLeft = 561
       object cbLinks: TComboBox
         Left = 0
         Top = 0
@@ -379,13 +332,11 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 421
+    Top = 401
     Width = 831
     Height = 21
     Align = alBottom
     TabOrder = 4
-    ExplicitTop = 334
-    ExplicitWidth = 944
     object imgLoadProgress: TImage
       Tag = 1
       AlignWithMargins = True
@@ -527,7 +478,7 @@ object MainForm: TMainForm
         Caption = #1055#1077#1095#1072#1090#1100
         ImageIndex = 11
         ShortCut = 122
-        OnClick = tbtnPrintClick
+        OnClick = miPrintClick
       end
       object miPrintPreview: TMenuItem
         Caption = #1055#1088#1077#1076#1074#1072#1088#1080#1090#1077#1083#1100#1085#1099#1081' '#1087#1088#1086#1089#1084#1086#1090#1088
@@ -621,11 +572,11 @@ object MainForm: TMainForm
       object miActionsSep1: TMenuItem
         Caption = '-'
       end
-      object miCopy: TMenuItem
-        Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1090#1077#1082#1089#1090
-        ImageIndex = 15
-        ShortCut = 16500
-        OnClick = CopySelectionClick
+      object miSound: TMenuItem
+        Caption = #1055#1088#1086#1089#1083#1091#1096#1072#1090#1100' '#1079#1072#1087#1080#1089#1100' ('#1077#1089#1083#1080' '#1077#1089#1090#1100')'
+        ImageIndex = 14
+        ShortCut = 16505
+        OnClick = miSoundClick
       end
     end
     object miFavorites: TMenuItem
@@ -652,7 +603,7 @@ object MainForm: TMainForm
     Left = 56
     Top = 200
     Bitmap = {
-      494C010135006800700510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800740510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2518,7 +2469,7 @@ object MainForm: TMainForm
     Left = 98
     Top = 201
     Bitmap = {
-      494C01011600E801B40318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801B80318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49
