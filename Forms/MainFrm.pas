@@ -112,21 +112,13 @@ type
     miFoundTextConfig: TMenuItem;
     miQuickNav: TMenuItem;
     miQuickSearch: TMenuItem;
-    miActionsSep1: TMenuItem;
-    miCopy: TMenuItem;
     miHotKey: TMenuItem;
     miAbout: TMenuItem;
     ilImages: TImageList;
     tlbPanel: TGradientPanel;
     tlbMain: TToolBar;
     tbtnSep04: TToolButton;
-    tbtnPreview: TToolButton;
-    tbtnPrint: TToolButton;
-    tbtnSep05: TToolButton;
-    tbtnSound: TToolButton;
     tbtnCopyright: TToolButton;
-    tbtnAddBookTab: TToolButton;
-    tbtnCloseTab: TToolButton;
     miFileSep2: TMenuItem;
     tbtnLastSeparator: TToolButton;
     cbLinks: TComboBox;
@@ -162,8 +154,7 @@ type
     tbtnAddDictionaryTab: TToolButton;
     tbtnAddStrongTab: TToolButton;
     procedure FormCreate(Sender: TObject);
-    procedure CopySelectionClick(Sender: TObject);
-    procedure tbtnPrintClick(Sender: TObject);
+    procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -173,11 +164,10 @@ type
     procedure miBGConfigClick(Sender: TObject);
     procedure miHrefConfigClick(Sender: TObject);
     procedure miFoundTextConfigClick(Sender: TObject);
-    procedure tbtnSoundClick(Sender: TObject);
+    procedure miSoundClick(Sender: TObject);
     procedure miHotkeyClick(Sender: TObject);
     procedure miDialogFontConfigClick(Sender: TObject);
     procedure miCopyPassageClick(Sender: TObject);
-    procedure tbtnPreviewClick(Sender: TObject);
     procedure sbxPreviewResize(Sender: TObject);
     procedure pbPreviewPaint(Sender: TObject);
     procedure pbPreviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
@@ -230,6 +220,7 @@ type
     procedure DictionariesLoaded(Sender: TObject);
     procedure ModulesScanDone(Sender: TObject);
     procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
+    procedure TogglePreview();
 
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
     procedure tbtnNewFormClick(Sender: TObject);
@@ -243,8 +234,6 @@ type
     procedure tbtnAddDictionaryTabClick(Sender: TObject);
     procedure tbtnAddStrongTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
-    procedure tbtnAddBookTabClick(Sender: TObject);
-    procedure tbtnCloseTabClick(Sender: TObject);
   private
     procedure PrepareConfigForm();
     procedure NavigeTSKTab;
@@ -436,10 +425,15 @@ type
     procedure SyncChildrenEnabled(const AControl: TControl);
 
     procedure ShowConfigDialog;
-    procedure ShowQuickSearch();
+    procedure ShowQuickSearch;
+    procedure PrintCurrentPage;
+
     procedure SetVScrollTracker(aBrwsr: THTMLViewer);
     procedure VSCrollTracker(Sender: TObject);
-    procedure EnableMenus(aEnabled: Boolean);
+    procedure EnableToolbarMenus(aEnabled: Boolean);
+    procedure EnableToolbars(aEnabled: Boolean);
+    procedure EnableToolbarButtons(aToolBar: TToolBar; aEnabled: Boolean);
+
     procedure DeferredReloadViewPages();
     procedure AppOnHintHandler(Sender: TObject);
     function GetMainWindow(): TForm; // IbibleQuoteWinUIServices
@@ -1721,11 +1715,6 @@ begin
   Result := self;
 end;
 
-procedure TMainForm.CopySelectionClick(Sender: TObject);
-begin
-  GetBookView(self).CopyBrowserSelectionToClipboard();
-end;
-
 function TMainForm.AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
@@ -1948,14 +1937,9 @@ begin
   end;
 
   bookView := GetBookView(self);
-  bookView.miCopySelection.Caption := miCopy.Caption;
 
-  // initialize Toolbar
-  SetButtonHint(bookView.tbtnCopy, miCopy);
-  SetButtonHint(tbtnPrint, miPrint);
-  SetButtonHint(tbtnPreview, miPrintPreview);
-
-  bookView.tbtnMemos.Hint := bookView.miMemosToggle.Caption + ' (' + ShortCutToText(bookView.miMemosToggle.ShortCut) + ')';
+  if Assigned(bookView) then
+    bookView.tbtnMemos.Hint := bookView.miMemosToggle.Caption + ' (' + ShortCutToText(bookView.miMemosToggle.ShortCut) + ')';
 
   if Lang.Say('HelpFileName') <> 'HelpFileName' then
     HelpFileName := Lang.Say('HelpFileName');
@@ -2014,14 +1998,19 @@ begin
   Translate();
 end;
 
-procedure TMainForm.tbtnPrintClick(Sender: TObject);
+procedure TMainForm.miPrintClick(Sender: TObject);
+begin
+  PrintCurrentPage();
+end;
+
+procedure TMainForm.PrintCurrentPage();
 begin
   with PrintDialog do
     if Execute then
       mTabsView.Browser.Print(MinPage, MaxPage);
 end;
 
-procedure TMainForm.EnableMenus(aEnabled: Boolean);
+procedure TMainForm.EnableToolbarMenus(aEnabled: Boolean);
 var
   i: integer;
 begin
@@ -2032,11 +2021,29 @@ begin
   end;
 end;
 
-procedure TMainForm.tbtnPreviewClick(Sender: TObject);
+procedure TMainForm.EnableToolbars(aEnabled: Boolean);
+begin
+  EnableToolbarButtons(tlbMain, aEnabled);
+  EnableToolbarButtons(tlbResolveLnks, aEnabled);
+  EnableToolbarButtons(tbLinksToolBar, aEnabled);
+end;
+
+procedure TMainForm.EnableToolbarButtons(aToolBar: TToolBar; aEnabled: Boolean);
+var
+  i: integer;
+begin
+  for i := 0 to aToolBar.ButtonCount - 1 do
+  begin
+    aToolBar.Buttons[i].Enabled := aEnabled;
+  end;
+end;
+
+procedure TMainForm.TogglePreview();
 begin
   if sbxPreview.Visible then
   begin
-    EnableMenus(true);
+    EnableToolbarMenus(true);
+    EnableToolbars(true);
 
     sbxPreview.Visible := false;
 
@@ -2057,9 +2064,11 @@ begin
 
     GetTabsView(self).pnlMain.Visible := false;
     sbxPreview.OnResize := sbxPreviewResize;
-
     sbxPreview.Align := alClient;
-    EnableMenus(false);
+
+    EnableToolbarMenus(false);
+    EnableToolbars(false);
+
     miFile.Enabled := true;
     miPrintPreview.Enabled := true;
     sbxPreview.Visible := true;
@@ -2449,9 +2458,9 @@ begin
     else if (Key = ord('X')) and (Shift = [ssCtrl]) then
       GoNextChapter
     else if (Key = ord('V')) and (Shift = [ssCtrl]) then
-      tbtnPreview.Click
+      miPrintPreview.Click
     else if (Key = ord('P')) and (Shift = [ssCtrl]) then
-      tbtnPrint.Click;
+      miPrint.Click;
 
     Key := 0;
     goto exitlabel;
@@ -2509,9 +2518,9 @@ begin
           end; // if webbr
         end;
       ord('P'):
-        tbtnPrint.Click;
+        PrintCurrentPage;
       ord('W'):
-        tbtnPreview.Click;
+        miPrintPreview.Click;
       ord('R'):
         GetBookView(self).GoRandomPlace;
       ord('F'):
@@ -2519,13 +2528,14 @@ begin
       ord('M'):
         GetBookView(self).miMemosToggle.Click;
       ord('L'):
-        tbtnSound.Click;
+        PlaySound();
       ord('G'), VK_F2:
         miQuickNav.Click;
       VK_F3:
         miQuickSearch.Click;
       VK_F5:
-        miCopy.Click;
+        if Assigned(GetBookView(self)) then
+          GetBookView(self).CopyBrowserSelectionToClipboard();
       VK_F10:
         PlaySound();
 
@@ -2569,7 +2579,7 @@ begin
     VK_F7:
       NavigeTSKTab;
     VK_F8:
-      tbtnAddMemoTabClick(self);
+      tbtnAddMemoTab.Click;
     VK_F9:
       miHotKey.Click;
     VK_F10:
@@ -3491,7 +3501,7 @@ begin
   mTabsView.AddStrongTab(newTabInfo);
 end;
 
-procedure TMainForm.tbtnSoundClick(Sender: TObject);
+procedure TMainForm.miSoundClick(Sender: TObject);
 begin
   PlaySound();
 end;
@@ -3626,7 +3636,7 @@ end;
 
 procedure TMainForm.miPrintPreviewClick(Sender: TObject);
 begin
-  tbtnPreviewClick(Sender);
+  TogglePreview();
 end;
 
 procedure TMainForm.miVerseHighlightBGClick(Sender: TObject);
@@ -3688,7 +3698,6 @@ begin
 
   bookView := GetBookView(self);
   vti := bookView.BookTabInfo;
-  vti[vtisShowStrongs] := miShowSignatures.Checked;
   savePosition := mTabsView.Browser.Position;
   bookView.ProcessCommand(vti, vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
   mTabsView.Browser.Position := savePosition;
@@ -4371,22 +4380,6 @@ var
 begin
   newTabInfo := TBookmarksTabInfo.Create();
   mTabsView.AddBookmarksTab(newTabInfo);
-end;
-
-procedure TMainForm.tbtnAddBookTabClick(Sender: TObject);
-var
-  bookTabInfo: TBookTabInfo;
-begin
-  bookTabInfo := GetBookView(self).BookTabInfo;
-  if not Assigned(bookTabInfo) then
-  begin
-    bookTabInfo := CreateNewBookTabInfo();
-  end;
-
-  if (bookTabInfo <> nil) then
-  begin
-    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
-  end;
 end;
 
 procedure TMainForm.tbtnAddDictionaryTabClick(Sender: TObject);
@@ -5224,11 +5217,6 @@ begin
   end;
 end;
 
-procedure TMainForm.tbtnCloseTabClick(Sender: TObject);
-begin
-  mTabsView.CloseActiveTab();
-end;
-
 procedure TMainForm.tbtnCopyrightClick(Sender: TObject);
 var
   bible: TBible;
@@ -5596,18 +5584,13 @@ begin
   miQuickSearch.Enabled := enable;
   miRecognizeBibleLinks.Enabled := enable;
   miShowSignatures.Enabled := enable;
-  miCopy.Enabled := enable;
 
-  tbtnSound.Enabled := enable;
   tbtnCopyright.Enabled := enable;
   miChooseSatelliteBible.Enabled := enable;
   tbtnResolveLinks.Enabled := enable;
 
   miPrint.Enabled := enable;
-  tbtnPrint.Enabled := enable;
-
   miPrintPreview.Enabled := enable;
-  tbtnPreview.Enabled := enable;
 end;
 
 procedure TMainForm.ModifyControl(const AControl: TControl; const ARef: TControlProc);

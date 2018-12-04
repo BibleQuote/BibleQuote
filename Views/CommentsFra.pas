@@ -8,7 +8,7 @@ uses
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
   MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser, Clipbrd,
   AppPaths, rkGlassButton, Vcl.StdCtrls, Vcl.ExtCtrls, LinksParserIntf,
-  PlainUtils, Engine;
+  PlainUtils, Engine, System.ImageList, Vcl.ImgList;
 
 (*
   This frame type is not used for now, but may in the future be used to
@@ -20,6 +20,7 @@ type
     cbComments: TComboBox;
     btnOnlyMeaningful: TrkGlassButton;
     bwrComments: THTMLViewer;
+    ilImages: TImageList;
     procedure btnOnlyMeaningfulClick(Sender: TObject);
     procedure cbCommentsChange(Sender: TObject);
     procedure cbCommentsCloseUp(Sender: TObject);
