@@ -13,7 +13,7 @@ uses
   ComCtrls, Generics.Collections,
   Menus, IOUtils, Math, SystemInfo,
   ExtCtrls, AppEvnts, ImgList, CoolTrayIcon, Dialogs,
-  VirtualTrees, ToolWin, StdCtrls, rkGlassButton, IOProcs,
+  VirtualTrees, ToolWin, StdCtrls, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
   VdtEditlink, bqGradientPanel, ModuleProcs,
@@ -86,15 +86,9 @@ type
     pnlContainer: TPanel;
     pnlPage: TPanel;
     pbPreview: TPaintBox;
-    pgcMain: TPageControl;
-    tbComments: TTabSheet;
-    bwrComments: THTMLViewer;
     pmRef: TPopupMenu;
     miRefCopy: TMenuItem;
     miRefPrint: TMenuItem;
-    pnlComments: TPanel;
-    cbComments: TComboBox;
-    splMain: TSplitter;
     pmEmpty: TPopupMenu;
     trayIcon: TCoolTrayIcon;
     mmGeneral: TMainMenu;
@@ -125,8 +119,6 @@ type
     ilImages: TImageList;
     tlbPanel: TGradientPanel;
     tlbMain: TToolBar;
-    tbtnToggle: TToolButton;
-    tbtnSep01: TToolButton;
     tbtnSep04: TToolButton;
     tbtnPreview: TToolButton;
     tbtnPrint: TToolButton;
@@ -150,7 +142,6 @@ type
     tbtnResolveLinks: TToolButton;
     miVerseHighlightBG: TMenuItem;
     ilPictures24: TImageList;
-    btnOnlyMeaningful: TrkGlassButton;
     pmRecLinksOptions: TPopupMenu;
     miStrictLogic: TMenuItem;
     miFuzzyLogic: TMenuItem;
@@ -195,13 +186,10 @@ type
     procedure FormShow(Sender: TObject);
     procedure cbLinksChange(Sender: TObject);
     procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-    procedure bwrCommentsHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure miAboutClick(Sender: TObject);
     procedure edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
-    procedure cbCommentsChange(Sender: TObject);
-    procedure pgcMainChange(Sender: TObject);
     procedure miRefFontConfigClick(Sender: TObject);
     procedure miQuickNavClick(Sender: TObject);
     procedure miQuickSearchClick(Sender: TObject);
@@ -215,26 +203,19 @@ type
     procedure FormDeactivate(Sender: TObject);
     procedure cbModulesCloseUp(Sender: TObject);
     procedure FormActivate(Sender: TObject);
-    procedure cbCommentsCloseUp(Sender: TObject);
     procedure LoadFontFromFolder(awsFolder: string);
     procedure miOpenNewViewClick(Sender: TObject);
     procedure pmRefPopup(Sender: TObject);
     procedure miChooseSatelliteBibleClick(Sender: TObject);
     procedure appEventsException(Sender: TObject; E: Exception);
 
-    procedure pgcMainMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
-
     function LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
-    procedure pgcMainMouseLeave(Sender: TObject);
     procedure miRecognizeBibleLinksClick(Sender: TObject);
     procedure miVerseHighlightBGClick(Sender: TObject);
-
-    procedure btnOnlyMeaningfulClick(Sender: TObject);
     procedure tbtnResolveLinksClick(Sender: TObject);
     procedure miChooseLogicClick(Sender: TObject);
     procedure pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
     procedure imgLoadProgressClick(Sender: TObject);
-    procedure cbCommentsDropDown(Sender: TObject);
 
     procedure miShowSignaturesClick(Sender: TObject);
 
@@ -262,7 +243,6 @@ type
     procedure tbtnAddDictionaryTabClick(Sender: TObject);
     procedure tbtnAddStrongTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
-    procedure tbtnToggleClick(Sender: TObject);
     procedure tbtnAddBookTabClick(Sender: TObject);
     procedure tbtnCloseTabClick(Sender: TObject);
   private
@@ -341,7 +321,7 @@ type
     CurFromVerse, CurToVerse, VersePosition: integer;
 
     // config
-    MainFormLeft, MainFormTop, MainFormWidth, MainFormHeight, MainPagesWidth: integer;
+    MainFormLeft, MainFormTop, MainFormWidth, MainFormHeight: integer;
 
     miHrefUnderlineChecked, CopyOptionsCopyVerseNumbersChecked,
       CopyOptionsCopyFontParamsChecked, CopyOptionsAddModuleNameChecked,
@@ -418,7 +398,6 @@ type
     procedure LoadMru();
     procedure Idle(Sender: TObject; var Done: Boolean);
     procedure ForceForegroundLoad();
-    procedure UpdateAllBooks();
     function DefaultLocation(): string;
 
     function RefBiblesCount(): integer;
@@ -449,7 +428,6 @@ type
 
     procedure ConvertClipboard;
 
-    procedure ShowComments;
     procedure ShowSearchTab();
     procedure UpdateUIForType(tabType: TViewTabType);
     procedure EnableBookTools(enable: boolean);
@@ -472,7 +450,6 @@ type
     procedure InitHotkeysSupport();
     procedure CheckModuleInstall();
     function InstallModule(const path: string): integer;
-    function FilterCommentariesCombo(): integer;
     function InstallFont(const specialPath: string): HRESULT;
     procedure TranslateConfigForm;
     procedure FillLanguageMenu;
@@ -583,8 +560,6 @@ begin
     MainFormTop := (StrToInt(MainCfgIni.SayDefault('MainFormTop', '0')) * Screen.Height) div MAXHEIGHT;
     MainFormMaximized := MainCfgIni.SayDefault('MainFormMaximized', '0') = '1';
 
-    MainPagesWidth := (StrToInt(MainCfgIni.SayDefault('MainPagesWidth', '0')) * Screen.Height) div MAXHEIGHT;
-
     LibFormWidth := StrToInt(MainCfgIni.SayDefault('LibFormWidth', '400'));
     LibFormHeight := StrToInt(MainCfgIni.SayDefault('LibFormHeight', '600'));
     LibFormTop := StrToInt(MainCfgIni.SayDefault('LibFormTop', '100'));
@@ -607,16 +582,6 @@ begin
     fnt.Free;
 
     Prepare(ExtractFilePath(Application.ExeName) + 'biblebooks.cfg', Output);
-
-    with bwrComments do
-    begin
-      DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
-      DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
-      DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
-
-      DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
-      DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
-    end;
 
     LastLanguageFile := MainCfgIni.SayDefault('LastLanguageFile', '');
     LastAddress := MainCfgIni.SayDefault('LastAddress', '');
@@ -1475,9 +1440,6 @@ begin
       ini.Learn('MainFormMaximized', '0');
     end;
 
-    // width of nav window
-    ini.Learn('MainPagesWidth', IntToStr((pgcMain.Width * MAXHEIGHT) div Screen.Height));
-
     ini.Learn('DefFontName', mBrowserDefaultFontName);
     ini.Learn('DefFontSize', IntToStr(mTabsView.Browser.DefFontSize));
 
@@ -1487,16 +1449,16 @@ begin
     if (g_VerseBkHlColor <> Color2Hex(clHighlight)) then
       ini.Learn('VerseBkHLColor', g_VerseBkHlColor);
 
-    ini.Learn('RefFontName', bwrComments.DefFontName);
-    ini.Learn('RefFontSize', IntToStr(bwrComments.DefFontSize));
+    ini.Learn('RefFontName', MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif'));
+    ini.Learn('RefFontSize', MainCfgIni.SayDefault('RefFontSize', '12'));
 
     ini.Learn('LibFormWidth', LibFormWidth);
     ini.Learn('LibFormHeight', LibFormHeight);
     ini.Learn('LibFormTop', LibFormTop);
     ini.Learn('LibFormLeft', LibFormLeft);
 
-    if (Color2Hex(bwrComments.DefFontColor) <> Color2Hex(clWindowText)) then
-      ini.Learn('RefFontColor', Color2Hex(bwrComments.DefFontColor));
+    if (MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)) <> Color2Hex(clWindowText)) then
+      ini.Learn('RefFontColor', MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
 
     if (Color2Hex(mTabsView.Browser.DefBackGround) <> Color2Hex(clWindow)) then
       ini.Learn('DefBackground', Color2Hex(mTabsView.Browser.DefBackGround));
@@ -1667,8 +1629,6 @@ begin
 
   CheckModuleInstall();
 
-  pgcMain.DoubleBuffered := true;
-
   Screen.Cursors[crHandPoint] := LoadCursor(0, IDC_HAND);
   Application.HintHidePause := 1000 * 60;
   Application.OnHint := AppOnHintHandler;
@@ -1694,13 +1654,7 @@ begin
 
   Bookmarks := TBroadcastStringList.Create;
 
-  pgcMain.ActivePage := tbComments;
-
-  // LOADING CONFIGURATION
   LoadConfiguration;
-
-  if MainPagesWidth <> 0 then
-    pgcMain.Width := MainPagesWidth;
 
   if MainFormWidth = 0 then
   begin
@@ -1742,8 +1696,6 @@ begin
   LoadFontFromFolder(TLibraryDirectories.Strong);
 
   mTranslated := TranslateInterface(LastLanguageFile);
-
-  pgcMainChange(self);
 
   Application.OnIdle := self.Idle;
   Application.OnActivate := self.OnActivate;
@@ -1839,8 +1791,9 @@ begin
 
   // ShowXref;
   try
-    tbComments.tag := 0;
-    ShowComments;
+    // TODO: display commentaries in all commentary tabs
+    //tbComments.tag := 0;
+    //ShowComments;
   except
     // skip error
   end;
@@ -1879,8 +1832,9 @@ begin
 
   // ShowXref;
   try
-    tbComments.tag := 0;
-    ShowComments;
+    // TODO: display commentaries in all commentary tabs
+    //tbComments.tag := 0;
+    //ShowComments;
   except
     // skip error
   end;
@@ -2067,9 +2021,6 @@ begin
       mTabsView.Browser.Print(MinPage, MaxPage);
 end;
 
-var
-  refvisible: Boolean;
-
 procedure TMainForm.EnableMenus(aEnabled: Boolean);
 var
   i: integer;
@@ -2092,14 +2043,10 @@ begin
     GetTabsView(self).pnlMain.Visible := true;
     Windows.SetFocus(mTabsView.Browser.Handle);
 
-    pgcMain.Visible := refvisible;
-
     Screen.Cursor := crDefault;
   end
   else
   begin
-    refvisible := pgcMain.Visible;
-
     MFPrinter := TMetaFilePrinter.Create(self);
     mTabsView.Browser.PrintPreview(MFPrinter);
 
@@ -2107,8 +2054,6 @@ begin
     CurPreviewPage := 0;
 
     sbxPreview.OnResize := nil;
-
-    pgcMain.Visible := false;
 
     GetTabsView(self).pnlMain.Visible := false;
     sbxPreview.OnResize := sbxPreviewResize;
@@ -2548,15 +2493,10 @@ begin
     Key := 0;
 
     case OldKey of
-      // Ord('H'): HistoryButton.Click;
-
       ord('Z'):
           GoPrevChapter;
       ord('X'):
           GoNextChapter;
-      ord('T'):
-        tbtnToggle.Click;
-
       ord('C'), VK_INSERT:
         begin
           if GetTabsView(self).ActiveControl = mTabsView.Browser then
@@ -2578,12 +2518,8 @@ begin
         ShowQuickSearch();
       ord('M'):
         GetBookView(self).miMemosToggle.Click;
-
       ord('L'):
         tbtnSound.Click;
-
-      VK_F1:
-        tbtnToggle.Click;
       ord('G'), VK_F2:
         miQuickNav.Click;
       VK_F3:
@@ -2630,8 +2566,6 @@ begin
        OpenOrCreateDictionaryTab('');
     VK_F5:
       GetBookView(self).ToggleStrongNumbers();
-    VK_F6:
-       pgcMain.Visible := not pgcMain.Visible;
     VK_F7:
       NavigeTSKTab;
     VK_F8:
@@ -2704,60 +2638,6 @@ begin
     Result := i;
 end;
 
-function TMainForm.FilterCommentariesCombo: integer;
-var
-  vti: TBookTabInfo;
-  bl: TBibleLinkEx;
-  ibl: TBibleLink;
-  getAddress, doFilter: Boolean;
-  linkValidStatus, addIndex, selIndex: integer;
-  commentaryModule: TModuleEntry;
-  lastCmt: WideString;
-begin
-  Result := -1;
-  doFilter := btnOnlyMeaningful.Down;
-  vti := GetBookView(self).BookTabInfo;
-  if (vti = nil) then
-    Exit;
-  getAddress := bl.FromBqStringLocation(vti.Location);
-  if getAddress then
-  begin
-    linkValidStatus := vti.Bible.ReferenceToInternal(bl, ibl);
-    if linkValidStatus = -2 then
-      getAddress := false;
-  end;
-
-  commentaryModule := mModules.ModTypedAsFirst(modtypeComment);
-  lastCmt := cbComments.Text;
-
-  cbComments.Items.BeginUpdate;
-  cbComments.Items.Clear();
-  try
-    selIndex := -1;
-    while Assigned(commentaryModule) do
-    begin
-      try
-        vti.SecondBible.inifile := commentaryModule.getIniPath();
-        linkValidStatus := vti.SecondBible.LinkValidnessStatus(vti.SecondBible.inifile, ibl, true, false);
-        if (linkValidStatus > -2) or (not getAddress) or (not doFilter) then
-        begin
-          addIndex := cbComments.Items.Add(commentaryModule.mFullName);
-          if OmegaCompareTxt(commentaryModule.mFullName, lastCmt, -1, true) = 0
-          then
-            selIndex := addIndex;
-
-        end;
-        commentaryModule := mModules.ModTypedAsNext(modtypeComment);
-      except
-      end;
-    end; // while
-  finally
-    cbComments.Items.EndUpdate();
-  end;
-  if selIndex >= 0 then
-    cbComments.ItemIndex := selIndex;
-end;
-
 procedure TMainForm.FontChanged(delta: integer);
 var
   defFontSz, browserpos: integer;
@@ -2793,10 +2673,11 @@ begin
 //    bwrStrong.LoadFromString(bwrStrong.DocumentSource);
 //    bwrStrong.Position := browserpos;
 
-    browserpos := bwrComments.Position and $FFFF0000;
-    bwrComments.DefFontSize := defFontSz;
-    bwrComments.LoadFromString(bwrComments.DocumentSource);
-    bwrComments.Position := browserpos;
+    // TODO: change font of all comments tabs
+//    browserpos := bwrComments.Position and $FFFF0000;
+//    bwrComments.DefFontSize := defFontSz;
+//    bwrComments.LoadFromString(bwrComments.DocumentSource);
+//    bwrComments.Position := browserpos;
 
 // TODO: change font of all tsk tabs
 //    browserpos := bwrXRef.Position and $FFFF0000;
@@ -2819,7 +2700,7 @@ begin
 
     Application.OnIdle := nil;
     self.UpdateFromCashed();
-    self.UpdateAllBooks();
+    //self.UpdateAllBooks(); TODO: update commentaries tabs
     //self.UpdateUI();
   end;
 
@@ -2881,7 +2762,7 @@ begin
     if mModuleLoader.ScanDone then
     begin
       self.UpdateFromCashed();
-      self.UpdateAllBooks();
+      //self.UpdateAllBooks(); TODO: update commentaries tabs
       self.UpdateBookView();
     end
     else
@@ -3097,7 +2978,7 @@ begin
       mModuleLoader.CachedModules.Clear();
   end;
   mDefaultLocation := DefaultLocation();
-  UpdateAllBooks();
+  //self.UpdateAllBooks(); TODO: update commentaries tabs
   // DeleteInvalidHotModules();
 end;
 
@@ -3320,8 +3201,9 @@ begin
   //bwrStrong.DefBackGround := newColor;
   //bwrStrong.Refresh;
 
-  bwrComments.DefBackGround := newColor;
-  bwrComments.Refresh;
+  // TODO: update background of all comments tabs
+  //bwrComments.DefBackGround := newColor;
+  //bwrComments.Refresh;
 
   // TODO: update background of all tsk tabs
   //bwrXRef.DefBackGround := newColor;
@@ -3379,8 +3261,9 @@ begin
   //bwrStrong.DefHotSpotColor := newColor;
   //bwrStrong.Refresh;
 
-  bwrComments.DefHotSpotColor := newColor;
-  bwrComments.Refresh;
+  // TODO: update hot spot color of all comments tabs
+  //bwrComments.DefHotSpotColor := newColor;
+  //bwrComments.Refresh;
 
   // TODO: update hot spot color of all tsk tabs
   //bwrXRef.DefHotSpotColor := newColor;
@@ -3650,11 +3533,6 @@ begin
     ShowMessage(Format(Lang.Say('SoundNotFound'), [mTabsView.Browser.DocumentTitle]))
   else
     ShellExecute(Application.Handle, nil, PChar(find), nil, nil, SW_MINIMIZE);
-end;
-
-procedure TMainForm.tbtnToggleClick(Sender: TObject);
-begin
-  pgcMain.Visible := not pgcMain.Visible;
 end;
 
 procedure TMainForm.miHotkeyClick(Sender: TObject);
@@ -4133,50 +4011,6 @@ begin
   GetBookView(self).BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
 end;
 
-procedure TMainForm.bwrCommentsHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-var
-  cmd, prefBible, ConcreteCmd: string;
-  autoCmd: Boolean;
-  bible: TBible;
-  bookView: TBookFrame;
-  status: integer;
-begin
-  bookView := GetBookView(self);
-
-  Handled := true;
-  cmd := SRC;
-  autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
-  if autoCmd then
-  begin
-    bible := bookView.BookTabInfo.Bible;
-    if bible.isBible then
-      prefBible := bible.ShortPath
-    else
-      prefBible := '';
-    status := bookView.PreProcessAutoCommand(bookView.BookTabInfo, cmd, prefBible, ConcreteCmd);
-    if status <= -2 then
-      Exit;
-  end;
-  if not IsDown(VK_CONTROL) then
-  begin
-    if autoCmd then
-      G_XRefVerseCmd := ConcreteCmd
-    else
-      G_XRefVerseCmd := SRC;
-    miOpenNewViewClick(Sender);
-  end
-  else
-  begin
-    if autoCmd then
-      bookView.ProcessCommand(bookView.BookTabInfo, ConcreteCmd, hlDefault)
-    else
-    begin
-      bookView.tedtReference.Text := cmd;
-      GoReference();
-    end;
-  end;
-end;
-
 procedure TMainForm.WMQueryEndSession(var Message: TWMQueryEndSession);
 begin
   inherited;
@@ -4618,27 +4452,6 @@ begin
   mTabsView.AddMemoTab(newTabInfo);
 end;
 
-procedure TMainForm.UpdateAllBooks;
-var
-  moduleEntry: TModuleEntry;
-begin
-  cbComments.Items.BeginUpdate;
-  try
-    cbComments.Items.Clear;
-    moduleEntry := mModules.ModTypedAsFirst(modtypeComment);
-    while Assigned(moduleEntry) do
-    begin
-      cbComments.Items.Add(moduleEntry.mFullName);
-      moduleEntry := mModules.ModTypedAsNext(modtypeComment);
-    end;
-
-  finally
-    cbComments.Items.EndUpdate;
-  end;
-
-  cbComments.ItemIndex := 0;
-end;
-
 function TMainForm.UpdateFromCashed(): Boolean;
 begin
   try
@@ -4865,190 +4678,6 @@ begin
       BqShowException(E);
     end
   end;
-end;
-
-procedure TMainForm.ShowComments;
-var
-  B, C, V, ib, ic, iv, verseIx, commentaryIx, verseCount: integer;
-  Lines: string;
-  iscomm, resolveLinks, blFailed: Boolean;
-  s, aname: string;
-  commentaryModule: TModuleEntry;
-  bookTabInfo: TBookTabInfo;
-  bookView: TBookFrame;
-
-  function FailedToLoadComment(const reason: string): string;
-  begin
-    Result := Lang.SayDefault('comFailedLoad', 'Failed to display commentary') + '<br>' + Lang.Say(reason);
-  end;
-
-label lblSetOutput;
-begin
-  bookView := GetBookView(self);
-  bookTabInfo := bookView.BookTabInfo;
-  if not Assigned(bookTabInfo) then
-    Exit;
-  if not bookTabInfo.Bible.isBible then
-    Exit;
-  if (not pgcMain.Visible) or (pgcMain.ActivePage <> tbComments) then
-    Exit;
-
-  if tbComments.tag = 0 then
-    tbComments.tag := 1;
-
-  Lines := '';
-  if Length(Trim(cbComments.Text)) = 0 then
-  begin
-    if cbComments.Items.Count > 0 then
-    begin
-      commentaryIx := cbComments.Items.IndexOf(mBqEngine.mLastUsedComment);
-      if commentaryIx >= 0 then
-        cbComments.ItemIndex := commentaryIx
-      else
-        cbComments.ItemIndex := 0;
-    end
-    else
-      Exit;
-  end;
-
-  commentaryIx := mModules.IndexOf(cbComments.Text);
-  if commentaryIx < 0 then
-  begin
-    raise Exception.CreateFmt
-      ('Cannot locate module for comments, module name: %s', [cbComments.Text])
-  end;
-  commentaryModule := mModules[commentaryIx];
-  bookTabInfo.SecondBible.inifile := commentaryModule.getIniPath();
-
-  bookTabInfo.Bible.ReferenceToInternal(bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, 1, ib, ic, iv);
-  blFailed := not bookTabInfo.SecondBible.InternalToReference(ib, ic, iv, B, C, V);
-  if blFailed then
-  begin
-    Lines := FailedToLoadComment('Cannot find matching comment');
-    goto lblSetOutput;
-  end;
-
-  iscomm := commentaryModule.modType = modtypeComment;
-
-  // if it's a commentary or it has chapter zero (introduction to book)
-  // and it's chapter 1, show chapter 0, too :-)
-  resolveLinks := false;
-  if Assigned(bookTabInfo) then
-  begin
-    resolveLinks := bookTabInfo[vtisResolveLinks];
-    if resolveLinks then
-      bookTabInfo.SecondBible.FuzzyResolve := bookTabInfo[vtisFuzzyResolveLinks];
-  end;
-
-  if bookTabInfo.SecondBible.Trait[bqmtZeroChapter] and (C = 2) then
-  begin
-    blFailed := true;
-    try
-      blFailed := not bookTabInfo.SecondBible.OpenChapter(B, 1, resolveLinks);
-    except
-      on E: TBQPasswordException do
-      begin
-        PasswordPolicy.InvalidatePassword(E.mArchive);
-        MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
-      end
-    end;
-    if not blFailed then
-    begin
-
-      verseCount := bookTabInfo.SecondBible.verseCount - 1;
-      for verseIx := 0 to verseCount do
-      begin
-        s := bookTabInfo.SecondBible.Verses[verseIx];
-
-        if not iscomm then
-        begin
-          StrDeleteFirstNumber(s);
-          if bookTabInfo.SecondBible.Trait[bqmtStrongs] then
-            s := DeleteStrongNumbers(s);
-
-          AddLine(
-            Lines, Format('<a name=%d>%d <font face="%s">%s</font><br>',
-            [verseIx + 1, verseIx + 1, bookTabInfo.SecondBible.fontName, s])
-          );
-
-        end // if not commentary
-        else
-        begin // if it's commentary
-          aname := StrGetFirstNumber(s);
-          AddLine(Lines, Format('<a name=%s><font face="%s">%s</font><br>', [aname, bookTabInfo.SecondBible.fontName, s]));
-        end;
-      end;
-    end;
-
-    AddLine(Lines, '<hr>');
-  end;
-  blFailed := true;
-  try
-    blFailed := not bookTabInfo.SecondBible.OpenChapter(B, C, resolveLinks);
-  except
-    on E: TBQPasswordException do
-    begin
-      PasswordPolicy.InvalidatePassword(E.mArchive);
-      MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
-    end
-  end;
-  if blFailed then
-  begin
-    Lines := FailedToLoadComment('Failed to open chapter');
-    goto lblSetOutput;
-  end;
-
-  verseCount := bookTabInfo.SecondBible.verseCount() - 1;
-  for verseIx := 0 to verseCount do
-  begin
-    s := bookTabInfo.SecondBible.Verses[verseIx];
-    if not iscomm then
-    begin
-      StrDeleteFirstNumber(s);
-      if bookTabInfo.SecondBible.Trait[bqmtStrongs] then
-        s := DeleteStrongNumbers(s);
-
-      AddLine(Lines, Format('<a name=%d>%d <font face="%s">%s</font><br>',
-        [verseIx + 1, verseIx + 1, bookTabInfo.SecondBible.fontName, s]));
-
-    end
-    else
-    begin
-      aname := StrGetFirstNumber(s);
-      AddLine(Lines, Format('<a name=%s><font face="%s">%s</font><br>', [aname, bookTabInfo.SecondBible.fontName, s]));
-    end;
-  end;
-  AddLine(Lines,
-    '<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>');
-
-  bwrComments.Base := bookTabInfo.SecondBible.path;
-  mBqEngine.mLastUsedComment := bookTabInfo.SecondBible.Name;
-
-lblSetOutput:
-  bwrComments.LoadFromString(Lines);
-
-  for verseIx := 1 to tbComments.tag do
-    bwrComments.PositionTo(IntToStr(verseIx)); // ??
-
-end;
-
-procedure TMainForm.cbCommentsChange(Sender: TObject);
-begin
-  ShowComments;
-  bwrComments.PositionTo(IntToStr(tbComments.tag));
-end;
-
-procedure TMainForm.cbCommentsCloseUp(Sender: TObject);
-begin
-  try
-    MainForm.FocusControl(bwrComments);
-  except
-  end;
-end;
-
-procedure TMainForm.cbCommentsDropDown(Sender: TObject);
-begin
-  FilterCommentariesCombo();
 end;
 
 procedure TMainForm.OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
@@ -5351,21 +4980,6 @@ begin
 
 end;
 
-procedure TMainForm.pgcMainChange(Sender: TObject);
-var
-  saveCursor: TCursor;
-begin
-  case pgcMain.ActivePageIndex of
-    0:
-      GetBookView(self).pmMemo.PopupComponent := GetBookView(self).tedtReference;
-    4:
-      begin
-        GetBookView(self).pmMemo.PopupComponent := bwrComments;
-        FilterCommentariesCombo;
-      end;
-  end;
-end;
-
 function FindPageforTabIndex(PageControl: TPageControl; TabIndex: integer): TTabSheet;
 var
   i: integer;
@@ -5383,58 +4997,6 @@ begin
         break;
       end;
     end;
-end;
-
-function HintForTab(pc: TPageControl; TabIndex: integer): WideString;
-var
-  tabsheet: TTabSheet;
-begin
-  // tabindex may be <> pageindex if some pages have tabvisible = false!
-  tabsheet := FindPageforTabIndex(pc, TabIndex);
-  if Assigned(tabsheet) then
-    Result := tabsheet.Hint
-  else
-    Result := '';
-end;
-
-procedure TMainForm.pgcMainMouseLeave(Sender: TObject);
-begin
-  //
-end;
-
-procedure TMainForm.pgcMainMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
-var
-  TabIndex: integer;
-  pc: TPageControl;
-  newhint: string;
-  R: TRect;
-  pt: TPoint;
-begin
-
-  pc := Sender as TPageControl;
-  TabIndex := pc.IndexOfTabAt(X, Y);
-  if TabIndex >= 0 then
-  begin
-
-    if SendMessage(pc.Handle, TCM_GETITEMRECT, TabIndex, LPARAM(@R)) <> 0 then
-    begin
-      pt.X := X;
-      pt.Y := Y;
-      if PtInRect(R, pt) then
-      begin
-        newhint := HintForTab(pc, TabIndex);
-      end
-      else
-        newhint := '';
-      if newhint <> pc.Hint then
-      begin
-        pc.Hint := newhint;
-        Application.CancelHint;
-      end;
-    end;
-  end
-  else
-    pc.Hint := '';
 end;
 
 function TMainForm.CreateNewBibleInstance(): TBible;
@@ -5567,9 +5129,9 @@ procedure TMainForm.miRefFontConfigClick(Sender: TObject);
 begin
   with FontDialog do
   begin
-    Font.Name := bwrComments.DefFontName;
-    Font.color := bwrComments.DefFontColor;
-    Font.Size := bwrComments.DefFontSize;
+    Font.Name := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
+    Font.color := Hex2Color(MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
+    Font.Size := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
   end;
 
   if FontDialog.Execute then
@@ -5600,15 +5162,17 @@ begin
 //      LoadFromString(DocumentSource);
 //    end;
 
-    with bwrComments do
-    begin
-      DefFontName := FontDialog.Font.Name;
-      DefFontColor := FontDialog.Font.color;
-      DefFontSize := FontDialog.Font.Size;
-    end;
+    // TODO: change font of comments tabs
+//    with bwrComments do
+//    begin
+//      DefFontName := FontDialog.Font.Name;
+//      DefFontColor := FontDialog.Font.color;
+//      DefFontSize := FontDialog.Font.Size;
+//    end;
 
     try
-      ShowComments;
+      // TODO: display commentaries in all commentary tabs
+      //ShowComments;
     finally
       // do nothing
     end;
@@ -5722,15 +5286,6 @@ begin
       Bookmarks.Insert(0, Format('go %s %d %d %d %d $$$%s',
         [ShortPath, CurBook, CurChapter, CurVerseNumber, 0, newstring]));
   end;
-end;
-
-procedure TMainForm.btnOnlyMeaningfulClick(Sender: TObject);
-var
-  btn: TrkGlassButton;
-begin
-  btn := Sender as TrkGlassButton;
-  btn.Down := not btn.Down;
-  FilterCommentariesCombo();
 end;
 
 function TMainForm.FindTaggedTopMenuItem(tag: integer): TMenuItem;
@@ -5879,9 +5434,6 @@ begin
   bookView := GetBookView(self);
   if not Assigned(bookView) then
     Exit;
-
-  if not pgcMain.Visible then
-    tbtnToggle.Click;
 
   bookView.ToggleQuickSearchPanel(true);
   try
@@ -6040,9 +5592,6 @@ end;
 
 procedure TMainForm.EnableBookTools(enable: boolean);
 begin
-  tbComments.Enabled := enable;
-  SyncChildrenEnabled(tbComments);
-
   miQuickNav.Enabled := enable;
   miQuickSearch.Enabled := enable;
   miRecognizeBibleLinks.Enabled := enable;
