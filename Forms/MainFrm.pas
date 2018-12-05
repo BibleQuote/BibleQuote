@@ -127,7 +127,6 @@ type
     lblTitle: TLabel;
     lblCopyRightNotice: TLabel;
     miOpenNewView: TMenuItem;
-    miChooseSatelliteBible: TMenuItem;
     appEvents: TApplicationEvents;
     reClipboard: TRichEdit;
     miRecognizeBibleLinks: TMenuItem;
@@ -196,7 +195,6 @@ type
     procedure LoadFontFromFolder(awsFolder: string);
     procedure miOpenNewViewClick(Sender: TObject);
     procedure pmRefPopup(Sender: TObject);
-    procedure miChooseSatelliteBibleClick(Sender: TObject);
     procedure appEventsException(Sender: TObject; E: Exception);
 
     function LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
@@ -5030,17 +5028,6 @@ begin
   end;
 end;
 
-procedure TMainForm.miChooseSatelliteBibleClick(Sender: TObject);
-var
-  ti: TBookTabInfo;
-begin
-  ti := GetBookView(self).BookTabInfo;
-  if not Assigned(ti) then
-    Exit;
-
-  GetBookView(self).SelectSatelliteModule();
-end;
-
 procedure TMainForm.CheckModuleInstall;
 var
   pCommandLine, pCurrent: PChar;
@@ -5586,7 +5573,6 @@ begin
   miShowSignatures.Enabled := enable;
 
   tbtnCopyright.Enabled := enable;
-  miChooseSatelliteBible.Enabled := enable;
   tbtnResolveLinks.Enabled := enable;
 
   miPrint.Enabled := enable;
