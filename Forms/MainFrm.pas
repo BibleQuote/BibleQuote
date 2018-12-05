@@ -3510,8 +3510,13 @@ var
   fname3, fname2: string;
   find: string;
   bible: TBible;
+  btInfo: TBookTabInfo;
 begin
-  bible := GetBookView(self).BookTabInfo.Bible;
+  btInfo := GetBookView(self).BookTabInfo;
+  if not Assigned(btInfo) then
+    Exit;
+
+  bible := btInfo.Bible;
 
   if not bible.isBible then
     Exit;

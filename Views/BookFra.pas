@@ -554,21 +554,28 @@ begin
     if modIx >= 0 then
       replaceModPath := mMainView.mModules[modIx].mShortPath;
   end;
-  status := PreProcessAutoCommand(BookTabInfo, unicodeSRC, replaceModPath, ConcreteCmd);
-  if status > -2 then
-    status := GetModuleText(ConcreteCmd, BookTabInfo.ReferenceBible, fontName, bl, ws2, wstr, [gmtBulletDelimited, gmtLookupRefBibles, gmtEffectiveAddress]);
 
-  if status < 0 then
-    wstr := ConcreteCmd + #13#10'--не найдено--'
+  if (replaceModPath = '') then
+  begin
+    wstr := Lang.SayDefault('SelectDefaultBible', 'Please select default translation in File -> Settings -> Favorite modules');
+  end
   else
   begin
-    wstr := wstr + ' (' + BookTabInfo.ReferenceBible.ShortName + ')'#13#10;
-    if ws2 <> '' then
-      wstr := wstr + ws2
-    else
-      wstr := wstr + '--не найдено--';
-  end;
+    status := PreProcessAutoCommand(BookTabInfo, unicodeSRC, replaceModPath, ConcreteCmd);
+    if status > -2 then
+      status := GetModuleText(ConcreteCmd, BookTabInfo.ReferenceBible, fontName, bl, ws2, wstr, [gmtBulletDelimited, gmtLookupRefBibles, gmtEffectiveAddress]);
 
+    if status < 0 then
+      wstr := ConcreteCmd + #13#10'--не найдено--'
+    else
+    begin
+      wstr := wstr + ' (' + BookTabInfo.ReferenceBible.ShortName + ')'#13#10;
+      if ws2 <> '' then
+        wstr := wstr + ws2
+      else
+        wstr := wstr + '--не найдено--';
+    end;
+  end;
   viewer.Hint := wstr;
 end;
 
