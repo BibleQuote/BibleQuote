@@ -75,6 +75,7 @@ SelectDefaultBible = Please select default translation in File -> Settings -> Fa
 SelectParaBible = Կրկին ընտրեք Աստվածաշունչը
 DeselectSec = Ընտրությունը չեղարկել
 CollapseAll = Թաքցնել բոլորը
+HintNotFound = --not found-- (t)
 
 TabLibrary = Library (t)
 TabMemos = Memos (t)
