@@ -74,6 +74,7 @@ SelectDefaultBible = Please select default translation in File -> Settings -> Fa
 SelectParaBible = Select secondary bible
 DeselectSec = Deselect
 CollapseAll = Collapse all
+HintNotFound = --not found--
 
 TabLibrary = Library
 TabMemos = Memos

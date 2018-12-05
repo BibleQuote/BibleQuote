@@ -32,7 +32,6 @@ requires
   vcl;
 
 contains
-  bqGradientPanel in 'bqGradientPanel.pas',
-  rkGlassButton in 'rkGlassButton.pas';
+  bqGradientPanel in 'bqGradientPanel.pas';
 
 end.

@@ -7,8 +7,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
   MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser, Clipbrd,
-  AppPaths, rkGlassButton, Vcl.StdCtrls, Vcl.ExtCtrls, LinksParserIntf,
-  PlainUtils, Engine, System.ImageList, Vcl.ImgList;
+  AppPaths, Vcl.StdCtrls, Vcl.ExtCtrls, LinksParserIntf,
+  PlainUtils, Engine, System.ImageList, Vcl.ImgList, Buttons;
 
 (*
   This frame type is not used for now, but may in the future be used to
@@ -18,9 +18,8 @@ type
   TCommentsFrame = class(TFrame)
     pnlComments: TPanel;
     cbComments: TComboBox;
-    btnOnlyMeaningful: TrkGlassButton;
     bwrComments: THTMLViewer;
-    ilImages: TImageList;
+    btnOnlyMeaningful: TSpeedButton;
     procedure btnOnlyMeaningfulClick(Sender: TObject);
     procedure cbCommentsChange(Sender: TObject);
     procedure cbCommentsCloseUp(Sender: TObject);
@@ -66,9 +65,9 @@ end;
 
 procedure TCommentsFrame.btnOnlyMeaningfulClick(Sender: TObject);
 var
-  btn: TrkGlassButton;
+  btn: TSpeedButton;
 begin
-  btn := Sender as TrkGlassButton;
+  btn := Sender as TSpeedButton;
   btn.Down := not btn.Down;
   FilterCommentariesCombo();
 end;

@@ -566,14 +566,14 @@ begin
       status := GetModuleText(ConcreteCmd, BookTabInfo.ReferenceBible, fontName, bl, ws2, wstr, [gmtBulletDelimited, gmtLookupRefBibles, gmtEffectiveAddress]);
 
     if status < 0 then
-      wstr := ConcreteCmd + #13#10'--не найдено--'
+      wstr := ConcreteCmd + #13#10 + Lang.SayDefault('HintNotFound', '--not found--')
     else
     begin
       wstr := wstr + ' (' + BookTabInfo.ReferenceBible.ShortName + ')'#13#10;
       if ws2 <> '' then
         wstr := wstr + ws2
       else
-        wstr := wstr + '--не найдено--';
+        wstr := wstr + Lang.SayDefault('HintNotFound', '--not found--');
     end;
   end;
   viewer.Hint := wstr;

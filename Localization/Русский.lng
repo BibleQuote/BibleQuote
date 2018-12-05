@@ -74,6 +74,7 @@ SelectDefaultBible = Выберите перевод по умолчанию в 
 SelectParaBible = Выберите вторичную библию
 DeselectSec = Отменить выбор
 CollapseAll = Свернуть все
+HintNotFound = --не найдено--
 
 TabLibrary = Библиотека
 TabMemos = Личные заметки

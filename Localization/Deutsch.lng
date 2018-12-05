@@ -75,6 +75,7 @@ SelectDefaultBible = Please select default translation in File -> Settings -> Fa
 SelectParaBible = Die zweite Bibel auswählen
 DeselectSec = Abwählen
 CollapseAll = Alles zusammenklappen
+HintNotFound = --not found-- (t)
 
 TabLibrary = Meine Bibliothek
 TabMemos = Notizen
