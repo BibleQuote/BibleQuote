@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1062#1080#1090#1072#1090#1072' '#1080#1079' '#1041#1080#1073#1083#1080#1080
-  ClientHeight = 422
+  ClientHeight = 402
   ClientWidth = 831
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 831
-    Height = 367
+    Height = 347
     Align = alClient
     DockSite = True
     TabOrder = 0
@@ -110,7 +110,6 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 700
       ExplicitHeight = 14
     end
     object lblCopyRightNotice: TLabel
@@ -255,7 +254,6 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
-      ExplicitLeft = 505
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -295,7 +293,6 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
-      ExplicitLeft = 561
       object cbLinks: TComboBox
         Left = 0
         Top = 0
@@ -332,7 +329,7 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 401
+    Top = 381
     Width = 831
     Height = 21
     Align = alBottom
@@ -555,11 +552,6 @@ object MainForm: TMainForm
         ShortCut = 16498
         OnClick = miQuickSearchClick
       end
-      object miChooseSatelliteBible: TMenuItem
-        Caption = #1042#1099#1073#1088#1072#1090#1100' '#1074#1090#1086#1088#1080#1095#1085#1099#1081' '#1074#1080#1076'...'
-        ImageIndex = 3
-        OnClick = miChooseSatelliteBibleClick
-      end
       object miRecognizeBibleLinks: TMenuItem
         AutoCheck = True
         Caption = 'Recognize Bible Links'
@@ -603,7 +595,7 @@ object MainForm: TMainForm
     Left = 56
     Top = 200
     Bitmap = {
-      494C010135006800740510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800780510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2469,7 +2461,7 @@ object MainForm: TMainForm
     Left = 98
     Top = 201
     Bitmap = {
-      494C01011600E801B80318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801BC0318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

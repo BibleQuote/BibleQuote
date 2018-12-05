@@ -165,12 +165,12 @@ object BookFrame: TBookFrame
       GradientEndColor = clWindow
       Images = ilImages
       TabOrder = 0
-      object tbtnToggleNav: TToolButton
+      object tbtnToggle: TToolButton
         Left = 0
         Top = 0
         ImageIndex = 18
         Style = tbsCheck
-        OnClick = tbtnToggleNavClick
+        OnClick = tbtnToggleClick
       end
       object tbtnSep01: TToolButton
         Left = 23
@@ -368,7 +368,7 @@ object BookFrame: TBookFrame
     Left = 96
     Top = 95
     Bitmap = {
-      494C010113006800200510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010113006800240510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

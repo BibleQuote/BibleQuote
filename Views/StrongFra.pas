@@ -22,7 +22,7 @@ type
     pnlMainView: TPanel;
     splMain: TSplitter;
     pnlNav: TPanel;
-    tbtnTogglePanel: TToolButton;
+    tbtnToggle: TToolButton;
     tbtnSeparator: TToolButton;
     tbtnSearch: TToolButton;
     ilImages: TImageList;
@@ -33,7 +33,7 @@ type
     procedure miRefCopyClick(Sender: TObject);
     procedure miRefPrintClick(Sender: TObject);
     procedure tbtnSearchClick(Sender: TObject);
-    procedure tbtnTogglePanelClick(Sender: TObject);
+    procedure tbtnToggleClick(Sender: TObject);
     procedure vstStrongGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure vstStrongKeyPress(Sender: TObject; var Key: Char);
@@ -155,7 +155,7 @@ begin
   end;
 end;
 
-procedure TStrongFrame.tbtnTogglePanelClick(Sender: TObject);
+procedure TStrongFrame.tbtnToggleClick(Sender: TObject);
 var
   showNav: boolean;
 begin

@@ -29,12 +29,12 @@ object StrongFrame: TStrongFrame
       GradientEndColor = clWindow
       Images = ilImages
       TabOrder = 0
-      object tbtnTogglePanel: TToolButton
+      object tbtnToggle: TToolButton
         Left = 0
         Top = 0
-        Caption = 'tbtnTogglePanel'
+        Caption = 'Toggle'
         ImageIndex = 0
-        OnClick = tbtnTogglePanelClick
+        OnClick = tbtnToggleClick
       end
       object tbtnSeparator: TToolButton
         Left = 23
@@ -160,7 +160,7 @@ object StrongFrame: TStrongFrame
     Left = 96
     Top = 95
     Bitmap = {
-      494C010102006800380510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101020068003C0510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       000000000000000000000000000000000000000000005B554B00585348005651
       460055504500534E4300524C41004F4A3F004F493E004C473B004B453A004943

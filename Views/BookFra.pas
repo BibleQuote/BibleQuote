@@ -66,7 +66,7 @@ type
     splMain: TSplitter;
     vdtModules: TVirtualStringTree;
     tbtnSep01: TToolButton;
-    tbtnToggleNav: TToolButton;
+    tbtnToggle: TToolButton;
     tbtnForward: TToolButton;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
@@ -159,7 +159,7 @@ type
     procedure vdtModulesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
     procedure vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
-    procedure tbtnToggleNavClick(Sender: TObject);
+    procedure tbtnToggleClick(Sender: TObject);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -843,7 +843,7 @@ begin
   mSatelliteLibraryView.Align := TAlign.alClient;
   mSatelliteLibraryView.Parent := mSatelliteForm;
 
-  tbtnToggleNav.Down := pnlNav.Visible;
+  tbtnToggle.Down := pnlNav.Visible;
   // Let the tree know how much data space we need.
   vdtModules.NodeDataSize := SizeOf(TBookNodeData);
 
@@ -1644,7 +1644,7 @@ begin
   ToggleStrongNumbers();
 end;
 
-procedure TBookFrame.tbtnToggleNavClick(Sender: TObject);
+procedure TBookFrame.tbtnToggleClick(Sender: TObject);
 var
   showNav: boolean;
 begin
