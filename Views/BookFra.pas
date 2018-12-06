@@ -272,13 +272,6 @@ begin
     bible := BookTabInfo.Bible;
     command := Format('go %s %d %d', [bible.ShortPath, bookIndex, chapterIndex]);
     Result := ProcessCommand(BookTabInfo, command, hlDefault);
-
-    try
-      // TODO: display commentaries in all commentary tabs
-      //mMainView.ShowComments;
-    except
-      // skip error
-    end;
   end;
 end;
 
@@ -466,13 +459,6 @@ begin
         FullPassageSignature(CurBook, CurChapter, verse, 0), ShortName]));
     end;
 
-   // TODO: display commentaries in all commentary tabs
-   // if iscontrolDown or (mMainView.pgcMain.Visible and (mMainView.pgcMain.ActivePage = mMainView.tbComments))
-   // then
-   //   mMainView.ShowComments;
-   // if (iscontrolDown) and (mMainView.pgcMain.ActivePage <> mMainView.tbComments) then
-   //   mMainView.pgcMain.ActivePage := mMainView.tbComments;
-
     mMainView.OpenOrCreateTSKTab(BookTabInfo);
   end
   else if Pos('s', unicodeSRC) = 1 then
@@ -496,13 +482,6 @@ begin
         else
           unicodeSRC := cb.HtmlExpandFilename(SRC);
 
-        // TODO: load anchors to all comments tabs
-        //lr := mMainView.LoadAnchor(mMainView.bwrComments, unicodeSRC, cb.CurrentFile, unicodeSRC);
-        //if lr then
-        //begin
-        //  if mMainView.pgcMain.Visible then
-        //  mMainView.pgcMain.ActivePage := mMainView.tbComments;
-        // end;
       except
         g_ExceptionContext.Add('src:' + SRC);
         g_ExceptionContext.Add('base:' + cb.Base);
@@ -717,14 +696,6 @@ begin
     verse := Get_ANAME_VerseNumber(bwrHtml.DocumentSource, mMainView.CurFromVerse, bwrHtml.FindSourcePos(bwrHtml.CaretPos, true));
 
     mMainView.OpenOrCreateTSKTab(BookTabInfo, verse);
-
-    // TODO: display commentaries in all commentary tabs
-    //    if (mMainView.pgcMain.ActivePage = mMainView.tbComments) and (verse <> mMainView.tbComments.tag) then
-    //    begin
-    //      mMainView.tbComments.tag := verse;
-    //      mMainView.ShowComments;
-    //      Exit;
-    //    end;
   end;
 end;
 
