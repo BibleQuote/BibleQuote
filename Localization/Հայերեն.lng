@@ -106,8 +106,6 @@ FoundInSeveralDictionaries = Գտնվել է մի քանի բառարաններ�
 FoundInOneDictionary = Գտնվել է մի բառարանում
 ;
 
-MainForm.Caption = Աստվածաշնչյան մեջբերում
-
 MainForm.JCRU_Home.Caption = JesusChrist.ru – քրիստոնեական հաղորդակցության սերվեր
 MainForm.JCRU_Software.Caption = Քրիստոնեական անվճար հավելվածներ
 MainForm.JCRU_Bible.Caption = Աստվածաշունչն ինտերնետում

@@ -104,8 +104,6 @@ FoundInSeveralDictionaries = знайдено в кількох словника
 FoundInOneDictionary = знайдено в одному словнику
 ;
 
-MainForm.Caption = Цитата з Біблії
-
 MainForm.JCRU_Home.Caption = JesusChrist.ru - сервер християнського спілкування
 MainForm.JCRU_Software.Caption = Безкоштовні християнські софт-тварі
 MainForm.JCRU_Bible.Caption = Біблія в Інтернеті

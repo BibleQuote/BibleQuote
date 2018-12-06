@@ -4533,8 +4533,6 @@ begin
       tabInfo[vtisPendingReload] := false;
       bookView.SafeProcessCommand(tabInfo, tabInfo.Location, TbqHLVerseOption(ord(tabInfo[vtisHighLightVerses])));
     end;
-    if (tabInfo.LocationType = vtlModule) and Assigned(tabInfo.Bible) and (tabInfo.Bible.isBible) then
-      Caption := tabInfo.Bible.Name + ' — BibleQuote';
   finally
     mInterfaceLock := false;
   end;
@@ -5557,8 +5555,6 @@ begin
     bookView.UpdateModuleTree(book);
 
     bookView.tbtnStrongNumbers.Enabled := book.Trait[bqmtStrongs];
-
-    Caption := book.Name + ' — BibleQuote';
   end;
 end;
 
