@@ -457,14 +457,13 @@ end;
 
 procedure TStrongFrame.vstStrongKeyPress(Sender: TObject; var Key: Char);
 var
-  ix: integer;
   pn: PVirtualNode;
 begin
   pn := vstStrong.GetFirstSelected();
   if not Assigned(pn) then
     Exit;
 
-  if (Key = #13) and (ix >= 0) then
+  if (Key = #13) then
     ShowStrong(vstStrong.Text[pn, 0]);
 end;
 

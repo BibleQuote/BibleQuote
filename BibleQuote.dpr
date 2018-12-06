@@ -68,8 +68,7 @@ uses
   DictionaryFra in 'Views\DictionaryFra.pas' {DictionaryFrame: TFrame},
   NotifyMessages in 'Core\NotifyMessages.pas',
   StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame},
-  AppPaths in 'IO\AppPaths.pas',
-  CommentsFra in 'Views\CommentsFra.pas' {CommentsFrame: TFrame};
+  AppPaths in 'IO\AppPaths.pas';
 
 {$R *.res}
 var

@@ -1775,16 +1775,6 @@ begin
       cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, ChapterQtys[CurBook - 1]]);
 
   bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
-
-  // ShowXref;
-  try
-    // TODO: display commentaries in all commentary tabs
-    //tbComments.tag := 0;
-    //ShowComments;
-  except
-    // skip error
-  end;
-
   Windows.SetFocus(mTabsView.Browser.Handle);
 end;
 
@@ -1816,16 +1806,6 @@ begin
       cmd := Format('go %s %d %d', [ShortPath, CurBook + 1, 1]);
 
   bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
-
-  // ShowXref;
-  try
-    // TODO: display commentaries in all commentary tabs
-    //tbComments.tag := 0;
-    //ShowComments;
-  except
-    // skip error
-  end;
-
   Windows.SetFocus(mTabsView.Browser.Handle);
 end;
 
@@ -2681,12 +2661,6 @@ begin
 //    bwrStrong.LoadFromString(bwrStrong.DocumentSource);
 //    bwrStrong.Position := browserpos;
 
-    // TODO: change font of all comments tabs
-//    browserpos := bwrComments.Position and $FFFF0000;
-//    bwrComments.DefFontSize := defFontSz;
-//    bwrComments.LoadFromString(bwrComments.DocumentSource);
-//    bwrComments.Position := browserpos;
-
 // TODO: change font of all tsk tabs
 //    browserpos := bwrXRef.Position and $FFFF0000;
 //    bwrXRef.DefFontSize := defFontSz;
@@ -2708,8 +2682,6 @@ begin
 
     Application.OnIdle := nil;
     self.UpdateFromCashed();
-    //self.UpdateAllBooks(); TODO: update commentaries tabs
-    //self.UpdateUI();
   end;
 
   if not mDictionariesFullyInitialized then
@@ -2770,7 +2742,6 @@ begin
     if mModuleLoader.ScanDone then
     begin
       self.UpdateFromCashed();
-      //self.UpdateAllBooks(); TODO: update commentaries tabs
       self.UpdateBookView();
     end
     else
@@ -2986,8 +2957,6 @@ begin
       mModuleLoader.CachedModules.Clear();
   end;
   mDefaultLocation := DefaultLocation();
-  //self.UpdateAllBooks(); TODO: update commentaries tabs
-  // DeleteInvalidHotModules();
 end;
 
 procedure TMainForm.LanguageMenuClick(Sender: TObject);
@@ -3209,10 +3178,6 @@ begin
   //bwrStrong.DefBackGround := newColor;
   //bwrStrong.Refresh;
 
-  // TODO: update background of all comments tabs
-  //bwrComments.DefBackGround := newColor;
-  //bwrComments.Refresh;
-
   // TODO: update background of all tsk tabs
   //bwrXRef.DefBackGround := newColor;
   //bwrXRef.Refresh;
@@ -3268,10 +3233,6 @@ begin
   // TODO: update hot spot color of all strong tabs
   //bwrStrong.DefHotSpotColor := newColor;
   //bwrStrong.Refresh;
-
-  // TODO: update hot spot color of all comments tabs
-  //bwrComments.DefHotSpotColor := newColor;
-  //bwrComments.Refresh;
 
   // TODO: update hot spot color of all tsk tabs
   //bwrXRef.DefHotSpotColor := newColor;
@@ -5144,21 +5105,6 @@ begin
 //      DefFontSize := bwrDic.DefFontSize;
 //      LoadFromString(DocumentSource);
 //    end;
-
-    // TODO: change font of comments tabs
-//    with bwrComments do
-//    begin
-//      DefFontName := FontDialog.Font.Name;
-//      DefFontColor := FontDialog.Font.color;
-//      DefFontSize := FontDialog.Font.Size;
-//    end;
-
-    try
-      // TODO: display commentaries in all commentary tabs
-      //ShowComments;
-    finally
-      // do nothing
-    end;
   end;
 end;
 
