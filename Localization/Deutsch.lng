@@ -106,8 +106,6 @@ FoundInSeveralDictionaries = in mehreren Wörterbüchern gefunden
 FoundInOneDictionary = in einem Wörterbuch gefunden
 ;
 
-MainForm.Caption = Bible Quote
-
 MainForm.JCRU_Home.Caption = JesusChrist.ru - Seite der christlichen Unterhaltung
 MainForm.JCRU_Software.Caption = Kostenlose christliche Software
 MainForm.JCRU_Bible.Caption = Bibel online
