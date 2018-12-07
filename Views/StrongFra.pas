@@ -8,7 +8,7 @@ uses
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, HTMLEmbedInterfaces,
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
-  ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths;
+  ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths, AppIni;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -112,7 +112,7 @@ begin
   book := mCurrentBook;
   if not Assigned(book) then
   begin
-    defaultModIx := mMainView.mModules.FindByName(mMainView.DefaultStrongBibleName);
+    defaultModIx := mMainView.mModules.FindByName(AppConfig.DefaultStrongBible);
 
     if defaultModIx >= 0 then
     begin
@@ -205,12 +205,12 @@ begin
 
   with bwrStrong do
     begin
-      DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
-      DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
-      DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
+      DefFontName := AppConfig.RefFontName;
+      DefFontSize := AppConfig.RefFontSize;
+      DefFontColor := AppConfig.RefFontColor;
 
-      DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
-      DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
+      DefBackGround := AppConfig.BackgroundColor;
+      DefHotSpotColor := AppConfig.HotSpotColor;
     end;
 end;
 
@@ -287,7 +287,7 @@ begin
   trCount := 7;
   repeat
     try
-      if not(mMainView.CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+      if not (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
         Clipboard.AsText := (pmRef.PopupComponent as THTMLViewer).SelText
       else
         (pmRef.PopupComponent as THTMLViewer).CopyToClipboard();

@@ -7,7 +7,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
   MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser, Clipbrd,
-  AppPaths;
+  AppPaths, AppIni;
 
 type
   TTSKFrame = class(TFrame, ITSKView)
@@ -53,12 +53,12 @@ begin
 
   with bwrXRef do
   begin
-    DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
-    DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
-    DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
+    DefFontName := AppConfig.RefFontName;
+    DefFontSize := AppConfig.RefFontSize;
+    DefFontColor := AppConfig.RefFontColor;
 
-    DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
-    DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
+    DefBackGround := AppConfig.BackgroundColor;
+    DefHotSpotColor := AppConfig.HotSpotColor;
 
     // this browser doesn't have underlines...
     htOptions := htOptions + [htNoLinkUnderline];
@@ -93,7 +93,7 @@ begin
   trCount := 7;
   repeat
     try
-      if not(mMainView.CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+      if not (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
         Clipboard.AsText := (pmRef.PopupComponent as THTMLViewer).SelText
       else
         (pmRef.PopupComponent as THTMLViewer).CopyToClipboard();
@@ -191,7 +191,7 @@ begin
   RefText := Format
     ('<a name=%d><a href="go %s %d %d %d"><font face=%s>%s%d:%d</font></a><br><font face="%s">%s</font><p>',
     [tmpverse, mainBible.ShortPath, mainBible.CurBook, mainBible.CurChapter,
-    tmpverse, mMainView.mBrowserDefaultFontName, mainBible.ShortNames[mainBible.CurBook],
+    tmpverse, AppConfig.DefFontName, mainBible.ShortNames[mainBible.CurBook],
     mainBible.CurChapter, tmpverse, mainBible.fontName, s]);
 
   slink := ti.ReadString(IntToStr(chapter), IntToStr(verse), '');
@@ -243,7 +243,7 @@ begin
 
       StrDeleteFirstNumber(s);
       passageSig := Format('<font face="%s">%s</font>',
-        [mMainView.mBrowserDefaultFontName, secondBible.ShortPassageSignature(book, chapter, fromverse, toverse)]);
+        [AppConfig.DefFontName, secondBible.ShortPassageSignature(book, chapter, fromverse, toverse)]);
       if toverse = fromverse then
         RefText := RefText +
           Format

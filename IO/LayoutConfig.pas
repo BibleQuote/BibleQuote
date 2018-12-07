@@ -116,12 +116,6 @@ type
     procedure AddTabSettings(tabSettings: TTabSettings);
   end;
 
-var
-  LibFormWidth: integer = 400;
-  LibFormHeight: integer = 600;
-  LibFormTop: integer = 100;
-  LibFormLeft: integer = 100;
-
 type
   TLayoutConfig = class
   private
