@@ -8,7 +8,7 @@ uses
   HTMLEmbedInterfaces, Htmlview, Vcl.StdCtrls, Vcl.ExtCtrls, Bible,
   StringProcs, LinksParser, MainFrm, LibraryFra, LayoutConfig, IOUtils,
   System.ImageList, Vcl.ImgList, LinksParserIntf, HintTools, Vcl.Menus,
-  Clipbrd;
+  Clipbrd, AppIni;
 
 type
   TSearchFrame = class(TFrame, ISearchView, IBookSearchCallback)
@@ -102,21 +102,21 @@ begin
 
   with bwrSearch do
   begin
-    DefFontName := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
-    DefFontSize := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
-    DefFontColor := Hex2Color(MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
+    DefFontName := AppConfig.RefFontName;
+    DefFontSize := AppConfig.RefFontSize;
+    DefFontColor := AppConfig.RefFontColor;
 
-    DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
-    DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
+    DefBackGround := AppConfig.BackgroundColor;
+    DefHotSpotColor := AppConfig.HotSpotColor;
   end;
 end;
 
 procedure TSearchFrame.OnBookSelectFormDeactivate(Sender: TObject);
 begin
-  LibFormWidth := mBookSelectForm.Width;
-  LibFormHeight := mBookSelectForm.Height;
-  LibFormTop := mBookSelectForm.Top;
-  LibFormLeft := mBookSelectForm.Left;
+  AppConfig.LibFormWidth := mBookSelectForm.Width;
+  AppConfig.LibFormHeight := mBookSelectForm.Height;
+  AppConfig.LibFormTop := mBookSelectForm.Top;
+  AppConfig.LibFormLeft := mBookSelectForm.Left;
 end;
 
 procedure TSearchFrame.OnBookSelect(Sender: TObject; modEntry: TModuleEntry);
@@ -138,10 +138,10 @@ procedure TSearchFrame.btnBookSelectClick(Sender: TObject);
 begin
   mBookSelectView.SetModules(mMainView.mModules);
 
-  mBookSelectForm.Width := LibFormWidth;
-  mBookSelectForm.Height := LibFormHeight;
-  mBookSelectForm.Top := LibFormTop;
-  mBookSelectForm.Left := LibFormLeft;
+  mBookSelectForm.Width := AppConfig.LibFormWidth;
+  mBookSelectForm.Height := AppConfig.LibFormHeight;
+  mBookSelectForm.Top := AppConfig.LibFormTop;
+  mBookSelectForm.Left := AppConfig.LibFormLeft;
 
   mBookSelectForm.ShowModal();
 end;
@@ -587,7 +587,7 @@ begin
   trCount := 7;
   repeat
     try
-      if not(mMainView.CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+      if not(AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
         Clipboard.AsText := (pmRef.PopupComponent as THTMLViewer).SelText
       else
         (pmRef.PopupComponent as THTMLViewer).CopyToClipboard();
@@ -686,7 +686,7 @@ begin
 
   bwrSearch.CharSet := mTabsView.Browser.CharSet;
 
-  StrReplace(dSource, '<*>', '<font color=' + mMainView.SelTextColor + '>', true);
+  StrReplace(dSource, '<*>', '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>', true);
   StrReplace(dSource, '</*>', '</font>', true);
 
   bwrSearch.LoadFromString(dSource);

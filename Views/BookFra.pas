@@ -11,7 +11,7 @@ uses
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
-  Vcl.Menus, SearchFra, TagsDb, InputFrm;
+  Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -528,7 +528,7 @@ begin
   begin
     modIx := mMainView.mModules.FindByName(BookTabInfo.SatelliteName);
     if modIx < 0 then
-      modIx := mMainView.mModules.FindByName(mMainView.DefaultBibleName);
+      modIx := mMainView.mModules.FindByName(AppConfig.DefaultBible);
 
     if modIx >= 0 then
       replaceModPath := mMainView.mModules[modIx].mShortPath;
@@ -1142,7 +1142,7 @@ begin
         ((bwrHtml.SelLength = 0) and (bwrHtml.tag <> bsText)) then
       begin
         bwrHtml.CopyToClipboard;
-        if not(mMainView.CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+        if not (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
         begin
           if bwrHtml.tag <= bsText then
           begin
@@ -1545,10 +1545,10 @@ begin
 
   mSatelliteLibraryView.SetModules(mMainView.mModules);
 
-  mSatelliteForm.Width := LibFormWidth;
-  mSatelliteForm.Height := LibFormHeight;
-  mSatelliteForm.Top := LibFormTop;
-  mSatelliteForm.Left := LibFormLeft;
+  mSatelliteForm.Width := AppConfig.LibFormWidth;
+  mSatelliteForm.Height := AppConfig.LibFormHeight;
+  mSatelliteForm.Top := AppConfig.LibFormTop;
+  mSatelliteForm.Left := AppConfig.LibFormLeft;
 
   mSatelliteForm.ShowModal();
 end;
@@ -1575,10 +1575,10 @@ end;
 
 procedure TBookFrame.OnSatelliteFormDeactivate(Sender: TObject);
 begin
-  LibFormWidth := mSatelliteForm.Width;
-  LibFormHeight := mSatelliteForm.Height;
-  LibFormTop := mSatelliteForm.Top;
-  LibFormLeft := mSatelliteForm.Left;
+  AppConfig.LibFormWidth := mSatelliteForm.Width;
+  AppConfig.LibFormHeight := mSatelliteForm.Height;
+  AppConfig.LibFormTop := mSatelliteForm.Top;
+  AppConfig.LibFormLeft := mSatelliteForm.Left;
 end;
 
 procedure TBookFrame.OnSelectSatelliteModule(Sender: TObject; modEntry: TModuleEntry);
@@ -2087,7 +2087,7 @@ begin
             end;
         end;
 
-        mMainView.LastAddress := command;
+        AppConfig.LastCommand := command;
       except
         on E: TBQPasswordException do
         begin
@@ -2147,7 +2147,7 @@ begin
 
       if wasSearchHistory then
       begin
-        StrReplace(dBrowserSource, '<*>', '<font color="' + mMainView.SelTextColor + '">', true);
+        StrReplace(dBrowserSource, '<*>', '<font color="' + Color2Hex(AppConfig.SelTextColor) + '">', true);
         StrReplace(dBrowserSource, '</*>', '</font>', true);
 
       end;
@@ -2321,9 +2321,9 @@ begin
       Exit;
   end;
 
-  if Length(Trim(mMainView.LastAddress)) > 1 then
+  if Length(Trim(AppConfig.LastCommand)) > 1 then
   begin
-    succeeded := ProcessCommand(bookTabInfo, mMainView.LastAddress, hlOption);
+    succeeded := ProcessCommand(bookTabInfo, AppConfig.LastCommand, hlOption);
     if succeeded then
       Exit;
   end;
@@ -2593,10 +2593,10 @@ begin
   end;
 
   bverse := 1;
-  if (locVerseStart > 0) and (not mMainView.mFlagFullcontextLinks) then
+  if (locVerseStart > 0) and (not AppConfig.FullContextLinks) then
     bverse := locVerseStart;
 
-  if (locVerseEnd = 0) or (mMainView.mFlagFullcontextLinks) then
+  if (locVerseEnd = 0) or (AppConfig.FullContextLinks) then
     everse := bible.VerseQty
   else
     everse := locVerseEnd;
@@ -2628,7 +2628,7 @@ begin
   for verse := bverse to everse do
   begin
     s := bible.Verses[verse - 1];
-    if (highlight_verse.X > 0) and (highlight_verse.Y > 0) and (mMainView.mFlagHighlightVerses) then
+    if (highlight_verse.X > 0) and (highlight_verse.Y > 0) and (AppConfig.HighlightVerseHits) then
     begin
       hlCurrent := (verse <= highlight_verse.Y) and (verse >= highlight_verse.X);
       hlVerseStyle := ord(verse = highlight_verse.X) + (ord(verse = highlight_verse.Y) shl 1);
@@ -2640,7 +2640,7 @@ begin
     end;
     if hlCurrent then
     begin
-      hlstyle := 'background-color:' + mMainView.g_VerseBkHlColor + ';';
+      hlstyle := 'background-color:' + Color2Hex(AppConfig.VerseHighlightColor) + ';';
       if bible.Trait[bqmtNoForcedLineBreaks] then
       begin
         hlParaStart := '<span style="';
@@ -2784,7 +2784,7 @@ begin
 
       if i > -1 then
       begin // found memo
-        wsMemoTxt := '<font color=' + mMainView.SelTextColor + '>' + Comment(mMainView.Memos[i]) + '</font>' + paragraph;
+        wsMemoTxt := '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>' + Comment(mMainView.Memos[i]) + '</font>' + paragraph;
         if bookTabInfo[vtisResolveLinks] then
           wsMemoTxt := ResolveLinks(wsMemoTxt, bookTabInfo[vtisFuzzyResolveLinks]);
 
@@ -3138,7 +3138,7 @@ begin
         fontName := FontFromCharset(self.Handle, refBook.desiredCharset, bwrHtml.DefFontName);
       end;
       if Length(fontName) = 0 then
-        fontName := mMainView.mBrowserDefaultFontName;
+        fontName := AppConfig.DefFontName;
       Result := 0;
       break;
     lblErrNotFnd:

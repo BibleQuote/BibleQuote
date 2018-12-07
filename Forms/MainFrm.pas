@@ -22,7 +22,8 @@ uses
   TabData, Favorites, ThinCaptionedDockTree,
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, FontManager, BroadcastList, JclNotify, NotifyMessages;
+  ChromeTabsLog, FontManager, BroadcastList, JclNotify, NotifyMessages,
+  UISettingsFrm, AppIni;
 
 const
 
@@ -152,6 +153,7 @@ type
     tbtnAddTagsVersesTab: TToolButton;
     tbtnAddDictionaryTab: TToolButton;
     tbtnAddStrongTab: TToolButton;
+    miInterface: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -232,6 +234,7 @@ type
     procedure tbtnAddDictionaryTabClick(Sender: TObject);
     procedure tbtnAddStrongTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
+    procedure miInterfaceClick(Sender: TObject);
   private
     procedure PrepareConfigForm();
     procedure NavigeTSKTab;
@@ -243,7 +246,6 @@ type
     ZoomIndex: integer;
     Zoom: double;
 
-    mBrowserDefaultFontName: string;
     mDictionariesFullyInitialized, mTaggedBookmarksLoaded: Boolean;
     mDefaultLocation: string;
     mBibleTabsInCtrlKeyDownState: Boolean;
@@ -278,24 +280,14 @@ type
 
     MainFormInitialized: Boolean; // for only one entrance into .FormShow
 
-    PrintFootNote: Boolean;
-
-    MainFormMaximized: Boolean;
-
     MemosOn: Boolean;
 
     Memos: TStringList;
     Bookmarks: TBroadcastStringList;
 
-    LastAddress: string;
-    DefaultBibleName: string;
-    DefaultStrongBibleName: string;
-
     HelpFileName: string;
 
     TemplatePath: string;
-    SelTextColor: string; // color strings after search
-    g_VerseBkHlColor: string;
 
     TextTemplate: string; // displaying passages
 
@@ -307,21 +299,10 @@ type
 
     CurFromVerse, CurToVerse, VersePosition: integer;
 
-    // config
-    MainFormLeft, MainFormTop, MainFormWidth, MainFormHeight: integer;
-
-    miHrefUnderlineChecked, CopyOptionsCopyVerseNumbersChecked,
-      CopyOptionsCopyFontParamsChecked, CopyOptionsAddModuleNameChecked,
-      CopyOptionsAddReferenceChecked, CopyOptionsAddLineBreaksChecked: Boolean;
-
-    mFlagFullcontextLinks: Boolean;
-    mFlagHighlightVerses: Boolean;
     mFlagCommonProfile: Boolean;
-    CopyOptionsAddReferenceRadioItemIndex: integer;
 
     mFontManager: TFontManager;
 
-    ConfigFormHotKeyChoiceItemIndex: integer;
     PasswordPolicy: TPasswordPolicy;
     tempBook: TBible;
     G_XRefVerseCmd: string;
@@ -369,7 +350,7 @@ type
     function LoadDictionaries(foreground: Boolean): Boolean;
     function LoadModules(background: Boolean): Boolean;
     function LoadHotModulesConfig(): Boolean;
-    procedure SaveHotModulesConfig(aMUIEngine: TMultiLanguage);
+    procedure SaveHotModulesConfig();
     function AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
     function FavoriteItemFromModEntry(const me: TModuleEntry): TMenuItem;
     function FavoriteTabFromModEntry(tabsView: ITabsView; const me: TModuleEntry): integer;
@@ -473,7 +454,6 @@ var
   MainForm: TMainForm;
   MFPrinter: TMetaFilePrinter;
   G_ControlKeyDown: Boolean;
-  LastLanguageFile: string;
 
 implementation
 
@@ -535,32 +515,17 @@ begin
 
       end;
     end;
-    MainCfgIni := TMultiLanguage.Create(self);
+    AppConfig := TAppConfig.Create;
     try
-      MainCfgIni.inifile := TPath.Combine(TAppDirectories.UserSettings, C_ModuleIniName);
+      AppConfig.Load;
     except
       on E: Exception do
         BqShowException(E, 'Cannot Load Configuration file!');
     end;
 
-    mBrowserDefaultFontName := MainCfgIni.SayDefault('DefFontName', 'Microsoft Sans Serif');
-    g_VerseBkHlColor := Color2Hex(Hex2Color(MainCfgIni.SayDefault('VerseBkHLColor', Color2Hex(clInfoBk)))); // '#F5F5DC'
-
-    MainFormWidth := (StrToInt(MainCfgIni.SayDefault('MainFormWidth', '0')) * Screen.Width) div MAXWIDTH;
-    MainFormHeight := (StrToInt(MainCfgIni.SayDefault('MainFormHeight', '0')) * Screen.Height) div MAXHEIGHT;
-    MainFormLeft := (StrToInt(MainCfgIni.SayDefault('MainFormLeft', '0')) * Screen.Width) div MAXWIDTH;
-    MainFormTop := (StrToInt(MainCfgIni.SayDefault('MainFormTop', '0')) * Screen.Height) div MAXHEIGHT;
-    MainFormMaximized := MainCfgIni.SayDefault('MainFormMaximized', '0') = '1';
-
-    LibFormWidth := StrToInt(MainCfgIni.SayDefault('LibFormWidth', '400'));
-    LibFormHeight := StrToInt(MainCfgIni.SayDefault('LibFormHeight', '600'));
-    LibFormTop := StrToInt(MainCfgIni.SayDefault('LibFormTop', '100'));
-    LibFormLeft := StrToInt(MainCfgIni.SayDefault('LibFormLeft', '100'));
-
     fnt := TFont.Create;
-    fnt.Name := MainCfgIni.SayDefault('MainFormFontName', 'Microsoft Sans Serif');
-
-    fnt.Size := StrToInt(MainCfgIni.SayDefault('MainFormFontSize', '9'));
+    fnt.Name := AppConfig.MainFormFontName;
+    fnt.Size := AppConfig.MainFormFontSize;
 
     miRecognizeBibleLinks.Enabled := true;
     tbtnResolveLinks.Enabled := true;
@@ -575,24 +540,9 @@ begin
 
     Prepare(ExtractFilePath(Application.ExeName) + 'biblebooks.cfg', Output);
 
-    LastLanguageFile := MainCfgIni.SayDefault('LastLanguageFile', '');
-    LastAddress := MainCfgIni.SayDefault('LastAddress', '');
-    DefaultBibleName := MainCfgIni.SayDefault('DefaultBible', '');
-    DefaultStrongBibleName := MainCfgIni.SayDefault('DefaultStrongBible', '');
-    G_SecondPath := MainCfgIni.SayDefault('SecondPath', '');
+    mFavorites := TFavoriteModules.Create(AddHotModule, DeleteHotModule, ReplaceHotModule, InsertHotModule, ForceForegroundLoad);
 
-    SatelliteBible := MainCfgIni.SayDefault('SatelliteBible', '');
-    mFavorites := TFavoriteModules.Create(AddHotModule, DeleteHotModule,
-      ReplaceHotModule, InsertHotModule, ForceForegroundLoad);
-
-    SaveFileDialog.InitialDir := MainCfgIni.SayDefault('SaveDirectory', GetMyDocuments);
-    SelTextColor := MainCfgIni.SayDefault('SelTextColor', Color2Hex(clRed));
-    PrintFootNote := MainCfgIni.SayDefault('PrintFootNote', '1') = '1';
-
-    // by default, these are checked
-    miHrefUnderlineChecked := MainCfgIni.SayDefault('HrefUnderline', '0') = '1';
-    mFlagFullcontextLinks := MainCfgIni.SayDefault(C_opt_FullContextLinks, '1') = '1';
-    mFlagHighlightVerses := MainCfgIni.SayDefault(C_opt_HighlightVerseHits, '1') = '1';
+    SaveFileDialog.InitialDir := AppConfig.SaveDirectory;
 
     try
       fname := TPath.Combine(TAppDirectories.UserSettings, 'bibleqt_bookmarks.ini');
@@ -602,21 +552,11 @@ begin
       on E: Exception do
         BqShowException(E)
     end;
-    LoadUserMemos();
 
+    LoadUserMemos();
     LoadMru();
 
-    // COPYING OPTIONS
-    CopyOptionsCopyVerseNumbersChecked :=  MainCfgIni.SayDefault('CopyOptionsCopyVerseNumbers', '1') = '1';
-    CopyOptionsCopyFontParamsChecked := MainCfgIni.SayDefault('CopyOptionsCopyFontParams', '0') = '1';
-    CopyOptionsAddReferenceChecked := MainCfgIni.SayDefault('CopyOptionsAddReference', '1') = '1';
-    CopyOptionsAddReferenceRadioItemIndex := StrToInt(MainCfgIni.SayDefault('CopyOptionsAddReferenceRadio', '1'));
-    CopyOptionsAddLineBreaksChecked := MainCfgIni.SayDefault('CopyOptionsAddLineBreaks', '1') = '1';
-    CopyOptionsAddModuleNameChecked := MainCfgIni.SayDefault('CopyOptionsAddModuleName', '0') = '1';
-
-    ConfigFormHotKeyChoiceItemIndex := StrToInt(MainCfgIni.SayDefault('ConfigFormHotKeyChoiceItemIndex', '0'));
-
-    trayIcon.MinimizeToTray := MainCfgIni.SayDefault('MinimizeToTray', '0') = '1';
+    trayIcon.MinimizeToTray := AppConfig.MinimizeToTray;
   except
     on E: Exception do
       BqShowException(E)
@@ -662,11 +602,11 @@ begin
     Font.Assign(self.Font);
     Left := (Screen.Width - Width) div 2;
     Top := (Screen.Height - Height) div 2;
-    edtSelectPath.Text := G_SecondPath;
+    edtSelectPath.Text := AppConfig.SecondPath;
     chkMinimizeToTray.Checked := trayIcon.MinimizeToTray;
-    chkFullContextOnRestrictedLinks.Checked := mFlagFullcontextLinks;
-    chkHighlightVerseHits.Checked := mFlagHighlightVerses;
-    rgHotKeyChoice.ItemIndex := ConfigFormHotKeyChoiceItemIndex;
+    chkFullContextOnRestrictedLinks.Checked := AppConfig.FullContextLinks;
+    chkHighlightVerseHits.Checked := AppConfig.HighlightVerseHits;
+    rgHotKeyChoice.ItemIndex := AppConfig.HotKeyChoice;
     moduleCount := mModules.Count - 1;
 
     // fill the list of available modules for favorites
@@ -740,7 +680,7 @@ begin
         cbDefaultBible.Items.EndUpdate;
       end;
 
-      if (DefaultBibleName = '') then
+      if (AppConfig.DefaultBible = '') then
       begin
         cbDefaultBible.ItemIndex := 0;
       end
@@ -748,7 +688,7 @@ begin
       begin
         for i := 0 to cbDefaultBible.Items.Count - 1 do
         begin
-          if (OmegaCompareTxt(DefaultBibleName, cbDefaultBible.Items[i], -1, false) = 0) then
+          if (OmegaCompareTxt(AppConfig.DefaultBible, cbDefaultBible.Items[i], -1, false) = 0) then
           begin
             cbDefaultBible.ItemIndex := i;
             break;
@@ -768,7 +708,7 @@ begin
         cbDefaultStrongBible.Items.EndUpdate;
       end;
 
-      if (DefaultStrongBibleName = '') then
+      if (AppConfig.DefaultStrongBible = '') then
       begin
         cbDefaultStrongBible.ItemIndex := 0;
       end
@@ -776,7 +716,7 @@ begin
       begin
         for i := 0 to cbDefaultStrongBible.Items.Count - 1 do
         begin
-          if (OmegaCompareTxt(DefaultStrongBibleName, cbDefaultStrongBible.Items[i], -1, false) = 0) then
+          if (OmegaCompareTxt(AppConfig.DefaultStrongBible, cbDefaultStrongBible.Items[i], -1, false) = 0) then
           begin
             cbDefaultStrongBible.ItemIndex := i;
             break;
@@ -812,14 +752,14 @@ begin
 
   with tabsForm.Browser do
   begin
-    DefFontName := mBrowserDefaultFontName;
-    DefFontSize := StrToInt(MainCfgIni.SayDefault('DefFontSize', '12'));
-    DefFontColor := Hex2Color(MainCfgIni.SayDefault('DefFontColor', Color2Hex(clWindowText))); // '#000000'
-    DefBackGround := Hex2Color(MainCfgIni.SayDefault('DefBackground', Color2Hex(clWindow))); // '#EBE8E2'
-    DefHotSpotColor := Hex2Color(MainCfgIni.SayDefault('DefHotSpotColor', Color2Hex(clHotLight))); // '#0000FF'
+    DefFontName := AppConfig.DefFontName;
+    DefFontSize := AppConfig.DefFontSize;
+    DefFontColor := AppConfig.DefFontColor;
+    DefBackGround := AppConfig.BackgroundColor;
+    DefHotSpotColor := AppConfig.HotSpotColor;
   end;
 
-  if miHrefUnderlineChecked then
+  if AppConfig.HrefUnderline then
      tabsForm.Browser.htOptions := tabsForm.Browser.htOptions - [htNoLinkUnderline]
   else
      tabsForm.Browser.htOptions := tabsForm.Browser.htOptions + [htNoLinkUnderline];
@@ -975,7 +915,7 @@ begin
 
 end;
 
-procedure TMainForm.SaveHotModulesConfig(aMUIEngine: TMultiLanguage);
+procedure TMainForm.SaveHotModulesConfig();
 begin
   mFavorites.SaveModules(TPath.Combine(TAppDirectories.UserSettings, C_HotModulessFileName));
 end;
@@ -1215,7 +1155,7 @@ begin
     if (not FileExists(tabsConfigPath)) then
     begin
       CreateInitialTabsView();
-      SetFirstTabInitialLocation(LastAddress, '', '', DefaultBookTabState(), true);
+      SetFirstTabInitialLocation(AppConfig.LastCommand, '', '', DefaultBookTabState(), true);
       Exit;
     end;
 
@@ -1340,7 +1280,7 @@ begin
   if not firstTabInitialized then
   begin
     CreateInitialTabsView();
-    SetFirstTabInitialLocation(LastAddress, '', '', DefaultBookTabState(), true);
+    SetFirstTabInitialLocation(AppConfig.LastCommand, '', '', DefaultBookTabState(), true);
   end;
 end;
 
@@ -1400,7 +1340,6 @@ end;
 
 procedure TMainForm.SaveConfiguration;
 var
-  ini: TMultiLanguage;
   fname: string;
 begin
   try
@@ -1417,94 +1356,35 @@ begin
     end;
     PasswordPolicy.SaveToFile(TPath.Combine(TAppDirectories.UserSettings, C_PasswordPolicyFileName));
 
-    ini := TMultiLanguage.Create(self);
-    ini.inifile := TPath.Combine(TAppDirectories.UserSettings, C_ModuleIniName);
-
     if MainForm.WindowState = wsMaximized then
-      ini.Learn('MainFormMaximized', '1')
+      AppConfig.MainFormMaximized := true
     else
     begin
-      ini.Learn('MainFormWidth', IntToStr((MainForm.Width * MAXWIDTH) div Screen.Width));
-      ini.Learn('MainFormHeight', IntToStr((MainForm.Height * MAXHEIGHT) div Screen.Height));
-      ini.Learn('MainFormLeft', IntToStr((MainForm.Left * MAXWIDTH) div Screen.Width));
-      ini.Learn('MainFormTop', IntToStr((MainForm.Top * MAXHEIGHT) div Screen.Height));
-
-      ini.Learn('MainFormMaximized', '0');
+      AppConfig.MainFormMaximized := false;
+      AppConfig.MainFormWidth := MainForm.Width;
+      AppConfig.MainFormHeight := MainForm.Height;
+      AppConfig.MainFormLeft := MainForm.Left;
+      AppConfig.MainFormTop := MainForm.Top;
     end;
 
-    ini.Learn('DefFontName', mBrowserDefaultFontName);
-    ini.Learn('DefFontSize', IntToStr(mTabsView.Browser.DefFontSize));
-
-    if (Color2Hex(mTabsView.Browser.DefFontColor) <> Color2Hex(clWindowText)) then
-      ini.Learn('DefFontColor', Color2Hex(mTabsView.Browser.DefFontColor));
-
-    if (g_VerseBkHlColor <> Color2Hex(clHighlight)) then
-      ini.Learn('VerseBkHLColor', g_VerseBkHlColor);
-
-    ini.Learn('RefFontName', MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif'));
-    ini.Learn('RefFontSize', MainCfgIni.SayDefault('RefFontSize', '12'));
-
-    ini.Learn('LibFormWidth', LibFormWidth);
-    ini.Learn('LibFormHeight', LibFormHeight);
-    ini.Learn('LibFormTop', LibFormTop);
-    ini.Learn('LibFormLeft', LibFormLeft);
-
-    if (MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)) <> Color2Hex(clWindowText)) then
-      ini.Learn('RefFontColor', MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
-
-    if (Color2Hex(mTabsView.Browser.DefBackGround) <> Color2Hex(clWindow)) then
-      ini.Learn('DefBackground', Color2Hex(mTabsView.Browser.DefBackGround));
-    if (Color2Hex(mTabsView.Browser.DefHotSpotColor) <> Color2Hex(clHotLight)) then
-      ini.Learn('DefHotSpotColor', Color2Hex(mTabsView.Browser.DefHotSpotColor));
-
-    if (SelTextColor <> Color2Hex(clRed)) then
-      ini.Learn('SelTextColor', SelTextColor);
-
     try
-      SaveHotModulesConfig(ini);
+      SaveHotModulesConfig();
     except
       on E: Exception do
         BqShowException(E)
     end;
-    ini.Learn('HrefUnderline', IntToStr(ord(miHrefUnderlineChecked)));
 
-    ini.Learn('CopyOptionsCopyVerseNumbers',
-      IntToStr(ord(ConfigForm.chkCopyVerseNumbers.Checked)));
-    ini.Learn('CopyOptionsCopyFontParams',
-      IntToStr(ord(ConfigForm.chkCopyFontParams.Checked)));
-    ini.Learn('CopyOptionsAddReference',
-      IntToStr(ord(ConfigForm.chkAddReference.Checked)));
-    ini.Learn('CopyOptionsAddReferenceRadio',
-      IntToStr(ConfigForm.rgAddReference.ItemIndex));
-    ini.Learn('CopyOptionsAddLineBreaks',
-      IntToStr(ord(ConfigForm.chkAddLineBreaks.Checked)));
-    ini.Learn('CopyOptionsAddModuleName',
-      IntToStr(ord(ConfigForm.chkAddModuleName.Checked)));
+    AppConfig.AddVerseNumbers := ConfigForm.chkCopyVerseNumbers.Checked;
+    AppConfig.AddFontParams := ConfigForm.chkCopyFontParams.Checked;
+    AppConfig.AddReference := ConfigForm.chkCopyFontParams.Checked;
+    AppConfig.AddReferenceChoice := ConfigForm.rgAddReference.ItemIndex;
+    AppConfig.AddLineBreaks := ConfigForm.chkAddLineBreaks.Checked;
+    AppConfig.AddModuleName := ConfigForm.chkAddModuleName.Checked;
 
-    ini.Learn('ConfigFormHotKeyChoiceItemIndex',
-      IntToStr(ConfigFormHotKeyChoiceItemIndex));
+    AppConfig.MinimizeToTray := trayIcon.MinimizeToTray;
+    AppConfig.SaveDirectory := SaveFileDialog.InitialDir;
 
-    ini.Learn('MinimizeToTray', IntToStr(ord(trayIcon.MinimizeToTray)));
-
-    ini.Learn('LastAddress', LastAddress);
-    ini.Learn('LastLanguageFile', LastLanguageFile);
-    ini.Learn('SecondPath', G_SecondPath);
-    ini.Learn('DefaultBible', DefaultBibleName);
-    ini.Learn('DefaultStrongBible', DefaultStrongBibleName);
-
-    ini.Learn('MainFormFontName', MainForm.Font.Name);
-    ini.Learn('MainFormFontSize', IntToStr(MainForm.Font.Size));
-
-    ini.Learn('SaveDirectory', SaveFileDialog.InitialDir);
-    ini.Learn(C_opt_FullContextLinks, ord(mFlagFullcontextLinks));
-    ini.Learn(C_opt_HighlightVerseHits, ord(mFlagHighlightVerses));
-    try
-      if (not FileExists(ini.inifile)) or
-        (FileGetAttr(ini.inifile) and faReadOnly <> faReadOnly) then
-        ini.SaveToFile;
-    finally
-      ini.Destroy;
-    end;
+    AppConfig.Save;
 
     try
       fname := TPath.Combine(TAppDirectories.UserSettings, 'bibleqt_bookmarks.ini');
@@ -1629,13 +1509,7 @@ begin
 
   HintWindowClass := HintTools.TbqHintWindow;
 
-  InitHotkeysSupport();
-
   Lang := TMultiLanguage.Create(self);
-
-  LastAddress := '';
-  LastLanguageFile := '';
-  G_SecondPath := '';
 
   HelpFileName := 'indexrus.htm';
 
@@ -1647,20 +1521,25 @@ begin
   Bookmarks := TBroadcastStringList.Create;
 
   LoadConfiguration;
+  InitHotkeysSupport();
 
-  if MainFormWidth = 0 then
+  if AppConfig.MainFormWidth = 0 then
   begin
-    MainForm.WindowState := wsMaximized;
+    Self.WindowState := wsMaximized;
+    Self.Position := poScreenCenter;
   end
   else
   begin
-    MainForm.Width := MainFormWidth;
-    MainForm.Height := MainFormHeight;
-    MainForm.Left := MainFormLeft;
-    MainForm.Top := MainFormTop;
+    Self.Position := poDefault;
+    Self.Width := AppConfig.MainFormWidth;
+    Self.Height := AppConfig.MainFormHeight;
+    Self.Left := AppConfig.MainFormLeft;
+    Self.Top := AppConfig.MainFormTop;
 
-    if MainFormMaximized then
-      MainForm.WindowState := wsMaximized;
+    if AppConfig.MainFormMaximized then
+      Self.WindowState := wsMaximized
+    else
+      Self.WindowState := wsNormal;
   end;
 
   TemplatePath := TPath.Combine(TAppDirectories.Root, 'templates\default\');
@@ -1687,7 +1566,7 @@ begin
 
   LoadFontFromFolder(TLibraryDirectories.Strong);
 
-  mTranslated := TranslateInterface(LastLanguageFile);
+  mTranslated := TranslateInterface(AppConfig.LocalizationFile);
 
   Application.OnIdle := self.Idle;
   Application.OnActivate := self.OnActivate;
@@ -1700,7 +1579,6 @@ begin
     mHTMLViewerSite := THTMLViewerSite.Create(self, self);
 
   Result := mHTMLViewerSite;
-
 end;
 
 function TMainForm.GetNotifier: IJclNotifier;
@@ -1825,10 +1703,10 @@ begin
   loaded := false;
 
   locDirectory := TAppDirectories.Localization;
-  locFilePath := TPath.Combine(locDirectory, LastLanguageFile);
+  locFilePath := TPath.Combine(locDirectory, AppConfig.LocalizationFile);
 
-  if (LastLanguageFile <> '') and (TFile.Exists(locFilePath)) then
-    loaded := LoadLocalizationFile(LastLanguageFile);
+  if (AppConfig.LocalizationFile <> '') and (TFile.Exists(locFilePath)) then
+    loaded := LoadLocalizationFile(AppConfig.LocalizationFile);
 
   if (not loaded) then
   begin
@@ -1845,14 +1723,14 @@ begin
     if foundmenu then
     begin
       loaded := LoadLocalizationFile(DefaultLanguageFile);
-      LastLanguageFile := DefaultLanguageFile;
+      AppConfig.LocalizationFile := DefaultLanguageFile;
     end;
 
     if (not loaded) and (miLanguage.Count > 0) then
     begin
-      LastLanguageFile := miLanguage.Items[miLanguage.Count - 1].Caption + '.lng';
+      AppConfig.LocalizationFile := miLanguage.Items[miLanguage.Count - 1].Caption + '.lng';
 
-      loaded := LoadLocalizationFile(LastLanguageFile);
+      loaded := LoadLocalizationFile(AppConfig.LocalizationFile);
     end;
 
   end;
@@ -2236,7 +2114,7 @@ var
   bookView: TBookFrame;
 begin
   if Length(wsCommand) > 0 then
-    LastAddress := wsCommand;
+    AppConfig.LastCommand := wsCommand;
 
   bookView := GetBookView(self);
 
@@ -2246,7 +2124,7 @@ begin
   vti.SatelliteName := wsSecondaryView;
   vti.State := state;
   vti.Title := Title;
-  vti.Location := LastAddress;
+  vti.Location := AppConfig.LastCommand;
 
   vti.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
   vti.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
@@ -2256,7 +2134,7 @@ begin
   if visual then
   begin
     MemosOn := vtisShowNotes in state;
-    bookView.SafeProcessCommand(vti, LastAddress, hlDefault);
+    bookView.SafeProcessCommand(vti, AppConfig.LastCommand, hlDefault);
     UpdateBookView();
   end
   else
@@ -2777,7 +2655,7 @@ procedure TMainForm.InitHotkeysSupport;
 begin
   SysHotKey := TSysHotKey.Create(self);
   SysHotKey.OnHotKey := SysHotKeyHotKey;
-  if ConfigFormHotKeyChoiceItemIndex = 0 then
+  if AppConfig.HotKeyChoice = 0 then
     SysHotKey.AddHotKey(vkQ, [hkExt])
   else
     SysHotKey.AddHotKey(vkB, [hkCtrl, hkAlt]);
@@ -2961,9 +2839,9 @@ end;
 
 procedure TMainForm.LanguageMenuClick(Sender: TObject);
 begin
-  LastLanguageFile := (Sender as TMenuItem).Caption + '.lng';
+  AppConfig.LocalizationFile := (Sender as TMenuItem).Caption + '.lng';
 
-  TranslateInterface(LastLanguageFile);
+  TranslateInterface(AppConfig.LocalizationFile);
 end;
 
 procedure TMainForm.GoModuleName(s: string; fromBeginning: Boolean = false);
@@ -3099,9 +2977,9 @@ var
 begin
   with FontDialog do
   begin
-    Font.Name := mBrowserDefaultFontName;
-    Font.color := mTabsView.Browser.DefFontColor;
-    Font.Size := mTabsView.Browser.DefFontSize;
+    Font.Name := AppConfig.DefFontName;
+    Font.color := AppConfig.DefFontColor;
+    Font.Size := AppConfig.DefFontSize;
   end;
 
   bookView := GetBookView(self);
@@ -3121,8 +2999,9 @@ begin
           if i <> mTabsView.ChromeTabs.ActiveTabIndex then
             StateEntryStatus[vtisPendingReload] := true;
 
+          // TODO: remove it
           mTabsView.Browser.DefFontName := FontDialog.Font.Name;
-          mBrowserDefaultFontName := mTabsView.Browser.DefFontName;
+          AppConfig.DefFontName := mTabsView.Browser.DefFontName;
           mTabsView.Browser.DefFontColor := FontDialog.Font.color;
           mTabsView.Browser.DefFontSize := FontDialog.Font.Size;
         end // with
@@ -3239,14 +3118,21 @@ begin
   //bwrXRef.Refresh;
 end;
 
+procedure TMainForm.miInterfaceClick(Sender: TObject);
+begin
+  UISettingsForm.LoadConfiguration;
+  if (UISettingsForm.ShowModal = mrOk) then
+    UISettingsForm.UpdateConfiguration;
+end;
+
 procedure TMainForm.miFoundTextConfigClick(Sender: TObject);
 
 begin
-  ColorDialog.color := Hex2Color(SelTextColor);
+  ColorDialog.color := AppConfig.SelTextColor;
 
   if ColorDialog.Execute then
   begin
-    SelTextColor := Color2Hex(ColorDialog.color);
+    AppConfig.SelTextColor := ColorDialog.Color;
     DeferredReloadViewPages();
   end;
 end;
@@ -3271,16 +3157,15 @@ begin
     if bible.Trait[bqmtStrongs] and not (vtisShowStrongs in bookTabInfo.State) then
       s := DeleteStrongNumbers(s);
 
-    if (CopyOptionsCopyVerseNumbersChecked xor (IsDown(VK_CONTROL))) and
+    if (AppConfig.AddVerseNumbers xor (IsDown(VK_CONTROL))) and
       (fromverse > 0) and (fromverse <> toverse) then
     begin
-      if CopyOptionsAddReferenceChecked and
-        (CopyOptionsAddReferenceRadioItemIndex = 0) then
+      if AppConfig.AddReference and (AppConfig.AddReferenceChoice = 0) then
       begin
         with bible do
           s := ShortPassageSignature(CurBook, CurChapter, i, i) + ' ' + s;
 
-        if CopyOptionsAddModuleNameChecked then
+        if AppConfig.AddModuleName then
           s := bible.ShortName + ' ' + s;
       end
       else
@@ -3292,10 +3177,10 @@ begin
       end;
     end;
 
-    if CopyOptionsAddLineBreaksChecked then
+    if AppConfig.AddLineBreaks then
     begin
       shiftDown := IsDown(VK_SHIFT);
-      if (CopyOptionsCopyFontParamsChecked xor shiftDown) then
+      if (AppConfig.AddFontParams xor shiftDown) then
       begin
         s := s + '<br>'#13#10;
       end
@@ -3307,19 +3192,18 @@ begin
       Result := Result + ' ' + s;
   end;
 
-  if CopyOptionsAddReferenceChecked and
-    (CopyOptionsAddReferenceRadioItemIndex > 0) then
+  if AppConfig.AddReference and (AppConfig.AddReferenceChoice > 0) then
   begin
-    if not CopyOptionsAddLineBreaksChecked then
+    if not AppConfig.AddLineBreaks then
       Result := Result + ' ('
     else
       Result := Result + '(';
 
-    if CopyOptionsAddModuleNameChecked then
+    if AppConfig.AddModuleName then
       Result := Result + bible.ShortName + ' ';
 
     with bible do
-      if CopyOptionsAddReferenceRadioItemIndex = 1 then
+      if AppConfig.AddReferenceChoice = 1 then
         Result := Result + ShortPassageSignature(CurBook, CurChapter, fromverse, toverse) + ')'
       else
         Result := Result + FullPassageSignature(CurBook, CurChapter, fromverse, toverse) + ')';
@@ -3327,13 +3211,13 @@ begin
 
   s := ParseHTML(Result, '');
 
-  if not CopyOptionsAddLineBreaksChecked then
+  if not AppConfig.AddLineBreaks then
     StrReplace(s, #13#10, ' ', true);
 
   StrReplace(s, '  ', ' ', true);
   StrReplace(s, '  ', ' ', true);
   StrReplace(s, '  ', ' ', true);
-  if (CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+  if (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
   begin
     mHTMLSelection := Result;
     InsertDefaultFontInfo(mHTMLSelection, mTabsView.Browser.DefFontName, mTabsView.Browser.DefFontSize);
@@ -3608,14 +3492,14 @@ var
   cl, newcl: TColor;
 begin
   try
-    cl := Hex2Color(g_VerseBkHlColor);
+    cl := AppConfig.VerseHighlightColor;
   except
     cl := $F5F5DC;
   end;
   newcl := ChooseColor(cl);
   if newcl <> cl then
   begin
-    g_VerseBkHlColor := Color2Hex(newcl);
+    AppConfig.VerseHighlightColor := newcl;
     DeferredReloadViewPages();
   end;
 end;
@@ -3631,7 +3515,7 @@ begin
 
   bible := bookView.BookTabInfo.Bible;
 
-  if not(CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+  if not (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
     Exit;
 
   if bible.fontName <> '' then
@@ -3695,7 +3579,7 @@ begin
 
   // try
   dBrowserSource := '<font size=+1><table>';
-  mTabsView.Browser.DefFontName := mBrowserDefaultFontName;
+  mTabsView.Browser.DefFontName := AppConfig.DefFontName;
   bible.OpenChapter(bible.CurBook, bible.CurChapter);
   s := bible.Verses[CurVerseNumber - 1];
   StrDeleteFirstNumber(s);
@@ -3761,7 +3645,7 @@ begin
       if Length(secBible.fontName) > 0 then
         fontName := secBible.fontName
       else
-        fontName := mBrowserDefaultFontName;
+        fontName := AppConfig.DefFontName;
       fontName := FontFromCharset(self.Canvas.Handle, secBible.desiredCharset, fontName);
     end;
 
@@ -4261,18 +4145,16 @@ begin
   if Assigned(ConfigForm) then
   begin
     Lang.TranslateControl(ConfigForm);
-    ConfigForm.chkCopyVerseNumbers.Checked := CopyOptionsCopyVerseNumbersChecked;
-    ConfigForm.chkCopyFontParams.Checked := CopyOptionsCopyFontParamsChecked;
-    ConfigForm.chkAddReference.Checked := CopyOptionsAddReferenceChecked;
-    ConfigForm.rgAddReference.ItemIndex := CopyOptionsAddReferenceRadioItemIndex;
-    ConfigForm.chkAddLineBreaks.Checked := CopyOptionsAddLineBreaksChecked;
-    ConfigForm.chkAddModuleName.Checked := CopyOptionsAddModuleNameChecked;
+    ConfigForm.chkCopyVerseNumbers.Checked := AppConfig.AddVerseNumbers;
+    ConfigForm.chkCopyFontParams.Checked := AppConfig.AddFontParams;
+    ConfigForm.chkAddReference.Checked := AppConfig.AddReference;
+    ConfigForm.rgAddReference.ItemIndex := AppConfig.AddReferenceChoice;
+    ConfigForm.chkAddLineBreaks.Checked := AppConfig.AddLineBreaks;
+    ConfigForm.chkAddModuleName.Checked := AppConfig.AddModuleName;
+
     ConfigForm.rgAddReference.Items[0] := Lang.Say('CopyOptionsAddReference_ShortAtBeginning');
     ConfigForm.rgAddReference.Items[1] := Lang.Say('CopyOptionsAddReference_ShortAtEnd');
     ConfigForm.rgAddReference.Items[2] := Lang.Say('CopyOptionsAddReference_FullAtEnd');
-    ConfigForm.tsFavouriteEx.Caption := Lang.SayDefault('ConfigForm.tsFavouriteEx.Caption', 'Любимые модули');
-    ConfigForm.lblAvailableModules.Caption := Lang.SayDefault('ConfigForm.lblAvailableModules.Caption', 'Модули');
-    ConfigForm.lblFavourites.Caption := Lang.SayDefault('ConfigForm.lblFavourites.Caption', 'Избранные модули');
   end;
 end;
 
@@ -4326,7 +4208,7 @@ begin
   trCount := 7;
   repeat
     try
-      if not(CopyOptionsCopyFontParamsChecked xor IsDown(VK_SHIFT)) then
+      if not (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
         Clipboard.AsText := (pmRef.PopupComponent as THTMLViewer).SelText
       else
         (pmRef.PopupComponent as THTMLViewer).CopyToClipboard();
@@ -5073,9 +4955,9 @@ procedure TMainForm.miRefFontConfigClick(Sender: TObject);
 begin
   with FontDialog do
   begin
-    Font.Name := MainCfgIni.SayDefault('RefFontName', 'Microsoft Sans Serif');
-    Font.color := Hex2Color(MainCfgIni.SayDefault('RefFontColor', Color2Hex(clWindowText)));
-    Font.Size := StrToInt(MainCfgIni.SayDefault('RefFontSize', '12'));
+    Font.Name := AppConfig.RefFontName;
+    Font.color := AppConfig.RefFontColor;
+    Font.Size := AppConfig.RefFontSize;
   end;
 
   if FontDialog.Execute then
@@ -5300,20 +5182,20 @@ begin
   begin
     defBible := ConfigForm.cbDefaultBible.Items[ConfigForm.cbDefaultBible.ItemIndex];
     if (defBible <> '') and (mModules.ResolveModuleByNames(defBible, '') <> nil) then
-      DefaultBibleName := defBible
+      AppConfig.DefaultBible := defBible
     else
-      DefaultBibleName := '';
+      AppConfig.DefaultBible := '';
 
-    mNotifier.Notify(TDefaultBibleChangedMessage.Create(DefaultBibleName));
+    mNotifier.Notify(TDefaultBibleChangedMessage.Create(AppConfig.DefaultBible));
   end;
 
   if (ConfigForm.cbDefaultStrongBible.ItemIndex >= 0) then
   begin
     defStrongBible := ConfigForm.cbDefaultStrongBible.Items[ConfigForm.cbDefaultStrongBible.ItemIndex];
     if (defStrongBible <> '') and (mModules.ResolveModuleByNames(defStrongBible, '') <> nil) then
-      DefaultStrongBibleName := defStrongBible
+      AppConfig.DefaultStrongBible := defStrongBible
     else
-      DefaultStrongBibleName := '';
+      AppConfig.DefaultStrongBible := '';
   end;
 
   SetFavouritesShortcuts();
@@ -5324,28 +5206,28 @@ begin
     bookView.AdjustBibleTabs(bible.ShortName);
   end;
 
-  CopyOptionsCopyVerseNumbersChecked := ConfigForm.chkCopyVerseNumbers.Checked;
-  CopyOptionsCopyFontParamsChecked := ConfigForm.chkCopyFontParams.Checked;
-  CopyOptionsAddReferenceChecked := ConfigForm.chkAddReference.Checked;
-  CopyOptionsAddReferenceRadioItemIndex := ConfigForm.rgAddReference.ItemIndex;
-  CopyOptionsAddLineBreaksChecked := ConfigForm.chkAddLineBreaks.Checked;
-  CopyOptionsAddModuleNameChecked := ConfigForm.chkAddModuleName.Checked;
-  ConfigFormHotKeyChoiceItemIndex := ConfigForm.rgHotKeyChoice.ItemIndex;
+  AppConfig.AddVerseNumbers := ConfigForm.chkCopyVerseNumbers.Checked;
+  AppConfig.AddFontParams := ConfigForm.chkCopyFontParams.Checked;
+  AppConfig.AddReference := ConfigForm.chkAddReference.Checked;
+  AppConfig.AddReferenceChoice := ConfigForm.rgAddReference.ItemIndex;
+  AppConfig.AddLineBreaks := ConfigForm.chkAddLineBreaks.Checked;
+  AppConfig.AddModuleName := ConfigForm.chkAddModuleName.Checked;
+  AppConfig.HotKeyChoice := ConfigForm.rgHotKeyChoice.ItemIndex;
   trayIcon.MinimizeToTray := ConfigForm.chkMinimizeToTray.Checked;
-  if mFlagFullcontextLinks <> ConfigForm.chkFullContextOnRestrictedLinks.Checked
+  if AppConfig.FullContextLinks <> ConfigForm.chkFullContextOnRestrictedLinks.Checked
   then
   begin
-    mFlagFullcontextLinks := ConfigForm.chkFullContextOnRestrictedLinks.Checked;
+    AppConfig.FullContextLinks := ConfigForm.chkFullContextOnRestrictedLinks.Checked;
     reload := true;
   end;
-  if mFlagHighlightVerses <> ConfigForm.chkHighlightVerseHits.Checked then
+  if AppConfig.HighlightVerseHits <> ConfigForm.chkHighlightVerseHits.Checked then
   begin
-    mFlagHighlightVerses := ConfigForm.chkHighlightVerseHits.Checked;
+    AppConfig.HighlightVerseHits := ConfigForm.chkHighlightVerseHits.Checked;
     reload := true;
   end;
-  if ConfigForm.edtSelectPath.Text <> G_SecondPath then
+  if ConfigForm.edtSelectPath.Text <> AppConfig.SecondPath then
   begin
-    G_SecondPath := ConfigForm.edtSelectPath.Text;
+    AppConfig.SecondPath := ConfigForm.edtSelectPath.Text;
     MainMenuInit(true);
   end;
   if reload then

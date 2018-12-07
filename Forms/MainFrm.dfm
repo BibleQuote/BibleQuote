@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = 'BibleQuote 7'
-  ClientHeight = 382
+  ClientHeight = 355
   ClientWidth = 831
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -15,7 +15,7 @@ object MainForm: TMainForm
   KeyPreview = True
   Menu = mmGeneral
   OldCreateOrder = True
-  Position = poScreenCenter
+  Position = poDefault
   ShowHint = True
   OnActivate = FormActivate
   OnClose = FormClose
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 831
-    Height = 327
+    Height = 300
     Align = alClient
     DockSite = True
     TabOrder = 0
@@ -329,7 +329,7 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 361
+    Top = 334
     Width = 831
     Height = 21
     Align = alBottom
@@ -3706,6 +3706,10 @@ object MainForm: TMainForm
       object miLanguage: TMenuItem
         Caption = #1071#1079#1099#1082' '#1080#1085#1090#1077#1088#1092#1077#1081#1089#1072
       end
+      object miInterface: TMenuItem
+        Caption = 'Interface'
+        OnClick = miInterfaceClick
+      end
     end
     object miActions: TMenuItem
       Caption = #1054#1087#1077#1088#1072#1094#1080#1080
@@ -3762,7 +3766,7 @@ object MainForm: TMainForm
     Left = 56
     Top = 200
     Bitmap = {
-      494C010135006800800510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101350068008C0510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5628,7 +5632,7 @@ object MainForm: TMainForm
     Left = 98
     Top = 201
     Bitmap = {
-      494C01011600E801C40318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801D00318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

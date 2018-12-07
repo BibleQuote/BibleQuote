@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, SysUtils, IOUtils, Contnrs, bible, BibleQuoteUtils, BibleQuoteConfig,
-  Engine, EngineInterfaces, AppPaths;
+  Engine, EngineInterfaces, AppPaths, AppIni;
 
 const
   C_NumOfModulesToScan = 5;
@@ -96,8 +96,12 @@ begin
 end;
 
 function TModuleLoader.LoadModules(tmpBook: TBible; background: Boolean): Boolean;
+var
+  secondPath: string;
 begin
   Result := false;
+
+  secondPath := AppConfig.SecondPath;
   try
     if not background then
     begin
@@ -106,10 +110,10 @@ begin
 
       AddArchivedModules(TLibraryDirectories.CompressedModules, tmpBook, background);
 
-      if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
+      if (secondPath <> '') and (ExtractFilePath(secondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
       begin
-        AddFolderModules(TPath.Combine(G_SecondPath, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
-        AddFolderModules(TPath.Combine(G_SecondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
+        AddFolderModules(TPath.Combine(secondPath, C_BiblesSubDirectory), tmpBook, background, modtypeBible);
+        AddFolderModules(TPath.Combine(secondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
       end;
 
       AddFolderModules(TLibraryDirectories.Commentaries, tmpBook, background, modtypeComment);
@@ -150,10 +154,10 @@ begin
 
       if not mSecondFolderBiblesScanned then
       begin
-        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
+        if (secondPath <> '') and (ExtractFilePath(secondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
         begin
           mSecondFolderBiblesScanned := AddFolderModules(
-            TPath.Combine(G_SecondPath, C_BiblesSubDirectory),
+            TPath.Combine(secondPath, C_BiblesSubDirectory),
             tmpBook,
             background,
             modtypeBible);
@@ -166,10 +170,10 @@ begin
 
       if not mSecondFolderBooksScanned then
       begin
-        if (G_SecondPath <> '') and (ExtractFilePath(G_SecondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
+        if (secondPath <> '') and (ExtractFilePath(secondPath) <> ExtractFilePath(TLibraryDirectories.Root)) then
         begin
           mSecondFolderBooksScanned := AddFolderModules(
-            TPath.Combine(G_SecondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
+            TPath.Combine(secondPath, C_BooksSubDirectory), tmpBook, background, modtypeBook);
           Exit;
         end
         else

@@ -6,7 +6,7 @@ interface
 
 uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils, JCLDebug, PlainUtils,
   Contnrs, Windows, SysUtils, Classes, SystemInfo, CRC32, Vcl.Graphics,
-  ImageUtils, SyncObjs, ShlObj, AppPaths;
+  ImageUtils, SyncObjs, ShlObj, AppPaths, AppIni;
 
 type
   TPasswordPolicy = class
@@ -258,8 +258,6 @@ var
   Lang: TMultiLanguage;
   G_DebugEx: integer;
   G_NoCategoryStr: string = 'Без категории';
-  MainCfgIni: TMultiLanguage;
-  G_SecondPath: string;
 
 implementation
 
@@ -1911,8 +1909,8 @@ begin
       result := '?' + fullPath + '??' + C_ModuleIniName
     else if FileExists(TPath.Combine(TAppDirectories.Root, s)) then
       result := TPath.Combine(TAppDirectories.Root, s)
-    else if FileExists(TPath.Combine(G_SecondPath, s)) then
-      result := TPath.Combine(G_SecondPath, s)
+    else if FileExists(TPath.Combine(AppConfig.SecondPath , s)) then
+      result := TPath.Combine(AppConfig.SecondPath, s)
   end;
 
   function GetCallerEIP(): Pointer; assembler;
