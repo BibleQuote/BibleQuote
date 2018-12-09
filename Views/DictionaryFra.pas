@@ -64,6 +64,7 @@ type
     destructor Destroy; override;
 
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
     procedure DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
     procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1; const foundDictionaryIndex: integer = -1);
   end;
@@ -216,15 +217,7 @@ begin
   mMainView.GetNotifier.Add(self);
   mTokenNodes := TObjectList.Create(false);
 
-  with bwrDic do
-  begin
-    DefFontName := AppConfig.RefFontName;
-    DefFontSize := AppConfig.RefFontSize;
-    DefFontColor := AppConfig.RefFontColor;
-
-    DefBackGround := AppConfig.BackgroundColor;
-    DefHotSpotColor := AppConfig.HotSpotColor;
-  end;
+  ApplyConfig(AppConfig);
 end;
 
 destructor TDictionaryFrame.Destroy;
@@ -291,6 +284,22 @@ begin
   UpdateDictionariesCombo();
   Lang.TranslateControl(self, 'MainForm');
   Lang.TranslateControl(self, 'DockTabsForm');
+end;
+
+procedure TDictionaryFrame.ApplyConfig(appConfig: TAppConfig);
+begin
+  with bwrDic do
+  begin
+    DefFontName := AppConfig.RefFontName;
+    DefFontSize := AppConfig.RefFontSize;
+    DefFontColor := AppConfig.RefFontColor;
+
+    DefBackGround := AppConfig.BackgroundColor;
+    DefHotSpotColor := AppConfig.HotSpotColor;
+
+    if (DocumentSource <> '') then
+      LoadFromString(DocumentSource);
+  end;
 end;
 
 procedure TDictionaryFrame.vstDicListAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);

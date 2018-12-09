@@ -29,13 +29,11 @@ object BookmarksFrame: TBookmarksFrame
     object lblBookmark: TLabel
       Left = 10
       Top = 10
-      Width = 300
-      Height = 90
+      Width = 56
+      Height = 13
       Align = alClient
       Caption = 'lblBookmark'
       WordWrap = True
-      ExplicitWidth = 56
-      ExplicitHeight = 13
     end
   end
 end

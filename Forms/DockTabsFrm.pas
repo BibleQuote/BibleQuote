@@ -10,7 +10,8 @@ uses
   ExceptionFrm, Math, MainFrm,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig, BookmarksFra,
-  SearchFra, TSKFra, TagsVersesFra, DictionaryFra, StrongFra;
+  SearchFra, TSKFra, TagsVersesFra, DictionaryFra, StrongFra, AppIni,
+  JclNotify, NotifyMessages;
 
 const
   bsText = 0;
@@ -21,7 +22,7 @@ const
   bsSearch = 5;
 
 type
-  TDockTabsForm = class(TForm, ITabsView)
+  TDockTabsForm = class(TForm, ITabsView, IJclListener)
     ilImages: TImageList;
     pnlMain: TPanel;
     mViewTabsPopup: TPopupMenu;
@@ -59,6 +60,8 @@ type
     mDictionaryView: TDictionaryFrame;
     mStrongView: TStrongFrame;
 
+    mNotifier: IJclNotifier;
+
     mUpdateOnTabChange: boolean;
 
     mViewTabs: TList<IViewTabInfo>;
@@ -66,6 +69,7 @@ type
     procedure ShowFrame(frame: TFrame);
     procedure HideFrame(frame: TFrame);
     procedure UpdateTabContent(ATab: TChromeTab; restoreState: boolean = true);
+    procedure Notification(msg: IJclNotificationMessage); stdcall;
   public
     { Public declarations }
 
@@ -96,6 +100,7 @@ type
 
     procedure MakeActive();
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
 
     // getters
     function GetBrowser: THTMLViewer;
@@ -253,6 +258,9 @@ begin
   mViewTabs := TList<IViewTabInfo>.Create();
   mMainView := mainView;
   mUpdateOnTabChange := true;
+
+  mNotifier := mainView.mNotifier;
+  mNotifier.Add(self);
 end;
 
 procedure TDockTabsForm.ctViewTabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
@@ -941,6 +949,36 @@ begin
   UpdateTabContent(newTab);
 
   Result := newTab;
+end;
+
+procedure TDockTabsForm.Notification(msg: IJclNotificationMessage);
+var
+  msgAppConfigChanged: IAppConfigChangedMessage;
+begin
+  if Supports(msg, IAppConfigChangedMessage, msgAppConfigChanged) then
+  begin
+    ApplyConfig(AppConfig);
+  end;
+end;
+
+procedure TDockTabsForm.ApplyConfig(appConfig: TAppConfig);
+begin
+  try
+    mBookView.ApplyConfig(appConfig);
+    mMemoView.ApplyConfig(appConfig);
+    mLibraryView.ApplyConfig(appConfig);
+    mBookmarksView.ApplyConfig(appConfig);
+    mSearchView.ApplyConfig(appConfig);
+    mTagsVersesView.ApplyConfig(appConfig);
+    mDictionaryView.ApplyConfig(appConfig);
+    mStrongView.ApplyConfig(appConfig);
+  except
+    on E: Exception do
+    begin
+      // Failed to translate exception form
+      // Suppress the exception
+    end;
+  end;
 end;
 
 procedure TDockTabsForm.Translate();

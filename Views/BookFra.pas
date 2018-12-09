@@ -11,7 +11,7 @@ uses
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
-  Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni;
+  Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -171,6 +171,7 @@ type
     mBrowserSearchPosition: Longint;
     mUpdateOnTreeNodeSelect: boolean;
     pmHistory: PopupFrm.TPopupMenu;
+    mNotifier: IJclNotifier;
 
     procedure SetMemosVisible(showMemos: Boolean);
 
@@ -188,6 +189,7 @@ type
     procedure UpdateModuleTreeFont(book: TBible);
     procedure AddBookmarkTagged(tagName: string);
     procedure AddThemedBookmarkClick(Sender: TObject);
+    procedure NotifyFontChanged(delta: integer);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
@@ -203,6 +205,7 @@ type
     function GetBookTabInfo: TBookTabInfo;
     property BookTabInfo: TBookTabInfo read GetBookTabInfo;
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
     procedure UpdateModuleTreeSelection(book: TBible);
     procedure UpdateModuleTree(book: TBible);
     function GetCurrentBookNode(): PVirtualNode;
@@ -229,6 +232,11 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
   mSatelliteLibraryView.Translate();
   mSatelliteForm.Caption := Lang.SayDefault('SelectParaBible', 'Select secondary bible');
+end;
+
+procedure TBookFrame.ApplyConfig(appConfig: TAppConfig);
+begin
+// TODO: apply app config
 end;
 
 function TBookFrame.IsPsalms(bible: TBible; bookIndex: integer): Boolean;
@@ -633,13 +641,26 @@ begin
   if Key = '+' then
   begin
     Key := #0;
+    NotifyFontChanged(1);
     mMainView.FontChanged(1);
   end
   else if Key = '-' then
   begin
     Key := #0;
+    NotifyFontChanged(-1);
     mMainView.FontChanged(-1);
   end;
+end;
+
+procedure TBookFrame.NotifyFontChanged(delta: integer);
+var
+  defFontSz: integer;
+begin
+  defFontSz := AppConfig.DefFontSize + delta;
+  if (delta = 0) or (defFontSz > 48) or (defFontSz < 6) then
+    Exit;
+
+  mNotifier.Notify(TFontSizeChangedMessage.Create(defFontSz + delta));
 end;
 
 procedure TBookFrame.bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -811,6 +832,7 @@ begin
   mMainView := mainView;
   mTabsView := tabsView;
 
+  mNotifier := mainView.mNotifier;
   mSatelliteForm := TForm.Create(self);
   mSatelliteForm.OnDeactivate := OnSatelliteFormDeactivate;
 

@@ -10,7 +10,7 @@ uses
   GfxRenderers, BookFra, Engine, Generics.Collections, System.Contnrs,
   ShlObj, EngineInterfaces, ExceptionFrm, JclNotify, System.Types,
   System.UITypes, System.ImageList, Vcl.ImgList, BibleQuoteConfig,
-  NotifyMessages;
+  NotifyMessages, AppIni;
 
 type
   TTagsVersesFrame = class(TFrame, ITagsVersesView, IJclListener, IVDTInfo)
@@ -59,6 +59,7 @@ type
     constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
     destructor Destroy; override;
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
 
     procedure TagAdded(tagId: int64; const txt: string; Show: Boolean);
     procedure TagRenamed(tagId: int64; const newTxt: string);
@@ -671,6 +672,11 @@ end;
 procedure TTagsVersesFrame.Translate();
 begin
   Lang.TranslateControl(self, 'DockTabsForm');
+end;
+
+procedure TTagsVersesFrame.ApplyConfig(appConfig: TAppConfig);
+begin
+// TODO: apply app config
 end;
 
 function TTagsVersesFrame.LoadTaggedBookMarks(): Boolean;

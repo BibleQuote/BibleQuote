@@ -38,6 +38,7 @@ type
     property Verse: integer read mVerse write mVerse;
 
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
     procedure ShowXref(bibleIniPath: string; bookIndex, chapterIndex: integer; goverse: integer = 0);
   end;
 
@@ -51,18 +52,10 @@ begin
   mMainView := AMainView;
   mTabsView := ATabsView;
 
-  with bwrXRef do
-  begin
-    DefFontName := AppConfig.RefFontName;
-    DefFontSize := AppConfig.RefFontSize;
-    DefFontColor := AppConfig.RefFontColor;
+  ApplyConfig(AppConfig);
 
-    DefBackGround := AppConfig.BackgroundColor;
-    DefHotSpotColor := AppConfig.HotSpotColor;
-
-    // this browser doesn't have underlines...
-    htOptions := htOptions + [htNoLinkUnderline];
-  end;
+  // this browser doesn't have underlines...
+  bwrXRef.htOptions := bwrXRef.htOptions + [htNoLinkUnderline];
 end;
 
 procedure TTSKFrame.bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
@@ -271,6 +264,22 @@ procedure TTSKFrame.Translate();
 begin
   Lang.TranslateControl(self, 'MainForm');
   Lang.TranslateControl(self, 'DockTabsForm');
+end;
+
+procedure TTSKFrame.ApplyConfig(appConfig: TAppConfig);
+begin
+  with bwrXRef do
+  begin
+    DefFontName := AppConfig.RefFontName;
+    DefFontSize := AppConfig.RefFontSize;
+    DefFontColor := AppConfig.RefFontColor;
+
+    DefBackGround := AppConfig.BackgroundColor;
+    DefHotSpotColor := AppConfig.HotSpotColor;
+
+    if (DocumentSource <> '') then
+      LoadFromString(DocumentSource);
+  end;
 end;
 
 end.

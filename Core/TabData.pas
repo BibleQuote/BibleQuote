@@ -6,7 +6,7 @@ uses System.UITypes, System.Classes, Winapi.Windows, SysUtils,
      Vcl.Controls, Vcl.Graphics, Bible, HtmlView,
      Vcl.Tabs, Vcl.DockTabSet, ChromeTabs, ChromeTabsTypes, ChromeTabsUtils,
      ChromeTabsControls, ChromeTabsClasses, ChromeTabsLog, LayoutConfig,
-     BibleQuoteUtils;
+     BibleQuoteUtils, AppIni;
 
 type
   TViewTabType = (
@@ -23,6 +23,7 @@ type
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
   end;
 
   IBookView = interface(ITabView)

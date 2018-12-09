@@ -48,6 +48,15 @@ type
     function GetBibleName: string;
   end;
 
+  IAppConfigChangedMessage = interface
+    ['{49231BC0-05A6-43AB-8F3B-D2FF68838F2A}']
+  end;
+
+  IFontSizeChangedMessage = interface
+    ['{6CBF300F-FA15-4DB6-9C39-ED57A9403126}']
+    function GetFontSize: integer;
+  end;
+
   TVerseAddedMessage = class (TJclBaseNotificationMessage, IVerseAddedMessage)
   private
     FVerseId: int64;
@@ -110,7 +119,17 @@ type
   end;
 
   TDictionariesLoadedMessage = class(TJclBaseNotificationMessage, IDictionariesLoadedMessage)
+  end;
 
+  TAppConfigChangedMessage = class(TJclBaseNotificationMessage, IAppConfigChangedMessage)
+  end;
+
+  TFontSizeChangedMessage = class(TJclBaseNotificationMessage, IFontSizeChangedMessage)
+  private
+    FFontSize: integer;
+  public
+    constructor Create(fontSize: integer);
+    function GetFontSize: integer;
   end;
 
   TDefaultBibleChangedMessage = class(TJclBaseNotificationMessage, IDefaultBibleChangedMessage)
@@ -242,4 +261,16 @@ function TDefaultBibleChangedMessage.GetBibleName: string;
 begin
   Result := FBibleName;
 end;
+
+{ TFontDeltaChangedMessage }
+constructor TFontSizeChangedMessage.Create(fontSize: integer);
+begin
+  FFontSize := fontSize;
+end;
+
+function TFontSizeChangedMessage.GetFontSize: integer;
+begin
+  Result := FFontSize;
+end;
+
 end.

@@ -70,6 +70,7 @@ type
 
     procedure DisplaySearchResults(page: integer);
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
 
     function GetBookPath(): string;
     property SearchState: TSearchTabState read mSearchState write mSearchState;
@@ -100,15 +101,7 @@ begin
   mBookSelectView.Align := TAlign.alClient;
   mBookSelectView.Parent := mBookSelectForm;
 
-  with bwrSearch do
-  begin
-    DefFontName := AppConfig.RefFontName;
-    DefFontSize := AppConfig.RefFontSize;
-    DefFontColor := AppConfig.RefFontColor;
-
-    DefBackGround := AppConfig.BackgroundColor;
-    DefHotSpotColor := AppConfig.HotSpotColor;
-  end;
+  ApplyConfig(AppConfig);
 end;
 
 procedure TSearchFrame.OnBookSelectFormDeactivate(Sender: TObject);
@@ -559,6 +552,19 @@ begin
   mBookSelectView.Translate();
 
   mBookSelectForm.Caption := Lang.SayDefault('SelectBook', 'Select book');
+end;
+
+procedure TSearchFrame.ApplyConfig(appConfig: TAppConfig);
+begin
+  with bwrSearch do
+  begin
+    DefFontName := AppConfig.RefFontName;
+    DefFontSize := AppConfig.RefFontSize;
+    DefFontColor := AppConfig.RefFontColor;
+
+    DefBackGround := AppConfig.BackgroundColor;
+    DefHotSpotColor := AppConfig.HotSpotColor;
+  end;
 end;
 
 function TSearchFrame.GetBookPath(): string;
