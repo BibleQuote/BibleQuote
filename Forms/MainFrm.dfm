@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 14
+  TextHeight = 15
   object pnlModules: TPanel
     Left = 0
     Top = 34
@@ -96,7 +96,7 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 534
       Top = 4
-      Width = 37
+      Width = 38
       Height = 26
       Margins.Right = 7
       Align = alLeft
@@ -110,13 +110,13 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 14
+      ExplicitHeight = 15
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 581
+      Left = 582
       Top = 4
-      Width = 242
+      Width = 241
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -297,7 +297,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 136
-        Height = 22
+        Height = 23
         Margins.Top = 0
         Margins.Bottom = 0
         Align = alClient
@@ -3694,10 +3694,6 @@ object MainForm: TMainForm
           Caption = #1064#1088#1080#1092#1090' '#1075#1083#1072#1074#1085#1086#1075#1086' '#1086#1082#1085#1072
           OnClick = miFontConfigClick
         end
-        object miRefFontConfig: TMenuItem
-          Caption = #1064#1088#1080#1092#1090' '#1089#1087#1088#1072#1074#1086#1095#1085#1080#1082#1086#1074
-          OnClick = miRefFontConfigClick
-        end
         object miDialogFontConfig: TMenuItem
           Caption = #1064#1088#1080#1092#1090' '#1076#1080#1072#1083#1086#1075#1086#1074#1099#1093' '#1086#1082#1086#1085
           OnClick = miDialogFontConfigClick
@@ -3766,7 +3762,7 @@ object MainForm: TMainForm
     Left = 56
     Top = 200
     Bitmap = {
-      494C0101350068008C0510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800940510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5632,7 +5628,7 @@ object MainForm: TMainForm
     Left = 98
     Top = 201
     Bitmap = {
-      494C01011600E801D00318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801D80318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

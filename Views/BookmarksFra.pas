@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.UITypes, BibleQuoteUtils,
   TabData, Vcl.StdCtrls, Vcl.ExtCtrls, BroadcastList, StringProcs, BookFra,
-  MainFrm;
+  MainFrm, AppIni;
 
 type
   TBookmarksFrame = class(TFrame, IBookmarksView)
@@ -26,6 +26,7 @@ type
     procedure RefreshBookmarks();
   public
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
     constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView; ABookmarks: TBroadcastStringList); reintroduce;
     destructor Destroy; override;
   end;
@@ -119,6 +120,11 @@ end;
 procedure TBookmarksFrame.Translate();
 begin
   Lang.TranslateControl(self, 'DockTabsForm');
+end;
+
+procedure TBookmarksFrame.ApplyConfig(appConfig: TAppConfig);
+begin
+// TODO: apply app config
 end;
 
 end.

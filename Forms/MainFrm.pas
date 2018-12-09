@@ -106,7 +106,6 @@ type
     miColors: TMenuItem;
     miExit: TMenuItem;
     miFontConfig: TMenuItem;
-    miRefFontConfig: TMenuItem;
     miDialogFontConfig: TMenuItem;
     miBGConfig: TMenuItem;
     miHrefConfig: TMenuItem;
@@ -181,7 +180,6 @@ type
     procedure edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
-    procedure miRefFontConfigClick(Sender: TObject);
     procedure miQuickNavClick(Sender: TObject);
     procedure miQuickSearchClick(Sender: TObject);
     procedure tbtnCopyrightClick(Sender: TObject);
@@ -236,7 +234,6 @@ type
     procedure tbtnAddLibraryTabClick(Sender: TObject);
     procedure miInterfaceClick(Sender: TObject);
   private
-    procedure PrepareConfigForm();
     procedure NavigeTSKTab;
     procedure PlaySound();
   public
@@ -588,156 +585,6 @@ begin
 
   if Assigned(bookTabInfo) then
     OpenOrCreateTSKTab(bookTabInfo, 1);
-end;
-
-procedure TMainForm.PrepareConfigForm();
-var
-  allBibles: TStringList;
-  strongBibles: TSTringList;
-  i: integer;
-  moduleCount: integer;
-begin
-  with ConfigForm do
-  begin
-    Font.Assign(self.Font);
-    Left := (Screen.Width - Width) div 2;
-    Top := (Screen.Height - Height) div 2;
-    edtSelectPath.Text := AppConfig.SecondPath;
-    chkMinimizeToTray.Checked := trayIcon.MinimizeToTray;
-    chkFullContextOnRestrictedLinks.Checked := AppConfig.FullContextLinks;
-    chkHighlightVerseHits.Checked := AppConfig.HighlightVerseHits;
-    rgHotKeyChoice.ItemIndex := AppConfig.HotKeyChoice;
-    moduleCount := mModules.Count - 1;
-
-    // fill the list of available modules for favorites
-    cbAvailableModules.Clear;
-    allBibles := TStringList.Create;
-    try
-      allBibles.Sorted := true;
-
-      allBibles.BeginUpdate;
-      try
-        for i := 0 to moduleCount do
-        begin
-          allBibles.Add(mModules[i].mFullName);
-        end;
-      finally
-        allBibles.EndUpdate;
-      end;
-
-      cbAvailableModules.Items.BeginUpdate;
-      try
-        cbAvailableModules.Items.Clear;
-        for i := 0 to allBibles.Count - 1 do
-        begin
-          cbAvailableModules.Items.Add(allBibles[i]);
-        end;
-      finally
-        cbAvailableModules.Items.EndUpdate;
-      end;
-    finally
-      allBibles.Free;
-    end;
-
-    if moduleCount >= 0 then
-      cbAvailableModules.ItemIndex := 0;
-
-    // fill the list of available modules for default bible
-    cbDefaultBible.Clear;
-    allBibles := TStringList.Create;
-    strongBibles := TStringList.Create;
-    try
-      allBibles.Sorted := true;
-      strongBibles.Sorted := true;
-
-      allBibles.BeginUpdate;
-      strongBibles.BeginUpdate;
-      try
-        for i := 0 to moduleCount do
-        begin
-          if (mModules[i].modType = modtypeBible) then
-          begin
-            allBibles.Add(mModules[i].mFullName);
-
-            if (mModules[i].mHasStrong) then
-              strongBibles.Add(mModules[i].mFullName);
-          end;
-        end;
-      finally
-        allBibles.EndUpdate;
-        strongBibles.EndUpdate;
-      end;
-      cbDefaultBible.Items.BeginUpdate;
-
-      try
-        cbDefaultBible.Items.Clear;
-        cbDefaultBible.Items.Add('');
-        for i := 0 to allBibles.Count - 1 do
-        begin
-          cbDefaultBible.Items.Add(allBibles[i]);
-        end;
-      finally
-        cbDefaultBible.Items.EndUpdate;
-      end;
-
-      if (AppConfig.DefaultBible = '') then
-      begin
-        cbDefaultBible.ItemIndex := 0;
-      end
-      else
-      begin
-        for i := 0 to cbDefaultBible.Items.Count - 1 do
-        begin
-          if (OmegaCompareTxt(AppConfig.DefaultBible, cbDefaultBible.Items[i], -1, false) = 0) then
-          begin
-            cbDefaultBible.ItemIndex := i;
-            break;
-          end;
-        end;
-      end;
-
-      cbDefaultStrongBible.Items.BeginUpdate;
-      try
-        cbDefaultStrongBible.Items.Clear;
-        cbDefaultStrongBible.Items.Add('');
-        for i := 0 to strongBibles.Count - 1 do
-        begin
-          cbDefaultStrongBible.Items.Add(strongBibles[i]);
-        end;
-      finally
-        cbDefaultStrongBible.Items.EndUpdate;
-      end;
-
-      if (AppConfig.DefaultStrongBible = '') then
-      begin
-        cbDefaultStrongBible.ItemIndex := 0;
-      end
-      else
-      begin
-        for i := 0 to cbDefaultStrongBible.Items.Count - 1 do
-        begin
-          if (OmegaCompareTxt(AppConfig.DefaultStrongBible, cbDefaultStrongBible.Items[i], -1, false) = 0) then
-          begin
-            cbDefaultStrongBible.ItemIndex := i;
-            break;
-          end;
-        end;
-      end;
-
-    finally
-      allBibles.Free;
-      strongBibles.Free;
-    end;
-
-    moduleCount := mFavorites.mModuleEntries.Count - 1;
-    lbFavourites.Clear;
-    lbFavourites.Items.BeginUpdate;
-    for i := 0 to moduleCount do
-    begin
-      lbFavourites.Items.Add(mFavorites.mModuleEntries[i].mFullName);
-    end;
-    lbFavourites.Items.EndUpdate;
-  end;
 end;
 
 function TMainForm.CreateTabsView(viewName: string): ITabsView;
@@ -4951,45 +4798,6 @@ begin
   Result := true;
 end;
 
-procedure TMainForm.miRefFontConfigClick(Sender: TObject);
-begin
-  with FontDialog do
-  begin
-    Font.Name := AppConfig.RefFontName;
-    Font.color := AppConfig.RefFontColor;
-    Font.Size := AppConfig.RefFontSize;
-  end;
-
-  if FontDialog.Execute then
-  begin
-    // TODO: change font of tsk tabs
-//    with bwrStrong do
-//    begin
-//      DefFontName := FontDialog.Font.Name;
-//      DefFontColor := FontDialog.Font.color;
-//      DefFontSize := FontDialog.Font.Size;
-//      LoadFromString(DocumentSource);
-//    end;
-
-    // TODO: change font of tsk tabs
-//    with bwrXRef do
-//    begin
-//      DefFontName := bwrDic.DefFontName;
-//      DefFontColor := bwrDic.DefFontColor;
-//      DefFontSize := bwrDic.DefFontSize;
-//    end;
-
-    // TODO: change font of dictionary tabs
-//    with bwrDic do
-//    begin
-//      DefFontName := bwrDic.DefFontName;
-//      DefFontColor := bwrDic.DefFontColor;
-//      DefFontSize := bwrDic.DefFontSize;
-//      LoadFromString(DocumentSource);
-//    end;
-  end;
-end;
-
 procedure TMainForm.miQuickNavClick(Sender: TObject);
 var
   bible: TBible;
@@ -5158,7 +4966,9 @@ var
 begin
   reload := false;
   ForceForegroundLoad();
-  PrepareConfigForm();
+
+  ConfigForm.LoadConfiguration(mModules, mFavorites);
+  ConfigForm.Font := self.Font;
 
   if ConfigForm.ShowModal = mrCancel then
     Exit;
@@ -5206,6 +5016,31 @@ begin
     bookView.AdjustBibleTabs(bible.ShortName);
   end;
 
+  if Assigned(ConfigForm.PrimaryFont) then
+  begin
+    AppConfig.DefFontName := ConfigForm.PrimaryFont.Name;
+    AppConfig.DefFontColor := ConfigForm.PrimaryFont.Color;
+    AppConfig.DefFontSize := ConfigForm.PrimaryFont.Size;
+  end;
+
+  if Assigned(ConfigForm.SecondaryFont) then
+  begin
+    AppConfig.RefFontName := ConfigForm.SecondaryFont.Name;
+    AppConfig.RefFontColor := ConfigForm.SecondaryFont.Color;
+    AppConfig.RefFontSize := ConfigForm.SecondaryFont.Size;
+  end;
+
+  if Assigned(ConfigForm.DialogsFont) then
+  begin
+    AppConfig.MainFormFontName := ConfigForm.DialogsFont.Name;
+    AppConfig.MainFormFontSize := ConfigForm.DialogsFont.Size;
+  end;
+
+  AppConfig.BackgroundColor := ConfigForm.clrBackground.Selected;
+  AppConfig.HotSpotColor := ConfigForm.clrHyperlinks.Selected;
+  AppConfig.VerseHighlightColor := ConfigForm.clrVerseHighlight.Selected;
+  AppConfig.SelTextColor := ConfigForm.clrSearchText.Selected;
+
   AppConfig.AddVerseNumbers := ConfigForm.chkCopyVerseNumbers.Checked;
   AppConfig.AddFontParams := ConfigForm.chkCopyFontParams.Checked;
   AppConfig.AddReference := ConfigForm.chkAddReference.Checked;
@@ -5230,6 +5065,9 @@ begin
     AppConfig.SecondPath := ConfigForm.edtSelectPath.Text;
     MainMenuInit(true);
   end;
+
+  mNotifier.Notify(TAppConfigChangedMessage.Create());
+
   if reload then
     DeferredReloadViewPages();
 end;

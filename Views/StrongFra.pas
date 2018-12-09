@@ -57,6 +57,7 @@ type
     procedure DisplayStrongs(num: integer; hebrew: Boolean);
     procedure SetCurrentBook(shortPath: string);
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
     function GetBookPath(): string;
 
     procedure EnsureStrongHebrewLoaded(reportError: boolean);
@@ -203,15 +204,7 @@ begin
   StrongHebrew := TDict.Create;
   StrongGreek := TDict.Create;
 
-  with bwrStrong do
-    begin
-      DefFontName := AppConfig.RefFontName;
-      DefFontSize := AppConfig.RefFontSize;
-      DefFontColor := AppConfig.RefFontColor;
-
-      DefBackGround := AppConfig.BackgroundColor;
-      DefHotSpotColor := AppConfig.HotSpotColor;
-    end;
+  ApplyConfig(AppConfig);
 end;
 
 procedure TStrongFrame.EnsureStrongHebrewLoaded(reportError: boolean);
@@ -422,6 +415,22 @@ procedure TStrongFrame.Translate();
 begin
   Lang.TranslateControl(self, 'MainForm');
   Lang.TranslateControl(self, 'DockTabsForm');
+end;
+
+procedure TStrongFrame.ApplyConfig(appConfig: TAppConfig);
+begin
+  with bwrStrong do
+    begin
+      DefFontName := AppConfig.RefFontName;
+      DefFontSize := AppConfig.RefFontSize;
+      DefFontColor := AppConfig.RefFontColor;
+
+      DefBackGround := AppConfig.BackgroundColor;
+      DefHotSpotColor := AppConfig.HotSpotColor;
+
+      if (DocumentSource <> '') then
+        LoadFromString(DocumentSource);
+    end;
 end;
 
 procedure TStrongFrame.vstStrongAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);

@@ -7,7 +7,7 @@ uses
   Forms, Dialogs, VirtualTrees, Contnrs, StdCtrls, ExtCtrls, Math,
   DockTabSet, Vcl.ComCtrls, Vcl.ToolWin, System.ImageList, MainFrm,
   Vcl.ImgList, TabData, Vcl.Menus, System.UITypes, BibleQuoteUtils, PlainUtils,
-  ImageUtils;
+  ImageUtils, AppIni;
 
 type
   TBooksType = (
@@ -55,6 +55,7 @@ type
     procedure SetModules(modules: TCachedModules);
 
     procedure Translate();
+    procedure ApplyConfig(appConfig: TAppConfig);
     destructor Destroy; override;
 
     property OnSelectModule: TSelectModuleEvent read FOnSelectModuleEvent write FOnSelectModuleEvent;
@@ -101,6 +102,11 @@ begin
     if Assigned(origCoverImage) then
       origCoverImage.Free;
   end;
+end;
+
+procedure TLibraryFrame.ApplyConfig(appConfig: TAppConfig);
+begin
+// TODO: apply app config
 end;
 
 procedure TLibraryFrame.InitFonts;
