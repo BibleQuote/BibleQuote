@@ -676,7 +676,11 @@ end;
 
 procedure TTagsVersesFrame.ApplyConfig(appConfig: TAppConfig);
 begin
-// TODO: apply app config
+  if (appConfig.MainFormFontName <> Font.Name) then
+    Font.Name := appConfig.MainFormFontName;
+
+  if (appConfig.MainFormFontSize <> Font.Size) then
+    Font.Size := appConfig.MainFormFontSize;
 end;
 
 function TTagsVersesFrame.LoadTaggedBookMarks(): Boolean;

@@ -23,7 +23,7 @@ uses
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, FontManager, BroadcastList, JclNotify, NotifyMessages,
-  UISettingsFrm, AppIni;
+  AppIni;
 
 const
 
@@ -97,19 +97,11 @@ type
     miActions: TMenuItem;
     miFavorites: TMenuItem;
     miHelpMenu: TMenuItem;
-    miLanguage: TMenuItem;
     miPrint: TMenuItem;
     miPrintPreview: TMenuItem;
     miFileSep1: TMenuItem;
     miOptions: TMenuItem;
-    miFonts: TMenuItem;
-    miColors: TMenuItem;
     miExit: TMenuItem;
-    miFontConfig: TMenuItem;
-    miDialogFontConfig: TMenuItem;
-    miBGConfig: TMenuItem;
-    miHrefConfig: TMenuItem;
-    miFoundTextConfig: TMenuItem;
     miQuickNav: TMenuItem;
     miQuickSearch: TMenuItem;
     miHotKey: TMenuItem;
@@ -131,7 +123,6 @@ type
     reClipboard: TRichEdit;
     miRecognizeBibleLinks: TMenuItem;
     tbtnResolveLinks: TToolButton;
-    miVerseHighlightBG: TMenuItem;
     ilPictures24: TImageList;
     pmRecLinksOptions: TPopupMenu;
     miStrictLogic: TMenuItem;
@@ -140,7 +131,6 @@ type
     tbtnSpace1: TToolButton;
     tbtnSpace2: TToolButton;
     miShowSignatures: TMenuItem;
-    miView: TMenuItem;
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
     tbtnNewForm: TToolButton;
@@ -152,7 +142,6 @@ type
     tbtnAddTagsVersesTab: TToolButton;
     tbtnAddDictionaryTab: TToolButton;
     tbtnAddStrongTab: TToolButton;
-    miInterface: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -160,13 +149,8 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure miExitClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure miFontConfigClick(Sender: TObject);
-    procedure miBGConfigClick(Sender: TObject);
-    procedure miHrefConfigClick(Sender: TObject);
-    procedure miFoundTextConfigClick(Sender: TObject);
     procedure miSoundClick(Sender: TObject);
     procedure miHotkeyClick(Sender: TObject);
-    procedure miDialogFontConfigClick(Sender: TObject);
     procedure miCopyPassageClick(Sender: TObject);
     procedure sbxPreviewResize(Sender: TObject);
     procedure pbPreviewPaint(Sender: TObject);
@@ -199,7 +183,6 @@ type
 
     function LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
     procedure miRecognizeBibleLinksClick(Sender: TObject);
-    procedure miVerseHighlightBGClick(Sender: TObject);
     procedure tbtnResolveLinksClick(Sender: TObject);
     procedure miChooseLogicClick(Sender: TObject);
     procedure pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
@@ -232,7 +215,6 @@ type
     procedure tbtnAddDictionaryTabClick(Sender: TObject);
     procedure tbtnAddStrongTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
-    procedure miInterfaceClick(Sender: TObject);
   private
     procedure NavigeTSKTab;
     procedure PlaySound();
@@ -383,8 +365,6 @@ type
     procedure MainMenuInit(cacheupdate: Boolean);
     procedure GoModuleName(s: string; fromBeginning: Boolean = false);
 
-    procedure LanguageMenuClick(Sender: TObject);
-
     function ChooseColor(color: TColor): TColor;
 
     procedure HotKeyClick(Sender: TObject);
@@ -422,7 +402,6 @@ type
     function InstallModule(const path: string): integer;
     function InstallFont(const specialPath: string): HRESULT;
     procedure TranslateConfigForm;
-    procedure FillLanguageMenu;
     procedure TranslateControl(form: TWinControl; fname: string = '');
     procedure ShowReferenceInfo();
     procedure GoReference();
@@ -596,20 +575,6 @@ begin
   tabsForm.SetViewName(viewName);
 
   TranslateControl(tabsForm.BookView as TBookFrame, 'DockTabsForm');
-
-  with tabsForm.Browser do
-  begin
-    DefFontName := AppConfig.DefFontName;
-    DefFontSize := AppConfig.DefFontSize;
-    DefFontColor := AppConfig.DefFontColor;
-    DefBackGround := AppConfig.BackgroundColor;
-    DefHotSpotColor := AppConfig.HotSpotColor;
-  end;
-
-  if AppConfig.HrefUnderline then
-     tabsForm.Browser.htOptions := tabsForm.Browser.htOptions - [htNoLinkUnderline]
-  else
-     tabsForm.Browser.htOptions := tabsForm.Browser.htOptions + [htNoLinkUnderline];
 
   SetVScrollTracker(tabsForm.Browser);
 
@@ -1402,8 +1367,6 @@ begin
   if not StrReplace(TextTemplate, 'src="', 'src="' + TemplatePath, false) then
     StrReplace(TextTemplate, 'src=', 'src=' + TemplatePath, false);
 
-  FillLanguageMenu();
-
   LoadLocalization();
 
   MainMenuInit(false);
@@ -1541,45 +1504,62 @@ end;
 
 function TMainForm.LoadLocalization(): boolean;
 var
-  foundmenu: Boolean;
   i: Integer;
   locDirectory: string;
   locFilePath: string;
   loaded: Boolean;
+  F: TSearchRec;
+  langPattern, langFile: string;
+  langFiles: TStrings;
 begin
   loaded := false;
 
   locDirectory := TAppDirectories.Localization;
   locFilePath := TPath.Combine(locDirectory, AppConfig.LocalizationFile);
 
+  // try to apply localization file from app config
   if (AppConfig.LocalizationFile <> '') and (TFile.Exists(locFilePath)) then
     loaded := LoadLocalizationFile(AppConfig.LocalizationFile);
 
-  if (not loaded) then
+  if not loaded then
   begin
-    foundmenu := false;
-    for i := 0 to miLanguage.Count - 1 do
-    begin
-      if (miLanguage.Items[i]).Caption = DefaultLanguage then
+    langPattern := TPath.Combine(locDirectory, '*.lng');
+
+    // get all localization files
+    langFiles := TStringList.Create;
+    try
+
+      if FindFirst(langPattern, faAnyFile, F) = 0 then
       begin
-        foundmenu := true;
-        break;
+        repeat
+          langFile := F.Name;
+          langFiles.Add(F.Name);
+
+          // check if file is default localization file
+          if (langFile = DefaultLanguageFile) then
+          begin
+            // try to apply it
+            loaded := LoadLocalizationFile(langFile);
+            if (loaded) then
+              AppConfig.LocalizationFile := DefaultLanguageFile;
+
+            break;
+          end;
+
+        until FindNext(F) <> 0;
+        FindClose(F);
       end;
+
+      if (not loaded) and (langFiles.Count > 0) then
+      begin
+        // try to apply the first found localization file
+        loaded := LoadLocalizationFile(langFiles[0]);
+        if (loaded) then
+          AppConfig.LocalizationFile := langFiles[0];
+      end;
+    finally
+      langFiles.Free;
     end;
-
-    if foundmenu then
-    begin
-      loaded := LoadLocalizationFile(DefaultLanguageFile);
-      AppConfig.LocalizationFile := DefaultLanguageFile;
-    end;
-
-    if (not loaded) and (miLanguage.Count > 0) then
-    begin
-      AppConfig.LocalizationFile := miLanguage.Items[miLanguage.Count - 1].Caption + '.lng';
-
-      loaded := LoadLocalizationFile(AppConfig.LocalizationFile);
-    end;
-
   end;
 
   Result := loaded;
@@ -1594,12 +1574,7 @@ begin
   locDirectory := TAppDirectories.Localization;
   locFilePath := TPath.Combine(locDirectory, locFile);
   try
-    result := Lang.LoadIniFile(locFilePath);
-    if (not result) and (miLanguage.Count > 0) then
-    begin
-      locFilePath := TPath.Combine(locDirectory, miLanguage.Items[0].Caption + '.lng');
-      result := Lang.LoadIniFile(locFilePath);
-    end;
+    Result := Lang.LoadIniFile(locFilePath);
   except
     on E: Exception do
     begin
@@ -1612,7 +1587,6 @@ end;
 procedure TMainForm.Translate();
 var
   s: string;
-  fnt: TFont;
   tabsView: ITabsView;
   tabsForm: TDockTabsForm;
   bookView: TBookFrame;
@@ -1675,14 +1649,8 @@ begin
     end;
   end;
 
-  fnt := TFont.Create;
-  fnt.Name := MainForm.Font.Name;
-  fnt.Size := MainForm.Font.Size;
-
-  MainForm.Font := fnt;
-
   Update;
-  fnt.Free;
+
 end;
 
 function TMainForm.TranslateInterface(locFile: string): Boolean;
@@ -1692,11 +1660,6 @@ begin
 
   if not result then
     Exit;
-
-  if (Result = true) then
-    for i := 0 to miLanguage.Count - 1 do
-      with miLanguage.Items[i] do
-        Checked := LowerCase(Caption + '.lng') = LowerCase(locFile);
 
   Translate();
 end;
@@ -2684,13 +2647,6 @@ begin
   mDefaultLocation := DefaultLocation();
 end;
 
-procedure TMainForm.LanguageMenuClick(Sender: TObject);
-begin
-  AppConfig.LocalizationFile := (Sender as TMenuItem).Caption + '.lng';
-
-  TranslateInterface(AppConfig.LocalizationFile);
-end;
-
 procedure TMainForm.GoModuleName(s: string; fromBeginning: Boolean = false);
 var
   i: integer;
@@ -2815,52 +2771,6 @@ begin
 
 end;
 
-procedure TMainForm.miFontConfigClick(Sender: TObject);
-var
-  browserCount, i: integer;
-  tabInfo: IViewTabInfo;
-  bookView: TBookFrame;
-  bookTabInfo: TBookTabInfo;
-begin
-  with FontDialog do
-  begin
-    Font.Name := AppConfig.DefFontName;
-    Font.color := AppConfig.DefFontColor;
-    Font.Size := AppConfig.DefFontSize;
-  end;
-
-  bookView := GetBookView(self);
-  if FontDialog.Execute then
-  begin
-    browserCount := mTabsView.ChromeTabs.Tabs.Count - 1;
-    for i := 0 to browserCount do
-    begin
-      try
-        tabInfo := mTabsView.GetTabInfo(i);
-        if not (tabInfo is TBookTabInfo) then
-          continue;
-
-        bookTabInfo := tabInfo as TBookTabInfo;
-        with bookTabInfo do
-        begin
-          if i <> mTabsView.ChromeTabs.ActiveTabIndex then
-            StateEntryStatus[vtisPendingReload] := true;
-
-          // TODO: remove it
-          mTabsView.Browser.DefFontName := FontDialog.Font.Name;
-          AppConfig.DefFontName := mTabsView.Browser.DefFontName;
-          mTabsView.Browser.DefFontColor := FontDialog.Font.color;
-          mTabsView.Browser.DefFontSize := FontDialog.Font.Size;
-        end // with
-      except
-      end;
-    end;
-
-    if Assigned(bookView) and Assigned(bookView.BookTabInfo) then
-      bookView.ProcessCommand(bookView.BookTabInfo, bookView.BookTabInfo.Location, TbqHLVerseOption(ord(bookView.BookTabInfo[vtisHighLightVerses])));
-  end;
-end;
-
 function TMainForm.ChooseColor(color: TColor): TColor;
 begin
   Result := color;
@@ -2868,120 +2778,6 @@ begin
 
   if ColorDialog.Execute then
     Result := ColorDialog.color;
-end;
-
-procedure TMainForm.miBGConfigClick(Sender: TObject);
-var
-  i, browserCount: integer;
-  newColor: TColor;
-begin
-  newColor := ChooseColor(mTabsView.Browser.DefBackGround);
-
-  mTabsView.Browser.DefBackGround := newColor;
-  mTabsView.Browser.Refresh;
-
-  browserCount := mTabsView.ChromeTabs.Tabs.Count - 1;
-  for i := 0 to browserCount do
-  begin
-    try
-      if i <> mTabsView.ChromeTabs.ActiveTabIndex then
-      begin
-        Refresh();
-      end;
-    except
-    end;
-  end;
-
-  // TODO: update background of all search tabs
-  //bwrSearch.DefBackGround := newColor;
-  //bwrSearch.Refresh;
-
-  // TODO: update background of all dictionary tabs
-  //bwrDic.DefBackGround := newColor;
-  //bwrDic.Refresh;
-
-  // TODO: update background of all strong tabs
-  //bwrStrong.DefBackGround := newColor;
-  //bwrStrong.Refresh;
-
-  // TODO: update background of all tsk tabs
-  //bwrXRef.DefBackGround := newColor;
-  //bwrXRef.Refresh;
-end;
-
-procedure TMainForm.miHrefConfigClick(Sender: TObject);
-var
-  i, browserCount: integer;
-  bookTabInfo, bTabInfo: TBookTabInfo;
-  tabInfo: IViewTabInfo;
-  newColor: TColor;
-  bookView: TBookFrame;
-begin
-  with mTabsView.Browser do
-  begin
-    newColor := ChooseColor(DefHotSpotColor);
-    DefHotSpotColor := newColor;
-  end;
-
-  bookView := GetBookView(self);
-  bookTabInfo := bookView.BookTabInfo;
-
-  bookView.ProcessCommand(bookTabInfo, bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
-
-  browserCount := mTabsView.ChromeTabs.Tabs.Count - 1;
-  for i := 0 to browserCount do
-  begin
-    try
-      tabInfo := mTabsView.GetTabInfo(i);
-      if not (tabInfo is TBookTabInfo) then
-        continue;
-
-      bTabInfo := tabInfo as TBookTabInfo;
-      with bTabInfo do
-      begin
-        if i <> mTabsView.ChromeTabs.ActiveTabIndex then
-        begin
-          StateEntryStatus[vtisPendingReload] := true;
-        end;
-      end // with
-    except
-    end;
-  end;
-
-  // TODO: update hot spot color of all search tabs
-  //bwrSearch.DefHotSpotColor := newColor;
-  //bwrSearch.Refresh;
-
-  // TODO: update hot spot color of all dictionary tabs
-  //bwrDic.DefHotSpotColor := newColor;
-  //bwrDic.Refresh;
-
-  // TODO: update hot spot color of all strong tabs
-  //bwrStrong.DefHotSpotColor := newColor;
-  //bwrStrong.Refresh;
-
-  // TODO: update hot spot color of all tsk tabs
-  //bwrXRef.DefHotSpotColor := newColor;
-  //bwrXRef.Refresh;
-end;
-
-procedure TMainForm.miInterfaceClick(Sender: TObject);
-begin
-  UISettingsForm.LoadConfiguration;
-  if (UISettingsForm.ShowModal = mrOk) then
-    UISettingsForm.UpdateConfiguration;
-end;
-
-procedure TMainForm.miFoundTextConfigClick(Sender: TObject);
-
-begin
-  ColorDialog.color := AppConfig.SelTextColor;
-
-  if ColorDialog.Execute then
-  begin
-    AppConfig.SelTextColor := ColorDialog.Color;
-    DeferredReloadViewPages();
-  end;
 end;
 
 function TMainForm.CopyPassage(fromverse, toverse: integer): string;
@@ -3067,7 +2863,7 @@ begin
   if (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
   begin
     mHTMLSelection := Result;
-    InsertDefaultFontInfo(mHTMLSelection, mTabsView.Browser.DefFontName, mTabsView.Browser.DefFontSize);
+    InsertDefaultFontInfo(mHTMLSelection, AppConfig.DefFontName, AppConfig.DefFontSize);
   end
   else
     mHTMLSelection := '';
@@ -3242,7 +3038,7 @@ end;
 
 procedure TMainForm.miHotkeyClick(Sender: TObject);
 begin
-  ConfigForm.pgcOptions.ActivePageIndex := 1;
+  ConfigForm.pgcOptions.ActivePageIndex := 2;
   ShowConfigDialog;
 end;
 
@@ -3257,54 +3053,6 @@ begin
     mFavorites.DeleteModule(me);
   except
   end;
-end;
-
-procedure TMainForm.miDialogFontConfigClick(Sender: TObject);
-var
-  fnt: TFont;
-  h: integer;
-begin
-  with FontDialog do
-  begin
-    Font.Name := MainForm.Font.Name;
-    Font.Size := MainForm.Font.Size;
-    Font.CharSet := MainForm.Font.CharSet;
-  end;
-
-  if FontDialog.Execute then
-    with MainForm do
-    begin
-      fnt := TFont.Create;
-      try
-        fnt.Name := FontDialog.Font.Name;
-        fnt.CharSet := FontDialog.Font.CharSet;
-        fnt.Size := FontDialog.Font.Size;
-
-        self.Font := fnt;
-        mTabsView.BibleTabs.Font.Assign(fnt);
-        Screen.HintFont := fnt;
-        h := fnt.Height;
-
-        if h < 0 then
-          h := -h;
-
-        mTabsView.BibleTabs.Height := h + 13;
-        Update;
-        lblTitle.Font.Assign(fnt);
-        lblCopyRightNotice.Font.Assign(fnt);
-
-        // TODO: change font of dictionary tabs
-//        vstDicList.DefaultNodeHeight := Canvas.TextHeight('X') * 6 div 5;
-//        vstDicList.ReinitNode(vstDicList.RootNode, true);
-//        vstDicList.Invalidate();
-//        vstDicList.Repaint();
-
-      finally
-        fnt.Free
-      end
-
-    end;
-
 end;
 
 procedure TMainForm.CopyPassageToClipboard();
@@ -3334,23 +3082,6 @@ begin
   TogglePreview();
 end;
 
-procedure TMainForm.miVerseHighlightBGClick(Sender: TObject);
-var
-  cl, newcl: TColor;
-begin
-  try
-    cl := AppConfig.VerseHighlightColor;
-  except
-    cl := $F5F5DC;
-  end;
-  newcl := ChooseColor(cl);
-  if newcl <> cl then
-  begin
-    AppConfig.VerseHighlightColor := newcl;
-    DeferredReloadViewPages();
-  end;
-end;
-
 procedure TMainForm.ConvertClipboard;
 var
   bookView: TBookFrame;
@@ -3368,13 +3099,13 @@ begin
   if bible.fontName <> '' then
     reClipboard.Font.Name := bible.fontName
   else
-    reClipboard.Font.Name := mTabsView.Browser.DefFontName;
+    reClipboard.Font.Name := AppConfig.DefFontName;
 
-  reClipboard.Font.Size := mTabsView.Browser.DefFontSize;
+  reClipboard.Font.Size := AppConfig.DefFontSize;
   reClipboard.Lines.Add(Clipboard.AsText);
 
   reClipboard.SelectAll;
-  reClipboard.SelAttributes.CharSet := mTabsView.Browser.CharSet;
+  reClipboard.SelAttributes.CharSet := bookView.bwrHtml.CharSet;
   reClipboard.SelAttributes.Name := reClipboard.Font.Name;
 
   if Length(mHTMLSelection) > 0 then
@@ -3966,26 +3697,6 @@ begin
   end;
 end;
 
-procedure TMainForm.FillLanguageMenu;
-var
-  F: TSearchRec;
-  mi: TMenuItem;
-  locDirectory, langPattern: string;
-begin
-  locDirectory := TAppDirectories.Localization;
-  langPattern := TPath.Combine(locDirectory, '*.lng');
-
-  if FindFirst(langPattern, faAnyFile, F) = 0 then
-  begin
-    repeat
-      mi := TMenuItem.Create(self);
-      mi.Caption := UpperCaseFirstLetter(Copy(F.Name, 1, Length(F.Name) - 4));
-      mi.OnClick := LanguageMenuClick;
-      miLanguage.Add(mi);
-    until FindNext(F) <> 0;
-    FindClose(F);
-  end;
-end;
 
 procedure TMainForm.TranslateConfigForm;
 begin
@@ -4952,17 +4663,19 @@ end;
 
 procedure TMainForm.miOptionsClick(Sender: TObject);
 begin
-  ConfigForm.pgcOptions.ActivePageIndex := 2;
+  ConfigForm.pgcOptions.ActivePageIndex := 0;
   ShowConfigDialog;
 end;
 
 procedure TMainForm.ShowConfigDialog;
 var
-  i, moduleCount: integer;
+  i, moduleCount, langIdx: integer;
   reload: Boolean;
   defBible, defStrongBible: string;
+  locFile: string;
   bookView: TBookFrame;
   bible: TBible;
+  fnt: TFont;
 begin
   reload := false;
   ForceForegroundLoad();
@@ -4972,6 +4685,17 @@ begin
 
   if ConfigForm.ShowModal = mrCancel then
     Exit;
+
+  langIdx := ConfigForm.cbLanguage.ItemIndex;
+  if (langIdx >= 0) then
+  begin
+    locFile := ConfigForm.cbLanguage.Items[langIdx] + '.lng';
+    if (AppConfig.LocalizationFile <> locFile) then
+    begin
+      AppConfig.LocalizationFile := locFile;
+      TranslateInterface(AppConfig.LocalizationFile);
+    end;
+  end;
 
   moduleCount := ConfigForm.lbFavourites.Count - 1;
   mFavorites.Clear();
@@ -5064,6 +4788,21 @@ begin
   begin
     AppConfig.SecondPath := ConfigForm.edtSelectPath.Text;
     MainMenuInit(true);
+  end;
+
+  fnt := TFont.Create;
+  try
+    fnt.Name := AppConfig.MainFormFontName;
+    fnt.Size := AppConfig.MainFormFontSize;
+
+    self.Font.Assign(fnt);
+    Screen.HintFont.Assign(fnt);
+
+    Update;
+    lblTitle.Font.Assign(fnt);
+    lblCopyRightNotice.Font.Assign(fnt);
+  finally
+    fnt.Free;
   end;
 
   mNotifier.Notify(TAppConfigChangedMessage.Create());

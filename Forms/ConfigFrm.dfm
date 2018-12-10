@@ -33,6 +33,8 @@ object ConfigForm: TConfigForm
     object tsInterface: TTabSheet
       Caption = 'tsInterface'
       ImageIndex = 3
+      ExplicitLeft = 124
+      ExplicitTop = 28
       DesignSize = (
         401
         390)
@@ -207,6 +209,31 @@ object ConfigForm: TConfigForm
           Anchors = [akLeft, akTop, akRight]
           ReadOnly = True
           TabOrder = 5
+        end
+      end
+      object grpLocalization: TGroupBox
+        Left = 3
+        Top = 252
+        Width = 395
+        Height = 105
+        Anchors = [akLeft, akTop, akRight]
+        Caption = 'Localization'
+        TabOrder = 2
+        object lblLanguage: TLabel
+          Left = 63
+          Top = 32
+          Width = 51
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Language:'
+        end
+        object cbLanguage: TComboBox
+          Left = 120
+          Top = 28
+          Width = 226
+          Height = 21
+          Style = csDropDownList
+          TabOrder = 0
         end
       end
     end

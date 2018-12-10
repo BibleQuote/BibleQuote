@@ -972,6 +972,7 @@ begin
     mTagsVersesView.ApplyConfig(appConfig);
     mDictionaryView.ApplyConfig(appConfig);
     mStrongView.ApplyConfig(appConfig);
+    mTSKView.ApplyConfig(appConfig);
   except
     on E: Exception do
     begin
@@ -979,6 +980,12 @@ begin
       // Suppress the exception
     end;
   end;
+
+  if (appConfig.MainFormFontName <> Font.Name) then
+    Font.Name := appConfig.MainFormFontName;
+
+  if (appConfig.MainFormFontSize <> Font.Size) then
+    Font.Size := appConfig.MainFormFontSize;
 end;
 
 procedure TDockTabsForm.Translate();
@@ -997,6 +1004,7 @@ begin
       mTagsVersesView.Translate();
       mDictionaryView.Translate();
       mStrongView.Translate();
+      mTSKView.Translate();
 
       for i := 0 to ctViewTabs.Tabs.Count - 1 do
       begin

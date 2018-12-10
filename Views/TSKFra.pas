@@ -254,7 +254,7 @@ begin
 
   AddLine(RefLines, '</font><br><br>');
 
-  bwrXRef.DefFontName := mTabsView.Browser.DefFontName;
+  bwrXRef.DefFontName := AppConfig.DefFontName;
   bwrXRef.LoadFromString(RefLines);
 
   Links.Free;
@@ -267,9 +267,12 @@ begin
 end;
 
 procedure TTSKFrame.ApplyConfig(appConfig: TAppConfig);
+var
+  browserpos: integer;
 begin
-  with bwrXRef do
+  with bwrXref do
   begin
+    browserpos := Position and $FFFF0000;
     DefFontName := AppConfig.RefFontName;
     DefFontSize := AppConfig.RefFontSize;
     DefFontColor := AppConfig.RefFontColor;
@@ -278,8 +281,17 @@ begin
     DefHotSpotColor := AppConfig.HotSpotColor;
 
     if (DocumentSource <> '') then
+    begin
       LoadFromString(DocumentSource);
+      Position := browserpos;
+    end;
   end;
+
+  if (appConfig.MainFormFontName <> Font.Name) then
+    Font.Name := appConfig.MainFormFontName;
+
+  if (appConfig.MainFormFontSize <> Font.Size) then
+    Font.Size := appConfig.MainFormFontSize;
 end;
 
 end.

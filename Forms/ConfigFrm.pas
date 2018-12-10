@@ -3,10 +3,9 @@
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Graphics, Controls,
-  Forms, FileCtrl, ExtCtrls, Buttons, StdCtrls, ComCtrls, Vcl.Dialogs,
-  AppIni, PlainUtils, Favorites, BibleQuoteUtils;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, IOUtils, Forms,
+  FileCtrl, ExtCtrls, Buttons, StdCtrls, ComCtrls, Vcl.Dialogs,
+  AppIni, PlainUtils, Favorites, BibleQuoteUtils, AppPaths, StringProcs;
 
 type
   TConfigForm = class(TForm)
@@ -64,8 +63,10 @@ type
     edtSecondaryFont: TEdit;
     FontDialog: TFontDialog;
     ColorDialog: TColorDialog;
+    cbLanguage: TComboBox;
+    grpLocalization: TGroupBox;
+    lblLanguage: TLabel;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure btnOKClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     procedure btnSelectPathClick(Sender: TObject);
     procedure btnDeletePathClick(Sender: TObject);
@@ -78,10 +79,11 @@ type
     FPrimaryFont: TFont;
     FSecondaryFont: TFont;
     FDialogsFont: TFont;
+    
     procedure DisplayPrimaryFont;
     procedure DisplaySecondaryFont;
     procedure DisplayDialogsFont;
-
+    procedure FillLanguages();
   public
     property PrimaryFont: TFont read FPrimaryFont;
     property SecondaryFont: TFont read FSecondaryFont;
@@ -101,11 +103,6 @@ procedure TConfigForm.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = Chr(27) then
     ModalResult := mrCancel;
-end;
-
-procedure TConfigForm.btnOKClick(Sender: TObject);
-begin
-  ModalResult := mrOK;
 end;
 
 procedure TConfigForm.favouritesBitBtnClick(Sender: TObject);
@@ -255,6 +252,8 @@ var
   i: integer;
   moduleCount: integer;
 begin
+  FillLanguages();
+
   edtSelectPath.Text := AppConfig.SecondPath;
   chkMinimizeToTray.Checked := AppConfig.MinimizeToTray;
   chkFullContextOnRestrictedLinks.Checked := AppConfig.FullContextLinks;
@@ -413,6 +412,36 @@ begin
   clrHyperlinks.Selected := AppConfig.HotSpotColor;
   clrVerseHighlight.Selected := AppConfig.VerseHighlightColor;
   clrSearchText.Selected := AppConfig.SelTextColor;
+end;
+
+procedure TConfigForm.FillLanguages();
+var
+  locDirectory: string;
+  langPattern: string;
+  lang: string;
+  sRec: TSearchRec;
+  i, idx: integer;
+begin
+  locDirectory := TAppDirectories.Localization;
+  langPattern := TPath.Combine(locDirectory, '*.lng');
+
+  cbLanguage.Clear;    
+  i := 0;
+  idx := -1;
+  if FindFirst(langPattern, faAnyFile, sRec) = 0 then
+  begin
+    repeat
+      lang := UpperCaseFirstLetter(Copy(sRec.Name, 1, Length(sRec.Name) - 4));
+      cbLanguage.AddItem(lang, TObject(lang));
+      if (LowerCase(sRec.Name) = LowerCase(AppConfig.LocalizationFile)) then
+        idx := i;
+      inc(i);
+    until FindNext(sRec) <> 0;
+    FindClose(sRec);
+  end;      
+
+  if (idx >= 0) then  
+    cbLanguage.ItemIndex := idx;
 end;
 
 end.

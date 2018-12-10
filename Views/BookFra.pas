@@ -221,6 +221,12 @@ var
   tabInfo: IViewTabInfo;
 begin
   tabInfo := mTabsView.GetActiveTabInfo();
+  if not Assigned(tabInfo) then
+  begin
+    Result := nil;
+    Exit;
+  end;
+
   if (tabInfo.GetViewType = vttBook) then
     Result := TBookTabInfo(tabInfo)
   else
@@ -235,8 +241,39 @@ begin
 end;
 
 procedure TBookFrame.ApplyConfig(appConfig: TAppConfig);
+var
+  browserpos: integer;
 begin
-// TODO: apply app config
+  with bwrHtml do
+  begin
+    browserpos := Position and $FFFF0000;
+    DefFontName := AppConfig.DefFontName;
+    DefFontSize := AppConfig.DefFontSize;
+    DefFontColor := AppConfig.DefFontColor;
+    DefBackGround := AppConfig.BackgroundColor;
+    DefHotSpotColor := AppConfig.HotSpotColor;
+
+    if AppConfig.HrefUnderline then
+      htOptions := htOptions - [htNoLinkUnderline]
+    else
+      htOptions := htOptions + [htNoLinkUnderline];
+
+    if (DocumentSource <> '') then
+    begin
+      LoadFromString(DocumentSource);
+      Position := browserpos;
+    end;
+    Refresh();
+  end;
+
+  if (appConfig.MainFormFontName <> Font.Name) then
+    Font.Name := appConfig.MainFormFontName;
+
+  if (appConfig.MainFormFontSize <> Font.Size) then
+    Font.Size := appConfig.MainFormFontSize;
+
+  if Assigned(BookTabInfo) and Assigned(BookTabInfo.Bible) then
+    UpdateModuleTreeFont(BookTabInfo.Bible);
 end;
 
 function TBookFrame.IsPsalms(bible: TBible; bookIndex: integer): Boolean;
@@ -642,13 +679,13 @@ begin
   begin
     Key := #0;
     NotifyFontChanged(1);
-    mMainView.FontChanged(1);
+    //mMainView.FontChanged(1);
   end
   else if Key = '-' then
   begin
     Key := #0;
     NotifyFontChanged(-1);
-    mMainView.FontChanged(-1);
+    //mMainView.FontChanged(-1);
   end;
 end;
 
@@ -660,7 +697,9 @@ begin
   if (delta = 0) or (defFontSz > 48) or (defFontSz < 6) then
     Exit;
 
-  mNotifier.Notify(TFontSizeChangedMessage.Create(defFontSz + delta));
+  AppConfig.DefFontSize := defFontSz + delta;
+  mNotifier.Notify(TAppConfigChangedMessage.Create());
+  //mNotifier.Notify(TFontSizeChangedMessage.Create(defFontSz + delta));
 end;
 
 procedure TBookFrame.bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -823,7 +862,8 @@ begin
   if WheelDelta < 0 then
     delta := -delta;
 
-  mMainView.FontChanged(delta);
+  NotifyFontChanged(delta);
+  //mMainView.FontChanged(delta);
 end;
 
 constructor TBookFrame.Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView);
@@ -861,6 +901,8 @@ begin
 
   mUpdateOnTreeNodeSelect := true;
   mHistoryOn := true;
+
+  ApplyConfig(AppConfig);
   RealignToolBars(Self);
 end;
 
@@ -2605,7 +2647,7 @@ begin
   if Length(bible.DesiredUIFont) > 0 then
     uiFontName := bible.DesiredUIFont
   else
-    uiFontName := mMainView.FontManager.DefaultFontName;
+    uiFontName := AppConfig.DefFontName;
   head := '<font face="' + uiFontName + '">' + head + '</font>';
 
   Text := '';
@@ -2641,7 +2683,7 @@ begin
     then
       fontName := mMainView.FontManager.SuggestFont(self.Handle, SecondBible.fontName, SecondBible.path, SecondBible.desiredCharset)
     else
-      fontName := mMainView.FontManager.DefaultFontName;
+      fontName := AppConfig.DefFontName;
     bwrHtml.DefFontName := fontName;
   end;
 
@@ -2826,8 +2868,7 @@ begin
   StrReplace(dBrowserSource, '%HEAD%', head, false);
   StrReplace(dBrowserSource, '%TEXT%', Text, false);
 
-  if ((Length(bible.fontName) > 0) and
-    (bible.fontName = bwrHtml.DefFontName)) then
+  if ((Length(bible.fontName) > 0) and (bible.fontName = bwrHtml.DefFontName)) then
     fontName := bible.fontName
   else
     fontName := '';
@@ -2837,7 +2878,7 @@ begin
     fontName := mMainView.FontManager.SuggestFont(self.Handle, bible.fontName, bible.path, bible.desiredCharset);
 
   if Length(fontName) <= 0 then
-    fontName := mMainView.FontManager.DefaultFontName;
+    fontName := AppConfig.DefFontName;
 
   bwrHtml.DefFontName := fontName;
   StrReplace(dBrowserSource, '<F>', '<font face="' + fontName + '">', true);
