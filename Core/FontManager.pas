@@ -3,18 +3,14 @@ unit FontManager;
 interface
 
 uses Controls, Classes, Windows, Forms, SysUtils, BibleQuoteUtils, IOUtils,
-     SevenZipHelper;
+     SevenZipHelper, AppIni;
 
 type
   TFontManager = class
-  private
-    mDefaultFontName: string;
   public
     function ActivateFont(const fontPath: string): DWORD;
     function PrepareFont(const aFontName, aFontPath: string): Boolean;
     function SuggestFont(aHDC: HDC; const desiredFontName, desiredFontPath: string; desiredCharset: integer): string;
-
-    property DefaultFontName: string read mDefaultFontName write mDefaultFontName;
   end;
 
 implementation
@@ -35,12 +31,12 @@ begin
     if Length(desiredFontName) > 0 then
       Result := desiredFontName
     else
-      Result := mDefaultFontName;
+      Result := AppConfig.DefFontName;
     Result := FontFromCharset(aHDC, desiredCharset, Result);
   end;
   // if the font is still not found, take the font from the app settings
   if (Length(Result) <= 0) then
-    Result := mDefaultFontName;
+    Result := AppConfig.DefFontName;
 end;
 
 function TFontManager.PrepareFont(const aFontName, aFontPath: string): Boolean;

@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 15
+  TextHeight = 14
   object pnlModules: TPanel
     Left = 0
     Top = 34
@@ -96,7 +96,7 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 534
       Top = 4
-      Width = 38
+      Width = 37
       Height = 26
       Margins.Right = 7
       Align = alLeft
@@ -110,13 +110,13 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 15
+      ExplicitHeight = 14
     end
     object lblCopyRightNotice: TLabel
       AlignWithMargins = True
-      Left = 582
+      Left = 581
       Top = 4
-      Width = 241
+      Width = 242
       Height = 26
       Margins.Right = 7
       Align = alClient
@@ -297,7 +297,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 136
-        Height = 23
+        Height = 22
         Margins.Top = 0
         Margins.Bottom = 0
         Align = alClient
@@ -3667,46 +3667,6 @@ object MainForm: TMainForm
         OnClick = miExitClick
       end
     end
-    object miView: TMenuItem
-      Caption = #1042#1080#1076
-      object miColors: TMenuItem
-        Caption = #1062#1074#1077#1090
-        object miBGConfig: TMenuItem
-          Caption = #1062#1074#1077#1090' '#1092#1086#1085#1072' '#1086#1082#1086#1085
-          OnClick = miBGConfigClick
-        end
-        object miHrefConfig: TMenuItem
-          Caption = #1062#1074#1077#1090' '#1075#1080#1087#1077#1088#1089#1089#1099#1083#1086#1082
-          OnClick = miHrefConfigClick
-        end
-        object miFoundTextConfig: TMenuItem
-          Caption = #1062#1074#1077#1090' '#1085#1072#1081#1076#1077#1085#1085#1086#1075#1086' '#1090#1077#1082#1089#1090#1072' '#1080' '#1079#1072#1084#1077#1090#1086#1082
-          OnClick = miFoundTextConfigClick
-        end
-        object miVerseHighlightBG: TMenuItem
-          Caption = #1062#1074#1077#1090' '#1092#1086#1085#1072' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1093' '#1089#1090#1080#1093#1086#1074
-          OnClick = miVerseHighlightBGClick
-        end
-      end
-      object miFonts: TMenuItem
-        Caption = #1064#1088#1080#1092#1090
-        object miFontConfig: TMenuItem
-          Caption = #1064#1088#1080#1092#1090' '#1075#1083#1072#1074#1085#1086#1075#1086' '#1086#1082#1085#1072
-          OnClick = miFontConfigClick
-        end
-        object miDialogFontConfig: TMenuItem
-          Caption = #1064#1088#1080#1092#1090' '#1076#1080#1072#1083#1086#1075#1086#1074#1099#1093' '#1086#1082#1086#1085
-          OnClick = miDialogFontConfigClick
-        end
-      end
-      object miLanguage: TMenuItem
-        Caption = #1071#1079#1099#1082' '#1080#1085#1090#1077#1088#1092#1077#1081#1089#1072
-      end
-      object miInterface: TMenuItem
-        Caption = 'Interface'
-        OnClick = miInterfaceClick
-      end
-    end
     object miActions: TMenuItem
       Caption = #1054#1087#1077#1088#1072#1094#1080#1080
       object miQuickNav: TMenuItem
@@ -3762,7 +3722,7 @@ object MainForm: TMainForm
     Left = 56
     Top = 200
     Bitmap = {
-      494C010135006800940510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101350068009C0510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5628,7 +5588,7 @@ object MainForm: TMainForm
     Left = 98
     Top = 201
     Bitmap = {
-      494C01011600E801D80318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801E00318001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

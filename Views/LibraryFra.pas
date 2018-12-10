@@ -106,7 +106,11 @@ end;
 
 procedure TLibraryFrame.ApplyConfig(appConfig: TAppConfig);
 begin
-// TODO: apply app config
+  if (appConfig.MainFormFontName <> Font.Name) then
+    Font.Name := appConfig.MainFormFontName;
+
+  if (appConfig.MainFormFontSize <> Font.Size) then
+    Font.Size := appConfig.MainFormFontSize;
 end;
 
 procedure TLibraryFrame.InitFonts;

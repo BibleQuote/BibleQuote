@@ -418,19 +418,31 @@ begin
 end;
 
 procedure TStrongFrame.ApplyConfig(appConfig: TAppConfig);
+var
+  browserpos: integer;
 begin
   with bwrStrong do
+  begin
+    browserpos := Position and $FFFF0000;
+    DefFontName := AppConfig.RefFontName;
+    DefFontSize := AppConfig.RefFontSize;
+    DefFontColor := AppConfig.RefFontColor;
+
+    DefBackGround := AppConfig.BackgroundColor;
+    DefHotSpotColor := AppConfig.HotSpotColor;
+
+    if (DocumentSource <> '') then
     begin
-      DefFontName := AppConfig.RefFontName;
-      DefFontSize := AppConfig.RefFontSize;
-      DefFontColor := AppConfig.RefFontColor;
-
-      DefBackGround := AppConfig.BackgroundColor;
-      DefHotSpotColor := AppConfig.HotSpotColor;
-
-      if (DocumentSource <> '') then
-        LoadFromString(DocumentSource);
+      LoadFromString(DocumentSource);
+      Position := browserpos;
     end;
+  end;
+
+  if (appConfig.MainFormFontName <> Font.Name) then
+    Font.Name := appConfig.MainFormFontName;
+
+  if (appConfig.MainFormFontSize <> Font.Size) then
+    Font.Size := appConfig.MainFormFontSize;
 end;
 
 procedure TStrongFrame.vstStrongAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);

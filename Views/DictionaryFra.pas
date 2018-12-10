@@ -287,9 +287,12 @@ begin
 end;
 
 procedure TDictionaryFrame.ApplyConfig(appConfig: TAppConfig);
+var
+  browserpos: integer;
 begin
   with bwrDic do
   begin
+    browserpos := Position and $FFFF0000;
     DefFontName := AppConfig.RefFontName;
     DefFontSize := AppConfig.RefFontSize;
     DefFontColor := AppConfig.RefFontColor;
@@ -298,8 +301,17 @@ begin
     DefHotSpotColor := AppConfig.HotSpotColor;
 
     if (DocumentSource <> '') then
+    begin
       LoadFromString(DocumentSource);
+      Position := browserpos;
+    end;
   end;
+
+  if (appConfig.MainFormFontName <> Font.Name) then
+    Font.Name := appConfig.MainFormFontName;
+
+  if (appConfig.MainFormFontSize <> Font.Size) then
+    Font.Size := appConfig.MainFormFontSize;
 end;
 
 procedure TDictionaryFrame.vstDicListAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);

@@ -69,7 +69,6 @@ uses
   NotifyMessages in 'Core\NotifyMessages.pas',
   StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame},
   AppPaths in 'IO\AppPaths.pas',
-  UISettingsFrm in 'Forms\UISettingsFrm.pas' {UISettingsForm},
   AppIni in 'IO\AppIni.pas';
 
 {$R *.res}
@@ -107,7 +106,6 @@ begin
   Application.CreateForm(TPasswordBox, PasswordBox);
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
-  Application.CreateForm(TUISettingsForm, UISettingsForm);
   Application.Run;
   try
     Close(Output);
