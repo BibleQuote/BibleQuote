@@ -46,14 +46,14 @@ type
     lblBackgroundColor: TLabel;
     lblHyperlinksColor: TLabel;
     lblSearchTextColor: TLabel;
-    lblVerseHightlightColor: TLabel;
+    lblVerseHighlightColor: TLabel;
     clrBackground: TColorBox;
     clrHyperlinks: TColorBox;
     clrSearchText: TColorBox;
     clrVerseHighlight: TColorBox;
     grpFonts: TGroupBox;
     lblPrimaryFont: TLabel;
-    lglDialogsFont: TLabel;
+    lblDialogsFont: TLabel;
     lblSecondaryFont: TLabel;
     btnPrimaryFont: TButton;
     edtPrimaryFont: TEdit;
