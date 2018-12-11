@@ -64,7 +64,6 @@ object DictionaryFrame: TDictionaryFrame
       TabOrder = 1
       OnChange = edtDicChange
       OnKeyPress = edtDicKeyPress
-      OnKeyUp = edtDicKeyUp
     end
     object vstDicList: TVirtualStringTree
       Left = 4

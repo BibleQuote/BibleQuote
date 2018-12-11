@@ -32,7 +32,6 @@ type
     procedure cbDicFilterChange(Sender: TObject);
     procedure edtDicChange(Sender: TObject);
     procedure edtDicKeyPress(Sender: TObject; var Key: Char);
-    procedure edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure vstDicListAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vstDicListClick(Sender: TObject);
     procedure vstDicListGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
@@ -264,11 +263,6 @@ begin
     Key := #0;
     DisplayDictionary(edtDic.Text);
   end;
-end;
-
-procedure TDictionaryFrame.edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-//
 end;
 
 procedure TDictionaryFrame.pmRefPopup(Sender: TObject);
