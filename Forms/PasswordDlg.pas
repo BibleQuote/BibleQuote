@@ -30,8 +30,7 @@ implementation
 uses MainFrm;
 {$R *.dfm}
 
-procedure TPasswordBox.edtPwdKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPasswordBox.edtPwdKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if (Key = 13) then
     btnOk.Click();

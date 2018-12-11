@@ -161,7 +161,6 @@ type
     procedure cbLinksChange(Sender: TObject);
     procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure miAboutClick(Sender: TObject);
-    procedure edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
     procedure miQuickNavClick(Sender: TObject);
@@ -1504,7 +1503,6 @@ end;
 
 function TMainForm.LoadLocalization(): boolean;
 var
-  i: Integer;
   locDirectory: string;
   locFilePath: string;
   loaded: Boolean;
@@ -1654,7 +1652,6 @@ begin
 end;
 
 function TMainForm.TranslateInterface(locFile: string): Boolean;
-var i: integer;
 begin
   result := LoadLocalizationFile(locFile);
 
@@ -2204,7 +2201,6 @@ begin
           GetBookView(self).CopyBrowserSelectionToClipboard();
       VK_F10:
         PlaySound();
-
       VK_F11:
         miPrintPreview.Click;
       ord('0'):
@@ -2758,17 +2754,13 @@ begin
       SetBibleTabsHintsState(false);
     G_ControlKeyDown := false;
   end;
-  if (Shift = []) and (not(ActiveControl is TCustomEdit)) and (not(ActiveControl is TCustomCombo))
+
+  if (Shift = [ssCtrl]) and (not(ActiveControl is TCustomEdit)) and (not(ActiveControl is TCustomCombo))
   then
     case Key of
-      $48:
+      ord('H'):
         miQuickNavClick(self); // H key
-      $46:
-        begin
-          ShowSearchTab();
-        end; // F key
     end;
-
 end;
 
 function TMainForm.ChooseColor(color: TColor): TColor;
@@ -3516,11 +3508,6 @@ begin
 
   AboutForm.Position := poScreenCenter;
   AboutForm.ShowModal();
-end;
-
-procedure TMainForm.edtDicKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  //
 end;
 
 procedure TMainForm.AppOnHintHandler(Sender: TObject);
@@ -4512,12 +4499,17 @@ end;
 procedure TMainForm.miQuickNavClick(Sender: TObject);
 var
   bible: TBible;
+  bookView: TBookFrame;
 begin
+  bookView := GetBookView(self);
+  if not Assigned(bookView) or not Assigned(bookView.BookTabInfo) then
+    Exit;
+
   InputForm.tag := 0; // use TEdit
   InputForm.Caption := miQuickNav.Caption;
   InputForm.Font := MainForm.Font;
 
-  bible := GetBookView(self).BookTabInfo.Bible;
+  bible := bookView.BookTabInfo.Bible;
   with bible do
     if CurFromVerse > 1 then
       InputForm.edtValue.Text := ShortPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse)

@@ -428,7 +428,6 @@ var
   first, verse: integer;
   scode, unicodeSRC: string;
   cb: THTMLViewer;
-  lr: Boolean;
   ws: string;
   iscontrolDown: Boolean;
   bookTabState: TBookTabInfoState;
@@ -679,13 +678,11 @@ begin
   begin
     Key := #0;
     NotifyFontChanged(1);
-    //mMainView.FontChanged(1);
   end
   else if Key = '-' then
   begin
     Key := #0;
     NotifyFontChanged(-1);
-    //mMainView.FontChanged(-1);
   end;
 end;
 
@@ -697,15 +694,17 @@ begin
   if (delta = 0) or (defFontSz > 48) or (defFontSz < 6) then
     Exit;
 
-  AppConfig.DefFontSize := defFontSz + delta;
+  AppConfig.DefFontSize := defFontSz;
   mNotifier.Notify(TAppConfigChangedMessage.Create());
-  //mNotifier.Notify(TFontSizeChangedMessage.Create(defFontSz + delta));
 end;
 
 procedure TBookFrame.bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   verse: integer;
 begin
+  if not Assigned(BookTabInfo) then
+    Exit;
+
   if BookTabInfo.LocationType = vtlFile then
     Exit;
 
@@ -714,6 +713,7 @@ begin
     mMainView.GoNextChapter;
     Exit;
   end;
+
   if (Key = VK_PRIOR) and (bwrHtml.Position = mMainView.BrowserPosition) then
   begin
     mMainView.GoPrevChapter;
@@ -721,11 +721,13 @@ begin
       bwrHtml.PositionTo('endofchapterNMFHJAHSTDGF123');
     Exit;
   end;
+
   if Key = VK_HOME then
   begin
     bwrHtml.Position := 0;
     Exit;
   end;
+
   if Key = VK_END then
   begin
     bwrHtml.PositionTo('endofchapterNMFHJAHSTDGF123');

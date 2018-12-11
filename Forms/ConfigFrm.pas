@@ -161,7 +161,6 @@ begin
       s := s + '\';
 
     edtSelectPath.Text := s;
-
   end;
 end;
 
