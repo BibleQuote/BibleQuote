@@ -39,10 +39,13 @@ end;
 procedure TAboutForm.FormCreate(Sender: TObject);
 begin
   lblDevs.Caption := String.Join(sLineBreak,
-    ['Версия ' + GetAppVersionStr(),
+    ['Благодарности:',
+     'Александр Снигерев, Samuel A. Kim, Тимофей Ха',
      '',
-     'Благодарности:',
-     'Александр Снигерев, Samuel A. Kim, Тимофей Ха']);
+     'Версия ' + GetAppVersionStr(),
+     '© Команда BibleQuote.org',
+     'www.biblequote.org'
+    ]);
 end;
 
 procedure TAboutForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
