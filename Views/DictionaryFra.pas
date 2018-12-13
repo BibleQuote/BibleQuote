@@ -209,6 +209,8 @@ begin
     mBqEngine.InitDictionaryItemsList(true);
     DictionaryStartup();
   end;
+
+  DisplayDictionary(edtDic.Text);
 end;
 
 constructor TDictionaryFrame.Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView);
@@ -448,13 +450,17 @@ begin
     cbDic.Items.EndUpdate;
   end;
 
-  cbDic.Enabled := not(cbDic.Items.Count = 1);
+  cbDic.Enabled := (cbDic.Items.Count > 1) and (cbDicFilter.ItemIndex = 0);
 
-  if cbDic.Items.Count = 1 then
+  if (cbDicFilter.ItemIndex > 0) then
     lblDicFoundSeveral.Caption := Lang.Say('FoundInOneDictionary')
   else
-    lblDicFoundSeveral.Caption := Lang.Say('FoundInSeveralDictionaries');
-
+  begin
+    if cbDic.Items.Count = 1 then
+      lblDicFoundSeveral.Caption := Lang.Say('FoundInOneDictionary')
+    else
+      lblDicFoundSeveral.Caption := Lang.Say('FoundInSeveralDictionaries');
+  end;
   if cbDic.Items.Count > 0 then
     cbDicChange(self) // invoke showing first dictionary result
 end;

@@ -30,25 +30,26 @@ object DictionaryFrame: TDictionaryFrame
     object pnlToolbar: TPanel
       Left = 23
       Top = 0
-      Width = 274
+      Width = 304
       Height = 24
       BevelOuter = bvNone
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 0
       DesignSize = (
-        274
+        304
         24)
       object cbDicFilter: TComboBox
         Left = 8
         Top = 2
-        Width = 197
+        Width = 295
         Height = 21
         Hint = 'Select dictionary to search within'
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         OnChange = cbDicFilterChange
+        ExplicitWidth = 265
       end
     end
   end
@@ -64,7 +65,7 @@ object DictionaryFrame: TDictionaryFrame
     ExplicitWidth = 449
     ExplicitHeight = 289
     object splMain: TSplitter
-      Left = 221
+      Left = 241
       Top = 1
       Width = 5
       Height = 464
@@ -77,7 +78,7 @@ object DictionaryFrame: TDictionaryFrame
     object pnlLeft: TPanel
       Left = 1
       Top = 1
-      Width = 220
+      Width = 240
       Height = 464
       Align = alLeft
       Caption = 'pnlLeft'
@@ -86,7 +87,7 @@ object DictionaryFrame: TDictionaryFrame
         AlignWithMargins = True
         Left = 4
         Top = 31
-        Width = 212
+        Width = 232
         Height = 367
         Align = alClient
         DefaultNodeHeight = 17
@@ -116,7 +117,7 @@ object DictionaryFrame: TDictionaryFrame
         AlignWithMargins = True
         Left = 4
         Top = 4
-        Width = 212
+        Width = 232
         Height = 21
         Hint = 'ent word to search here'
         Align = alTop
@@ -130,7 +131,7 @@ object DictionaryFrame: TDictionaryFrame
         AlignWithMargins = True
         Left = 4
         Top = 404
-        Width = 212
+        Width = 232
         Height = 56
         Align = alBottom
         BevelEdges = []
@@ -140,7 +141,7 @@ object DictionaryFrame: TDictionaryFrame
         ExplicitTop = 407
         ExplicitWidth = 158
         DesignSize = (
-          212
+          232
           56)
         object lblDicFoundSeveral: TLabel
           Left = 3
@@ -152,7 +153,7 @@ object DictionaryFrame: TDictionaryFrame
         object cbDic: TComboBox
           Left = 3
           Top = 26
-          Width = 206
+          Width = 226
           Height = 21
           Hint = 'Select dictionary to show entry from'
           Style = csDropDownList
@@ -164,9 +165,9 @@ object DictionaryFrame: TDictionaryFrame
       end
     end
     object bwrDic: THTMLViewer
-      Left = 226
+      Left = 246
       Top = 1
-      Width = 375
+      Width = 355
       Height = 464
       TabOrder = 1
       Align = alClient
