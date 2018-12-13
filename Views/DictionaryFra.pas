@@ -14,7 +14,6 @@ uses
 type
   TDictionaryFrame = class(TFrame, IDictionaryView, IJclListener)
     bwrDic: THTMLViewer;
-    pnlDic: TPanel;
     cbDicFilter: TComboBox;
     edtDic: TComboBox;
     vstDicList: TVirtualStringTree;
@@ -25,6 +24,13 @@ type
     miRefCopy: TMenuItem;
     miOpenNewView: TMenuItem;
     miRefPrint: TMenuItem;
+    tlbMain: TToolBar;
+    tbtnToggle: TToolButton;
+    pnlToolbar: TPanel;
+    ilImages: TImageList;
+    pnlMain: TPanel;
+    pnlLeft: TPanel;
+    splMain: TSplitter;
     procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
     procedure bwrDicMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -40,6 +46,7 @@ type
     procedure miRefCopyClick(Sender: TObject);
     procedure miOpenNewViewClick(Sender: TObject);
     procedure miRefPrintClick(Sender: TObject);
+    procedure tbtnToggleClick(Sender: TObject);
   private
     mTabsView: ITabsView;
     mMainView: TMainForm;
@@ -271,6 +278,15 @@ begin
   mXRefVerseCmd := Get_AHREF_VerseCommand(
     bwrDic.DocumentSource,
     bwrDic.SectionList.FindSourcePos(bwrDic.RightMouseClickPos));
+end;
+
+procedure TDictionaryFrame.tbtnToggleClick(Sender: TObject);
+var
+  showNav: boolean;
+begin
+  showNav := not pnlLeft.Visible;
+  splMain.Visible := showNav;
+  pnlLeft.Visible := showNav;
 end;
 
 procedure TDictionaryFrame.Translate();
