@@ -35,7 +35,6 @@ object DockTabsForm: TDockTabsForm
     OnActiveTabChanged = ctViewTabsActiveTabChanged
     OnButtonAddClick = ctViewTabsButtonAddClick
     OnButtonCloseTabClick = ctViewTabsButtonCloseTabClick
-    OnTabDblClick = ctViewTabsTabDblClick
     OnTabDragDrop = ctViewTabsTabDragDrop
     OnTabDragDropped = ctViewTabsTabDragDropped
     ActiveTabIndex = -1
@@ -149,15 +148,15 @@ object DockTabsForm: TDockTabsForm
     Options.Behaviour.TabSmartDeleteResizing = True
     Options.Behaviour.TabSmartDeleteResizeCancelDelay = 700
     Options.Behaviour.UseBuiltInPopupMenu = False
-    Options.Behaviour.TabRightClickSelect = True
+    Options.Behaviour.TabRightClickSelect = False
     Options.Behaviour.ActivateNewTab = True
     Options.Behaviour.DebugMode = False
     Options.Behaviour.IgnoreDoubleClicksWhileAnimatingMovement = True
     Options.Scrolling.Enabled = True
-    Options.Scrolling.ScrollButtons = csbRight
+    Options.Scrolling.ScrollButtons = csbNone
     Options.Scrolling.ScrollStep = 20
     Options.Scrolling.ScrollRepeatDelay = 20
-    Options.Scrolling.AutoHideButtons = False
+    Options.Scrolling.AutoHideButtons = True
     Options.Scrolling.DragScroll = True
     Options.Scrolling.DragScrollOffset = 50
     Options.Scrolling.MouseWheelScroll = True
@@ -365,7 +364,7 @@ object DockTabsForm: TDockTabsForm
     Left = 464
     Top = 328
     Bitmap = {
-      494C010118006800880510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101180068008C0510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000007000000001002000000000000070
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1298,6 +1297,7 @@ object DockTabsForm: TDockTabsForm
   end
   object mViewTabsPopup: TPopupMenu
     Images = ilImages
+    OnPopup = mViewTabsOnPopup
     Left = 512
     Top = 120
     object miNewViewTab: TMenuItem
