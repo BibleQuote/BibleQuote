@@ -4,17 +4,27 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, SystemInfo, IOUtils;
+  Dialogs, StdCtrls, SystemInfo, IOUtils, System.ImageList, Vcl.ImgList,
+  Vcl.Imaging.pngimage, Vcl.ExtCtrls;
+
+const
+  HEIGHT_EXPANDED  = 400;
+  HEIGHT_COLLAPSED = 170;
 
 type
   TExceptionForm = class(TForm)
-    memError: TMemo;
-    lblLog: TLabel;
-    btnOK: TButton;
-    btnHalt: TButton;
-    procedure btnHaltClick(Sender: TObject);
+    imgError: TImage;
+    btnOk: TButton;
+    btnDetails: TButton;
+    memDetails: TMemo;
+    imgIcons: TImageList;
+    lblStacktrace: TLabel;
+    lblMessage: TLabel;
+    procedure btnDetailsClick(Sender: TObject);
+    procedure btnOKClick(Sender: TObject);
   private
     mNonContinuable: boolean;
+    procedure ToggleDetails(show: boolean);
   end;
 
 procedure BqShowException(e: Exception; addInfo: string = ''; nonContinuable: boolean = false);
@@ -52,39 +62,46 @@ end;
 
 procedure BqShowException(e: Exception; addInfo: string = ''; nonContinuable: boolean = false);
 var
-  lns: TStrings;
-  iv: TIdleEvent;
+  lines: TStrings;
+  idle: TIdleEvent;
   exceptionLog: TbqTextFileWriter;
 begin
-
-  if not assigned(ExceptionForm) then
+  if not Assigned(ExceptionForm) then
+  begin
     ExceptionForm := TExceptionForm.Create(Application);
+    Lang.TranslateControl(ExceptionForm);
+  end;
+
   exceptionLog := getExceptionLog();
-  ExceptionForm.memError.Lines.clear();
-  lns := TStringList.Create();
-  iv := Application.OnIdle;
+  ExceptionForm.ToggleDetails(false);
+  ExceptionForm.memDetails.Lines.clear();
+  lines := TStringList.Create();
+  idle := Application.OnIdle;
   Application.OnIdle := nil;
   try
-    ExceptionForm.mNonContinuable := ExceptionForm.mNonContinuable or
-      nonContinuable;
-    lns.clear;
-    JclLastExceptStackListToStrings(lns, true, true, true, false);
-    lns.Insert(0, Format('Exception:%s, msg:%s', [e.ClassName, e.Message]));
+    ExceptionForm.mNonContinuable := ExceptionForm.mNonContinuable or nonContinuable;
+
+    ExceptionForm.lblMessage.Caption := E.Message;
+    lines.clear;
+    JclLastExceptStackListToStrings(lines, true, true, true, false);
+    lines.Insert(0, Format('Exception:%s, msg:%s', [e.ClassName, e.Message]));
 
     if g_ExceptionContext.Count > 0 then
-      lns.Insert(1, 'Context:'#13#10 + g_ExceptionContext.Text);
+      lines.Insert(1, 'Context:'#13#10 + g_ExceptionContext.Text);
 
     if length(addInfo) > 0 then
-      lns.Insert(0, addInfo);
+      lines.Insert(0, addInfo);
 
-    ExceptionForm.btnOK.Enabled := not nonContinuable;
-    lns.Add('OS info:' + WinInfoString());
-    lns.Add('bqVersion: ' + GetAppVersionStr());
-    ExceptionForm.memError.Lines.AddStrings(lns);
+    lines.Add('OS info:' + WinInfoString());
+    lines.Add('version: ' + GetAppVersionStr());
+
+    ExceptionForm.memDetails.Lines.AddStrings(lines);
+
     exceptionLog.WriteLine(NowDateTimeString() + ':');
-    exceptionLog.WriteLine(lns.Text);
+    exceptionLog.WriteLine(lines.Text);
     exceptionLog.WriteLine('--------');
-    if not ExceptionForm.visible then
+
+    if not ExceptionForm.Visible then
     begin
       ExceptionForm.ShowModal();
       if nonContinuable then
@@ -93,9 +110,9 @@ begin
 
   finally
     ExceptionForm.mNonContinuable := false;
-    lns.free();
-    g_ExceptionContext.clear();
-    Application.OnIdle := iv;
+    lines.Free();
+    g_ExceptionContext.Clear();
+    Application.OnIdle := idle;
   end;
 end;
 
@@ -106,10 +123,9 @@ var
 begin
   sl := nil;
   result := '';
-  stackInfo := TJclStackInfoList.Create(
-    true, 3, codePtr, false, nil, stackTop);
+  stackInfo := TJclStackInfoList.Create(true, 3, codePtr, false, nil, stackTop);
 
-  if assigned(stackInfo) then
+  if Assigned(stackInfo) then
   begin
     try
       sl := TStringList.Create();
@@ -123,11 +139,38 @@ begin
 
 end;
 
-procedure TExceptionForm.btnHaltClick(Sender: TObject);
+procedure TExceptionForm.btnDetailsClick(Sender: TObject);
 begin
+  ToggleDetails(not memDetails.Visible);
+end;
 
-  CloseLog();
-  halt(1);
+procedure TExceptionForm.btnOKClick(Sender: TObject);
+begin
+  if mNonContinuable then
+  begin
+    CloseLog();
+    Halt(1);
+  end;
+
+  ModalResult := mrOk;
+end;
+
+procedure TExceptionForm.ToggleDetails(show: boolean);
+begin
+  memDetails.Visible := show;
+  lblStacktrace.Visible := show;
+  if (show) then
+  begin
+    self.Height := HEIGHT_EXPANDED;
+    btnDetails.ImageIndex := 1;
+  end
+  else
+  begin
+    self.Height := HEIGHT_COLLAPSED;
+    btnDetails.ImageIndex := 0;
+  end;
+  btnDetails.Invalidate;
+  Invalidate;
 end;
 
 initialization

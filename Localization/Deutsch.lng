@@ -313,6 +313,7 @@ ConfigForm.tsFavouriteEx.Caption = Lieblingsmodule
 ConfigForm.tsInterface.Caption = Interface (t)
 ConfigForm.tsOtherOptions.Caption = Andere Optionen
 
-ExceptionForm.btnHalt.Caption = Abnormal end
-ExceptionForm.btnOK.Caption = OK
-ExceptionForm.lblLog.Caption = Das Protokol des Abbreches:
+ExceptionForm.btnDetails.Caption = Details (t)
+ExceptionForm.btnOk.Caption = OK
+ExceptionForm.Caption = An error occurred! (t)
+ExceptionForm.lblStacktrace.Caption = The exception stacktrace was: (t)

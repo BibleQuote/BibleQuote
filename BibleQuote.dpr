@@ -2,10 +2,6 @@
 // JCL_DEBUG_EXPERT_INSERTJDBG ON
 program BibleQuote;
 
-
-
-
-
 {$R *.dres}
 
 uses
@@ -13,13 +9,13 @@ uses
   Classes,
   WideStrings,
   SysUtils,
-  InputFrm in 'Forms\InputFrm.pas' {InputForm},
-  CopyrightFrm in 'Forms\CopyrightFrm.pas' {CopyrightForm},
-  ConfigFrm in 'Forms\ConfigFrm.pas' {ConfigForm},
-  ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm},
-  MainFrm in 'Forms\MainFrm.pas' {MainForm: TTntForm},
-  AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
-  PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox},
+  MainFrm in 'Forms\MainFrm.pas' {MainForm} ,
+  InputFrm in 'Forms\InputFrm.pas' {InputForm} ,
+  CopyrightFrm in 'Forms\CopyrightFrm.pas' {CopyrightForm} ,
+  ConfigFrm in 'Forms\ConfigFrm.pas' {ConfigForm} ,
+  ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm} ,
+  AboutFrm in 'Forms\AboutFrm.pas' {AboutForm} ,
+  PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox} ,
   Containers in 'Collections\Containers.pas',
   Bible in 'Core\Bible.pas',
   BibleLinkParser in 'Core\BibleLinkParser.pas',
@@ -46,70 +42,76 @@ uses
   BackgroundServices in 'IO\BackgroundServices.pas',
   IOProcs in 'IO\IOProcs.pas',
   ModuleProcs in 'IO\ModuleProcs.pas',
-  TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule},
+  TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule} ,
   MultiLanguage in 'Core\MultiLanguage.pas',
   TabData in 'Core\TabData.pas',
   CRC32 in 'Utils\CRC32.pas',
-  DockTabsFrm in 'Forms\DockTabsFrm.pas' {DockTabsForm},
+  DockTabsFrm in 'Forms\DockTabsFrm.pas' {DockTabsForm} ,
   ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas',
   LayoutConfig in 'IO\LayoutConfig.pas',
-  BookFra in 'Views\BookFra.pas' {BookFrame: TFrame},
-  MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame},
+  BookFra in 'Views\BookFra.pas' {BookFrame: TFrame} ,
+  MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame} ,
   FontManager in 'Core\FontManager.pas',
-  LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame},
+  LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame} ,
   ImageUtils in 'Utils\ImageUtils.pas',
   UITools in 'UI\UITools.pas',
-  PopupFrm in 'Forms\PopupFrm.pas' {PopupForm},
-  BookmarksFra in 'Views\BookmarksFra.pas' {BookmarksFrame: TFrame},
+  PopupFrm in 'Forms\PopupFrm.pas' {PopupForm} ,
+  BookmarksFra in 'Views\BookmarksFra.pas' {BookmarksFrame: TFrame} ,
   BroadcastList in 'Collections\BroadcastList.pas',
-  SearchFra in 'Views\SearchFra.pas' {SearchFrame: TFrame},
-  TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame},
-  TagsVersesFra in 'Views\TagsVersesFra.pas' {TagsVersesFrame: TFrame},
-  DictionaryFra in 'Views\DictionaryFra.pas' {DictionaryFrame: TFrame},
+  SearchFra in 'Views\SearchFra.pas' {SearchFrame: TFrame} ,
+  TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame} ,
+  TagsVersesFra in 'Views\TagsVersesFra.pas' {TagsVersesFrame: TFrame} ,
+  DictionaryFra in 'Views\DictionaryFra.pas' {DictionaryFrame: TFrame} ,
   NotifyMessages in 'Core\NotifyMessages.pas',
-  StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame},
+  StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame} ,
   AppPaths in 'IO\AppPaths.pas',
   AppIni in 'IO\AppIni.pas';
 
 {$R *.res}
+
 var
   fn: string;
-  param:string;
+  param: string;
+
 begin
   try
-    if ParamStartedWith('/debug',param) then begin
+    if ParamStartedWith('/debug', param) then
+    begin
       fn := ExtractFilePath(Application.Exename) + 'dbg.log';
-      G_DebugEx:=1;
-      end
-    else begin
+      G_DebugEx := 1;
+    end
+    else
+    begin
       fn := 'nul';
-      G_DebugEx:=0;
-     end;
+      G_DebugEx := 0;
+    end;
     Assign(Output, fn);
     Rewrite(Output);
-    writeln(NowDateTimeString(), 'BibleQuote dbg log started' );
+    writeln(NowDateTimeString(), 'BibleQuote dbg log started');
     Flush(Output);
-    if ParamStartedWith('/memcheck',param) then begin
-      ReportMemoryLeaksOnShutdown:=true;
+    if ParamStartedWith('/memcheck', param) then
+    begin
+      ReportMemoryLeaksOnShutdown := true;
     end
-    else   ReportMemoryLeaksOnShutdown:=false;
+    else
+      ReportMemoryLeaksOnShutdown := false;
   except
   end;
 
   Application.Initialize;
-
   if not Assigned(TagsDbEngine) then
-    Application.CreateForm(TTagsDbEngine, TagsDbEngine);
+    TagsDbEngine := TTagsDbEngine.Create(Application);
+
   Application.CreateForm(TMainForm, MainForm);
-  Application.CreateForm(TExceptionForm, ExceptionForm);
   Application.CreateForm(TAboutForm, AboutForm);
   Application.CreateForm(TPasswordBox, PasswordBox);
   Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
+
   Application.Run;
   try
     Close(Output);
   except
   end;
-end.
 
+end.
