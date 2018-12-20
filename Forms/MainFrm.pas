@@ -487,7 +487,6 @@ begin
       on E: Exception do
       begin
         BqShowException(E, '', true);
-
       end;
     end;
     AppConfig := TAppConfig.Create;

@@ -312,6 +312,7 @@ ConfigForm.tsFavouriteEx.Caption = Ընտրյալ մոդուլներ
 ConfigForm.tsInterface.Caption = Интерфейс (t)
 ConfigForm.tsOtherOptions.Caption = Այլ հատկություններ
 
-ExceptionForm.btnHalt.Caption = Վթարային կանգ
-ExceptionForm.btnOK.Caption = Լավ
-ExceptionForm.lblLog.Caption = Բացառությունների արձանագրություն.
+ExceptionForm.btnDetails.Caption = Details (t)
+ExceptionForm.btnOk.Caption = Լավ
+ExceptionForm.Caption = An error occurred!
+ExceptionForm.lblStacktrace.Caption = Բացառությունների արձանագրություն:

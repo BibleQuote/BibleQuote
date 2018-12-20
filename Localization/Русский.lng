@@ -312,6 +312,7 @@ ConfigForm.tsFavouriteEx.Caption = Избранные модули
 ConfigForm.tsInterface.Caption = Интерфейс
 ConfigForm.tsOtherOptions.Caption = Другие опции
 
-ExceptionForm.btnHalt.Caption = Аварийный останов
-ExceptionForm.btnOK.Caption = OK
-ExceptionForm.lblLog.Caption = Протокол исключения:
+ExceptionForm.btnDetails.Caption = Подробности
+ExceptionForm.btnOk.Caption = OK
+ExceptionForm.Caption = Обнаружена ошибка!
+ExceptionForm.lblStacktrace.Caption = Протокол исключения:

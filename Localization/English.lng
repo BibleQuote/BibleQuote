@@ -312,6 +312,7 @@ ConfigForm.tsFavouriteEx.Caption = Favorite modules
 ConfigForm.tsInterface.Caption = Interface
 ConfigForm.tsOtherOptions.Caption = Other options
 
-ExceptionForm.btnHalt.Caption = Abnormal end
-ExceptionForm.btnOK.Caption = OK
-ExceptionForm.lblLog.Caption = The exception protocol:
+ExceptionForm.btnDetails.Caption = Details
+ExceptionForm.btnOk.Caption = OK
+ExceptionForm.Caption = An error occurred!
+ExceptionForm.lblStacktrace.Caption = The exception stacktrace was:
