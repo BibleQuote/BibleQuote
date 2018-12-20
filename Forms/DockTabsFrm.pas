@@ -41,12 +41,12 @@ type
     procedure ctViewTabsActiveTabChanging(Sender: TObject; AOldTab, ANewTab: TChromeTab; var Allow: Boolean);
     procedure ctViewTabsButtonAddClick(Sender: TObject; var Handled: Boolean);
     procedure ctViewTabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab; var Close: Boolean);
-    procedure ctViewTabsTabDblClick(Sender: TObject; ATab: TChromeTab);
     procedure ctViewTabsTabDragDropped(Sender: TObject; DragTabObject: IDragTabObject; NewTab: TChromeTab);
     procedure ctViewTabsTabDragDrop(Sender: TObject; X, Y: Integer; DragTabObject: IDragTabObject; Cancelled: Boolean; var TabDropOptions: TTabDropOptions);
     procedure FormCreate(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure mViewTabsOnPopup(Sender: TObject);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -70,6 +70,7 @@ type
     procedure HideFrame(frame: TFrame);
     procedure UpdateTabContent(ATab: TChromeTab; restoreState: boolean = true);
     procedure Notification(msg: IJclNotificationMessage); stdcall;
+    procedure PopupChangeTab(Sender: TObject);
   public
     { Public declarations }
 
@@ -486,19 +487,6 @@ begin
     self.Close; // close form when all tabs are closed
 end;
 
-procedure TDockTabsForm.ctViewTabsTabDblClick(Sender: TObject; ATab: TChromeTab);
-var
-  tabInfo: IViewTabInfo;
-  bookTabInfo: TBookTabInfo;
-begin
-  tabInfo := GetTabInfo(ATab.Data);
-  if (tabInfo.GetViewType = vttBook) then
-  begin
-    bookTabInfo := TBookTabInfo(tabInfo);
-    mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
-  end;
-end;
-
 procedure TDockTabsForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   i, C: integer;
@@ -653,6 +641,40 @@ end;
 procedure TDockTabsForm.miNewViewTabClick(Sender: TObject);
 begin
   CreateNewBookTab();
+end;
+
+procedure TDockTabsForm.mViewTabsOnPopup(Sender: TObject);
+var
+  i: integer;
+  tabMenu: TMenuItem;
+  tab: TChromeTab;
+begin
+  mViewTabsPopup.Items.Clear;
+  try
+    for i := 0 to ctViewTabs.Tabs.Count - 1 do
+    begin
+      tabMenu := TMenuItem.Create(mViewTabsPopup);
+
+      tab := ctViewTabs.Tabs.Items[i];
+      tabMenu.Tag := i;
+      tabMenu.Caption := tab.Caption;
+      tabMenu.ImageIndex := tab.ImageIndex;
+      tabMenu.Checked := i = ctViewTabs.ActiveTabIndex;
+      tabMenu.OnClick := PopupChangeTab;
+      mViewTabsPopup.Items.Add(tabMenu);
+    end;
+  except
+    // skip error
+  end;
+end;
+
+procedure TDockTabsForm.PopupChangeTab(Sender: TObject);
+var
+  menuItem: TMenuItem;
+begin
+  menuItem := TMenuItem(Sender);
+  if Assigned(menuItem) and (menuItem.Tag >= 0) then
+    ctViewTabs.ActiveTabIndex := menuItem.Tag;
 end;
 
 procedure TDockTabsForm.CreateNewBookTab();
