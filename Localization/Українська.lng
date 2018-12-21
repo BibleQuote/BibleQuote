@@ -176,7 +176,6 @@ MainForm.tbtnAddTagsVersesTab.Caption = Тематичні закладки
 MainForm.tbtnAddTagsVersesTab.Hint = Тематичні закладки
 MainForm.tbtnAddTSKTab.Caption = Паралельні місця (TSK)
 MainForm.tbtnAddTSKTab.Hint = Паралельні місця (TSK)
-MainForm.tbtnCopyright.Caption = Авторські права
 MainForm.tbtnNewForm.Caption = Новая форма (t)
 MainForm.tbtnNewForm.Hint = Открыть новую форму (t)
 MainForm.tbtnResolveLinks.Caption = Розпізнавати біблійні посилання

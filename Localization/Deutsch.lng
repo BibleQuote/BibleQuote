@@ -178,7 +178,6 @@ MainForm.tbtnAddTagsVersesTab.Caption = Themed bookmarks (t)
 MainForm.tbtnAddTagsVersesTab.Hint = Open themed bookmarks (t)
 MainForm.tbtnAddTSKTab.Caption = Parallelstellen
 MainForm.tbtnAddTSKTab.Hint = Parallelstellen
-MainForm.tbtnCopyright.Caption = Copyright
 MainForm.tbtnNewForm.Caption = New form (t)
 MainForm.tbtnNewForm.Hint = Open new form (t)
 MainForm.tbtnResolveLinks.Caption = Bibellinks erkennen
