@@ -177,7 +177,6 @@ MainForm.tbtnAddTagsVersesTab.Caption = Тематические закладк�
 MainForm.tbtnAddTagsVersesTab.Hint = Тематические закладки
 MainForm.tbtnAddTSKTab.Caption = Параллельные места
 MainForm.tbtnAddTSKTab.Hint = Параллельные места
-MainForm.tbtnCopyright.Caption = Авторские права
 MainForm.tbtnNewForm.Caption = Новая рабочая область
 MainForm.tbtnNewForm.Hint = Создать рабочую область
 MainForm.tbtnResolveLinks.Caption = Распознавать библейские ссылки
