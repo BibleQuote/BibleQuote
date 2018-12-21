@@ -94,7 +94,7 @@ object MainForm: TMainForm
     GradientEndColor = clBtnFace
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 534
+      Left = 496
       Top = 4
       Width = 38
       Height = 26
@@ -110,30 +110,13 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
+      ExplicitLeft = 534
       ExplicitHeight = 15
-    end
-    object lblCopyRightNotice: TLabel
-      AlignWithMargins = True
-      Left = 582
-      Top = 4
-      Width = 241
-      Height = 26
-      Margins.Right = 7
-      Align = alClient
-      Anchors = []
-      AutoSize = False
-      Caption = 'CopyRight'
-      Transparent = True
-      Layout = tlCenter
-      ExplicitLeft = 544
-      ExplicitTop = 3
-      ExplicitWidth = 164
-      ExplicitHeight = 18
     end
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 338
+      Width = 300
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -216,21 +199,8 @@ object MainForm: TMainForm
         ImageIndex = 15
         OnClick = tbtnAddMemoTabClick
       end
-      object tbtnSep04: TToolButton
-        Left = 294
-        Top = 0
-        Width = 6
-        Style = tbsSeparator
-      end
-      object tbtnCopyright: TToolButton
-        Left = 300
-        Top = 0
-        Caption = 'Copyright'
-        ImageIndex = 8
-        OnClick = tbtnCopyrightClick
-      end
       object tbtnLastSeparator: TToolButton
-        Left = 332
+        Left = 294
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -239,7 +209,7 @@ object MainForm: TMainForm
       end
     end
     object tlbResolveLnks: TToolBar
-      Left = 339
+      Left = 301
       Top = 1
       Width = 56
       Margins.Top = 0
@@ -254,6 +224,7 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
+      ExplicitLeft = 339
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -277,7 +248,7 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 395
+      Left = 357
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -293,6 +264,7 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
+      ExplicitLeft = 395
       object cbLinks: TComboBox
         Left = 0
         Top = 0
@@ -3719,7 +3691,7 @@ object MainForm: TMainForm
     Left = 56
     Top = 200
     Bitmap = {
-      494C010135006800BC0510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800C00510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5585,7 +5557,7 @@ object MainForm: TMainForm
     Left = 98
     Top = 201
     Bitmap = {
-      494C01011600E801000418001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801040418001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49

@@ -2939,13 +2939,8 @@ begin
   else
     s := '; ' + Lang.Say('PublicDomainText');
 
-  try
+  if Assigned(bookTabInfo) then
     bookTabInfo.CopyrightNotice := s;
-  except
-  end;
-
-  mMainView.lblCopyRightNotice.Caption := s;
-  mMainView.tbtnCopyright.Hint := s;
 end;
 
 procedure TBookFrame.GoRandomPlace;

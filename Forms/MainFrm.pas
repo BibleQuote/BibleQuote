@@ -109,15 +109,12 @@ type
     ilImages: TImageList;
     tlbPanel: TGradientPanel;
     tlbMain: TToolBar;
-    tbtnSep04: TToolButton;
-    tbtnCopyright: TToolButton;
     miFileSep2: TMenuItem;
     tbtnLastSeparator: TToolButton;
     cbLinks: TComboBox;
     miDeteleBibleTab: TMenuItem;
     tbLinksToolBar: TToolBar;
     lblTitle: TLabel;
-    lblCopyRightNotice: TLabel;
     miOpenNewView: TMenuItem;
     appEvents: TApplicationEvents;
     reClipboard: TRichEdit;
@@ -165,7 +162,6 @@ type
     procedure miRefCopyClick(Sender: TObject);
     procedure miQuickNavClick(Sender: TObject);
     procedure miQuickSearchClick(Sender: TObject);
-    procedure tbtnCopyrightClick(Sender: TObject);
     procedure miOptionsClick(Sender: TObject);
     procedure trayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
@@ -1639,8 +1635,6 @@ begin
         lblTitle.Caption := lblTitle.Hint
       else
         lblTitle.Caption := Copy(lblTitle.Hint, 1, 80) + '...';
-
-      tbtnCopyright.Hint := s;
 
       bookView.UpdateModuleTree(bookView.BookTabInfo.Bible);
     end;
@@ -3852,8 +3846,6 @@ end;
 procedure TMainForm.ClearCopyrights();
 begin
   lblTitle.Caption := '';
-  lblCopyRightNotice.Caption := '';
-  tbtnCopyright.Hint := '';
 end;
 
 procedure TMainForm.UpdateBookView();
@@ -3913,7 +3905,6 @@ begin
 
     lblTitle.Font.Name := tabInfo.TitleFont;
     lblTitle.Caption := tabInfo.TitleLocation;
-    lblCopyRightNotice.Caption := tabInfo.CopyrightNotice;
 
     if tabInfo[vtisPendingReload] then
     begin
@@ -4545,28 +4536,6 @@ begin
   end;
 end;
 
-procedure TMainForm.tbtnCopyrightClick(Sender: TObject);
-var
-  bible: TBible;
-begin
-  bible := GetBookView(self).BookTabInfo.Bible;
-  if bible.Copyright = '' then
-    ShowMessage(Copy(tbtnCopyright.Hint, 2, $FFFFFF))
-  else
-  begin
-    if not Assigned(CopyrightForm) then
-      CopyrightForm := TCopyrightForm.Create(self);
-    CopyrightForm.Caption := 'Copyright (c) ' + bible.Copyright;
-    if FileExists(bible.path + 'copyright.htm') then
-    begin
-      CopyrightForm.bwrCopyright.LoadFromFile(bible.path + 'copyright.htm');
-      CopyrightForm.ShowModal;
-    end
-    else
-      ShowMessage('File not found: ' + bible.path + 'copyright.htm');
-  end;
-end;
-
 procedure TMainForm.AddBookmark(caption: string);
 var
   newstring: string;
@@ -4791,7 +4760,6 @@ begin
 
     Update;
     lblTitle.Font.Assign(fnt);
-    lblCopyRightNotice.Font.Assign(fnt);
   finally
     fnt.Free;
   end;
@@ -4969,7 +4937,6 @@ begin
   miRecognizeBibleLinks.Enabled := enable;
   miShowSignatures.Enabled := enable;
 
-  tbtnCopyright.Enabled := enable;
   tbtnResolveLinks.Enabled := enable;
 
   miPrint.Enabled := enable;
