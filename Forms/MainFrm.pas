@@ -3307,8 +3307,7 @@ begin
     end;
     if not Assigned(bibleModuleEntry) then
       raise Exception.Create
-        ('Не найдено ни одного библейского модуля! Проверьте правильность установки exe файла Ц.'
-        + #13#10'Он должен быть в папке, содержащей вложенные в нее папки модулей');
+        ('Модули не найдены! Проверьте наличие директории Library в корневой директории BibleQuote.');
 
     Result := bibleModuleEntry.mShortPath;
   except
