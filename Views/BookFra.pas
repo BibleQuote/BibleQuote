@@ -503,7 +503,7 @@ begin
         FullPassageSignature(CurBook, CurChapter, verse, 0), ShortName]));
     end;
 
-    mMainView.OpenOrCreateTSKTab(BookTabInfo);
+    mMainView.OpenOrCreateTSKTab(BookTabInfo, verse);
   end
   else if Pos('s', unicodeSRC) = 1 then
   begin
