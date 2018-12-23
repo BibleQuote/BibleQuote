@@ -269,9 +269,9 @@ AboutForm.pnlDownloadLatest.Caption = Актуальная версия прог
 AboutForm.pnlForum.Caption = Обсудите работу программы на форуме
 
 ;
+CopyOptionsAddReference_FullAtEnd = Полная подпись в конце отрывка
 CopyOptionsAddReference_ShortAtBeginning = Короткая подпись в начале каждого стиха
 CopyOptionsAddReference_ShortAtEnd = Короткая подпись в конце отрывка
-CopyOptionsAddReference_FullAtEnd = Полная подпись в конце отрывка
 ;
 
 ConfigForm.Caption = Настройки
