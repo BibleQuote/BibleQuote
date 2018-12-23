@@ -1,6 +1,5 @@
-﻿; SYSTEM MESSAGES ===================================
-
-Charset = 201
+﻿
+; SYSTEM MESSAGES ===================================
 
 ; Note:
 ; Long messages can be broken into several lines by placing '=' sign at the first position

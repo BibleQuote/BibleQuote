@@ -87,6 +87,7 @@ TabStrong = Словник Стронга
 
 DeleteBookmarkTextPrompt = Удалить закладку? (t)
 DeleteBookmarkTitle = Подтвердите удаление (t)
+
 ; ЕЛЕМЕНТИ ФОРМИ І МЕНЮ =================================
 
 CBAllNotCaption = шукане містить всі введені слова

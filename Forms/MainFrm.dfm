@@ -110,7 +110,6 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 534
       ExplicitHeight = 15
     end
     object tlbMain: TToolBar
@@ -205,7 +204,6 @@ object MainForm: TMainForm
         Width = 6
         Caption = 'tbtnLastSeparator'
         Style = tbsSeparator
-        Visible = False
       end
     end
     object tlbResolveLnks: TToolBar
@@ -224,7 +222,6 @@ object MainForm: TMainForm
       Images = ilPictures24
       List = True
       TabOrder = 0
-      ExplicitLeft = 339
       object tbtnResolveLinks: TToolButton
         AlignWithMargins = True
         Left = 0
@@ -264,7 +261,6 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
-      ExplicitLeft = 395
       object cbLinks: TComboBox
         Left = 0
         Top = 0
@@ -3691,7 +3687,7 @@ object MainForm: TMainForm
     Left = 56
     Top = 200
     Bitmap = {
-      494C010135006800C00510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010135006800C40510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000E0000000010020000000000000E0
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -5557,7 +5553,7 @@ object MainForm: TMainForm
     Left = 98
     Top = 201
     Bitmap = {
-      494C01011600E801040418001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011600E801080418001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       00000000000036000000280000006000000090000000010020000000000000D8
       000000000000000000000000000000000000000000000000000000000000D4D2
       CF0077736A005751470055504500544E4300524D4200514B40004F4A3F004F49
