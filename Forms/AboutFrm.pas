@@ -43,7 +43,7 @@ begin
      'Тимофей Ха, Самуэль Ким, Александр Снигерев',
      '',
      'Версия ' + GetAppVersionStr(),
-     '© 2017-2018 Команда BibleQuote.org',
+     '© 2017-2019 Команда BibleQuote.org',
      'www.biblequote.org'
     ]);
 end;

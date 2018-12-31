@@ -11,7 +11,7 @@ Quote the Bible with confidence.
 
 ![BibleQuote screenshot](./Resources/screenshot.png "BibleQuote")
 
-&copy; BibleQuote.org 2017-2018
+&copy; BibleQuote.org 2017-2019
 
 
 ## Code contribution
