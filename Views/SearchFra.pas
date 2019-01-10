@@ -577,7 +577,10 @@ begin
   end;
 
   if (appConfig.MainFormFontName <> Font.Name) then
+  begin
     Font.Name := appConfig.MainFormFontName;
+    lblBook.Font.Name := appConfig.MainFormFontName;
+  end;
 
   if (appConfig.MainFormFontSize <> Font.Size) then
     Font.Size := appConfig.MainFormFontSize;

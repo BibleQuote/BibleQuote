@@ -83,7 +83,7 @@ begin
 
   if (not background) or (Fii <= Filinecount) then
     repeat
-      FWords.InsertObject(Fii, Trim(FiLines[2 * Fii]), Pointer(StrToInt(Trim(FiLines[2 * Fii + 1]))));
+      FWords.InsertObject(Fii, Trim(FiLines[2 * Fii]), Pointer(StrToIntDef(Trim(FiLines[2 * Fii + 1]), 0)));
       Inc(Fii);
     until (Fii > Filinecount) or (background and ((Fii and $3FF) = $3FF));
 

@@ -25,7 +25,7 @@ object SearchFrame: TSearchFrame
     object lblBook: TLabel
       Left = 47
       Top = 11
-      Width = 298
+      Width = 4
       Height = 18
       Anchors = [akLeft, akTop, akRight]
       Font.Charset = DEFAULT_CHARSET
@@ -38,7 +38,7 @@ object SearchFrame: TSearchFrame
     object cbSearch: TComboBox
       Left = 8
       Top = 42
-      Width = 285
+      Width = 277
       Height = 21
       Hint = 'enter word or expression to search'
       AutoCloseUp = True
@@ -64,7 +64,7 @@ object SearchFrame: TSearchFrame
     object btnFind: TButton
       AlignWithMargins = True
       Left = 291
-      Top = 68
+      Top = 69
       Width = 54
       Height = 22
       Anchors = [akTop, akRight]
@@ -119,9 +119,9 @@ object SearchFrame: TSearchFrame
       OnClick = chkExactPhraseClick
     end
     object cbQty: TComboBox
-      Left = 297
+      Left = 291
       Top = 42
-      Width = 48
+      Width = 54
       Height = 21
       Hint = 'Number of result to display per view'
       Style = csDropDownList
@@ -188,7 +188,7 @@ object SearchFrame: TSearchFrame
     Left = 264
     Top = 144
     Bitmap = {
-      494C010101000800300018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010101000800340018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000001800000001002000000000000024
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
