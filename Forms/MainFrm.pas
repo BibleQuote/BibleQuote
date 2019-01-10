@@ -952,20 +952,31 @@ var
   tabState: UInt64;
   bookTabSettings: TBookTabSettings;
   history: TStrings;
+  tabsConfigOk: boolean;
 begin
   tabsConfigPath := TPath.Combine(TAppDirectories.UserSettings, 'tabs_config.json');
   layoutConfigPath := TPath.Combine(TAppDirectories.UserSettings, 'layout_forms.dat');
 
   firstTabInitialized := false;
   try
+    tabsConfigOk := true;
     if (not FileExists(tabsConfigPath)) then
+      tabsConfigOk := false;
+
+    layoutConfig := nil;
+    if (tabsConfigOk) then
+      layoutConfig := TLayoutConfig.Load(tabsConfigPath);
+
+    if not Assigned(layoutConfig) then
+      tabsConfigOk := false;
+
+    if not (tabsConfigOk) then
     begin
       CreateInitialTabsView();
       SetFirstTabInitialLocation(AppConfig.LastCommand, '', '', DefaultBookTabState(), true);
       Exit;
     end;
 
-    layoutConfig := TLayoutConfig.Load(tabsConfigPath);
     for tabsViewSettings in layoutConfig.TabsViewList do
     begin
       activeTabIx := -1;
@@ -3247,10 +3258,6 @@ begin
 
   TranslateControl(ExceptionForm);
   TranslateControl(AboutForm);
-
-  ConfigForm.Font := MainForm.Font;
-  ConfigForm.Font.CharSet := MainForm.Font.CharSet;
-
   TranslateConfigForm;
 
   for tabsView in mTabsViews do
@@ -4640,7 +4647,6 @@ begin
   ForceForegroundLoad();
 
   ConfigForm.LoadConfiguration(mModules, mFavorites);
-  ConfigForm.Font := self.Font;
 
   if ConfigForm.ShowModal = mrCancel then
     Exit;
@@ -4965,6 +4971,7 @@ begin
     end
   );
 end;
+
 initialization
 
 DefaultDockTreeClass := TThinCaptionedDockTree;
