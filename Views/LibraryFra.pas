@@ -5,7 +5,7 @@ interface
 uses
   Vcl.Tabs, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls,
   Forms, Dialogs, VirtualTrees, Contnrs, StdCtrls, ExtCtrls, Math,
-  DockTabSet, Vcl.ComCtrls, Vcl.ToolWin, System.ImageList, MainFrm,
+  Vcl.DockTabSet, Vcl.ComCtrls, Vcl.ToolWin, System.ImageList, MainFrm,
   Vcl.ImgList, TabData, Vcl.Menus, System.UITypes, BibleQuoteUtils, PlainUtils,
   ImageUtils, AppIni;
 
@@ -50,6 +50,8 @@ type
     procedure InitFonts();
     procedure InitCoverDefault();
     function GetModuleTypeText(modType: TModuleType): string;
+    function GetCoverWidth(): integer;
+    function GetCoverHeight(): integer;
   public
     constructor Create(AOwner: TComponent); reintroduce;
     procedure SetModules(modules: TCachedModules);
@@ -64,10 +66,10 @@ type
 var
   G_OtherCats: string = 'Другие категории';
 
-  COVER_WIDTH: integer = 56;
-  COVER_HEIGHT: integer = 80;
-  COVER_OFFSET: integer = 6;
-  TEXT_OFFSET: integer = 10;
+  COVER_WIDTH:  integer = 60;
+  COVER_HEIGHT: integer = 90;
+  COVER_OFFSET: integer = 10;
+  TEXT_OFFSET:  integer = 12;
 
 implementation
 
@@ -97,7 +99,7 @@ begin
   origCoverImage := nil;
   try
     origCoverImage := LoadImage('CoverDefault');  
-    mCoverDefault := StretchImage(origCoverImage, COVER_WIDTH, COVER_HEIGHT);
+    mCoverDefault := StretchImage(origCoverImage, GetCoverWidth, GetCoverHeight);
   finally
     if Assigned(origCoverImage) then
       origCoverImage.Free;
@@ -113,23 +115,33 @@ begin
     Font.Size := appConfig.MainFormFontSize;
 end;
 
+function TLibraryFrame.GetCoverWidth(): integer;
+begin
+  Result := Round(COVER_WIDTH * Screen.PixelsPerInch / 96.0);
+end;
+
+function TLibraryFrame.GetCoverHeight(): integer;
+begin
+  Result := Round(COVER_HEIGHT * Screen.PixelsPerInch / 96.0);
+end;
+
 procedure TLibraryFrame.InitFonts;
 begin
   mFontBookName := TFont.Create();
   mFontBookName.Name := 'Segoe UI';
   mFontBookName.Color := clBlack;
   mFontBookName.Style := [fsBold];
-  mFontBookName.Height := 16;
+  mFontBookName.Size := 10;
 
   mFontCopyright := TFont.Create();
   mFontCopyright.Color := clBlack;
   mFontCopyright.Style := [];
-  mFontCopyright.Height := 12;
+  mFontCopyright.Size := 9;
 
   mFontModType := TFont.Create();
   mFontModType.Color := clGray;
   mFontModType.Style := [];
-  mFontModType.Height := 12;
+  mFontModType.Size := 9;
 end;
 
 procedure TLibraryFrame.UpdateModuleTypes;
@@ -315,18 +327,18 @@ begin
     rect := TRect.Create(PaintInfo.CellRect);
     InflateRect(rect, -COVER_OFFSET, -COVER_OFFSET);
 
-    if (rect.Height > COVER_HEIGHT) then
-      picTop := rect.Top + (rect.Height - COVER_HEIGHT) div 2
+    if (rect.Height > GetCoverHeight) then
+      picTop := rect.Top + (rect.Height - GetCoverHeight) div 2
     else
       picTop := rect.Top;
 
-    coverPicture := modEntry.GetCoverImage(COVER_WIDTH, COVER_HEIGHT);
+    coverPicture := modEntry.GetCoverImage(GetCoverWidth, GetCoverHeight);
     if Assigned(coverPicture) then
       PaintInfo.Canvas.Draw(rect.Left, picTop, coverPicture.Graphic)
     else
       PaintInfo.Canvas.Draw(rect.Left, picTop, mCoverDefault.Graphic);
     
-    rect.Left := COVER_WIDTH + 12;
+    rect.Left := GetCoverWidth + 2 * COVER_OFFSET;
 
     drawRect := TRect.Create(rect);
     PaintInfo.Canvas.Font := mFontBookName;
@@ -377,14 +389,14 @@ begin
   if (Node = nil) or (csDestroying in self.ComponentState) then
     Exit;
 
-  coverHeight := COVER_HEIGHT + 2 * COVER_OFFSET;
+  coverHeight := GetCoverHeight + 2 * COVER_OFFSET;
   NodeHeight := 0;
 
   modEntry := vdtBooks.GetNodeData<TModuleEntry>(Node);
   if Assigned(modEntry) then
   begin
     right := vdtBooks.ClientWidth - COVER_OFFSET;
-    measureRect := TRect.Create(COVER_OFFSET + COVER_WIDTH + 12, 0, right, 0);
+    measureRect := TRect.Create(COVER_OFFSET + GetCoverWidth + 12, 0, right, 0);
 
     textHeight := 2 * COVER_OFFSET;
 
