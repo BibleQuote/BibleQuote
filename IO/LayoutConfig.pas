@@ -2,16 +2,29 @@ unit LayoutConfig;
 
 interface
 uses
-  XMLDoc, XMLIntf, Classes, SysUtils, Generics.Collections, Rest.Json, IOUtils;
+  XMLDoc, XMLIntf, Classes, SysUtils, Generics.Collections, IOUtils,
+  System.JSON, JclStrings;
 
 type
-  TTabSettings = class
+  IJsonSerializable = interface
+  ['{47095AC3-5717-4F2C-86DB-E3AB8BAC8C95}']
+    function ToJson(): TJSONObject;
+    procedure FromJson(jsonObj: TJSONObject);
+  end;
+
+  TTabSettings = class abstract(TInterfacedObject, IJsonSerializable)
   protected
     FActive: boolean;
     FIndex: integer;
+
+    procedure WriteJsonBody(json: TJSONObject); virtual;
+    procedure ReadJsonBody(json: TJSONObject); virtual;
   public
     property Active: boolean read FActive write FActive;
     property Index: integer read FIndex write FIndex;
+
+    function ToJson(): TJSONObject;
+    procedure FromJson(json: TJSONObject);
   end;
 
   TMemoTabSettings = class(TTabSettings)
@@ -28,6 +41,9 @@ type
     FSearchText: string;
     FAnyWord, FPhrase, FExactPhrase, FParts, FMatchCase: boolean;
     FBookPath: string;
+  protected
+    procedure WriteJsonBody(json: TJSONObject); override;
+    procedure ReadJsonBody(json: TJSONObject); override;
   public
     property SearchText: string read FSearchText write FSearchText;
     property AnyWord: boolean read FAnyWord write FAnyWord;
@@ -46,6 +62,9 @@ type
     FTitle: string;
     FHistory: string;
     FHistoryIndex: integer;
+  protected
+    procedure WriteJsonBody(json: TJSONObject); override;
+    procedure ReadJsonBody(json: TJSONObject); override;
   public
     property Location: string read FLocation write FLocation;
     property SecondBible: string read FSecondBible write FSecondBible;
@@ -59,6 +78,9 @@ type
   private
     FLocation: string;
     FBook, FChapter, FVerse: integer;
+  protected
+    procedure WriteJsonBody(json: TJSONObject); override;
+    procedure ReadJsonBody(json: TJSONObject); override;
   public
     property Location: string read FLocation write FLocation;
     property Book: integer read FBook write FBook;
@@ -75,7 +97,7 @@ type
   TStrongTabSettings = class(TTabSettings)
   end;
 
-  TTabsViewSettings = class
+  TTabsViewSettings = class(TInterfacedObject, IJsonSerializable)
   private
     FBookTabs: TList<TBookTabSettings>;
     FMemoTabs: TList<TMemoTabSettings>;
@@ -92,6 +114,9 @@ type
     FDocked: boolean;
     FLeft, FTop: integer;
     FWidth, FHeight: integer;
+
+    function TabToJson(tabName: string; tabSettings: TTabSettings): TJSONObject;
+    function TabFromJson(json: TJSONObject): TTabSettings;
   public
     property BookTabs: TList<TBookTabSettings> read FBookTabs write FBookTabs;
     property MemoTabs: TList<TMemoTabSettings> read FMemoTabs write FMemoTabs;
@@ -114,6 +139,9 @@ type
     function GetOrderedTabSettings(): TList<TTabSettings>;
     constructor Create();
     procedure AddTabSettings(tabSettings: TTabSettings);
+
+    function ToJson(): TJSONObject;
+    procedure FromJson(json: TJSONObject);
   end;
 
 type
@@ -242,19 +270,325 @@ begin
   TabsViewList := TList<TTabsViewSettings>.Create();
 end;
 
+function TTabSettings.ToJson(): TJSONObject;
+var
+  json: TJSONObject;
+begin
+  json := TJSONObject.Create;
+
+  json.AddPair('Active', BoolToStr(Active));
+  json.AddPair('Index', IntToStr(Index));
+
+  WriteJsonBody(json);
+
+  Result := json;
+end;
+
+procedure TTabSettings.FromJson(json: TJSONObject);
+begin
+  Active := json.GetValue<boolean>('Active', false);
+  Index := json.GetValue<integer>('Index', 0);
+
+  ReadJsonBody(json);
+end;
+
+procedure TTabSettings.WriteJsonBody(json: TJSONObject);
+begin
+  // should be implemented in derived class
+end;
+
+procedure TTabSettings.ReadJsonBody(json: TJSONObject);
+begin
+  // should be implemented in derived class
+end;
+
+procedure TSearchTabSettings.WriteJsonBody(json: TJSONObject);
+begin
+  json.AddPair('SearchText', SearchText);
+  json.AddPair('AnyWord', BoolToStr(AnyWord));
+  json.AddPair('Phrase', BoolToStr(Phrase));
+  json.AddPair('ExactPhrase', BoolToStr(ExactPhrase));
+  json.AddPair('Parts', BoolToStr(Parts));
+  json.AddPair('MatchCase', BoolToStr(MatchCase));
+  json.AddPair('BookPath', BookPath);
+end;
+
+procedure TSearchTabSettings.ReadJsonBody(json: TJSONObject);
+begin
+  SearchText := json.GetValue<string>('SearchText', '');
+  AnyWord := json.GetValue<boolean>('AnyWord', false);
+  Phrase := json.GetValue<boolean>('Phrase', false);
+  ExactPhrase := json.GetValue<boolean>('ExactPhrase', false);
+  Parts := json.GetValue<boolean>('Parts', false);
+  MatchCase := json.GetValue<boolean>('MatchCase', false);
+  BookPath := json.GetValue<string>('BookPath', '');
+end;
+
+procedure TBookTabSettings.WriteJsonBody(json: TJSONObject);
+begin
+  json.AddPair('Location', TJSONString.Create(Location));
+  json.AddPair('SecondBible', SecondBible);
+  json.AddPair('OptionsState', UIntToStr(OptionsState));
+  json.AddPair('Title', Title);
+  json.AddPair('History', History);
+  json.AddPair('HistoryIndex', IntToStr(HistoryIndex));
+end;
+
+procedure TBookTabSettings.ReadJsonBody(json: TJSONObject);
+begin
+  Location := json.GetValue<string>('Location', '');
+  SecondBible := json.GetValue<string>('SecondBible', '');
+  OptionsState := json.GetValue<UInt64>('OptionsState', 0);
+  Title := json.GetValue<string>('Title', '');
+  History := json.GetValue<string>('History', '');
+  HistoryIndex := json.GetValue<integer>('HistoryIndex', 0);
+end;
+
+procedure TTSKTabSettings.WriteJsonBody(json: TJSONObject);
+begin
+  json.AddPair('Location', Location);
+  json.AddPair('Book', IntToStr(Book));
+  json.AddPair('Chapter', IntToStr(Chapter));
+  json.AddPair('Verse', IntToStr(Verse));
+end;
+
+procedure TTSKTabSettings.ReadJsonBody(json: TJSONObject);
+begin
+  Location := json.GetValue<string>('Location', '');
+  Book := json.GetValue<integer>('Book', 0);
+  Chapter := json.GetValue<integer>('Chapter', 0);
+  Verse := json.GetValue<integer>('Verse', 0);
+end;
+
+function TTabsViewSettings.ToJson(): TJSONObject;
+var
+  json: TJSONObject;
+  jsonTabs: TJSONArray;
+  tab: TTabSettings;
+begin
+  json := TJSONObject.Create;
+
+  json.AddPair('Active', BoolToStr(Active));
+  json.AddPair('ViewName', ViewName);
+  json.AddPair('Docked', BoolToStr(Docked));
+  json.AddPair('Left', IntToStr(Left));
+  json.AddPair('Top', IntToStr(Top));
+  json.AddPair('Width', IntToStr(Width));
+  json.AddPair('Height', IntToStr(Height));
+
+  jsonTabs := TJSONArray.Create;
+  for tab in BookTabs do
+  begin
+    jsonTabs.add(TabToJson('book', tab));
+  end;
+
+  for tab in MemoTabs do
+  begin
+    jsonTabs.add(TabToJson('memo', tab));
+  end;
+
+  for tab in LibraryTabs do
+  begin
+    jsonTabs.add(TabToJson('library', tab));
+  end;
+
+  for tab in BookmarksTabs do
+  begin
+    jsonTabs.add(TabToJson('bookmarks', tab));
+  end;
+
+  for tab in SearchTabs do
+  begin
+    jsonTabs.add(TabToJson('search', tab));
+  end;
+
+  for tab in TSKTabs do
+  begin
+    jsonTabs.add(TabToJson('tsk', tab));
+  end;
+
+  for tab in TagsVersesTabs do
+  begin
+    jsonTabs.add(TabToJson('tags', tab));
+  end;
+
+  for tab in DictionaryTabs do
+  begin
+    jsonTabs.add(TabToJson('dict', tab));
+  end;
+
+  for tab in StrongTabs do
+  begin
+    jsonTabs.add(TabToJson('strong', tab));
+  end;
+
+  json.AddPair('tabs', jsonTabs);
+
+  Result := json;
+end;
+
+function TTabsViewSettings.TabToJson(tabName: string; tabSettings: TTabSettings): TJSONObject;
+var
+  json: TJSONObject;
+begin
+  json := TJSONObject.Create;
+  json.AddPair('tab', tabName);
+  json.AddPair('data', tabSettings.ToJson);
+  Result := json;
+end;
+
+function TTabsViewSettings.TabFromJson(json: TJSONObject): TTabSettings;
+var
+  tabName: string;
+  jsonValue: TJSONValue;
+  jsonBody: TJSONObject;
+  tab: TTabSettings;
+begin
+  Result := nil;
+
+  tabName := json.GetValue<string>('tab', '');
+  if tabName.Length > 0 then
+  begin
+    jsonValue := json.GetValue('data');
+    if (jsonValue is TJSONObject) then
+    begin
+      jsonBody := TJSONObject(jsonValue);
+      tab := nil;
+      case StrIndex(tabName, ['book', 'memo', 'library', 'bookmarks', 'search', 'tsk', 'tags', 'dict', 'strong']) of
+        0: tab := TBookTabSettings.Create;
+        1: tab := TMemoTabSettings.Create;
+        2: tab := TLibraryTabSettings.Create;
+        3: tab := TBookmarksTabSettings.Create;
+        4: tab := TSearchTabSettings.Create;
+        5: tab := TTSKTabSettings.Create;
+        6: tab := TTagsVersesTabSettings.Create;
+        7: tab := TDictionaryTabSettings.Create;
+        8: tab := TStrongTabSettings.Create;
+      end;
+
+      if Assigned(tab) then
+      begin
+        tab.ReadJsonBody(jsonBody);
+        Result := tab;
+      end;
+    end;
+  end;
+end;
+
+procedure TTabsViewSettings.FromJson(json: TJSONObject);
+var
+  jsonVal: TJSONValue;
+  jsonTabs: TJSONArray;
+  jsonTab: TJSONValue;
+  tabName: string;
+  tab: TTabSettings;
+  jsonTabDataVal: TJSONValue;
+  jsonTabData: TJSONObject;
+begin
+  Active := json.GetValue<boolean>('Active', false);
+  ViewName := json.GetValue<string>('ViewName', '');
+  Docked := json.GetValue<boolean>('Docked', false);
+  Left := json.GetValue<integer>('Left', 0);
+  Top := json.GetValue<integer>('Top', 0);
+  Width := json.GetValue<integer>('Width', 0);
+  Height := json.GetValue<integer>('Height', 0);
+
+  jsonVal := json.GetValue('tabs');
+  if jsonVal is TJSONArray then
+  begin
+    jsonTabs := TJSONArray(jsonVal);
+    for jsonTab in jsonTabs do
+    begin
+      tabName := jsonTab.GetValue<string>('tab', '');
+      if tabName.Length <= 0 then
+        continue;
+
+      jsonTabDataVal := TJSONObject(jsonTab).GetValue('data');
+      if not(jsonTabDataVal is TJSONObject) then
+        continue;
+
+      jsonTabData := TJSONObject(jsonTabDataVal);
+      case StrIndex(tabName, ['book', 'memo', 'library', 'bookmarks', 'search', 'tsk', 'tags', 'dict', 'strong']) of
+        0: tab := TBookTabSettings.Create;
+        1: tab := TMemoTabSettings.Create;
+        2: tab := TLibraryTabSettings.Create;
+        3: tab := TBookmarksTabSettings.Create;
+        4: tab := TSearchTabSettings.Create;
+        5: tab := TTSKTabSettings.Create;
+        6: tab := TTagsVersesTabSettings.Create;
+        7: tab := TDictionaryTabSettings.Create;
+        8: tab := TStrongTabSettings.Create;
+      end;
+
+      tab.FromJson(jsonTabData);
+      AddTabSettings(tab);
+    end;
+  end;
+end;
+
 class function TLayoutConfig.Load(fileName: string): TLayoutConfig;
 var
   json: string;
+  jsonObj: TJSONObject;
+  jsonValue: TJSONValue;
+  jsonViewsValue: TJSONValue;
+  jsonViews: TJSONArray;
+  jsonViewValue: TJSONValue;
+  jsonView: TJSONObject;
+  layoutConfig: TLayoutConfig;
+  tabsView: TTabsViewSettings;
+  s: string;
 begin
+  Result := nil;
+
   json := TFile.ReadAllText(fileName);
-  Result := TJson.JsonToObject<TLayoutConfig>(json);
+  jsonValue := TJSONObject.ParseJSONValue(json);
+  if jsonValue is TJSONObject then
+  begin
+    jsonObj := TJSONObject(jsonValue);
+    jsonViewsValue := jsonObj.GetValue('views');
+    if (jsonViewsValue is TJSONArray) then
+    begin
+      jsonViews := TJSONArray(jsonViewsValue);
+      layoutConfig := TLayoutConfig.Create;
+
+      for jsonViewValue in jsonViews do
+      begin
+        if (jsonViewValue is TJSONObject) then
+        begin
+          jsonView := TJSONObject(jsonViewValue);
+          s := jsonView.ToJSON;
+          tabsView := TTabsViewSettings.Create;
+
+          tabsView.FromJson(jsonView);
+          layoutConfig.TabsViewList.Add(tabsView);
+        end;
+
+      end;
+
+      Result := layoutConfig;
+    end;
+  end;
 end;
 
 procedure TLayoutConfig.Save(fileName: string);
 var
   json: string;
+  jsonObj: TJSONObject;
+  jsonViews: TJSONArray;
+  tabsView: TTabsViewSettings;
 begin
-  json := TJson.ObjectToJsonString(self);
+  jsonObj := TJSONObject.Create;
+  jsonViews := TJSONArray.Create;
+
+  for tabsView in TabsViewList do
+  begin
+    jsonViews.add(tabsView.ToJson);
+  end;
+
+  jsonObj.AddPair('views', jsonViews);
+  json := jsonObj.ToJson;
+
   TFile.WriteAllText(fileName, json);
 end;
 
