@@ -9,7 +9,7 @@ object ConfigForm: TConfigForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
@@ -26,17 +26,13 @@ object ConfigForm: TConfigForm
     Top = 0
     Width = 466
     Height = 396
-    ActivePage = tsFavouriteEx
+    ActivePage = tsInterface
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
-    ExplicitWidth = 421
-    ExplicitHeight = 356
     object tsInterface: TTabSheet
       Caption = 'tsInterface'
       ImageIndex = 3
-      ExplicitWidth = 413
-      ExplicitHeight = 328
       DesignSize = (
         458
         368)
@@ -48,38 +44,37 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Colors'
         TabOrder = 0
-        ExplicitWidth = 407
         DesignSize = (
           452
           129)
         object lblBackgroundColor: TLabel
-          Left = 93
+          Left = 94
           Top = 16
-          Width = 61
+          Width = 60
           Height = 13
           Alignment = taRightJustify
           Caption = 'Background:'
         end
         object lblHyperlinksColor: TLabel
-          Left = 102
+          Left = 101
           Top = 44
-          Width = 52
+          Width = 53
           Height = 13
           Alignment = taRightJustify
           Caption = 'Hyperlinks:'
         end
         object lblSearchTextColor: TLabel
-          Left = 45
+          Left = 42
           Top = 72
-          Width = 109
+          Width = 112
           Height = 13
           Alignment = taRightJustify
           Caption = 'Search text and memo:'
         end
         object lblVerseHighlightColor: TLabel
-          Left = 82
+          Left = 80
           Top = 100
-          Width = 72
+          Width = 74
           Height = 13
           Alignment = taRightJustify
           Caption = 'Verse highlight:'
@@ -92,7 +87,6 @@ object ConfigForm: TConfigForm
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
-          ExplicitWidth = 198
         end
         object clrHyperlinks: TColorBox
           Left = 160
@@ -102,7 +96,6 @@ object ConfigForm: TConfigForm
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 1
-          ExplicitWidth = 198
         end
         object clrSearchText: TColorBox
           Left = 160
@@ -112,7 +105,6 @@ object ConfigForm: TConfigForm
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 2
-          ExplicitWidth = 198
         end
         object clrVerseHighlight: TColorBox
           Left = 160
@@ -122,7 +114,6 @@ object ConfigForm: TConfigForm
           Style = [cbStandardColors, cbExtendedColors, cbCustomColor, cbPrettyNames, cbCustomColors]
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 3
-          ExplicitWidth = 198
         end
       end
       object grpFonts: TGroupBox
@@ -133,30 +124,29 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Fonts'
         TabOrder = 1
-        ExplicitWidth = 407
         DesignSize = (
           452
           106)
         object lblPrimaryFont: TLabel
-          Left = 96
+          Left = 91
           Top = 24
-          Width = 58
+          Width = 63
           Height = 13
           Alignment = taRightJustify
           Caption = 'Primary font:'
         end
         object lblDialogsFont: TLabel
-          Left = 66
+          Left = 64
           Top = 78
-          Width = 88
+          Width = 90
           Height = 13
           Alignment = taRightJustify
           Caption = 'Forms and dialogs:'
         end
         object lblSecondaryFont: TLabel
-          Left = 79
+          Left = 76
           Top = 51
-          Width = 75
+          Width = 78
           Height = 13
           Alignment = taRightJustify
           Caption = 'Secondary font:'
@@ -170,7 +160,6 @@ object ConfigForm: TConfigForm
           Caption = '...'
           TabOrder = 0
           OnClick = btnPrimaryFontClick
-          ExplicitLeft = 364
         end
         object edtPrimaryFont: TEdit
           Left = 160
@@ -180,7 +169,6 @@ object ConfigForm: TConfigForm
           Anchors = [akLeft, akTop, akRight]
           ReadOnly = True
           TabOrder = 1
-          ExplicitWidth = 198
         end
         object btnDialogsFont: TButton
           Left = 409
@@ -191,7 +179,6 @@ object ConfigForm: TConfigForm
           Caption = '...'
           TabOrder = 2
           OnClick = btnDialogsFontClick
-          ExplicitLeft = 364
         end
         object edtDialogsFont: TEdit
           Left = 160
@@ -201,7 +188,6 @@ object ConfigForm: TConfigForm
           Anchors = [akLeft, akTop, akRight]
           ReadOnly = True
           TabOrder = 3
-          ExplicitWidth = 198
         end
         object btnSecondaryFont: TButton
           Left = 409
@@ -212,7 +198,6 @@ object ConfigForm: TConfigForm
           Caption = '...'
           TabOrder = 4
           OnClick = btnSecondaryFontClick
-          ExplicitLeft = 364
         end
         object edtSecondaryFont: TEdit
           Left = 160
@@ -222,7 +207,6 @@ object ConfigForm: TConfigForm
           Anchors = [akLeft, akTop, akRight]
           ReadOnly = True
           TabOrder = 5
-          ExplicitWidth = 198
         end
       end
       object grpLocalization: TGroupBox
@@ -233,7 +217,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Localization'
         TabOrder = 2
-        ExplicitWidth = 407
         DesignSize = (
           452
           69)
@@ -253,13 +236,15 @@ object ConfigForm: TConfigForm
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
-          ExplicitWidth = 198
         end
       end
     end
     object tsCopyOptions: TTabSheet
       Caption = 'tsCopyOptions'
-      ExplicitWidth = 487
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         458
         368)
@@ -271,7 +256,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkCopyVerseNumbers'
         TabOrder = 0
-        ExplicitWidth = 471
       end
       object chkCopyFontParams: TCheckBox
         Left = 13
@@ -281,7 +265,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkCopyFontParams'
         TabOrder = 1
-        ExplicitWidth = 471
       end
       object chkAddReference: TCheckBox
         Left = 13
@@ -291,7 +274,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddReference'
         TabOrder = 2
-        ExplicitWidth = 471
       end
       object rgAddReference: TRadioGroup
         Left = 12
@@ -304,7 +286,6 @@ object ConfigForm: TConfigForm
           'Short reference at the end of passage'
           'Full reference at the end of passage')
         TabOrder = 3
-        ExplicitWidth = 472
       end
       object chkAddModuleName: TCheckBox
         Left = 13
@@ -314,7 +295,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddModuleName'
         TabOrder = 4
-        ExplicitWidth = 471
       end
       object chkAddLineBreaks: TCheckBox
         Left = 13
@@ -324,26 +304,28 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddLineBreaks'
         TabOrder = 5
-        ExplicitWidth = 471
       end
     end
     object tsFavouriteEx: TTabSheet
       Caption = 'tsFavouriteEx'
-      ExplicitWidth = 487
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         458
         368)
       object lblAvailableModules: TLabel
         Left = 3
         Top = 3
-        Width = 93
+        Width = 92
         Height = 13
         Caption = 'lblAvailableModules'
       end
       object lblFavourites: TLabel
         Left = 3
         Top = 59
-        Width = 59
+        Width = 61
         Height = 13
         Caption = 'lblFavourites'
       end
@@ -359,11 +341,10 @@ object ConfigForm: TConfigForm
       object lblDefaultStrongBible: TLabel
         Left = 3
         Top = 317
-        Width = 98
+        Width = 99
         Height = 13
         Anchors = [akLeft, akBottom]
         Caption = 'lblDefaultStrongBible'
-        ExplicitTop = 339
       end
       object lbFavourites: TListBox
         Left = 3
@@ -374,7 +355,6 @@ object ConfigForm: TConfigForm
         BevelInner = bvNone
         ItemHeight = 13
         TabOrder = 0
-        ExplicitWidth = 444
       end
       object bbtnUp: TBitBtn
         Tag = -1
@@ -411,7 +391,6 @@ object ConfigForm: TConfigForm
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
         TabOrder = 1
         OnClick = favouritesBitBtnClick
-        ExplicitLeft = 453
       end
       object bbtnDown: TBitBtn
         Tag = 1
@@ -448,7 +427,6 @@ object ConfigForm: TConfigForm
           FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
         TabOrder = 2
         OnClick = favouritesBitBtnClick
-        ExplicitLeft = 453
       end
       object cbAvailableModules: TComboBox
         Left = 3
@@ -459,7 +437,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         DropDownCount = 10
         TabOrder = 3
-        ExplicitWidth = 444
       end
       object bbtnDelete: TBitBtn
         Left = 424
@@ -493,7 +470,6 @@ object ConfigForm: TConfigForm
           2961296129612961B572DE7FFF7F}
         TabOrder = 4
         OnClick = favouritesBitBtnClick
-        ExplicitLeft = 453
       end
       object btnAddHotModule: TBitBtn
         Left = 424
@@ -527,7 +503,6 @@ object ConfigForm: TConfigForm
           FF7FFF7FFF7FFF7FFF7FFF7FFF7F}
         TabOrder = 5
         OnClick = btnAddHotModuleClick
-        ExplicitLeft = 453
       end
       object cbDefaultBible: TComboBox
         Left = 3
@@ -538,7 +513,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akRight, akBottom]
         DropDownCount = 10
         TabOrder = 6
-        ExplicitWidth = 444
       end
       object cbDefaultStrongBible: TComboBox
         Left = 3
@@ -549,20 +523,22 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akRight, akBottom]
         DropDownCount = 10
         TabOrder = 7
-        ExplicitWidth = 444
       end
     end
     object tsOtherOptions: TTabSheet
       Caption = 'tsOtherOptions'
       ImageIndex = 2
-      ExplicitWidth = 487
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         458
         368)
       object lblSelectSecondPath: TLabel
         Left = 8
         Top = 8
-        Width = 99
+        Width = 96
         Height = 13
         Caption = 'lblSelectSecondPath'
       end
@@ -574,7 +550,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Enabled = False
         TabOrder = 0
-        ExplicitWidth = 425
       end
       object btnSelectPath: TButton
         Left = 405
@@ -591,7 +566,6 @@ object ConfigForm: TConfigForm
         ParentFont = False
         TabOrder = 1
         OnClick = btnSelectPathClick
-        ExplicitLeft = 434
       end
       object btnDeletePath: TButton
         Left = 429
@@ -608,7 +582,6 @@ object ConfigForm: TConfigForm
         ParentFont = False
         TabOrder = 2
         OnClick = btnDeletePathClick
-        ExplicitLeft = 458
       end
       object chkMinimizeToTray: TCheckBox
         Left = 8
@@ -618,7 +591,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkMinimizeToTray'
         TabOrder = 3
-        ExplicitWidth = 564
       end
       object rgHotKeyChoice: TRadioGroup
         Left = 26
@@ -640,7 +612,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Full context on restricted links'
         TabOrder = 5
-        ExplicitWidth = 476
       end
       object chkHighlightVerseHits: TCheckBox
         Left = 8
@@ -650,7 +621,6 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Highlight verse hits'
         TabOrder = 6
-        ExplicitWidth = 476
       end
     end
   end
@@ -664,8 +634,6 @@ object ConfigForm: TConfigForm
     Default = True
     ModalResult = 1
     TabOrder = 1
-    ExplicitLeft = 198
-    ExplicitTop = 362
   end
   object btnCancel: TButton
     Left = 354
@@ -678,8 +646,6 @@ object ConfigForm: TConfigForm
     ModalResult = 2
     TabOrder = 2
     OnClick = btnCancelClick
-    ExplicitLeft = 309
-    ExplicitTop = 362
   end
   object FontDialog: TFontDialog
     Font.Charset = DEFAULT_CHARSET

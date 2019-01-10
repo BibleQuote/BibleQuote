@@ -71,6 +71,7 @@ type
     procedure UpdateTabContent(ATab: TChromeTab; restoreState: boolean = true);
     procedure Notification(msg: IJclNotificationMessage); stdcall;
     procedure PopupChangeTab(Sender: TObject);
+    procedure ApplyConfigFont(appConfig: TAppConfig);
   public
     { Public declarations }
 
@@ -212,6 +213,27 @@ begin
   Name := viewName;
 end;
 
+procedure TDockTabsForm.ApplyConfigFont(appConfig: TAppConfig);
+begin
+  if (appConfig.MainFormFontName <> Font.Name) then
+  begin
+    Font.Name := appConfig.MainFormFontName;
+    ctViewTabs.LookAndFeel.Tabs.NotActive.Font.Name := appConfig.MainFormFontName;
+    ctViewTabs.LookAndFeel.Tabs.Active.Font.Name := appConfig.MainFormFontName;
+    ctViewTabs.LookAndFeel.Tabs.Hot.Font.Name := appConfig.MainFormFontName;
+    ctViewTabs.LookAndFeel.Tabs.DefaultFont.Name := appConfig.MainFormFontName;
+  end;
+
+  if (appConfig.MainFormFontSize <> Font.Size) then
+  begin
+    Font.Size := appConfig.MainFormFontSize;
+    ctViewTabs.LookAndFeel.Tabs.NotActive.Font.Size := appConfig.MainFormFontSize;
+    ctViewTabs.LookAndFeel.Tabs.Active.Font.Size := appConfig.MainFormFontSize;
+    ctViewTabs.LookAndFeel.Tabs.Hot.Font.Size := appConfig.MainFormFontSize;
+    ctViewTabs.LookAndFeel.Tabs.DefaultFont.Size := appConfig.MainFormFontSize;
+  end;
+end;
+
 function TDockTabsForm.GetTabInfo(tabIndex: integer): IViewTabInfo;
 begin
   Result := nil;
@@ -262,6 +284,8 @@ begin
 
   mNotifier := mainView.mNotifier;
   mNotifier.Add(self);
+
+  ApplyConfigFont(AppConfig);
 end;
 
 procedure TDockTabsForm.ctViewTabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
@@ -1003,11 +1027,7 @@ begin
     end;
   end;
 
-  if (appConfig.MainFormFontName <> Font.Name) then
-    Font.Name := appConfig.MainFormFontName;
-
-  if (appConfig.MainFormFontSize <> Font.Size) then
-    Font.Size := appConfig.MainFormFontSize;
+  ApplyConfigFont(appConfig);
 end;
 
 procedure TDockTabsForm.Translate();

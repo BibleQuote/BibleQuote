@@ -250,7 +250,17 @@ var
   strongBibles: TSTringList;
   i: integer;
   moduleCount: integer;
+  m, d: integer;
 begin
+  m := Font.Size;
+  if (appConfig.MainFormFontName <> Font.Name) then
+    Font.Name := appConfig.MainFormFontName;
+
+  //if (appConfig.MainFormFontSize <> Font.Size) then
+  //  Font.Size := appConfig.MainFormFontSize;
+  if (appConfig.MainFormFontSize <> m) then
+    ChangeScale(appConfig.MainFormFontSize, m);
+
   FillLanguages();
 
   edtSelectPath.Text := AppConfig.SecondPath;
