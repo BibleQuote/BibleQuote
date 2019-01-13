@@ -75,11 +75,13 @@ type
     procedure btnDialogsFontClick(Sender: TObject);
     procedure btnSecondaryFontClick(Sender: TObject);
     procedure btnPrimaryFontClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     FPrimaryFont: TFont;
     FSecondaryFont: TFont;
     FDialogsFont: TFont;
-    
+    FDefaultFontSize: integer;
+
     procedure DisplayPrimaryFont;
     procedure DisplaySecondaryFont;
     procedure DisplayDialogsFont;
@@ -98,6 +100,11 @@ var
 implementation
 
 {$R *.DFM}
+
+procedure TConfigForm.FormCreate(Sender: TObject);
+begin
+  FDefaultFontSize := Font.Size;
+end;
 
 procedure TConfigForm.FormKeyPress(Sender: TObject; var Key: Char);
 begin
@@ -250,16 +257,12 @@ var
   strongBibles: TSTringList;
   i: integer;
   moduleCount: integer;
-  m, d: integer;
 begin
-  m := Font.Size;
   if (appConfig.MainFormFontName <> Font.Name) then
     Font.Name := appConfig.MainFormFontName;
 
-  //if (appConfig.MainFormFontSize <> Font.Size) then
-  //  Font.Size := appConfig.MainFormFontSize;
-  if (appConfig.MainFormFontSize <> m) then
-    ChangeScale(appConfig.MainFormFontSize, m);
+  if (appConfig.MainFormFontSize <> Font.Size) then
+    ChangeScale(appConfig.MainFormFontSize, Font.Size);
 
   FillLanguages();
 

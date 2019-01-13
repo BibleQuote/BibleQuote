@@ -681,6 +681,11 @@ begin
 
   if (appConfig.MainFormFontSize <> Font.Size) then
     Font.Size := appConfig.MainFormFontSize;
+
+  TbqTagsRenderer.SetTagFont(appConfig.DefFontName, appConfig.DefFontSize);
+  TbqTagsRenderer.SetVerseFont(appConfig.DefFontName, appConfig.DefFontSize);
+  TbqTagsRenderer.InvalidateRenderers;
+  vdtTagsVerses.Invalidate;
 end;
 
 function TTagsVersesFrame.LoadTaggedBookMarks(): Boolean;
