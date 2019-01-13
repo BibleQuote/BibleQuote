@@ -15,6 +15,7 @@ object ConfigForm: TConfigForm
   OldCreateOrder = False
   Position = poScreenCenter
   ShowHint = True
+  OnCreate = FormCreate
   OnKeyPress = FormKeyPress
   DesignSize = (
     466
@@ -241,10 +242,6 @@ object ConfigForm: TConfigForm
     end
     object tsCopyOptions: TTabSheet
       Caption = 'tsCopyOptions'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         458
         368)
@@ -308,10 +305,6 @@ object ConfigForm: TConfigForm
     end
     object tsFavouriteEx: TTabSheet
       Caption = 'tsFavouriteEx'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         458
         368)
@@ -528,10 +521,6 @@ object ConfigForm: TConfigForm
     object tsOtherOptions: TTabSheet
       Caption = 'tsOtherOptions'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         458
         368)

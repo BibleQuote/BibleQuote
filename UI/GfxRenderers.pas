@@ -49,6 +49,8 @@ type
       calcOnly: boolean; var rect: TRect): integer; static;
 
     class function CurrentRenderer(): TSectionList; static;
+    class procedure SetTagFont(name: string; size: integer);
+    class procedure SetVerseFont(name: string; size: integer);
     class procedure InvalidateRenderers(); static;
 
     class function GetContentTypeAt(
@@ -61,8 +63,6 @@ type
     class property VMargin: integer read mVmargin write SetVMargin;
     class property HMargin: integer read mHmargin write SetHMargin;
     class property CurveRadius: integer read mCurveRadius write mCurveRadius;
-    class property tagFont: TFont read mTagFont write mTagFont;
-    class property DefaultVerseFont: TFont read mDefaultVerseFont write mDefaultVerseFont;
   end;
 
 implementation
@@ -218,8 +218,11 @@ begin
   miCommandProcessor := ICommandProcessor;
   miUIServices := iUIServices;
   mSaveBrush := TBrush.Create();
-  mTagFont := tagFont;
-  mDefaultVerseFont := verseFont;
+
+  mTagFont := TFont.Create;
+  mDefaultVerseFont := TFont.Create;
+  SetTagFont(tagFont.Name, tagFont.Size);
+  SetVerseFont(verseFont.Name, verseFont.Size);
 end;
 
 class procedure TbqTagsRenderer.InvalidateRenderers;
@@ -227,6 +230,18 @@ begin
   _rendererPair.id := -1;
   if assigned(_rendererPair.renderer) then
     _rendererPair.renderer.Clear();
+end;
+
+class procedure TbqTagsRenderer.SetTagFont(name: string; size: integer);
+begin
+  mTagFont.Name := name;
+  mTagFont.Size := size;
+end;
+
+class procedure TbqTagsRenderer.SetVerseFont(name: string; size: integer);
+begin
+  mDefaultVerseFont.Name := name;
+  mDefaultVerseFont.Size := size;
 end;
 
 class function TbqTagsRenderer.RenderTagNode(

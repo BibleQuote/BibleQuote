@@ -23,7 +23,7 @@ uses
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, FontManager, BroadcastList, JclNotify, NotifyMessages,
-  AppIni;
+  AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 const
 
@@ -120,7 +120,6 @@ type
     reClipboard: TRichEdit;
     miRecognizeBibleLinks: TMenuItem;
     tbtnResolveLinks: TToolButton;
-    ilPictures24: TImageList;
     pmRecLinksOptions: TPopupMenu;
     miStrictLogic: TMenuItem;
     miFuzzyLogic: TMenuItem;
@@ -139,6 +138,8 @@ type
     tbtnAddTagsVersesTab: TToolButton;
     tbtnAddDictionaryTab: TToolButton;
     tbtnAddStrongTab: TToolButton;
+    imgCollection: TImageCollection;
+    vimgIcons: TVirtualImageList;
     procedure FormCreate(Sender: TObject);
     procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -1322,8 +1323,6 @@ begin
   Application.HintHidePause := 1000 * 60;
   Application.OnHint := AppOnHintHandler;
 
-  InitializeTaggedBookMarks();
-
   HintWindowClass := HintTools.TbqHintWindow;
 
   Lang := TMultiLanguage.Create(self);
@@ -1339,6 +1338,7 @@ begin
 
   LoadConfiguration;
   InitHotkeysSupport();
+  InitializeTaggedBookMarks();
 
   if AppConfig.MainFormWidth = 0 then
   begin
@@ -2475,6 +2475,8 @@ end;
 procedure TMainForm.InitializeTaggedBookMarks;
 begin
   TbqTagsRenderer.Init(self, self, self.Font, self.Font);
+  TbqTagsRenderer.SetTagFont(appConfig.DefFontName, appConfig.DefFontSize);
+  TbqTagsRenderer.SetVerseFont(appConfig.DefFontName, appConfig.DefFontSize);
 
   TbqTagsRenderer.VMargin := 4;
   TbqTagsRenderer.hMargin := 4;
