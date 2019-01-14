@@ -2474,8 +2474,7 @@ end;
 
 procedure TMainForm.InitializeTaggedBookMarks;
 begin
-  TbqTagsRenderer.Init(self, self, self.Font, self.Font);
-  TbqTagsRenderer.SetTagFont(appConfig.DefFontName, appConfig.DefFontSize);
+  TbqTagsRenderer.Init(self, self);
   TbqTagsRenderer.SetVerseFont(appConfig.DefFontName, appConfig.DefFontSize);
 
   TbqTagsRenderer.VMargin := 4;
@@ -4498,28 +4497,26 @@ procedure TMainForm.miQuickNavClick(Sender: TObject);
 var
   bible: TBible;
   bookView: TBookFrame;
+  passageSig: string;
+  inputForm: TInputForm;
 begin
   bookView := GetBookView(self);
   if not Assigned(bookView) or not Assigned(bookView.BookTabInfo) then
     Exit;
 
-  InputForm.tag := 0; // use TEdit
-  InputForm.Caption := miQuickNav.Caption;
-  InputForm.Font := MainForm.Font;
-
   bible := bookView.BookTabInfo.Bible;
   with bible do
     if CurFromVerse > 1 then
-      InputForm.edtValue.Text := ShortPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse)
+      passageSig := ShortPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse)
     else
-      InputForm.edtValue.Text := ShortPassageSignature(CurBook, CurChapter, 1, 0);
+      passageSig := ShortPassageSignature(CurBook, CurChapter, 1, 0);
 
-  InputForm.edtValue.SelectAll();
+  inputForm := TInputForm.CreateText(miQuickNav.Caption, passageSig);
+  inputForm.SelectInputText;
 
-  if InputForm.ShowModal = mrOk then
+  if inputForm.ShowModal = mrOk then
   begin
-    GetBookView(self).tedtReference.Text := InputForm.edtValue.Text;
-    InputForm.edtValue.Text := '';
+    GetBookView(self).tedtReference.Text := inputForm.GetValue();
     GoReference();
 
     Windows.SetFocus(mTabsView.Browser.Handle);
@@ -4529,17 +4526,16 @@ end;
 procedure TMainForm.miQuickSearchClick(Sender: TObject);
 var
   bookFrame: TBookFrame;
+  inputForm: TInputForm;
 begin
-  InputForm.tag := 0; // use TEdit
-  InputForm.Caption := miQuickSearch.Caption;
-  InputForm.Font := MainForm.Font;
+  inputForm := TInputForm.CreateText(miQuickSearch.Caption);
 
-  if InputForm.ShowModal = mrOk then
+  if inputForm.ShowModal = mrOk then
   begin
     bookFrame := GetBookView(self);
     if Assigned(bookFrame.BookTabInfo) then
     begin
-      bookFrame.NavigateToSearch(InputForm.edtValue.Text);
+      bookFrame.NavigateToSearch(InputForm.GetValue);
     end;
   end;
 end;
@@ -4548,11 +4544,8 @@ procedure TMainForm.AddBookmark(caption: string);
 var
   newstring: string;
   bible: TBible;
+  inputForm: TInputForm;
 begin
-  InputForm.tag := 1; // use TMemo
-  InputForm.Caption := caption;
-  InputForm.Font := MainForm.Font;
-
   bible := GetBookView(self).BookTabInfo.Bible;
   if bible.verseCount() = 0 then
     bible.OpenChapter(bible.CurBook, bible.CurChapter);
@@ -4563,15 +4556,15 @@ begin
 
   StrDeleteFirstNumber(newstring);
 
-  InputForm.memValue.Text := newstring;
+  inputForm := TInputForm.CreateMemo(caption, newstring);
 
-  if InputForm.ShowModal = mrOk then
+  if inputForm.ShowModal = mrOk then
   begin
     with bible do
       newstring :=
         ShortPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber) + ' ' +
         ShortName + ' ' +
-        InputForm.memValue.Text;
+        inputForm.GetValue;
 
     StrReplace(newstring, #13#10, ' ', true);
 
@@ -4805,11 +4798,9 @@ function TMainForm.AddMemo(caption: string): Boolean;
 var
   newstring, signature: string;
   i: integer;
+  inputForm: TInputForm;
 begin
   Result := false;
-  InputForm.tag := 1; // use TMemo
-  InputForm.Caption := caption;
-  InputForm.Font := MainForm.Font;
 
   with GetBookView(self).BookTabInfo.Bible do
     signature := ShortPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber) + ' ' + ShortName + ' $$$';
@@ -4822,11 +4813,11 @@ begin
   else
     newstring := '';
 
-  InputForm.memValue.Text := newstring;
+  inputForm := TInputForm.CreateMemo(caption, newstring);
 
-  if InputForm.ShowModal = mrOk then
+  if inputForm.ShowModal = mrOk then
   begin
-    newstring := InputForm.memValue.Text;
+    newstring := inputForm.GetValue;
     StrReplace(newstring, #13#10, ' ', true);
 
     if i > -1 then

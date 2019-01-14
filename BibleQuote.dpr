@@ -9,13 +9,13 @@ uses
   Classes,
   WideStrings,
   SysUtils,
-  MainFrm in 'Forms\MainFrm.pas' {MainForm} ,
-  InputFrm in 'Forms\InputFrm.pas' {InputForm} ,
-  CopyrightFrm in 'Forms\CopyrightFrm.pas' {CopyrightForm} ,
-  ConfigFrm in 'Forms\ConfigFrm.pas' {ConfigForm} ,
-  ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm} ,
-  AboutFrm in 'Forms\AboutFrm.pas' {AboutForm} ,
-  PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox} ,
+  MainFrm in 'Forms\MainFrm.pas' {MainForm},
+  InputFrm in 'Forms\InputFrm.pas' {InputForm},
+  CopyrightFrm in 'Forms\CopyrightFrm.pas' {CopyrightForm},
+  ConfigFrm in 'Forms\ConfigFrm.pas' {ConfigForm},
+  ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm},
+  AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},
+  PasswordDlg in 'Forms\PasswordDlg.pas' {PasswordBox},
   Containers in 'Collections\Containers.pas',
   Bible in 'Core\Bible.pas',
   BibleLinkParser in 'Core\BibleLinkParser.pas',
@@ -42,28 +42,28 @@ uses
   BackgroundServices in 'IO\BackgroundServices.pas',
   IOProcs in 'IO\IOProcs.pas',
   ModuleProcs in 'IO\ModuleProcs.pas',
-  TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule} ,
+  TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule},
   MultiLanguage in 'Core\MultiLanguage.pas',
   TabData in 'Core\TabData.pas',
   CRC32 in 'Utils\CRC32.pas',
-  DockTabsFrm in 'Forms\DockTabsFrm.pas' {DockTabsForm} ,
+  DockTabsFrm in 'Forms\DockTabsFrm.pas' {DockTabsForm},
   ThinCaptionedDockTree in 'UI\ThinCaptionedDockTree.pas',
   LayoutConfig in 'IO\LayoutConfig.pas',
-  BookFra in 'Views\BookFra.pas' {BookFrame: TFrame} ,
-  MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame} ,
+  BookFra in 'Views\BookFra.pas' {BookFrame: TFrame},
+  MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame},
   FontManager in 'Core\FontManager.pas',
-  LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame} ,
+  LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame},
   ImageUtils in 'Utils\ImageUtils.pas',
   UITools in 'UI\UITools.pas',
-  PopupFrm in 'Forms\PopupFrm.pas' {PopupForm} ,
-  BookmarksFra in 'Views\BookmarksFra.pas' {BookmarksFrame: TFrame} ,
+  PopupFrm in 'Forms\PopupFrm.pas' {PopupForm},
+  BookmarksFra in 'Views\BookmarksFra.pas' {BookmarksFrame: TFrame},
   BroadcastList in 'Collections\BroadcastList.pas',
-  SearchFra in 'Views\SearchFra.pas' {SearchFrame: TFrame} ,
-  TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame} ,
-  TagsVersesFra in 'Views\TagsVersesFra.pas' {TagsVersesFrame: TFrame} ,
-  DictionaryFra in 'Views\DictionaryFra.pas' {DictionaryFrame: TFrame} ,
+  SearchFra in 'Views\SearchFra.pas' {SearchFrame: TFrame},
+  TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame},
+  TagsVersesFra in 'Views\TagsVersesFra.pas' {TagsVersesFrame: TFrame},
+  DictionaryFra in 'Views\DictionaryFra.pas' {DictionaryFrame: TFrame},
   NotifyMessages in 'Core\NotifyMessages.pas',
-  StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame} ,
+  StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame},
   AppPaths in 'IO\AppPaths.pas',
   AppIni in 'IO\AppIni.pas';
 
@@ -105,9 +105,7 @@ begin
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TAboutForm, AboutForm);
   Application.CreateForm(TPasswordBox, PasswordBox);
-  Application.CreateForm(TInputForm, InputForm);
   Application.CreateForm(TConfigForm, ConfigForm);
-
   Application.Run;
   try
     Close(Output);

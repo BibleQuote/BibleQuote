@@ -3255,8 +3255,6 @@ var
   F, t: integer;
   bible: TBible;
 begin
-  InputForm.tag := 0;
-
   if mMainView.CurSelStart < mMainView.CurSelEnd then
   begin
     F := mMainView.CurSelStart;
