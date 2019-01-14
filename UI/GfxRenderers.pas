@@ -15,7 +15,7 @@ type
     class var mCurrentRenderer: TSectionList;
     class var mVmargin, mHmargin, mCurveRadius: integer;
     class var mSaveBrush: TBrush;
-    class var mTagFont, mDefaultVerseFont: TFont;
+    class var mDefaultVerseFont: TFont;
 
     class function EffectiveGetVerseNodeText(btInfo: TBookTabInfo; var nd: TVersesNodeData; var usedFnt: string): string; static;
     class function GetHTMLRenderer(id: int64; out match: boolean): TSectionList; static;
@@ -31,8 +31,7 @@ type
   public
     class procedure Init(
       ICommandProcessor: IBibleQuoteCommandProcessor;
-      iUIServices: IBibleWinUIServices;
-      tagFont, verseFont: TFont);
+      iUIServices: IBibleWinUIServices);
 
     class procedure Done();
 
@@ -49,7 +48,6 @@ type
       calcOnly: boolean; var rect: TRect): integer; static;
 
     class function CurrentRenderer(): TSectionList; static;
-    class procedure SetTagFont(name: string; size: integer);
     class procedure SetVerseFont(name: string; size: integer);
     class procedure InvalidateRenderers(); static;
 
@@ -212,17 +210,13 @@ end;
 
 class procedure TbqTagsRenderer.Init(
   ICommandProcessor: IBibleQuoteCommandProcessor;
-  iUIServices: IBibleWinUIServices;
-  tagFont, verseFont: TFont);
+  iUIServices: IBibleWinUIServices);
 begin
   miCommandProcessor := ICommandProcessor;
   miUIServices := iUIServices;
   mSaveBrush := TBrush.Create();
 
-  mTagFont := TFont.Create;
   mDefaultVerseFont := TFont.Create;
-  SetTagFont(tagFont.Name, tagFont.Size);
-  SetVerseFont(verseFont.Name, verseFont.Size);
 end;
 
 class procedure TbqTagsRenderer.InvalidateRenderers;
@@ -230,12 +224,6 @@ begin
   _rendererPair.id := -1;
   if assigned(_rendererPair.renderer) then
     _rendererPair.renderer.Clear();
-end;
-
-class procedure TbqTagsRenderer.SetTagFont(name: string; size: integer);
-begin
-  mTagFont.Name := name;
-  mTagFont.Size := size;
 end;
 
 class procedure TbqTagsRenderer.SetVerseFont(name: string; size: integer);

@@ -20,7 +20,6 @@ object DictionaryFrame: TDictionaryFrame
     List = True
     ParentFont = False
     TabOrder = 0
-    ExplicitWidth = 356
     object tbtnToggle: TToolButton
       Left = 0
       Top = 0
@@ -49,7 +48,6 @@ object DictionaryFrame: TDictionaryFrame
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         OnChange = cbDicFilterChange
-        ExplicitWidth = 265
       end
     end
   end
@@ -60,10 +58,6 @@ object DictionaryFrame: TDictionaryFrame
     Height = 466
     Align = alClient
     TabOrder = 1
-    ExplicitLeft = 104
-    ExplicitTop = 168
-    ExplicitWidth = 449
-    ExplicitHeight = 289
     object splMain: TSplitter
       Left = 241
       Top = 1
@@ -107,10 +101,6 @@ object DictionaryFrame: TDictionaryFrame
         OnDblClick = vstDicListClick
         OnGetText = vstDicListGetText
         OnKeyPress = vstDicListKeyPress
-        ExplicitLeft = 1
-        ExplicitTop = 1
-        ExplicitWidth = 97
-        ExplicitHeight = 135
         Columns = <>
       end
       object edtDic: TComboBox
@@ -124,8 +114,6 @@ object DictionaryFrame: TDictionaryFrame
         TabOrder = 1
         OnChange = edtDicChange
         OnKeyPress = edtDicKeyPress
-        ExplicitTop = 32
-        ExplicitWidth = 133
       end
       object pnlSelectDic: TPanel
         AlignWithMargins = True
@@ -137,9 +125,6 @@ object DictionaryFrame: TDictionaryFrame
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitLeft = 1
-        ExplicitTop = 407
-        ExplicitWidth = 158
         DesignSize = (
           232
           56)
@@ -160,7 +145,6 @@ object DictionaryFrame: TDictionaryFrame
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
           OnChange = cbDicChange
-          ExplicitWidth = 594
         end
       end
     end
@@ -189,10 +173,6 @@ object DictionaryFrame: TDictionaryFrame
       OnHotSpotClick = bwrDicHotSpotClick
       OnHotSpotCovered = bwrDicHotSpotCovered
       OnMouseDouble = bwrDicMouseDouble
-      ExplicitLeft = 166
-      ExplicitTop = 17
-      ExplicitWidth = 274
-      ExplicitHeight = 425
     end
   end
   object pmRef: TPopupMenu
@@ -217,7 +197,7 @@ object DictionaryFrame: TDictionaryFrame
     Left = 96
     Top = 95
     Bitmap = {
-      494C010101006800580510001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010101006800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       000000000000000000000000000000000000000000005B554B00585348005651
       460055504500534E4300524C41004F4A3F004F493E004C473B004B453A004943

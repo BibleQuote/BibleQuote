@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   Graphics, Controls, Forms, Dialogs,
-  StdCtrls;
+  StdCtrls, AppIni;
 
 type
   TInputForm = class(TForm)
@@ -17,17 +17,71 @@ type
     procedure CancelButtonClick(Sender: TObject);
     procedure btnOKClick(Sender: TObject);
   private
-    { Private declarations }
+    mMemo: boolean;
   public
-    { Public declarations }
-  end;
+    procedure SetFont(name: string; size: integer);
+    procedure SelectInputText();
+    function GetValue(): string;
 
-var
-  InputForm: TInputForm;
+    property IsMemo: boolean read mMemo write mMemo;
+    class function CreateNew(caption: string; isMemo: boolean; defValue: string = ''): TInputForm; static;
+    class function CreateText(caption: string; defValue: string = ''): TInputForm; static;
+    class function CreateMemo(caption: string; defValue: string = ''): TInputForm; static;
+  end;
 
 implementation
 
 {$R *.DFM}
+
+class function TInputForm.CreateNew(caption: string; isMemo: boolean; defValue: string = ''): TInputForm;
+var
+  inputForm: TInputForm;
+begin
+  inputForm := TInputForm.Create(Application);
+  inputForm.SetFont(AppConfig.MainFormFontName, AppConfig.MainFormFontSize);
+
+  inputForm.IsMemo := isMemo;
+  inputForm.Caption := caption;
+
+  if isMemo then
+    inputForm.memValue.Text := defValue
+  else
+    inputForm.edtValue.Text := defValue;
+
+  Result := inputForm;
+end;
+
+class function TInputForm.CreateText(caption: string; defValue: string = ''): TInputForm;
+begin
+  Result := CreateNew(caption, false, defValue);
+end;
+
+class function TInputForm.CreateMemo(caption: string; defValue: string = ''): TInputForm;
+begin
+  Result := CreateNew(caption, true, defValue);
+end;
+
+function TInputForm.GetValue(): string;
+begin
+  if (isMemo) then
+    Result := memValue.Text
+  else
+    Result := edtValue.Text;
+end;
+
+procedure TInputForm.SelectInputText();
+begin
+  if (isMemo) then
+    memValue.SelectAll()
+  else
+    edtValue.SelectAll();
+end;
+
+procedure TInputForm.SetFont(name: string; size: integer);
+begin
+  Font.Name := name;
+  Font.Size := size;
+end;
 
 procedure TInputForm.CancelButtonClick(Sender: TObject);
 begin
@@ -56,7 +110,7 @@ end;
 
 procedure TInputForm.FormShow(Sender: TObject);
 begin
-  if InputForm.Tag = 0 then // TEdit
+  if not IsMemo then // TEdit
   begin
     edtValue.Visible := true;
     memValue.Visible := false;
@@ -72,7 +126,7 @@ begin
     btnOK.Top := memValue.Top + memValue.Height + 10;
   end;
 
-  InputForm.Height := btnOK.Top + btnOK.Height + 35;
+  Height := btnOK.Top + btnOK.Height + 35;
 
   if edtValue.Visible then
   begin

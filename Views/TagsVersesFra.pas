@@ -186,17 +186,15 @@ end;
 procedure TTagsVersesFrame.tbtnAddTagNodeClick(Sender: TObject);
 var
   dummyTag: int64;
+  inputForm: TInputForm;
 begin
-  InputForm.tag := 0; // use TEdit
-  InputForm.Caption := 'Тег';
-  InputForm.edtValue.SelectAll();
-  InputForm.Font := MainForm.Font;
+  inputForm := TInputForm.CreateText('Тег');
 
-  if InputForm.ShowModal <> mrOk then
+  if inputForm.ShowModal <> mrOk then
     Exit;
   if not mTaggedBookmarksLoaded then
     LoadTaggedBookMarks();
-  TagsDb.TagsDbEngine.AddTag(InputForm.edtValue.Text, dummyTag);
+  TagsDb.TagsDbEngine.AddTag(inputForm.GetValue, dummyTag);
 end;
 
 procedure TTagsVersesFrame.tbtnDelTagNodeClick(Sender: TObject);
@@ -682,7 +680,13 @@ begin
   if (appConfig.MainFormFontSize <> Font.Size) then
     Font.Size := appConfig.MainFormFontSize;
 
-  TbqTagsRenderer.SetTagFont(appConfig.DefFontName, appConfig.DefFontSize);
+  if (appConfig.DefFontName <> vdtTagsVerses.Font.Name) or
+     (appConfig.DefFontSize <> vdtTagsVerses.Font.Size) then
+  begin
+    vdtTagsVerses.Font.Name := appConfig.DefFontName;
+    vdtTagsVerses.Font.Size := appConfig.DefFontSize;
+  end;
+
   TbqTagsRenderer.SetVerseFont(appConfig.DefFontName, appConfig.DefFontSize);
   TbqTagsRenderer.InvalidateRenderers;
   vdtTagsVerses.Invalidate;
