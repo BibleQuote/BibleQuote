@@ -187,9 +187,9 @@ type
     procedure miShowSignaturesClick(Sender: TObject);
 
     function CreateNewBookTabInfo(): TBookTabInfo;
-    function CreateTabsView(viewName: string): ITabsView;
-    procedure CreateInitialTabsView();
-    function GenerateTabsViewName(): string;
+    function CreateWorkspace(viewName: string): IWorkspace;
+    procedure CreateInitialWorkspace();
+    function GenerateWorkspaceName(): string;
     procedure OnTabsFormActivate(Sender: TObject);
     procedure OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
     procedure CompareTranslations();
@@ -214,9 +214,9 @@ type
   private
     procedure NavigeTSKTab;
     procedure PlaySound();
-    procedure ActivateTargetTabsView();
-    procedure AddNewTabsView;
-    procedure OpenNewTabsView;
+    procedure ActivateTargetWorkspace();
+    procedure AddNewWorkspace;
+    procedure OpenNewWorkspace;
   public
     SysHotKey: TSysHotKey;
 
@@ -242,8 +242,8 @@ type
     mModuleLoader: TModuleLoader;
     mTranslated: Boolean;
 
-    mTabsView: ITabsView;
-    mTabsViews: TList<ITabsView>;
+    mWorkspace: IWorkspace;
+    mWorkspaces: TList<IWorkspace>;
 
     mNotifier: IJclNotifier;
 
@@ -301,8 +301,8 @@ type
       state: TBookTabInfoState;
       visual: Boolean);
 
-    procedure SaveTabsViews();
-    procedure LoadTabsViews();
+    procedure SaveWorkspaces();
+    procedure LoadWorkspaces();
 
     function NewBookTab(
       const command: string;
@@ -310,7 +310,7 @@ type
       state: TBookTabInfoState;
       const Title: string;
       activate: Boolean;
-      changeTargetView: Boolean = false;
+      changeWorkspace: Boolean = false;
       history: TStrings = nil;
       historyIndex: integer = -1): Boolean;
 
@@ -332,7 +332,7 @@ type
     procedure SaveHotModulesConfig();
     function AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
     function FavoriteItemFromModEntry(const me: TModuleEntry): TMenuItem;
-    function FavoriteTabFromModEntry(tabsView: ITabsView; const me: TModuleEntry): integer;
+    function FavoriteTabFromModEntry(workspace: IWorkspace; const me: TModuleEntry): integer;
     procedure DeleteHotModule(moduleTabIx: integer); overload;
     function DeleteHotModule(const me: TModuleEntry): Boolean; overload;
     function ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
@@ -443,18 +443,18 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
 
 {$R *.DFM}
 
-function GetTabsView(mainForm: TMainForm): TDockTabsForm;
+function GetDockWorkspace(mainForm: TMainForm): TDockTabsForm;
 begin
-  if not Assigned(mainForm.mTabsView) then
+  if not Assigned(mainForm.mWorkspace) then
     Result := nil
   else
-    Result := mainForm.mTabsView as TDockTabsForm;
+    Result := mainForm.mWorkspace as TDockTabsForm;
 end;
 
 function GetBookView(mainForm: TMainForm): TBookFrame;
 var dockView: TDockTabsForm;
 begin
-  dockView := GetTabsView(mainForm);
+  dockView := GetDockWorkspace(mainForm);
   if not Assigned(dockView) then
     Result := nil
   else
@@ -553,14 +553,14 @@ begin
     Result := bookView.GetAutoTxt(btInfo, cmd, maxWords, fnt, passageSignature);
 end;
 
-procedure TMainForm.OpenNewTabsView;
+procedure TMainForm.OpenNewWorkspace;
 var
   tabsForm: TDockTabsForm;
   I: Integer;
 begin
-  tabsForm := CreateTabsView(GenerateTabsViewName) as TDockTabsForm;
+  tabsForm := CreateWorkspace(GenerateWorkspaceName) as TDockTabsForm;
 
-  mTabsView := tabsForm;
+  mWorkspace := tabsForm;
 
   tabsForm.BibleTabs.Tabs.Clear;
   tabsForm.BibleTabs.Tabs.Add('***');
@@ -578,7 +578,7 @@ begin
   Windows.SetFocus(tabsForm.Handle);
 end;
 
-procedure TMainForm.AddNewTabsView;
+procedure TMainForm.AddNewWorkspace;
 var
   bookView: TBookFrame;
   bookTabInfo: TBookTabInfo;
@@ -586,7 +586,7 @@ begin
   bookView := GetBookView(self);
   bookTabInfo := bookView.BookTabInfo;
 
-  OpenNewTabsView();
+  OpenNewWorkspace();
 
   if not Assigned(bookTabInfo) then
   begin
@@ -610,7 +610,7 @@ begin
     OpenOrCreateTSKTab(bookTabInfo, 1);
 end;
 
-function TMainForm.CreateTabsView(viewName: string): ITabsView;
+function TMainForm.CreateWorkspace(viewName: string): IWorkspace;
 var
   tabsForm: TDockTabsForm;
   h: Integer;
@@ -632,12 +632,12 @@ begin
   tabsForm.OnActivate := self.OnTabsFormActivate;
   tabsForm.OnClose := self.OnTabsFormClose;
 
-  mTabsViews.Add(tabsForm as ITabsView);
+  mWorkspaces.Add(tabsForm as IWorkspace);
 
   Result := tabsForm;
 end;
 
-function TMainForm.GenerateTabsViewName(): string;
+function TMainForm.GenerateWorkspaceName(): string;
 var guid: TGUID;
 begin
   CreateGUID(guid);
@@ -647,16 +647,16 @@ begin
        guid.D4[4], guid.D4[5], guid.D4[6], guid.D4[7]]);
 end;
 
-procedure TMainForm.CreateInitialTabsView();
+procedure TMainForm.CreateInitialWorkspace();
 var
   tabsForm: TDockTabsForm;
   tabInfo: TBookTabInfo;
 begin
-  tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
+  tabsForm := CreateWorkspace(GenerateWorkspaceName()) as TDockTabsForm;
 
   tabInfo := CreateNewBookTabInfo();
 
-  mTabsView := tabsForm;
+  mWorkspace := tabsForm;
   tabsForm.AddBookTab(tabInfo);
 
   tabsForm.ManualDock(pnlModules);
@@ -665,17 +665,17 @@ end;
 
 procedure TMainForm.OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
 var
-  tabsView: TDockTabsForm;
+  workspace: TDockTabsForm;
 begin
   if (Sender is TDockTabsForm) then
   begin
-    tabsView := Sender as TDockTabsForm;
-    mTabsViews.Remove(tabsView as ITabsView);
+    workspace := Sender as TDockTabsForm;
+    mWorkspaces.Remove(workspace as IWorkspace);
 
-    if (mTabsViews.Count > 0) then
+    if (mWorkspaces.Count > 0) then
     begin
-      if (mTabsViews[0] is TDockTabsForm) then
-        OnTabsFormActivate(mTabsViews[0] as TDockTabsForm);
+      if (mWorkspaces[0] is TDockTabsForm) then
+        OnTabsFormActivate(mWorkspaces[0] as TDockTabsForm);
     end;
   end;
 end;
@@ -689,9 +689,9 @@ begin
 
   if Assigned(tabsForm) then
   begin
-    if (mTabsView <> tabsForm as ITabsView) then
+    if (mWorkspace <> tabsForm as IWorkspace) then
     begin
-      mTabsView := tabsForm;
+      mWorkspace := tabsForm;
 
       // restore active tab state
       tabInfo := tabsForm.GetActiveTabInfo();
@@ -729,15 +729,15 @@ function TMainForm.LoadHotModulesConfig(): Boolean;
 var
   fn1, fn2: string;
   f1Exists, f2Exists: Boolean;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
 begin
   try
 
     Result := false;
-    for tabsView in mTabsViews do
+    for workspace in mWorkspaces do
     begin
-        tabsView.BibleTabs.Tabs.Clear();
-        tabsView.BibleTabs.Tabs.Add('***');
+        workspace.BibleTabs.Tabs.Clear();
+        workspace.BibleTabs.Tabs.Add('***');
     end;
 
     fn1 := TPath.Combine(TAppDirectories.UserSettings, C_HotModulessFileName);
@@ -982,7 +982,7 @@ begin
     Include(Result, vtisShowNotes);
 end;
 
-procedure TMainForm.LoadTabsViews();
+procedure TMainForm.LoadWorkspaces();
 var
   tabIx, i, activeTabIx: integer;
   location, secondBible, Title: string;
@@ -990,7 +990,7 @@ var
   tabViewState: TBookTabInfoState;
   layoutConfig: TLayoutConfig;
   tabSettings: TTabSettings;
-  tabsViewSettings: TTabsViewSettings;
+  workspaceSettings: TWorkspaceSettings;
   tabsForm: TDockTabsForm;
   fileStream: TFileStream;
   tabsConfigPath, layoutConfigPath: string;
@@ -1017,33 +1017,33 @@ begin
 
     if not (tabsConfigOk) then
     begin
-      CreateInitialTabsView();
+      CreateInitialWorkspace();
       SetFirstTabInitialLocation(AppConfig.LastCommand, '', '', DefaultBookTabState(), true);
       Exit;
     end;
 
-    for tabsViewSettings in layoutConfig.TabsViewList do
+    for workspaceSettings in layoutConfig.WorkspaceSettingsList do
     begin
       activeTabIx := -1;
       tabIx := 0;
       i := 0;
 
-      tabsForm := CreateTabsView(tabsViewSettings.ViewName) as TDockTabsForm;
+      tabsForm := CreateWorkspace(workspaceSettings.ViewName) as TDockTabsForm;
 
-      if (tabsViewSettings.Docked) then
+      if (workspaceSettings.Docked) then
         tabsForm.ManualDock(pnlModules)
       else
       begin
-        tabsForm.Left := tabsViewSettings.Left;
-        tabsForm.Top := tabsViewSettings.Top;
-        tabsForm.Height := tabsViewSettings.Height;
-        tabsForm.Width := tabsViewSettings.Width;
+        tabsForm.Left := workspaceSettings.Left;
+        tabsForm.Top := workspaceSettings.Top;
+        tabsForm.Height := workspaceSettings.Height;
+        tabsForm.Width := workspaceSettings.Width;
       end;
 
       tabsForm.Show;
-      mTabsView := tabsForm;
+      mWorkspace := tabsForm;
 
-      for tabSettings in tabsViewSettings.GetOrderedTabSettings() do
+      for tabSettings in workspaceSettings.GetOrderedTabSettings() do
       begin
         if (tabSettings.Active) then
           activeTabIx := i;
@@ -1074,42 +1074,42 @@ begin
         end
         else if (tabSettings is TMemoTabSettings) then
         begin
-          mTabsView.AddMemoTab(TMemoTabInfo.Create());
+          mWorkspace.AddMemoTab(TMemoTabInfo.Create());
           addTabResult := true;
         end
         else if (tabSettings is TLibraryTabSettings) then
         begin
-          mTabsView.AddLibraryTab(TLibraryTabInfo.Create());
+          mWorkspace.AddLibraryTab(TLibraryTabInfo.Create());
           addTabResult := true;
         end
         else if (tabSettings is TBookmarksTabSettings) then
         begin
-          mTabsView.AddBookmarksTab(TBookmarksTabInfo.Create());
+          mWorkspace.AddBookmarksTab(TBookmarksTabInfo.Create());
           addTabResult := true;
         end
         else if (tabSettings is TSearchTabSettings) then
         begin
-          mTabsView.AddSearchTab(TSearchTabInfo.Create(TSearchTabSettings(tabSettings)));
+          mWorkspace.AddSearchTab(TSearchTabInfo.Create(TSearchTabSettings(tabSettings)));
           addTabResult := true;
         end
         else if (tabSettings is TTSKTabSettings) then
         begin
-          mTabsView.AddTSKTab(TTSKTabInfo.Create(TTSKTabSettings(tabSettings)));
+          mWorkspace.AddTSKTab(TTSKTabInfo.Create(TTSKTabSettings(tabSettings)));
           addTabResult := true;
         end
         else if (tabSettings is TTagsVersesTabSettings) then
         begin
-          mTabsView.AddTagsVersesTab(TTagsVersesTabInfo.Create(TTagsVersesTabSettings(tabSettings)));
+          mWorkspace.AddTagsVersesTab(TTagsVersesTabInfo.Create(TTagsVersesTabSettings(tabSettings)));
           addTabResult := true;
         end
         else if (tabSettings is TDictionaryTabSettings) then
         begin
-          mTabsView.AddDictionaryTab(TDictionaryTabInfo.Create(TDictionaryTabSettings(tabSettings)));
+          mWorkspace.AddDictionaryTab(TDictionaryTabInfo.Create(TDictionaryTabSettings(tabSettings)));
           addTabResult := true;
         end
         else if (tabSettings is TStrongTabSettings) then
         begin
-          mTabsView.AddStrongTab(TStrongTabInfo.Create(TStrongTabSettings(tabSettings)));
+          mWorkspace.AddStrongTab(TStrongTabInfo.Create(TStrongTabSettings(tabSettings)));
           addTabResult := true;
         end;
 
@@ -1120,11 +1120,11 @@ begin
         inc(i);
       end;
 
-      if (activeTabIx < 0) or (activeTabIx >= mTabsView.ChromeTabs.Tabs.Count) then
+      if (activeTabIx < 0) or (activeTabIx >= mWorkspace.ChromeTabs.Tabs.Count) then
           activeTabIx := 0;
 
-      mTabsView.ChromeTabs.ActiveTabIndex := activeTabIx;
-      mTabsView.UpdateBookView();
+      mWorkspace.ChromeTabs.ActiveTabIndex := activeTabIx;
+      mWorkspace.UpdateBookView();
     end;
 
     if (firstTabInitialized and TFile.Exists(layoutConfigPath)) then
@@ -1141,7 +1141,7 @@ begin
 
   if not firstTabInitialized then
   begin
-    CreateInitialTabsView();
+    CreateInitialWorkspace();
     SetFirstTabInitialLocation(AppConfig.LastCommand, '', '', DefaultBookTabState(), true);
   end;
 end;
@@ -1207,7 +1207,7 @@ begin
   try
     writeln(NowDateTimeString(), ':SaveConfiguration, userdir:', TAppDirectories.UserSettings);
 
-    SaveTabsViews();
+    SaveWorkspaces();
     try
       mModuleLoader.SaveCachedModules();
     except
@@ -1276,51 +1276,51 @@ begin
   end;
 end;
 
-procedure TMainForm.SaveTabsViews();
+procedure TMainForm.SaveWorkspaces();
 var
   tabCount, i: integer;
   tabInfo, activeTabInfo: IViewTabInfo;
   layoutConfig: TLayoutConfig;
-  tabsViewSettings: TTabsViewSettings;
+  workspaceSettings: TWorkspaceSettings;
   tabSettings: TTabSettings;
   tabsForm: TDockTabsForm;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
   fileStream: TFileStream;
   data: TObject;
 begin
   try
     layoutConfig := TLayoutConfig.Create;
-    for tabsView in mTabsViews do
+    for workspace in mWorkspaces do
     begin
-      tabsForm := tabsView as TDockTabsForm;
-      tabsViewSettings := TTabsViewSettings.Create;
+      tabsForm := workspace as TDockTabsForm;
+      workspaceSettings := TWorkspaceSettings.Create;
 
-      if (tabsView.ChromeTabs.Tabs.Count = 0) then
+      if (workspace.ChromeTabs.Tabs.Count = 0) then
         continue;
 
-      tabCount := tabsView.ChromeTabs.Tabs.Count;
+      tabCount := workspace.ChromeTabs.Tabs.Count;
 
-      if (tabsView = mTabsView) then
-        tabsViewSettings.Active := true;
+      if (workspace = mWorkspace) then
+        workspaceSettings.Active := true;
 
-      tabsViewSettings.ViewName := tabsForm.ViewName;
-      tabsViewSettings.Docked := not tabsForm.Floating;
-      if not (tabsViewSettings.Docked) then
+      workspaceSettings.ViewName := tabsForm.ViewName;
+      workspaceSettings.Docked := not tabsForm.Floating;
+      if not (workspaceSettings.Docked) then
       begin
-        tabsViewSettings.Left := tabsForm.Left;
-        tabsViewSettings.Top := tabsForm.Top;
-        tabsViewSettings.Width := tabsForm.Width;
-        tabsViewSettings.Height := tabsForm.Height;
+        workspaceSettings.Left := tabsForm.Left;
+        workspaceSettings.Top := tabsForm.Top;
+        workspaceSettings.Width := tabsForm.Width;
+        workspaceSettings.Height := tabsForm.Height;
       end;
 
-      activeTabInfo := tabsView.GetActiveTabInfo();
+      activeTabInfo := workspace.GetActiveTabInfo();
       for i := 0 to tabCount - 1 do
       begin
         try
-          data := tabsView.ChromeTabs.Tabs[i].Data;
+          data := workspace.ChromeTabs.Tabs[i].Data;
           if not Supports(data, IViewTabInfo, tabInfo) then
             continue;
-          tabInfo.SaveState(tabsView);
+          tabInfo.SaveState(workspace);
           tabSettings := tabInfo.GetSettings;
 
           if tabInfo = activeTabInfo then
@@ -1328,11 +1328,11 @@ begin
             tabSettings.Active := true;
           end;
           tabSettings.Index := i;
-          tabsViewSettings.AddTabSettings(tabSettings);
+          workspaceSettings.AddTabSettings(tabSettings);
         except
         end;
       end; // for
-      layoutConfig.TabsViewList.Add(tabsViewSettings);
+      layoutConfig.WorkspaceSettingsList.Add(workspaceSettings);
     end;
 
     layoutConfig.Save(TPath.Combine(TAppDirectories.UserSettings, 'tabs_config.json'));
@@ -1359,7 +1359,7 @@ begin
   mModuleLoader.OnArchiveModuleLoadFailed := ArchiveModuleLoadFailed;
 
   MainFormInitialized := false; // prohibit re-entry into FormShow
-  mTabsViews := TList<ITabsView>.Create;
+  mWorkspaces := TList<IWorkspace>.Create;
 
   CheckModuleInstall();
 
@@ -1420,7 +1420,7 @@ begin
 
   MainMenuInit(false);
 
-  LoadTabsViews();
+  LoadWorkspaces();
   LoadHotModulesConfig();
 
   LoadFontFromFolder(TLibraryDirectories.Strong);
@@ -1454,7 +1454,7 @@ function TMainForm.AddHotModule(const modEntry: TModuleEntry; tag: integer; addB
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
   ix: integer;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
 begin
   Result := -1;
   try
@@ -1469,12 +1469,12 @@ begin
     if not addBibleTab then
       Exit;
 
-    for tabsView in mTabsViews do
+    for workspace in mWorkspaces do
     begin
-      ix := tabsView.BibleTabs.Tabs.Count - 1;
+      ix := workspace.BibleTabs.Tabs.Count - 1;
 
-      tabsView.BibleTabs.Tabs.Insert(ix, modEntry.VisualSignature());
-      tabsView.BibleTabs.Tabs.Objects[ix] := modEntry;
+      workspace.BibleTabs.Tabs.Insert(ix, modEntry.VisualSignature());
+      workspace.BibleTabs.Tabs.Objects[ix] := modEntry;
     end;
   except
     on E: Exception do
@@ -1512,7 +1512,7 @@ begin
       cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, ChapterQtys[CurBook - 1]]);
 
   bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
-  Windows.SetFocus(mTabsView.Browser.Handle);
+  Windows.SetFocus(mWorkspace.Browser.Handle);
 end;
 
 procedure TMainForm.GoNextChapter;
@@ -1543,7 +1543,7 @@ begin
       cmd := Format('go %s %d %d', [ShortPath, CurBook + 1, 1]);
 
   bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
-  Windows.SetFocus(mTabsView.Browser.Handle);
+  Windows.SetFocus(mWorkspace.Browser.Handle);
 end;
 
 procedure SetButtonHint(aButton: TToolButton; aMenuItem: TMenuItem);
@@ -1635,18 +1635,18 @@ end;
 procedure TMainForm.Translate();
 var
   s: string;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
   tabsForm: TDockTabsForm;
   bookView: TBookFrame;
 begin
   TranslateControl(ExceptionForm);
   TranslateControl(AboutForm);
 
-  for tabsView in mTabsViews do
+  for workspace in mWorkspaces do
   begin
-    if (tabsView is TDockTabsForm) then
+    if (workspace is TDockTabsForm) then
     begin
-      tabsForm := tabsView as TDockTabsForm;
+      tabsForm := workspace as TDockTabsForm;
       tabsForm.Translate;
     end;
   end;
@@ -1718,7 +1718,7 @@ procedure TMainForm.PrintCurrentPage();
 begin
   with PrintDialog do
     if Execute then
-      mTabsView.Browser.Print(MinPage, MaxPage);
+      mWorkspace.Browser.Print(MinPage, MaxPage);
 end;
 
 procedure TMainForm.EnableToolbarMenus(aEnabled: Boolean);
@@ -1758,22 +1758,22 @@ begin
 
     sbxPreview.Visible := false;
 
-    GetTabsView(self).pnlMain.Visible := true;
-    Windows.SetFocus(mTabsView.Browser.Handle);
+    GetDockWorkspace(self).pnlMain.Visible := true;
+    Windows.SetFocus(mWorkspace.Browser.Handle);
 
     Screen.Cursor := crDefault;
   end
   else
   begin
     MFPrinter := TMetaFilePrinter.Create(self);
-    mTabsView.Browser.PrintPreview(MFPrinter);
+    mWorkspace.Browser.PrintPreview(MFPrinter);
 
     ZoomIndex := 0;
     CurPreviewPage := 0;
 
     sbxPreview.OnResize := nil;
 
-    GetTabsView(self).pnlMain.Visible := false;
+    GetDockWorkspace(self).pnlMain.Visible := false;
     sbxPreview.OnResize := sbxPreviewResize;
     sbxPreview.Align := alClient;
 
@@ -1876,48 +1876,48 @@ var
   i, num, bibleTabsCount, curItem: integer;
   s: string;
   saveOnChange: TTabChangeEvent;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
 begin
-  for tabsView in mTabsViews do
+  for workspace in mWorkspaces do
   begin
-    bibleTabsCount := tabsView.BibleTabs.Tabs.Count - 1;
-    curItem := tabsView.BibleTabs.TabIndex;
+    bibleTabsCount := workspace.BibleTabs.Tabs.Count - 1;
+    curItem := workspace.BibleTabs.TabIndex;
     if bibleTabsCount > 9 then
       bibleTabsCount := 9
     else
       Dec(bibleTabsCount);
     for i := 0 to bibleTabsCount do
     begin
-      s := tabsView.BibleTabs.Tabs[i];
+      s := workspace.BibleTabs.Tabs[i];
       if showHints then
       begin
         if (i < 9) then
           num := i + 1
         else
           num := 0;
-        tabsView.BibleTabs.Tabs[i] := Format('%d-%s', [num, s]);
+        workspace.BibleTabs.Tabs[i] := Format('%d-%s', [num, s]);
       end
       else
       begin
         if (s[2] <> '-') or (not CharInSet(Char(s[1]), ['0' .. '9'])) then
           break;
-        tabsView.BibleTabs.Tabs[i] := Copy(s, 3, $FFFFFF);
+        workspace.BibleTabs.Tabs[i] := Copy(s, 3, $FFFFFF);
       end;
     end; // for
 
     if showHints then
     begin
-      tabsView.BibleTabs.FirstIndex := 0;
-      tabsView.BibleTabs.TabIndex := curItem;
+      workspace.BibleTabs.FirstIndex := 0;
+      workspace.BibleTabs.TabIndex := curItem;
     end
     else
     begin
-      saveOnChange := tabsView.BibleTabs.OnChange;
-      tabsView.BibleTabs.OnChange := nil;
+      saveOnChange := workspace.BibleTabs.OnChange;
+      workspace.BibleTabs.OnChange := nil;
       if curItem > 0 then
-        tabsView.BibleTabs.TabIndex := curItem - 1;
-      tabsView.BibleTabs.TabIndex := curItem;
-      tabsView.BibleTabs.OnChange := saveOnChange;
+        workspace.BibleTabs.TabIndex := curItem - 1;
+      workspace.BibleTabs.TabIndex := curItem;
+      workspace.BibleTabs.OnChange := saveOnChange;
     end;
 
   end;
@@ -1984,7 +1984,7 @@ begin
   vti.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
   vti.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
 
-  mTabsView.ChromeTabs.Tabs[0].Caption := Title;
+  mWorkspace.ChromeTabs.Tabs[0].Caption := Title;
 
   if visual then
   begin
@@ -2219,13 +2219,13 @@ begin
           GoNextChapter;
       ord('C'), VK_INSERT:
         begin
-          if GetTabsView(self).ActiveControl = mTabsView.Browser then
+          if GetDockWorkspace(self).ActiveControl = mWorkspace.Browser then
             GetBookView(self).tbtnCopy.Click
           else if ActiveControl is THTMLViewer then
             (ActiveControl as THTMLViewer).CopyToClipboard
-          else if GetTabsView(self).ActiveControl is THTMLViewer then
+          else if GetDockWorkspace(self).ActiveControl is THTMLViewer then
           begin
-            (GetTabsView(self).ActiveControl as THTMLViewer).CopyToClipboard;
+            (GetDockWorkspace(self).ActiveControl as THTMLViewer).CopyToClipboard;
           end; // if webbr
         end;
       ord('P'):
@@ -2304,13 +2304,13 @@ end;
 
 procedure TMainForm.FormKeyPress(Sender: TObject; var Key: Char);
 var
-  tabsView: TDockTabsForm;
+  workspace: TDockTabsForm;
 begin
   if Key = #27 then
   begin
-    tabsView := GetTabsView(self);
+    workspace := GetDockWorkspace(self);
     Key := #0;
-    if not tabsView.pnlMain.Visible then
+    if not workspace.pnlMain.Visible then
       miPrintPreview.Click; // this turns preview off
     Exit;
   end;
@@ -2341,16 +2341,16 @@ begin
   end;
 end;
 
-function TMainForm.FavoriteTabFromModEntry(tabsView: ITabsView; const me: TModuleEntry): integer;
+function TMainForm.FavoriteTabFromModEntry(workspace: IWorkspace; const me: TModuleEntry): integer;
 var
   i, cnt: integer;
 begin
   Result := -1;
-  cnt := tabsView.BibleTabs.Tabs.Count - 1;
+  cnt := workspace.BibleTabs.Tabs.Count - 1;
   i := 0;
   while i <= cnt do
   begin
-    if tabsView.BibleTabs.Tabs.Objects[i] = me then
+    if workspace.BibleTabs.Tabs.Objects[i] = me then
       break;
     inc(i);
   end;
@@ -2362,18 +2362,18 @@ procedure TMainForm.FontChanged(delta: integer);
 var
   defFontSz, browserpos: integer;
 begin
-  defFontSz := mTabsView.Browser.DefFontSize;
+  defFontSz := mWorkspace.Browser.DefFontSize;
   if ((delta > 0) and (defFontSz > 48)) or ((delta < 0) and (defFontSz < 6))
   then
     Exit;
   inc(defFontSz, delta);
   Screen.Cursor := crHourGlass;
   try
-    mTabsView.Browser.DefFontSize := defFontSz;
-    browserpos := mTabsView.Browser.Position and $FFFF0000;
+    mWorkspace.Browser.DefFontSize := defFontSz;
+    browserpos := mWorkspace.Browser.Position and $FFFF0000;
 
-    mTabsView.Browser.LoadFromString(mTabsView.Browser.DocumentSource);
-    mTabsView.Browser.Position := browserpos;
+    mWorkspace.Browser.LoadFromString(mWorkspace.Browser.DocumentSource);
+    mWorkspace.Browser.Position := browserpos;
 
     // TODO: change font of all search tabs
 //    browserpos := bwrSearch.Position and $FFFF0000;
@@ -2424,7 +2424,7 @@ end;
 
 procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var
-  tabsView: ITabsView;
+  workspace: IWorkspace;
 begin
   if MainForm.Height < 100 then
     MainForm.Height := 420;
@@ -2433,10 +2433,10 @@ begin
 
   SaveConfiguration;
 
-  for tabsView in mTabsViews do
+  for workspace in mWorkspaces do
   begin
-    if (tabsView is TDockTabsForm) then
-      (tabsView as TDockTabsForm).Close;
+    if (workspace is TDockTabsForm) then
+      (workspace as TDockTabsForm).Close;
   end;
 
   Flush(Output);
@@ -2530,7 +2530,7 @@ function TMainForm.InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
 var
   favouriteMenuItem, hotMenuItem: TMenuItem;
   cnt, i: integer;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
 begin
   Result := -1;
   try
@@ -2554,12 +2554,12 @@ begin
     hotMenuItem.OnClick := OnHotModuleClick;
 
     favouriteMenuItem.Insert(ix + i, hotMenuItem);
-    for tabsView in mTabsViews do
+    for workspace in mWorkspaces do
     begin
-      tabsView.BibleTabs.Tabs.Insert(ix, newMe.VisualSignature());
-      tabsView.BibleTabs.Tabs.Objects[ix] := newMe;
+      workspace.BibleTabs.Tabs.Insert(ix, newMe.VisualSignature());
+      workspace.BibleTabs.Tabs.Objects[ix] := newMe;
       Result := ix;
-      tabsView.BibleTabs.Repaint();
+      workspace.BibleTabs.Repaint();
     end;
   except
     on E: Exception do
@@ -2791,7 +2791,7 @@ begin
       bookView.ProcessCommand(bookTabInfo, bl.ToCommand(TPath.Combine(commentpath, tempBook.ShortPath)), hlVerses);
       if firstVisibleVerse > 0 then
       begin
-        mTabsView.Browser.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
+        mWorkspace.Browser.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
       end;
     except
     end;
@@ -3025,7 +3025,7 @@ var
   newTabInfo: TSearchTabInfo;
 begin
   newTabInfo := TSearchTabInfo.Create();
-  mTabsView.AddSearchTab(newTabInfo);
+  mWorkspace.AddSearchTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnAddStrongTabClick(Sender: TObject);
@@ -3033,7 +3033,7 @@ var
   newTabInfo: TStrongTabInfo;
 begin
   newTabInfo := TStrongTabInfo.Create();
-  mTabsView.AddStrongTab(newTabInfo);
+  mWorkspace.AddStrongTab(newTabInfo);
 end;
 
 procedure TMainForm.miSoundClick(Sender: TObject);
@@ -3080,7 +3080,7 @@ begin
     find := MainFileExists(fname2 + '.mp3');
 
   if find = '' then
-    ShowMessage(Format(Lang.Say('SoundNotFound'), [mTabsView.Browser.DocumentTitle]))
+    ShowMessage(Format(Lang.Say('SoundNotFound'), [mWorkspace.Browser.DocumentTitle]))
   else
     ShellExecute(Application.Handle, nil, PChar(find), nil, nil, SW_MINIMIZE);
 end;
@@ -3098,7 +3098,7 @@ begin
   if miDeteleBibleTab.tag < 0 then
     Exit;
   try
-    me := (mTabsView.BibleTabs.Tabs.Objects[miDeteleBibleTab.tag]) as TModuleEntry;
+    me := (mWorkspace.BibleTabs.Tabs.Objects[miDeteleBibleTab.tag]) as TModuleEntry;
     mFavorites.DeleteModule(me);
   except
   end;
@@ -3173,9 +3173,9 @@ begin
 
   bookView := GetBookView(self);
   vti := bookView.BookTabInfo;
-  savePosition := mTabsView.Browser.Position;
+  savePosition := mWorkspace.Browser.Position;
   bookView.ProcessCommand(vti, vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
-  mTabsView.Browser.Position := savePosition;
+  mWorkspace.Browser.Position := savePosition;
 end;
 
 procedure TMainForm.CompareTranslations();
@@ -3199,14 +3199,14 @@ begin
   if not bible.isBible then
     Exit;
 
-  if (mTabsView.ChromeTabs.ActiveTabIndex < 0) then
+  if (mWorkspace.ChromeTabs.ActiveTabIndex < 0) then
     Exit;
 
   secBible := bookTabInfo.SecondBible;
 
   // try
   dBrowserSource := '<font size=+1><table>';
-  mTabsView.Browser.DefFontName := AppConfig.DefFontName;
+  mWorkspace.Browser.DefFontName := AppConfig.DefFontName;
   bible.OpenChapter(bible.CurBook, bible.CurChapter);
   s := bible.Verses[CurVerseNumber - 1];
   StrDeleteFirstNumber(s);
@@ -3287,7 +3287,7 @@ begin
   end;
 
   AddLine(dBrowserSource, '</table>');
-  mTabsView.Browser.LoadFromString(dBrowserSource);
+  mWorkspace.Browser.LoadFromString(dBrowserSource);
 
   bookTabInfo.IsCompareTranslation := true;
   bookTabInfo.CompareTranslationText := dBrowserSource;
@@ -3295,7 +3295,7 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 var
-  tabsView: ITabsView;
+  workspace: IWorkspace;
   tabsForm: TDockTabsForm;
 begin
   if MainFormInitialized then
@@ -3313,11 +3313,11 @@ begin
   TranslateControl(AboutForm);
   TranslateConfigForm;
 
-  for tabsView in mTabsViews do
+  for workspace in mWorkspaces do
   begin
-    if (tabsView is TDockTabsForm) then
+    if (workspace is TDockTabsForm) then
     begin
-      tabsForm := tabsView as TDockTabsForm;
+      tabsForm := workspace as TDockTabsForm;
       tabsForm.BringToFront;
     end;
   end;
@@ -3388,11 +3388,11 @@ var
 begin
   bookView := GetBookView(self);
   bookTabInfo := bookView.BookTabInfo;
-  C := mTabsView.ChromeTabs.Tabs.Count - 1;
+  C := mWorkspace.ChromeTabs.Tabs.Count - 1;
   for i := 0 to C do
   begin
     try
-      cti := mTabsView.GetTabInfo(i);
+      cti := mWorkspace.GetTabInfo(i);
       if not (cti is TBookTabInfo) then
         continue;
 
@@ -3408,21 +3408,21 @@ end;
 procedure TMainForm.DeleteHotModule(moduleTabIx: integer);
 var
   hotMenuItem, favouriteMenuItem: TMenuItem;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
   bookView: TBookFrame;
 begin
   try
     bookView := GetBookView(self);
-    hotMenuItem := mTabsView.BibleTabs.Tabs.Objects[moduleTabIx] as TMenuItem;
+    hotMenuItem := mWorkspace.BibleTabs.Tabs.Objects[moduleTabIx] as TMenuItem;
 
     favouriteMenuItem := FindTaggedTopMenuItem(3333);
     if not Assigned(favouriteMenuItem) then
       Exit;
     favouriteMenuItem.Remove(hotMenuItem);
 
-    for tabsView in mTabsViews do
+    for workspace in mWorkspaces do
     begin
-      tabsView.BibleTabs.Tabs.Delete(moduleTabIx);
+      workspace.BibleTabs.Tabs.Delete(moduleTabIx);
     end;
 
     hotMenuItem.Free();
@@ -3529,7 +3529,7 @@ var
   newTabInfo: TTagsVersesTabInfo;
 begin
   newTabInfo := TTagsVersesTabInfo.Create();
-  mTabsView.AddTagsVersesTab(newTabInfo);
+  mWorkspace.AddTagsVersesTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnAddTSKTabClick(Sender: TObject);
@@ -3537,7 +3537,7 @@ var
   newTabInfo: TTSKTabInfo;
 begin
   newTabInfo := TTSKTabInfo.Create();
-  mTabsView.AddTSKTab(newTabInfo);
+  mWorkspace.AddTSKTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnResolveLinksClick(Sender: TObject);
@@ -3548,7 +3548,7 @@ end;
 procedure TMainForm.cbModulesCloseUp(Sender: TObject);
 begin
   try
-    MainForm.FocusControl(mTabsView.Browser);
+    MainForm.FocusControl(mWorkspace.Browser);
   except
   end;
 end;
@@ -3788,12 +3788,12 @@ begin
 
   if (vti.Bible.RecognizeBibleLinks <> nV) or (vti[vtisPendingReload]) then
   begin
-    browserpos := mTabsView.Browser.Position;
+    browserpos := mWorkspace.Browser.Position;
     vti.Bible.FuzzyResolve := vti[vtisFuzzyResolveLinks];
     vti.Bible.RecognizeBibleLinks := nV;
     bookView.SafeProcessCommand(vti, vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
     vti[vtisPendingReload] := false;
-    mTabsView.Browser.Position := browserpos;
+    mWorkspace.Browser.Position := browserpos;
   end;
 
 end;
@@ -3817,22 +3817,22 @@ begin
   until trCount <= 0;
 end;
 
-procedure TMainForm.ActivateTargetTabsView();
+procedure TMainForm.ActivateTargetWorkspace();
 var
-  tabsView: ITabsView;
+  workspace: IWorkspace;
   activeTab: IViewTabInfo;
 begin
-  for tabsView in mTabsViews do
+  for workspace in mWorkspaces do
   begin
-    if (tabsView <> mTabsView) then
+    if (workspace <> mWorkspace) then
     begin
-      mTabsView := tabsView;
-      Windows.SetFocus(TDockTabsForm(tabsView).Handle);
+      mWorkspace := workspace;
+      Windows.SetFocus(TDockTabsForm(workspace).Handle);
       Exit;
     end;
   end;
 
-  OpenNewTabsView();
+  OpenNewWorkspace();
 end;
 
 procedure TMainForm.tbtnAddBookmarksTabClick(Sender: TObject);
@@ -3840,7 +3840,7 @@ var
   newTabInfo: TBookmarksTabInfo;
 begin
   newTabInfo := TBookmarksTabInfo.Create();
-  mTabsView.AddBookmarksTab(newTabInfo);
+  mWorkspace.AddBookmarksTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnAddDictionaryTabClick(Sender: TObject);
@@ -3848,7 +3848,7 @@ var
   newTabInfo: TDictionaryTabInfo;
 begin
   newTabInfo := TDictionaryTabInfo.Create();
-  mTabsView.AddDictionaryTab(newTabInfo);
+  mWorkspace.AddDictionaryTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnAddLibraryTabClick(Sender: TObject);
@@ -3856,12 +3856,12 @@ var
   newTabInfo: TLibraryTabInfo;
 begin
   newTabInfo := TLibraryTabInfo.Create();
-  mTabsView.AddLibraryTab(newTabInfo);
+  mWorkspace.AddLibraryTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnNewFormClick(Sender: TObject);
 begin
-  AddNewTabsView;
+  AddNewWorkspace;
 end;
 
 procedure TMainForm.tbtnAddMemoTabClick(Sender: TObject);
@@ -3869,7 +3869,7 @@ var
   newTabInfo: TMemoTabInfo;
 begin
   newTabInfo := TMemoTabInfo.Create();
-  mTabsView.AddMemoTab(newTabInfo);
+  mWorkspace.AddMemoTab(newTabInfo);
 end;
 
 function TMainForm.UpdateFromCashed(): Boolean;
@@ -3999,20 +3999,20 @@ begin
   try
     vn := -1;
     ve := vn;
-    scrollPos := integer(mTabsView.Browser.VScrollBar.Position);
+    scrollPos := integer(mWorkspace.Browser.VScrollBar.Position);
     msbPosition := scrollPos;
     if scrollPos = 0 then
       vn := 1;
 
-    sct := mTabsView.Browser.SectionList.FindSectionAtPosition(scrollPos, vn, ch);
+    sct := mWorkspace.Browser.SectionList.FindSectionAtPosition(scrollPos, vn, ch);
 
-    BottomPos := scrollPos + mTabsView.Browser.__PaintPanel.Height;
-    scte := mTabsView.Browser.SectionList.FindSectionAtPosition(BottomPos, ve, ch);
-    ds := mTabsView.Browser.DocumentSource;
+    BottomPos := scrollPos + mWorkspace.Browser.__PaintPanel.Height;
+    scte := mWorkspace.Browser.SectionList.FindSectionAtPosition(BottomPos, ve, ch);
+    ds := mWorkspace.Browser.DocumentSource;
     if Assigned(sct) and (sct is TSectionBase) then
     begin
       delta := sct.DrawHeight div 2;
-      positionLst := mTabsView.Browser.SectionList.PositionList;
+      positionLst := mWorkspace.Browser.SectionList.PositionList;
       if sct.YPosition + delta < scrollPos then
       begin
         // try to find first fully visible section
@@ -4104,40 +4104,40 @@ var
   strongView: TStrongFrame;
 begin
   strongTabInfo := nil;
-  ActivateTargetTabsView();
+  ActivateTargetWorkspace();
 
-  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
-    tabInfo := mTabsView.GetTabInfo(i);
+    tabInfo := mWorkspace.GetTabInfo(i);
     if not (tabInfo is TStrongTabInfo) then
       continue;
 
     strongTabInfo := TStrongTabInfo(tabInfo);
 
-    wasUpdateSet := mTabsView.UpdateOnTabChange;
-    mTabsView.UpdateOnTabChange := false;
+    wasUpdateSet := mWorkspace.UpdateOnTabChange;
+    mWorkspace.UpdateOnTabChange := false;
     try
-      mTabsView.ChromeTabs.ActiveTabIndex := i;
+      mWorkspace.ChromeTabs.ActiveTabIndex := i;
     finally
-      mTabsView.UpdateOnTabChange := wasUpdateSet;
+      mWorkspace.UpdateOnTabChange := wasUpdateSet;
     end;
   end;
 
   if not Assigned(strongTabInfo) then
   begin
     strongTabInfo := TStrongTabInfo.Create();
-    mTabsView.AddStrongTab(strongTabInfo);
+    mWorkspace.AddStrongTab(strongTabInfo);
   end;
 
-  strongView := mTabsView.StrongView as TStrongFrame;
+  strongView := mWorkspace.StrongView as TStrongFrame;
   if Assigned(bookTabInfo) then
   begin
     strongView.SetCurrentBook(bookTabInfo.Bible.ShortPath);
     strongView.DisplayStrongs(num, (bookTabInfo.Bible.CurBook < 40) and (bookTabInfo.Bible.Trait[bqmtOldCovenant]));
-    mTabsView.UpdateCurrentTabContent(false);
+    mWorkspace.UpdateCurrentTabContent(false);
   end
   else
-    mTabsView.UpdateCurrentTabContent(true);
+    mWorkspace.UpdateCurrentTabContent(true);
 end;
 
 procedure TMainForm.OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
@@ -4149,33 +4149,33 @@ var
   searchView: TSearchFrame;
 begin
   searchTabInfo := nil;
-  ActivateTargetTabsView;
+  ActivateTargetWorkspace;
 
-  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
-    tabInfo := mTabsView.GetTabInfo(i);
+    tabInfo := mWorkspace.GetTabInfo(i);
     if not (tabInfo is TSearchTabInfo) then
       continue;
 
     searchTabInfo := TSearchTabInfo(tabInfo);
 
-    wasUpdateSet := mTabsView.UpdateOnTabChange;
-    mTabsView.UpdateOnTabChange := false;
+    wasUpdateSet := mWorkspace.UpdateOnTabChange;
+    mWorkspace.UpdateOnTabChange := false;
     try
-      mTabsView.ChromeTabs.ActiveTabIndex := i;
+      mWorkspace.ChromeTabs.ActiveTabIndex := i;
     finally
-      mTabsView.UpdateOnTabChange := wasUpdateSet;
+      mWorkspace.UpdateOnTabChange := wasUpdateSet;
     end;
   end;
 
   if not Assigned(searchTabInfo) then
   begin
     searchTabInfo := TSearchTabInfo.Create();
-    mTabsView.AddSearchTab(searchTabInfo);
+    mWorkspace.AddSearchTab(searchTabInfo);
   end;
 
-  searchView := mTabsView.SearchView as TSearchFrame;
-  mTabsView.UpdateCurrentTabContent;
+  searchView := mWorkspace.SearchView as TSearchFrame;
+  mWorkspace.UpdateCurrentTabContent;
 
   searchView.SetCurrentBook(bookPath);
   if (bookTypeIndex >= 0) then
@@ -4197,40 +4197,40 @@ var
   iniPath: string;
 begin
   tskTabInfo := nil;
-  ActivateTargetTabsView();
+  ActivateTargetWorkspace();
 
-  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
-    tabInfo := mTabsView.GetTabInfo(i);
+    tabInfo := mWorkspace.GetTabInfo(i);
     if not (tabInfo is TTSKTabInfo) then
       continue;
 
     tskTabInfo := TTSKTabInfo(tabInfo);
 
-    wasUpdateSet := mTabsView.UpdateOnTabChange;
-    mTabsView.UpdateOnTabChange := false;
+    wasUpdateSet := mWorkspace.UpdateOnTabChange;
+    mWorkspace.UpdateOnTabChange := false;
     try
-      mTabsView.ChromeTabs.ActiveTabIndex := i;
+      mWorkspace.ChromeTabs.ActiveTabIndex := i;
     finally
-      mTabsView.UpdateOnTabChange := wasUpdateSet;
+      mWorkspace.UpdateOnTabChange := wasUpdateSet;
     end;
   end;
 
   if not Assigned(tskTabInfo) then
   begin
     tskTabInfo := TTSKTabInfo.Create();
-    mTabsView.AddTSKTab(tskTabInfo);
+    mWorkspace.AddTSKTab(tskTabInfo);
   end;
 
-  tskView := mTabsView.TSKView as TTSKFrame;
+  tskView := mWorkspace.TSKView as TTSKFrame;
   if Assigned(bookTabInfo) then
   begin
     iniPath := TPath.Combine(bookTabInfo.Bible.path, 'bibleqt.ini');
     tskView.ShowXref(iniPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
-    mTabsView.UpdateCurrentTabContent(false);
+    mWorkspace.UpdateCurrentTabContent(false);
   end
   else
-    mTabsView.UpdateCurrentTabContent(true);
+    mWorkspace.UpdateCurrentTabContent(true);
 end;
 
 procedure TMainForm.OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
@@ -4244,14 +4244,14 @@ var
   link: TBibleLink;
 begin
   ClearVolatileStateData(state);
-  ActivateTargetTabsView;
+  ActivateTargetWorkspace;
 
   // get module path from the target command
   link.FromBqStringLocation(command, srcPath);
 
-  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
-    tabInfo := mTabsView.GetTabInfo(i);
+    tabInfo := mWorkspace.GetTabInfo(i);
     if not (tabInfo is TBookTabInfo) then
       continue;
 
@@ -4267,18 +4267,18 @@ begin
 
     bookView := GetBookView(self);
 
-    wasUpdateSet := mTabsView.UpdateOnTabChange;
-    mTabsView.UpdateOnTabChange := false;
+    wasUpdateSet := mWorkspace.UpdateOnTabChange;
+    mWorkspace.UpdateOnTabChange := false;
     try
-      mTabsView.ChromeTabs.ActiveTabIndex := i;
+      mWorkspace.ChromeTabs.ActiveTabIndex := i;
     finally
-      mTabsView.UpdateOnTabChange := wasUpdateSet;
+      mWorkspace.UpdateOnTabChange := wasUpdateSet;
     end;
 
     MemosOn := vtisShowNotes in state;
 
     bookView.SafeProcessCommand(bookTabInfo, command, hlDefault);
-    mTabsView.UpdateCurrentTabContent;
+    mWorkspace.UpdateCurrentTabContent;
     Exit;
   end;
 
@@ -4297,40 +4297,40 @@ var
 begin
   newTab := false;
   dicTabInfo := nil;
-  ActivateTargetTabsView();
+  ActivateTargetWorkspace();
 
-  for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
+  for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
-    tabInfo := mTabsView.GetTabInfo(i);
+    tabInfo := mWorkspace.GetTabInfo(i);
     if not (tabInfo is TDictionaryTabInfo) then
       continue;
 
     dicTabInfo := TDictionaryTabInfo(tabInfo);
 
-    wasUpdateSet := mTabsView.UpdateOnTabChange;
-    mTabsView.UpdateOnTabChange := false;
+    wasUpdateSet := mWorkspace.UpdateOnTabChange;
+    mWorkspace.UpdateOnTabChange := false;
     try
-      mTabsView.ChromeTabs.ActiveTabIndex := i;
+      mWorkspace.ChromeTabs.ActiveTabIndex := i;
     finally
-      mTabsView.UpdateOnTabChange := wasUpdateSet;
+      mWorkspace.UpdateOnTabChange := wasUpdateSet;
     end;
   end;
 
   if not Assigned(dicTabInfo) then
   begin
     dicTabInfo := TDictionaryTabInfo.Create();
-    mTabsView.AddDictionaryTab(dicTabInfo);
+    mWorkspace.AddDictionaryTab(dicTabInfo);
     newTab := true;
   end;
 
-  dictionaryView := mTabsView.DictionaryView as TDictionaryFrame;
+  dictionaryView := mWorkspace.DictionaryView as TDictionaryFrame;
   if (newTab) then
     dictionaryView.DisplayDictionaries;
 
   if (searchText.Length > 0) then
     dictionaryView.UpdateSearch(searchText);
 
-  mTabsView.UpdateCurrentTabContent(false);
+  mWorkspace.UpdateCurrentTabContent(false);
 end;
 
 function TMainForm.NewBookTab(
@@ -4339,7 +4339,7 @@ function TMainForm.NewBookTab(
   state: TBookTabInfoState;
   const Title: string;
   activate: Boolean;
-  changeTargetView: Boolean = false;
+  changeWorkspace: Boolean = false;
   history: TStrings = nil;
   historyIndex: integer = -1): Boolean;
 var
@@ -4352,8 +4352,8 @@ begin
   ClearVolatileStateData(state);
   Result := true;
 
-  if (changeTargetView) then
-    ActivateTargetTabsView;
+  if (changeWorkspace) then
+    ActivateTargetWorkspace;
 
   try
     newBible := CreateNewBibleInstance();
@@ -4361,13 +4361,13 @@ begin
       abort;
 
     bookView := GetBookView(self);
-    if (mTabsView.ChromeTabs.ActiveTabIndex >= 0) then
+    if (mWorkspace.ChromeTabs.ActiveTabIndex >= 0) then
     begin
       // save current tab state
       curTabInfo := bookView.BookTabInfo;
       if (Assigned(curTabInfo)) then
       begin
-         curTabInfo.SaveState(GetTabsView(self));
+         curTabInfo.SaveState(GetDockWorkspace(self));
       end;
     end;
 
@@ -4381,11 +4381,11 @@ begin
     if Assigned(history) then
       newTabInfo.History.AddStrings(history);
 
-    mTabsView.AddBookTab(newTabInfo);
+    mWorkspace.AddBookTab(newTabInfo);
 
     if activate then
     begin
-      mTabsView.ChromeTabs.ActiveTabIndex := mTabsView.ChromeTabs.Tabs.Count - 1;
+      mWorkspace.ChromeTabs.ActiveTabIndex := mWorkspace.ChromeTabs.Tabs.Count - 1;
 
       MemosOn := vtisShowNotes in state;
       cmd := command;
@@ -4510,7 +4510,7 @@ function TMainForm.DeleteHotModule(const me: TModuleEntry): Boolean;
 var
   hotMenuItem, favouriteMenuItem: TMenuItem;
   i: integer;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
   bookView: TBookFrame;
 begin
   try
@@ -4527,11 +4527,11 @@ begin
       BqShowException(E);
   end;
   try
-    for tabsView in mTabsViews do
+    for workspace in mWorkspaces do
     begin
-      i := FavoriteTabFromModEntry(tabsView, me);
+      i := FavoriteTabFromModEntry(workspace, me);
       if i >= 0 then
-        tabsView.BibleTabs.Tabs.Delete(i);
+        workspace.BibleTabs.Tabs.Delete(i);
       bookView := GetBookView(self);
       if Assigned(bookView.BookTabInfo) then
         bookView.AdjustBibleTabs(bookView.BookTabInfo.Bible.ShortName);
@@ -4569,7 +4569,7 @@ begin
     GetBookView(self).tedtReference.Text := inputForm.GetValue();
     GoReference();
 
-    Windows.SetFocus(mTabsView.Browser.Handle);
+    Windows.SetFocus(mWorkspace.Browser.Handle);
   end;
 end;
 
@@ -4841,7 +4841,7 @@ var
   newTabInfo: TSearchTabInfo;
 begin
   newTabInfo := TSearchTabInfo.Create();
-  mTabsView.AddSearchTab(newTabInfo);
+  mWorkspace.AddSearchTab(newTabInfo);
 end;
 
 function TMainForm.AddMemo(caption: string): Boolean;
@@ -4934,7 +4934,7 @@ function TMainForm.ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
 var
   hotMi: TMenuItem;
   ix: integer;
-  tabsView: ITabsView;
+  workspace: IWorkspace;
 begin
   Result := true;
   hotMi := FavoriteItemFromModEntry(oldMe);
@@ -4944,13 +4944,13 @@ begin
     hotMi.tag := integer(newMe);
   end;
 
-  for tabsView in mTabsViews do
+  for workspace in mWorkspaces do
   begin
-    ix := FavoriteTabFromModEntry(tabsView, oldMe);
+    ix := FavoriteTabFromModEntry(workspace, oldMe);
     if ix >= 0 then
     begin
-      tabsView.BibleTabs.Tabs[ix] := newMe.VisualSignature();
-      tabsView.BibleTabs.Tabs.Objects[ix] := newMe;
+      workspace.BibleTabs.Tabs[ix] := newMe.VisualSignature();
+      workspace.BibleTabs.Tabs.Objects[ix] := newMe;
     end;
   end;
 end;

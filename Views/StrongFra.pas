@@ -39,7 +39,7 @@ type
     procedure vstStrongKeyPress(Sender: TObject; var Key: Char);
     procedure vstStrongAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
   private
-    mTabsView: ITabsView;
+    mWorkspace: IWorkspace;
     mMainView: TMainForm;
 
     StrongHebrew, StrongGreek: TDict;
@@ -52,7 +52,7 @@ type
     procedure CMShowingChanged(var Message: TMessage); MESSAGE CM_SHOWINGCHANGED;
     function GetStrongWordByIndex(ix: Integer): string;
   public
-    constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
 
     procedure DisplayStrongs(num: integer; hebrew: Boolean);
     procedure SetCurrentBook(shortPath: string);
@@ -191,7 +191,7 @@ begin
     mMainView.OpenOrCreateDictionaryTab(Trim(bwrStrong.SelText));
 end;
 
-constructor TStrongFrame.Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView);
+constructor TStrongFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
 begin
   inherited Create(AOwner);
 
@@ -199,7 +199,7 @@ begin
   mLoading := false;
 
   mMainView := AMainView;
-  mTabsView := ATabsView;
+  mWorkspace := AWorkspace;
 
   StrongHebrew := TDict.Create;
   StrongGreek := TDict.Create;

@@ -49,7 +49,7 @@ type
     procedure miRefPrintClick(Sender: TObject);
   private
     mMainView: TMainForm;
-    mTabsView: ITabsView;
+    mWorkspace: IWorkspace;
 
     mSearchState: TSearchTabState;
 
@@ -65,7 +65,7 @@ type
     procedure OnBookSelectFormDeactivate(Sender: TObject);
     procedure OnBookSelect(Sender: TObject; modEntry: TModuleEntry);
   public
-    constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace); reintroduce;
     destructor Destroy; override;
 
     procedure DisplaySearchResults(page: integer);
@@ -83,11 +83,11 @@ implementation
 
 {$R *.dfm}
 
-constructor TSearchFrame.Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView);
+constructor TSearchFrame.Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace);
 begin
   inherited Create(AOwner);
   mMainView := mainView;
-  mTabsView := tabsView;
+  mWorkspace := workspace;
 
   mSearchState := TSearchTabState.Create;
 
@@ -709,7 +709,7 @@ begin
 
   AddLine(dSource, '<a name="endofsearchresults"><p>' + s + '<br><p>');
 
-  //bwrSearch.CharSet := mTabsView.Browser.CharSet;
+  //bwrSearch.CharSet := mWorkspace.Browser.CharSet;
 
   StrReplace(dSource, '<*>', '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>', true);
   StrReplace(dSource, '</*>', '</font>', true);

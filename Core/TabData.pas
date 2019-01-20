@@ -62,12 +62,12 @@ type
   ['{840F8BE2-3C68-4853-8E43-B048DE7E6855}']
   end;
 
-  ITabsView = interface; // forward declaration
+  IWorkspace = interface; // forward declaration
 
   IViewTabInfo = interface
   ['{AF0866F3-5841-445E-A830-8EBD678B59A8}']
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
 
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
@@ -170,8 +170,8 @@ type
       const title: string;
       const state: TBookTabInfoState);
 
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
@@ -180,24 +180,24 @@ type
   end;
 
   TMemoTabInfo = class(TInterfacedObject, IViewTabInfo)
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
   end;
 
   TLibraryTabInfo = class(TInterfacedObject, IViewTabInfo)
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
   end;
 
   TBookmarksTabInfo = class(TInterfacedObject, IViewTabInfo)
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
@@ -214,8 +214,8 @@ type
     property SearchText: string read mSearchText write mSearchText;
     property StrongText: string read mStrongText write mStrongText;
 
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
@@ -274,8 +274,8 @@ type
 
     property SearchState: TSearchTabState read mSearchState write mSearchState;
 
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
@@ -290,8 +290,8 @@ type
     mBook, mChapter: integer;
     mVerse: integer;
   public
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
@@ -301,8 +301,8 @@ type
   end;
 
   TTagsVersesTabInfo = class(TInterfacedObject, IViewTabInfo)
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
@@ -317,8 +317,8 @@ type
     mSearchText: string;
     mFoundDictionaryIndex: integer;
   public
-    procedure SaveState(const tabsView: ITabsView);
-    procedure RestoreState(const tabsView: ITabsView);
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
@@ -335,7 +335,7 @@ type
     property ViewTabInfo: TBookTabInfo read mViewTabInfo;
   end;
 
-  ITabsView = interface
+  IWorkspace = interface
   ['{DEADBEEF-31AB-4F3A-B16F-57B47258402A}']
 
     procedure CloseActiveTab();
@@ -461,14 +461,14 @@ begin
   inc(Result, 1000 * ord(self[vtisFuzzyResolveLinks]));
 end;
 
-procedure TBookTabInfo.SaveState(const tabsView: ITabsView);
+procedure TBookTabInfo.SaveState(const workspace: IWorkspace);
 begin
-  SaveBrowserState((tabsView.BookView as TBookFrame).bwrHtml);
+  SaveBrowserState((workspace.BookView as TBookFrame).bwrHtml);
 end;
 
-procedure TBookTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TBookTabInfo.RestoreState(const workspace: IWorkspace);
 begin
-  RestoreBrowserState((tabsView.BookView as TBookFrame).bwrHtml);
+  RestoreBrowserState((workspace.BookView as TBookFrame).bwrHtml);
 end;
 
 procedure TBookTabInfo.SaveBrowserState(const aHtmlViewer: THTMLViewer);
@@ -550,12 +550,12 @@ begin
   Result := TMemoTabSettings.Create;
 end;
 
-procedure TMemoTabInfo.SaveState(const tabsView: ITabsView);
+procedure TMemoTabInfo.SaveState(const workspace: IWorkspace);
 begin
 // nothing to save
 end;
 
-procedure TMemoTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TMemoTabInfo.RestoreState(const workspace: IWorkspace);
 begin
 // nothing to save
 end;
@@ -577,12 +577,12 @@ begin
   Result := TLibraryTabSettings.Create;
 end;
 
-procedure TLibraryTabInfo.SaveState(const tabsView: ITabsView);
+procedure TLibraryTabInfo.SaveState(const workspace: IWorkspace);
 begin
 // nothing to save
 end;
 
-procedure TLibraryTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TLibraryTabInfo.RestoreState(const workspace: IWorkspace);
 begin
 // nothing to save
 end;
@@ -604,12 +604,12 @@ begin
   Result := TBookmarksTabSettings.Create;
 end;
 
-procedure TBookmarksTabInfo.SaveState(const tabsView: ITabsView);
+procedure TBookmarksTabInfo.SaveState(const workspace: IWorkspace);
 begin
 // nothing to save
 end;
 
-procedure TBookmarksTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TBookmarksTabInfo.RestoreState(const workspace: IWorkspace);
 begin
 // nothing to save
 end;
@@ -662,11 +662,11 @@ begin
   Result := tabSettings;
 end;
 
-procedure TSearchTabInfo.SaveState(const tabsView: ITabsView);
+procedure TSearchTabInfo.SaveState(const workspace: IWorkspace);
 var
   searchFrame: TSearchFrame;
 begin
-  searchFrame := tabsView.SearchView as TSearchFrame;
+  searchFrame := workspace.SearchView as TSearchFrame;
   with searchFrame do
   begin
     mBookPath := GetBookPath();
@@ -684,12 +684,12 @@ begin
   end;
 end;
 
-procedure TSearchTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TSearchTabInfo.RestoreState(const workspace: IWorkspace);
 var
   searchFrame: TSearchFrame;
   idx: integer;
 begin
-  searchFrame := tabsView.SearchView as TSearchFrame;
+  searchFrame := workspace.SearchView as TSearchFrame;
   with searchFrame do
   begin
     lblSearch.Caption := mSearchInfo;
@@ -815,11 +815,11 @@ begin
   Result := tabSettings;
 end;
 
-procedure TTSKTabInfo.SaveState(const tabsView: ITabsView);
+procedure TTSKTabInfo.SaveState(const workspace: IWorkspace);
 var
   tskFrame: TTSKFrame;
 begin
-  tskFrame := tabsView.TSKView as TTSKFrame;
+  tskFrame := workspace.TSKView as TTSKFrame;
   with tskFrame do
   begin
     mBiblePath := BiblePath;
@@ -829,11 +829,11 @@ begin
   end;
 end;
 
-procedure TTSKTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TTSKTabInfo.RestoreState(const workspace: IWorkspace);
 var
   tskFrame: TTSKFrame;
 begin
-  tskFrame := tabsView.TSKView as TTSKFrame;
+  tskFrame := workspace.TSKView as TTSKFrame;
   with tskFrame do
   begin
     tskFrame.ShowXref(mBiblePath, mBook, mChapter, mVerse);
@@ -867,12 +867,12 @@ begin
   Result := TTagsVersesTabSettings.Create;
 end;
 
-procedure TTagsVersesTabInfo.SaveState(const tabsView: ITabsView);
+procedure TTagsVersesTabInfo.SaveState(const workspace: IWorkspace);
 begin
 // nothing to save
 end;
 
-procedure TTagsVersesTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TTagsVersesTabInfo.RestoreState(const workspace: IWorkspace);
 begin
 // nothing to save
 end;
@@ -904,11 +904,11 @@ begin
   Result := TDictionaryTabSettings.Create;
 end;
 
-procedure TDictionaryTabInfo.SaveState(const tabsView: ITabsView);
+procedure TDictionaryTabInfo.SaveState(const workspace: IWorkspace);
 var
   dicFrame: TDictionaryFrame;
 begin
-  dicFrame := tabsView.DictionaryView as TDictionaryFrame;
+  dicFrame := workspace.DictionaryView as TDictionaryFrame;
   with dicFrame do
   begin
     mSearchText := edtDic.Text;
@@ -917,11 +917,11 @@ begin
   end;
 end;
 
-procedure TDictionaryTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TDictionaryTabInfo.RestoreState(const workspace: IWorkspace);
 var
   dicFrame: TDictionaryFrame;
 begin
-  dicFrame := tabsView.DictionaryView as TDictionaryFrame;
+  dicFrame := workspace.DictionaryView as TDictionaryFrame;
   dicFrame.UpdateSearch(mSearchText, mDictionaryIndex, mFoundDictionaryIndex);
 end;
 
@@ -952,11 +952,11 @@ begin
   Result := TStrongTabSettings.Create;
 end;
 
-procedure TStrongTabInfo.SaveState(const tabsView: ITabsView);
+procedure TStrongTabInfo.SaveState(const workspace: IWorkspace);
 var
   strongFrame: TStrongFrame;
 begin
-  strongFrame := tabsView.StrongView as TStrongFrame;
+  strongFrame := workspace.StrongView as TStrongFrame;
   with strongFrame do
   begin
     mSearchText := edtStrong.Text;
@@ -966,11 +966,11 @@ begin
   end;
 end;
 
-procedure TStrongTabInfo.RestoreState(const tabsView: ITabsView);
+procedure TStrongTabInfo.RestoreState(const workspace: IWorkspace);
 var
   strongFrame: TStrongFrame;
 begin
-  strongFrame := tabsView.StrongView as TStrongFrame;
+  strongFrame := workspace.StrongView as TStrongFrame;
   with strongFrame do
   begin
     edtStrong.Text := mSearchText;

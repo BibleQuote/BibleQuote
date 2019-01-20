@@ -97,7 +97,7 @@ type
   TStrongTabSettings = class(TTabSettings)
   end;
 
-  TTabsViewSettings = class(TInterfacedObject, IJsonSerializable)
+  TWorkspaceSettings = class(TInterfacedObject, IJsonSerializable)
   private
     FBookTabs: TList<TBookTabSettings>;
     FMemoTabs: TList<TMemoTabSettings>;
@@ -147,9 +147,9 @@ type
 type
   TLayoutConfig = class
   private
-    FTabsViewList: TList<TTabsViewSettings>;
+    FWorkspaceSettingsList: TList<TWorkspaceSettings>;
   public
-    property TabsViewList: TList<TTabsViewSettings> read FTabsViewList write FTabsViewList;
+    property WorkspaceSettingsList: TList<TWorkspaceSettings> read FWorkspaceSettingsList write FWorkspaceSettingsList;
 
     constructor Create();
 
@@ -159,7 +159,7 @@ type
 
 implementation
 
-constructor TTabsViewSettings.Create();
+constructor TWorkspaceSettings.Create();
 begin
   BookTabs := TList<TBookTabSettings>.Create();
   MemoTabs := TList<TMemoTabSettings>.Create();
@@ -174,7 +174,7 @@ begin
   Active := false;
 end;
 
-procedure TTabsViewSettings.AddTabSettings(tabSettings: TTabSettings);
+procedure TWorkspaceSettings.AddTabSettings(tabSettings: TTabSettings);
 begin
   if (tabSettings is TBookTabSettings) then
     BookTabs.Add(TBookTabSettings(tabSettings));
@@ -204,7 +204,7 @@ begin
     StrongTabs.Add(TStrongTabSettings(tabSettings));
 end;
 
-function TTabsViewSettings.GetOrderedTabSettings(): TList<TTabSettings>;
+function TWorkspaceSettings.GetOrderedTabSettings(): TList<TTabSettings>;
 var
   count: integer;
   tabs: TList<TTabSettings>;
@@ -267,7 +267,7 @@ end;
 
 constructor TLayoutConfig.Create();
 begin
-  TabsViewList := TList<TTabsViewSettings>.Create();
+  WorkspaceSettingsList := TList<TWorkspaceSettings>.Create();
 end;
 
 function TTabSettings.ToJson(): TJSONObject;
@@ -360,7 +360,7 @@ begin
   Verse := json.GetValue<integer>('Verse', 0);
 end;
 
-function TTabsViewSettings.ToJson(): TJSONObject;
+function TWorkspaceSettings.ToJson(): TJSONObject;
 var
   json: TJSONObject;
   jsonTabs: TJSONArray;
@@ -427,7 +427,7 @@ begin
   Result := json;
 end;
 
-function TTabsViewSettings.TabToJson(tabName: string; tabSettings: TTabSettings): TJSONObject;
+function TWorkspaceSettings.TabToJson(tabName: string; tabSettings: TTabSettings): TJSONObject;
 var
   json: TJSONObject;
 begin
@@ -437,7 +437,7 @@ begin
   Result := json;
 end;
 
-function TTabsViewSettings.TabFromJson(json: TJSONObject): TTabSettings;
+function TWorkspaceSettings.TabFromJson(json: TJSONObject): TTabSettings;
 var
   tabName: string;
   jsonValue: TJSONValue;
@@ -475,7 +475,7 @@ begin
   end;
 end;
 
-procedure TTabsViewSettings.FromJson(json: TJSONObject);
+procedure TWorkspaceSettings.FromJson(json: TJSONObject);
 var
   jsonVal: TJSONValue;
   jsonTabs: TJSONArray;
@@ -536,7 +536,7 @@ var
   jsonViewValue: TJSONValue;
   jsonView: TJSONObject;
   layoutConfig: TLayoutConfig;
-  tabsView: TTabsViewSettings;
+  workspaceSettings: TWorkspaceSettings;
   s: string;
 begin
   Result := nil;
@@ -558,10 +558,10 @@ begin
         begin
           jsonView := TJSONObject(jsonViewValue);
           s := jsonView.ToJSON;
-          tabsView := TTabsViewSettings.Create;
+          workspaceSettings := TWorkspaceSettings.Create;
 
-          tabsView.FromJson(jsonView);
-          layoutConfig.TabsViewList.Add(tabsView);
+          workspaceSettings.FromJson(jsonView);
+          layoutConfig.WorkspaceSettingsList.Add(workspaceSettings);
         end;
 
       end;
@@ -576,14 +576,14 @@ var
   json: string;
   jsonObj: TJSONObject;
   jsonViews: TJSONArray;
-  tabsView: TTabsViewSettings;
+  workspaceSettings: TWorkspaceSettings;
 begin
   jsonObj := TJSONObject.Create;
   jsonViews := TJSONArray.Create;
 
-  for tabsView in TabsViewList do
+  for workspaceSettings in WorkspaceSettingsList do
   begin
-    jsonViews.add(tabsView.ToJson);
+    jsonViews.add(workspaceSettings.ToJson);
   end;
 
   jsonObj.AddPair('views', jsonViews);

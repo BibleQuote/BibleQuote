@@ -19,7 +19,7 @@ type
   private
     { Private declarations }
     mBookmarks: TBroadcastStringList;
-    mTabsView: ITabsView;
+    mWorkspace: IWorkspace;
     mMainView: TMainForm;
 
     procedure OnBookmarksChange(Sender: TObject);
@@ -27,19 +27,19 @@ type
   public
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
-    constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView; ABookmarks: TBroadcastStringList); reintroduce;
+    constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace; ABookmarks: TBroadcastStringList); reintroduce;
     destructor Destroy; override;
   end;
 
 implementation
 
 {$R *.dfm}
-constructor TBookmarksFrame.Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView; ABookmarks: TBroadcastStringList);
+constructor TBookmarksFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace; ABookmarks: TBroadcastStringList);
 begin
   inherited Create(AOwner);
 
   mMainView := AMainView;
-  mTabsView := ATabsView;
+  mWorkspace := AWorkspace;
 
   mBookmarks := ABookmarks;
   RefreshBookmarks();
@@ -86,7 +86,7 @@ var
 begin
   bookmark := mBookmarks[lbBookmarks.ItemIndex];
 
-  bookFrame := mTabsView.BookView as TBookFrame;
+  bookFrame := mWorkspace.BookView as TBookFrame;
   bookTabInfo := bookFrame.BookTabInfo;
   if not Assigned(bookTabInfo) then
   begin

@@ -22,7 +22,7 @@ const
   bsSearch = 5;
 
 type
-  TDockTabsForm = class(TForm, ITabsView, IJclListener)
+  TDockTabsForm = class(TForm, IWorkspace, IJclListener)
     ilImages: TImageList;
     pnlMain: TPanel;
     mViewTabsPopup: TPopupMenu;

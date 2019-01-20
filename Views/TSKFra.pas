@@ -23,14 +23,14 @@ type
     procedure pmRefPopup(Sender: TObject);
   private
     mMainView: TMainForm;
-    mTabsView: ITabsView;
+    mWorkspace: IWorkspace;
 
     mXRefVerseCmd: string;
     mBibleIniPath: string;
     mBook, mChapter: integer;
     mVerse: integer;
   public
-    constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
 
     property BiblePath: string read mBibleIniPath write mBibleIniPath;
     property Book: integer read mBook write mBook;
@@ -45,12 +45,12 @@ type
 implementation
 
 {$R *.dfm}
-constructor TTSKFrame.Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView);
+constructor TTSKFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
 begin
   inherited Create(AOwner);
 
   mMainView := AMainView;
-  mTabsView := ATabsView;
+  mWorkspace := AWorkspace;
 
   ApplyConfig(AppConfig);
 

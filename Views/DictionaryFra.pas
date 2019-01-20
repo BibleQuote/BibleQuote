@@ -48,7 +48,7 @@ type
     procedure miRefPrintClick(Sender: TObject);
     procedure tbtnToggleClick(Sender: TObject);
   private
-    mTabsView: ITabsView;
+    mWorkspace: IWorkspace;
     mMainView: TMainForm;
     mXRefVerseCmd: string;
     mBqEngine: TBibleQuoteEngine;
@@ -65,7 +65,7 @@ type
     // dictionary word list
     function LocateDicItem: integer;
   public
-    constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
     destructor Destroy; override;
 
     procedure Translate();
@@ -104,7 +104,7 @@ begin
 
     if (Pos(C__bqAutoBible, SRC) <> 0) then
     begin
-      status := (TBookFrame(mTabsView.BookView)).PreProcessAutoCommand(bookTabInfo, SRC, modPath, concreteCmd);
+      status := (TBookFrame(mWorkspace.BookView)).PreProcessAutoCommand(bookTabInfo, SRC, modPath, concreteCmd);
       if status <= -2 then
         Exit;
     end;
@@ -213,12 +213,12 @@ begin
   DisplayDictionary(edtDic.Text);
 end;
 
-constructor TDictionaryFrame.Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView);
+constructor TDictionaryFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
 begin
   inherited Create(AOwner);
 
   mMainView := AMainView;
-  mTabsView := ATabsView;
+  mWorkspace := AWorkspace;
   mBqEngine := mMainView.BqEngine;
 
   vstDicList.DefaultNodeHeight := mMainView.Canvas.TextHeight('X');
