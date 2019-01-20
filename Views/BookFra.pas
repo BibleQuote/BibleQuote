@@ -163,7 +163,7 @@ type
   private
     { Private declarations }
     mMainView: TMainForm;
-    mTabsView: ITabsView;
+    mWorkspace: IWorkspace;
     mSatelliteForm: TForm;
     mSatelliteLibraryView: TLibraryFrame;
     mHistoryOn: boolean;
@@ -192,7 +192,7 @@ type
     procedure NotifyFontChanged(delta: integer);
   public
     { Public declarations }
-    constructor Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace); reintroduce;
 
     property HistoryOn: boolean read mHistoryOn write mHistoryOn;
 
@@ -220,7 +220,7 @@ function TBookFrame.GetBookTabInfo(): TBookTabInfo;
 var
   tabInfo: IViewTabInfo;
 begin
-  tabInfo := mTabsView.GetActiveTabInfo();
+  tabInfo := mWorkspace.GetActiveTabInfo();
   if not Assigned(tabInfo) then
   begin
     Result := nil;
@@ -822,7 +822,7 @@ begin
         if mMainView.mScrollAcc > 2 then
         begin
           lastWheelTime := tm;
-          mTabsView.MakeActive();
+          mWorkspace.MakeActive();
           mMainView.GoNextChapter();
           Handled := true;
 
@@ -841,7 +841,7 @@ begin
         if mMainView.mScrollAcc > 2 then
         begin
           lastWheelTime := tm;
-          mTabsView.MakeActive();
+          mWorkspace.MakeActive();
           mMainView.GoPrevChapter();
           bwrHtml.PositionTo('endofchapterNMFHJAHSTDGF123');
           Handled := true;
@@ -868,11 +868,11 @@ begin
   //mMainView.FontChanged(delta);
 end;
 
-constructor TBookFrame.Create(AOwner: TComponent; mainView: TMainForm; tabsView: ITabsView);
+constructor TBookFrame.Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace);
 begin
   inherited Create(AOwner);
   mMainView := mainView;
-  mTabsView := tabsView;
+  mWorkspace := workspace;
 
   mNotifier := mainView.mNotifier;
   mSatelliteForm := TForm.Create(self);
@@ -1163,7 +1163,7 @@ end;
 procedure TBookFrame.FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
 var tabsForm: TDockTabsForm;
 begin
-  tabsForm := mTabsView as TDockTabsForm;
+  tabsForm := mWorkspace as TDockTabsForm;
   tabsForm.MakeActive;
 end;
 
@@ -2128,7 +2128,7 @@ begin
         HistoryAdd(command);
 
         // here we set proper name to tab
-        with bookTabInfo.Bible, mTabsView.ChromeTabs do
+        with bookTabInfo.Bible, mWorkspace.ChromeTabs do
         begin
           if ActiveTabIndex >= 0 then
             try
@@ -2145,7 +2145,7 @@ begin
                 bookTabInfo[vtisHighLightVerses] := false;
               bookTabInfo.Title := Format('%.6s-%.6s:%d', [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
 
-              mTabsView.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
+              mWorkspace.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
 
             except
               on E: Exception do
@@ -2249,7 +2249,7 @@ begin
         bwrHtml.tag := bsFile;
 
       bookTabInfo.Title := Format('%.12s', [value]);
-      mTabsView.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
+      mWorkspace.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
       bookTabInfo.Location := command;
       bookTabInfo.LocationType := vtlFile;
 
@@ -2263,7 +2263,7 @@ begin
       try
         bwrHtml.LoadFromFile(bwrHtml.Base + dup);
         bookTabInfo.Title := Format('%.12s', [command]);
-        mTabsView.ChromeTabs.ActiveTab.Caption := BookTabInfo.Title;
+        mWorkspace.ChromeTabs.ActiveTab.Caption := BookTabInfo.Title;
 
         bookTabInfo.Location := command;
         bookTabInfo.LocationType := vtlFile;

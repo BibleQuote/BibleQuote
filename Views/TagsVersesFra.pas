@@ -39,7 +39,7 @@ type
     procedure vdtTagsVersesStateChange(Sender: TBaseVirtualTree; Enter, Leave: TVirtualTreeStates);
   private
     mFilterTagsTimer: TTimer;
-    mTabsView: ITabsView;
+    mWorkspace: IWorkspace;
     mMainView: TMainForm;
     mTaggedBookmarksLoaded: Boolean;
     mBqEngine: TBibleQuoteEngine;
@@ -56,7 +56,7 @@ type
     function PaintTokens(canv: TCanvas; rct: TRect; tkns: TObjectList; calc: Boolean): integer;
     procedure ReCalculateTagTree;
   public
-    constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
     destructor Destroy; override;
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
@@ -79,12 +79,12 @@ type
 implementation
 
 {$R *.dfm}
-constructor TTagsVersesFrame.Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView);
+constructor TTagsVersesFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
 begin
   inherited Create(AOwner);
 
   mMainView := AMainView;
-  mTabsView := ATabsView;
+  mWorkspace := AWorkspace;
 
   mTagsVersesCached := false;
   mBqEngine := mMainView.BqEngine;
