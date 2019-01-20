@@ -60,10 +60,7 @@ end;
 
 procedure TTSKFrame.bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 begin
-  if IsDown(VK_MENU) then
-    mMainView.NewBookTab(SRC, '------', mMainView.DefaultBookTabState, '', true)
-  else
-    mMainView.OpenOrCreateBookTab(SRC, '------', mMainView.DefaultBookTabState);
+  mMainView.NewBookTab(SRC, '------', mMainView.DefaultBookTabState, '', true, true);
 
   Handled := true;
 end;

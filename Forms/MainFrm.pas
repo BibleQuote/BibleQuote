@@ -214,6 +214,9 @@ type
   private
     procedure NavigeTSKTab;
     procedure PlaySound();
+    procedure ActivateTargetTabsView();
+    procedure AddNewTabsView;
+    procedure OpenNewTabsView;
   public
     SysHotKey: TSysHotKey;
 
@@ -306,7 +309,8 @@ type
       const satellite: string;
       state: TBookTabInfoState;
       const Title: string;
-      visual: Boolean;
+      activate: Boolean;
+      changeTargetView: Boolean = false;
       history: TStrings = nil;
       historyIndex: integer = -1): Boolean;
 
@@ -359,11 +363,11 @@ type
     procedure SaveConfiguration;
     procedure SetBibleTabsHintsState(showHints: Boolean = true);
     procedure MainMenuInit(cacheupdate: Boolean);
-    procedure GoModuleName(s: string; fromBeginning: Boolean = false);
+    procedure GoModuleName(s: string; fromBeginning: Boolean = false; changeTargetView: boolean = false);
 
     function ChooseColor(color: TColor): TColor;
 
-    procedure HotKeyClick(Sender: TObject);
+    procedure OnHotModuleClick(Sender: TObject);
 
     function CopyPassage(fromverse, toverse: integer): string;
 
@@ -467,7 +471,7 @@ begin
   Result := [vtisShowNotes, vtisResolveLinks];
 end;
 
-procedure TMainForm.HotKeyClick(Sender: TObject);
+procedure TMainForm.OnHotModuleClick(Sender: TObject);
 begin
   GoModuleName((Sender as TMenuItem).Caption);
 end;
@@ -549,6 +553,51 @@ begin
     Result := bookView.GetAutoTxt(btInfo, cmd, maxWords, fnt, passageSignature);
 end;
 
+procedure TMainForm.OpenNewTabsView;
+var
+  tabsForm: TDockTabsForm;
+  I: Integer;
+begin
+  tabsForm := CreateTabsView(GenerateTabsViewName) as TDockTabsForm;
+
+  mTabsView := tabsForm;
+
+  tabsForm.BibleTabs.Tabs.Clear;
+  tabsForm.BibleTabs.Tabs.Add('***');
+
+  for I := 0 to mFavorites.mModuleEntries.Count - 1 do
+  begin
+    tabsForm.BibleTabs.Tabs.Insert(I, mFavorites.mModuleEntries[I].VisualSignature);
+    tabsForm.BibleTabs.Tabs.Objects[I] := mFavorites.mModuleEntries[I];
+  end;
+
+  tabsForm.Translate;
+  tabsForm.ManualDock(pnlModules);
+  tabsForm.Show;
+
+  Windows.SetFocus(tabsForm.Handle);
+end;
+
+procedure TMainForm.AddNewTabsView;
+var
+  bookView: TBookFrame;
+  bookTabInfo: TBookTabInfo;
+begin
+  bookView := GetBookView(self);
+  bookTabInfo := bookView.BookTabInfo;
+
+  OpenNewTabsView();
+
+  if not Assigned(bookTabInfo) then
+  begin
+    bookTabInfo := CreateNewBookTabInfo;
+  end;
+  if Assigned(bookTabInfo) then
+  begin
+    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
+  end;
+end;
+
 procedure TMainForm.NavigeTSKTab;
 var
   bookView: TBookFrame;
@@ -568,8 +617,6 @@ var
 begin
   tabsForm := TDockTabsForm.Create(self, self);
   tabsForm.SetViewName(viewName);
-
-  TranslateControl(tabsForm.BookView as TBookFrame, 'DockTabsForm');
 
   SetVScrollTracker(tabsForm.Browser);
 
@@ -645,9 +692,6 @@ begin
     if (mTabsView <> tabsForm as ITabsView) then
     begin
       mTabsView := tabsForm;
-
-      // sync main form UI
-      UpdateBookView();
 
       // restore active tab state
       tabInfo := tabsForm.GetActiveTabInfo();
@@ -1026,7 +1070,7 @@ begin
             history.DelimitedText := bookTabSettings.History;
           end;
 
-          addTabResult := NewBookTab(location, secondBible, tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)), history, bookTabSettings.HistoryIndex);
+          addTabResult := NewBookTab(location, secondBible, tabViewState, Title, (tabIx = activeTabIx) or ((Length(Title) = 0)), false, history, bookTabSettings.HistoryIndex);
         end
         else if (tabSettings is TMemoTabSettings) then
         begin
@@ -1420,7 +1464,7 @@ begin
     hotMenuItem := TMenuItem.Create(self);
     hotMenuItem.tag := tag;
     hotMenuItem.Caption := modEntry.mFullName;
-    hotMenuItem.OnClick := HotKeyClick;
+    hotMenuItem.OnClick := OnHotModuleClick;
     favouriteMenuItem.Add(hotMenuItem);
     if not addBibleTab then
       Exit;
@@ -2507,7 +2551,7 @@ begin
     hotMenuItem := TMenuItem.Create(self);
     hotMenuItem.tag := integer(newMe);
     hotMenuItem.Caption := newMe.mFullName;
-    hotMenuItem.OnClick := HotKeyClick;
+    hotMenuItem.OnClick := OnHotModuleClick;
 
     favouriteMenuItem.Insert(ix + i, hotMenuItem);
     for tabsView in mTabsViews do
@@ -2648,7 +2692,7 @@ begin
   mDefaultLocation := DefaultLocation();
 end;
 
-procedure TMainForm.GoModuleName(s: string; fromBeginning: Boolean = false);
+procedure TMainForm.GoModuleName(s: string; fromBeginning: Boolean = false; changeTargetView: boolean = false);
 var
   i: integer;
   firstVisibleVerse: integer;
@@ -2683,8 +2727,16 @@ begin
   else
   begin
     bookTabInfo := CreateNewBookTabInfo();
-    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', false);
 
+    NewBookTab(
+      bookTabInfo.Location,
+      bookTabInfo.SatelliteName,
+      bookTabInfo.State,
+      '',
+      changeTargetView,
+      changeTargetView);
+
+    bookView := GetBookView(self);
     bookTabInfo := bookView.BookTabInfo;
     bible := bookTabInfo.Bible;
 
@@ -3765,6 +3817,24 @@ begin
   until trCount <= 0;
 end;
 
+procedure TMainForm.ActivateTargetTabsView();
+var
+  tabsView: ITabsView;
+  activeTab: IViewTabInfo;
+begin
+  for tabsView in mTabsViews do
+  begin
+    if (tabsView <> mTabsView) then
+    begin
+      mTabsView := tabsView;
+      Windows.SetFocus(TDockTabsForm(tabsView).Handle);
+      Exit;
+    end;
+  end;
+
+  OpenNewTabsView();
+end;
+
 procedure TMainForm.tbtnAddBookmarksTabClick(Sender: TObject);
 var
   newTabInfo: TBookmarksTabInfo;
@@ -3790,42 +3860,8 @@ begin
 end;
 
 procedure TMainForm.tbtnNewFormClick(Sender: TObject);
-var
-  tabsForm: TDockTabsForm;
-  bookView: TBookFrame;
-  bookTabInfo: TBookTabInfo;
-  I: Integer;
 begin
-  bookView := GetBookView(self);
-  bookTabInfo := bookView.BookTabInfo;
-
-  tabsForm := CreateTabsView(GenerateTabsViewName()) as TDockTabsForm;
-
-  mTabsView := tabsForm;
-
-  tabsForm.BibleTabs.Tabs.Clear();
-  tabsForm.BibleTabs.Tabs.Add('***');
-  for I := 0 to mFavorites.mModuleEntries.Count - 1 do
-  begin
-    tabsForm.BibleTabs.Tabs.Insert(I, mFavorites.mModuleEntries[I].VisualSignature());
-    tabsForm.BibleTabs.Tabs.Objects[I] := mFavorites.mModuleEntries[I];
-  end;
-
-  tabsForm.Translate;
-  tabsForm.ManualDock(pnlModules);
-  tabsForm.Show;
-
-  Windows.SetFocus(tabsForm.Handle);
-
-  if not Assigned(bookTabInfo) then
-  begin
-    bookTabInfo := CreateNewBookTabInfo();
-  end;
-
-  if Assigned(bookTabInfo) then
-  begin
-    NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
-  end;
+  AddNewTabsView;
 end;
 
 procedure TMainForm.tbtnAddMemoTabClick(Sender: TObject);
@@ -4068,6 +4104,7 @@ var
   strongView: TStrongFrame;
 begin
   strongTabInfo := nil;
+  ActivateTargetTabsView();
 
   for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
   begin
@@ -4097,9 +4134,10 @@ begin
   begin
     strongView.SetCurrentBook(bookTabInfo.Bible.ShortPath);
     strongView.DisplayStrongs(num, (bookTabInfo.Bible.CurBook < 40) and (bookTabInfo.Bible.Trait[bqmtOldCovenant]));
-  end;
-
-  mTabsView.UpdateCurrentTabContent;
+    mTabsView.UpdateCurrentTabContent(false);
+  end
+  else
+    mTabsView.UpdateCurrentTabContent(true);
 end;
 
 procedure TMainForm.OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
@@ -4111,6 +4149,7 @@ var
   searchView: TSearchFrame;
 begin
   searchTabInfo := nil;
+  ActivateTargetTabsView;
 
   for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
   begin
@@ -4158,6 +4197,7 @@ var
   iniPath: string;
 begin
   tskTabInfo := nil;
+  ActivateTargetTabsView();
 
   for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
   begin
@@ -4187,9 +4227,10 @@ begin
   begin
     iniPath := TPath.Combine(bookTabInfo.Bible.path, 'bibleqt.ini');
     tskView.ShowXref(iniPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
-  end;
-
-  mTabsView.UpdateCurrentTabContent;
+    mTabsView.UpdateCurrentTabContent(false);
+  end
+  else
+    mTabsView.UpdateCurrentTabContent(true);
 end;
 
 procedure TMainForm.OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
@@ -4203,6 +4244,7 @@ var
   link: TBibleLink;
 begin
   ClearVolatileStateData(state);
+  ActivateTargetTabsView;
 
   // get module path from the target command
   link.FromBqStringLocation(command, srcPath);
@@ -4251,8 +4293,11 @@ var
   dicTabInfo: TDictionaryTabInfo;
   wasUpdateSet: boolean;
   dictionaryView: TDictionaryFrame;
+  newTab: boolean;
 begin
+  newTab := false;
   dicTabInfo := nil;
+  ActivateTargetTabsView();
 
   for i := 0 to mTabsView.ChromeTabs.Tabs.Count - 1 do
   begin
@@ -4275,17 +4320,17 @@ begin
   begin
     dicTabInfo := TDictionaryTabInfo.Create();
     mTabsView.AddDictionaryTab(dicTabInfo);
-    mTabsView.UpdateCurrentTabContent;
-  end
-  else
-  begin
-    if (searchText.Length > 0) then
-    begin
-      dictionaryView := mTabsView.DictionaryView as TDictionaryFrame;
-      dictionaryView.UpdateSearch(searchText);
-    end;
-    mTabsView.UpdateCurrentTabContent(false);
+    newTab := true;
   end;
+
+  dictionaryView := mTabsView.DictionaryView as TDictionaryFrame;
+  if (newTab) then
+    dictionaryView.DisplayDictionaries;
+
+  if (searchText.Length > 0) then
+    dictionaryView.UpdateSearch(searchText);
+
+  mTabsView.UpdateCurrentTabContent(false);
 end;
 
 function TMainForm.NewBookTab(
@@ -4293,7 +4338,8 @@ function TMainForm.NewBookTab(
   const satellite: string;
   state: TBookTabInfoState;
   const Title: string;
-  visual: Boolean;
+  activate: Boolean;
+  changeTargetView: Boolean = false;
   history: TStrings = nil;
   historyIndex: integer = -1): Boolean;
 var
@@ -4305,6 +4351,10 @@ begin
   newBible := nil;
   ClearVolatileStateData(state);
   Result := true;
+
+  if (changeTargetView) then
+    ActivateTargetTabsView;
+
   try
     newBible := CreateNewBibleInstance();
     if not Assigned(newBible) then
@@ -4333,7 +4383,7 @@ begin
 
     mTabsView.AddBookTab(newTabInfo);
 
-    if visual then
+    if activate then
     begin
       mTabsView.ChromeTabs.ActiveTabIndex := mTabsView.ChromeTabs.Tabs.Count - 1;
 

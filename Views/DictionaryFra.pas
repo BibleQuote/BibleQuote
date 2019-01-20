@@ -60,7 +60,6 @@ type
     function DictionaryStartup(maxAdd: integer = maxInt): Boolean;
     procedure UpdateDictionariesCombo;
     procedure Notification(msg: IJclNotificationMessage); reintroduce; stdcall;
-    procedure DisplayDictionaries;
 
     // finds the closest match for a word in merged
     // dictionary word list
@@ -71,6 +70,7 @@ type
 
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure DisplayDictionaries;
     procedure DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
     procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1; const foundDictionaryIndex: integer = -1);
   end;

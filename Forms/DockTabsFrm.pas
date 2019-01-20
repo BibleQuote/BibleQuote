@@ -65,9 +65,9 @@ type
     mUpdateOnTabChange: boolean;
 
     mViewTabs: TList<IViewTabInfo>;
+    mFrames: TList<TFrame>;
 
-    procedure ShowFrame(frame: TFrame);
-    procedure HideFrame(frame: TFrame);
+    procedure ActivateFrame(frameToActivate: TFrame);
     procedure UpdateTabContent(ATab: TChromeTab; restoreState: boolean = true);
     procedure Notification(msg: IJclNotificationMessage); stdcall;
     procedure PopupChangeTab(Sender: TObject);
@@ -279,6 +279,9 @@ constructor TDockTabsForm.Create(AOwner: TComponent; mainView: TMainForm);
 begin
   inherited Create(AOwner);
   mViewTabs := TList<IViewTabInfo>.Create();
+
+  mFrames := TList<TFrame>.Create();
+
   mMainView := mainView;
   mUpdateOnTabChange := true;
 
@@ -310,132 +313,54 @@ begin
   mMainView.UpdateUIForType(tabInfo.GetViewType);
   if (tabInfo.GetViewType = vttBook) then
   begin
-    ShowFrame(mBookView);
-
-    HideFrame(mMemoView);
-    HideFrame(mLibraryView);
-    HideFrame(mBookmarksView);
-    HideFrame(mSearchView);
-    HideFrame(mTSKView);
-    HideFrame(mTagsVersesView);
-    HideFrame(mDictionaryView);
-    HideFrame(mStrongView);
-
+    ActivateFrame(mBookView);
     UpdateBookView();
   end;
 
   if (tabInfo.GetViewType = vttMemo) then
   begin
-    ShowFrame(mMemoView);
-
-    HideFrame(mBookView);
-    HideFrame(mLibraryView);
-    HideFrame(mBookmarksView);
-    HideFrame(mSearchView);
-    HideFrame(mTSKView);
-    HideFrame(mTagsVersesView);
-    HideFrame(mDictionaryView);
-    HideFrame(mStrongView);
-
+    ActivateFrame(mMemoView);
     mMainView.ClearCopyrights();
   end;
 
   if (tabInfo.GetViewType = vttLibrary) then
   begin
-    ShowFrame(mLibraryView);
-
-    HideFrame(mBookView);
-    HideFrame(mMemoView);
-    HideFrame(mBookmarksView);
-    HideFrame(mSearchView);
-    HideFrame(mTSKView);
-    HideFrame(mTagsVersesView);
-    HideFrame(mDictionaryView);
-    HideFrame(mStrongView);
-
+    ActivateFrame(mLibraryView);
     mLibraryView.SetModules(mMainView.mModules);
     mMainView.ClearCopyrights();
   end;
 
   if (tabInfo.GetViewType = vttBookmarks) then
   begin
-    ShowFrame(mBookmarksView);
-
-    HideFrame(mBookView);
-    HideFrame(mMemoView);
-    HideFrame(mLibraryView);
-    HideFrame(mSearchView);
-    HideFrame(mTSKView);
-    HideFrame(mTagsVersesView);
-    HideFrame(mDictionaryView);
-    HideFrame(mStrongView);
-
+    ActivateFrame(mBookmarksView);
     mMainView.ClearCopyrights();
   end;
 
   if (tabInfo.GetViewType = vttSearch) then
   begin
-    ShowFrame(mSearchView);
-    HideFrame(mBookView);
-    HideFrame(mMemoView);
-    HideFrame(mBookmarksView);
-    HideFrame(mLibraryView);
-    HideFrame(mTSKView);
-    HideFrame(mTagsVersesView);
-    HideFrame(mDictionaryView);
-    HideFrame(mStrongView);
-
+    ActivateFrame(mSearchView);
     mMainView.ClearCopyrights();
     UpdateSearchView();
   end;
 
   if (tabInfo.GetViewType = vttTSK) then
   begin
-    ShowFrame(mTSKView);
-
-    HideFrame(mBookmarksView);
-    HideFrame(mBookView);
-    HideFrame(mMemoView);
-    HideFrame(mLibraryView);
-    HideFrame(mSearchView);
-    HideFrame(mTagsVersesView);
-    HideFrame(mDictionaryView);
-    HideFrame(mStrongView);
-
+    ActivateFrame(mTSKView);
     mMainView.ClearCopyrights();
-    UpdateTSKView();
+    if (restoreState) then
+      UpdateTSKView();
   end;
 
   if (tabInfo.GetViewType = vttTagsVerses) then
   begin
-    ShowFrame(mTagsVersesView);
-
-    HideFrame(mBookmarksView);
-    HideFrame(mBookView);
-    HideFrame(mMemoView);
-    HideFrame(mLibraryView);
-    HideFrame(mSearchView);
-    HideFrame(mTSKView);
-    HideFrame(mDictionaryView);
-    HideFrame(mStrongView);
-
+    ActivateFrame(mTagsVersesView);
     mMainView.ClearCopyrights();
     UpdateTagsVersesView();
   end;
 
   if (tabInfo.GetViewType = vttDictionary) then
   begin
-    ShowFrame(mDictionaryView);
-
-    HideFrame(mTagsVersesView);
-    HideFrame(mBookmarksView);
-    HideFrame(mBookView);
-    HideFrame(mMemoView);
-    HideFrame(mLibraryView);
-    HideFrame(mSearchView);
-    HideFrame(mTSKView);
-    HideFrame(mStrongView);
-
+    ActivateFrame(mDictionaryView);
     mMainView.ClearCopyrights();
     if (restoreState) then
       UpdateDictionaryView();
@@ -443,31 +368,28 @@ begin
 
   if (tabInfo.GetViewType = vttStrong) then
   begin
-    ShowFrame(mStrongView);
-
-    HideFrame(mTagsVersesView);
-    HideFrame(mBookmarksView);
-    HideFrame(mBookView);
-    HideFrame(mMemoView);
-    HideFrame(mLibraryView);
-    HideFrame(mSearchView);
-    HideFrame(mTSKView);
-    HideFrame(mDictionaryView);
-
+    ActivateFrame(mStrongView);
     mMainView.ClearCopyrights();
-    UpdateStrongView();
+    if (restoreState) then
+      UpdateStrongView();
   end;
 end;
 
-procedure TDockTabsForm.ShowFrame(frame: TFrame);
+procedure TDockTabsForm.ActivateFrame(frameToActivate: TFrame);
+var
+  frame: TFrame;
 begin
-  frame.Show;
-  frame.BringToFront;
-end;
+  if not Assigned(frameToActivate) then
+    Exit;
 
-procedure TDockTabsForm.HideFrame(frame: TFrame);
-begin
-  frame.Hide;
+  frameToActivate.Show;
+  frameToActivate.BringToFront;
+
+  for frame in mFrames do
+  begin
+    if (frame <> frameToActivate) then
+      frame.Hide;
+  end;
 end;
 
 procedure TDockTabsForm.ctViewTabsActiveTabChanging(Sender: TObject; AOldTab, ANewTab: TChromeTab; var Allow: Boolean);
@@ -566,6 +488,17 @@ begin
   mStrongView.Hide;
   mStrongView.Parent := pnlMain;
   mStrongView.Align := alClient;
+
+  mFrames.AddRange([
+    mBookView,
+    mMemoView,
+    mLibraryView,
+    mBookmarksView,
+    mSearchView,
+    mTSKView,
+    mTagsVersesView,
+    mDictionaryView,
+    mStrongView]);
 end;
 
 procedure TDockTabsForm.FormDeactivate(Sender: TObject);
@@ -580,7 +513,7 @@ end;
 
 procedure TDockTabsForm.OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
 begin
-  mMainView.GoModuleName(modEntry.mFullName, true);
+  mMainView.GoModuleName(modEntry.mFullName, true, true);
 end;
 
 procedure TDockTabsForm.MakeActive();
