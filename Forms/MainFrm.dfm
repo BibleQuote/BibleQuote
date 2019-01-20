@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 14
+  TextHeight = 15
   object pnlModules: TPanel
     Left = 0
     Top = 34
@@ -96,8 +96,8 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 496
       Top = 4
-      Width = 37
-      Height = 26
+      Width = 38
+      Height = 15
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -110,12 +110,12 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 14
     end
     object tlbMain: TToolBar
       Left = 1
       Top = 1
       Width = 300
+      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -210,6 +210,7 @@ object MainForm: TMainForm
       Left = 301
       Top = 1
       Width = 56
+      Height = 29
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
@@ -248,6 +249,7 @@ object MainForm: TMainForm
       Left = 357
       Top = 1
       Width = 136
+      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
