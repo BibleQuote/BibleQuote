@@ -314,7 +314,8 @@ begin
   if (tabInfo.GetViewType = vttBook) then
   begin
     ActivateFrame(mBookView);
-    UpdateBookView();
+    if (restoreState) then
+      UpdateBookView();
   end;
 
   if (tabInfo.GetViewType = vttMemo) then
@@ -340,7 +341,8 @@ begin
   begin
     ActivateFrame(mSearchView);
     mMainView.ClearCopyrights();
-    UpdateSearchView();
+    if (restoreState) then
+      UpdateSearchView();
   end;
 
   if (tabInfo.GetViewType = vttTSK) then
@@ -355,7 +357,8 @@ begin
   begin
     ActivateFrame(mTagsVersesView);
     mMainView.ClearCopyrights();
-    UpdateTagsVersesView();
+    if (restoreState) then
+      UpdateTagsVersesView();
   end;
 
   if (tabInfo.GetViewType = vttDictionary) then
