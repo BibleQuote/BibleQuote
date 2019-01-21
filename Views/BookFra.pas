@@ -943,7 +943,7 @@ begin
         Exit;
       end;
       me := dtsBible.Tabs.Objects[NewTab] as TModuleEntry;
-      mMainView.GoModuleName(me.mFullName);
+      mMainView.OpenModule(me.mFullName);
     end;
   except
     on E: Exception do
