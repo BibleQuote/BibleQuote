@@ -40,7 +40,7 @@ procedure TAboutForm.FormCreate(Sender: TObject);
 begin
   lblDevs.Caption := String.Join(sLineBreak,
     ['Благодарности:',
-     'Тимофей Ха, Самуэль Ким, Александр Снигерев',
+     'Тимофей Ха, Самуэль Ким, Александр Снегерев',
      '',
      'Версия ' + GetAppVersionStr(),
      '© 2017-2019 Команда BibleQuote.org',
