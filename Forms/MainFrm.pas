@@ -315,7 +315,7 @@ type
       historyIndex: integer = -1): Boolean;
 
     procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
-    procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
+    procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState; processCommand: boolean = true);
     procedure OpenOrCreateDictionaryTab(const searchText: string);
     procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
     procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
@@ -363,7 +363,8 @@ type
     procedure SaveConfiguration;
     procedure SetBibleTabsHintsState(showHints: Boolean = true);
     procedure MainMenuInit(cacheupdate: Boolean);
-    procedure GoModuleName(s: string; fromBeginning: Boolean = false; changeTargetView: boolean = false);
+    procedure OpenModule(moduleName: string; fromBeginning: Boolean = false);
+    procedure ActivateModuleView(moduleName: string);
 
     function ChooseColor(color: TColor): TColor;
 
@@ -473,7 +474,7 @@ end;
 
 procedure TMainForm.OnHotModuleClick(Sender: TObject);
 begin
-  GoModuleName((Sender as TMenuItem).Caption);
+  OpenModule((Sender as TMenuItem).Caption);
 end;
 
 procedure TMainForm.LoadConfiguration;
@@ -2692,7 +2693,30 @@ begin
   mDefaultLocation := DefaultLocation();
 end;
 
-procedure TMainForm.GoModuleName(s: string; fromBeginning: Boolean = false; changeTargetView: boolean = false);
+procedure TMainForm.ActivateModuleView(moduleName: string);
+var
+  i: integer;
+  me: TModuleEntry;
+  command: string;
+begin
+  i := mModules.FindByName(moduleName);
+  if i < 0 then
+  begin
+    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name:' + moduleName);
+    raise Exception.Create('Exception mModules.FindByName failed!');
+  end;
+
+  me := mModules.Items[i];
+  command := 'go ' + me.mShortPath + ' 1 1 0';
+
+  OpenOrCreateBookTab(
+      command,
+      SatelliteBible,
+      DefaultBookTabState(),
+      false);
+end;
+
+procedure TMainForm.OpenModule(moduleName: string; fromBeginning: Boolean = false);
 var
   i: integer;
   firstVisibleVerse: integer;
@@ -2709,10 +2733,10 @@ var
   bookTabInfo: TBookTabInfo;
   bible: TBible;
 begin
-  i := mModules.FindByName(s);
+  i := mModules.FindByName(moduleName);
   if i < 0 then
   begin
-    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name:' + s);
+    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name:' + moduleName);
     raise Exception.Create('Exception mModules.FindByName failed!');
   end;
   me := mModules.Items[i];
@@ -2720,28 +2744,11 @@ begin
   hlVerses := hlFalse;
   bookView := GetBookView(self);
   bookTabInfo := bookView.BookTabInfo;
-  if Assigned(bookTabInfo) then
-  begin
-    bible := bookTabInfo.Bible;
-  end
-  else
-  begin
-    bookTabInfo := CreateNewBookTabInfo();
 
-    NewBookTab(
-      bookTabInfo.Location,
-      bookTabInfo.SatelliteName,
-      bookTabInfo.State,
-      '',
-      changeTargetView,
-      changeTargetView);
+  if not Assigned(bookTabInfo) then
+    Exit;
 
-    bookView := GetBookView(self);
-    bookTabInfo := bookView.BookTabInfo;
-    bible := bookTabInfo.Bible;
-
-    bookView.AdjustBibleTabs(bible.ShortName);
-  end;
+  bible := bookTabInfo.Bible;
 
   // remember old module's params
   wasBible := bible.isBible;
@@ -4233,7 +4240,7 @@ begin
     mWorkspace.UpdateCurrentTabContent(true);
 end;
 
-procedure TMainForm.OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState);
+procedure TMainForm.OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState; processCommand: boolean = true);
 var
   i: integer;
   tabInfo: IViewTabInfo;
@@ -4244,10 +4251,10 @@ var
   link: TBibleLink;
 begin
   ClearVolatileStateData(state);
-  ActivateTargetWorkspace;
-
   // get module path from the target command
   link.FromBqStringLocation(command, srcPath);
+
+  ActivateTargetWorkspace;
 
   for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
@@ -4275,9 +4282,9 @@ begin
       mWorkspace.UpdateOnTabChange := wasUpdateSet;
     end;
 
-    MemosOn := vtisShowNotes in state;
+    if (processCommand) then
+      bookView.SafeProcessCommand(bookTabInfo, command, hlDefault);
 
-    bookView.SafeProcessCommand(bookTabInfo, command, hlDefault);
     mWorkspace.UpdateCurrentTabContent;
     Exit;
   end;

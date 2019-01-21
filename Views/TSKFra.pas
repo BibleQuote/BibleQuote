@@ -60,7 +60,7 @@ end;
 
 procedure TTSKFrame.bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 begin
-  mMainView.NewBookTab(SRC, '------', mMainView.DefaultBookTabState, '', true, true);
+  mMainView.OpenOrCreateBookTab(SRC, '------', mMainView.DefaultBookTabState, true);
 
   Handled := true;
 end;

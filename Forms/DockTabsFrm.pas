@@ -516,7 +516,7 @@ end;
 
 procedure TDockTabsForm.OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
 begin
-  mMainView.GoModuleName(modEntry.mFullName, true, true);
+  mMainView.ActivateModuleView(modEntry.mFullName);
 end;
 
 procedure TDockTabsForm.MakeActive();
