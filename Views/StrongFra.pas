@@ -337,8 +337,7 @@ begin
     s := IfThen(hebrew, 'H', 'G') + IntToStr(num);
 
     edtStrong.Text := s;
-    edtStrong.SelStart := 0;
-    edtStrong.SelLength := s.Length;
+    edtStrong.SelectAll;
 
     SelectStrongWord(s);
   end;

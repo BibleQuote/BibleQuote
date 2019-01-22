@@ -89,6 +89,7 @@ object StrongFrame: TStrongFrame
         Height = 21
         Hint = 'Strong number to show'
         Align = alTop
+        HideSelection = False
         TabOrder = 0
         OnKeyPress = edtStrongKeyPress
       end
