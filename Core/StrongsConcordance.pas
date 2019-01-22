@@ -3,7 +3,7 @@ unit StrongsConcordance;
 interface
 
 uses Windows, Classes, SysUtils, IOUtils, IOProcs, Dict, AppPaths, StrUtils,
-     SyncObjs;
+     SyncObjs, StringProcs;
 
 type
   TStrongsConcordance = class
@@ -21,7 +21,8 @@ type
     function EnsureStrongGreekLoaded(): boolean;
     function GetStrongWordByIndex(ix: Integer): string;
     function GetTotalWords(): integer;
-    function Lookup(stext: string): string;
+    function Lookup(stext: string): string; overload;
+    function Lookup(num: integer; isHebrew: boolean): string; overload;
 
     property Hebrew: TDict read FStrongHebrew;
     property Greek: TDict read FStrongGreek;
@@ -126,46 +127,37 @@ end;
 
 function TStrongsConcordance.Lookup(stext: string): string;
 var
-  isHebrew: Boolean;
-  i, num, code: Integer;
+  isHebrew, valid: Boolean;
+  num: Integer;
+begin
+  valid := StrongVal(stext, num, isHebrew);
+
+  if valid then
+  begin
+    Result := Lookup(num, isHebrew);
+  end;
+end;
+
+function TStrongsConcordance.Lookup(num: integer; isHebrew: boolean): string;
+var
+  i: Integer;
   s: string;
 begin
-  if Copy(stext, 1, 1) = '0' then
-    isHebrew := true
-  else if Copy(stext, 1, 1) = 'H' then
+  Result := '';
+
+  s := IntToStr(num);
+  for i := Length(s) to 4 do
+    s := '0' + s;
+
+  if isHebrew or (num = 0) then
   begin
-    isHebrew := true;
-    stext := Copy(stext, 2, Length(stext) - 1);
-  end
-  else if Copy(stext, 1, 1) = 'G' then
-  begin
-    isHebrew := false;
-    stext := Copy(stext, 2, Length(stext) - 1);
+    if EnsureStrongHebrewLoaded() then
+      Result := Hebrew.Lookup(s);
   end
   else
-    isHebrew := false;
-
-  try
-    Val(Trim(stext), num, code);
-  finally
-  end;
-
-  if code = 0 then
   begin
-    s := IntToStr(num);
-    for i := Length(s) to 4 do
-      s := '0' + s;
-
-    if isHebrew or (num = 0) then
-    begin
-      if EnsureStrongHebrewLoaded() then
-        Result := Hebrew.Lookup(s);
-    end
-    else
-    begin
-      if EnsureStrongGreekLoaded() then
-        Result := Greek.Lookup(s);
-    end;
+    if EnsureStrongGreekLoaded() then
+      Result := Greek.Lookup(s);
   end;
 end;
 

@@ -432,9 +432,9 @@ var
   scode, unicodeSRC: string;
   cb: THTMLViewer;
   ws: string;
-  iscontrolDown: Boolean;
+  iscontrolDown, isHebrew: Boolean;
   bookTabState: TBookTabInfoState;
-  num, code: integer;
+  num: integer;
 begin
   unicodeSRC := SRC;
   iscontrolDown := IsDown(VK_CONTROL);
@@ -511,8 +511,7 @@ begin
   else if Pos('s', unicodeSRC) = 1 then
   begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
-    Val(scode, num, code);
-    if (code = 0) then
+    if (StrongVal(scode, num, isHebrew)) then
       mMainView.OpenOrCreateStrongTab(BookTabInfo, num);
   end
   else
@@ -546,17 +545,17 @@ var
   unicodeSRC, ConcreteCmd, scode: string;
   wstr, ws2, fontName, replaceModPath: string;
   bl: TBibleLink;
-  modIx, status, num, code: integer;
+  modIx, status, num: integer;
+  isHebrew: boolean;
 begin
   if Pos('s', SRC) = 1 then
   begin
     scode := Copy(SRC, 2, Length(SRC) - 1);
-    Val(scode, num, code);
-    if (code = 0) then
+    if (StrongVal(scode, num, isHebrew)) then
     begin
       if (FStrongsConcordance.Initialize) then
       begin
-        viewer.Hint := Trim(StripHtmlMarkup(FStrongsConcordance.Lookup(scode)));
+        viewer.Hint := Trim(StripHtmlMarkup(FStrongsConcordance.Lookup(num, isHebrew)));
       end;
       Exit;
     end;
