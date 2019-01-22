@@ -8,7 +8,8 @@ uses
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, HTMLEmbedInterfaces,
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
-  ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths, AppIni;
+  ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
+  StrongsConcordance;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -42,11 +43,11 @@ type
     mWorkspace: IWorkspace;
     mMainView: TMainForm;
 
-    StrongHebrew, StrongGreek: TDict;
-
     mCurrentBook: TBible;
     mLoaded: boolean;
     mLoading: boolean;
+
+    FStrongsConcordance: TStrongsConcordance;
 
     procedure ShowStrong(stext: string);
     procedure CMShowingChanged(var Message: TMessage); MESSAGE CM_SHOWINGCHANGED;
@@ -60,8 +61,6 @@ type
     procedure ApplyConfig(appConfig: TAppConfig);
     function GetBookPath(): string;
 
-    procedure EnsureStrongHebrewLoaded(reportError: boolean);
-    procedure EnsureStrongGreekLoaded(reportError: boolean);
     procedure LoadStrongDictionaries();
     procedure SearchText(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
     procedure DisplaySelectedItem();
@@ -201,34 +200,9 @@ begin
   mMainView := AMainView;
   mWorkspace := AWorkspace;
 
-  StrongHebrew := TDict.Create;
-  StrongGreek := TDict.Create;
+  FStrongsConcordance := AMainView.StrongsConcordance;
 
   ApplyConfig(AppConfig);
-end;
-
-procedure TStrongFrame.EnsureStrongHebrewLoaded(reportError: boolean);
-var
-  loaded: boolean;
-  strongDir: string;
-begin
-  strongDir := TLibraryDirectories.Strong;
-  loaded := StrongHebrew.Initialize(TPath.Combine(strongDir, 'hebrew.idx'), TPath.Combine(strongDir, 'hebrew.htm'));
-
-  if (not loaded) and (reportError) then
-    ShowMessage('Error in ' + TPath.Combine(strongDir, 'hebrew.*'));
-end;
-
-procedure TStrongFrame.EnsureStrongGreekLoaded(reportError: boolean);
-var
-  loaded: boolean;
-  strongDir: string;
-begin
-  strongDir := TLibraryDirectories.Strong;
-  loaded := StrongGreek.Initialize(TPath.Combine(strongDir, 'greek.idx'), TPath.Combine(strongDir, 'greek.htm'));
-
-  if (not loaded) and (reportError) then
-    ShowMessage('Error in ' + TPath.Combine(strongDir, 'greek.*'));
 end;
 
 procedure TStrongFrame.ShowStrong(stext: string);
@@ -324,31 +298,17 @@ end;
 
 function TStrongFrame.GetStrongWordByIndex(ix: Integer): string;
 var
-  hebrew: Boolean;
-  num: Integer;
-  word: string;
+  initialized: boolean;
 begin
-  if (ix < StrongHebrew.Words.Count) then
+  initialized := FStrongsConcordance.Initialize;
+  if (not initialized) then
   begin
-    word := StrongHebrew.Words[ix];
-    hebrew := true;
-  end
-  else
-  begin
-    ix := ix - StrongHebrew.Words.Count;
-    word := StrongGreek.Words[ix];
-    hebrew := false;
+    ShowMessage('Can not initialize Strong''s dictionary');
+    Result := '';
+    Exit;
   end;
 
-  num := StrToInt(word);
-  word := IntToStr(num);
-
-  if hebrew then
-    word := 'H' + word
-  else
-    word := 'G' + word;
-
-  Result := word;
+  Result := FStrongsConcordance.GetStrongWordByIndex(ix);
 end;
 
 procedure TStrongFrame.DisplayStrongs(num: integer; hebrew: Boolean);
@@ -363,19 +323,19 @@ begin
   try
     if hebrew or (num = 0) then
     begin
-      EnsureStrongHebrewLoaded(true);
+      FStrongsConcordance.EnsureStrongHebrewLoaded;
 
-      res := StrongHebrew.Lookup(s);
+      res := FStrongsConcordance.Hebrew.Lookup(s);
       StrReplace(res, '<h4>', '<h4>H', false);
-      Copyright := StrongHebrew.Name;
+      Copyright := FStrongsConcordance.Hebrew.Name;
     end
     else
     begin
-      EnsureStrongGreekLoaded(true);
+      FStrongsConcordance.EnsureStrongGreekLoaded;
 
-      res := StrongGreek.Lookup(s);
+      res := FStrongsConcordance.Greek.Lookup(s);
       StrReplace(res, '<h4>', '<h4>G', false);
-      Copyright := StrongGreek.Name;
+      Copyright := FStrongsConcordance.Greek.Name;
     end;
   except
     on e: Exception do
@@ -392,11 +352,11 @@ begin
     AddLine(res, '<p><font size=-1>' + Copyright + '</font>');
     bwrStrong.LoadFromString(res);
 
-    s := IntToStr(num);
-    if hebrew then
-      s := 'H' + s
-    else
-      s := 'G' + s;
+    s := IfThen(hebrew, 'H', 'G') + IntToStr(num);
+
+    edtStrong.Text := s;
+    edtStrong.SelStart := 0;
+    edtStrong.SelLength := s.Length;
 
     SelectStrongWord(s);
   end;
@@ -512,15 +472,14 @@ begin
   proc := TTask.Create(
     procedure
     begin
-      EnsureStrongHebrewLoaded(false);
-      EnsureStrongGreekLoaded(false);
+      FStrongsConcordance.Initialize;
 
       TThread.Queue(nil, procedure
       begin
         try
           vstStrong.BeginUpdate();
           vstStrong.Clear;
-          vstStrong.RootNodeCount := StrongHebrew.Words.Count + StrongGreek.Words.Count;
+          vstStrong.RootNodeCount := FStrongsConcordance.GetTotalWords;
         finally
           vstStrong.EndUpdate();
         end;

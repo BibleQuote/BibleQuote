@@ -781,6 +781,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         </DCCReference>
         <DCCReference Include="IO\AppPaths.pas"/>
         <DCCReference Include="IO\AppIni.pas"/>
+        <DCCReference Include="Core\StrongsConcordance.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>
