@@ -11,7 +11,8 @@ uses
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
-  Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages;
+  Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
+  StrongsConcordance;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -172,6 +173,8 @@ type
     mUpdateOnTreeNodeSelect: boolean;
     pmHistory: PopupFrm.TPopupMenu;
     mNotifier: IJclNotifier;
+
+    FStrongsConcordance: TStrongsConcordance;
 
     procedure SetMemosVisible(showMemos: Boolean);
 
@@ -540,18 +543,33 @@ end;
 
 procedure TBookFrame.BrowserHotSpotCovered(viewer: THTMLViewer; src: string);
 var
-  unicodeSRC, ConcreteCmd: string;
+  unicodeSRC, ConcreteCmd, scode: string;
   wstr, ws2, fontName, replaceModPath: string;
   bl: TBibleLink;
-  modIx, status: integer;
+  modIx, status, num, code: integer;
 begin
+  if Pos('s', SRC) = 1 then
+  begin
+    scode := Copy(SRC, 2, Length(SRC) - 1);
+    Val(scode, num, code);
+    if (code = 0) then
+    begin
+      if (FStrongsConcordance.Initialize) then
+      begin
+        viewer.Hint := Trim(StripHtmlMarkup(FStrongsConcordance.Lookup(scode)));
+      end;
+      Exit;
+    end;
+  end;
+
   if (SRC = '') or (viewer.LinkAttributes.Count < 3) then
   begin
     viewer.Hint := '';
     bwrHtml.Hint := '';
     Application.CancelHint();
-    Exit
+    Exit;
   end;
+
   if Pos(viewer.LinkAttributes[2], 'CLASS=bqResolvedLink') <= 0 then
     Exit;
 
@@ -873,6 +891,8 @@ begin
   inherited Create(AOwner);
   mMainView := mainView;
   mWorkspace := workspace;
+
+  FStrongsConcordance := mMainView.StrongsConcordance;
 
   mNotifier := mainView.mNotifier;
   mSatelliteForm := TForm.Create(self);

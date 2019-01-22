@@ -65,7 +65,8 @@ uses
   NotifyMessages in 'Core\NotifyMessages.pas',
   StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame},
   AppPaths in 'IO\AppPaths.pas',
-  AppIni in 'IO\AppIni.pas';
+  AppIni in 'IO\AppIni.pas',
+  StrongsConcordance in 'Core\StrongsConcordance.pas';
 
 {$R *.res}
 
