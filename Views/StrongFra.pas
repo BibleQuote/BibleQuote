@@ -9,7 +9,7 @@ uses
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, HTMLEmbedInterfaces,
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
   ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
-  StrongsConcordance;
+  StrongsConcordance, Math;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -104,6 +104,8 @@ var
   defaultModIx: integer;
   book: TBible;
   pn: PVirtualNode;
+  isHebrew: boolean;
+  num: integer;
 begin
   pn := vstStrong.GetFirstSelected();
   if not Assigned(pn) then
@@ -130,17 +132,15 @@ begin
       bookTypeIndex := 0 // full book
     else
     begin
-      if Copy(word, 1, 1) = 'H' then
+      if StartsText('H', word) then
         searchText := '0' + Copy(word, 2, 100)
-      else if Copy(word, 1, 1) = 'G' then
+      else if StartsText('G', word) then
         searchText := Copy(word, 2, 100)
       else
         searchText := word;
 
-      if Copy(searchText, 1, 1) = '0' then
-        bookTypeIndex := 1 // old testament
-      else
-        bookTypeIndex := 2; // new testament
+      StrongVal(word, num, isHebrew);
+      bookTypeIndex := IfThen(isHebrew, 1 {old testament}, 2 {new testament});
     end;
 
     mMainView.OpenOrCreateSearchTab(book.path, searchText, bookTypeIndex, true);
@@ -166,15 +166,15 @@ end;
 
 procedure TStrongFrame.bwrStrongHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
-  num, code: integer;
+  num: integer;
+  isHebrew: boolean;
   scode: string;
 begin
   if Pos('s', SRC) = 1 then
   begin
     scode := Copy(SRC, 2, Length(SRC) - 1);
-    Val(scode, num, code);
-    if code = 0 then
-      DisplayStrongs(num, (Copy(scode, 1, 1) = '0'));
+    if StrongVal(scode, num, isHebrew) then
+      DisplayStrongs(num, isHebrew);
   end;
 end;
 
@@ -207,31 +207,13 @@ end;
 
 procedure TStrongFrame.ShowStrong(stext: string);
 var
-  hebrew: Boolean;
-  num, code: Integer;
+  isHebrew, valid: Boolean;
+  num: Integer;
 begin
-  if Copy(stext, 1, 1) = '0' then
-    hebrew := true
-  else if Copy(stext, 1, 1) = 'H' then
-  begin
-    hebrew := true;
-    stext := Copy(stext, 2, Length(stext) - 1);
-  end
-  else if Copy(stext, 1, 1) = 'G' then
-  begin
-    hebrew := false;
-    stext := Copy(stext, 2, Length(stext) - 1);
-  end
-  else
-    hebrew := false;
+  valid := StrongVal(stext, num, isHebrew);
 
-  try
-    Val(Trim(stext), num, code);
-  finally
-  end;
-
-  if code = 0 then
-    DisplayStrongs(num, hebrew);
+  if valid then
+    DisplayStrongs(num, isHebrew);
 end;
 
 procedure TStrongFrame.edtStrongKeyPress(Sender: TObject; var Key: Char);
