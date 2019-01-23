@@ -2,8 +2,8 @@ unit Engine;
 
 interface
 
-uses Windows, Classes, Contnrs, Dict, BackgroundServices, BibleQuoteUtils,
-  EngineInterfaces, TagsDb, Forms;
+uses Windows, Classes, Contnrs, DictInterface, BackgroundServices, BibleQuoteUtils,
+  EngineInterfaces, TagsDb, Forms, Generics.Collections;
 
 type
 
@@ -16,15 +16,15 @@ type
     mState: TBibleQuoteState;
     mLastDicsLocation: string;
     // Dics: array[0..255] of TDict;
-    mDics: TObjectList;
+    mDics: TList<IDict>;
     mWorker: TbqWorker;
     mDicList: TBQStringList;
     mBackOpsActive: boolean;
 
     function GetState(stateEntryName: TBibleQuoteStateEntries): boolean; inline;
     procedure AsyncStateCompleted(state: TBibleQuoteStateEntries; res: HRESULT);
-    function GetDictionary(aIndex: Cardinal): TDict;
-    function AddDictionary(aDictionary: TDict): Cardinal;
+    function GetDictionary(aIndex: Cardinal): IDict;
+    function AddDictionary(aDictionary: IDict): Cardinal;
 
   public
     mLastUsedComment: string;
@@ -37,7 +37,7 @@ type
     constructor Create();
     destructor Destroy; override;
     property state[TBibleQuoteStateEntries: TBibleQuoteStateEntries]: boolean read GetState; default;
-    property Dictionaries[i: Cardinal]: TDict read GetDictionary;
+    property Dictionaries[i: Cardinal]: IDict read GetDictionary;
     property DictionaryTokens: TBQStringList read mDicList;
   end;
 
@@ -46,7 +46,7 @@ implementation
 uses SysUtils;
 { TBibleQuoteEngine }
 
-function TBibleQuoteEngine.AddDictionary(aDictionary: TDict): Cardinal;
+function TBibleQuoteEngine.AddDictionary(aDictionary: IDict): Cardinal;
 begin
   Result := mDics.Add(aDictionary);
 end;
@@ -61,7 +61,7 @@ end;
 constructor TBibleQuoteEngine.Create();
 begin
   inherited Create();
-  mDics := TObjectList.Create(true);
+  mDics := TList<IDict>.Create();
   mWorker := TbqWorker.Create(self);
   Initilize();
 end;
@@ -70,6 +70,8 @@ destructor TBibleQuoteEngine.Destroy;
 begin
   inherited;
   Finalize();
+
+  ClearDictList();
   FreeAndNil(mDics);
   FreeAndNil(mDicList);
   FreeAndNil(mWorker);
@@ -80,9 +82,9 @@ begin
   Result := mDics.Count;
 end;
 
-function TBibleQuoteEngine.GetDictionary(aIndex: Cardinal): TDict;
+function TBibleQuoteEngine.GetDictionary(aIndex: Cardinal): IDict;
 begin
-  Result := TDict(mDics[aIndex]);
+  Result := mDics[aIndex];
 end;
 
 function TBibleQuoteEngine.GetState(stateEntryName: TBibleQuoteStateEntries): boolean;

@@ -32,7 +32,7 @@ uses
   WinUIServices in 'UI\WinUIServices.pas',
   ICommandProcessor in 'Core\ICommandProcessor.pas',
   VDTEditLink in 'UI\VDTEditLink.pas',
-  Dict in 'Core\Dict.pas',
+  Dict in 'Core\Dict\Dict.pas',
   SevenZipHelper in 'Utils\SevenZipHelper.pas',
   LinksParser in 'Core\LinksParser.pas',
   LinksParserIntf in 'Core\LinksParserIntf.pas',
@@ -65,7 +65,13 @@ uses
   NotifyMessages in 'Core\NotifyMessages.pas',
   StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame},
   AppPaths in 'IO\AppPaths.pas',
-  AppIni in 'IO\AppIni.pas';
+  AppIni in 'IO\AppIni.pas',
+  DictInterface in 'Core\Dict\DictInterface.pas',
+  DictLoaderFabric in 'Core\Dict\DictLoaderFabric.pas',
+  MyBibleDict in 'Core\Dict\MyBibleDict.pas',
+  DictLoaderInterface in 'Core\Dict\DictLoaderInterface.pas',
+  NativeDictLoader in 'Core\Dict\NativeDictLoader.pas',
+  MyBibleDictLoader in 'Core\Dict\MyBibleDictLoader.pas';
 
 {$R *.res}
 

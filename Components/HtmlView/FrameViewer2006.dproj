@@ -7,7 +7,7 @@
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>VCL</FrameworkType>
-        <ProjectVersion>18.2</ProjectVersion>
+        <ProjectVersion>18.5</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -71,9 +71,11 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Icon_MainIcon>FrameViewer2006_Icon.ico</Icon_MainIcon>
+        <DCC_UsePackage>vclimg;vcl;rtl;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <Icon_MainIcon>FrameViewer2006_Icon.ico</Icon_MainIcon>
+        <DCC_UsePackage>vclimg;vcl;rtl;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
@@ -157,13 +159,18 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win32">
-                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>0</Operation>
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="AndroidClassesDexFile">
                     <Platform Name="Android">
                         <RemoteDir>classes</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidFileProvider">
+                    <Platform Name="Android">
+                        <RemoteDir>res\xml</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -200,6 +207,12 @@
                 <DeployClass Name="AndroidSplashStyles">
                     <Platform Name="Android">
                         <RemoteDir>res\values</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidSplashStylesV21">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values-v21</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -279,12 +292,20 @@
                         <Operation>1</Operation>
                         <Extensions>.framework</Extensions>
                     </Platform>
+                    <Platform Name="OSX64">
+                        <Operation>1</Operation>
+                        <Extensions>.framework</Extensions>
+                    </Platform>
                     <Platform Name="Win32">
                         <Operation>0</Operation>
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="DependencyModule">
                     <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="OSX64">
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
@@ -310,6 +331,10 @@
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
+                    <Platform Name="OSX64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
                     <Platform Name="Win32">
                         <Operation>0</Operation>
                         <Extensions>.bpl</Extensions>
@@ -329,6 +354,9 @@
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSX32">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="OSX64">
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -441,10 +469,15 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="ProjectOSXDebug"/>
                 <DeployClass Name="ProjectOSXEntitlements"/>
                 <DeployClass Name="ProjectOSXInfoPList"/>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\Resources</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX64">
                         <RemoteDir>Contents\Resources</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
@@ -467,6 +500,9 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX64">
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -508,6 +544,7 @@
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
             </Deployment>
         </BorlandProject>

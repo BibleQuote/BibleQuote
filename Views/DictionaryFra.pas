@@ -7,9 +7,9 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Dialogs, TabData, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, Htmlview, VirtualTrees,
-  HTMLEmbedInterfaces, Dict, Bible, ExceptionFrm, BibleQuoteConfig,
+  HTMLEmbedInterfaces, Bible, ExceptionFrm, BibleQuoteConfig,
   StringProcs, BibleLinkParser, Clipbrd, Engine, JclNotify, NotifyMessages,
-  System.Contnrs, AppIni;
+  System.Contnrs, AppIni, DictInterface;
 
 type
   TDictionaryFrame = class(TFrame, IDictionaryView, IJclListener)
@@ -48,7 +48,7 @@ type
     procedure miRefPrintClick(Sender: TObject);
     procedure tbtnToggleClick(Sender: TObject);
   private
-    mWorkspace: IWorkspace;
+    mTabsView: ITabsView;
     mMainView: TMainForm;
     mXRefVerseCmd: string;
     mBqEngine: TBibleQuoteEngine;
@@ -60,17 +60,17 @@ type
     function DictionaryStartup(maxAdd: integer = maxInt): Boolean;
     procedure UpdateDictionariesCombo;
     procedure Notification(msg: IJclNotificationMessage); reintroduce; stdcall;
+    procedure DisplayDictionaries;
 
     // finds the closest match for a word in merged
     // dictionary word list
     function LocateDicItem: integer;
   public
-    constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
+    constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
     destructor Destroy; override;
 
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
-    procedure DisplayDictionaries;
     procedure DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
     procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1; const foundDictionaryIndex: integer = -1);
   end;
@@ -104,7 +104,7 @@ begin
 
     if (Pos(C__bqAutoBible, SRC) <> 0) then
     begin
-      status := (TBookFrame(mWorkspace.BookView)).PreProcessAutoCommand(bookTabInfo, SRC, modPath, concreteCmd);
+      status := (TBookFrame(mTabsView.BookView)).PreProcessAutoCommand(bookTabInfo, SRC, modPath, concreteCmd);
       if status <= -2 then
         Exit;
     end;
@@ -136,7 +136,7 @@ var
 begin
   dicCount := mBqEngine.DictionariesCount - 1;
   for i := 0 to dicCount do
-    if mBqEngine.Dictionaries[i].Name = cbDic.Items[cbDic.ItemIndex] then
+    if mBqEngine.Dictionaries[i].GetName() = cbDic.Items[cbDic.ItemIndex] then
     begin
       idx := DicSelectedItemIndex();
       if (idx >= 0) then
@@ -159,8 +159,9 @@ begin
   else
     tt := res;
 
+    // todo: Sergey S. figure out
   if (i >= 0) and (i < mBqEngine.DictionariesCount) then
-    bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].Dict);
+    bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].GetDictPath());
 
   bwrDic.LoadFromString(tt);
 end;
@@ -170,7 +171,7 @@ var
   pvn: PVirtualNode;
   wordIx, wordCount: integer;
   lst: TBQStringList;
-  dictionary: TDict;
+  dictionary: IDict;
 begin
   if cbDicFilter.ItemIndex <> 0 then
   begin
@@ -185,9 +186,9 @@ begin
       try
         lst.Clear();
         lst.Sorted := true;
-        wordCount := dictionary.Words.Count - 1;
+        wordCount := dictionary.GetWordCount() - 1;
         for wordIx := 0 to wordCount do
-          lst.Add(dictionary.Words[wordIx]);
+          lst.Add(dictionary.GetWord(wordIx));
       finally
         lst.EndUpdate;
       end;
@@ -213,12 +214,12 @@ begin
   DisplayDictionary(edtDic.Text);
 end;
 
-constructor TDictionaryFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
+constructor TDictionaryFrame.Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView);
 begin
   inherited Create(AOwner);
 
   mMainView := AMainView;
-  mWorkspace := AWorkspace;
+  mTabsView := ATabsView;
   mBqEngine := mMainView.BqEngine;
 
   vstDicList.DefaultNodeHeight := mMainView.Canvas.TextHeight('X');
@@ -433,9 +434,9 @@ begin
     begin
       res := mBqEngine.Dictionaries[i].Lookup(mBqEngine.DictionaryTokens[dc_ix]);
       if res <> '' then
-        cbDic.Items.Add(mBqEngine.Dictionaries[i].Name);
+        cbDic.Items.Add(mBqEngine.Dictionaries[i].GetName());
 
-      if mBqEngine.Dictionaries[i].Name = cbDicFilter.Items[cbDicFilter.ItemIndex] then
+      if mBqEngine.Dictionaries[i].GetName() = cbDicFilter.Items[cbDicFilter.ItemIndex] then
         j := cbDic.Items.Count - 1;
     end;
 
@@ -581,7 +582,7 @@ begin
     cbDicFilter.Items.Add(Lang.Say('StrAllDictionaries'));
     dicCount := mBqEngine.DictionariesCount - 1;
     for dicIx := 0 to dicCount do
-      cbDicFilter.Items.Add(mBqEngine.Dictionaries[dicIx].Name);
+      cbDicFilter.Items.Add(mBqEngine.Dictionaries[dicIx].GetName());
 
     cbDicFilter.ItemIndex := 0;
   finally

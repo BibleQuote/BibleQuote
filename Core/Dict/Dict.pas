@@ -2,10 +2,10 @@ unit Dict;
 
 interface
 
-uses Windows, Classes, SysUtils, IOProcs;
+uses Windows, Classes, SysUtils, IOProcs, DictInterface;
 
 type
-  TDict = class(TObject)
+  TDict = class(TInterfacedObject, IDict)
   private
     FIndex: string;
     FDict: string;
@@ -27,6 +27,12 @@ type
     property Name: string read FName;
     property Path: string read FPath;
     property Dict: string read FDict;
+
+    function GetWordCount(): Cardinal;
+    function GetWord(aIndex: Cardinal): String;
+    function GetName(): String;
+    function GetDictPath(): String;
+
   end;
 
 implementation
@@ -48,6 +54,31 @@ destructor TDict.Destroy;
 begin
   FWords.Free();
   inherited;
+end;
+
+function TDict.GetDictPath: String;
+begin
+  Result:= FDict;
+end;
+
+function TDict.GetName: String;
+begin
+  Result := FName;
+end;
+
+function TDict.GetWord(aIndex: Cardinal): String;
+begin
+  Result := '';
+
+  if ((aIndex >= 0) and (aIndex < GetWordCount())) then
+  begin
+    Result := FWords[aIndex];
+  end;
+end;
+
+function TDict.GetWordCount(): Cardinal;
+begin
+  Result := FWords.Count;
 end;
 
 function TDict.Initialize(IndexFile, DictFile: string; background: boolean = false): boolean;
