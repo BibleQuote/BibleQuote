@@ -6,39 +6,68 @@ uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, Dict;
 
 type
   TNativeDictLoader = class(TInterfacedObject, IDictLoader)
+  protected
+    function LoadDictionary(aDictIdxFilePath : String): TDict;
+
   public
     function LoadDictionaries(aDirPath: String; aEngine: IbqEngineDicTraits): Boolean;
+
   end;
 
 implementation
 
 { TNativeDictLoader }
+uses ExceptionFrm;
 
 function TNativeDictLoader.LoadDictionaries(aDirPath: String;
   aEngine: IbqEngineDicTraits): Boolean;
 var
   DictFileList: TStringDynArray;
-  j: Integer;
-  DictIdxFileName, DictHtmlFileName: string;
+  i: Integer;
   Dictionary: TDict;
+
 begin
-  Result := False;
 
   DictFileList := TDirectory.GetFiles(aDirPath, '*.idx');
-  for j := 0 to Length(DictFileList) - 1 do
+  for i := 0 to Length(DictFileList) - 1 do
   begin
 
-    DictIdxFileName := DictFileList[j];
-    DictHtmlFileName := ChangeFileExt(DictIdxFileName, '.htm');
+    Dictionary := LoadDictionary(DictFileList[i]);
 
-    Dictionary := TDict.Create;
-    if not Dictionary.Initialize(DictIdxFileName, DictHtmlFileName) then exit;
-
-    aEngine.AddDictionary(Dictionary);
+    if Assigned(Dictionary) then
+      aEngine.AddDictionary(Dictionary);
 
   end;
 
   Result := True;
+
+end;
+
+function TNativeDictLoader.LoadDictionary(aDictIdxFilePath: String): TDict;
+var
+  DictHtmlFilePath: string;
+  Dictionary: TDict;
+begin
+  Result := nil;
+  try
+
+    DictHtmlFilePath := ChangeFileExt(aDictIdxFilePath, '.htm');
+
+    Dictionary := TDict.Create;
+    if not Dictionary.Initialize(aDictIdxFilePath, DictHtmlFilePath) then
+    begin
+      raise Exception.Create('Error loading '+ExtractFileName(aDictIdxFilePath)+ 'dictionary');
+    end;
+
+    Result := Dictionary;
+
+  except
+    on e: Exception do
+    begin
+      BqShowException(e);
+    end;
+
+  end;
 
 end;
 

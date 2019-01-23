@@ -28,7 +28,7 @@ type
     mEngine: IInterface;
     mResult: HRESULT;
     procedure Execute; override;
-    function _LoadDictionaries(const path: string): HRESULT;
+    function _LoadDictionaries(const aPath: string): HRESULT;
     function getAsynInface(): IbqEngineAsyncTraits;
     function _InitDictionaryItemsList(lst: TBQStringList): HRESULT;
     function _InitVerseListEngine(): HRESULT;
@@ -139,14 +139,14 @@ begin
   end;
 end;
 
-function TbqWorker._LoadDictionaries(const path: string): HRESULT;
+function TbqWorker._LoadDictionaries(const aPath: string): HRESULT;
 var
-  dirList: TStringDynArray;
+  DirList: TStringDynArray;
   DirPath: String;
-  engine: IbqEngineDicTraits;
+  Engine: IbqEngineDicTraits;
   hr: HRESULT;
 
-  i, j: integer;
+  i: integer;
   DictLoader: IDictLoader;
   DictType: TDictTypes;
 begin
@@ -155,11 +155,11 @@ begin
   if hr <> S_OK then
     exit;
 
-  dirList := TDirectory.GetDirectories(path);
-  for i := 0 to Length(dirList) - 1 do
+  DirList := TDirectory.GetDirectories(aPath);
+  for i := 0 to Length(DirList) - 1 do
   begin
 
-    DirPath := dirList[i];
+    DirPath := DirList[i];
 
     DictType := TDictLoaderFabric.SelectDictTypeByDirName(DirPath);
 
@@ -171,7 +171,7 @@ begin
       exit;
     end;
 
-    if not DictLoader.LoadDictionaries(DirPath, engine) then exit;
+    if not DictLoader.LoadDictionaries(DirPath, Engine) then exit;
 
   end;
 
