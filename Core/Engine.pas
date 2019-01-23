@@ -71,7 +71,6 @@ begin
   inherited;
   Finalize();
 
-  ClearDictList();
   FreeAndNil(mDics);
   FreeAndNil(mDicList);
   FreeAndNil(mWorker);
