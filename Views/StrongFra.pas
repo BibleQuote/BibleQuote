@@ -9,7 +9,7 @@ uses
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, HTMLEmbedInterfaces,
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
   ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
-  StrongsConcordance, Math;
+  StrongsConcordance, Math, Character;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -39,6 +39,8 @@ type
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure vstStrongKeyPress(Sender: TObject; var Key: Char);
     procedure vstStrongAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vstStrongKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure bwrStrongKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     mWorkspace: IWorkspace;
     mMainView: TMainForm;
@@ -52,6 +54,7 @@ type
     procedure ShowStrong(stext: string);
     procedure CMShowingChanged(var Message: TMessage); MESSAGE CM_SHOWINGCHANGED;
     function GetStrongWordByIndex(ix: Integer): string;
+    procedure HandleLetterOrDigitKeys(var Key: Word; Shift: TShiftState);
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
 
@@ -178,6 +181,11 @@ begin
   end;
 end;
 
+procedure TStrongFrame.bwrStrongKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  HandleLetterOrDigitKeys(Key, Shift);
+end;
+
 procedure TStrongFrame.bwrStrongMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   num, code: integer;
@@ -276,6 +284,17 @@ procedure TStrongFrame.SelectStrongWord(word: string);
 begin
   if (word <> '') then
     vstStrong.IterateSubtree(nil, SearchText, PChar(word));
+end;
+
+procedure TStrongFrame.HandleLetterOrDigitKeys(var Key: Word; Shift: TShiftState);
+begin
+  if (Char(Key).IsLetterOrDigit and ((Shift = [ssShift]) or (Shift = []))) then
+  begin
+    PostMessage(edtStrong.Handle, WM_CHAR, Key, 0);
+    edtStrong.SetFocus;
+    Key := 0;
+  end;
+  // do not process further
 end;
 
 function TStrongFrame.GetStrongWordByIndex(ix: Integer): string;
@@ -415,6 +434,11 @@ begin
       BqShowException(E)
     end
   end;
+end;
+
+procedure TStrongFrame.vstStrongKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  HandleLetterOrDigitKeys(Key, Shift);
 end;
 
 procedure TStrongFrame.vstStrongKeyPress(Sender: TObject; var Key: Char);

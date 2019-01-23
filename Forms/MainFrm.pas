@@ -3833,7 +3833,6 @@ end;
 procedure TMainForm.ActivateTargetWorkspace();
 var
   workspace: IWorkspace;
-  activeTab: IViewTabInfo;
 begin
   for workspace in mWorkspaces do
   begin

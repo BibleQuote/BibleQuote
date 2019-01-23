@@ -114,6 +114,7 @@ object StrongFrame: TStrongFrame
         TreeOptions.SelectionOptions = [toFullRowSelect]
         OnAddToSelection = vstStrongAddToSelection
         OnGetText = vstStrongGetText
+        OnKeyDown = vstStrongKeyDown
         OnKeyPress = vstStrongKeyPress
         Columns = <>
       end
@@ -140,6 +141,7 @@ object StrongFrame: TStrongFrame
       PrintMarginTop = 2.000000000000000000
       PrintScale = 1.000000000000000000
       ScrollBars = ssVertical
+      OnKeyDown = bwrStrongKeyDown
       OnHotSpotClick = bwrStrongHotSpotClick
       OnMouseDouble = bwrStrongMouseDouble
     end
