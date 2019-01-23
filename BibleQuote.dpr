@@ -71,7 +71,8 @@ uses
   MyBibleDict in 'Core\Dict\MyBibleDict.pas',
   DictLoaderInterface in 'Core\Dict\DictLoaderInterface.pas',
   NativeDictLoader in 'Core\Dict\NativeDictLoader.pas',
-  MyBibleDictLoader in 'Core\Dict\MyBibleDictLoader.pas';
+  MyBibleDictLoader in 'Core\Dict\MyBibleDictLoader.pas',
+  BaseDict in 'Core\Dict\BaseDict.pas';
 
 {$R *.res}
 
