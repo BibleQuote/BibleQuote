@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = 'BibleQuote 7'
-  ClientHeight = 355
+  ClientHeight = 356
   ClientWidth = 831
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -32,7 +32,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 34
     Width = 831
-    Height = 300
+    Height = 301
     Align = alClient
     DockSite = True
     TabOrder = 0
@@ -282,7 +282,7 @@ object MainForm: TMainForm
     Top = 40
     Width = 95
     Height = 129
-    Font.Charset = ANSI_CHARSET
+    Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Arial Unicode MS'
@@ -296,7 +296,7 @@ object MainForm: TMainForm
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 334
+    Top = 335
     Width = 831
     Height = 21
     Align = alBottom

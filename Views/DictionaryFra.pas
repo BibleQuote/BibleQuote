@@ -159,10 +159,6 @@ begin
   else
     tt := res;
 
-    // todo: figureout with GetDictPath
-  if (i >= 0) and (i < mBqEngine.DictionariesCount) then
-    bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].GetDictPath());
-
   bwrDic.LoadFromString(tt);
 end;
 

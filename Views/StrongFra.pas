@@ -8,7 +8,7 @@ uses
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, HTMLEmbedInterfaces,
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
-  ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths, AppIni;
+  ExceptionFrm, NativeDict, System.Threading, VirtualTrees, AppPaths, AppIni;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -42,7 +42,7 @@ type
     mWorkspace: IWorkspace;
     mMainView: TMainForm;
 
-    StrongHebrew, StrongGreek: TDict;
+    StrongHebrew, StrongGreek: TNativeDict;
 
     mCurrentBook: TBible;
     mLoaded: boolean;
@@ -201,8 +201,8 @@ begin
   mMainView := AMainView;
   mWorkspace := AWorkspace;
 
-  StrongHebrew := TDict.Create;
-  StrongGreek := TDict.Create;
+  StrongHebrew := TNativeDict.Create;
+  StrongGreek := TNativeDict.Create;
 
   ApplyConfig(AppConfig);
 end;
@@ -328,15 +328,15 @@ var
   num: Integer;
   word: string;
 begin
-  if (ix < StrongHebrew.Words.Count) then
+  if (ix < StrongHebrew.GetWordCount()) then
   begin
-    word := StrongHebrew.Words[ix];
+    word := StrongHebrew.GetWord(ix);
     hebrew := true;
   end
   else
   begin
-    ix := ix - StrongHebrew.Words.Count;
-    word := StrongGreek.Words[ix];
+    ix := ix - StrongHebrew.GetWordCount();
+    word := StrongGreek.GetWord(ix);
     hebrew := false;
   end;
 
@@ -367,7 +367,7 @@ begin
 
       res := StrongHebrew.Lookup(s);
       StrReplace(res, '<h4>', '<h4>H', false);
-      Copyright := StrongHebrew.Name;
+      Copyright := StrongHebrew.GetName();
     end
     else
     begin
@@ -375,7 +375,7 @@ begin
 
       res := StrongGreek.Lookup(s);
       StrReplace(res, '<h4>', '<h4>G', false);
-      Copyright := StrongGreek.Name;
+      Copyright := StrongGreek.GetName();
     end;
   except
     on e: Exception do
@@ -520,7 +520,7 @@ begin
         try
           vstStrong.BeginUpdate();
           vstStrong.Clear;
-          vstStrong.RootNodeCount := StrongHebrew.Words.Count + StrongGreek.Words.Count;
+          vstStrong.RootNodeCount := StrongHebrew.GetWordCount() + StrongGreek.GetWordCount();
         finally
           vstStrong.EndUpdate();
         end;

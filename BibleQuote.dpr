@@ -32,7 +32,7 @@ uses
   WinUIServices in 'UI\WinUIServices.pas',
   ICommandProcessor in 'Core\ICommandProcessor.pas',
   VDTEditLink in 'UI\VDTEditLink.pas',
-  Dict in 'Core\Dict\Dict.pas',
+  NativeDict in 'Core\Dict\NativeDict.pas',
   SevenZipHelper in 'Utils\SevenZipHelper.pas',
   LinksParser in 'Core\LinksParser.pas',
   LinksParserIntf in 'Core\LinksParserIntf.pas',

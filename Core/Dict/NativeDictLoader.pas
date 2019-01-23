@@ -2,12 +2,12 @@ unit NativeDictLoader;
 
 interface
 
-uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, Dict;
+uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, NativeDict;
 
 type
   TNativeDictLoader = class(TInterfacedObject, IDictLoader)
   protected
-    function LoadDictionary(aDictIdxFilePath : String): TDict;
+    function LoadDictionary(aDictIdxFilePath : String): TNativeDict;
 
   public
     function LoadDictionaries(aDirPath: String; aEngine: IbqEngineDicTraits): Boolean;
@@ -24,7 +24,7 @@ function TNativeDictLoader.LoadDictionaries(aDirPath: String;
 var
   DictFileList: TStringDynArray;
   i: Integer;
-  Dictionary: TDict;
+  Dictionary: TNativeDict;
 
 begin
 
@@ -43,17 +43,17 @@ begin
 
 end;
 
-function TNativeDictLoader.LoadDictionary(aDictIdxFilePath: String): TDict;
+function TNativeDictLoader.LoadDictionary(aDictIdxFilePath: String): TNativeDict;
 var
   DictHtmlFilePath: string;
-  Dictionary: TDict;
+  Dictionary: TNativeDict;
 begin
   Result := nil;
   try
 
     DictHtmlFilePath := ChangeFileExt(aDictIdxFilePath, '.htm');
 
-    Dictionary := TDict.Create;
+    Dictionary := TNativeDict.Create;
     if not Dictionary.Initialize(aDictIdxFilePath, DictHtmlFilePath) then
     begin
       raise Exception.Create('Error loading '+ExtractFileName(aDictIdxFilePath)+ 'dictionary');

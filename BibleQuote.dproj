@@ -706,7 +706,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="UI\WinUIServices.pas"/>
         <DCCReference Include="Core\ICommandProcessor.pas"/>
         <DCCReference Include="UI\VDTEditLink.pas"/>
-        <DCCReference Include="Core\Dict\Dict.pas"/>
+        <DCCReference Include="Core\Dict\NativeDict.pas"/>
         <DCCReference Include="Utils\SevenZipHelper.pas"/>
         <DCCReference Include="Core\LinksParser.pas"/>
         <DCCReference Include="Core\LinksParserIntf.pas"/>

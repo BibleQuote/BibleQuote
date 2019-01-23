@@ -22,7 +22,6 @@ type
     function GetWord(aIndex: Cardinal): String;
     function GetName(): String;
     function Lookup(aWord: String): String;
-    function GetDictPath(): String;
 
   end;
 
@@ -43,11 +42,6 @@ begin
   FWords.Free();
 
   inherited;
-end;
-
-function TMyBibleDict.GetDictPath: String;
-begin
-  Result := 'c:\';
 end;
 
 function TMyBibleDict.GetName: String;
