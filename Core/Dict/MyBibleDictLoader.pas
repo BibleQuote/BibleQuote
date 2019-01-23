@@ -66,7 +66,6 @@ var
   SQLiteConnection: TFDConnection;
   Dictionary: TMyBibleDict;
 begin
-  Result := False;
 
   DictFileList := TDirectory.GetFiles(aDirPath, '*.sqlite3');
   SQLiteConnection := TFDConnection.Create(nil);

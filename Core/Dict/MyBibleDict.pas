@@ -2,26 +2,19 @@ unit MyBibleDict;
 
 interface
 
-uses DictInterface, Classes;
+uses Classes, BaseDict;
 
 type
-  TMyBibleDict = class(TInterfacedObject, IDict)
+  TMyBibleDict = class(TBaseDict)
   private
-    FWords: TStrings;
-    FName: String;
     FSQLitePath: String;
   protected
     function SearchWordDescriptionInDB(aWord: String): String;
 
   public
-    constructor Create;
-    destructor Destroy(); override;
     procedure Initialize(aName: String; aWords: TStrings; aSQLitePath: String);
 
-    function GetWordCount(): Cardinal;
-    function GetWord(aIndex: Cardinal): String;
-    function GetName(): String;
-    function Lookup(aWord: String): String;
+    function Lookup(aWord: String): String; override;
 
   end;
 
@@ -29,35 +22,6 @@ implementation
 
 { TMyBibleDict }
 uses FireDAC.Comp.Client, SysUtils;
-
-constructor TMyBibleDict.Create;
-begin
-  inherited Create;
-
-  FWords := TStringList.Create();
-end;
-
-destructor TMyBibleDict.Destroy;
-begin
-  FWords.Free();
-
-  inherited;
-end;
-
-function TMyBibleDict.GetName: String;
-begin
-  Result := FName;
-end;
-
-function TMyBibleDict.GetWord(aIndex: Cardinal): String;
-begin
-  Result := FWords[aIndex];
-end;
-
-function TMyBibleDict.GetWordCount: Cardinal;
-begin
-  Result := FWords.Count;
-end;
 
 procedure TMyBibleDict.Initialize(aName: String; aWords: TStrings;
   aSQLitePath: String);
