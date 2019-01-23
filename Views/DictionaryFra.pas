@@ -7,9 +7,9 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Dialogs, TabData, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, Htmlview, VirtualTrees,
-  HTMLEmbedInterfaces, Bible, ExceptionFrm, BibleQuoteConfig,
+  HTMLEmbedInterfaces, DictInterface, Bible, ExceptionFrm, BibleQuoteConfig,
   StringProcs, BibleLinkParser, Clipbrd, Engine, JclNotify, NotifyMessages,
-  System.Contnrs, AppIni, DictInterface;
+  System.Contnrs, AppIni;
 
 type
   TDictionaryFrame = class(TFrame, IDictionaryView, IJclListener)
@@ -48,7 +48,7 @@ type
     procedure miRefPrintClick(Sender: TObject);
     procedure tbtnToggleClick(Sender: TObject);
   private
-    mTabsView: ITabsView;
+    mWorkspace: IWorkspace;
     mMainView: TMainForm;
     mXRefVerseCmd: string;
     mBqEngine: TBibleQuoteEngine;
@@ -60,17 +60,17 @@ type
     function DictionaryStartup(maxAdd: integer = maxInt): Boolean;
     procedure UpdateDictionariesCombo;
     procedure Notification(msg: IJclNotificationMessage); reintroduce; stdcall;
-    procedure DisplayDictionaries;
 
     // finds the closest match for a word in merged
     // dictionary word list
     function LocateDicItem: integer;
   public
-    constructor Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView); reintroduce;
+    constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
     destructor Destroy; override;
 
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure DisplayDictionaries;
     procedure DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
     procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1; const foundDictionaryIndex: integer = -1);
   end;
@@ -104,7 +104,7 @@ begin
 
     if (Pos(C__bqAutoBible, SRC) <> 0) then
     begin
-      status := (TBookFrame(mTabsView.BookView)).PreProcessAutoCommand(bookTabInfo, SRC, modPath, concreteCmd);
+      status := (TBookFrame(mWorkspace.BookView)).PreProcessAutoCommand(bookTabInfo, SRC, modPath, concreteCmd);
       if status <= -2 then
         Exit;
     end;
@@ -159,7 +159,7 @@ begin
   else
     tt := res;
 
-    // todo: Sergey S. figure out
+    // todo: figureout with GetDictPath
   if (i >= 0) and (i < mBqEngine.DictionariesCount) then
     bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].GetDictPath());
 
@@ -214,12 +214,12 @@ begin
   DisplayDictionary(edtDic.Text);
 end;
 
-constructor TDictionaryFrame.Create(AOwner: TComponent; AMainView: TMainForm; ATabsView: ITabsView);
+constructor TDictionaryFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
 begin
   inherited Create(AOwner);
 
   mMainView := AMainView;
-  mTabsView := ATabsView;
+  mWorkspace := AWorkspace;
   mBqEngine := mMainView.BqEngine;
 
   vstDicList.DefaultNodeHeight := mMainView.Canvas.TextHeight('X');
