@@ -7,7 +7,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Dialogs, TabData, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, Htmlview, VirtualTrees,
-  HTMLEmbedInterfaces, Dict, Bible, ExceptionFrm, BibleQuoteConfig,
+  HTMLEmbedInterfaces, DictInterface, Bible, ExceptionFrm, BibleQuoteConfig,
   StringProcs, BibleLinkParser, Clipbrd, Engine, JclNotify, NotifyMessages,
   System.Contnrs, AppIni;
 
@@ -136,7 +136,7 @@ var
 begin
   dicCount := mBqEngine.DictionariesCount - 1;
   for i := 0 to dicCount do
-    if mBqEngine.Dictionaries[i].Name = cbDic.Items[cbDic.ItemIndex] then
+    if mBqEngine.Dictionaries[i].GetName() = cbDic.Items[cbDic.ItemIndex] then
     begin
       idx := DicSelectedItemIndex();
       if (idx >= 0) then
@@ -159,9 +159,6 @@ begin
   else
     tt := res;
 
-  if (i >= 0) and (i < mBqEngine.DictionariesCount) then
-    bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].Dict);
-
   bwrDic.LoadFromString(tt);
 end;
 
@@ -170,7 +167,7 @@ var
   pvn: PVirtualNode;
   wordIx, wordCount: integer;
   lst: TBQStringList;
-  dictionary: TDict;
+  dictionary: IDict;
 begin
   if cbDicFilter.ItemIndex <> 0 then
   begin
@@ -185,9 +182,9 @@ begin
       try
         lst.Clear();
         lst.Sorted := true;
-        wordCount := dictionary.Words.Count - 1;
+        wordCount := dictionary.GetWordCount() - 1;
         for wordIx := 0 to wordCount do
-          lst.Add(dictionary.Words[wordIx]);
+          lst.Add(dictionary.GetWord(wordIx));
       finally
         lst.EndUpdate;
       end;
@@ -433,9 +430,9 @@ begin
     begin
       res := mBqEngine.Dictionaries[i].Lookup(mBqEngine.DictionaryTokens[dc_ix]);
       if res <> '' then
-        cbDic.Items.Add(mBqEngine.Dictionaries[i].Name);
+        cbDic.Items.Add(mBqEngine.Dictionaries[i].GetName());
 
-      if mBqEngine.Dictionaries[i].Name = cbDicFilter.Items[cbDicFilter.ItemIndex] then
+      if mBqEngine.Dictionaries[i].GetName() = cbDicFilter.Items[cbDicFilter.ItemIndex] then
         j := cbDic.Items.Count - 1;
     end;
 
@@ -581,7 +578,7 @@ begin
     cbDicFilter.Items.Add(Lang.Say('StrAllDictionaries'));
     dicCount := mBqEngine.DictionariesCount - 1;
     for dicIx := 0 to dicCount do
-      cbDicFilter.Items.Add(mBqEngine.Dictionaries[dicIx].Name);
+      cbDicFilter.Items.Add(mBqEngine.Dictionaries[dicIx].GetName());
 
     cbDicFilter.ItemIndex := 0;
   finally

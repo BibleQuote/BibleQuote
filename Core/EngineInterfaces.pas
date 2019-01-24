@@ -2,7 +2,7 @@ unit EngineInterfaces;
 
 interface
 
-uses Dict;
+uses DictInterface;
 
 type
   TBibleQuoteStateEntries = (
@@ -17,9 +17,9 @@ type
 
   IbqEngineDicTraits = interface
     ['{14ED0EC0-45FE-1FD6-F1F0-424EADE47A66}']
-    function AddDictionary(aDictionary: TDict): Cardinal;
+    function AddDictionary(aDictionary: IDict): Cardinal;
     function DictionariesCount(): Cardinal;
-    function GetDictionary(aIndex: Cardinal): TDict;
+    function GetDictionary(aIndex: Cardinal): IDict;
   end;
 
   IbqEngineAsyncTraits = interface

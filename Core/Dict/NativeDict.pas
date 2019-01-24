@@ -1,39 +1,34 @@
-unit Dict;
+unit NativeDict;
 
 interface
 
-uses Windows, Classes, SysUtils, IOProcs;
+uses Windows, Classes, SysUtils, IOProcs, BaseDict;
 
 type
-  TDict = class(TObject)
+  TNativeDict = class(TBaseDict)
   private
-    FIndex: string;
-    FDict: string;
-    FWords: TStrings;
-    FName: string;
-    FPath: string;
+    FIndex: String;
+    FDict: String;
+    FPath: String;
     FiLines: TStrings;
-    Fii: integer;
-    Filinecount: integer;
-    FInitialized: boolean;
+    Fii: Integer;
+    Filinecount: Integer;
+    FInitialized: Boolean;
   public
     constructor Create;
     destructor Destroy(); override;
-    function Initialize(IndexFile, DictFile: string; background: boolean = false): boolean;
-    function Lookup(wrd: string): string; // lookup a word in dictionary...
-
+    function Initialize(IndexFile, DictFile: String; background: boolean = false): boolean;
     property Initialized: boolean read FInitialized;
-    property Words: TStrings read FWords;
-    property Name: string read FName;
-    property Path: string read FPath;
-    property Dict: string read FDict;
+
+    function Lookup(aWord: String): String; override; // lookup a word in dictionary...
+
   end;
 
 implementation
 
 uses BibleQuoteUtils;
 
-constructor TDict.Create;
+constructor TNativeDict.Create;
 begin
   inherited Create;
 
@@ -41,20 +36,18 @@ begin
   FIndex := '';
   FDict := '';
 
-  FWords := TStringList.Create;
 end;
 
-destructor TDict.Destroy;
+destructor TNativeDict.Destroy;
 begin
-  FWords.Free();
   inherited;
 end;
 
-function TDict.Initialize(IndexFile, DictFile: string; background: boolean = false): boolean;
+function TNativeDict.Initialize(IndexFile, DictFile: String; background: boolean = false): boolean;
 begin
   if IndexFile = FIndex then
   begin
-    result := true;
+    Result := true;
     exit
   end;
 
@@ -96,7 +89,7 @@ begin
   Fii := 0;
 end;
 
-function TDict.Lookup(wrd: string): string;
+function TNativeDict.Lookup(aWord: String): String;
 var
   dDictSize: integer;
   dOffset: integer;
@@ -105,26 +98,26 @@ var
   i: integer;
 
 begin
-  i := FWords.IndexOf(wrd);
+  i := FWords.IndexOf(aWord);
 
   if i = -1 then
     result := ''
   else
   begin
     dDictSize := ReadFileSize(FDict);
-    dOffset := integer(FWords.Objects[i]);
+    dOffset := Integer(FWords.Objects[i]);
 
     if i < FWords.Count - 1 then
-      dCount := integer(FWords.Objects[i + 1]) - dOffset
+      dCount := Integer(FWords.Objects[i + 1]) - dOffset
     else
       dCount := dDictSize - dOffset;
 
-    result := ReadDictFragment(FDict, dOffset, dCount, TEncoding.GetEncoding(1251));
+    Result := ReadDictFragment(FDict, dOffset, dCount, TEncoding.GetEncoding(1251));
   end;
 
-  dExcludeWord := LowerCase('<h4>' + wrd + '</h4>');
-  if LowerCase(Copy(result, 1, Length(dExcludeWord))) = dExcludeWord then
-    result := Copy(result, Length(dExcludeWord) + 1, Length(result));
+  dExcludeWord := LowerCase('<h4>' + aWord + '</h4>');
+  if LowerCase(Copy(Result, 1, Length(dExcludeWord))) = dExcludeWord then
+    Result := Copy(Result, Length(dExcludeWord) + 1, Length(Result));
 
 end;
 

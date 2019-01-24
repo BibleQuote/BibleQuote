@@ -8,7 +8,7 @@ uses
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, HTMLEmbedInterfaces,
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
-  ExceptionFrm, Dict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
+  ExceptionFrm, NativeDict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
   StrongsConcordance, Math, Character;
 
 type
@@ -328,7 +328,7 @@ begin
 
       res := FStrongsConcordance.Hebrew.Lookup(s);
       StrReplace(res, '<h4>', '<h4>H', false);
-      Copyright := FStrongsConcordance.Hebrew.Name;
+      Copyright := FStrongsConcordance.Hebrew.GetName();
     end
     else
     begin
@@ -336,7 +336,7 @@ begin
 
       res := FStrongsConcordance.Greek.Lookup(s);
       StrReplace(res, '<h4>', '<h4>G', false);
-      Copyright := FStrongsConcordance.Greek.Name;
+      Copyright := FStrongsConcordance.Greek.GetName();
     end;
   except
     on e: Exception do

@@ -3,8 +3,8 @@ unit BackgroundServices;
 interface
 
 uses
-  Classes, SyncObjs, SysUtils, Dict, Windows, BibleQuoteUtils, EngineInterfaces,
-  TagsDb, Types, IOUtils, AppPaths;
+  Classes, SyncObjs, SysUtils, DictInterface, Windows, BibleQuoteUtils, EngineInterfaces,
+  TagsDb, Types, IOUtils, AppPaths, DictLoaderInterface, DictLoaderFabric;
 
 type
 
@@ -28,7 +28,7 @@ type
     mEngine: IInterface;
     mResult: HRESULT;
     procedure Execute; override;
-    function _LoadDictionaries(const path: string): HRESULT;
+    function _LoadDictionaries(const aPath: string): HRESULT;
     function getAsynInface(): IbqEngineAsyncTraits;
     function _InitDictionaryItemsList(lst: TBQStringList): HRESULT;
     function _InitVerseListEngine(): HRESULT;
@@ -101,7 +101,7 @@ var
   dicCount, wordCount, dicIx, wordIx: integer;
   hr: HRESULT;
   engine: IbqEngineDicTraits;
-  currentDic: TDict;
+  currentDic: IDict;
 begin
   result := S_FALSE;
   hr := mEngine.QueryInterface(IbqEngineDicTraits, engine);
@@ -117,10 +117,10 @@ begin
   for dicIx := 0 to dicCount do
   begin
     currentDic := engine.GetDictionary(dicIx);
-    wordCount := currentDic.Words.Count - 1;
+    wordCount := currentDic.GetWordCount() - 1;
     for wordIx := 0 to wordCount do
     begin
-      lst.Add(currentDic.Words[wordIx]);
+      lst.Add(currentDic.GetWord(wordIx));
     end;
   end;
   result := S_OK;
@@ -139,38 +139,43 @@ begin
   end;
 end;
 
-function TbqWorker._LoadDictionaries(const path: string): HRESULT;
+function TbqWorker._LoadDictionaries(const aPath: string): HRESULT;
 var
-  dirList: TStringDynArray;
-  dictFileList: TStringDynArray;
-  engine: IbqEngineDicTraits;
+  FileEntries: TStringDynArray;
+  FileEntryPath: String;
+  Engine: IbqEngineDicTraits;
   hr: HRESULT;
-  dictIdxFileName, dictHtmlFileName: string;
-  dictionary: TDict;
-  i, j: integer;
+
+  i: integer;
+  DictLoader: IDictLoader;
+  DictType: TDictTypes;
 begin
-  result := S_FALSE;
+  Result := S_FALSE;
   hr := mEngine.QueryInterface(IbqEngineDicTraits, engine);
   if hr <> S_OK then
     exit;
 
-  dirList := TDirectory.GetDirectories(path);
-  for i := 0 to Length(dirList) - 1 do
+  FileEntries := TDirectory.GetFileSystemEntries(aPath);
+  for i := 0 to Length(FileEntries) - 1 do
   begin
-    dictFileList := TDirectory.GetFiles(dirList[i], '*.idx');
-    for j := 0 to Length(dictFileList) - 1 do
+
+    FileEntryPath := FileEntries[i];
+
+    DictType := TDictLoaderFabric.SelectDictTypeByDirName(FileEntryPath);
+
+    DictLoader := TDictLoaderFabric.CreateDictLoader(DictType);
+
+    if not Assigned(DictLoader) then
     begin
-      dictIdxFileName := dictFileList[j];
-      dictHtmlFileName := Copy(dictIdxFileName, 1, length(dictIdxFileName) - 3) + 'htm';
-
-      dictionary := TDict.Create;
-      dictionary.Initialize(dictIdxFileName, dictHtmlFileName);
-
-      engine.AddDictionary(dictionary);
-
-      result := S_OK;
+      Result := E_NOINTERFACE;
+      exit;
     end;
+
+    if not DictLoader.LoadDictionaries(FileEntryPath, Engine) then exit;
+
   end;
+
+  Result := S_OK;
 end;
 
 constructor TbqWorker.Create(iEngine: IInterface);

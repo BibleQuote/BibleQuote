@@ -18,7 +18,7 @@ uses
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
   VdtEditlink, bqGradientPanel, ModuleProcs,
   Engine, MultiLanguage, LinksParserIntf, HTMLEmbedInterfaces,
-  MetaFilePrinter, Dict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
+  MetaFilePrinter, NativeDict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
   TabData, Favorites, ThinCaptionedDockTree,
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,

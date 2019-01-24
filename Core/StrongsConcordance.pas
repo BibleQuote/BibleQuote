@@ -2,16 +2,16 @@ unit StrongsConcordance;
 
 interface
 
-uses Windows, Classes, SysUtils, IOUtils, IOProcs, Dict, AppPaths, StrUtils,
+uses Windows, Classes, SysUtils, IOUtils, IOProcs, NativeDict, AppPaths, StrUtils,
      SyncObjs, StringProcs;
 
 type
   TStrongsConcordance = class
   private
-    FStrongHebrew, FStrongGreek: TDict;
+    FStrongHebrew, FStrongGreek: TNativeDict;
     FLock: TCriticalSection;
     FHebrewLoaded, FGreekLoaded: boolean;
-    function InitializeDictionary(dict: TDict; idxFilename: string; htmFilename: string): boolean;
+    function InitializeDictionary(dict: TNativeDict; idxFilename: string; htmFilename: string): boolean;
   public
     constructor Create;
     destructor Destroy(); override;
@@ -24,8 +24,8 @@ type
     function Lookup(stext: string): string; overload;
     function Lookup(num: integer; isHebrew: boolean): string; overload;
 
-    property Hebrew: TDict read FStrongHebrew;
-    property Greek: TDict read FStrongGreek;
+    property Hebrew: TNativeDict read FStrongHebrew;
+    property Greek: TNativeDict read FStrongGreek;
     property TotalWords: integer read GetTotalWords;
   end;
 
@@ -37,8 +37,8 @@ begin
 
   FLock := TCriticalSection.Create;
 
-  FStrongHebrew := TDict.Create;
-  FStrongGreek := TDict.Create;
+  FStrongHebrew := TNativeDict.Create;
+  FStrongGreek := TNativeDict.Create;
 end;
 
 destructor TStrongsConcordance.Destroy;
@@ -72,7 +72,7 @@ begin
   Result := FGreekLoaded;
 end;
 
-function TStrongsConcordance.InitializeDictionary(dict: TDict; idxFilename: string; htmFilename: string): boolean;
+function TStrongsConcordance.InitializeDictionary(dict: TNativeDict; idxFilename: string; htmFilename: string): boolean;
 var
   idxFilePath: string;
   htmFilePath: string;
@@ -96,15 +96,15 @@ var
 begin
   FLock.Acquire;
   try
-    if (ix < Hebrew.Words.Count) then
+    if (ix < Hebrew.GetWordCount()) then
     begin
-      word := Hebrew.Words[ix];
+      word := Hebrew.GetWord(ix);
       isHebrew := true;
     end
     else
     begin
-      ix := ix - Hebrew.Words.Count;
-      word := Greek.Words[ix];
+      ix := ix - Hebrew.GetWordCount();
+      word := Greek.GetWord(ix);
       isHebrew := false;
     end;
   finally
@@ -119,7 +119,7 @@ function TStrongsConcordance.GetTotalWords(): integer;
 begin
   FLock.Acquire;
   try
-    Result := Hebrew.Words.Count + Greek.Words.Count;
+    Result := Hebrew.GetWordCount() + Greek.GetWordCount();
   finally
     FLock.Release;
   end;
