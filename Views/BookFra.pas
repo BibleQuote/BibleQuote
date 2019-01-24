@@ -11,7 +11,8 @@ uses
   SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
-  Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages;
+  Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
+  StrongsConcordance;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -172,6 +173,8 @@ type
     mUpdateOnTreeNodeSelect: boolean;
     pmHistory: PopupFrm.TPopupMenu;
     mNotifier: IJclNotifier;
+
+    FStrongsConcordance: TStrongsConcordance;
 
     procedure SetMemosVisible(showMemos: Boolean);
 
@@ -429,9 +432,9 @@ var
   scode, unicodeSRC: string;
   cb: THTMLViewer;
   ws: string;
-  iscontrolDown: Boolean;
+  iscontrolDown, isHebrew: Boolean;
   bookTabState: TBookTabInfoState;
-  num, code: integer;
+  num: integer;
 begin
   unicodeSRC := SRC;
   iscontrolDown := IsDown(VK_CONTROL);
@@ -508,8 +511,7 @@ begin
   else if Pos('s', unicodeSRC) = 1 then
   begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
-    Val(scode, num, code);
-    if (code = 0) then
+    if (StrongVal(scode, num, isHebrew)) then
       mMainView.OpenOrCreateStrongTab(BookTabInfo, num);
   end
   else
@@ -540,18 +542,33 @@ end;
 
 procedure TBookFrame.BrowserHotSpotCovered(viewer: THTMLViewer; src: string);
 var
-  unicodeSRC, ConcreteCmd: string;
+  unicodeSRC, ConcreteCmd, scode: string;
   wstr, ws2, fontName, replaceModPath: string;
   bl: TBibleLink;
-  modIx, status: integer;
+  modIx, status, num: integer;
+  isHebrew: boolean;
 begin
+  if Pos('s', SRC) = 1 then
+  begin
+    scode := Copy(SRC, 2, Length(SRC) - 1);
+    if (StrongVal(scode, num, isHebrew)) then
+    begin
+      if (FStrongsConcordance.Initialize) then
+      begin
+        viewer.Hint := Trim(StripHtmlMarkup(FStrongsConcordance.Lookup(num, isHebrew)));
+      end;
+      Exit;
+    end;
+  end;
+
   if (SRC = '') or (viewer.LinkAttributes.Count < 3) then
   begin
     viewer.Hint := '';
     bwrHtml.Hint := '';
     Application.CancelHint();
-    Exit
+    Exit;
   end;
+
   if Pos(viewer.LinkAttributes[2], 'CLASS=bqResolvedLink') <= 0 then
     Exit;
 
@@ -873,6 +890,8 @@ begin
   inherited Create(AOwner);
   mMainView := mainView;
   mWorkspace := workspace;
+
+  FStrongsConcordance := mMainView.StrongsConcordance;
 
   mNotifier := mainView.mNotifier;
   mSatelliteForm := TForm.Create(self);

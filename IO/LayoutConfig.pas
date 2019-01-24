@@ -508,6 +508,8 @@ begin
         continue;
 
       jsonTabData := TJSONObject(jsonTabDataVal);
+
+      tab := nil;
       case StrIndex(tabName, ['book', 'memo', 'library', 'bookmarks', 'search', 'tsk', 'tags', 'dict', 'strong']) of
         0: tab := TBookTabSettings.Create;
         1: tab := TMemoTabSettings.Create;
@@ -520,8 +522,11 @@ begin
         8: tab := TStrongTabSettings.Create;
       end;
 
-      tab.FromJson(jsonTabData);
-      AddTabSettings(tab);
+      if Assigned(tab) then
+      begin
+        tab.FromJson(jsonTabData);
+        AddTabSettings(tab);
+      end;
     end;
   end;
 end;

@@ -23,7 +23,8 @@ uses
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, FontManager, BroadcastList, JclNotify, NotifyMessages,
-  AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
+  AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
+  StrongsConcordance;
 
 const
 
@@ -212,6 +213,8 @@ type
     procedure tbtnAddStrongTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
   private
+    FStrongsConcordance: TStrongsConcordance;
+
     procedure NavigeTSKTab;
     procedure PlaySound();
     procedure ActivateTargetWorkspace();
@@ -286,8 +289,7 @@ type
     G_XRefVerseCmd: string;
     // OLD VARABLES END
 
-    procedure WMQueryEndSession(var Message: TWMQueryEndSession);
-      message WM_QUERYENDSESSION;
+    procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
 
     procedure DrawMetaFile(PB: TPaintBox; mf: TMetaFile);
     function CreateNewBibleInstance(): TBible;
@@ -410,6 +412,7 @@ type
     procedure CopyVerse();
 
     property FontManager: TFontManager read mFontManager;
+    property StrongsConcordance: TStrongsConcordance read FStrongsConcordance;
     property BqEngine: TBibleQuoteEngine read mBqEngine;
   public
     mHandCur: TCursor;
@@ -1351,6 +1354,9 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   mFontManager := TFontManager.Create();
+  FStrongsConcordance := TStrongsConcordance.Create();
+  FStrongsConcordance.Initialize;
+
   mBqEngine := TBibleQuoteEngine.Create();
   mNotifier := TJclBaseNotifier.Create;
 
@@ -3827,7 +3833,6 @@ end;
 procedure TMainForm.ActivateTargetWorkspace();
 var
   workspace: IWorkspace;
-  activeTab: IViewTabInfo;
 begin
   for workspace in mWorkspaces do
   begin

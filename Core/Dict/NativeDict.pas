@@ -101,10 +101,7 @@ begin
   i := FWords.IndexOf(aWord);
 
   if i = -1 then
-  begin
-    Result := '';
-
-  end
+    result := ''
   else
   begin
     dDictSize := ReadFileSize(FDict);
@@ -116,7 +113,6 @@ begin
       dCount := dDictSize - dOffset;
 
     Result := ReadDictFragment(FDict, dOffset, dCount, TEncoding.GetEncoding(1251));
-
   end;
 
   dExcludeWord := LowerCase('<h4>' + aWord + '</h4>');

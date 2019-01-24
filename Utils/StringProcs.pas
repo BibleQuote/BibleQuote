@@ -46,6 +46,8 @@ procedure AddLine(var rResult: string; const aLine: string);
 function PosCIL(aSubString: string; const aString: string; aStartPos: integer = 1): integer; overload;
 
 function FindPosition(const sourceString, findString: string; const startPos: integer; options: TStringSearchOptions): integer;
+function StripHtmlMarkup(const source: string): string;
+function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
 
 const
   DefaultHTMLFilter
@@ -742,6 +744,58 @@ begin
   pResult := SearchBuf(buf, Length(sourceString), startPos, Length(findString), findString, options);
   if pResult <> nil then
     Result := (pResult - PChar(sourceString)) + 1;
+end;
+
+function StripHtmlMarkup(const source: string): string;
+var
+  i, count: integer;
+  inTag: boolean;
+  p: PChar;
+begin
+  SetLength(Result, Length(source));
+  P := PChar(Result);
+  inTag := False;
+  count := 0;
+  for i := 1 to Length(source) do
+    if inTag then
+      begin
+        if source[i] = '>' then inTag := False;
+      end
+    else
+      if source[i] = '<' then inTag := True
+      else
+        begin
+          P[count] := source[i];
+          Inc(count);
+        end;
+  SetLength(Result, count);
+end;
+
+function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
+var
+  i, code: Integer;
+  s: string;
+begin
+  s := Trim(source);
+
+  if StartsText('0', s) then
+    isHebrew := true
+  else if StartsText('H', s) then
+  begin
+    isHebrew := true;
+    s := Copy(s, 2, Length(s) - 1);
+  end
+  else if StartsText('G', s) then
+  begin
+    isHebrew := false;
+    s := Copy(s, 2, Length(s) - 1);
+  end
+  else
+    isHebrew := false;
+
+  Val(s, num, code);
+
+  Result := code = 0;
 end;
 
 end.
