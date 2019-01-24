@@ -11,7 +11,8 @@ uses
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig, BookmarksFra,
   SearchFra, TSKFra, TagsVersesFra, DictionaryFra, StrongFra, AppIni,
-  JclNotify, NotifyMessages;
+  JclNotify, NotifyMessages, Vcl.VirtualImageList, Vcl.BaseImageCollection,
+  Vcl.ImageCollection, IOUtils, ImageUtils;
 
 const
   bsText = 0;
@@ -23,15 +24,16 @@ const
 
 type
   TDockTabsForm = class(TForm, IWorkspace, IJclListener)
-    ilImages: TImageList;
     pnlMain: TPanel;
     mViewTabsPopup: TPopupMenu;
-    miNewViewTab: TMenuItem;
     miCloseViewTab: TMenuItem;
     miCloseAllOtherTabs: TMenuItem;
     ctViewTabs: TChromeTabs;
+    imgIcons: TImageCollection;
+    vImgIcons: TVirtualImageList;
+    miSeparator: TMenuItem;
+    miCloseAllTabs: TMenuItem;
 
-    procedure miNewViewTabClick(Sender: TObject);
     procedure miCloseViewTabClick(Sender: TObject);
     procedure miCloseAllOtherTabsClick(Sender: TObject);
 
@@ -47,6 +49,7 @@ type
     procedure FormDeactivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure mViewTabsOnPopup(Sender: TObject);
+    procedure miCloseAllTabsClick(Sender: TObject);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -67,11 +70,15 @@ type
     mViewTabs: TList<IViewTabInfo>;
     mFrames: TList<TFrame>;
 
+    mContextMenuStaticItems: integer;
+
     procedure ActivateFrame(frameToActivate: TFrame);
     procedure UpdateTabContent(ATab: TChromeTab; restoreState: boolean = true);
     procedure Notification(msg: IJclNotificationMessage); stdcall;
     procedure PopupChangeTab(Sender: TObject);
     procedure ApplyConfigFont(appConfig: TAppConfig);
+    function GetImageCacheIndex(newTabInfo: TBookTabInfo): integer;
+    function CacheImage(name: string; thumbnailImage: TWICImage): integer;
   public
     { Public declarations }
 
@@ -213,6 +220,81 @@ begin
   Name := viewName;
 end;
 
+function TDockTabsForm.CacheImage(name: string; thumbnailImage: TWICImage): integer;
+var
+  imageItem: TImageCollectionItem;
+  thumbnailSource: TImageCollectionSourceItem;
+  imageIndex: integer;
+begin
+  imageItem := imgIcons.Images.Add;
+  thumbnailSource := imageItem.SourceImages.Add;
+  thumbnailSource.Image := thumbnailImage;
+  imageIndex := imgIcons.Count - 1;
+
+  // add it to image list
+  vImgIcons.Add(name, imageIndex);
+
+  Result := imageIndex;
+end;
+
+function TDockTabsForm.GetImageCacheIndex(newTabInfo: TBookTabInfo): integer;
+var
+  coverImagePath: string;
+  coverName: string;
+  thumbnailImage: TWICImage;
+  imageIndex: integer;
+  defCoverImage: TWICImage;
+begin
+  result := -1;
+  imageIndex := -1;
+
+  // check if book has cover image
+  if (newTabInfo.Bible.ModuleImage <> '') then
+  begin
+    coverImagePath := TPath.Combine(newTabInfo.Bible.ShortPath, newTabInfo.Bible.ModuleImage);
+    coverName := coverImagePath;
+    try
+      // check if image already cached
+      imageIndex := vImgIcons.GetIndexByName(coverName);
+      if (imageIndex < 0) and (FileExists(coverImagePath)) then
+      begin
+        // create thumbnail from cover image and cache it
+        thumbnailImage := CreateThumbnailFromFile(coverImagePath, 64, 64);
+        imageIndex := CacheImage(coverName, thumbnailImage);
+      end;
+    except
+      on Exception do imageIndex := -1;
+    end;
+  end;
+
+  if (imageIndex < 0) then
+  begin
+    // book doesn't have cover image, apply default cover
+    coverName := 'CoverDefault';
+    try
+      // check if image already cached
+      imageIndex := vImgIcons.GetIndexByName(coverName);
+      if (imageIndex < 0) then
+      begin
+        // create thumbnail from default cover image and cache it
+        defCoverImage := nil;
+        try
+          defCoverImage := LoadResourceWICImage('CoverDefault');
+          thumbnailImage := CreateThumbnail(defCoverImage, 64, 64);
+          imageIndex := CacheImage(coverName, thumbnailImage);
+        finally
+          if Assigned(defCoverImage) then
+            defCoverImage.Free;
+        end;
+      end;
+    except
+      on Exception do imageIndex := -1;
+    end;
+  end;
+
+  result := imageIndex;
+end;
+
 procedure TDockTabsForm.ApplyConfigFont(appConfig: TAppConfig);
 begin
   if (appConfig.MainFormFontName <> Font.Name) then
@@ -287,6 +369,8 @@ begin
 
   mNotifier := mainView.mNotifier;
   mNotifier.Add(self);
+
+  mContextMenuStaticItems := mViewTabsPopup.Items.Count;
 
   ApplyConfigFont(AppConfig);
 end;
@@ -577,6 +661,14 @@ begin
   end; // except
 end;
 
+procedure TDockTabsForm.miCloseAllTabsClick(Sender: TObject);
+begin
+  ctViewTabs.Tabs.Clear;
+  mViewTabs.Clear;
+
+  Close;
+end;
+
 procedure TDockTabsForm.CloseActiveTab();
 var
   tabIndex: integer;
@@ -598,18 +690,16 @@ begin
   CloseActiveTab;
 end;
 
-procedure TDockTabsForm.miNewViewTabClick(Sender: TObject);
-begin
-  CreateNewBookTab();
-end;
-
 procedure TDockTabsForm.mViewTabsOnPopup(Sender: TObject);
 var
   i: integer;
   tabMenu: TMenuItem;
   tab: TChromeTab;
 begin
-  mViewTabsPopup.Items.Clear;
+  // remove all dynamic menu items
+  while mViewTabsPopup.Items.Count > mContextMenuStaticItems do
+    mViewTabsPopup.Items[0].Free;
+
   try
     for i := 0 to ctViewTabs.Tabs.Count - 1 do
     begin
@@ -621,7 +711,8 @@ begin
       tabMenu.ImageIndex := tab.ImageIndex;
       tabMenu.Checked := i = ctViewTabs.ActiveTabIndex;
       tabMenu.OnClick := PopupChangeTab;
-      mViewTabsPopup.Items.Add(tabMenu);
+
+      mViewTabsPopup.Items.Insert(i, tabMenu);
     end;
   except
     // skip error
@@ -810,6 +901,7 @@ begin
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
 
+  newTab.ImageIndex := GetImageCacheIndex(newTabInfo);
   Result := newTab;
 end;
 
