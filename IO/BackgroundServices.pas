@@ -141,8 +141,8 @@ end;
 
 function TbqWorker._LoadDictionaries(const aPath: string): HRESULT;
 var
-  DirList: TStringDynArray;
-  DirPath: String;
+  FileEntries: TStringDynArray;
+  FileEntryPath: String;
   Engine: IbqEngineDicTraits;
   hr: HRESULT;
 
@@ -155,13 +155,13 @@ begin
   if hr <> S_OK then
     exit;
 
-  DirList := TDirectory.GetDirectories(aPath);
-  for i := 0 to Length(DirList) - 1 do
+  FileEntries := TDirectory.GetFileSystemEntries(aPath);
+  for i := 0 to Length(FileEntries) - 1 do
   begin
 
-    DirPath := DirList[i];
+    FileEntryPath := FileEntries[i];
 
-    DictType := TDictLoaderFabric.SelectDictTypeByDirName(DirPath);
+    DictType := TDictLoaderFabric.SelectDictTypeByDirName(FileEntryPath);
 
     DictLoader := TDictLoaderFabric.CreateDictLoader(DictType);
 
@@ -171,7 +171,7 @@ begin
       exit;
     end;
 
-    if not DictLoader.LoadDictionaries(DirPath, Engine) then exit;
+    if not DictLoader.LoadDictionaries(FileEntryPath, Engine) then exit;
 
   end;
 

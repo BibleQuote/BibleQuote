@@ -10,7 +10,7 @@ type
     function LoadDictionary(aDictIdxFilePath : String): TNativeDict;
 
   public
-    function LoadDictionaries(aDirPath: String; aEngine: IbqEngineDicTraits): Boolean;
+    function LoadDictionaries(aFileEntryPath: String; aEngine: IbqEngineDicTraits): Boolean;
 
   end;
 
@@ -19,7 +19,7 @@ implementation
 { TNativeDictLoader }
 uses ExceptionFrm;
 
-function TNativeDictLoader.LoadDictionaries(aDirPath: String;
+function TNativeDictLoader.LoadDictionaries(aFileEntryPath: String;
   aEngine: IbqEngineDicTraits): Boolean;
 var
   DictFileList: TStringDynArray;
@@ -28,7 +28,7 @@ var
 
 begin
 
-  DictFileList := TDirectory.GetFiles(aDirPath, '*.idx');
+  DictFileList := TDirectory.GetFiles(aFileEntryPath, '*.idx');
   for i := 0 to Length(DictFileList) - 1 do
   begin
 

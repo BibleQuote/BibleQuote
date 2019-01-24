@@ -12,7 +12,7 @@ type
     function GetDictName(aSQLiteQuery: TFDQuery): String;
     procedure FillWords(aWords: TStrings; aSQLiteQuery: TFDQuery);
   public
-    function LoadDictionaries(aDirPath: String; aEngine: IbqEngineDicTraits): Boolean;
+    function LoadDictionaries(aFileEntryPath: String; aEngine: IbqEngineDicTraits): Boolean;
   end;
 
 implementation
@@ -58,31 +58,22 @@ begin
   end;
 end;
 
-function TMyBibleDictLoader.LoadDictionaries(aDirPath: String;
+function TMyBibleDictLoader.LoadDictionaries(aFileEntryPath: String;
   aEngine: IbqEngineDicTraits): Boolean;
 var
-  DictFileList: TStringDynArray;
-  i: Integer;
   SQLiteConnection: TFDConnection;
   Dictionary: TMyBibleDict;
 begin
 
-  DictFileList := TDirectory.GetFiles(aDirPath, '*.sqlite3');
   SQLiteConnection := TFDConnection.Create(nil);
   SQLiteConnection.DriverName := 'SQLite';
 
   try
 
-    for i := 0 to Length(DictFileList) - 1 do
-    begin
+    Dictionary := LoadDictionary(aFileEntryPath, SQLiteConnection);
 
-      Dictionary := LoadDictionary(DictFileList[i], SQLiteConnection);
-
-      if Assigned(Dictionary) then
-        aEngine.AddDictionary(Dictionary);
-
-    end;
-
+    if Assigned(Dictionary) then
+      aEngine.AddDictionary(Dictionary);
 
   finally
     SQLiteConnection.Close;

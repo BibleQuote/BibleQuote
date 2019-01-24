@@ -16,10 +16,11 @@ type
   private
     class function CreateNativeDictLoader(): TNativeDictLoader;
     class function CreateMyBibleDictLoader(): TMyBibleDictLoader;
-    class procedure FillDictTypeAbbrs(aDictTypesMap: TDictionary<String, TDictTypes>);
+    class function IsNativeFileEntry(aFileEntryPath: String): Boolean;
+    class function IsMyBibleFileEntry(aFileEntryPath: String): Boolean;
 
   public
-    class function SelectDictTypeByDirName(aDirPath: String): TDictTypes;
+    class function SelectDictTypeByDirName(aFileEntryPath: String): TDictTypes;
     class function CreateDictLoader(aDictType: TDictTypes): IDictLoader;
 
   end;
@@ -27,7 +28,7 @@ type
 implementation
 
 { TDictFabric }
-uses SysUtils;
+uses SysUtils, RegularExpressions;
 
 class function TDictLoaderFabric.CreateDictLoader(aDictType: TDictTypes): IDictLoader;
 begin
@@ -50,45 +51,34 @@ begin
   Result := TNativeDictLoader.Create();
 end;
 
-class procedure TDictLoaderFabric.FillDictTypeAbbrs(
-  aDictTypesMap: TDictionary<String, TDictTypes>);
+class function TDictLoaderFabric.IsMyBibleFileEntry(
+  aFileEntryPath: String): Boolean;
 begin
-  aDictTypesMap.Add('MB', dtMyBible);
+  Result := FileExists(aFileEntryPath) and TRegEx.IsMatch(aFileEntryPath, '^.*\.dictionary\.SQLite3$')
 end;
 
-class function TDictLoaderFabric.SelectDictTypeByDirName(aDirPath: String): TDictTypes;
-var
-  DictDirName: String;
-  Parts: TStringList;
-  DictTypeAbbrs: TDictionary<String, TDictTypes>;
-  DictTypeAbbr: String;
+class function TDictLoaderFabric.IsNativeFileEntry(
+  aFileEntryPath: String): Boolean;
 begin
-  Result := dtNative;
+  Result := DirectoryExists(aFileEntryPath);
+end;
 
-  DictTypeAbbrs := TDictionary<String, TDictTypes>.Create();
-  FillDictTypeAbbrs(DictTypeAbbrs);
+class function TDictLoaderFabric.SelectDictTypeByDirName(aFileEntryPath: String): TDictTypes;
+begin
 
-  DictDirName := ExtractFileName(aDirPath);
-
-  Parts := TStringList.Create;
-  try
-    ExtractStrings(['_'], [], PChar(DictDirName), Parts);
-
-    if Parts.Count <= 4 then exit;
-
-    DictTypeAbbr := Parts[3];
-
-    if DictTypeAbbrs.ContainsKey(DictTypeAbbr) then
-    begin
-      Result := DictTypeAbbrs[DictTypeAbbr]
-    end
-    else
-      raise Exception.Create(Format('Unexpected dictionary type abbreviation %s', [DictTypeAbbr]) );
-
-  finally
-    Parts.Free;
-    DictTypeAbbrs.Free;
+  if IsMyBibleFileEntry(aFileEntryPath) then
+  begin
+    Result := dtMyBible;
+    exit;
   end;
+
+  if IsNativeFileEntry(aFileEntryPath) then
+  begin
+    Result := dtNative;
+    exit;
+  end;
+
+  raise Exception.Create('Missing type of file entry: '+aFileEntryPath);
 
 end;
 
