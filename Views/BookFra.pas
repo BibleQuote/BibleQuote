@@ -212,6 +212,7 @@ type
     procedure UpdateModuleTreeSelection(book: TBible);
     procedure UpdateModuleTree(book: TBible);
     function GetCurrentBookNode(): PVirtualNode;
+    procedure OpenModule(moduleName: string; fromBeginning: Boolean = false);
   end;
 
 implementation
@@ -962,7 +963,7 @@ begin
         Exit;
       end;
       me := dtsBible.Tabs.Objects[NewTab] as TModuleEntry;
-      mMainView.OpenModule(me.mFullName);
+      OpenModule(me.mFullName);
     end;
   except
     on E: Exception do
@@ -2164,8 +2165,6 @@ begin
                 bookTabInfo[vtisHighLightVerses] := false;
               bookTabInfo.Title := Format('%.6s-%.6s:%d', [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
 
-              mWorkspace.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
-
             except
               on E: Exception do
                 BqShowException(E);
@@ -2268,7 +2267,6 @@ begin
         bwrHtml.tag := bsFile;
 
       bookTabInfo.Title := Format('%.12s', [value]);
-      mWorkspace.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
       bookTabInfo.Location := command;
       bookTabInfo.LocationType := vtlFile;
 
@@ -2282,7 +2280,6 @@ begin
       try
         bwrHtml.LoadFromFile(bwrHtml.Base + dup);
         bookTabInfo.Title := Format('%.12s', [command]);
-        mWorkspace.ChromeTabs.ActiveTab.Caption := BookTabInfo.Title;
 
         bookTabInfo.Location := command;
         bookTabInfo.LocationType := vtlFile;
@@ -2295,10 +2292,12 @@ begin
       end;
 
   exitlabel:
+    mWorkspace.UpdateBookTabHeader();
+
     if Length(path) <= 0 then
       Exit;
-    Result := true;
 
+    Result := true;
     SelectModuleTreeNode(bookTabInfo.Bible);
 
     if (not wasFile) then
@@ -3295,6 +3294,91 @@ var
 begin
   menuItem := TMenuItem(Sender);
   AddBookmarkTagged(menuItem.Caption);
+end;
+
+procedure TBookFrame.OpenModule(moduleName: string; fromBeginning: Boolean = false);
+var
+  i: integer;
+  firstVisibleVerse: integer;
+  wasBible: Boolean;
+  me: TModuleEntry;
+  bl, obl: TBibleLink;
+  blValidAddressExtracted: Boolean;
+  path: string;
+  hlVerses: TbqHLVerseOption;
+  R: integer;
+  iniPath: string;
+  bible: TBible;
+begin
+  i := mMainView.mModules.FindByName(moduleName);
+
+  if i < 0 then
+  begin
+    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name: ' + moduleName);
+    raise Exception.Create('Exception mModules.FindByName failed!');
+  end;
+
+  me := mMainView.mModules.Items[i];
+
+  hlVerses := hlFalse;
+  if not Assigned(BookTabInfo) then
+    Exit;
+
+  bible := BookTabInfo.Bible;
+
+  // remember old module's params
+  wasBible := bible.isBible;
+  blValidAddressExtracted := bl.FromBqStringLocation(BookTabInfo.Location, path);
+  if not blValidAddressExtracted then
+  begin
+    bl.Build(bible.CurBook, bible.CurChapter, BookTabInfo.FirstVisiblePara, 0);
+    blValidAddressExtracted := true;
+  end
+  else
+    hlVerses := hlTrue;
+
+  if blValidAddressExtracted then
+  begin
+    // if valid address
+    R := bible.ReferenceToInternal(bl, obl);
+    if R <= -2 then
+    begin
+      obl.Build(1, 1, 0, 0);
+      hlVerses := hlFalse;
+    end
+    else if R = -1 then
+    begin
+      obl.vend := 0;
+    end;
+  end;
+
+  bible := TBible.Create(mMainView);
+
+  iniPath := TPath.Combine(me.mShortPath, 'bibleqt.ini');
+  bible.inifile := MainFileExists(iniPath);
+
+  if bible.isBible and wasBible and not fromBeginning then
+  begin
+    R := bible.InternalToReference(obl, bl);
+    if R <= -2 then
+      hlVerses := hlFalse;
+    try
+      if (bookTabInfo.FirstVisiblePara > 0) and (bookTabInfo.FirstVisiblePara < bible.verseCount()) then
+        firstVisibleVerse := bookTabInfo.FirstVisiblePara
+      else
+        firstVisibleVerse := -1;
+
+      ProcessCommand(BookTabInfo, bl.ToCommand(bible.ShortPath), hlVerses);
+
+      if firstVisibleVerse > 0 then
+      begin
+        bwrHtml.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
+      end;
+    except
+    end;
+  end // both previous and current are bibles
+  else
+    SafeProcessCommand(bookTabInfo, 'go ' + bible.ShortPath + ' 1 1 0', hlFalse);
 end;
 
 end.

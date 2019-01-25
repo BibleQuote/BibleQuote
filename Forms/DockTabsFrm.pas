@@ -103,6 +103,7 @@ type
     function AddDictionaryTab(newTabInfo: TDictionaryTabInfo): TChromeTab;
     function AddStrongTab(newTabInfo: TStrongTabInfo): TChromeTab;
 
+    procedure UpdateBookTabHeader();
     procedure OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
 
     procedure CreateNewBookTab();
@@ -603,6 +604,21 @@ begin
   mMainView.ActivateModuleView(modEntry.mFullName);
 end;
 
+procedure TDockTabsForm.UpdateBookTabHeader();
+var
+  activeTabInfo: IViewTabInfo;
+  bookTabInfo: TBookTabInfo;
+begin
+  activeTabInfo := GetActiveTabInfo();
+  if (activeTabInfo is TBookTabInfo) then
+  begin
+    bookTabInfo := activeTabInfo as TBookTabInfo;
+
+    ChromeTabs.ActiveTab.ImageIndex := GetImageCacheIndex(bookTabInfo);
+    ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
+  end;
+end;
+
 procedure TDockTabsForm.MakeActive();
 begin
   // activate form when any of its control is clicked
@@ -818,13 +834,9 @@ begin
       mMainView.UpdateBookView();
 
       if (bookTabInfo.IsCompareTranslation) then
-      begin
-        mBookView.bwrHtml.LoadFromString(bookTabInfo.CompareTranslationText);
-      end
+        mBookView.bwrHtml.LoadFromString(bookTabInfo.CompareTranslationText)
       else
-      begin
         mBookView.ProcessCommand(bookTabInfo, bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
-      end;
 
       bookTabInfo.RestoreState(self);
     finally
