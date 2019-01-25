@@ -25,7 +25,7 @@ const
 type
   TDockTabsForm = class(TForm, IWorkspace, IJclListener)
     pnlMain: TPanel;
-    mViewTabsPopup: TPopupMenu;
+    pmTabs: TPopupMenu;
     miCloseViewTab: TMenuItem;
     miCloseAllOtherTabs: TMenuItem;
     ctViewTabs: TChromeTabs;
@@ -246,7 +246,6 @@ var
   imageIndex: integer;
   defCoverImage: TWICImage;
 begin
-  result := -1;
   imageIndex := -1;
 
   // check if book has cover image
@@ -371,7 +370,7 @@ begin
   mNotifier := mainView.mNotifier;
   mNotifier.Add(self);
 
-  mContextMenuStaticItems := mViewTabsPopup.Items.Count;
+  mContextMenuStaticItems := pmTabs.Items.Count;
 
   ApplyConfigFont(AppConfig);
 end;
@@ -713,13 +712,13 @@ var
   tab: TChromeTab;
 begin
   // remove all dynamic menu items
-  while mViewTabsPopup.Items.Count > mContextMenuStaticItems do
-    mViewTabsPopup.Items[0].Free;
+  while pmTabs.Items.Count > mContextMenuStaticItems do
+    pmTabs.Items[0].Free;
 
   try
     for i := 0 to ctViewTabs.Tabs.Count - 1 do
     begin
-      tabMenu := TMenuItem.Create(mViewTabsPopup);
+      tabMenu := TMenuItem.Create(pmTabs);
 
       tab := ctViewTabs.Tabs.Items[i];
       tabMenu.Tag := i;
@@ -728,7 +727,7 @@ begin
       tabMenu.Checked := i = ctViewTabs.ActiveTabIndex;
       tabMenu.OnClick := PopupChangeTab;
 
-      mViewTabsPopup.Items.Insert(i, tabMenu);
+      pmTabs.Items.Insert(i, tabMenu);
     end;
   except
     // skip error
@@ -924,7 +923,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabMemos', 'Memos');
   newTab.Data := newTabInfo;
-  newTab.ImageIndex := 17;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('memoTab');
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -939,7 +938,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabBookmarks', 'Bookmarks');
   newTab.Data := newTabInfo;
-  newTab.ImageIndex := 19;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('bookmarksTab');
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -954,7 +953,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabSearch', 'Search');
   newTab.Data := newTabInfo;
-  newTab.ImageIndex := 20;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('searchTab');
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -969,7 +968,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabLibrary', 'My Library');
   newTab.Data := newTabInfo;
-  newTab.ImageIndex := 18;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('libraryTab');
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -984,7 +983,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabTSK', 'TSK');
   newTab.Data := newTabInfo;
-  newTab.ImageIndex := 21;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('tskTab');
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -999,7 +998,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabTagsVerses', 'Themed Bookmarks');
   newTab.Data := newTabInfo;
-  newTab.ImageIndex := 22;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('themedBookmarksTab');
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -1014,7 +1013,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabDictionary', 'Dictionary');
   newTab.Data := newTabInfo;
-  newTab.ImageIndex := 23;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('dictionaryTab');
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
@@ -1029,7 +1028,7 @@ begin
   newTab := ctViewTabs.Tabs.Add;
   newTab.Caption := Lang.SayDefault('TabStrong', 'Strong');
   newTab.Data := newTabInfo;
-  newTab.ImageIndex := 3;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('strongTab');
 
   mViewTabs.Add(newTabInfo);
   UpdateTabContent(newTab);
