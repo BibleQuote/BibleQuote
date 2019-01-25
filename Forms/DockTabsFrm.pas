@@ -26,7 +26,7 @@ type
   TDockTabsForm = class(TForm, IWorkspace, IJclListener)
     pnlMain: TPanel;
     pmTabs: TPopupMenu;
-    miCloseViewTab: TMenuItem;
+    miCloseTab: TMenuItem;
     miCloseAllOtherTabs: TMenuItem;
     ctViewTabs: TChromeTabs;
     imgIcons: TImageCollection;
@@ -34,7 +34,7 @@ type
     miSeparator: TMenuItem;
     miCloseAllTabs: TMenuItem;
 
-    procedure miCloseViewTabClick(Sender: TObject);
+    procedure miCloseTabClick(Sender: TObject);
     procedure miCloseAllOtherTabsClick(Sender: TObject);
 
     function GetActiveTabInfo(): IViewTabInfo;
@@ -700,7 +700,7 @@ begin
   end;
 end;
 
-procedure TDockTabsForm.miCloseViewTabClick(Sender: TObject);
+procedure TDockTabsForm.miCloseTabClick(Sender: TObject);
 begin
   CloseActiveTab;
 end;
