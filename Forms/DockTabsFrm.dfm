@@ -25,6 +25,7 @@ object DockTabsForm: TDockTabsForm
     Height = 366
     Align = alClient
     TabOrder = 0
+    ExplicitTop = 36
   end
   object ctViewTabs: TChromeTabs
     Left = 0
@@ -368,10 +369,9 @@ object DockTabsForm: TDockTabsForm
     object miSeparator: TMenuItem
       Caption = '-'
     end
-    object miCloseViewTab: TMenuItem
+    object miCloseTab: TMenuItem
       Caption = #1047#1072#1082#1088#1099#1090#1100' '#1074#1082#1083#1072#1076#1082#1091
-      ImageIndex = 0
-      OnClick = miCloseViewTabClick
+      OnClick = miCloseTabClick
     end
     object miCloseAllOtherTabs: TMenuItem
       Caption = 'C&lose all other tabs'
@@ -384,26 +384,6 @@ object DockTabsForm: TDockTabsForm
   end
   object imgIcons: TImageCollection
     Images = <
-      item
-        Name = 'closeTab'
-        SourceImages = <
-          item
-            Image.Data = {
-              89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
-              61000001674944415478DAA5D3217482401807F0FFD7CE060DE2AD6DCDB52D12
-              5DD348B569DB1A46D6B069D348744D22519B6BA379916BD8A0DD0EE760B8A74F
-              B7E33DE038BEDFDD7DF73E5250F84FA3E56AAB4406A4BBE640A12FE4756F7FFF
-              7AC06605DA77163A8F9CC85F6C95619857CF2C9204C1F081C80BB77FDA834C25
-              662F07C077395D0BF4FD58CD46CE0FE090CDA2DE729D8BA2FE94EB176E333A09
-              34E28B460AAB8E613272FD4885A30ED173F8A102F7B6011C2DE208D2400BE47A
-              1A782D819906FABF817310BB06A88EED6D0A194D918B042D8B236E3DC09B8744
-              83C9464D86EDB3401998C521B8D303E36D144984248E603B03D440D94E206BF7
-              066D77002662BD9415609AD8318E64238E80132D764839C102B8EF56FFED3C5B
-              6DD61214842B25D2EFFCE4A84A20AFD3D77B77D1E9EAE58BA51E9728CBA6AC0B
-              9159A04BAA512EC62A8DE6B08D028C09645207EB49B9EB5F06EC91E55489708C
-              5C0A7D0A16ACA7A1063CFA04325BCD9D0FFF130F0000000049454E44AE426082}
-          end>
-      end
       item
         Name = 'strongTab'
         SourceImages = <
@@ -606,54 +586,48 @@ object DockTabsForm: TDockTabsForm
     Images = <
       item
         CollectionIndex = 0
-        CollectionName = 'closeTab'
-        Disabled = False
-        Name = 'closeTab'
-      end
-      item
-        CollectionIndex = 1
         CollectionName = 'strongTab'
         Disabled = False
         Name = 'strongTab'
       end
       item
-        CollectionIndex = 2
+        CollectionIndex = 1
         CollectionName = 'memoTab'
         Disabled = False
         Name = 'memoTab'
       end
       item
-        CollectionIndex = 3
+        CollectionIndex = 2
         CollectionName = 'libraryTab'
         Disabled = False
         Name = 'libraryTab'
       end
       item
-        CollectionIndex = 4
+        CollectionIndex = 3
         CollectionName = 'bookmarksTab'
         Disabled = False
         Name = 'bookmarksTab'
       end
       item
-        CollectionIndex = 5
+        CollectionIndex = 4
         CollectionName = 'searchTab'
         Disabled = False
         Name = 'searchTab'
       end
       item
-        CollectionIndex = 6
+        CollectionIndex = 5
         CollectionName = 'tskTab'
         Disabled = False
         Name = 'tskTab'
       end
       item
-        CollectionIndex = 7
+        CollectionIndex = 6
         CollectionName = 'themedBookmarksTab'
         Disabled = False
         Name = 'themedBookmarksTab'
       end
       item
-        CollectionIndex = 8
+        CollectionIndex = 7
         CollectionName = 'dictionaryTab'
         Disabled = False
         Name = 'dictionaryTab'
