@@ -22,9 +22,11 @@ type
     mFolderBiblesScanned: Boolean;
     mFolderBooksScanned: Boolean;
     mFolderCommentsScanned: Boolean;
+    mFolderDictionariesScanned: Boolean;
 
     mArchivedModulesScanned: Boolean;
     mArchivedCommentsScanned: Boolean;
+    mArchivedDictionariesScanned: Boolean;
 
     mSecondFolderBiblesScanned: Boolean;
     mSecondFolderBooksScanned: Boolean;
@@ -67,6 +69,7 @@ begin
   mFolderBiblesScanned := false;
   mFolderBooksScanned := false;
   mFolderCommentsScanned := false;
+  mFolderDictionariesScanned := false;
 
   mSecondFolderBiblesScanned := false;
   mSecondFolderBooksScanned := false;
@@ -74,6 +77,7 @@ begin
 
   mArchivedModulesScanned := false;
   mArchivedCommentsScanned := false;
+  mArchivedDictionariesScanned := false;
 
   mScanDone := false;
   mCachedModules := TCachedModules.Create(true);
@@ -195,6 +199,27 @@ begin
       begin
         mArchivedCommentsScanned := AddArchivedModules(
           TPath.Combine(TLibraryDirectories.CompressedModules, C_CommentariesSubDirectory),
+          tmpBook,
+          background);
+
+        Exit;
+      end;
+
+      if not mFolderDictionariesScanned then
+      begin
+        mFolderDictionariesScanned := AddFolderModules(
+          TLibraryDirectories.Dictionaries,
+          tmpBook,
+          background,
+          modtypeDictionary);
+
+        Exit;
+      end;
+
+      if not mArchivedDictionariesScanned then
+      begin
+        mArchivedDictionariesScanned := AddArchivedModules(
+          TPath.Combine(TLibraryDirectories.CompressedModules, C_DictionariesSubDirectory),
           tmpBook,
           background);
 

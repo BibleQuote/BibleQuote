@@ -50,7 +50,8 @@ type
   TModuleType = (
     modtypeBible,
     modtypeBook,
-    modtypeComment);
+    modtypeComment,
+    modtypeDictionary);
 
   TModMatchType = (mmtName, mmtBookName, mmtCat, mmtPartial);
   TModMatchTypes = set of TModMatchType;

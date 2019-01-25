@@ -14,7 +14,8 @@ type
     btAllBooks,
     btBibles,
     btCommentaries,
-    btOtherBooks);
+    btOtherBooks,
+    btAllDictionaries);
 
   TSelectModuleEvent = procedure(Sender: TObject; modEntry: TModuleEntry) of object;
 
@@ -154,6 +155,7 @@ begin
   cmbBookType.AddItem(Lang.Say('StrBibleTranslations'), TObject(btBibles));
   cmbBookType.AddItem(Lang.Say('StrBooks'), TObject(btOtherBooks));
   cmbBookType.AddItem(Lang.Say('StrCommentaries'), TObject(btCommentaries));
+  cmbBookType.AddItem(Lang.Say('StrAllDictionaries'), TObject(btAllDictionaries));
 
   cmbBookType.ItemIndex := Max(index, 0);
 end;
@@ -208,6 +210,7 @@ var
   booksType: TBooksType;
   modType: TModuleType;
   addBook: boolean;
+  InsertedCount: Cardinal;
 begin
   if mUILock then
     Exit;
@@ -232,6 +235,7 @@ begin
 
     booksType := TBooksType(cmbBookType.Items.Objects[cmbBookType.ItemIndex]);
 
+    InsertedCount := 0;
     count := mModules.Count - 1;
     for i := 0 to count do
     begin
@@ -251,6 +255,7 @@ begin
           btBibles: modType := modtypeBible;
           btCommentaries: modType := modtypeComment;
           btOtherBooks: modType := modtypeBook;
+          btAllDictionaries: modType := modtypeDictionary;
         end;
 
         // add only books of selected type
@@ -260,6 +265,7 @@ begin
 
       if (addBook) then
         vdtBooks.InsertNode(nil, amAddChildLast, modEntry);
+
     end;
   finally
     mUILock := false;
@@ -364,6 +370,7 @@ begin
   case modType of
     modtypeBook: text := Lang.Say('StrBooks');
     modtypeComment: text := Lang.Say('StrCommentaries');
+    modtypeDictionary: text := Lang.Say('StrAllDictionaries');
   else
     text := Lang.Say('StrBibleTranslations');
   end;
