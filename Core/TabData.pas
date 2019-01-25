@@ -354,6 +354,7 @@ type
     function AddStrongTab(newTabInfo: TStrongTabInfo): TChromeTab;
 
     procedure MakeActive();
+    procedure UpdateBookTabHeader();
 
     // getters
     function GetBrowser: THTMLViewer;
