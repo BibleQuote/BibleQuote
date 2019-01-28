@@ -33,10 +33,10 @@ begin
   try
 
     DictFileList := TDirectory.GetFiles(aFileEntryPath, '*.idx');
-    for i := 0 to Length(DictFileList) - 1 do
+    if Length(DictFileList) > 0 then
     begin
 
-      Dictionary := LoadDictionary(DictFileList[i], BibleqtIni);
+      Dictionary := LoadDictionary(DictFileList[0], BibleqtIni);
 
       if Assigned(Dictionary) then
         aEngine.AddDictionary(Dictionary);
