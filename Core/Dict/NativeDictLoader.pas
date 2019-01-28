@@ -2,12 +2,13 @@ unit NativeDictLoader;
 
 interface
 
-uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, NativeDict;
+uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, NativeDict,
+     BibleqtIni;
 
 type
   TNativeDictLoader = class(TInterfacedObject, IDictLoader)
   protected
-    function LoadDictionary(aDictIdxFilePath : String): TNativeDict;
+    function LoadDictionary(aDictIdxFilePath : String; aBibleqtIni: TBibleqtIni): TNativeDict;
 
   public
     function LoadDictionaries(aFileEntryPath: String; aEngine: IbqEngineDicTraits): Boolean;
@@ -25,25 +26,33 @@ var
   DictFileList: TStringDynArray;
   i: Integer;
   Dictionary: TNativeDict;
-
+  BibleqtIni: TBibleqtIni;
 begin
 
-  DictFileList := TDirectory.GetFiles(aFileEntryPath, '*.idx');
-  for i := 0 to Length(DictFileList) - 1 do
-  begin
+  BibleqtIni := TBibleqtIni.GetBibleqtIni(aFileEntryPath);
+  try
 
-    Dictionary := LoadDictionary(DictFileList[i]);
+    DictFileList := TDirectory.GetFiles(aFileEntryPath, '*.idx');
+    for i := 0 to Length(DictFileList) - 1 do
+    begin
 
-    if Assigned(Dictionary) then
-      aEngine.AddDictionary(Dictionary);
+      Dictionary := LoadDictionary(DictFileList[i], BibleqtIni);
 
+      if Assigned(Dictionary) then
+        aEngine.AddDictionary(Dictionary);
+
+    end;
+
+    Result := True;
+  finally
+    if Assigned(BibleqtIni) then
+      FreeAndNil(BibleqtIni);
   end;
-
-  Result := True;
 
 end;
 
-function TNativeDictLoader.LoadDictionary(aDictIdxFilePath: String): TNativeDict;
+function TNativeDictLoader.LoadDictionary(aDictIdxFilePath: String;
+  aBibleqtIni: TBibleqtIni): TNativeDict;
 var
   DictHtmlFilePath: string;
   Dictionary: TNativeDict;
@@ -54,7 +63,7 @@ begin
     DictHtmlFilePath := ChangeFileExt(aDictIdxFilePath, '.htm');
 
     Dictionary := TNativeDict.Create;
-    if not Dictionary.Initialize(aDictIdxFilePath, DictHtmlFilePath) then
+    if not Dictionary.Initialize(aDictIdxFilePath, DictHtmlFilePath, aBibleqtIni) then
     begin
       raise Exception.Create('Error loading '+ExtractFileName(aDictIdxFilePath)+ 'dictionary');
     end;

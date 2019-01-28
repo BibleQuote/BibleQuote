@@ -791,6 +791,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\Dict\MyBibleDict.pas"/>
         <DCCReference Include="Core\Dict\MyBibleDictLoader.pas"/>
         <DCCReference Include="Core\Dict\DictLoaderFabric.pas"/>
+        <DCCReference Include="Utils\BibleqtIni.pas"/>
+        <DCCReference Include="Core\ChapterData.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>

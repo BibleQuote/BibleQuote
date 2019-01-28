@@ -2,7 +2,7 @@ unit NativeDict;
 
 interface
 
-uses Windows, Classes, SysUtils, IOProcs, BaseDict;
+uses Windows, Classes, SysUtils, IOProcs, BaseDict, BibleqtIni;
 
 type
   TNativeDict = class(TBaseDict)
@@ -14,10 +14,14 @@ type
     Fii: Integer;
     Filinecount: Integer;
     FInitialized: Boolean;
+  protected
+    function RemoveBOM(aText: String): String;
+
   public
     constructor Create;
     destructor Destroy(); override;
-    function Initialize(IndexFile, DictFile: String; background: boolean = false): boolean;
+    function Initialize(IndexFile, DictFile: String;
+                        aBibleqtIni: TBibleqtIni; aBackground: boolean = false): boolean;
     property Initialized: boolean read FInitialized;
 
     function Lookup(aWord: String): String; override; // lookup a word in dictionary...
@@ -26,7 +30,7 @@ type
 
 implementation
 
-uses BibleQuoteUtils;
+uses BibleQuoteUtils, StrUtils;
 
 constructor TNativeDict.Create;
 begin
@@ -43,7 +47,8 @@ begin
   inherited;
 end;
 
-function TNativeDict.Initialize(IndexFile, DictFile: String; background: boolean = false): boolean;
+function TNativeDict.Initialize(IndexFile, DictFile: String;
+                                aBibleqtIni: TBibleqtIni; aBackground: Boolean = false): Boolean;
 begin
   if IndexFile = FIndex then
   begin
@@ -65,20 +70,21 @@ begin
 
   FiLines := ReadTextFileLines(FIndex, TEncoding.GetEncoding(1251));
 
-  FName := FiLines[0];
+  FName := IfThen(Assigned(aBibleqtIni), aBibleqtIni.ModuleName, RemoveBOM(FiLines[0]));
+
   FiLines.Delete(0);
   FWords.Clear;
   Filinecount := (FiLines.Count div 2) - 1;
   FWords.Capacity := Filinecount;
   Fii := 0;
-  if background then
+  if aBackground then
     exit;
 
-  if (not background) or (Fii <= Filinecount) then
+  if (not aBackground) or (Fii <= Filinecount) then
     repeat
       FWords.InsertObject(Fii, Trim(FiLines[2 * Fii]), Pointer(StrToIntDef(Trim(FiLines[2 * Fii + 1]), 0)));
       Inc(Fii);
-    until (Fii > Filinecount) or (background and ((Fii and $3FF) = $3FF));
+    until (Fii > Filinecount) or (aBackground and ((Fii and $3FF) = $3FF));
 
   result := Fii > Filinecount;
   if not result then
@@ -119,6 +125,15 @@ begin
   if LowerCase(Copy(Result, 1, Length(dExcludeWord))) = dExcludeWord then
     Result := Copy(Result, Length(dExcludeWord) + 1, Length(Result));
 
+end;
+
+function TNativeDict.RemoveBOM(aText: String): String;
+const
+  BOM_UTF16 = #$FEFF;
+begin
+
+  if aText.StartsWith(BOM_UTF16) then
+    Result := StringReplace(aText, BOM_UTF16, '', [rfReplaceAll, rfIgnoreCase]);
 end;
 
 end.

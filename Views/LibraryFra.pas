@@ -210,7 +210,6 @@ var
   booksType: TBooksType;
   modType: TModuleType;
   addBook: boolean;
-  InsertedCount: Cardinal;
 begin
   if mUILock then
     Exit;
@@ -235,7 +234,6 @@ begin
 
     booksType := TBooksType(cmbBookType.Items.Objects[cmbBookType.ItemIndex]);
 
-    InsertedCount := 0;
     count := mModules.Count - 1;
     for i := 0 to count do
     begin

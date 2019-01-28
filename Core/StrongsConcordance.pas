@@ -31,6 +31,8 @@ type
 
 implementation
 
+uses BibleqtIni;
+
 constructor TStrongsConcordance.Create;
 begin
   inherited Create;
@@ -74,17 +76,20 @@ end;
 
 function TStrongsConcordance.InitializeDictionary(dict: TNativeDict; idxFilename: string; htmFilename: string): boolean;
 var
-  idxFilePath: string;
-  htmFilePath: string;
+  IdxFilePath: string;
+  HtmFilePath: string;
+  BibleqtIni: TBibleqtIni;
 begin
-  idxFilePath := TPath.Combine(TLibraryDirectories.Strong, idxFilename);
-  htmFilePath := TPath.Combine(TLibraryDirectories.Strong, htmFilename);
+  IdxFilePath := TPath.Combine(TLibraryDirectories.Strong, idxFilename);
+  HtmFilePath := TPath.Combine(TLibraryDirectories.Strong, htmFilename);
+  BibleqtIni := TBibleqtINI.GetBibleqtIni(TLibraryDirectories.Strong);
 
   FLock.Acquire;
   try
-    Result := dict.Initialize(idxFilePath, htmFilePath);
+    Result := dict.Initialize(IdxFilePath, HtmFilePath, BibleqtIni);
   finally
     FLock.Release;
+    BibleqtIni.Free;
   end;
 end;
 

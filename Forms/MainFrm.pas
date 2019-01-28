@@ -318,7 +318,7 @@ type
 
     procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState; processCommand: boolean = true);
-    procedure OpenOrCreateDictionaryTab(const searchText: string);
+    procedure OpenOrCreateDictionaryTab(const searchText: string; aActiveDictName: String = '');
     procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
     procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
 
@@ -366,7 +366,7 @@ type
     procedure SetBibleTabsHintsState(showHints: Boolean = true);
     procedure MainMenuInit(cacheupdate: Boolean);
     procedure OpenModule(moduleName: string; fromBeginning: Boolean = false);
-    procedure ActivateModuleView(moduleName: string);
+    procedure ActivateModuleView(aModuleEntry: TModuleEntry);
 
     function ChooseColor(color: TColor): TColor;
 
@@ -2699,27 +2699,24 @@ begin
   mDefaultLocation := DefaultLocation();
 end;
 
-procedure TMainForm.ActivateModuleView(moduleName: string);
+procedure TMainForm.ActivateModuleView(aModuleEntry: TModuleEntry);
 var
   i: integer;
-  me: TModuleEntry;
   command: string;
 begin
-  i := mModules.FindByName(moduleName);
-  if i < 0 then
-  begin
-    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name:' + moduleName);
-    raise Exception.Create('Exception mModules.FindByName failed!');
+
+  command := 'go ' + aModuleEntry.mShortPath + ' 1 1 0';
+
+  case aModuleEntry.modType of
+  modtypeDictionary: OpenOrCreateDictionaryTab('', aModuleEntry.mFullName);
+  else
+    OpenOrCreateBookTab(
+        command,
+        SatelliteBible,
+        DefaultBookTabState(),
+        false);
+
   end;
-
-  me := mModules.Items[i];
-  command := 'go ' + me.mShortPath + ' 1 1 0';
-
-  OpenOrCreateBookTab(
-      command,
-      SatelliteBible,
-      DefaultBookTabState(),
-      false);
 end;
 
 procedure TMainForm.OpenModule(moduleName: string; fromBeginning: Boolean = false);
@@ -4298,7 +4295,7 @@ begin
   NewBookTab(command, satellite, state, '', true);
 end;
 
-procedure TMainForm.OpenOrCreateDictionaryTab(const searchText: string);
+procedure TMainForm.OpenOrCreateDictionaryTab(const searchText: string; aActiveDictName: String);
 var
   i: integer;
   tabInfo: IViewTabInfo;
@@ -4338,6 +4335,12 @@ begin
   dictionaryView := mWorkspace.DictionaryView as TDictionaryFrame;
   if (newTab) then
     dictionaryView.DisplayDictionaries;
+
+  if not aActiveDictName.IsEmpty then
+  begin
+    dictionaryView.SetActiveDictionary(aActiveDictName);
+  end;
+
 
   if (searchText.Length > 0) then
     dictionaryView.UpdateSearch(searchText);

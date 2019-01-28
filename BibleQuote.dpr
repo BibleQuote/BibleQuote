@@ -73,7 +73,9 @@ uses
   NativeDictLoader in 'Core\Dict\NativeDictLoader.pas',
   MyBibleDict in 'Core\Dict\MyBibleDict.pas',
   MyBibleDictLoader in 'Core\Dict\MyBibleDictLoader.pas',
-  DictLoaderFabric in 'Core\Dict\DictLoaderFabric.pas';
+  DictLoaderFabric in 'Core\Dict\DictLoaderFabric.pas',
+  BibleqtIni in 'Utils\BibleqtIni.pas',
+  ChapterData in 'Core\ChapterData.pas';
 
 {$R *.res}
 
