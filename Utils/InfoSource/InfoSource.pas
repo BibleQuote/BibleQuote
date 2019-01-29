@@ -2,7 +2,7 @@ unit InfoSource;
 
 interface
 
-uses Classes, ChapterData, Generics.Collections
+uses Classes, ChapterData, Generics.Collections;
 
 type
 

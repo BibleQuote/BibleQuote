@@ -2579,7 +2579,7 @@ begin
   // search for a secondary Bible if the first module is bible
   if bible.isBible then
   begin
-    isCommentary := bible.isCommentary;
+    isCommentary := bible.InfoSource.IsCommentary;
     showStrongs := bookTabInfo[vtisShowStrongs];
     s := bookTabInfo.SatelliteName;
     if (s = '------') or isCommentary then

@@ -74,7 +74,6 @@ uses
   MyBibleDict in 'Core\Dict\MyBibleDict.pas',
   MyBibleDictLoader in 'Core\Dict\MyBibleDictLoader.pas',
   DictLoaderFabric in 'Core\Dict\DictLoaderFabric.pas',
-  BibleqtIni in 'Utils\BibleqtIni.pas',
   ChapterData in 'Core\ChapterData.pas',
   InfoSourceLoaderInterface in 'Utils\InfoSource\InfoSourceLoaderInterface.pas',
   InfoSourceLoaderFabric in 'Utils\InfoSource\InfoSourceLoaderFabric.pas',

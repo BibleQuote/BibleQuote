@@ -2,7 +2,7 @@ unit InfoSourceLoaderFabric;
 
 interface
 
-uses Classes, InfoSourceLoaderInterface, NativeInfoSourceLoader, //MyBibleInfoSourceLoader,
+uses Classes, InfoSourceLoaderInterface, NativeInfoSourceLoader, MyBibleInfoSourceLoader,
      Generics.Collections, SelectEntityType;
 
 type
@@ -11,7 +11,7 @@ type
 
   private
     class function CreateNativeInfoSourceLoader(): TNativeInfoSourceLoader;
-    //class function CreateMyBibleInfoSourceLoader(): TMyBibleDictLoader;
+    class function CreateMyBibleInfoSourceLoader(): TMyBibleInfoSourceLoader;
 
   public
 
@@ -29,16 +29,16 @@ begin
 
   case aInfoSourceType of
     isNative: Result := CreateNativeInfoSourceLoader();
-    //isMyBible: Result := CreateMyBibleInfoSourceLoader();
+    isMyBible: Result := CreateMyBibleInfoSourceLoader();
     else
       Result := nil;
   end;
 end;
 
-{class function TInfoSourceLoaderFabric.CreateMyBibleInfoSourceLoader(): TMyBibleDictLoader;
+class function TInfoSourceLoaderFabric.CreateMyBibleInfoSourceLoader(): TMyBibleInfoSourceLoader;
 begin
   Result := TMyBibleInfoSourceLoader.Create();
-end;}
+end;
 
 class function TInfoSourceLoaderFabric.CreateNativeInfoSourceLoader(): TNativeInfoSourceLoader;
 begin

@@ -318,38 +318,40 @@ begin
   Count := C_NumOfModulesToScan + (ord(not background) shl 12);
   if not mSearchInitialized then
   begin // init search
-    mSearchResult := FindFirst(TPath.Combine(path, '*.*'), faDirectory, mSearchRecord);
+    mSearchResult := FindFirst(TPath.Combine(path, '*.*'), faAnyFile, mSearchRecord);
     mSearchInitialized := true;
   end;
 
   if (mSearchResult = 0) then // search results are not empty
     repeat
-      modulePath := TPath.Combine(path, mSearchRecord.Name) + '\bibleqt.ini';
-      if (mSearchRecord.Attr and faDirectory = faDirectory) and
-        ((mSearchRecord.Name <> '.') and (mSearchRecord.Name <> '..')) and
-        FileExists(modulePath) then
+      if (mSearchRecord.Name = '.') or (mSearchRecord.Name = '..') then
       begin
-        try
-          // todo: !MyBible figure out with .IniFile, add load function
-          tempBook.SetInfoSource( modulePath );
+        mSearchResult := FindNext(mSearchRecord);
 
-          modEntry := TModuleEntry.Create(
-            modType,
-            tempBook.Name,
-            tempBook.ShortName,
-            tempBook.ShortPath,
-            EmptyWideStr,
-            tempBook.GetStucture(),
-            tempBook.Categories,
-            tempBook.Author,
-            tempBook.ModuleImage,
-            tempBook.trait[bqmtStrongs]
-          );
+        continue;
+      end;
 
-          mCachedModules.Add(modEntry);
-        except
-        end;
-      end; // if directory
+      modulePath := TPath.Combine(path, mSearchRecord.Name);
+
+
+      if tempBook.SetInfoSource( modulePath ) then
+      begin
+
+        modEntry := TModuleEntry.Create(
+          modType,
+          tempBook.Name,
+          tempBook.ShortName,
+          tempBook.ShortPath,
+          EmptyWideStr,
+          tempBook.GetStucture(),
+          tempBook.Categories,
+          tempBook.Author,
+          tempBook.ModuleImage,
+          tempBook.trait[bqmtStrongs]
+        );
+
+        mCachedModules.Add(modEntry);
+      end;
 
       Dec(Count);
       mSearchResult := FindNext(mSearchRecord);

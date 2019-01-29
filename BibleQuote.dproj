@@ -791,7 +791,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\Dict\MyBibleDict.pas"/>
         <DCCReference Include="Core\Dict\MyBibleDictLoader.pas"/>
         <DCCReference Include="Core\Dict\DictLoaderFabric.pas"/>
-        <DCCReference Include="Utils\BibleqtIni.pas"/>
         <DCCReference Include="Core\ChapterData.pas"/>
         <DCCReference Include="Utils\InfoSource\InfoSourceLoaderInterface.pas"/>
         <DCCReference Include="Utils\InfoSource\InfoSourceLoaderFabric.pas"/>

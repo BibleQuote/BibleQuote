@@ -255,8 +255,6 @@ type
     mShortNamesVars: TStringList;
     mModuleType: TbqModuleType;
 
-    procedure LoadIniFile(fileName: string);
-
     procedure InitializeFields(aInfoSource: TInfoSource);
     procedure InitializeTraits(aInfoSource: TInfoSource);
     procedure InitializeChapterData(aInfoSource: TInfoSource);
@@ -294,8 +292,8 @@ type
     function GetModuleName(): string;
     function GetAuthor(): string;
 
-    procedure SetInfoSource(aFileEntryPath: String); overload;
-    procedure SetInfoSource(aInfoSource: TInfoSource); overload;
+    function SetInfoSource(aFileEntryPath: String): Boolean; overload;
+    function SetInfoSource(aInfoSource: TInfoSource): Boolean; overload;
 
     function LinkValidnessStatus(
       path: string;
@@ -304,7 +302,6 @@ type
       checkverse: boolean = true): integer;
 
     function SyncToBible(const refBible: TBible; const bl: TBibleLink; out outBibleLink): integer;
-    function IsCommentary(): Boolean;
     property path: string read FPath;
     property ShortPath: string read FShortPath;
     property Name: string read GetModuleName;
@@ -651,8 +648,12 @@ begin
   FDefaultFilter := False;
 end;
 
-procedure TBible.SetInfoSource(aInfoSource: TInfoSource);
+function TBible.SetInfoSource(aInfoSource: TInfoSource): Boolean;
 begin
+
+  Result := False;
+
+  if not Assigned(aInfoSource) then exit;
 
   if Assigned(FInfoSource) then
     FInfoSource.Free;
@@ -665,16 +666,22 @@ begin
   InitializeAlphabet(aInfoSource);
   InitializePaths(aInfoSource);
 
+  Result := True;
+
 end;
 
-procedure TBible.SetInfoSource(aFileEntryPath: String);
+function TBible.SetInfoSource(aFileEntryPath: String): Boolean;
 var
   InfoSourceType: TInfoSourceTypes;
   InfoSourceLoader: IInfoSourceLoader;
   InfoSource: TInfoSource;
 begin
 
+  Result := False;
+
   InfoSourceType := TSelectEntityType.SelectInfoSourceType(aFileEntryPath);
+
+  if InfoSourceType = isNone then exit;
 
   InfoSourceLoader := TInfoSourceLoaderFabric.CreateInfoSourceLoader(InfoSourceType);
 
@@ -695,6 +702,7 @@ begin
     InfoSource.Free;
   end;
 
+  Result := True;
 end;
 
 procedure TBible.SetShortNameVars(bookIx: integer; const Name: string);
@@ -722,71 +730,6 @@ begin
     Include(mTraits, trait)
   else
     Exclude(mTraits, trait);
-end;
-
-
-procedure TBible.LoadIniFile(fileName: string);
-var
-  isCompressed: boolean;
-
-begin
-  try
-
-    //BibleqtIni := TBibleqtIni.Create(fileName);
-    try
-      //InitializeFields(BibleqtIni);
-      //InitializeTraits(BibleqtIni);
-      //InitializeChapterData(BibleqtIni);
-      //InitializeAlphabet(BibleqtIni);
-
-    finally
-      //FreeAndNil(BibleqtIni);
-    end;
-
-    isCompressed := fileName[1] = '?';
-
-    if isCompressed then
-    begin
-      FPath := GetArchiveFromSpecial(fileName) + '??';
-      FShortPath := ExtractRelativePath('?' + TAppDirectories.Root, FPath);
-      FShortPath := GetArchiveFromSpecial(FShortPath);
-      FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
-    end
-    else
-    begin
-      FPath := ExtractFilePath(fileName);
-      FShortPath := ExtractRelativePath(TAppDirectories.Root, FPath);
-      FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
-    end;
-
-    if Self.FBible then
-    begin
-      if IsCommentary() then
-        mModuleType := bqmCommentary
-      else
-        mModuleType := bqmBible;
-
-      if trait[bqmtOldCovenant] then
-        mCategories.Add(Lang.SayDefault('catOT', 'Old Covenant'));
-
-      if trait[bqmtNewCovenant] then
-        mCategories.Add(Lang.SayDefault('catNT', 'New Covenant'));
-
-      if trait[bqmtApocrypha] then
-        mCategories.Add(Lang.SayDefault('catApocrypha', 'Apocrypha'));
-    end
-    else
-    begin // not bible
-      Exclude(mTraits, bqmtOldCovenant);
-      Exclude(mTraits, bqmtNewCovenant);
-      Exclude(mTraits, bqmtApocrypha);
-    end;
-    if Assigned(FOnChangeModule) then
-      FOnChangeModule(Self);
-  except
-    g_ExceptionContext.Add('TBible.LoadIniFile.value=' + fileName);
-    raise;
-  end;
 end;
 
 function TBible.OpenChapter(
@@ -853,7 +796,7 @@ begin
 
   if FFiltered and (FLines.Count <> 0) then
     FLines.Text := ParseHTML(FLines.Text, FHTML);
-  recLnks := (not FBible) or (IsCommentary());
+  recLnks := (not FBible) or (InfoSource.IsCommentary);
   if forceResolveLinks or (recLnks and mRecognizeBibleLinks) then
   begin
     FLines.Text := ResolveLinks(FLines.Text, mFuzzyResolveLinks);
@@ -1325,7 +1268,7 @@ begin
   Result := 0;
   try
     if FPath <> path then
-      LoadIniFile(path);
+      SetInfoSource(path);
     if internalAddr then
     begin
       Result := InternalToReference(bl, effectiveLnk);
@@ -2059,18 +2002,6 @@ begin
   end;
   Inc(Result,
     ord(InternalToReference(inputLnk.book, inputLnk.chapter, inputLnk.vend, outLink.book, outLink.chapter, outLink.vend)) - 1);
-end;
-
-function TBible.IsCommentary(): Boolean;
-var
-  s: string;
-begin
-  //s := ExtractFileDir(aFilePath);
-
-  s := ExtractFileDir(s);
-
-  s := ExtractFileName(s);
-  Result := UpperCase(s) = 'COMMENTARIES';
 end;
 
 function RussianBibleBookToModuleBook(bookIx: integer; bibleModule: TBible; out book: integer): integer;

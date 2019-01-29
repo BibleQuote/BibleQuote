@@ -41,7 +41,7 @@ type
 implementation
 
 { TNativeInfoSourceLoader }
-uses SysUtils, ChapterData, Generics.Collections, IOUtils;
+uses SysUtils, ChapterData, Generics.Collections, IOUtils, SelectEntityType;
 
 constructor TNativeInfoSourceLoader.Create;
 begin
@@ -66,12 +66,16 @@ end;
 
 procedure TNativeInfoSourceLoader.LoadInfoSource(
   aFileEntryPath: String; aInfoSource: TInfoSource);
+var
+  BibleqtIniPath: String;  
 begin
 
-  FDataPairs := OpenBibleqtIniFile(aFileEntryPath);
+  BibleqtIniPath := TSelectEntityType.FormBibleqtIniPath(aFileEntryPath);
+
+  FDataPairs := OpenBibleqtIniFile(BibleqtIniPath);
   try
     LoadRegularValues(aInfoSource);
-    LoadPathValues(aInfoSource, aFileEntryPath);
+    LoadPathValues(aInfoSource, BibleqtIniPath);
   finally
     FreeAndNil(FDataPairs);
   end;

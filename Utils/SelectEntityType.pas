@@ -9,6 +9,7 @@ type
     dtMyBible);
 
   TInfoSourceTypes = (
+    isNone,
     isNative,
     isMyBible);
 
@@ -20,12 +21,24 @@ type
   public
     class function SelectDictType(aFileEntryPath: String): TDictTypes;
     class function SelectInfoSourceType(aFileEntryPath: String): TInfoSourceTypes;
-
+    class function FormBibleqtIniPath(aFileEntryPath: String): String;
   end;
 
 implementation
 
-uses SysUtils, RegularExpressions;
+uses SysUtils, RegularExpressions, IOUtils;
+
+class function TSelectEntityType.FormBibleqtIniPath(aFileEntryPath: String): String;
+var
+  BibleqtIniPath: String;
+begin
+  BibleqtIniPath := aFileEntryPath;
+
+  if DirectoryExists(BibleqtIniPath) then
+    BibleqtIniPath := TPath.Combine(aFileEntryPath, 'bibleqt.ini');
+
+  Result := BibleqtIniPath;
+end;
 
 class function TSelectEntityType.IsMyBibleFileEntry(
   aFileEntryPath: String): Boolean;
@@ -42,7 +55,7 @@ end;
 class function TSelectEntityType.IsNativeInfoSource(
   aFileEntryPath: String): Boolean;
 begin
-  Result := FileExists(aFileEntryPath) and TRegEx.IsMatch(ExtractFileName(aFileEntryPath).ToLower(), '^bibleqt.ini$');
+  Result := FileExists(FormBibleqtIniPath(aFileEntryPath));
 end;
 
 class function TSelectEntityType.SelectDictType(aFileEntryPath: String): TDictTypes;
@@ -79,7 +92,7 @@ begin
     exit;
   end;
 
-  raise Exception.Create('Missing type of file entry: '+aFileEntryPath);
+  Result := isNone;
 
 end;
 
