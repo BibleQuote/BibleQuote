@@ -3,12 +3,12 @@ unit NativeDictLoader;
 interface
 
 uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, NativeDict,
-     BibleqtIni;
+     InfoSource;
 
 type
   TNativeDictLoader = class(TInterfacedObject, IDictLoader)
   protected
-    function LoadDictionary(aDictIdxFilePath : String; aBibleqtIni: TBibleqtIni): TNativeDict;
+    function LoadDictionary(aDictIdxFilePath : String; aInfoSource: TInfoSource): TNativeDict;
 
   public
     function LoadDictionaries(aFileEntryPath: String; aEngine: IbqEngineDicTraits): Boolean;
@@ -18,7 +18,7 @@ type
 implementation
 
 { TNativeDictLoader }
-uses ExceptionFrm;
+uses ExceptionFrm, NativeInfoSourceLoader;
 
 function TNativeDictLoader.LoadDictionaries(aFileEntryPath: String;
   aEngine: IbqEngineDicTraits): Boolean;
@@ -26,17 +26,17 @@ var
   DictFileList: TStringDynArray;
   i: Integer;
   Dictionary: TNativeDict;
-  BibleqtIni: TBibleqtIni;
+  InfoSource: TInfoSource;
 begin
 
-  BibleqtIni := TBibleqtIni.GetBibleqtIni(aFileEntryPath);
+  InfoSource := TNativeInfoSourceLoader.LoadNativeInfoSource(aFileEntryPath);
   try
 
     DictFileList := TDirectory.GetFiles(aFileEntryPath, '*.idx');
     if Length(DictFileList) > 0 then
     begin
 
-      Dictionary := LoadDictionary(DictFileList[0], BibleqtIni);
+      Dictionary := LoadDictionary(DictFileList[0], InfoSource);
 
       if Assigned(Dictionary) then
         aEngine.AddDictionary(Dictionary);
@@ -45,14 +45,14 @@ begin
 
     Result := True;
   finally
-    if Assigned(BibleqtIni) then
-      FreeAndNil(BibleqtIni);
+    if Assigned(InfoSource) then
+      FreeAndNil(InfoSource);
   end;
 
 end;
 
 function TNativeDictLoader.LoadDictionary(aDictIdxFilePath: String;
-  aBibleqtIni: TBibleqtIni): TNativeDict;
+  aInfoSource: TInfoSource): TNativeDict;
 var
   DictHtmlFilePath: string;
   Dictionary: TNativeDict;
@@ -63,7 +63,7 @@ begin
     DictHtmlFilePath := ChangeFileExt(aDictIdxFilePath, '.htm');
 
     Dictionary := TNativeDict.Create;
-    if not Dictionary.Initialize(aDictIdxFilePath, DictHtmlFilePath, aBibleqtIni) then
+    if not Dictionary.Initialize(aDictIdxFilePath, DictHtmlFilePath, aInfoSource) then
     begin
       raise Exception.Create('Error loading '+ExtractFileName(aDictIdxFilePath)+ 'dictionary');
     end;

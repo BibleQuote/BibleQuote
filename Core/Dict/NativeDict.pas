@@ -2,7 +2,7 @@ unit NativeDict;
 
 interface
 
-uses Windows, Classes, SysUtils, IOProcs, BaseDict, BibleqtIni;
+uses Windows, Classes, SysUtils, IOProcs, BaseDict, InfoSource;
 
 type
   TNativeDict = class(TBaseDict)
@@ -21,7 +21,7 @@ type
     constructor Create;
     destructor Destroy(); override;
     function Initialize(IndexFile, DictFile: String;
-                        aBibleqtIni: TBibleqtIni; aBackground: boolean = false): boolean;
+                        aInfoSource: TInfoSource; aBackground: boolean = false): boolean;
     property Initialized: boolean read FInitialized;
 
     function Lookup(aWord: String): String; override; // lookup a word in dictionary...
@@ -48,7 +48,7 @@ begin
 end;
 
 function TNativeDict.Initialize(IndexFile, DictFile: String;
-                                aBibleqtIni: TBibleqtIni; aBackground: Boolean = false): Boolean;
+                                aInfoSource: TInfoSource; aBackground: Boolean = false): Boolean;
 begin
   if IndexFile = FIndex then
   begin
@@ -70,7 +70,7 @@ begin
 
   FiLines := ReadTextFileLines(FIndex, TEncoding.GetEncoding(1251));
 
-  FName := IfThen(Assigned(aBibleqtIni), aBibleqtIni.ModuleName, RemoveBOM(FiLines[0]));
+  FName := IfThen(Assigned(aInfoSource), aInfoSource.ModuleName, RemoveBOM(FiLines[0]));
 
   FiLines.Delete(0);
   FWords.Clear;

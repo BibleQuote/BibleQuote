@@ -75,7 +75,12 @@ uses
   MyBibleDictLoader in 'Core\Dict\MyBibleDictLoader.pas',
   DictLoaderFabric in 'Core\Dict\DictLoaderFabric.pas',
   BibleqtIni in 'Utils\BibleqtIni.pas',
-  ChapterData in 'Core\ChapterData.pas';
+  ChapterData in 'Core\ChapterData.pas',
+  InfoSourceLoaderInterface in 'Utils\InfoSource\InfoSourceLoaderInterface.pas',
+  InfoSourceLoaderFabric in 'Utils\InfoSource\InfoSourceLoaderFabric.pas',
+  SelectEntityType in 'Utils\SelectEntityType.pas',
+  NativeInfoSourceLoader in 'Utils\InfoSource\NativeInfoSourceLoader.pas',
+  InfoSource in 'Utils\InfoSource\InfoSource.pas';
 
 {$R *.res}
 

@@ -51,6 +51,8 @@ type
 
 implementation
 
+uses SelectEntityType;
+
 { Important: Methods and properties of objects in visual components can only be
   used in a method called using Synchronize, for example,
 
@@ -74,6 +76,8 @@ type
   end;
 {$ENDIF}
   { TbqWorker }
+
+
 
 procedure TbqWorker.SetBusy(aVal: boolean);
 begin
@@ -161,7 +165,7 @@ begin
 
     FileEntryPath := FileEntries[i];
 
-    DictType := TDictLoaderFabric.SelectDictTypeByDirName(FileEntryPath);
+    DictType := TSelectEntityType.SelectDictType(FileEntryPath);
 
     DictLoader := TDictLoaderFabric.CreateDictLoader(DictType);
 
@@ -172,6 +176,7 @@ begin
     end;
 
     if not DictLoader.LoadDictionaries(FileEntryPath, Engine) then exit;
+
 
   end;
 

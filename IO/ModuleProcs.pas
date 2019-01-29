@@ -262,7 +262,8 @@ begin
   if mSearchResult = 0 then
     repeat
       try
-        tempBook.inifile := '?' + path + '\' + mSearchRecord.Name + '??' + C_ModuleIniName;
+        // todo: figure out with .IniFile in archive modules +OK
+        tempBook.SetInfoSource( '?' + path + '\' + mSearchRecord.Name + '??' + C_ModuleIniName);
         if (addAsCommentaries) then
           mt := modtypeComment
         else
@@ -329,7 +330,8 @@ begin
         FileExists(modulePath) then
       begin
         try
-          tempBook.inifile := modulePath;
+          // todo: !MyBible figure out with .IniFile, add load function
+          tempBook.SetInfoSource( modulePath );
 
           modEntry := TModuleEntry.Create(
             modType,

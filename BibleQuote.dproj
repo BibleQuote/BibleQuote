@@ -793,6 +793,11 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\Dict\DictLoaderFabric.pas"/>
         <DCCReference Include="Utils\BibleqtIni.pas"/>
         <DCCReference Include="Core\ChapterData.pas"/>
+        <DCCReference Include="Utils\InfoSource\InfoSourceLoaderInterface.pas"/>
+        <DCCReference Include="Utils\InfoSource\InfoSourceLoaderFabric.pas"/>
+        <DCCReference Include="Utils\SelectEntityType.pas"/>
+        <DCCReference Include="Utils\InfoSource\NativeInfoSourceLoader.pas"/>
+        <DCCReference Include="Utils\InfoSource\InfoSource.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>

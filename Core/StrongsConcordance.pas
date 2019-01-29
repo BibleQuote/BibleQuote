@@ -31,7 +31,7 @@ type
 
 implementation
 
-uses BibleqtIni;
+uses NativeInfoSourceLoader, InfoSource;
 
 constructor TStrongsConcordance.Create;
 begin
@@ -78,18 +78,19 @@ function TStrongsConcordance.InitializeDictionary(dict: TNativeDict; idxFilename
 var
   IdxFilePath: string;
   HtmFilePath: string;
-  BibleqtIni: TBibleqtIni;
+  InfoSource: TInfoSource;
 begin
   IdxFilePath := TPath.Combine(TLibraryDirectories.Strong, idxFilename);
   HtmFilePath := TPath.Combine(TLibraryDirectories.Strong, htmFilename);
-  BibleqtIni := TBibleqtINI.GetBibleqtIni(TLibraryDirectories.Strong);
+
+  InfoSource := TNativeInfoSourceLoader.LoadNativeInfoSource(TLibraryDirectories.Strong);
 
   FLock.Acquire;
   try
-    Result := dict.Initialize(IdxFilePath, HtmFilePath, BibleqtIni);
+    Result := dict.Initialize(IdxFilePath, HtmFilePath, InfoSource);
   finally
     FLock.Release;
-    BibleqtIni.Free;
+    infoSource.Free;
   end;
 end;
 

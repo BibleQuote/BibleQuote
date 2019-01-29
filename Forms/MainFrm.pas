@@ -1681,7 +1681,8 @@ begin
 
   if Assigned(bookView.BookTabInfo) then
   begin
-    if bookView.BookTabInfo.Bible.inifile <> '' then
+    // todo: figure out with .IniFile +OK
+    if Assigned(bookView.BookTabInfo.Bible.InfoSource) then
     begin
       with bookView.BookTabInfo.Bible do
         s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse);
@@ -2784,7 +2785,8 @@ begin
       tempBook := TBible.Create(self);
 
     iniPath := TPath.Combine(me.mShortPath, 'bibleqt.ini');
-    tempBook.inifile := MainFileExists(iniPath);
+    // todo: figure out with .IniFile  +OK
+    tempBook.SetInfoSource(MainFileExists(iniPath));
   except
   end;
 
@@ -3237,7 +3239,8 @@ begin
   while Assigned(bibleModuleEntry) do
   begin
     s := bibleModuleEntry.getIniPath();
-    secBible.inifile := s;
+    // todo: figure out with .IniFile + OK
+    secBible.SetInfoSource(s);
 
     // don't display New Testament mixed with Old Testament...
     if (bible.CurBook < 40) and (bible.Trait[bqmtOldCovenant]) and (not secBible.Trait[bqmtOldCovenant]) then
@@ -3643,14 +3646,16 @@ begin
       for i := 0 to fc do
       begin
         try
-          tempBook.inifile :=
-            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).mShortPath + '\bibleqt.ini');
+          // todo: figure out with .IniFile +OK
+          tempBook.SetInfoSource(
+            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).mShortPath + '\bibleqt.ini'));
 
           openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
 
           if openSuccess then
           begin
-            bible.inifile := tempBook.inifile;
+            // todo: figure out with .IniFile +OK
+            bible.SetInfoSource(tempBook.InfoSource);
             break;
           end;
         except
@@ -3667,11 +3672,13 @@ begin
             modName := moduleEntry.mFullName;
 
             modPath := moduleEntry.mShortPath;
-            tempBook.inifile := MainFileExists(TPath.Combine(modPath, 'bibleqt.ini'));
+            // todo: figure out with .IniFile +OK
+            tempBook.SetInfoSource( MainFileExists(TPath.Combine(modPath, 'bibleqt.ini')));
             openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin
-              bible.inifile := tempBook.inifile;
+              // todo: figure out with .IniFile +OK
+              bible.SetInfoSource( tempBook.InfoSource);
               break;
             end;
           except
