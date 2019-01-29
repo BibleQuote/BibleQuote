@@ -797,6 +797,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Utils\SelectEntityType.pas"/>
         <DCCReference Include="Utils\InfoSource\NativeInfoSourceLoader.pas"/>
         <DCCReference Include="Utils\InfoSource\InfoSource.pas"/>
+        <DCCReference Include="Utils\InfoSource\MyBibleInfoSourceLoader.pas"/>
+        <DCCReference Include="Utils\MyBibleUtils.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>

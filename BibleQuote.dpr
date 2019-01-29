@@ -79,7 +79,9 @@ uses
   InfoSourceLoaderFabric in 'Utils\InfoSource\InfoSourceLoaderFabric.pas',
   SelectEntityType in 'Utils\SelectEntityType.pas',
   NativeInfoSourceLoader in 'Utils\InfoSource\NativeInfoSourceLoader.pas',
-  InfoSource in 'Utils\InfoSource\InfoSource.pas';
+  InfoSource in 'Utils\InfoSource\InfoSource.pas',
+  MyBibleInfoSourceLoader in 'Utils\InfoSource\MyBibleInfoSourceLoader.pas',
+  MyBibleUtils in 'Utils\MyBibleUtils.pas';
 
 {$R *.res}
 
