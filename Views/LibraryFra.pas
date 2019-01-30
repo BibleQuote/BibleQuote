@@ -38,7 +38,7 @@ type
     mUILock: Boolean;
     mModules: TCachedModules;
 
-    mFontBookName, mFontCopyright, mFontModType: TFont;
+    mFontBookName, mFontCopyright, mFontModuleVersion, mFontModType: TFont;
 
     mCoverDefault: TPicture;
 
@@ -70,7 +70,7 @@ var
   COVER_WIDTH:  integer = 60;
   COVER_HEIGHT: integer = 90;
   COVER_OFFSET: integer = 10;
-  TEXT_OFFSET:  integer = 12;
+  TEXT_OFFSET:  integer = 10;
 
 implementation
 
@@ -138,6 +138,11 @@ begin
   mFontCopyright.Color := clBlack;
   mFontCopyright.Style := [];
   mFontCopyright.Size := 9;
+
+  mFontModuleVersion := TFont.Create();
+  mFontModuleVersion.Color := clBlack;
+  mFontModuleVersion.Style := [];
+  mFontModuleVersion.Size := 9;
 
   mFontModType := TFont.Create();
   mFontModType.Color := clGray;
@@ -353,6 +358,12 @@ begin
     drawRect.Top := top;
     PaintInfo.Canvas.Font := mFontCopyright;
     height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.mAuthor)), -1, drawRect, DT_WORDBREAK);
+    top := top + height + TEXT_OFFSET;
+
+    drawRect := TRect.Create(rect);
+    drawRect.Top := top;
+    PaintInfo.Canvas.Font := mFontModuleVersion;
+    height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.mModuleVersion)), -1, drawRect, DT_WORDBREAK);
     top := top + height + TEXT_OFFSET;
 
     drawRect := TRect.Create(rect);

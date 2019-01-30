@@ -283,6 +283,7 @@ begin
           tempBook.GetStucture(),
           tempBook.Categories,
           tempBook.Author,
+          tempBook.ModuleVersion,
           tempBook.ModuleImage,
           tempBook.trait[bqmtStrongs]
         );
@@ -346,6 +347,7 @@ begin
           tempBook.GetStucture(),
           tempBook.Categories,
           tempBook.Author,
+          tempBook.ModuleVersion,
           tempBook.ModuleImage,
           tempBook.trait[bqmtStrongs]
         );
@@ -420,6 +422,8 @@ begin
             bookNames,
             cats,
             cachedModulesList[i + 7],
+            // todo: figure out ModuleVersion
+            'ModuleVersion',
             cachedModulesList[i + 8],
             hasStrong
           );

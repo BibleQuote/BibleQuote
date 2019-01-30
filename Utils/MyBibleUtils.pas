@@ -10,6 +10,7 @@ type
   public
     class function GetDictName(aSQLiteQuery: TFDQuery): String;
     class function GetStrong(aSQLiteQuery: TFDQuery): Boolean;
+    class function GetHistory(aSQLiteQuery: TFDQuery): String;
     class procedure FillWords(aWords: TStrings;
                     aSQLiteQuery: TFDQuery);
   end;
@@ -53,6 +54,26 @@ begin
     aSQLiteQuery.Close;
   end;
 end;
+
+
+class function TMyBibleUtils.GetHistory(aSQLiteQuery: TFDQuery): String;
+begin
+  Result := '';
+
+  aSQLiteQuery.SQL.Text := 'SELECT value FROM [info] where Name="history_of_changes"';
+  aSQLiteQuery.Open();
+
+  try
+
+    if aSQLiteQuery.Eof then raise Exception.Create('Missing description for dictionary');
+
+    Result := aSQLiteQuery.FieldByName('value').AsString;
+
+  finally
+    aSQLiteQuery.Close;
+  end;
+end;
+
 
 class procedure TMyBibleUtils.FillWords(aWords: TStrings;
   aSQLiteQuery: TFDQuery);

@@ -10,6 +10,8 @@ type
     procedure LoadRegularValues(aInfoSource: TInfoSource;
               aSQLiteConnection: TFDConnection);
     procedure LoadPathValues(aInfoSource: TInfoSource; aFileEntryPath: String);
+    function ExtractLastChangedDat(aHistory: String): String;
+    function ExtractDat(aRow: String): String;
 
   public
     constructor Create;
@@ -22,7 +24,7 @@ type
 implementation
 
 { TNativeInfoSourceLoader}
-uses MyBibleUtils, SysUtils, ExceptionFrm;
+uses MyBibleUtils, SysUtils, ExceptionFrm, RegularExpressions;
 
 constructor TMyBibleInfoSourceLoader.Create;
 begin
@@ -33,6 +35,49 @@ destructor TMyBibleInfoSourceLoader.Destroy;
 begin
 
   inherited;
+end;
+
+function TMyBibleInfoSourceLoader.ExtractDat(aRow: String): String;
+var
+  RegEx: TRegEx;
+  Options: TRegExOptions;
+  MatchCollection: TMatchCollection;
+begin
+
+  Result := '';
+
+  Options := [roSingleLine, roIgnoreCase, roExplicitCapture];
+
+  RegEx := TRegEx.Create('\((?P<lastdat>.*?)\).*', Options);
+
+  if not RegEx.IsMatch(aRow) then exit;
+
+  MatchCollection := RegEx.Matches(aRow);
+
+  if MatchCollection.Count = 0 then exit;
+
+  Result := MatchCollection[0].Groups.Item[1].Value;
+
+end;
+
+function TMyBibleInfoSourceLoader.ExtractLastChangedDat(
+  aHistory: String): String;
+var
+  Histories: TStrings;
+begin
+  Result := '';
+
+  Histories := TStringList.Create;
+  try
+    Histories.Text := aHistory;
+
+    if Histories.Count = 0 then exit;
+
+    Result := ExtractDat(Histories[0]);
+
+  finally
+    Histories.Free;
+  end;
 end;
 
 procedure TMyBibleInfoSourceLoader.LoadInfoSource(aFileEntryPath: String;
@@ -71,6 +116,7 @@ procedure TMyBibleInfoSourceLoader.LoadRegularValues(aInfoSource: TInfoSource;
 var
   SQLiteQuery: TFDQuery;
   DictName: String;
+  History: String;
 begin
 
   SQLiteQuery := TFDQuery.Create(nil);
@@ -80,9 +126,11 @@ begin
     try
 
       DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
+      History := TMyBibleUtils.GetHistory(SQLiteQuery);
 
       aInfoSource.BibleName := DictName;
       aInfoSource.BibleShortName := DictName;
+      aInfoSource.ModuleVersion := ExtractLastChangedDat(History);
 
       aInfoSource.StrongNumbers := TMyBibleUtils.GetStrong(SQLiteQuery);
 

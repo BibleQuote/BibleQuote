@@ -71,13 +71,14 @@ type
   TbqItemStyles = set of TbqItemStyle;
 
   TModuleEntry = class
-    mFullName, mShortName, mShortPath, mFullPath: string;
+    mFullName, mShortName, mShortPath, mFullPath: String;
     modType: TModuleType;
-    modCats: string;
-    modBookNames: string;
+    modCats: String;
+    modBookNames: String;
 
-    mAuthor: string;
-    mCoverPath: string;
+    mAuthor: String;
+    mModuleVersion: String;
+    mCoverPath: String;
     mHasStrong: Boolean;
 
     mRects: PRectArray;
@@ -88,20 +89,22 @@ type
 
     constructor Create(
       amodType: TModuleType;
-      aFullName, aShortName, aShortPath, aFullPath: string;
-      aBookNames: string;
+      aFullName, aShortName, aShortPath, aFullPath: String;
+      aBookNames: String;
       modCats: TStrings;
-      anAuthor: string;
-      aCoverPath: string;
+      anAuthor: String;
+      aModuleVersion: String;
+      aCoverPath: String;
       hasStrong: boolean); overload;
 
     constructor Create(
       amodType: TModuleType;
-      aFullName, aShortName, aShortPath, aFullPath: string;
-      aBookNames: string;
-      modCats: string;
-      anAuthor: string;
-      aCoverPath: string;
+      aFullName, aShortName, aShortPath, aFullPath: String;
+      aBookNames: String;
+      modCats: String;
+      anAuthor: String;
+      aModuleVersion: String;
+      aCoverPath: String;
       hasStrong: boolean); overload;
 
     constructor Create(me: TModuleEntry); overload;
@@ -109,20 +112,22 @@ type
 
     procedure Init(
       amodType: TModuleType;
-      aFullName, aShortName, aShortPath, aFullPath: string;
-      aBookNames: string;
+      aFullName, aShortName, aShortPath, aFullPath: String;
+      aBookNames: String;
       modCatsLst: TStrings;
-      anAuthor: string;
-      aCoverPath: string;
+      anAuthor: String;
+      aModuleVersion: String;
+      aCoverPath: String;
       hasStrong: boolean); overload;
 
     procedure Init(
       amodType: TModuleType;
-      aFullName, aShortName, aShortPath, aFullPath: string;
-      aBookNames: string;
-      amodCats: string;
-      anAuthor: string;
-      aCoverPath: string;
+      aFullName, aShortName, aShortPath, aFullPath: String;
+      aBookNames: String;
+      amodCats: String;
+      anAuthor: String;
+      aModuleVersion: String;
+      aCoverPath: String;
       hasStrong: boolean); overload;
 
     procedure Assign(source: TModuleEntry);
@@ -1079,22 +1084,26 @@ end;
 procedure TModuleEntry.Assign(source: TModuleEntry);
 begin
   Init(source.modType, source.mFullName, source.mShortName,
-    source.mShortPath, source.mFullPath, source.modBookNames, source.modCats, source.mAuthor, source.mCoverPath, source.mHasStrong);
+    source.mShortPath, source.mFullPath, source.modBookNames, source.modCats,
+    source.mAuthor, source.mModuleVersion,
+    source.mCoverPath, source.mHasStrong);
   mMatchInfo := source.mMatchInfo;
 end;
 
 constructor TModuleEntry.Create(
   amodType: TModuleType;
-  aFullName, aShortName, aShortPath, aFullPath: string;
-  aBookNames: string;
+  aFullName, aShortName, aShortPath, aFullPath: String;
+  aBookNames: String;
   modCats: TStrings;
-  anAuthor: string;
-  aCoverPath: string;
+  anAuthor: String;
+  aModuleVersion: String;
+  aCoverPath: String;
   hasStrong: boolean);
 begin
   inherited Create;
 
-  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats, anAuthor, aCoverPath, hasStrong);
+  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats,
+       anAuthor, aModuleVersion, aCoverPath, hasStrong);
 end;
 
 constructor TModuleEntry.Create(me: TModuleEntry);
@@ -1135,23 +1144,26 @@ end;
 
 constructor TModuleEntry.Create(
   amodType: TModuleType;
-  aFullName, aShortName, aShortPath, aFullPath: string;
-  aBookNames: string;
-  modCats: string;
-  anAuthor: string;
+  aFullName, aShortName, aShortPath, aFullPath: String;
+  aBookNames: String;
+  modCats: String;
+  anAuthor: String;
+  aModuleVersion: String;
   aCoverPath: string;
   hasStrong: boolean);
 begin
-  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats, anAuthor, aCoverPath, hasStrong);
+  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats,
+       anAuthor, aModuleVersion, aCoverPath, hasStrong);
 end;
 
 procedure TModuleEntry.Init(
   amodType: TModuleType;
-  aFullName, aShortName, aShortPath, aFullPath: string;
-  aBookNames: string;
-  amodCats: string;
-  anAuthor: string;
-  aCoverPath: string;
+  aFullName, aShortName, aShortPath, aFullPath: String;
+  aBookNames: String;
+  amodCats: String;
+  anAuthor: String;
+  aModuleVersion: String;
+  aCoverPath: String;
   hasStrong: boolean);
 begin
   modType := amodType;
@@ -1170,6 +1182,7 @@ begin
 
   mCachedCover := nil;
   mAuthor := anAuthor;
+  mModuleVersion := aModuleVersion;
   mCoverPath := aCoverPath;
   mCachedCoverLock := TCriticalSection.Create;
   mHasStrong := hasStrong;
@@ -1417,11 +1430,12 @@ begin
 
   procedure TModuleEntry.Init(
     amodType: TModuleType;
-    aFullName, aShortName, aShortPath, aFullPath: string;
-    aBookNames: string;
+    aFullName, aShortName, aShortPath, aFullPath: String;
+    aBookNames: String;
     modCatsLst: TStrings;
-    anAuthor: string;
-    aCoverPath: string;
+    anAuthor: String;
+    aModuleVersion: String;
+    aCoverPath: String;
     hasStrong: boolean);
   begin
     modType := amodType;
@@ -1436,6 +1450,7 @@ begin
     else
       modCats := TokensToStr(modCatsLst, '|');
     mAuthor := anAuthor;
+    mModuleVersion := aModuleVersion;
     mCoverPath := aCoverPath;
     mCachedCover := nil;
     mCachedCoverLock := TCriticalSection.Create;
