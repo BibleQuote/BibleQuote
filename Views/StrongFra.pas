@@ -123,7 +123,7 @@ begin
     if defaultModIx >= 0 then
     begin
       book := TBible.Create(mMainView);
-      bookPath := TPath.Combine(mMainView.mModules[defaultModIx].mShortPath, 'bibleqt.ini');
+      bookPath := TPath.Combine(mMainView.mModules[defaultModIx].ShortPath, 'bibleqt.ini');
       // todo: figure out with .IniFile
       //book.inifile := MainFileExists(bookPath);
     end;

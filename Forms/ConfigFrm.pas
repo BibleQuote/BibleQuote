@@ -283,7 +283,7 @@ begin
     try
       for i := 0 to moduleCount do
       begin
-        allBibles.Add(modules[i].mFullName);
+        allBibles.Add(modules[i].FullName);
       end;
     finally
       allBibles.EndUpdate;
@@ -321,10 +321,10 @@ begin
       begin
         if (modules[i].modType = modtypeBible) then
         begin
-          allBibles.Add(modules[i].mFullName);
+          allBibles.Add(modules[i].FullName);
 
-          if (modules[i].mHasStrong) then
-            strongBibles.Add(modules[i].mFullName);
+          if (modules[i].HasStrong) then
+            strongBibles.Add(modules[i].FullName);
         end;
       end;
     finally
@@ -398,7 +398,7 @@ begin
   lbFavourites.Items.BeginUpdate;
   for i := 0 to moduleCount do
   begin
-    lbFavourites.Items.Add(favorites.mModuleEntries[i].mFullName);
+    lbFavourites.Items.Add(favorites.mModuleEntries[i].FullName);
   end;
   lbFavourites.Items.EndUpdate;
 

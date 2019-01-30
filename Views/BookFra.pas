@@ -592,7 +592,7 @@ begin
       modIx := mMainView.mModules.FindByName(AppConfig.DefaultBible);
 
     if modIx >= 0 then
-      replaceModPath := mMainView.mModules[modIx].mShortPath;
+      replaceModPath := mMainView.mModules[modIx].ShortPath;
   end;
 
   if (replaceModPath = '') then
@@ -963,7 +963,7 @@ begin
         Exit;
       end;
       me := dtsBible.Tabs.Objects[NewTab] as TModuleEntry;
-      mMainView.OpenModule(me.mFullName);
+      mMainView.OpenModule(me.FullName);
     end;
   except
     on E: Exception do
@@ -1006,13 +1006,13 @@ begin
   me := dtsBible.Tabs.Objects[it] as TModuleEntry;
   if IsDown(VK_SHIFT) then
   begin
-    SelectSatelliteBibleByName(me.mFullName);
+    SelectSatelliteBibleByName(me.FullName);
     Exit;
   end;
   if IsDown(VK_MENU) then
   begin
     s := BookTabInfo.Location;
-    StrReplace(s, BookTabInfo.Bible.ShortPath, me.mShortPath, false);
+    StrReplace(s, BookTabInfo.Bible.ShortPath, me.ShortPath, false);
     mMainView.NewBookTab(s, BookTabInfo.SatelliteName, BookTabInfo.State, '', true);
     Exit;
   end;
@@ -1153,7 +1153,7 @@ begin
   end;
 
   me := dtsBible.Tabs.Objects[it] as TModuleEntry;
-  ws := me.mFullName;
+  ws := me.FullName;
 
   if mMainView.hint_expanded = 0 then
     mMainView.hint_expanded := 1;
@@ -1669,7 +1669,7 @@ end;
 
 procedure TBookFrame.OnSelectSatelliteModule(Sender: TObject; modEntry: TModuleEntry);
 begin
-  SelectSatelliteBibleByName(modEntry.mFullName);
+  SelectSatelliteBibleByName(modEntry.FullName);
   PostMessage(mSatelliteForm.Handle, wm_close, 0, 0);
 end;
 
@@ -1867,7 +1867,7 @@ begin
     if ix >= 0 then
     begin
       // todo: figure out with .IniFile +OK
-      ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].mShortPath, 'bibleqt.ini'));
+      ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].ShortPath, 'bibleqt.ini'));
       if ini <> BookTabInfo.SecondBible.InfoSource.FileName then
         BookTabInfo.SecondBible.SetInfoSource(ini);
 
@@ -2476,7 +2476,7 @@ begin
     begin
       refBook.InternalToReference(bl, moduleEffectiveLink);
       if (me <> nil) then
-        ConcreteCmd := moduleEffectiveLink.ToCommand(me.mShortPath);
+        ConcreteCmd := moduleEffectiveLink.ToCommand(me.ShortPath);
       Exit;
     end;
   Fail:

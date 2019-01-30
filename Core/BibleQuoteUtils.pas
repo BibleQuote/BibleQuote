@@ -71,64 +71,64 @@ type
   TbqItemStyles = set of TbqItemStyle;
 
   TModuleEntry = class
-    mFullName, mShortName, mShortPath, mFullPath: String;
-    modType: TModuleType;
-    modCats: String;
-    modBookNames: String;
+  private
+    FFullName, FShortName, FShortPath, FFullPath: String;
+    FModType: TModuleType;
+    FModCats: String;
+    FModBookNames: String;
 
-    mAuthor: String;
-    mModuleVersion: String;
-    mCoverPath: String;
-    mHasStrong: Boolean;
+    FAuthor: String;
+    FModuleVersion: String;
+    FCoverPath: String;
+    FHasStrong: Boolean;
 
-    mRects: PRectArray;
-    mCatsCnt: integer;
-    mNode: Pointer;
-    mStyle: TbqItemStyles;
+    FRects: PRectArray;
+
+  public
     mMatchInfo: TMatchInfoArray;
 
     constructor Create(
-      amodType: TModuleType;
+      aModType: TModuleType;
       aFullName, aShortName, aShortPath, aFullPath: String;
       aBookNames: String;
-      modCats: TStrings;
-      anAuthor: String;
+      aModCats: TStrings;
+      aAuthor: String;
       aModuleVersion: String;
       aCoverPath: String;
-      hasStrong: boolean); overload;
+      aHasStrong: boolean); overload;
 
     constructor Create(
-      amodType: TModuleType;
+      aModType: TModuleType;
       aFullName, aShortName, aShortPath, aFullPath: String;
       aBookNames: String;
-      modCats: String;
-      anAuthor: String;
+      aModCats: String;
+      aAuthor: String;
       aModuleVersion: String;
       aCoverPath: String;
-      hasStrong: boolean); overload;
+      aHasStrong: boolean); overload;
 
     constructor Create(me: TModuleEntry); overload;
     destructor Destroy; override;
 
     procedure Init(
-      amodType: TModuleType;
+      aModType: TModuleType;
       aFullName, aShortName, aShortPath, aFullPath: String;
       aBookNames: String;
-      modCatsLst: TStrings;
-      anAuthor: String;
+      aModCatsLst: TStrings;
+      aAuthor: String;
       aModuleVersion: String;
       aCoverPath: String;
-      hasStrong: boolean); overload;
+      aHasStrong: boolean); overload;
 
     procedure Init(
-      amodType: TModuleType;
+      aModType: TModuleType;
       aFullName, aShortName, aShortPath, aFullPath: String;
       aBookNames: String;
-      amodCats: String;
-      anAuthor: String;
+      aModCats: String;
+      aAuthor: String;
       aModuleVersion: String;
       aCoverPath: String;
-      hasStrong: boolean); overload;
+      aHasStrong: boolean); overload;
 
     procedure Assign(source: TModuleEntry);
     function Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
@@ -139,10 +139,23 @@ type
     function GetCoverImage(width, height: integer): TPicture;
 
     function getIniPath(): string;
+
+    property ShortPath: String read FShortPath;
+    property FullPath: String read FFullPath;
+    property FullName: String read FFullName;
+    property ShortName: String read FShortName;
+    property ModType: TModuleType read FModType;
+    property ModBookNames: String read FModBookNames;
+    property ModCats: String read FModCats;
+    property Author: String read FAuthor;
+    property CoverPath: String read FCoverPath;
+    property HasStrong: Boolean read FHasStrong;
+    property ModuleVersion: String read FModuleVersion;
+
   protected
-    mCachedCover: TPicture;
-    mCachedWidth, mCachedHeight: integer;
-    mCachedCoverLock : TCriticalSection;
+    FCachedCover: TPicture;
+    FCachedWidth, FCachedHeight: integer;
+    FCachedCoverLock : TCriticalSection;
 
     function DefaultModCats(): string;
   end;
@@ -1083,27 +1096,27 @@ end;
 
 procedure TModuleEntry.Assign(source: TModuleEntry);
 begin
-  Init(source.modType, source.mFullName, source.mShortName,
-    source.mShortPath, source.mFullPath, source.modBookNames, source.modCats,
-    source.mAuthor, source.mModuleVersion,
-    source.mCoverPath, source.mHasStrong);
+  Init(source.modType, source.FullName, source.ShortName,
+    source.ShortPath, source.FullPath, source.ModBookNames, source.ModCats,
+    source.Author, source.ModuleVersion,
+    source.CoverPath, source.HasStrong);
   mMatchInfo := source.mMatchInfo;
 end;
 
 constructor TModuleEntry.Create(
-  amodType: TModuleType;
+  aModType: TModuleType;
   aFullName, aShortName, aShortPath, aFullPath: String;
   aBookNames: String;
-  modCats: TStrings;
-  anAuthor: String;
+  aModCats: TStrings;
+  aAuthor: String;
   aModuleVersion: String;
   aCoverPath: String;
-  hasStrong: boolean);
+  aHasStrong: boolean);
 begin
   inherited Create;
 
-  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats,
-       anAuthor, aModuleVersion, aCoverPath, hasStrong);
+  Init(aModType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, aModCats,
+       aAuthor, aModuleVersion, aCoverPath, aHasStrong);
 end;
 
 constructor TModuleEntry.Create(me: TModuleEntry);
@@ -1127,11 +1140,11 @@ end;
 
 destructor TModuleEntry.Destroy;
 begin
-  FreeMem(mRects);
-  FreeAndNil(mCachedCoverLock);
+  FreeMem(FRects);
+  FreeAndNil(FCachedCoverLock);
 
-  if Assigned(mCachedCover) then
-    FreeAndNil(mCachedCover);
+  if Assigned(FCachedCover) then
+    FreeAndNil(FCachedCover);
 
   mMatchInfo := nil;
   inherited;
@@ -1139,53 +1152,53 @@ end;
 
 function TModuleEntry.getIniPath: string;
 begin
-  result := MainFileExists(TPath.Combine(mShortPath, C_ModuleIniName));
+  result := MainFileExists(TPath.Combine(ShortPath, C_ModuleIniName));
 end;
 
 constructor TModuleEntry.Create(
-  amodType: TModuleType;
+  aModType: TModuleType;
   aFullName, aShortName, aShortPath, aFullPath: String;
   aBookNames: String;
-  modCats: String;
-  anAuthor: String;
+  aModCats: String;
+  aAuthor: String;
   aModuleVersion: String;
   aCoverPath: string;
-  hasStrong: boolean);
+  aHasStrong: boolean);
 begin
-  Init(amodType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, modCats,
-       anAuthor, aModuleVersion, aCoverPath, hasStrong);
+  Init(aModType, aFullName, aShortName, aShortPath, aFullPath, aBookNames, aModCats,
+       aAuthor, aModuleVersion, aCoverPath, aHasStrong);
 end;
 
 procedure TModuleEntry.Init(
   amodType: TModuleType;
   aFullName, aShortName, aShortPath, aFullPath: String;
   aBookNames: String;
-  amodCats: String;
-  anAuthor: String;
+  aModCats: String;
+  aAuthor: String;
   aModuleVersion: String;
   aCoverPath: String;
-  hasStrong: boolean);
+  aHasStrong: boolean);
 begin
-  modType := amodType;
-  mFullName := aFullName;
-  mShortPath := aShortPath;
-  mShortName := aShortName;
-  mFullPath := aFullPath;
-  mRects := nil;
-  modBookNames := aBookNames;
+  FModType := aModType;
+  FFullName := aFullName;
+  FShortPath := aShortPath;
+  FShortName := aShortName;
+  FFullPath := aFullPath;
+  FRects := nil;
+  FModBookNames := aBookNames;
   if Length(amodCats) <= 0 then
   begin
-    modCats := DefaultModCats();
+    FModCats := DefaultModCats();
   end
   else
-    modCats := amodCats;
+    FModCats := aModCats;
 
-  mCachedCover := nil;
-  mAuthor := anAuthor;
-  mModuleVersion := aModuleVersion;
-  mCoverPath := aCoverPath;
-  mCachedCoverLock := TCriticalSection.Create;
-  mHasStrong := hasStrong;
+  FCachedCover := nil;
+  FAuthor := aAuthor;
+  FModuleVersion := aModuleVersion;
+  FCoverPath := aCoverPath;
+  FCachedCoverLock := TCriticalSection.Create;
+  FHasStrong := aHasStrong;
 end;
 
 function TModuleEntry.Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
@@ -1207,9 +1220,9 @@ begin
   result := [];
   if listCnt < 0 then
     exit;
-  strNameUP := LowerCase(mFullName);
-  strCatsUp := LowerCase(modCats);
-  strBNamesUp := LowerCase(modBookNames);
+  strNameUP := LowerCase(FullName);
+  strCatsUp := LowerCase(ModCats);
+  strBNamesUp := LowerCase(ModBookNames);
 
   tagFullMatch := true;
   nameFullMatch := true;
@@ -1361,10 +1374,10 @@ begin
 
   function TModuleEntry.VisualSignature(): string;
   begin
-    if Length(mShortName) > 0 then
-      result := mShortName
+    if Length(ShortName) > 0 then
+      result := ShortName
     else
-      result := mShortPath;
+      result := ShortPath;
   end;
 
   function TModuleEntry.BibleBookPresent(ix: integer): boolean;
@@ -1390,40 +1403,40 @@ begin
 
   function TModuleEntry.GetCoverImage(width, height: integer): TPicture;
   var
-    coverPath: string;
+    CoverFullPath: string;
     origPicture: TPicture;
   begin
     Result := nil;
 
-    if (mCoverPath = '') then
+    if (CoverPath = '') then
       Exit;
 
-    coverPath := TPath.Combine(mShortPath, mCoverPath);
-    if not FileExists(coverPath) then
+    CoverFullPath := TPath.Combine(ShortPath, CoverPath);
+    if not FileExists(CoverFullPath) then
       Exit;
 
-    mCachedCoverLock.Acquire;
+    FCachedCoverLock.Acquire;
     try
-      if Assigned(mCachedCover) and (width = mCachedWidth) and (height = mCachedHeight) then
+      if Assigned(FCachedCover) and (width = FCachedWidth) and (height = FCachedHeight) then
       begin
-        Result := mCachedCover;
+        Result := FCachedCover;
         Exit;
       end;
 
       origPicture := TPicture.Create();
       try
-        origPicture.LoadFromFile(coverPath);
+        origPicture.LoadFromFile(CoverFullPath);
 
-        mCachedCover := StretchImage(origPicture, width, height);
-        mCachedWidth := width;
-        mCachedHeight := height;
+        FCachedCover := StretchImage(origPicture, width, height);
+        FCachedWidth := width;
+        FCachedHeight := height;
 
-        Result := mCachedCover;
+        Result := FCachedCover;
       finally
         origPicture.Free;
       end;
     finally
-      mCachedCoverLock.Release;
+      FCachedCoverLock.Release;
     end;
 
   end;
@@ -1432,29 +1445,29 @@ begin
     amodType: TModuleType;
     aFullName, aShortName, aShortPath, aFullPath: String;
     aBookNames: String;
-    modCatsLst: TStrings;
-    anAuthor: String;
+    aModCatsLst: TStrings;
+    aAuthor: String;
     aModuleVersion: String;
     aCoverPath: String;
-    hasStrong: boolean);
+    aHasStrong: boolean);
   begin
-    modType := amodType;
-    mFullName := aFullName;
-    mShortPath := aShortPath;
-    mShortName := aShortName;
-    mFullPath := aFullPath;
-    modBookNames := aBookNames;
-    mRects := nil;
-    if modCatsLst.count <= 0 then
-      modCats := DefaultModCats()
+    FModType := amodType;
+    FFullName := aFullName;
+    FShortPath := aShortPath;
+    FShortName := aShortName;
+    FFullPath := aFullPath;
+    FModBookNames := aBookNames;
+    FRects := nil;
+    if aModCatsLst.count <= 0 then
+      FModCats := DefaultModCats()
     else
-      modCats := TokensToStr(modCatsLst, '|');
-    mAuthor := anAuthor;
-    mModuleVersion := aModuleVersion;
-    mCoverPath := aCoverPath;
-    mCachedCover := nil;
-    mCachedCoverLock := TCriticalSection.Create;
-    mHasStrong := hasStrong;
+      FModCats := TokensToStr(aModCatsLst, '|');
+    FAuthor := aAuthor;
+    FModuleVersion := aModuleVersion;
+    FCoverPath := aCoverPath;
+    FCachedCover := nil;
+    FCachedCoverLock := TCriticalSection.Create;
+    FHasStrong := aHasStrong;
   end;
 
   { TCachedModules }
@@ -1474,7 +1487,7 @@ begin
 
   function __ModEntryCmp(Item1, Item2: TModuleEntry): integer;
   begin
-    result := OmegaCompareTxt(Item1.mFullName, Item2.mFullName, -1, true);
+    result := OmegaCompareTxt(Item1.FullName, Item2.FullName, -1, true);
   end;
 
   function TCachedModules.FindByName(const name: string; fromix: integer): integer;
@@ -1491,7 +1504,7 @@ begin
     newi := I;
     repeat
       I := newi;
-      r := OmegaCompareTxt(name, TModuleEntry(Items[I]).mFullName);
+      r := OmegaCompareTxt(name, TModuleEntry(Items[I]).FullName);
       if r = 0 then
         break;
       if r < 0 then
@@ -1507,7 +1520,7 @@ begin
     end;
     dec(I);
     while (I >= fromix) and
-      (OmegaCompareTxt(name, TModuleEntry(Items[I]).mFullName) = 0) do
+      (OmegaCompareTxt(name, TModuleEntry(Items[I]).FullName) = 0) do
       dec(I);
     inc(I);
     result := I;
@@ -1521,7 +1534,7 @@ begin
     result := 0;
     for I := c downto 0 do
     begin
-      if Items[I].mFullPath[1] = '?' then
+      if Items[I].FullPath[1] = '?' then
         inc(result);
     end;
   end;
@@ -1554,7 +1567,7 @@ begin
       exit;
     for I := 0 to cnt do
     begin
-      result := OmegaCompareTxt(name, TModuleEntry(Items[I]).mFullName, -1, true);
+      result := OmegaCompareTxt(name, TModuleEntry(Items[I]).FullName, -1, true);
       if result = 0 then
       begin
         result := I;
@@ -1624,7 +1637,7 @@ begin
       exit;
     for I := 0 to cnt do
     begin
-      result := CompareText(name, TModuleEntry(Items[I]).mShortPath);
+      result := CompareText(name, TModuleEntry(Items[I]).ShortPath);
       if result = 0 then
       begin
         result := I;
@@ -1644,7 +1657,7 @@ begin
       exit;
     for I := 0 to cnt do
     begin
-      result := CompareText(wsFullPath, Items[I].mFullPath);
+      result := CompareText(wsFullPath, Items[I].FullPath);
       if result = 0 then
       begin
         result := I;
@@ -1671,14 +1684,14 @@ begin
       if (foundIx < 0) then
         exit;
       result := TModuleEntry(Items[foundIx]);
-      if result.mShortName = modShortName then
+      if result.ShortName = modShortName then
         exit;
       c := count;
 
       repeat
         result := TModuleEntry(Items[foundIx]);
         inc(foundIx);
-      until (foundIx > c) or (OmegaCompareTxt(result.mFullName, modName, -1, true) <> 0) or (result.mShortName <> modShortName); // until
+      until (foundIx > c) or (OmegaCompareTxt(result.FullName, modName, -1, true) <> 0) or (result.ShortName <> modShortName); // until
 
       result := TModuleEntry(Items[foundIx - 1]);
     except

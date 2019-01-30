@@ -56,7 +56,7 @@ var
   newMod: TModuleEntry;
 begin
   Result := false;
-  foundIx := mModuleEntries.FindByFolder(me.mShortPath);
+  foundIx := mModuleEntries.FindByFolder(me.ShortPath);
   if foundIx >= 0 then
     Exit;
   newMod := TModuleEntry.Create(me);
@@ -226,8 +226,8 @@ begin
 
         me := TModuleEntry(mModuleEntries.Items[i]);
         lst.Add('***');
-        lst.Add(me.mFullName);
-        lst.Add(me.mShortName);
+        lst.Add(me.FullName);
+        lst.Add(me.ShortName);
       except
         on E: Exception do
           BqShowException(E);

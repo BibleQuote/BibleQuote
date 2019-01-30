@@ -467,16 +467,16 @@ begin
       moduleEntry := TModuleEntry(mCachedModules[i]);
       with modStringList, moduleEntry do
       begin
-        Add(IntToStr(ord(modType)));
-        Add(mFullName);
-        Add(mShortName);
-        Add(mShortPath);
-        Add(mFullPath);
-        Add(modBookNames);
-        Add(modCats);
-        Add(mAuthor);
-        Add(mCoverPath);
-        Add(BoolToStr(mHasStrong));
+        Add(IntToStr(ord(ModType)));
+        Add(FullName);
+        Add(ShortName);
+        Add(ShortPath);
+        Add(FullPath);
+        Add(ModBookNames);
+        Add(ModCats);
+        Add(Author);
+        Add(CoverPath);
+        Add(BoolToStr(HasStrong));
         Add('***');
       end;
     end;

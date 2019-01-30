@@ -1470,7 +1470,7 @@ begin
       Exit;
     hotMenuItem := TMenuItem.Create(self);
     hotMenuItem.tag := tag;
-    hotMenuItem.Caption := modEntry.mFullName;
+    hotMenuItem.Caption := modEntry.FullName;
     hotMenuItem.OnClick := OnHotModuleClick;
     favouriteMenuItem.Add(hotMenuItem);
     if not addBibleTab then
@@ -2061,7 +2061,7 @@ begin
     if (i < 0) then
       modName := ' '
     else
-      modName := mModules[i].mFullName;
+      modName := mModules[i].FullName;
     if not Assigned(PasswordBox) then
       PasswordBox := TPasswordBox.Create(self);
     with PasswordBox do
@@ -2558,7 +2558,7 @@ begin
 
     hotMenuItem := TMenuItem.Create(self);
     hotMenuItem.tag := integer(newMe);
-    hotMenuItem.Caption := newMe.mFullName;
+    hotMenuItem.Caption := newMe.FullName;
     hotMenuItem.OnClick := OnHotModuleClick;
 
     favouriteMenuItem.Insert(ix + i, hotMenuItem);
@@ -2706,10 +2706,10 @@ var
   command: string;
 begin
 
-  command := 'go ' + aModuleEntry.mShortPath + ' 1 1 0';
+  command := 'go ' + aModuleEntry.ShortPath + ' 1 1 0';
 
   case aModuleEntry.modType of
-  modtypeDictionary: OpenOrCreateDictionaryTab('', aModuleEntry.mFullName);
+  modtypeDictionary: OpenOrCreateDictionaryTab('', aModuleEntry.FullName);
   else
     OpenOrCreateBookTab(
         command,
@@ -2784,7 +2784,7 @@ begin
     if not Assigned(tempBook) then
       tempBook := TBible.Create(self);
 
-    iniPath := TPath.Combine(me.mShortPath, 'bibleqt.ini');
+    iniPath := TPath.Combine(me.ShortPath, 'bibleqt.ini');
     // todo: figure out with .IniFile  +OK
     tempBook.SetInfoSource(MainFileExists(iniPath));
   except
@@ -3382,7 +3382,7 @@ begin
       raise Exception.Create
         ('Модули не найдены! Проверьте наличие директории Library в корневой директории BibleQuote.');
 
-    Result := bibleModuleEntry.mShortPath;
+    Result := bibleModuleEntry.ShortPath;
   except
     on E: Exception do
     begin
@@ -3648,7 +3648,7 @@ begin
         try
           // todo: figure out with .IniFile +OK
           tempBook.SetInfoSource(
-            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).mShortPath + '\bibleqt.ini'));
+            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).ShortPath + '\bibleqt.ini'));
 
           openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
 
@@ -3669,9 +3669,9 @@ begin
         begin
           try
 
-            modName := moduleEntry.mFullName;
+            modName := moduleEntry.FullName;
 
-            modPath := moduleEntry.mShortPath;
+            modPath := moduleEntry.ShortPath;
             // todo: figure out with .IniFile +OK
             tempBook.SetInfoSource( MainFileExists(TPath.Combine(modPath, 'bibleqt.ini')));
             openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
@@ -4962,7 +4962,7 @@ begin
   hotMi := FavoriteItemFromModEntry(oldMe);
   if Assigned(hotMi) then
   begin
-    hotMi.Caption := newMe.mFullName;
+    hotMi.Caption := newMe.FullName;
     hotMi.tag := integer(newMe);
   end;
 

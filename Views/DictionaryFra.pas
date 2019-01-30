@@ -95,12 +95,12 @@ begin
   begin
     modEntry := mMainView.mModules.ModTypedAsFirst(modtypeBible);
     if Assigned(modEntry) then
-      modIx := mMainView.mModules.FindByName(modEntry.mFullName);
+      modIx := mMainView.mModules.FindByName(modEntry.FullName);
   end;
 
   if (modIx >= 0) then
   begin
-    modPath := mMainView.mModules[modIx].mShortPath;
+    modPath := mMainView.mModules[modIx].ShortPath;
     bookTabInfo := mMainView.CreateNewBookTabInfo();
 
     if (Pos(C__bqAutoBible, SRC) <> 0) then

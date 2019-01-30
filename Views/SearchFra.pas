@@ -114,7 +114,7 @@ end;
 
 procedure TSearchFrame.OnBookSelect(Sender: TObject; modEntry: TModuleEntry);
 begin
-  SetCurrentBook(modEntry.mShortPath);
+  SetCurrentBook(modEntry.ShortPath);
 
   PostMessage(mBookSelectForm.Handle, wm_close, 0, 0);
 end;
