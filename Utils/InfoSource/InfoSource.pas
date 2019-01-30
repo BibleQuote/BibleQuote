@@ -18,6 +18,7 @@ type
     FChapterSign, FVerseSign: String;
     FAlphabet, FHTMLFilter, FSoundDirectory: String;
     FUseRightAlignment, FStrongsPrefixed: Boolean;
+    FDefaultEncoding: String;
 
     FModuleName, FModuleAuthor, FModuleVersion, FModuleCompiler, FModuleImage: String;
     FOldTestament, FNewTestament, FApocrypha, FChapterZero, FEnglishPsalms,
@@ -76,6 +77,7 @@ type
     property IsCompressed: Boolean read FIsCompressed write FIsCompressed;
     property FileName: String read FFileName write FFileName;
     property IsCommentary: Boolean read FIsCommentary write FIsCommentary;
+    property DefaultEncoding: String read FDefaultEncoding write FDefaultEncoding;
 
   end;
 

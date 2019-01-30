@@ -60,8 +60,6 @@ function GetEncodingByWinCharSet(aCharSet: Integer): Integer;
 
 function FindEncodingMetatag(const ansiText: string; out rBeginPos: Integer; out rLength: Integer): TEncoding;
 
-function LoadBibleqtIniFileEncoding(const aFileName: string; defaultEncoding: TEncoding): TEncoding;
-
 implementation
 
 uses SevenZipVCL, sevenZipHelper, BibleQuoteUtils;
@@ -695,62 +693,6 @@ begin
   finally
     dFile.Free;
   end;
-end;
-
-function LoadBibleqtIniFileEncoding(const aFileName: string; defaultEncoding: TEncoding): TEncoding;
-var
-  dLines: TStrings;
-  i: Integer;
-  dName: string;
-  dValue: string;
-  codePage: Integer;
-  charset: Integer;
-begin
-  dLines := ReadTextFileLines(aFileName, defaultEncoding);
-  result := defaultEncoding;
-
-  try
-    for i := 0 to dLines.Count - 1 do
-    begin
-      dName := IniStringFirstPart(dLines[i]);
-      dValue := IniStringSecondPart(dLines[i]);
-
-      if dValue = '' then
-        Continue;
-
-      if dName = 'DefaultEncoding' then
-      begin
-        result := GetEncodingByName(dValue);
-        if result = nil then
-          result := defaultEncoding;
-
-        exit;
-
-      end
-      else if dName = 'DesiredFontCharset' then
-      begin
-        charset := StrToInt(dValue);
-        codePage := GetEncodingByWinCharSet(charset);
-        if codePage <= 0 then
-        begin
-          result := defaultEncoding;
-        end
-        else
-        begin
-          result := TEncoding.GetEncoding(codePage);
-        end;
-
-        exit;
-
-      end;
-
-    end;
-
-  finally
-    dLines.Free;
-
-  end;
-
 end;
 
 function TextFromFile(filename: string): string;

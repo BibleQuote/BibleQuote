@@ -2704,7 +2704,6 @@ end;
 
 procedure TMainForm.ActivateModuleView(aModuleEntry: TModuleEntry);
 var
-  i: integer;
   command: string;
 begin
 

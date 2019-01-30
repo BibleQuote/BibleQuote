@@ -168,6 +168,7 @@ begin
     UseChapterHead := StringValueToBoolean(ReadStringValue('UseChapterHead'));
 
     DesiredFontCharset := ReadIntegerValue('DesiredFontCharset', -1);
+    DefaultEncoding := ReadStringValue('DefaultEncoding');
     BookQty := ReadIntegerValue('BookQty');
 
     InstallFonts := ReadStringValue('InstallFonts');
