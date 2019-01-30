@@ -139,7 +139,7 @@ var origCoverImage: TPicture;
 begin
   origCoverImage := nil;
   try
-    origCoverImage := LoadImage('CoverDefault');  
+    origCoverImage := LoadResourceImage('CoverDefault');
     FCoverDefault := StretchImage(origCoverImage, GetCoverWidth, GetCoverHeight);
   finally
     if Assigned(origCoverImage) then

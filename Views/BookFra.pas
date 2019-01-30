@@ -212,6 +212,7 @@ type
     procedure UpdateModuleTreeSelection(book: TBible);
     procedure UpdateModuleTree(book: TBible);
     function GetCurrentBookNode(): PVirtualNode;
+    procedure OpenModule(moduleName: string; fromBeginning: Boolean = false);
   end;
 
 implementation
@@ -636,7 +637,6 @@ begin
   try
     if not Assigned(BookTabInfo) then
       Exit;
-    // todo: figure out with .IniFile +OK
     archive := BookTabInfo.Bible.InfoSource.FileName;
     if (Length(archive) <= 0) or (archive[1] <> '?') then
       Exit;
@@ -963,7 +963,7 @@ begin
         Exit;
       end;
       me := dtsBible.Tabs.Objects[NewTab] as TModuleEntry;
-      mMainView.OpenModule(me.FullName);
+      OpenModule(me.FullName);
     end;
   except
     on E: Exception do
@@ -1866,7 +1866,6 @@ begin
     ix := mMainView.mModules.FindByName(name);
     if ix >= 0 then
     begin
-      // todo: figure out with .IniFile +OK
       ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].ShortPath, 'bibleqt.ini'));
       if ini <> BookTabInfo.SecondBible.InfoSource.FileName then
         BookTabInfo.SecondBible.SetInfoSource(ini);
@@ -2060,7 +2059,6 @@ label
       end;
     end;
 
-    // todo: figure out with .IniFile +OK
     bookTabInfo.Bible.SetInfoSource(oldPath);
     bibleLink.modName := bookTabInfo.Bible.ShortPath;
     bibleLink.book := oldbook;
@@ -2085,7 +2083,6 @@ begin
     browserpos := bwrHtml.Position;
     bwrHtml.tag := bsText;
 
-    // todo: figure out with .IniFile +OK
     oldPath := bookTabInfo.Bible.InfoSource.FileName;
     oldbook := bookTabInfo.Bible.CurBook;
     oldchapter := bookTabInfo.Bible.CurChapter;
@@ -2117,7 +2114,6 @@ begin
       oldSignature := bookTabInfo.Bible.FullPassageSignature(bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, 0, 0);
 
       // try to load module
-      // todo: figure out with .IniFile +OK
       if path <> bookTabInfo.Bible.InfoSource.FileName then
         try
           bookTabInfo.Bible.SetInfoSource( path );
@@ -2170,8 +2166,6 @@ begin
                 bookTabInfo[vtisHighLightVerses] := false;
               bookTabInfo.Title := Format('%.6s-%.6s:%d', [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
 
-              mWorkspace.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
-
             except
               on E: Exception do
                 BqShowException(E);
@@ -2209,7 +2203,6 @@ begin
         j := Pos('$$$', dup);
         value := MainFileExists(TPath.Combine(Copy(dup, i + 3, j - i - 4), 'bibleqt.ini'));
 
-        // todo: figure out with .IniFile +OK
         if bookTabInfo.Bible.InfoSource.FileName <> value then
           bookTabInfo.Bible.SetInfoSource(value);
 
@@ -2276,7 +2269,6 @@ begin
         bwrHtml.tag := bsFile;
 
       bookTabInfo.Title := Format('%.12s', [value]);
-      mWorkspace.ChromeTabs.ActiveTab.Caption := bookTabInfo.Title;
       bookTabInfo.Location := command;
       bookTabInfo.LocationType := vtlFile;
 
@@ -2290,7 +2282,6 @@ begin
       try
         bwrHtml.LoadFromFile(bwrHtml.Base + dup);
         bookTabInfo.Title := Format('%.12s', [command]);
-        mWorkspace.ChromeTabs.ActiveTab.Caption := BookTabInfo.Title;
 
         bookTabInfo.Location := command;
         bookTabInfo.LocationType := vtlFile;
@@ -2303,10 +2294,12 @@ begin
       end;
 
   exitlabel:
+    mWorkspace.UpdateBookTabHeader();
+
     if Length(path) <= 0 then
       Exit;
-    Result := true;
 
+    Result := true;
     SelectModuleTreeNode(bookTabInfo.Bible);
 
     if (not wasFile) then
@@ -2599,7 +2592,6 @@ begin
       { // now UseParaBible will be used if satellite text is found... }
       begin
 
-        // todo: figure out with .IniFile +OK
         secondBible.SetInfoSource( modEntry.getIniPath());
 
         secondbook_right_aligned := secondBible.UseRightAlignment;
@@ -3090,7 +3082,6 @@ label lblErrNotFnd;
     begin
       me := GetRefBible(currentBibleIx);
       inc(currentBibleIx);
-      // todo: figure out with .IniFile +OK
       refBook.SetInfoSource( MainFileExists(me.getIniPath()));
       Result := true;
     end
@@ -3114,7 +3105,6 @@ begin
       // form the path to the ini module
       path := MainFileExists(TPath.Combine(path, 'bibleqt.ini'));
       // try to load the module
-      // todo: figure out with .IniFile +OK
       refBook.SetInfoSource(path);
     end
     else
@@ -3134,7 +3124,6 @@ begin
       else
         effectiveLnk := ibl;
 
-      // todo: figure out with .IniFile +OK
       status_valid := refBook.LinkValidnessStatus(refBook.InfoSource.FileName, effectiveLnk, false);
       effectiveLnk.AssignTo(bl);
       if status_valid < -1 then
@@ -3307,6 +3296,91 @@ var
 begin
   menuItem := TMenuItem(Sender);
   AddBookmarkTagged(menuItem.Caption);
+end;
+
+procedure TBookFrame.OpenModule(moduleName: string; fromBeginning: Boolean = false);
+var
+  i: integer;
+  firstVisibleVerse: integer;
+  wasBible: Boolean;
+  me: TModuleEntry;
+  bl, obl: TBibleLink;
+  blValidAddressExtracted: Boolean;
+  path: string;
+  hlVerses: TbqHLVerseOption;
+  R: integer;
+  iniPath: string;
+  bible: TBible;
+begin
+  i := mMainView.mModules.FindByName(moduleName);
+
+  if i < 0 then
+  begin
+    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name: ' + moduleName);
+    raise Exception.Create('Exception mModules.FindByName failed!');
+  end;
+
+  me := mMainView.mModules.Items[i];
+
+  hlVerses := hlFalse;
+  if not Assigned(BookTabInfo) then
+    Exit;
+
+  bible := BookTabInfo.Bible;
+
+  // remember old module's params
+  wasBible := bible.isBible;
+  blValidAddressExtracted := bl.FromBqStringLocation(BookTabInfo.Location, path);
+  if not blValidAddressExtracted then
+  begin
+    bl.Build(bible.CurBook, bible.CurChapter, BookTabInfo.FirstVisiblePara, 0);
+    blValidAddressExtracted := true;
+  end
+  else
+    hlVerses := hlTrue;
+
+  if blValidAddressExtracted then
+  begin
+    // if valid address
+    R := bible.ReferenceToInternal(bl, obl);
+    if R <= -2 then
+    begin
+      obl.Build(1, 1, 0, 0);
+      hlVerses := hlFalse;
+    end
+    else if R = -1 then
+    begin
+      obl.vend := 0;
+    end;
+  end;
+
+  bible := TBible.Create(mMainView);
+
+  iniPath := TPath.Combine(me.ShortPath, 'bibleqt.ini');
+  bible.SetInfoSource( MainFileExists(iniPath));
+
+  if bible.isBible and wasBible and not fromBeginning then
+  begin
+    R := bible.InternalToReference(obl, bl);
+    if R <= -2 then
+      hlVerses := hlFalse;
+    try
+      if (bookTabInfo.FirstVisiblePara > 0) and (bookTabInfo.FirstVisiblePara < bible.verseCount()) then
+        firstVisibleVerse := bookTabInfo.FirstVisiblePara
+      else
+        firstVisibleVerse := -1;
+
+      ProcessCommand(BookTabInfo, bl.ToCommand(bible.ShortPath), hlVerses);
+
+      if firstVisibleVerse > 0 then
+      begin
+        bwrHtml.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
+      end;
+    except
+    end;
+  end // both previous and current are bibles
+  else
+    SafeProcessCommand(bookTabInfo, 'go ' + bible.ShortPath + ' 1 1 0', hlFalse);
 end;
 
 end.

@@ -262,7 +262,6 @@ begin
   if mSearchResult = 0 then
     repeat
       try
-        // todo: figure out with .IniFile in archive modules +OK
         tempBook.SetInfoSource( '?' + path + '\' + mSearchRecord.Name + '??' + C_ModuleIniName);
         if (addAsCommentaries) then
           mt := modtypeComment

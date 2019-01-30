@@ -365,7 +365,6 @@ type
     procedure SaveConfiguration;
     procedure SetBibleTabsHintsState(showHints: Boolean = true);
     procedure MainMenuInit(cacheupdate: Boolean);
-    procedure OpenModule(moduleName: string; fromBeginning: Boolean = false);
     procedure ActivateModuleView(aModuleEntry: TModuleEntry);
 
     function ChooseColor(color: TColor): TColor;
@@ -476,8 +475,12 @@ begin
 end;
 
 procedure TMainForm.OnHotModuleClick(Sender: TObject);
+var
+  bookView: TBookFrame;
 begin
-  OpenModule((Sender as TMenuItem).Caption);
+  bookView := GetBookView(self);
+  if Assigned(bookView) then
+    bookView.OpenModule((Sender as TMenuItem).Caption);
 end;
 
 procedure TMainForm.LoadConfiguration;
@@ -1681,7 +1684,6 @@ begin
 
   if Assigned(bookView.BookTabInfo) then
   begin
-    // todo: figure out with .IniFile +OK
     if Assigned(bookView.BookTabInfo.Bible.InfoSource) then
     begin
       with bookView.BookTabInfo.Bible do
@@ -2720,99 +2722,6 @@ begin
   end;
 end;
 
-procedure TMainForm.OpenModule(moduleName: string; fromBeginning: Boolean = false);
-var
-  i: integer;
-  firstVisibleVerse: integer;
-  wasBible: Boolean;
-  commentpath: string;
-  me: TModuleEntry;
-  bl, obl: TBibleLink;
-  blValidAddressExtracted: Boolean;
-  path: string;
-  hlVerses: TbqHLVerseOption;
-  R: integer;
-  iniPath: string;
-  bookView: TBookFrame;
-  bookTabInfo: TBookTabInfo;
-  bible: TBible;
-begin
-  i := mModules.FindByName(moduleName);
-  if i < 0 then
-  begin
-    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name:' + moduleName);
-    raise Exception.Create('Exception mModules.FindByName failed!');
-  end;
-  me := mModules.Items[i];
-
-  hlVerses := hlFalse;
-  bookView := GetBookView(self);
-  bookTabInfo := bookView.BookTabInfo;
-
-  if not Assigned(bookTabInfo) then
-    Exit;
-
-  bible := bookTabInfo.Bible;
-
-  // remember old module's params
-  wasBible := bible.isBible;
-  blValidAddressExtracted := bl.FromBqStringLocation(bookTabInfo.Location, path);
-  if not blValidAddressExtracted then
-  begin
-    bl.Build(bible.CurBook, bible.CurChapter, bookTabInfo.FirstVisiblePara, 0);
-    blValidAddressExtracted := true;
-  end
-  else
-    hlVerses := hlTrue;
-
-  if blValidAddressExtracted then
-  begin
-    // if valid address
-    R := bible.ReferenceToInternal(bl, obl);
-    if R <= -2 then
-    begin
-      obl.Build(1, 1, 0, 0);
-      hlVerses := hlFalse;
-    end
-    else if R = -1 then
-    begin
-      obl.vend := 0;
-    end;
-  end;
-
-  try
-    if not Assigned(tempBook) then
-      tempBook := TBible.Create(self);
-
-    iniPath := TPath.Combine(me.ShortPath, 'bibleqt.ini');
-    // todo: figure out with .IniFile  +OK
-    tempBook.SetInfoSource(MainFileExists(iniPath));
-  except
-  end;
-
-  if tempBook.isBible and wasBible and not fromBeginning then
-  begin
-    R := tempBook.InternalToReference(obl, bl);
-    if R <= -2 then
-      hlVerses := hlFalse;
-    try
-      if (bookTabInfo.FirstVisiblePara > 0) and (bookTabInfo.FirstVisiblePara < bible.verseCount()) then
-        firstVisibleVerse := bookTabInfo.FirstVisiblePara
-      else
-        firstVisibleVerse := -1;
-      bookView.ProcessCommand(bookTabInfo, bl.ToCommand(TPath.Combine(commentpath, tempBook.ShortPath)), hlVerses);
-      if firstVisibleVerse > 0 then
-      begin
-        mWorkspace.Browser.PositionTo('bqverse' + IntToStr(firstVisibleVerse), false);
-      end;
-    except
-    end;
-  end // both previous and current are bibles
-  else
-  begin
-    bookView.SafeProcessCommand(bookTabInfo, 'go ' + TPath.Combine(commentpath, tempBook.ShortPath) + ' 1 1 0', hlFalse);
-  end;
-end;
 
 procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
@@ -3239,7 +3148,6 @@ begin
   while Assigned(bibleModuleEntry) do
   begin
     s := bibleModuleEntry.getIniPath();
-    // todo: figure out with .IniFile + OK
     secBible.SetInfoSource(s);
 
     // don't display New Testament mixed with Old Testament...
@@ -3646,7 +3554,6 @@ begin
       for i := 0 to fc do
       begin
         try
-          // todo: figure out with .IniFile +OK
           tempBook.SetInfoSource(
             MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).ShortPath + '\bibleqt.ini'));
 
@@ -3654,7 +3561,6 @@ begin
 
           if openSuccess then
           begin
-            // todo: figure out with .IniFile +OK
             bible.SetInfoSource(tempBook.InfoSource);
             break;
           end;
@@ -3672,12 +3578,10 @@ begin
             modName := moduleEntry.FullName;
 
             modPath := moduleEntry.ShortPath;
-            // todo: figure out with .IniFile +OK
             tempBook.SetInfoSource( MainFileExists(TPath.Combine(modPath, 'bibleqt.ini')));
             openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin
-              // todo: figure out with .IniFile +OK
               bible.SetInfoSource( tempBook.InfoSource);
               break;
             end;
