@@ -70,7 +70,10 @@ begin
 
   FiLines := ReadTextFileLines(FIndex, TEncoding.GetEncoding(1251));
 
-  FName := IfThen(Assigned(aInfoSource), aInfoSource.ModuleName, RemoveBOM(FiLines[0]));
+  if Assigned(aInfoSource) then
+    FName := aInfoSource.ModuleName
+  else
+    FName := RemoveBOM(FiLines[0]);
 
   FiLines.Delete(0);
   FWords.Clear;
