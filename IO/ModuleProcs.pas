@@ -233,6 +233,7 @@ begin
     if mScanDone then
     begin
       mCachedModules._Sort();
+
       if Assigned(OnScanDone) then
         OnScanDone(self);
     end;

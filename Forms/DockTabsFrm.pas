@@ -12,7 +12,7 @@ uses
   ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig, BookmarksFra,
   SearchFra, TSKFra, TagsVersesFra, DictionaryFra, StrongFra, AppIni,
   JclNotify, NotifyMessages, Vcl.VirtualImageList, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, IOUtils, ImageUtils;
+  Vcl.ImageCollection, IOUtils, ImageUtils, CommentsFra;
 
 const
   bsText = 0;
@@ -62,6 +62,7 @@ type
     mTagsVersesView: TTagsVersesFrame;
     mDictionaryView: TDictionaryFrame;
     mStrongView: TStrongFrame;
+    mCommentsView: TCommentsFrame;
 
     mNotifier: IJclNotifier;
 
@@ -74,7 +75,7 @@ type
 
     procedure ActivateFrame(frameToActivate: TFrame);
     procedure UpdateTabContent(ATab: TChromeTab; restoreState: boolean = true);
-    procedure Notification(msg: IJclNotificationMessage); stdcall;
+    procedure Notification(Msg: IJclNotificationMessage); stdcall;
     procedure PopupChangeTab(Sender: TObject);
     procedure ApplyConfigFont(appConfig: TAppConfig);
     function GetImageCacheIndex(newTabInfo: TBookTabInfo): integer;
@@ -87,11 +88,7 @@ type
     procedure CloseActiveTab();
     procedure UpdateCurrentTabContent(restoreState: boolean);
     procedure UpdateBookView();
-    procedure UpdateSearchView();
-    procedure UpdateTSKView();
-    procedure UpdateTagsVersesView();
-    procedure UpdateDictionaryView();
-    procedure UpdateStrongView();
+    procedure UpdateViewAs(tabType: TViewTabType);
 
     function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
@@ -102,6 +99,7 @@ type
     function AddTagsVersesTab(newTabInfo: TTagsVersesTabInfo): TChromeTab;
     function AddDictionaryTab(newTabInfo: TDictionaryTabInfo): TChromeTab;
     function AddStrongTab(newTabInfo: TStrongTabInfo): TChromeTab;
+    function AddCommentsTab(newTabInfo: TCommentsTabInfo): TChromeTab;
 
     procedure UpdateBookTabHeader();
     procedure OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
@@ -123,6 +121,7 @@ type
     function GetTagsVersesView: ITagsVersesView;
     function GetDictionaryView: IDictionaryView;
     function GetStrongView: IStrongView;
+    function GetCommentsView: ICommentsView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -142,6 +141,7 @@ type
     property LibraryView: ILibraryView read GetLibraryView;
     property BookmarksView: IBookmarksView read GetBookmarksView;
     property SearchView: ISearchView read GetSearchView;
+    property CommentsView: ICommentsView read GetCommentsView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
     property UpdateOnTabChange: boolean read GetUpdateOnTabChange write SetUpdateOnTabChange;
@@ -204,6 +204,11 @@ end;
 function TDockTabsForm.GetStrongView(): IStrongView;
 begin
   Result := mStrongView as IStrongView;
+end;
+
+function TDockTabsForm.GetCommentsView(): ICommentsView;
+begin
+  Result := mCommentsView as ICommentsView;
 end;
 
 function TDockTabsForm.GetBibleTabs(): TDockTabSet;
@@ -426,7 +431,7 @@ begin
     ActivateFrame(mSearchView);
     mMainView.ClearCopyrights();
     if (restoreState) then
-      UpdateSearchView();
+      UpdateViewAs(vttSearch);
   end;
 
   if (tabInfo.GetViewType = vttTSK) then
@@ -434,7 +439,7 @@ begin
     ActivateFrame(mTSKView);
     mMainView.ClearCopyrights();
     if (restoreState) then
-      UpdateTSKView();
+      UpdateViewAs(vttTSK);
   end;
 
   if (tabInfo.GetViewType = vttTagsVerses) then
@@ -442,7 +447,7 @@ begin
     ActivateFrame(mTagsVersesView);
     mMainView.ClearCopyrights();
     if (restoreState) then
-      UpdateTagsVersesView();
+      UpdateViewAs(vttTagsVerses);
   end;
 
   if (tabInfo.GetViewType = vttDictionary) then
@@ -450,7 +455,7 @@ begin
     ActivateFrame(mDictionaryView);
     mMainView.ClearCopyrights();
     if (restoreState) then
-      UpdateDictionaryView();
+      UpdateViewAs(vttDictionary);
   end;
 
   if (tabInfo.GetViewType = vttStrong) then
@@ -458,7 +463,15 @@ begin
     ActivateFrame(mStrongView);
     mMainView.ClearCopyrights();
     if (restoreState) then
-      UpdateStrongView();
+      UpdateViewAs(vttStrong);
+  end;
+
+  if (tabInfo.GetViewType = vttComments) then
+  begin
+    ActivateFrame(mCommentsView);
+    mMainView.ClearCopyrights();
+    if (restoreState) then
+      UpdateViewAs(vttComments);
   end;
 end;
 
@@ -576,6 +589,11 @@ begin
   mStrongView.Parent := pnlMain;
   mStrongView.Align := alClient;
 
+  mCommentsView := TCommentsFrame.Create(nil, mMainView, self);
+  mCommentsView.Hide;
+  mCommentsView.Parent := pnlMain;
+  mCommentsView.Align := alClient;
+
   mFrames.AddRange([
     mBookView,
     mMemoView,
@@ -585,7 +603,8 @@ begin
     mTSKView,
     mTagsVersesView,
     mDictionaryView,
-    mStrongView]);
+    mStrongView,
+    mCommentsView]);
 end;
 
 procedure TDockTabsForm.FormDeactivate(Sender: TObject);
@@ -761,56 +780,12 @@ begin
   mMainView.NewBookTab(bookTabInfo.Location, bookTabInfo.SatelliteName, bookTabInfo.State, '', true);
 end;
 
-procedure TDockTabsForm.UpdateSearchView();
+procedure TDockTabsForm.UpdateViewAs(tabType: TViewTabType);
 var
   tabInfo: IViewTabInfo;
 begin
   tabInfo := GetActiveTabInfo();
-  if (not Assigned(tabInfo)) or (not (tabInfo is TSearchTabInfo)) then
-    Exit;
-
-  tabInfo.RestoreState(self);
-end;
-
-procedure TDockTabsForm.UpdateTSKView();
-var
-  tabInfo: IViewTabInfo;
-begin
-  tabInfo := GetActiveTabInfo();
-  if (not Assigned(tabInfo)) or (not (tabInfo is TTSKTabInfo)) then
-    Exit;
-
-  tabInfo.RestoreState(self);
-end;
-
-procedure TDockTabsForm.UpdateTagsVersesView();
-var
-  tabInfo: IViewTabInfo;
-begin
-  tabInfo := GetActiveTabInfo();
-  if (not Assigned(tabInfo)) or (not (tabInfo is TTagsVersesTabInfo)) then
-    Exit;
-
-  tabInfo.RestoreState(self);
-end;
-
-procedure TDockTabsForm.UpdateDictionaryView();
-var
-  tabInfo: IViewTabInfo;
-begin
-  tabInfo := GetActiveTabInfo();
-  if (not Assigned(tabInfo)) or (not (tabInfo is TDictionaryTabInfo)) then
-    Exit;
-
-  tabInfo.RestoreState(self);
-end;
-
-procedure TDockTabsForm.UpdateStrongView();
-var
-  tabInfo: IViewTabInfo;
-begin
-  tabInfo := GetActiveTabInfo();
-  if (not Assigned(tabInfo)) or (not (tabInfo is TStrongTabInfo)) then
+  if (not Assigned(tabInfo)) or (not (tabInfo.GetViewType = tabType)) then
     Exit;
 
   tabInfo.RestoreState(self);
@@ -1036,13 +1011,41 @@ begin
   Result := newTab;
 end;
 
-procedure TDockTabsForm.Notification(msg: IJclNotificationMessage);
+function TDockTabsForm.AddCommentsTab(newTabInfo: TCommentsTabInfo): TChromeTab;
 var
-  msgAppConfigChanged: IAppConfigChangedMessage;
+  newTab: TChromeTab;
 begin
-  if Supports(msg, IAppConfigChangedMessage, msgAppConfigChanged) then
+  newTab := ctViewTabs.Tabs.Add;
+  newTab.Caption := Lang.SayDefault('TabCommentaries', 'Commentaries');
+  newTab.Data := newTabInfo;
+  newTab.ImageIndex := vImgIcons.GetIndexByName('commentsTab');
+
+  mViewTabs.Add(newTabInfo);
+  UpdateTabContent(newTab);
+
+  Result := newTab;
+end;
+
+procedure TDockTabsForm.Notification(Msg: IJclNotificationMessage);
+var
+  MsgAppConfigChanged: IAppConfigChangedMessage;
+  MsgActiveBookChanged: IActiveBookChangedMessage;
+  ActiveTabInfo: IViewTabInfo;
+  CommentsTabInfo: TCommentsTabInfo;
+begin
+  if Supports(Msg, IAppConfigChangedMessage, MsgAppConfigChanged) then
   begin
     ApplyConfig(AppConfig);
+  end;
+
+  if Supports(Msg, IActiveBookChangedMessage, MsgActiveBookChanged) then
+  begin
+    ActiveTabInfo := GetActiveTabInfo();
+    if (ActiveTabInfo is TCommentsTabInfo) then
+    begin
+      mCommentsView.SetSourceBook(MsgActiveBookChanged.GetActiveBook);
+      ActiveTabInfo.SaveState(Self);
+    end;
   end;
 end;
 
@@ -1058,6 +1061,7 @@ begin
     mDictionaryView.ApplyConfig(appConfig);
     mStrongView.ApplyConfig(appConfig);
     mTSKView.ApplyConfig(appConfig);
+    mCommentsView.ApplyConfig(appConfig);
   except
     on E: Exception do
     begin
@@ -1086,6 +1090,7 @@ begin
       mDictionaryView.Translate();
       mStrongView.Translate();
       mTSKView.Translate();
+      mCommentsView.Translate();
 
       for i := 0 to ctViewTabs.Tabs.Count - 1 do
       begin

@@ -27,7 +27,6 @@ type
     function AddDictionary(aDictionary: IDict): Cardinal;
 
   public
-    mLastUsedComment: string;
     function Finalize(): HRESULT;
     procedure Initilize();
     function LoadDictionaries(const Path: string; foreground: boolean): HRESULT;

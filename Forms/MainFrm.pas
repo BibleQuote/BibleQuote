@@ -141,6 +141,7 @@ type
     tbtnAddStrongTab: TToolButton;
     imgCollection: TImageCollection;
     vimgIcons: TVirtualImageList;
+    tbtnAddCommentsTab: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -212,6 +213,7 @@ type
     procedure tbtnAddDictionaryTabClick(Sender: TObject);
     procedure tbtnAddStrongTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
+    procedure tbtnAddCommentsTabClick(Sender: TObject);
   private
     FStrongsConcordance: TStrongsConcordance;
 
@@ -868,6 +870,7 @@ begin
     mModules := TCachedModules.Create(true);
 
   mModules.Assign(mModuleLoader.CachedModules);
+  mNotifier.Notify(TModulesLoadedMessage.Create);
 end;
 
 procedure TMainForm.ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
@@ -1117,6 +1120,11 @@ begin
         else if (tabSettings is TStrongTabSettings) then
         begin
           mWorkspace.AddStrongTab(TStrongTabInfo.Create(TStrongTabSettings(tabSettings)));
+          addTabResult := true;
+        end
+        else if (tabSettings is TCommentsTabSettings) then
+        begin
+          mWorkspace.AddCommentsTab(TCommentsTabInfo.Create(TCommentsTabSettings(tabSettings)));
           addTabResult := true;
         end;
 
@@ -2384,31 +2392,6 @@ begin
 
     mWorkspace.Browser.LoadFromString(mWorkspace.Browser.DocumentSource);
     mWorkspace.Browser.Position := browserpos;
-
-    // TODO: change font of all search tabs
-//    browserpos := bwrSearch.Position and $FFFF0000;
-//    bwrSearch.DefFontSize := defFontSz;
-//    bwrSearch.LoadFromString(bwrSearch.DocumentSource);
-//    bwrSearch.Position := browserpos;
-
-    // TODO: change font of all dictionary tabs
-//    browserpos := bwrDic.Position and $FFFF0000;
-//    bwrDic.DefFontSize := defFontSz;
-//    bwrDic.LoadFromString(bwrDic.DocumentSource);
-//    bwrDic.Position := browserpos;
-
-    // TODO: change font of all strong tabs
-//    browserpos := bwrStrong.Position and $FFFF0000;
-//    bwrStrong.DefFontSize := defFontSz;
-//    bwrStrong.LoadFromString(bwrStrong.DocumentSource);
-//    bwrStrong.Position := browserpos;
-
-// TODO: change font of all tsk tabs
-//    browserpos := bwrXRef.Position and $FFFF0000;
-//    bwrXRef.DefFontSize := defFontSz;
-//    bwrXRef.LoadFromString(bwrXRef.DocumentSource);
-//    bwrXRef.Position := browserpos;
-
   except
   end;
   Screen.Cursor := crDefault;
@@ -3380,7 +3363,7 @@ begin
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
-    status := bookView.PreProcessAutoCommand(bookView.BookTabInfo, cmd, prefBible, ConcreteCmd);
+    status := bookView.PreProcessAutoCommand(bookView.BookTabInfo.ReferenceBible, cmd, prefBible, ConcreteCmd);
     if status <= -2 then
       Exit;
   end;
@@ -3760,6 +3743,14 @@ var
 begin
   newTabInfo := TBookmarksTabInfo.Create();
   mWorkspace.AddBookmarksTab(newTabInfo);
+end;
+
+procedure TMainForm.tbtnAddCommentsTabClick(Sender: TObject);
+var
+  newTabInfo: TCommentsTabInfo;
+begin
+  newTabInfo := TCommentsTabInfo.Create();
+  mWorkspace.AddCommentsTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnAddDictionaryTabClick(Sender: TObject);

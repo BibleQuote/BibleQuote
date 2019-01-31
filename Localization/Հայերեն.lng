@@ -66,7 +66,9 @@ bqErrorUnknown = Անհայտ սխալ
 bqError = Սխալ
 bqStrongBibleNotDefined = Որոնում իրականացնելու համար կարգավորումների պարամետրերում ընտրեք Համաբարբառի բառարաններով մոդուլը
 
-commentaryLoadFail = Մեկնաբանությունը ցուցադրելը չի ստացվում
+commentsLoadFail = Մեկնաբանությունը ցուցադրելը չի ստացվում
+commentsCantFind = Cannot find matching comment (t)
+commentsOpenChapterFail = Failed to open chapter (t)
 
 HelpDocumentation = Փաստաթղթեր
 SelectBook = Ընտրել գիրքը՝ որոնելու համար
@@ -84,6 +86,7 @@ TabTSK = TSK
 TabDictionary = Բառարան
 TabTagsVerses = Թեմատիկ էջանշաններ
 TabStrong = Համաբարբառի բառարան
+TabCommentaries = Մեկնաբանություններ
 
 DeleteBookmarkTextPrompt = Ջնջել էջանշանը?
 DeleteBookmarkTitle = Հաստատել ջնջումը

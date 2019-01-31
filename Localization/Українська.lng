@@ -66,7 +66,9 @@ bqErrorUnknown = Невідома помилка
 bqError = Помилка
 bqStrongBibleNotDefined = Для здійснення пошуку виберіть в налаштуваннях модуль з підтримкою номерів Стронга.
 
-commentaryLoadFail = Не вдалося відобразити коментар
+commentsLoadFail = Не вдалося відобразити коментар
+commentsCantFind = Комментарии отсутствуют (t)
+commentsOpenChapterFail = Не удалось открыть главу (t)
 
 HelpDocumentation = Документація
 SelectBook = Виберіть книгу для пошуку
@@ -84,6 +86,7 @@ TabTSK = TSK Відкрити паралельні місця
 TabDictionary = Словники
 TabTagsVerses = Тематичні закладки
 TabStrong = Словник Стронга
+TabCommentaries = Коментарі
 
 DeleteBookmarkTextPrompt = Видалити закладку?
 DeleteBookmarkTitle = Підтвердіть видалення

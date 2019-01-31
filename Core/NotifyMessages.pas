@@ -2,7 +2,7 @@ unit NotifyMessages;
 
 interface
 
-uses JclNotify;
+uses JclNotify, TabData, Bible;
 
 type
 
@@ -52,9 +52,13 @@ type
     ['{49231BC0-05A6-43AB-8F3B-D2FF68838F2A}']
   end;
 
-  IFontSizeChangedMessage = interface
-    ['{6CBF300F-FA15-4DB6-9C39-ED57A9403126}']
-    function GetFontSize: integer;
+  IActiveBookChangedMessage = interface
+    ['{F921D625-E8D2-412C-993F-8222D522B81B}']
+    function GetActiveBook: TBible;
+  end;
+
+  IModulesLoadedMessage = interface
+    ['{A15193FA-548E-4828-9366-164DE2F982F1}']
   end;
 
   TVerseAddedMessage = class (TJclBaseNotificationMessage, IVerseAddedMessage)
@@ -124,20 +128,23 @@ type
   TAppConfigChangedMessage = class(TJclBaseNotificationMessage, IAppConfigChangedMessage)
   end;
 
-  TFontSizeChangedMessage = class(TJclBaseNotificationMessage, IFontSizeChangedMessage)
-  private
-    FFontSize: integer;
-  public
-    constructor Create(fontSize: integer);
-    function GetFontSize: integer;
-  end;
-
   TDefaultBibleChangedMessage = class(TJclBaseNotificationMessage, IDefaultBibleChangedMessage)
   private
     FBibleName: string;
   public
     constructor Create(bibleName: string);
     function GetBibleName: string;
+  end;
+
+  TActiveBookChangedMessage = class(TJclBaseNotificationMessage, IActiveBookChangedMessage)
+  private
+    FActiveBook: TBible;
+  public
+    constructor Create(ActiveBook: TBible);
+    function GetActiveBook: TBible;
+  end;
+
+  TModulesLoadedMessage = class(TJclBaseNotificationMessage, IModulesLoadedMessage)
   end;
 
 implementation
@@ -262,15 +269,15 @@ begin
   Result := FBibleName;
 end;
 
-{ TFontDeltaChangedMessage }
-constructor TFontSizeChangedMessage.Create(fontSize: integer);
+{ TActiveBookChangedMessage }
+constructor TActiveBookChangedMessage.Create(ActiveBook: TBible);
 begin
-  FFontSize := fontSize;
+  FActiveBook := ActiveBook;
 end;
 
-function TFontSizeChangedMessage.GetFontSize: integer;
+function TActiveBookChangedMessage.GetActiveBook: TBible;
 begin
-  Result := FFontSize;
+  Result := FActiveBook;
 end;
 
 end.

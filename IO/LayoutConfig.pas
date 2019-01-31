@@ -97,6 +97,9 @@ type
   TStrongTabSettings = class(TTabSettings)
   end;
 
+  TCommentsTabSettings = class(TTabSettings)
+  end;
+
   TWorkspaceSettings = class(TInterfacedObject, IJsonSerializable)
   private
     FBookTabs: TList<TBookTabSettings>;
@@ -108,6 +111,7 @@ type
     FTagsVersesTabs: TList<TTagsVersesTabSettings>;
     FDictionaryTabs: TList<TDictionaryTabSettings>;
     FStrongTabs: TList<TStrongTabSettings>;
+    FCommentsTabs: TList<TCommentsTabSettings>;
 
     FActive: boolean;
     FViewName: string;
@@ -127,6 +131,7 @@ type
     property TagsVersesTabs: TList<TTagsVersesTabSettings> read FTagsVersesTabs write FTagsVersesTabs;
     property DictionaryTabs: TList<TDictionaryTabSettings> read FDictionaryTabs write FDictionaryTabs;
     property StrongTabs: TList<TStrongTabSettings> read FStrongTabs write FStrongTabs;
+    property CommentsTabs: TList<TCommentsTabSettings> read FCommentsTabs write FCommentsTabs;
 
     property Active: boolean read FActive write FActive;
     property ViewName: string read FViewName write FViewName;
@@ -170,6 +175,7 @@ begin
   TagsVersesTabs := TList<TTagsVersesTabSettings>.Create();
   DictionaryTabs := TList<TDictionaryTabSettings>.Create();
   StrongTabs := TList<TStrongTabSettings>.Create();
+  CommentsTabs := TList<TCommentsTabSettings>.Create();
 
   Active := false;
 end;
@@ -202,6 +208,9 @@ begin
 
   if (tabSettings is TStrongTabSettings) then
     StrongTabs.Add(TStrongTabSettings(tabSettings));
+
+  if (tabSettings is TCommentsTabSettings) then
+    CommentsTabs.Add(TCommentsTabSettings(tabSettings));
 end;
 
 function TWorkspaceSettings.GetOrderedTabSettings(): TList<TTabSettings>;
@@ -212,7 +221,8 @@ var
 begin
   count := BookTabs.Count + MemoTabs.Count + LibraryTabs.Count +
     BookmarksTabs.Count + SearchTabs.Count + TSKTabs.Count +
-    TagsVersesTabs.Count + DictionaryTabs.Count + StrongTabs.Count;
+    TagsVersesTabs.Count + DictionaryTabs.Count + StrongTabs.Count +
+    CommentsTabs.Count;
 
   tabs := TList<TTabSettings>.Create;
   tabs.Count := count;
@@ -258,6 +268,11 @@ begin
   end;
 
   for tab in StrongTabs do
+  begin
+    tabs[tab.Index] := tab;
+  end;
+
+  for tab in CommentsTabs do
   begin
     tabs[tab.Index] := tab;
   end;
@@ -422,6 +437,11 @@ begin
     jsonTabs.add(TabToJson('strong', tab));
   end;
 
+  for tab in CommentsTabs do
+  begin
+    jsonTabs.add(TabToJson('comments', tab));
+  end;
+
   json.AddPair('tabs', jsonTabs);
 
   Result := json;
@@ -454,7 +474,7 @@ begin
     begin
       jsonBody := TJSONObject(jsonValue);
       tab := nil;
-      case StrIndex(tabName, ['book', 'memo', 'library', 'bookmarks', 'search', 'tsk', 'tags', 'dict', 'strong']) of
+      case StrIndex(tabName, ['book', 'memo', 'library', 'bookmarks', 'search', 'tsk', 'tags', 'dict', 'strong', 'comments']) of
         0: tab := TBookTabSettings.Create;
         1: tab := TMemoTabSettings.Create;
         2: tab := TLibraryTabSettings.Create;
@@ -464,6 +484,7 @@ begin
         6: tab := TTagsVersesTabSettings.Create;
         7: tab := TDictionaryTabSettings.Create;
         8: tab := TStrongTabSettings.Create;
+        9: tab := TCommentsTabSettings.Create;
       end;
 
       if Assigned(tab) then
@@ -510,7 +531,7 @@ begin
       jsonTabData := TJSONObject(jsonTabDataVal);
 
       tab := nil;
-      case StrIndex(tabName, ['book', 'memo', 'library', 'bookmarks', 'search', 'tsk', 'tags', 'dict', 'strong']) of
+      case StrIndex(tabName, ['book', 'memo', 'library', 'bookmarks', 'search', 'tsk', 'tags', 'dict', 'strong', 'comments']) of
         0: tab := TBookTabSettings.Create;
         1: tab := TMemoTabSettings.Create;
         2: tab := TLibraryTabSettings.Create;
@@ -520,6 +541,7 @@ begin
         6: tab := TTagsVersesTabSettings.Create;
         7: tab := TDictionaryTabSettings.Create;
         8: tab := TStrongTabSettings.Create;
+        9: tab := TCommentsTabSettings.Create;
       end;
 
       if Assigned(tab) then

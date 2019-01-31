@@ -426,14 +426,6 @@ implementation
 uses PlainUtils, bibleLinkParser, ExceptionFrm, SelectEntityType,
      InfoSourceLoaderFabric, InfoSourceLoaderInterface;
 
-function Diff(a, b: integer): integer;
-begin
-  if a < b then
-    Result := b - a
-  else
-    Result := a - b;
-end;
-
 constructor TBible.Create(uiServices: IBibleWinUIServices);
 begin
   FLines := TStringList.Create;
