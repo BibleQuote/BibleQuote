@@ -66,7 +66,9 @@ bqErrorUnknown = Unbekannter Fehler
 bqError = Fehler
 bqStrongBibleNotDefined = Um die Suche zu nutzen wählen Sie in den Einstellungen einen Modul mit der Strong's Nummern Unterstützung an
 
-commentaryLoadFail = Kommentar konnte nicht angezeigt werden
+commentsLoadFail = Kommentar konnte nicht angezeigt werden
+commentsCantFind = Cannot find matching comment (t)
+commentsOpenChapterFail = Failed to open chapter (t)
 
 HelpDocumentation = Programmhilfe
 SelectBook = Um zu suchen wählen Sie ein Buch an
@@ -84,6 +86,7 @@ TabTSK = Parallelstellen öffnen
 TabDictionary = Wörterbuch
 TabTagsVerses = Themenbezogene Lesezeichen
 TabStrong = Strong's Wörterbuch
+TabCommentaries = Kommentare
 
 DeleteBookmarkTextPrompt = Lesezeichen löschen?
 DeleteBookmarkTitle = Löschvorgang bestätigen

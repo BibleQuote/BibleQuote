@@ -48,6 +48,7 @@ function PosCIL(aSubString: string; const aString: string; aStartPos: integer = 
 function FindPosition(const sourceString, findString: string; const startPos: integer; options: TStringSearchOptions): integer;
 function StripHtmlMarkup(const source: string): string;
 function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
+function RepeatString(const s: string; count: cardinal): string;
 
 const
   DefaultHTMLFilter
@@ -306,6 +307,10 @@ var
   ok: boolean;
 begin
   len := Length(s);
+
+  Result := '';
+  if (len = 0) then
+    Exit;
 
   i := 0;
   repeat
@@ -796,6 +801,14 @@ begin
   Val(s, num, code);
 
   Result := code = 0;
+end;
+
+function RepeatString(const s: string; count: cardinal): string;
+var
+  i: Integer;
+begin
+  for i := 1 to count do
+    Result := Result + s;
 end;
 
 end.

@@ -124,7 +124,7 @@ type
 
     function ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
     procedure SafeProcessCommand(bookTabInfo: TBookTabInfo; wsLocation: string; hlOption: TbqHLVerseOption);
-    function PreProcessAutoCommand(bookTabInfo: TBookTabInfo; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
+    function PreProcessAutoCommand(RefBook: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
     function GoAddress(bookTabInfo: TBookTabInfo; var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
 
     procedure HistoryAdd(s: string);
@@ -141,7 +141,6 @@ type
 
     function GetModuleText(
       cmd: string;
-      refBook: TBible;
       out fontName: string;
       out bl: TBibleLink;
       out txt: string;
@@ -602,9 +601,9 @@ begin
   end
   else
   begin
-    status := PreProcessAutoCommand(BookTabInfo, unicodeSRC, replaceModPath, ConcreteCmd);
+    status := PreProcessAutoCommand(BookTabInfo.ReferenceBible, unicodeSRC, replaceModPath, ConcreteCmd);
     if status > -2 then
-      status := GetModuleText(ConcreteCmd, BookTabInfo.ReferenceBible, fontName, bl, ws2, wstr, [gmtBulletDelimited, gmtLookupRefBibles, gmtEffectiveAddress]);
+      status := GetModuleText(ConcreteCmd, fontName, bl, ws2, wstr, [gmtBulletDelimited, gmtLookupRefBibles, gmtEffectiveAddress]);
 
     if status < 0 then
       wstr := ConcreteCmd + #13#10 + Lang.SayDefault('HintNotFound', '--not found--')
@@ -883,7 +882,6 @@ begin
     delta := -delta;
 
   NotifyFontChanged(delta);
-  //mMainView.FontChanged(delta);
 end;
 
 constructor TBookFrame.Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace);
@@ -2055,7 +2053,7 @@ label
       if bwrHtml.GetTextLen() <= 0 then
       begin
         ProcessCommand(bookTabInfo, Format('go %s 1 1 1', [mMainView.mDefaultLocation]), hlFalse);
-        Exit
+        Exit;
       end;
     end;
 
@@ -2100,7 +2098,7 @@ begin
           value := bookTabInfo.SecondBible.ShortPath
         else
           value := '';
-        status := PreProcessAutoCommand(bookTabInfo, dup, value, ConcreteCmd);
+        status := PreProcessAutoCommand(bookTabInfo.ReferenceBible, dup, value, ConcreteCmd);
         if status <= -2 then
           Exit; // fail
         bibleLink.FromBqStringLocation(ConcreteCmd);
@@ -2295,6 +2293,7 @@ begin
 
   exitlabel:
     mWorkspace.UpdateBookTabHeader();
+    mNotifier.Notify(TActiveBookChangedMessage.Create(bookTabInfo.Bible));
 
     if Length(path) <= 0 then
       Exit;
@@ -2416,22 +2415,20 @@ begin
   ProcessCommand(bookTabInfo, Format('go %s %d %d %d', [mMainView.mDefaultLocation, 1, 1, 1]), hlDefault);
 end;
 
-function TBookFrame.PreProcessAutoCommand(bookTabInfo: TBookTabInfo; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
+function TBookFrame.PreProcessAutoCommand(RefBook: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
 label Fail;
 var
   ps, refCnt, refIx, prefModIx: integer;
   me: TModuleEntry;
   bl, moduleEffectiveLink: TBibleLink;
   dp: string;
-  refBook: TBible;
 begin
-  if not Assigned(bookTabInfo) then
+  if not Assigned(RefBook) then
   begin
     Result := -2;
     Exit;
   end;
 
-  refBook := bookTabInfo.ReferenceBible;
   me := nil;
   try
     if Pos('go', Trim(cmd)) <> 1 then
@@ -2984,12 +2981,12 @@ var
   bl: TBibleLink;
   status_load: integer;
 begin
-  status_load := PreProcessAutoCommand(BookTabInfo, cmd, BookTabInfo.SecondBible.ShortPath, ConcreteCmd);
+  status_load := PreProcessAutoCommand(BookTabInfo.ReferenceBible, cmd, BookTabInfo.SecondBible.ShortPath, ConcreteCmd);
 
   if status_load <= -2 then
     Exit;
 
-  status_load := GetModuleText(ConcreteCmd, BookTabInfo.ReferenceBible, fn, bl, ws, psg, [gmtLookupRefBibles]);
+  status_load := GetModuleText(ConcreteCmd, fn, bl, ws, psg, [gmtLookupRefBibles]);
   if status_load < 0 then
   begin
     MessageBeep(MB_ICONEXCLAMATION);
@@ -3031,7 +3028,7 @@ begin
       prefBible := currentModule.ShortPath
     else
       prefBible := '';
-    status_GetModTxt := PreProcessAutoCommand(btinfo, cmd, prefBible, Result);
+    status_GetModTxt := PreProcessAutoCommand(btinfo.ReferenceBible, cmd, prefBible, Result);
   end
   else
     Result := cmd;
@@ -3041,7 +3038,7 @@ begin
     if Assigned(btinfo) then
     begin
       status_GetModTxt := GetModuleText(
-        Result, btinfo.ReferenceBible, fnt, bl, txt, passageSignature,
+        Result, fnt, bl, txt, passageSignature,
         [gmtBulletDelimited, gmtEffectiveAddress, gmtLookupRefBibles], maxWords);
     end;
   end;
@@ -3059,7 +3056,6 @@ end;
 
 function TBookFrame.GetModuleText(
   cmd: string;
-  refBook: TBible;
   out fontName: string;
   out bl: TBibleLink;
   out txt: string;
@@ -3073,6 +3069,7 @@ var
   ibl, effectiveLnk: TBibleLink;
   delimiter, line: string;
   currentBibleIx, prefBibleCount, wordCounter, wordsAdded: integer;
+  refBook: TBible;
 label lblErrNotFnd;
   function NextRefBible(): Boolean;
   var
@@ -3092,6 +3089,7 @@ label lblErrNotFnd;
 
 begin
   Result := -1;
+  refBook := TBible.Create(mMainView);
   try
     linkValid := ibl.FromBqStringLocation(cmd, path);
     if not linkValid then
@@ -3244,7 +3242,7 @@ begin
       inc(bi);
     if bi > ix then
     begin
-      break
+      break;
     end;
   end;
 

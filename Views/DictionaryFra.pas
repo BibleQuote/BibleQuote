@@ -105,7 +105,7 @@ begin
 
     if (Pos(C__bqAutoBible, SRC) <> 0) then
     begin
-      status := (TBookFrame(mWorkspace.BookView)).PreProcessAutoCommand(bookTabInfo, SRC, modPath, concreteCmd);
+      status := (TBookFrame(mWorkspace.BookView)).PreProcessAutoCommand(bookTabInfo.ReferenceBible, SRC, modPath, concreteCmd);
       if status <= -2 then
         Exit;
     end;

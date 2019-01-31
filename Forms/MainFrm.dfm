@@ -94,7 +94,7 @@ object MainForm: TMainForm
     GradientEndColor = clBtnFace
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 496
+      Left = 528
       Top = 4
       Width = 37
       Height = 26
@@ -115,7 +115,7 @@ object MainForm: TMainForm
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 300
+      Width = 332
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -198,8 +198,15 @@ object MainForm: TMainForm
         ImageIndex = 15
         OnClick = tbtnAddMemoTabClick
       end
-      object tbtnLastSeparator: TToolButton
+      object tbtnAddCommentsTab: TToolButton
         Left = 294
+        Top = 0
+        Caption = 'tbtnAddCommentsTab'
+        ImageIndex = 22
+        OnClick = tbtnAddCommentsTabClick
+      end
+      object tbtnLastSeparator: TToolButton
+        Left = 326
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -207,7 +214,7 @@ object MainForm: TMainForm
       end
     end
     object tlbResolveLnks: TToolBar
-      Left = 301
+      Left = 333
       Top = 1
       Width = 56
       Margins.Top = 0
@@ -245,7 +252,7 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 357
+      Left = 389
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -282,7 +289,7 @@ object MainForm: TMainForm
     Top = 40
     Width = 95
     Height = 129
-    Font.Charset = RUSSIAN_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Arial Unicode MS'
@@ -6376,11 +6383,42 @@ object MainForm: TMainForm
               A1624789FEC654475484DD85F69596BA73FB0E61576F1A33D92D70DEFF2ABE03
               2524ACF842AC5C6F0000000049454E44AE426082}
           end>
+      end
+      item
+        Name = 'comments'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+              F80000000473424954080808087C0864880000000970485973000000A6000000
+              A601DD7DFF380000001974455874536F667477617265007777772E696E6B7363
+              6170652E6F72679BEE3C1A00000257494441544889AD954D6B136110C7FF13D2
+              BCD12FA1A1559318A9F5E8C58377F560115F0A8267A90149B1696CD397505614
+              FC0082875E0A7A1111C1833D58882F98DAD4831F236972C9CEDF83CDBACF7677
+              B3291D181E76F7D9FF6FE699995D218928766DE6DE1C6352522A68DBD6BBADCD
+              1751DE9330C0F53BF7D762C2392552A97406A7CFE6A024FEB47EA1DB6983D49E
+              6DDBD6C7B75B8B910037EE3EB89A888B45A048552889E9CB57904CA54110A4DB
+              815EF7005F3E7D802A412A48FEE8DB78B4FDFECDE78166DC4D4BC6C52A971E16
+              2F14F20080727505BD6E07C9540A20011E2E0408E2A0D3C664368BD54A192282
+              666BFF6265A5FE0CC0255F00441C710098BD3D8357AF37B1DDD88192A02A5409
+              A5824A4C644F61F6D64D8808440453E70B2031ED963400DE6A9C9B9C40AD5246
+              BBDD7644FEC52188C562C6F5C0BD3535013E054F26931011743A1D473048DC0F
+              103BA2E863894402E3E3E3867890132366E08688087ABD5E60F42272E49CCD0C
+              860CDDD8D81832994CB0B84F900620CA4CC7E371A4D3695FF1C16AEC37133011
+              F34BABD8DBFF6DB4A6529DC152250AB933B06A4F1DC0485DB45E7D129A8D6DDB
+              E8F7FB8EF8C8459E5F5AC5EEDE7E60F4A4A258C8C3AA555D6D6A06113A68C332
+              1898AA4255871F91175FAEAEA0D96AF9470F824A140B39BCDC58FB2F1E0AF058
+              7D69215206C0316BF078B186DDBD96117D319FC7F3F5E54050780D3C4F37962B
+              913308D21879D046351310F1FF1C66E15FD3130078CFC100A8F2E7F766F3D8D2
+              3B5FBF8144C37DCF2872DF666961B96E019C52D2E87B679A55411EAEF0EC516D
+              28A5E4D6FC0B70718D9D780DD7550000000049454E44AE426082}
+          end>
       end>
     Left = 432
     Top = 138
   end
   object vimgIcons: TVirtualImageList
+    AutoFill = True
     DisabledGrayscale = False
     DisabledSuffix = '_Disabled'
     Images = <
@@ -6515,6 +6553,12 @@ object MainForm: TMainForm
         CollectionName = 'Item22'
         Disabled = False
         Name = 'Item22'
+      end
+      item
+        CollectionIndex = 22
+        CollectionName = 'comments'
+        Disabled = False
+        Name = 'comments'
       end>
     ImageCollection = imgCollection
     Width = 24

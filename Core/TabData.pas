@@ -18,7 +18,8 @@ type
     vttTSK,
     vttTagsVerses,
     vttDictionary,
-    vttStrong);
+    vttStrong,
+    vttComments);
 
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
@@ -62,6 +63,10 @@ type
   ['{840F8BE2-3C68-4853-8E43-B048DE7E6855}']
   end;
 
+  ICommentsView = interface(ITabView)
+  ['{5474F1F8-E735-406A-A7CC-95A8C8E9E61B}']
+  end;
+
   IWorkspace = interface; // forward declaration
 
   IViewTabInfo = interface
@@ -86,7 +91,7 @@ type
 
   TBookTabInfoState = set of TBookTabInfoStateEntries;
 
-  TBookTabBrowserState = class
+  TBrowserState = class
   private
     mSelStart: integer;
     mSelLenght: integer;
@@ -118,7 +123,7 @@ type
 
     mState: TBookTabInfoState;
     mLocationType: TBookTabLocType;
-    mBrowserState: TBookTabBrowserState;
+    mBrowserState: TBrowserState;
 
     mIsCompareTranslation: Boolean;
     mCompareTranslationText: string;
@@ -146,7 +151,7 @@ type
     property ReferenceBible: TBible read mReferenceBible write mReferenceBible;
 
     property LocationType: TBookTabLocType read mLocationType write mLocationType;
-    property BrowserState: TBookTabBrowserState read mBrowserState;
+    property BrowserState: TBrowserState read mBrowserState;
     property IsCompareTranslation: Boolean read mIsCompareTranslation write mIsCompareTranslation;
     property CompareTranslationText: string read mCompareTranslationText write mCompareTranslationText;
 
@@ -327,6 +332,29 @@ type
     constructor Create(settings: TDictionaryTabSettings); overload;
   end;
 
+  TCommentsTabInfo = class(TInterfacedObject, IViewTabInfo)
+  private
+    FMeaningfulOnly: Boolean;
+    FCommentaryText: String;
+    FCommentaryBookIndex: integer;
+    FCommentaryBooks: TStringList;
+    FBrowserState: TBrowserState;
+    FSourceBook: TBible;
+  public
+    procedure SaveState(const workspace: IWorkspace);
+    procedure RestoreState(const workspace: IWorkspace);
+    function GetViewType(): TViewTabType;
+    function GetSettings(): TTabSettings;
+    function GetCaption(): string;
+
+    procedure SaveBrowserState(const HtmlViewer: THTMLViewer);
+    procedure RestoreBrowserState(const HtmlViewer: THTMLViewer);
+    property BrowserState: TBrowserState read FBrowserState;
+
+    constructor Create(); overload;
+    constructor Create(settings: TCommentsTabSettings); overload;
+  end;
+
   TViewTabDragObject = class(TDragObjectEx)
   protected
     mViewTabInfo: TBookTabInfo;
@@ -352,6 +380,7 @@ type
     function AddTagsVersesTab(newTabInfo: TTagsVersesTabInfo): TChromeTab;
     function AddDictionaryTab(newTabInfo: TDictionaryTabInfo): TChromeTab;
     function AddStrongTab(newTabInfo: TStrongTabInfo): TChromeTab;
+    function AddCommentsTab(newTabInfo: TCommentsTabInfo): TChromeTab;
 
     procedure MakeActive();
     procedure UpdateBookTabHeader();
@@ -367,6 +396,7 @@ type
     function GetDictionaryView: IDictionaryView;
     function GetStrongView: IStrongView;
     function GetTagsVersesView: ITagsVersesView;
+    function GetCommentsView: ICommentsView;
     function GetChromeTabs: TChromeTabs;
     function GetBibleTabs: TDockTabSet;
     function GetViewName: string;
@@ -388,6 +418,7 @@ type
     property TSKView: ITSKView read GetTSKView;
     property TagsVerserView: ITagsVersesView read GetTagsVersesView;
     property DictionaryView: IDictionaryView read GetDictionaryView;
+    property CommentsView: ICommentsView read GetCommentsView;
     property StrongView: IStrongView read GetStrongView;
     property BibleTabs: TDockTabSet read GetBibleTabs;
     property ViewName: string read GetViewName write SetViewName;
@@ -396,9 +427,9 @@ type
 
 implementation
 
-uses BookFra, SearchFra, TSKFra, DictionaryFra, StrongFra;
+uses BookFra, SearchFra, TSKFra, DictionaryFra, StrongFra, CommentsFra;
 
-constructor TBookTabBrowserState.Create;
+constructor TBrowserState.Create;
 begin
   SelStart := -1;
   SelLenght := -1;
@@ -510,7 +541,7 @@ procedure TBookTabInfo.Init(
   const title: string;
   const state: TBookTabInfoState);
 begin
-  mBrowserState := TBookTabBrowserState.Create;
+  mBrowserState := TBrowserState.Create;
   mBible := bible;
   mLocation := location;
   mSatelliteName := satelliteBibleName;
@@ -980,6 +1011,100 @@ begin
     SelectStrongWord(mSelectedStrong);
     SetCurrentBook(mBookPath);
   end;
+end;
+
+{ TCommentsTabInfo }
+
+constructor TCommentsTabInfo.Create();
+begin
+  inherited Create();
+  FBrowserState := TBrowserState.Create;
+  FCommentaryBooks := TStringList.Create;
+end;
+
+constructor TCommentsTabInfo.Create(settings: TCommentsTabSettings);
+begin
+  Create();
+end;
+
+function TCommentsTabInfo.GetCaption(): string;
+begin
+  Result := Lang.SayDefault('TabCommentaries', 'Commentaries');
+end;
+
+function TCommentsTabInfo.GetViewType(): TViewTabType;
+begin
+  Result := vttComments;
+end;
+
+function TCommentsTabInfo.GetSettings(): TTabSettings;
+begin
+  Result := TCommentsTabSettings.Create;
+end;
+
+procedure TCommentsTabInfo.SaveState(const workspace: IWorkspace);
+var
+  commentsFrame: TCommentsFrame;
+begin
+  commentsFrame := workspace.CommentsView as TCommentsFrame;
+  with commentsFrame do
+  begin
+    FSourceBook := SourceBook;
+    FMeaningfulOnly := sbtnMeaningfulOnly.Down;
+    FCommentaryText := bwrComments.DocumentSource;
+
+    FCommentaryBooks.Clear;
+    FCommentaryBooks.AddStrings(cbCommentSource.Items);
+
+    FCommentaryBookIndex := cbCommentSource.ItemIndex;
+
+    SaveBrowserState(bwrComments);
+  end;
+end;
+
+procedure TCommentsTabInfo.RestoreState(const workspace: IWorkspace);
+var
+  commentsFrame: TCommentsFrame;
+begin
+  commentsFrame := workspace.CommentsView as TCommentsFrame;
+  with commentsFrame do
+  begin
+    SourceBook := FSourceBook;
+    sbtnMeaningfulOnly.Down := FMeaningfulOnly;
+    bwrComments.LoadFromString(FCommentaryText);
+
+    cbCommentSource.Clear;
+    cbCommentSource.Items.AddStrings(FCommentaryBooks);
+    cbCommentSource.ItemIndex := FCommentaryBookIndex;
+
+    RestoreBrowserState(bwrComments);
+  end;
+end;
+
+procedure TCommentsTabInfo.SaveBrowserState(const HtmlViewer: THTMLViewer);
+begin
+  FBrowserState.SelStart := HtmlViewer.SelStart;
+  FBrowserState.SelLenght := HtmlViewer.SelLength;
+  FBrowserState.HScrollPos := HtmlViewer.HScrollBarPosition;
+  FBrowserState.VScrollPos := HtmlViewer.VScrollBarPosition;
+end;
+
+procedure TCommentsTabInfo.RestoreBrowserState(const HtmlViewer: THTMLViewer);
+begin
+  if FBrowserState = nil then
+    Exit;
+
+  if (FBrowserState.SelStart >= 0) then
+  begin
+    HtmlViewer.SelStart := FBrowserState.SelStart;
+    HtmlViewer.SelLength := FBrowserState.SelLenght;
+  end;
+
+  if (FBrowserState.HScrollPos >= 0) then
+     HtmlViewer.HScrollBarPosition := FBrowserState.HScrollPos;
+
+  if (FBrowserState.VScrollPos >= 0) then
+     HtmlViewer.VScrollBarPosition := FBrowserState.VScrollPos;
 end;
 
 { TViewTabDragObject }

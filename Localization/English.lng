@@ -66,7 +66,9 @@ bqErrorUnknown = Unknown Error
 bqError = Error
 bqStrongBibleNotDefined = To perform a search, select the module with Strong's lexicons in the settings.
 
-commentaryLoadFail = Failed to display commentary
+commentsLoadFail = Failed to display commentary
+commentsCantFind = Cannot find matching comment
+commentsOpenChapterFail = Failed to open chapter
 
 HelpDocumentation = Documentation
 SelectBook = Select a book to search
@@ -84,6 +86,7 @@ TabTSK = TSK
 TabDictionary = Dictionary
 TabTagsVerses = Themed bookmarks
 TabStrong = Strong's Dictionary
+TabCommentaries = Commentaries
 
 DeleteBookmarkTextPrompt = Delete bookmark?
 DeleteBookmarkTitle = Confirm deletion

@@ -62,6 +62,7 @@ uses
   TSKFra in 'Views\TSKFra.pas' {TSKFrame: TFrame},
   TagsVersesFra in 'Views\TagsVersesFra.pas' {TagsVersesFrame: TFrame},
   DictionaryFra in 'Views\DictionaryFra.pas' {DictionaryFrame: TFrame},
+  CommentsFra in 'Views\CommentsFra.pas' {CommentsFrame: TFrame},
   NotifyMessages in 'Core\NotifyMessages.pas',
   StrongFra in 'Views\StrongFra.pas' {StrongFrame: TFrame},
   AppPaths in 'IO\AppPaths.pas',
