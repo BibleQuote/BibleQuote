@@ -19,7 +19,7 @@ type
   
     function IsCommentary(aFileEntryPath: String): Boolean;
   protected
-    class function OpenBibleqtIniFile(aBibleqtIniPath: String): TStrings;
+    class function OpenBibleqtIniFile(aInfoSource: TInfoSource; aBibleqtIniPath: String): TStrings;
     procedure LoadRegularValues(aInfoSource: TInfoSource);
     procedure LoadPathValues(aInfoSource: TInfoSource; aIniPath: String);
     class procedure ClearAndEmptyComments(aDataPairs: TStrings);
@@ -41,7 +41,8 @@ type
 implementation
 
 { TNativeInfoSourceLoader }
-uses SysUtils, ChapterData, Generics.Collections, IOUtils, SelectEntityType;
+uses SysUtils, ChapterData, Generics.Collections, IOUtils, SelectEntityType,
+    IOProcs;
 
 constructor TNativeInfoSourceLoader.Create;
 begin
@@ -72,7 +73,7 @@ begin
 
   BibleqtIniPath := TSelectEntityType.FormBibleqtIniPath(aFileEntryPath);
 
-  FDataPairs := OpenBibleqtIniFile(BibleqtIniPath);
+  FDataPairs := OpenBibleqtIniFile(aInfoSource, BibleqtIniPath);
   try
     LoadRegularValues(aInfoSource);
     LoadPathValues(aInfoSource, BibleqtIniPath);
@@ -113,15 +114,20 @@ begin
 
 end;
 
-class function TNativeInfoSourceLoader.OpenBibleqtIniFile(aBibleqtIniPath: String): TStrings;
+class function TNativeInfoSourceLoader.OpenBibleqtIniFile(aInfoSource: TInfoSource;
+   aBibleqtIniPath: String): TStrings;
 var
   DataPairs: TStrings;
+  FileText: String;
 begin
+  aInfoSource.DefaultEncoding := LoadBibleqtIniFileEncoding(aBibleqtIniPath, aInfoSource.DefaultEncoding);
+  FileText := ReadTextFile(aBibleqtIniPath, aInfoSource.DefaultEncoding);
+
   DataPairs := TStringList.Create();
   Result := DataPairs;
 
   DataPairs.NameValueSeparator := '=';
-  DataPairs.LoadFromFile(aBibleqtIniPath);
+  DataPairs.Text := FileText;
 
   ClearAndEmptyComments(DataPairs);
 end;
@@ -167,8 +173,6 @@ begin
     NoForcedLineBreaks := StringValueToBoolean(ReadStringValue('NoForcedLineBreaks'));
     UseChapterHead := StringValueToBoolean(ReadStringValue('UseChapterHead'));
 
-    DesiredFontCharset := ReadIntegerValue('DesiredFontCharset', -1);
-    DefaultEncoding := ReadStringValue('DefaultEncoding');
     BookQty := ReadIntegerValue('BookQty');
 
     InstallFonts := ReadStringValue('InstallFonts');

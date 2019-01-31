@@ -2,7 +2,7 @@ unit InfoSource;
 
 interface
 
-uses Classes, ChapterData, Generics.Collections;
+uses Classes, ChapterData, Generics.Collections, SysUtils;
 
 type
 
@@ -18,12 +18,12 @@ type
     FChapterSign, FVerseSign: String;
     FAlphabet, FHTMLFilter, FSoundDirectory: String;
     FUseRightAlignment, FStrongsPrefixed: Boolean;
-    FDefaultEncoding: String;
+    FDefaultEncoding: TEncoding;
 
     FModuleName, FModuleAuthor, FModuleVersion, FModuleCompiler, FModuleImage: String;
     FOldTestament, FNewTestament, FApocrypha, FChapterZero, FEnglishPsalms,
     FStrongNumbers, FNoForcedLineBreaks, FUseChapterHead :Boolean;
-    FDesiredFontCharset, FBookQty: Integer;
+    FBookQty: Integer;
 
     FChapterDatas: TList<TChapterData>;
     FCategories: String;
@@ -62,7 +62,6 @@ type
     property VerseSign: String read FVerseSign write FVerseSign;
     property BookQty: Integer read FBookQty write FBookQty;
     property StrongsPrefixed: Boolean read FStrongsPrefixed write FStrongsPrefixed;
-    property DesiredFontCharset: Integer read FDesiredFontCharset write FDesiredFontCharset;
     property InstallFonts: String read FInstallFonts write FInstallFonts;
     property Categories: String read FCategories write FCategories;
     property OldTestament: Boolean read FOldTestament write FOldTestament;
@@ -77,15 +76,13 @@ type
     property IsCompressed: Boolean read FIsCompressed write FIsCompressed;
     property FileName: String read FFileName write FFileName;
     property IsCommentary: Boolean read FIsCommentary write FIsCommentary;
-    property DefaultEncoding: String read FDefaultEncoding write FDefaultEncoding;
+    property DefaultEncoding: TEncoding read FDefaultEncoding write FDefaultEncoding;
 
   end;
 
 implementation
 
 { TInfoSource }
-
-uses SysUtils;
 
 procedure TInfoSource.ClearChapterDatas;
 var
@@ -131,7 +128,6 @@ begin
     VerseSign := Self.FVerseSign;
     BookQty := Self.FBookQty;
     StrongsPrefixed := Self.FStrongsPrefixed;
-    DesiredFontCharset := Self.FDesiredFontCharset;
     InstallFonts := Self.FInstallFonts;
     Categories := Self.FCategories;
     OldTestament := Self.FOldTestament;
@@ -154,6 +150,7 @@ constructor TInfoSource.Create;
 begin
   inherited Create;
 
+  FDefaultEncoding := TEncoding.GetEncoding(1251);
   FChapterDatas := TList<TChapterData>.Create();
 end;
 

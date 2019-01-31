@@ -260,7 +260,6 @@ type
     procedure InitializeChapterData(aInfoSource: TInfoSource);
     procedure InitializeAlphabet(aInfoSource: TInfoSource);
     procedure InitializePaths(aInfoSource: TInfoSource);
-    procedure InitializeDefaultEncoding(aInfoSource: TInfoSource);
 
     function SearchOK(source: string; words: TStrings; params: byte): boolean;
     procedure SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean; callback: IBookSearchCallback);
@@ -666,7 +665,6 @@ begin
   InitializeChapterData(aInfoSource);
   InitializeAlphabet(aInfoSource);
   InitializePaths(aInfoSource);
-  InitializeDefaultEncoding(aInfoSource);
 
   Result := True;
 
@@ -1820,7 +1818,7 @@ begin
   FChapter := 1;
 
   FBookQty := aInfoSource.BookQty;
-  FDesiredFontCharset := aInfoSource.DesiredFontCharset;
+  FDefaultEncoding := aInfoSource.DefaultEncoding;
   FName := aInfoSource.BibleName;
   FShortName := aInfoSource.BibleShortName;
   FCopyright := aInfoSource.Copyright;
@@ -1944,32 +1942,6 @@ begin
     ShortNames[index] := FirstWord(ShortNamesVars[index]);
 
     ChapterQtys[index] := aInfoSource.ChapterDatas[i].ChapterQty;
-  end;
-
-end;
-
-procedure TBible.InitializeDefaultEncoding(aInfoSource: TInfoSource);
-var
-  Encoding: TEncoding;
-  CodePage: Integer;
-begin
-
-  FDefaultEncoding := TEncoding.GetEncoding(1251);
-
-  if not aInfoSource.DefaultEncoding.IsEmpty then
-  begin
-    Encoding := GetEncodingByName(aInfoSource.DefaultEncoding);
-    if Encoding = nil then exit;
-
-    FDefaultEncoding := Encoding;
-  end
-  else if aInfoSource.DesiredFontCharset > -1 then
-  begin
-    CodePage := GetEncodingByWinCharSet(aInfoSource.DesiredFontCharset);
-    if CodePage > 0 then
-    begin
-      FDefaultEncoding := TEncoding.GetEncoding(CodePage);
-    end;
   end;
 
 end;
