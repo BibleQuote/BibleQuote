@@ -65,7 +65,7 @@ begin
 
   try
 
-    if aSQLiteQuery.Eof then raise Exception.Create('Missing description for dictionary');
+    if aSQLiteQuery.Eof then exit;
 
     Result := aSQLiteQuery.FieldByName('value').AsString;
 
