@@ -2,7 +2,7 @@
 
 interface
 
-uses Classes, InfoSourceLoaderInterface, InfoSource;
+uses Classes, InfoSourceLoaderInterface, InfoSource, RegularExpressions;
 
   const
     MAX_BOOKQTY = 256;
@@ -18,11 +18,13 @@ type
     FDataPairs: TStrings;
   
     function IsCommentary(aFileEntryPath: String): Boolean;
+    class function TrimName(aRow: String): String;
+    class function TrimNameEvaluator(const Match: TMatch): String;
   protected
     class function OpenBibleqtIniFile(aInfoSource: TInfoSource; aBibleqtIniPath: String): TStrings;
     procedure LoadRegularValues(aInfoSource: TInfoSource);
     procedure LoadPathValues(aInfoSource: TInfoSource; aIniPath: String);
-    class procedure ClearAndEmptyComments(aDataPairs: TStrings);
+    class procedure RemoveGarbage(aDataPairs: TStrings);
 
     function ReadStringValue(aKey: String; aDefault: String = ''): String;
     function ReadIntegerValue(aKey: String; aDefault: Integer = 0): Integer;
@@ -129,7 +131,7 @@ begin
   DataPairs.NameValueSeparator := '=';
   DataPairs.Text := FileText;
 
-  ClearAndEmptyComments(DataPairs);
+  RemoveGarbage(DataPairs);
 end;
 
 procedure TNativeInfoSourceLoader.LoadRegularValues(aInfoSource: TInfoSource);
@@ -240,7 +242,7 @@ begin
 end;
 
 
-class procedure TNativeInfoSourceLoader.ClearAndEmptyComments(aDataPairs: TStrings);
+class procedure TNativeInfoSourceLoader.RemoveGarbage(aDataPairs: TStrings);
 const
   COMMENT_CHAR = ';';
 var
@@ -252,15 +254,18 @@ begin
 
   while i < aDataPairs.Count do
   begin
-    CurString := Trim(aDataPairs[i]);
+    CurString := aDataPairs[i].Trim;
 
     if (CurString.IsEmpty) or (CurString.StartsWith(COMMENT_CHAR)) then
     begin
       aDataPairs.Delete(i);
     end
     else
-      i := i +1;
+    begin
+      aDataPairs[i] := TrimName(CurString);
 
+      i := i +1;
+    end;
   end;
 
 end;
@@ -302,6 +307,43 @@ end;
 function TNativeInfoSourceLoader.StringValueToBoolean(aValue: String): Boolean;
 begin
   Result := (aValue = 'Y') or (aValue = 'y');
+end;
+
+class function TNativeInfoSourceLoader.TrimName(aRow: String): String;
+var
+  Options: TRegExOptions;
+  RegEx: TRegEx;
+begin
+  Result := aRow;
+
+  Options := [roMultiLine];
+
+  RegEx := TRegEx.Create('(?P<name>.*?)=(?P<rest>.*)', Options);
+
+  if RegEx.IsMatch(aRow) then
+  begin
+    Result := RegEx.Replace(aRow, TrimNameEvaluator);
+  end;
+
+
+end;
+
+class function TNativeInfoSourceLoader.TrimNameEvaluator(const Match: TMatch): String;
+var
+  gc: Integer;
+  Name, Value: String;
+begin
+  Result := Match.Value;
+
+  if Match.Groups.Count < 0  then exit;
+
+  gc := Match.Groups.Count;
+  if Match.Groups.Count >=3 then
+  begin
+      Name:= Match.Groups[1].Value.Trim;
+      Value:= Match.Groups[2].Value;
+      Result:= Format('%s=%s', [Name, Value]);
+  end;
 end;
 
 end.
