@@ -7,7 +7,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, IOUtils, Types,
   Graphics, Controls, Forms, Dialogs, IOProcs,
-  StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices, AppPaths;
+  StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices, AppPaths,
+  InfoSource;
 
 const
   RusToEngTable: array [1 .. 27] of integer = (1, 2, 3, 4, 5, 20, 21, 22, 23,
@@ -187,7 +188,7 @@ type
   TBible = class
   private
     { Private declarations }
-    FIniFile: string;
+    FInfoSource: TInfoSource;
     FPath: string;
     FShortPath: string;
     FName: string; // full description (title) of the module
@@ -254,7 +255,11 @@ type
     mShortNamesVars: TStringList;
     mModuleType: TbqModuleType;
 
-    procedure LoadIniFile(fileName: string);
+    procedure InitializeFields(aInfoSource: TInfoSource);
+    procedure InitializeTraits(aInfoSource: TInfoSource);
+    procedure InitializeChapterData(aInfoSource: TInfoSource);
+    procedure InitializeAlphabet(aInfoSource: TInfoSource);
+    procedure InitializePaths(aInfoSource: TInfoSource);
 
     function SearchOK(source: string; words: TStrings; params: byte): boolean;
     procedure SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean; callback: IBookSearchCallback);
@@ -287,6 +292,9 @@ type
     function GetModuleName(): string;
     function GetAuthor(): string;
 
+    function SetInfoSource(aFileEntryPath: String): Boolean; overload;
+    function SetInfoSource(aInfoSource: TInfoSource): Boolean; overload;
+
     function LinkValidnessStatus(
       path: string;
       bl: TBibleLink;
@@ -294,8 +302,6 @@ type
       checkverse: boolean = true): integer;
 
     function SyncToBible(const refBible: TBible; const bl: TBibleLink; out outBibleLink): integer;
-    function IsCommentary(): boolean;
-    property IniFile: string read FIniFile write LoadIniFile;
     property path: string read FPath;
     property ShortPath: string read FShortPath;
     property Name: string read GetModuleName;
@@ -306,6 +312,7 @@ type
     property ChapterZeroString: string read FChapterZeroString;
 
     // new attributes
+    property InfoSource: TInfoSource read FInfoSource;
     property ModuleName: string read FModuleName;
     property Author: string read GetAuthor;
     property ModuleVersion: string read FModuleVersion;
@@ -416,7 +423,8 @@ type
 
 implementation
 
-uses PlainUtils, bibleLinkParser, ExceptionFrm;
+uses PlainUtils, bibleLinkParser, ExceptionFrm, SelectEntityType,
+     InfoSourceLoaderFabric, InfoSourceLoaderInterface;
 
 function Diff(a, b: integer): integer;
 begin
@@ -433,6 +441,8 @@ begin
   mCategories := TStringList.Create();
   mShortNamesVars := TStringList.Create();
   mUIServices := uiServices;
+
+  FInfoSource := TInfoSource.Create;
 end;
 
 destructor TBible.Destroy;
@@ -441,6 +451,9 @@ begin
   FLines.Free;
   mCategories.Free();
   mShortNamesVars.Free();
+
+  FreeAndNil(FInfoSource);
+
   inherited Destroy;
 end;
 
@@ -635,6 +648,63 @@ begin
   FDefaultFilter := False;
 end;
 
+function TBible.SetInfoSource(aInfoSource: TInfoSource): Boolean;
+begin
+
+  Result := False;
+
+  if not Assigned(aInfoSource) then exit;
+
+  if Assigned(FInfoSource) then
+    FInfoSource.Free;
+
+  FInfoSource := aInfoSource.Clone();
+
+  InitializeFields(aInfoSource);
+  InitializeTraits(aInfoSource);
+  InitializeChapterData(aInfoSource);
+  InitializeAlphabet(aInfoSource);
+  InitializePaths(aInfoSource);
+
+  Result := True;
+
+end;
+
+function TBible.SetInfoSource(aFileEntryPath: String): Boolean;
+var
+  InfoSourceType: TInfoSourceTypes;
+  InfoSourceLoader: IInfoSourceLoader;
+  InfoSource: TInfoSource;
+begin
+
+  Result := False;
+
+  InfoSourceType := TSelectEntityType.SelectInfoSourceType(aFileEntryPath);
+
+  if InfoSourceType = isNone then exit;
+
+  InfoSourceLoader := TInfoSourceLoaderFabric.CreateInfoSourceLoader(InfoSourceType);
+
+  if not Assigned(InfoSourceLoader) then
+  begin
+    raise Exception.Create('Missing info source loader');
+  end;
+
+  InfoSource := TInfoSource.Create;
+  try
+
+    InfoSourceLoader.LoadInfoSource(aFileEntryPath, InfoSource);
+
+    if not Assigned(InfoSource) then exit;
+
+    SetInfoSource(InfoSource);
+  finally
+    InfoSource.Free;
+  end;
+
+  Result := True;
+end;
+
 procedure TBible.SetShortNameVars(bookIx: integer; const Name: string);
 var
   i, countDiff: integer;
@@ -660,312 +730,6 @@ begin
     Include(mTraits, trait)
   else
     Exclude(mTraits, trait);
-end;
-
-procedure TBible.LoadIniFile(fileName: string);
-var
-  s: TStrings;
-  i, cur: integer;
-  dFirstPart: string;
-  dSecondPart: string;
-  isCompressed: boolean;
-
-  function ToBoolean(aValue: string): boolean;
-  begin
-    Result := (aValue = 'Y') or (aValue = 'y');
-  end;
-
-begin
-  try
-    s := nil;
-
-    try
-      FDefaultEncoding := LoadBibleqtIniFileEncoding(fileName, TEncoding.GetEncoding(1251));
-      s := ReadTextFileLines(fileName, DefaultEncoding);
-
-    except
-      on ex: TBQException do
-      begin
-        s.Free();
-
-        raise;
-      end;
-      on Exception do
-      begin
-        s.Free();
-        g_ExceptionContext.Add('TBible.LoadIniFile.value=' + fileName);
-        raise Exception.CreateFmt('TBible.LoadIniFile: Error loading file %s', [fileName]);
-      end;
-
-    end;
-    isCompressed := fileName[1] = '?';
-    mModuleType := bqmBook;
-    mModuleState := [];
-    FBookQty := 0;
-    FBook := 1;
-    FChapter := 1;
-    FDesiredFontCharset := -1;
-    FName := '';
-    FShortName := '';
-    FCopyright := '';
-    FModuleName := '';
-    FModuleAuthor := '';
-    FModuleCompiler := '';
-    FModuleVersion := '';
-    FModuleImage := '';
-
-    mCategories.Clear();
-    FFiltered := true;
-    FHTML := DefaultHTMLFilter;
-    FDefaultFilter := true;
-    FUseRightAlignment := False;
-
-    FAlphabet :=
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' +
-      'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя';
-
-    FFontName := '';
-    FStopSearching := False;
-
-    FRememberPlace := true;
-
-    FSoundDir := '';
-    FStrongsPrefixed := False;
-
-    FBible := true;
-    mTraits := [bqmtOldCovenant, bqmtNewCovenant];
-    mDesiredUIFont := '';
-    mInstallFontNames := '';
-
-    for i := 1 to MAX_BOOKQTY do
-      ChapterQtys[i] := 0; // clear
-
-    cur := -1;
-    i := 0;
-
-    repeat
-      Inc(cur);
-      if cur = s.Count then
-        break;
-
-      dFirstPart := IniStringFirstPart(s[cur]);
-      dSecondPart := IniStringSecondPart(s[cur]);
-
-      if dSecondPart = '' then
-        continue;
-
-      if dFirstPart = 'BibleName' then
-      begin
-        FName := dSecondPart;
-      end
-      else if dFirstPart = 'BibleShortName' then
-      begin
-        FShortName := dSecondPart;
-      end
-      else if dFirstPart = 'Copyright' then
-      begin
-        FCopyright := dSecondPart;
-      end
-      else if dFirstPart = 'Bible' then
-      begin
-        FBible := ToBoolean(dSecondPart);
-      end
-      else if dFirstPart = 'OldTestament' then
-      begin
-        setTraitState(bqmtOldCovenant, ToBoolean(dSecondPart));
-      end
-      else if dFirstPart = 'NewTestament' then
-      begin
-        setTraitState(bqmtNewCovenant, ToBoolean(dSecondPart));
-      end
-      else if dFirstPart = 'Apocrypha' then
-      begin
-        setTraitState(bqmtApocrypha, ToBoolean(dSecondPart));
-      end
-      else if dFirstPart = 'ChapterZero' then
-      begin
-        setTraitState(bqmtZeroChapter, ToBoolean(dSecondPart));
-      end
-      else if dFirstPart = 'ChapterString' then
-      begin
-        FChapterString := dSecondPart;
-      end
-      else if dFirstPart = 'ChapterStringPs' then
-      begin
-        FChapterStringPs := dSecondPart;
-      end
-      else if dFirstPart = 'ChapterZeroString' then
-      begin
-        FChapterZeroString := dSecondPart;
-      end
-      else if dFirstPart = 'EnglishPsalms' then
-      begin
-        setTraitState(bqmtEnglishPsalms, ToBoolean(dSecondPart));
-      end
-      else if dFirstPart = 'StrongNumbers' then
-      begin
-        setTraitState(bqmtStrongs, ToBoolean(dSecondPart));
-      end
-      else if dFirstPart = 'NoForcedLineBreaks' then
-      begin
-        setTraitState(bqmtNoForcedLineBreaks, ToBoolean(dSecondPart));
-      end
-      else if dFirstPart = 'HTMLFilter' then
-      begin
-        HTMLFilter := dSecondPart;
-      end
-      else if dFirstPart = 'Alphabet' then
-      begin
-        FAlphabet := dSecondPart;
-      end
-      else if dFirstPart = 'InstallFonts' then
-      begin
-        mInstallFontNames := dSecondPart;
-        Include(mModuleState, bqmsFontsInstallPending);
-      end
-      else if dFirstPart = 'DesiredUIFont' then
-      begin
-        mDesiredUIFont := dSecondPart;
-      end
-      else if dFirstPart = 'DesiredFontName' then
-      begin
-        FFontName := dSecondPart;
-      end
-      else if dFirstPart = 'Categories' then
-      begin
-        StrToTokens(dSecondPart, '|', mCategories);
-      end
-      else if dFirstPart = 'DesiredFontCharset' then
-      begin
-        FDesiredFontCharset := StrToInt(dSecondPart); // AlekId
-      end
-      else if dFirstPart = 'UseRightAlignment' then
-      begin
-        FUseRightAlignment := ToBoolean(dSecondPart)
-      end
-      else if dFirstPart = 'UseChapterHead' then
-      begin
-        setTraitState(bqmtIncludeChapterHead, ToBoolean(dSecondPart));
-      end
-      else if dFirstPart = 'ChapterSign' then
-      begin
-        FChapterSign := dSecondPart;
-      end
-      else if dFirstPart = 'VerseSign' then
-      begin
-        FVerseSign := dSecondPart;
-      end
-      else if dFirstPart = 'BookQty' then
-      begin
-        FBookQty := StrToInt(dSecondPart);
-      end
-      else if dFirstPart = 'SoundDirectory' then
-      begin
-        FSoundDir := dSecondPart;
-      end
-      else if dFirstPart = 'StrongsPrefixed' then
-      begin
-        FStrongsPrefixed := ToBoolean(dSecondPart);
-      end
-      else if dFirstPart = 'PathName' then
-      begin
-        Inc(i);
-        PathNames[i] := dSecondPart;
-      end
-      else if dFirstPart = 'FullName' then
-      begin
-        FullNames[i] := dSecondPart;
-      end
-      else if dFirstPart = 'ShortName' then
-      begin
-        SetShortNameVars(i, dSecondPart);
-      end
-      else if dFirstPart = 'ModuleName' then
-      begin
-        FModuleName := dSecondPart;
-      end
-      else if dFirstPart = 'ModuleAuthor' then
-      begin
-        FModuleAuthor := dSecondPart;
-      end
-      else if dFirstPart = 'ModuleVersion' then
-      begin
-        FModuleVersion := dSecondPart;
-      end
-      else if dFirstPart = 'ModuleCompiler' then
-      begin
-        FModuleCompiler := dSecondPart;
-      end
-      else if dFirstPart = 'ModuleImage' then
-      begin
-        FModuleImage := dSecondPart;
-      end
-      else
-      begin
-        if i <= 0 then
-          continue;
-        ShortNames[i] := FirstWord(ShortNamesVars[i]);
-        if dFirstPart = 'ChapterQty' then
-        begin
-          ChapterQtys[i] := StrToInt(dSecondPart);
-          continue;
-        end;
-
-      end;
-
-    until False;
-
-    FIniFile := fileName;
-
-    if isCompressed then
-    begin
-      FPath := GetArchiveFromSpecial(fileName) + '??';
-      FShortPath := ExtractRelativePath('?' + TAppDirectories.Root, FPath);
-      FShortPath := GetArchiveFromSpecial(FShortPath);
-      FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
-    end
-    else
-    begin
-      FPath := ExtractFilePath(fileName);
-      FShortPath := ExtractRelativePath(TAppDirectories.Root, FPath);
-      FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
-    end;
-
-    FAlphabet := FAlphabet + '0123456789';
-
-    ClearAlphabetBits;
-
-    for i := 1 to length(FAlphabet) do
-      SetAlphabetBit(integer(FAlphabet[i]), true);
-
-    if Self.FBible then
-    begin
-      if IsCommentary() then
-        mModuleType := bqmCommentary
-      else
-        mModuleType := bqmBible;
-
-      if trait[bqmtOldCovenant] then
-        mCategories.Add(Lang.SayDefault('catOT', 'Old Covenant'));
-
-      if trait[bqmtNewCovenant] then
-        mCategories.Add(Lang.SayDefault('catNT', 'New Covenant'));
-
-      if trait[bqmtApocrypha] then
-        mCategories.Add(Lang.SayDefault('catApocrypha', 'Apocrypha'));
-    end
-    else
-    begin // not bible
-      Exclude(mTraits, bqmtOldCovenant);
-      Exclude(mTraits, bqmtNewCovenant);
-      Exclude(mTraits, bqmtApocrypha);
-    end;
-    if assigned(FOnChangeModule) then
-      FOnChangeModule(Self);
-  except
-    g_ExceptionContext.Add('TBible.LoadIniFile.value=' + fileName);
-    raise;
-  end;
 end;
 
 function TBible.OpenChapter(
@@ -1032,7 +796,7 @@ begin
 
   if FFiltered and (FLines.Count <> 0) then
     FLines.Text := ParseHTML(FLines.Text, FHTML);
-  recLnks := (not FBible) or (IsCommentary());
+  recLnks := (not FBible) or (InfoSource.IsCommentary);
   if forceResolveLinks or (recLnks and mRecognizeBibleLinks) then
   begin
     FLines.Text := ResolveLinks(FLines.Text, mFuzzyResolveLinks);
@@ -1046,7 +810,7 @@ begin
     raise Exception.CreateFmt(
       'TBible.OpenChapter: Passage not found.' + #13#10
       + #13#10 + 'IniFile = %s' + #13#10 + 'Book=%d Chapter=%d',
-      [FIniFile, book, chapter]);
+      [''{FIniFile}, book, chapter]);
 
   Result := true;
 end;
@@ -1504,7 +1268,7 @@ begin
   Result := 0;
   try
     if FPath <> path then
-      LoadIniFile(path);
+      SetInfoSource(path);
     if internalAddr then
     begin
       Result := InternalToReference(bl, effectiveLnk);
@@ -2044,6 +1808,159 @@ begin
 
 end;
 
+procedure TBible.InitializeFields(aInfoSource: TInfoSource);
+begin
+
+  mModuleState := [];
+  mModuleType := bqmBook;
+
+  FBook := 1;
+  FChapter := 1;
+
+  FBookQty := aInfoSource.BookQty;
+  FDefaultEncoding := aInfoSource.DefaultEncoding;
+  FName := aInfoSource.BibleName;
+  FShortName := aInfoSource.BibleShortName;
+  FCopyright := aInfoSource.Copyright;
+  FModuleName := aInfoSource.ModuleName;
+  FModuleAuthor := aInfoSource.ModuleAuthor;
+  FModuleCompiler := aInfoSource.ModuleCompiler;
+  FModuleVersion := aInfoSource.ModuleVersion;
+  FModuleImage := aInfoSource.ModuleImage;
+
+  FFiltered := true;
+  FHTML := DefaultHTMLFilter;
+  HTMLFilter := aInfoSource.HTMLFilter;
+
+  FUseRightAlignment := aInfoSource.UseRightAlignment;
+
+  FDefaultFilter := true;
+
+  FFontName := aInfoSource.DesiredFontName;
+  FStopSearching := False;
+
+  FRememberPlace := true;
+
+  FSoundDir := aInfoSource.SoundDirectory;
+  FStrongsPrefixed := aInfoSource.StrongsPrefixed;
+
+  FBible := aInfoSource.IsBible;
+
+  mDesiredUIFont := aInfoSource.DesiredUIFont;
+  mInstallFontNames := aInfoSource.InstallFonts;
+  if not mInstallFontNames.IsEmpty then
+    Include(mModuleState, bqmsFontsInstallPending);
+
+
+  FChapterSign := aInfoSource.ChapterSign;
+  FChapterString := aInfoSource.ChapterString;
+  FChapterStringPs := aInfoSource.ChapterStringPs;
+  FChapterZeroString := aInfoSource.ChapterZeroString;
+  FVerseSign := aInfoSource.VerseSign;
+
+  mCategories.Clear();
+  StrToTokens(aInfoSource.Categories, '|', mCategories);
+
+
+end;
+
+procedure TBible.InitializePaths(aInfoSource: TInfoSource);
+begin
+    if aInfoSource.IsCompressed then
+    begin
+      FPath := GetArchiveFromSpecial(aInfoSource.FileName) + '??';
+      FShortPath := ExtractRelativePath('?' + TAppDirectories.Root, FPath);
+      FShortPath := GetArchiveFromSpecial(FShortPath);
+      FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
+    end
+    else
+    begin
+      FPath := ExtractFilePath(aInfoSource.FileName);
+      FShortPath := ExtractRelativePath(TAppDirectories.Root, FPath);
+      FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
+    end;
+
+    if Self.FBible then
+    begin
+      if aInfoSource.IsCommentary then
+        mModuleType := bqmCommentary
+      else
+        mModuleType := bqmBible;
+
+      if trait[bqmtOldCovenant] then
+        mCategories.Add(Lang.SayDefault('catOT', 'Old Covenant'));
+
+      if trait[bqmtNewCovenant] then
+        mCategories.Add(Lang.SayDefault('catNT', 'New Covenant'));
+
+      if trait[bqmtApocrypha] then
+        mCategories.Add(Lang.SayDefault('catApocrypha', 'Apocrypha'));
+    end
+    else
+    begin // not bible
+      Exclude(mTraits, bqmtOldCovenant);
+      Exclude(mTraits, bqmtNewCovenant);
+      Exclude(mTraits, bqmtApocrypha);
+    end;
+    if Assigned(FOnChangeModule) then
+      FOnChangeModule(Self);
+end;
+
+procedure TBible.InitializeAlphabet(aInfoSource: TInfoSource);
+var
+  i: Integer;
+begin
+  FAlphabet := aInfoSource.Alphabet;
+  FAlphabet := FAlphabet + '0123456789';
+
+  ClearAlphabetBits;
+
+  for i := 1 to length(FAlphabet) do
+    SetAlphabetBit(integer(FAlphabet[i]), true);
+
+end;
+
+procedure TBible.InitializeChapterData(aInfoSource: TInfoSource);
+var
+  i, index: Integer;
+  ShortName: String;
+
+begin
+
+  for i := 1 to MAX_BOOKQTY do
+    ChapterQtys[i] := 0; // clear
+
+  for i := 0 to aInfoSource.ChapterDatas.Count -1 do
+  begin
+    index := i + 1;
+
+    PathNames[index] := aInfoSource.ChapterDatas[i].PathName;
+    FullNames[index] := aInfoSource.ChapterDatas[i].FullName;
+
+    ShortName := aInfoSource.ChapterDatas[i].ShortName;
+    SetShortNameVars(index, ShortName);
+    ShortNames[index] := FirstWord(ShortNamesVars[index]);
+
+    ChapterQtys[index] := aInfoSource.ChapterDatas[i].ChapterQty;
+  end;
+
+end;
+
+procedure TBible.InitializeTraits(aInfoSource: TInfoSource);
+begin
+  mTraits := [bqmtOldCovenant, bqmtNewCovenant];
+
+  setTraitState(bqmtOldCovenant, aInfoSource.OldTestament);
+  setTraitState(bqmtNewCovenant, aInfoSource.NewTestament);
+  setTraitState(bqmtApocrypha, aInfoSource.Apocrypha);
+  setTraitState(bqmtZeroChapter, aInfoSource.ChapterZero);
+  setTraitState(bqmtEnglishPsalms, aInfoSource.EnglishPsalms);
+  setTraitState(bqmtStrongs, aInfoSource.StrongNumbers);
+  setTraitState(bqmtNoForcedLineBreaks, aInfoSource.NoForcedLineBreaks);
+  setTraitState(bqmtIncludeChapterHead, aInfoSource.UseChapterHead);
+
+end;
+
 procedure TBible.InstallFonts;
 var
   pc: PChar;
@@ -2085,17 +2002,6 @@ begin
   end;
   Inc(Result,
     ord(InternalToReference(inputLnk.book, inputLnk.chapter, inputLnk.vend, outLink.book, outLink.chapter, outLink.vend)) - 1);
-end;
-
-function TBible.IsCommentary: boolean;
-var
-  s: string;
-begin
-  s := ExtractFileDir(FIniFile);
-  s := ExtractFileDir(s);
-
-  s := ExtractFileName(s);
-  Result := UpperCase(s) = 'COMMENTARIES';
 end;
 
 function RussianBibleBookToModuleBook(bookIx: integer; bibleModule: TBible; out book: integer): integer;
@@ -2379,6 +2285,7 @@ end;
   4, 4, 22, 26, 9, 9, 25, 14, 11, 8, 13, 16, 22, 10, 11, 9, 14, 9, 6);
 
 }
+
 initialization
 
 finalization

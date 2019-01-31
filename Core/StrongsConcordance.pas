@@ -31,6 +31,8 @@ type
 
 implementation
 
+uses NativeInfoSourceLoader, InfoSource;
+
 constructor TStrongsConcordance.Create;
 begin
   inherited Create;
@@ -74,17 +76,21 @@ end;
 
 function TStrongsConcordance.InitializeDictionary(dict: TNativeDict; idxFilename: string; htmFilename: string): boolean;
 var
-  idxFilePath: string;
-  htmFilePath: string;
+  IdxFilePath: string;
+  HtmFilePath: string;
+  InfoSource: TInfoSource;
 begin
-  idxFilePath := TPath.Combine(TLibraryDirectories.Strong, idxFilename);
-  htmFilePath := TPath.Combine(TLibraryDirectories.Strong, htmFilename);
+  IdxFilePath := TPath.Combine(TLibraryDirectories.Strong, idxFilename);
+  HtmFilePath := TPath.Combine(TLibraryDirectories.Strong, htmFilename);
+
+  InfoSource := TNativeInfoSourceLoader.LoadNativeInfoSource(TLibraryDirectories.Strong);
 
   FLock.Acquire;
   try
-    Result := dict.Initialize(idxFilePath, htmFilePath);
+    Result := dict.Initialize(IdxFilePath, HtmFilePath, InfoSource);
   finally
     FLock.Release;
+    infoSource.Free;
   end;
 end;
 

@@ -73,6 +73,7 @@ type
     procedure DisplayDictionaries;
     procedure DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
     procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1; const foundDictionaryIndex: integer = -1);
+    procedure SetActiveDictionary(aActiveDicName: String);
   end;
 
 implementation
@@ -94,12 +95,12 @@ begin
   begin
     modEntry := mMainView.mModules.ModTypedAsFirst(modtypeBible);
     if Assigned(modEntry) then
-      modIx := mMainView.mModules.FindByName(modEntry.mFullName);
+      modIx := mMainView.mModules.FindByName(modEntry.FullName);
   end;
 
   if (modIx >= 0) then
   begin
-    modPath := mMainView.mModules[modIx].mShortPath;
+    modPath := mMainView.mModules[modIx].ShortPath;
     bookTabInfo := mMainView.CreateNewBookTabInfo();
 
     if (Pos(C__bqAutoBible, SRC) <> 0) then
@@ -277,6 +278,21 @@ begin
   mXRefVerseCmd := Get_AHREF_VerseCommand(
     bwrDic.DocumentSource,
     bwrDic.SectionList.FindSourcePos(bwrDic.RightMouseClickPos));
+end;
+
+procedure TDictionaryFrame.SetActiveDictionary(aActiveDicName: String);
+var
+  Index: Integer;
+begin
+  Index := cbDicFilter.Items.IndexOf(aActiveDicName);
+
+  if Index <> -1 then
+  begin
+    cbDicFilter.ItemIndex := Index;
+    cbDicFilterChange(nil);
+  end;
+
+
 end;
 
 procedure TDictionaryFrame.tbtnToggleClick(Sender: TObject);

@@ -593,7 +593,7 @@ begin
       modIx := mMainView.mModules.FindByName(AppConfig.DefaultBible);
 
     if modIx >= 0 then
-      replaceModPath := mMainView.mModules[modIx].mShortPath;
+      replaceModPath := mMainView.mModules[modIx].ShortPath;
   end;
 
   if (replaceModPath = '') then
@@ -637,7 +637,7 @@ begin
   try
     if not Assigned(BookTabInfo) then
       Exit;
-    archive := BookTabInfo.Bible.inifile;
+    archive := BookTabInfo.Bible.InfoSource.FileName;
     if (Length(archive) <= 0) or (archive[1] <> '?') then
       Exit;
     getSevenZ().SZFileName := Copy(GetArchiveFromSpecial(archive), 2, $FFFFFF);
@@ -963,7 +963,7 @@ begin
         Exit;
       end;
       me := dtsBible.Tabs.Objects[NewTab] as TModuleEntry;
-      OpenModule(me.mFullName);
+      OpenModule(me.FullName);
     end;
   except
     on E: Exception do
@@ -1006,13 +1006,13 @@ begin
   me := dtsBible.Tabs.Objects[it] as TModuleEntry;
   if IsDown(VK_SHIFT) then
   begin
-    SelectSatelliteBibleByName(me.mFullName);
+    SelectSatelliteBibleByName(me.FullName);
     Exit;
   end;
   if IsDown(VK_MENU) then
   begin
     s := BookTabInfo.Location;
-    StrReplace(s, BookTabInfo.Bible.ShortPath, me.mShortPath, false);
+    StrReplace(s, BookTabInfo.Bible.ShortPath, me.ShortPath, false);
     mMainView.NewBookTab(s, BookTabInfo.SatelliteName, BookTabInfo.State, '', true);
     Exit;
   end;
@@ -1153,7 +1153,7 @@ begin
   end;
 
   me := dtsBible.Tabs.Objects[it] as TModuleEntry;
-  ws := me.mFullName;
+  ws := me.FullName;
 
   if mMainView.hint_expanded = 0 then
     mMainView.hint_expanded := 1;
@@ -1669,7 +1669,7 @@ end;
 
 procedure TBookFrame.OnSelectSatelliteModule(Sender: TObject; modEntry: TModuleEntry);
 begin
-  SelectSatelliteBibleByName(modEntry.mFullName);
+  SelectSatelliteBibleByName(modEntry.FullName);
   PostMessage(mSatelliteForm.Handle, wm_close, 0, 0);
 end;
 
@@ -1866,9 +1866,10 @@ begin
     ix := mMainView.mModules.FindByName(name);
     if ix >= 0 then
     begin
-      ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].mShortPath, 'bibleqt.ini'));
-      if (ini <> BookTabInfo.SecondBible.inifile) then
-        BookTabInfo.SecondBible.inifile := ini;
+      ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].ShortPath, 'bibleqt.ini'));
+      if ini <> BookTabInfo.SecondBible.InfoSource.FileName then
+        BookTabInfo.SecondBible.SetInfoSource(ini);
+
     end;
   end;
 end;
@@ -2058,7 +2059,7 @@ label
       end;
     end;
 
-    bookTabInfo.Bible.inifile := oldPath;
+    bookTabInfo.Bible.SetInfoSource(oldPath);
     bibleLink.modName := bookTabInfo.Bible.ShortPath;
     bibleLink.book := oldbook;
     bibleLink.chapter := oldchapter;
@@ -2082,7 +2083,7 @@ begin
     browserpos := bwrHtml.Position;
     bwrHtml.tag := bsText;
 
-    oldPath := bookTabInfo.Bible.inifile;
+    oldPath := bookTabInfo.Bible.InfoSource.FileName;
     oldbook := bookTabInfo.Bible.CurBook;
     oldchapter := bookTabInfo.Bible.CurChapter;
 
@@ -2113,9 +2114,9 @@ begin
       oldSignature := bookTabInfo.Bible.FullPassageSignature(bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, 0, 0);
 
       // try to load module
-      if path <> bookTabInfo.Bible.inifile then
+      if path <> bookTabInfo.Bible.InfoSource.FileName then
         try
-          bookTabInfo.Bible.inifile := path;
+          bookTabInfo.Bible.SetInfoSource( path );
         except // revert to old location if something goes wrong
           revertToOldLocation();
         end;
@@ -2202,8 +2203,9 @@ begin
         j := Pos('$$$', dup);
         value := MainFileExists(TPath.Combine(Copy(dup, i + 3, j - i - 4), 'bibleqt.ini'));
 
-        if bookTabInfo.Bible.inifile <> value then
-          bookTabInfo.Bible.inifile := value;
+        if bookTabInfo.Bible.InfoSource.FileName <> value then
+          bookTabInfo.Bible.SetInfoSource(value);
+
 
         wasSearchHistory := true;
       end;
@@ -2467,7 +2469,7 @@ begin
     begin
       refBook.InternalToReference(bl, moduleEffectiveLink);
       if (me <> nil) then
-        ConcreteCmd := moduleEffectiveLink.ToCommand(me.mShortPath);
+        ConcreteCmd := moduleEffectiveLink.ToCommand(me.ShortPath);
       Exit;
     end;
   Fail:
@@ -2570,7 +2572,7 @@ begin
   // search for a secondary Bible if the first module is bible
   if bible.isBible then
   begin
-    isCommentary := bible.isCommentary;
+    isCommentary := bible.InfoSource.IsCommentary;
     showStrongs := bookTabInfo[vtisShowStrongs];
     s := bookTabInfo.SatelliteName;
     if (s = '------') or isCommentary then
@@ -2590,7 +2592,7 @@ begin
       { // now UseParaBible will be used if satellite text is found... }
       begin
 
-        secondBible.inifile := modEntry.getIniPath();
+        secondBible.SetInfoSource( modEntry.getIniPath());
 
         secondbook_right_aligned := secondBible.UseRightAlignment;
         UseParaBible := secondBible.ModuleType = bqmBible;
@@ -3080,7 +3082,7 @@ label lblErrNotFnd;
     begin
       me := GetRefBible(currentBibleIx);
       inc(currentBibleIx);
-      refBook.inifile := MainFileExists(me.getIniPath());
+      refBook.SetInfoSource( MainFileExists(me.getIniPath()));
       Result := true;
     end
     else
@@ -3103,7 +3105,7 @@ begin
       // form the path to the ini module
       path := MainFileExists(TPath.Combine(path, 'bibleqt.ini'));
       // try to load the module
-      refBook.inifile := path;
+      refBook.SetInfoSource(path);
     end
     else
       raise Exception.Create('Неверный аргумент GetModuleText:не указан модуль');
@@ -3122,7 +3124,7 @@ begin
       else
         effectiveLnk := ibl;
 
-      status_valid := refBook.LinkValidnessStatus(refBook.inifile, effectiveLnk, false);
+      status_valid := refBook.LinkValidnessStatus(refBook.InfoSource.FileName, effectiveLnk, false);
       effectiveLnk.AssignTo(bl);
       if status_valid < -1 then
         goto lblErrNotFnd;
@@ -3354,8 +3356,8 @@ begin
 
   bible := TBible.Create(mMainView);
 
-  iniPath := TPath.Combine(me.mShortPath, 'bibleqt.ini');
-  bible.inifile := MainFileExists(iniPath);
+  iniPath := TPath.Combine(me.ShortPath, 'bibleqt.ini');
+  bible.SetInfoSource( MainFileExists(iniPath));
 
   if bible.isBible and wasBible and not fromBeginning then
   begin

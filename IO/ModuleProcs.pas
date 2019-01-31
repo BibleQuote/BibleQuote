@@ -22,9 +22,11 @@ type
     mFolderBiblesScanned: Boolean;
     mFolderBooksScanned: Boolean;
     mFolderCommentsScanned: Boolean;
+    mFolderDictionariesScanned: Boolean;
 
     mArchivedModulesScanned: Boolean;
     mArchivedCommentsScanned: Boolean;
+    mArchivedDictionariesScanned: Boolean;
 
     mSecondFolderBiblesScanned: Boolean;
     mSecondFolderBooksScanned: Boolean;
@@ -67,6 +69,7 @@ begin
   mFolderBiblesScanned := false;
   mFolderBooksScanned := false;
   mFolderCommentsScanned := false;
+  mFolderDictionariesScanned := false;
 
   mSecondFolderBiblesScanned := false;
   mSecondFolderBooksScanned := false;
@@ -74,6 +77,7 @@ begin
 
   mArchivedModulesScanned := false;
   mArchivedCommentsScanned := false;
+  mArchivedDictionariesScanned := false;
 
   mScanDone := false;
   mCachedModules := TCachedModules.Create(true);
@@ -201,6 +205,27 @@ begin
         Exit;
       end;
 
+      if not mFolderDictionariesScanned then
+      begin
+        mFolderDictionariesScanned := AddFolderModules(
+          TLibraryDirectories.Dictionaries,
+          tmpBook,
+          background,
+          modtypeDictionary);
+
+        Exit;
+      end;
+
+      if not mArchivedDictionariesScanned then
+      begin
+        mArchivedDictionariesScanned := AddArchivedModules(
+          TPath.Combine(TLibraryDirectories.CompressedModules, C_DictionariesSubDirectory),
+          tmpBook,
+          background);
+
+        Exit;
+      end;
+
       mScanDone := true;
       Result := true;
     end;
@@ -237,7 +262,7 @@ begin
   if mSearchResult = 0 then
     repeat
       try
-        tempBook.inifile := '?' + path + '\' + mSearchRecord.Name + '??' + C_ModuleIniName;
+        tempBook.SetInfoSource( '?' + path + '\' + mSearchRecord.Name + '??' + C_ModuleIniName);
         if (addAsCommentaries) then
           mt := modtypeComment
         else
@@ -257,6 +282,7 @@ begin
           tempBook.GetStucture(),
           tempBook.Categories,
           tempBook.Author,
+          tempBook.ModuleVersion,
           tempBook.ModuleImage,
           tempBook.trait[bqmtStrongs]
         );
@@ -292,37 +318,41 @@ begin
   Count := C_NumOfModulesToScan + (ord(not background) shl 12);
   if not mSearchInitialized then
   begin // init search
-    mSearchResult := FindFirst(TPath.Combine(path, '*.*'), faDirectory, mSearchRecord);
+    mSearchResult := FindFirst(TPath.Combine(path, '*.*'), faAnyFile, mSearchRecord);
     mSearchInitialized := true;
   end;
 
   if (mSearchResult = 0) then // search results are not empty
     repeat
-      modulePath := TPath.Combine(path, mSearchRecord.Name) + '\bibleqt.ini';
-      if (mSearchRecord.Attr and faDirectory = faDirectory) and
-        ((mSearchRecord.Name <> '.') and (mSearchRecord.Name <> '..')) and
-        FileExists(modulePath) then
+      if (mSearchRecord.Name = '.') or (mSearchRecord.Name = '..') then
       begin
-        try
-          tempBook.inifile := modulePath;
+        mSearchResult := FindNext(mSearchRecord);
 
-          modEntry := TModuleEntry.Create(
-            modType,
-            tempBook.Name,
-            tempBook.ShortName,
-            tempBook.ShortPath,
-            EmptyWideStr,
-            tempBook.GetStucture(),
-            tempBook.Categories,
-            tempBook.Author,
-            tempBook.ModuleImage,
-            tempBook.trait[bqmtStrongs]
-          );
+        continue;
+      end;
 
-          mCachedModules.Add(modEntry);
-        except
-        end;
-      end; // if directory
+      modulePath := TPath.Combine(path, mSearchRecord.Name);
+
+
+      if tempBook.SetInfoSource( modulePath ) then
+      begin
+
+        modEntry := TModuleEntry.Create(
+          modType,
+          tempBook.Name,
+          tempBook.ShortName,
+          tempBook.ShortPath,
+          EmptyWideStr,
+          tempBook.GetStucture(),
+          tempBook.Categories,
+          tempBook.Author,
+          tempBook.ModuleVersion,
+          tempBook.ModuleImage,
+          tempBook.trait[bqmtStrongs]
+        );
+
+        mCachedModules.Add(modEntry);
+      end;
 
       Dec(Count);
       mSearchResult := FindNext(mSearchRecord);
@@ -391,6 +421,8 @@ begin
             bookNames,
             cats,
             cachedModulesList[i + 7],
+            // todo: figure out ModuleVersion
+            'ModuleVersion',
             cachedModulesList[i + 8],
             hasStrong
           );
@@ -434,16 +466,16 @@ begin
       moduleEntry := TModuleEntry(mCachedModules[i]);
       with modStringList, moduleEntry do
       begin
-        Add(IntToStr(ord(modType)));
-        Add(mFullName);
-        Add(mShortName);
-        Add(mShortPath);
-        Add(mFullPath);
-        Add(modBookNames);
-        Add(modCats);
-        Add(mAuthor);
-        Add(mCoverPath);
-        Add(BoolToStr(mHasStrong));
+        Add(IntToStr(ord(ModType)));
+        Add(FullName);
+        Add(ShortName);
+        Add(ShortPath);
+        Add(FullPath);
+        Add(ModBookNames);
+        Add(ModCats);
+        Add(Author);
+        Add(CoverPath);
+        Add(BoolToStr(HasStrong));
         Add('***');
       end;
     end;

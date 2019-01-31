@@ -114,7 +114,7 @@ end;
 
 procedure TSearchFrame.OnBookSelect(Sender: TObject; modEntry: TModuleEntry);
 begin
-  SetCurrentBook(modEntry.mShortPath);
+  SetCurrentBook(modEntry.ShortPath);
 
   PostMessage(mBookSelectForm.Handle, wm_close, 0, 0);
 end;
@@ -646,7 +646,7 @@ begin
   mCurrentBook := TBible.Create(mMainView);
 
   iniPath := TPath.Combine(shortPath, 'bibleqt.ini');
-  mCurrentBook.inifile := MainFileExists(iniPath);
+  mCurrentBook.SetInfoSource( MainFileExists(iniPath));
   SearchListInit;
 
   if (mCurrentBook.isBible) then

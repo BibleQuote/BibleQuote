@@ -73,7 +73,15 @@ uses
   NativeDictLoader in 'Core\Dict\NativeDictLoader.pas',
   MyBibleDict in 'Core\Dict\MyBibleDict.pas',
   MyBibleDictLoader in 'Core\Dict\MyBibleDictLoader.pas',
-  DictLoaderFabric in 'Core\Dict\DictLoaderFabric.pas';
+  DictLoaderFabric in 'Core\Dict\DictLoaderFabric.pas',
+  ChapterData in 'Core\ChapterData.pas',
+  InfoSourceLoaderInterface in 'Utils\InfoSource\InfoSourceLoaderInterface.pas',
+  InfoSourceLoaderFabric in 'Utils\InfoSource\InfoSourceLoaderFabric.pas',
+  SelectEntityType in 'Utils\SelectEntityType.pas',
+  NativeInfoSourceLoader in 'Utils\InfoSource\NativeInfoSourceLoader.pas',
+  InfoSource in 'Utils\InfoSource\InfoSource.pas',
+  MyBibleInfoSourceLoader in 'Utils\InfoSource\MyBibleInfoSourceLoader.pas',
+  MyBibleUtils in 'Utils\MyBibleUtils.pas';
 
 {$R *.res}
 

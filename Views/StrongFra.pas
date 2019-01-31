@@ -85,7 +85,7 @@ begin
   mCurrentBook := TBible.Create(mMainView);
 
   iniPath := TPath.Combine(shortPath, 'bibleqt.ini');
-  mCurrentBook.inifile := MainFileExists(iniPath);
+  mCurrentBook.SetInfoSource( MainFileExists(iniPath));
 end;
 
 function TStrongFrame.GetSelectedStrong(): string;
@@ -122,8 +122,8 @@ begin
     if defaultModIx >= 0 then
     begin
       book := TBible.Create(mMainView);
-      bookPath := TPath.Combine(mMainView.mModules[defaultModIx].mShortPath, 'bibleqt.ini');
-      book.inifile := MainFileExists(bookPath);
+      bookPath := TPath.Combine(mMainView.mModules[defaultModIx].ShortPath, 'bibleqt.ini');
+      book.SetInfoSource( MainFileExists(bookPath));
     end;
   end;
 

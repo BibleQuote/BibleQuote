@@ -600,7 +600,7 @@ end;
 
 procedure TDockTabsForm.OnSelectModule(Sender: TObject; modEntry: TModuleEntry);
 begin
-  mMainView.ActivateModuleView(modEntry.mFullName);
+  mMainView.ActivateModuleView(modEntry);
 end;
 
 procedure TDockTabsForm.UpdateBookTabHeader();

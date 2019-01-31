@@ -136,7 +136,7 @@ begin
   mChapter := chapterIndex;
   mVerse := goverse;
 
-  mainBible.inifile := MainFileExists(bibleIniPath);
+  mainBible.SetInfoSource( MainFileExists(bibleIniPath));
   mainBible.OpenChapter(bookIndex, chapterIndex);
 
   if mMainView.mModules.IndexOf(mainBible.Name) = -1 then
@@ -148,7 +148,7 @@ begin
   RefLines := '';
   Links := TStringList.Create;
 
-  secondBible.inifile := mainBible.inifile;
+  secondBible.SetInfoSource( mainBible.InfoSource.FileName);
 
   mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, goverse, book, chapter, verse);
   s := IntToStr(book);

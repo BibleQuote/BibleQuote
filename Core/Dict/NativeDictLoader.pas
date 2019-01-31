@@ -2,12 +2,13 @@ unit NativeDictLoader;
 
 interface
 
-uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, NativeDict;
+uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, NativeDict,
+     InfoSource;
 
 type
   TNativeDictLoader = class(TInterfacedObject, IDictLoader)
   protected
-    function LoadDictionary(aDictIdxFilePath : String): TNativeDict;
+    function LoadDictionary(aDictIdxFilePath : String; aInfoSource: TInfoSource): TNativeDict;
 
   public
     function LoadDictionaries(aFileEntryPath: String; aEngine: IbqEngineDicTraits): Boolean;
@@ -17,7 +18,7 @@ type
 implementation
 
 { TNativeDictLoader }
-uses ExceptionFrm;
+uses ExceptionFrm, NativeInfoSourceLoader;
 
 function TNativeDictLoader.LoadDictionaries(aFileEntryPath: String;
   aEngine: IbqEngineDicTraits): Boolean;
@@ -25,25 +26,33 @@ var
   DictFileList: TStringDynArray;
   i: Integer;
   Dictionary: TNativeDict;
-
+  InfoSource: TInfoSource;
 begin
 
-  DictFileList := TDirectory.GetFiles(aFileEntryPath, '*.idx');
-  for i := 0 to Length(DictFileList) - 1 do
-  begin
+  InfoSource := TNativeInfoSourceLoader.LoadNativeInfoSource(aFileEntryPath);
+  try
 
-    Dictionary := LoadDictionary(DictFileList[i]);
+    DictFileList := TDirectory.GetFiles(aFileEntryPath, '*.idx');
+    if Length(DictFileList) > 0 then
+    begin
 
-    if Assigned(Dictionary) then
-      aEngine.AddDictionary(Dictionary);
+      Dictionary := LoadDictionary(DictFileList[0], InfoSource);
 
+      if Assigned(Dictionary) then
+        aEngine.AddDictionary(Dictionary);
+
+    end;
+
+    Result := True;
+  finally
+    if Assigned(InfoSource) then
+      FreeAndNil(InfoSource);
   end;
-
-  Result := True;
 
 end;
 
-function TNativeDictLoader.LoadDictionary(aDictIdxFilePath: String): TNativeDict;
+function TNativeDictLoader.LoadDictionary(aDictIdxFilePath: String;
+  aInfoSource: TInfoSource): TNativeDict;
 var
   DictHtmlFilePath: string;
   Dictionary: TNativeDict;
@@ -54,7 +63,7 @@ begin
     DictHtmlFilePath := ChangeFileExt(aDictIdxFilePath, '.htm');
 
     Dictionary := TNativeDict.Create;
-    if not Dictionary.Initialize(aDictIdxFilePath, DictHtmlFilePath) then
+    if not Dictionary.Initialize(aDictIdxFilePath, DictHtmlFilePath, aInfoSource) then
     begin
       raise Exception.Create('Error loading '+ExtractFileName(aDictIdxFilePath)+ 'dictionary');
     end;

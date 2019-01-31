@@ -14,7 +14,8 @@ type
     btAllBooks,
     btBibles,
     btCommentaries,
-    btOtherBooks);
+    btOtherBooks,
+    btAllDictionaries);
 
   TSelectModuleEvent = procedure(Sender: TObject; modEntry: TModuleEntry) of object;
 
@@ -37,17 +38,21 @@ type
     mUILock: Boolean;
     mModules: TCachedModules;
 
-    mFontBookName, mFontCopyright, mFontModType: TFont;
+    FFontBookName, FFontCopyright, FFontModuleVersion, FFontModType: TFont;
 
-    mCoverDefault: TPicture;
+    FCoverDefault: TPicture;
 
     FOnSelectModuleEvent: TSelectModuleEvent;
 
+    procedure DrawTextNode(const PaintInfo: TVTPaintInfo; aRect: TRect;
+                           var aTop: Integer; aFont: TFont; aText: String);
     procedure UpdateBookList();
     procedure OnModulesAssign(Sender: TObject);
     procedure UpdateModuleTypes();
 
     procedure InitFonts();
+    function CreateFont(aSize: Integer = 10; aColor: Integer = clBlack;
+                        aStyle: TFontStyles = []; aName: String = ''): TFont;
     procedure InitCoverDefault();
     function GetModuleTypeText(modType: TModuleType): string;
     function GetCoverWidth(): integer;
@@ -69,7 +74,7 @@ var
   COVER_WIDTH:  integer = 60;
   COVER_HEIGHT: integer = 90;
   COVER_OFFSET: integer = 10;
-  TEXT_OFFSET:  integer = 12;
+  TEXT_OFFSET:  integer = 10;
 
 implementation
 
@@ -85,12 +90,48 @@ begin
   InitCoverDefault();  
 end;
 
+function TLibraryFrame.CreateFont(aSize: Integer; aColor: Integer;
+  aStyle: TFontStyles; aName: String): TFont;
+var
+  Font: TFont;
+begin
+  Font := TFont.Create();
+  Result := Font;
+
+  with Font do
+  begin
+    if not aName.IsEmpty then
+    begin
+      Name := aName;
+    end;
+
+    Color := aColor;
+    Style := aStyle;
+    Size := aSize;
+  end;
+
+end;
+
 destructor TLibraryFrame.Destroy();
 begin
-  if Assigned(mCoverDefault) then
-    mCoverDefault.Free;
+  if Assigned(FCoverDefault) then
+    FCoverDefault.Free;
     
   inherited;  
+end;
+
+procedure TLibraryFrame.DrawTextNode(const PaintInfo: TVTPaintInfo; aRect: TRect;
+  var aTop: Integer; aFont: TFont; aText: String);
+var
+  DrawRect: TRect;
+  Height: Integer;
+begin
+    DrawRect := TRect.Create(aRect);
+    DrawRect.Top := aTop;
+    PaintInfo.Canvas.Font := aFont;
+    Height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(aText)), -1, DrawRect, DT_WORDBREAK);
+    aTop := aTop + Height + TEXT_OFFSET;
+
 end;
 
 procedure TLibraryFrame.InitCoverDefault();
@@ -99,7 +140,7 @@ begin
   origCoverImage := nil;
   try
     origCoverImage := LoadResourceImage('CoverDefault');
-    mCoverDefault := StretchImage(origCoverImage, GetCoverWidth, GetCoverHeight);
+    FCoverDefault := StretchImage(origCoverImage, GetCoverWidth, GetCoverHeight);
   finally
     if Assigned(origCoverImage) then
       origCoverImage.Free;
@@ -127,21 +168,10 @@ end;
 
 procedure TLibraryFrame.InitFonts;
 begin
-  mFontBookName := TFont.Create();
-  mFontBookName.Name := 'Segoe UI';
-  mFontBookName.Color := clBlack;
-  mFontBookName.Style := [fsBold];
-  mFontBookName.Size := 10;
-
-  mFontCopyright := TFont.Create();
-  mFontCopyright.Color := clBlack;
-  mFontCopyright.Style := [];
-  mFontCopyright.Size := 9;
-
-  mFontModType := TFont.Create();
-  mFontModType.Color := clGray;
-  mFontModType.Style := [];
-  mFontModType.Size := 9;
+  FFontBookName := CreateFont(10, clBlack, [fsBold], 'Segoe UI');
+  FFontCopyright := CreateFont(9);
+  FFontModuleVersion := CreateFont(9);
+  FFontModType := CreateFont(9, clGray);
 end;
 
 procedure TLibraryFrame.UpdateModuleTypes;
@@ -154,6 +184,7 @@ begin
   cmbBookType.AddItem(Lang.Say('StrBibleTranslations'), TObject(btBibles));
   cmbBookType.AddItem(Lang.Say('StrBooks'), TObject(btOtherBooks));
   cmbBookType.AddItem(Lang.Say('StrCommentaries'), TObject(btCommentaries));
+  cmbBookType.AddItem(Lang.Say('StrAllDictionaries'), TObject(btAllDictionaries));
 
   cmbBookType.ItemIndex := Max(index, 0);
 end;
@@ -239,7 +270,7 @@ begin
       if length(filterText) > 0 then
       begin
         matchType := modEntry.Match(filterTokens, modEntry.mMatchInfo, allMatch);
-        if (matchType = []) or ((modEntry.modType in [modtypeBible, modtypeComment]) and (matchType = [mmtBookName])) then
+        if (matchType = []) or ((modEntry.ModType in [modtypeBible, modtypeComment]) and (matchType = [mmtBookName])) then
           Continue;
       end;
 
@@ -251,6 +282,7 @@ begin
           btBibles: modType := modtypeBible;
           btCommentaries: modType := modtypeComment;
           btOtherBooks: modType := modtypeBook;
+          btAllDictionaries: modType := modtypeDictionary;
         end;
 
         // add only books of selected type
@@ -260,6 +292,7 @@ begin
 
       if (addBook) then
         vdtBooks.InsertNode(nil, amAddChildLast, modEntry);
+
     end;
   finally
     mUILock := false;
@@ -280,7 +313,7 @@ begin
     Exit;
   end;
 
-  Result := OmegaCompareTxt(mod1.mFullName, mod2.mFullName);
+  Result := OmegaCompareTxt(mod1.FullName, mod2.FullName);
 end;
 
 procedure TLibraryFrame.vdtBooksDblClick(Sender: TObject);
@@ -312,11 +345,11 @@ end;
 
 procedure TLibraryFrame.vdtBooksDrawNode(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo);
 var
-  modEntry: TModuleEntry;
-  height, top: integer;
-  rect, drawRect: TRect;
-  picTop: integer;
-  coverPicture: TPicture;
+  ModEntry: TModuleEntry;
+  Top: integer;
+  Rect: TRect;
+  PicTop: integer;
+  CoverPicture: TPicture;
 begin
   if PaintInfo.Node = nil then
     Exit;
@@ -324,37 +357,28 @@ begin
   modEntry := Sender.GetNodeData<TModuleEntry>(PaintInfo.Node);
   if Assigned(modEntry) then
   begin
-    rect := TRect.Create(PaintInfo.CellRect);
-    InflateRect(rect, -COVER_OFFSET, -COVER_OFFSET);
+    Rect := TRect.Create(PaintInfo.CellRect);
+    InflateRect(Rect, -COVER_OFFSET, -COVER_OFFSET);
 
-    if (rect.Height > GetCoverHeight) then
-      picTop := rect.Top + (rect.Height - GetCoverHeight) div 2
+    if (Rect.Height > GetCoverHeight) then
+      PicTop := Rect.Top + (Rect.Height - GetCoverHeight) div 2
     else
-      picTop := rect.Top;
+      PicTop := Rect.Top;
 
-    coverPicture := modEntry.GetCoverImage(GetCoverWidth, GetCoverHeight);
+    CoverPicture := ModEntry.GetCoverImage(GetCoverWidth, GetCoverHeight);
     if Assigned(coverPicture) then
-      PaintInfo.Canvas.Draw(rect.Left, picTop, coverPicture.Graphic)
+      PaintInfo.Canvas.Draw(Rect.Left, PicTop, CoverPicture.Graphic)
     else
-      PaintInfo.Canvas.Draw(rect.Left, picTop, mCoverDefault.Graphic);
-    
-    rect.Left := GetCoverWidth + 2 * COVER_OFFSET;
+      PaintInfo.Canvas.Draw(Rect.Left, PicTop, FCoverDefault.Graphic);
 
-    drawRect := TRect.Create(rect);
-    PaintInfo.Canvas.Font := mFontBookName;
-    height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.mFullName)), -1, drawRect, DT_WORDBREAK);
-    top := rect.Top + height + TEXT_OFFSET;
+    Rect.Left := GetCoverWidth + 2 * COVER_OFFSET;
 
-    drawRect := TRect.Create(rect);
-    drawRect.Top := top;
-    PaintInfo.Canvas.Font := mFontCopyright;
-    height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(modEntry.mAuthor)), -1, drawRect, DT_WORDBREAK);
-    top := top + height + TEXT_OFFSET;
+    Top := Rect.Top;
+    DrawTextNode(PaintInfo, Rect, Top, FFontBookName, ModEntry.FullName);
+    DrawTextNode(PaintInfo, Rect, Top, FFontCopyright, ModEntry.Author);
+    DrawTextNode(PaintInfo, Rect, Top, FFontModuleVersion, ModEntry.ModuleVersion);
+    DrawTextNode(PaintInfo, Rect, Top, FFontModType, GetModuleTypeText(ModEntry.ModType));
 
-    drawRect := TRect.Create(rect);
-    drawRect.Top := top;
-    PaintInfo.Canvas.Font := mFontModType;
-    Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(GetModuleTypeText(modEntry.modType))), -1, drawRect, DT_WORDBREAK);
   end;
 end;
 
@@ -364,6 +388,7 @@ begin
   case modType of
     modtypeBook: text := Lang.Say('StrBooks');
     modtypeComment: text := Lang.Say('StrCommentaries');
+    modtypeDictionary: text := Lang.Say('StrAllDictionaries');
   else
     text := Lang.Say('StrBibleTranslations');
   end;
@@ -400,19 +425,19 @@ begin
 
     textHeight := 2 * COVER_OFFSET;
 
-    TargetCanvas.Font := mFontBookName;
+    TargetCanvas.Font := FFontBookName;
     rect := TRect.Create(measureRect);
-    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.mFullName)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
+    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.FullName)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
     textHeight := textHeight + height + TEXT_OFFSET;
 
-    TargetCanvas.Font := mFontCopyright;
+    TargetCanvas.Font := FFontCopyright;
     rect := TRect.Create(measureRect);
-    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.mShortName)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
+    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.ShortName)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
     textHeight := textHeight + height + TEXT_OFFSET;
 
-    TargetCanvas.Font := mFontModType;
+    TargetCanvas.Font := FFontModType;
     rect := TRect.Create(measureRect);
-    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.modCats)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
+    height := Windows.DrawText(TargetCanvas.Handle, PChar(Pointer(modEntry.ModCats)), -1, rect, DT_WORDBREAK or DT_CALCRECT);
     textHeight := textHeight + height;
 
     NodeHeight := Max(coverHeight, textHeight);

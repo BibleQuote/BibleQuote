@@ -318,7 +318,7 @@ type
 
     procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState; processCommand: boolean = true);
-    procedure OpenOrCreateDictionaryTab(const searchText: string);
+    procedure OpenOrCreateDictionaryTab(const searchText: string; aActiveDictName: String = '');
     procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
     procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
 
@@ -365,7 +365,7 @@ type
     procedure SaveConfiguration;
     procedure SetBibleTabsHintsState(showHints: Boolean = true);
     procedure MainMenuInit(cacheupdate: Boolean);
-    procedure ActivateModuleView(moduleName: string);
+    procedure ActivateModuleView(aModuleEntry: TModuleEntry);
 
     function ChooseColor(color: TColor): TColor;
 
@@ -1473,7 +1473,7 @@ begin
       Exit;
     hotMenuItem := TMenuItem.Create(self);
     hotMenuItem.tag := tag;
-    hotMenuItem.Caption := modEntry.mFullName;
+    hotMenuItem.Caption := modEntry.FullName;
     hotMenuItem.OnClick := OnHotModuleClick;
     favouriteMenuItem.Add(hotMenuItem);
     if not addBibleTab then
@@ -1684,7 +1684,7 @@ begin
 
   if Assigned(bookView.BookTabInfo) then
   begin
-    if bookView.BookTabInfo.Bible.inifile <> '' then
+    if Assigned(bookView.BookTabInfo.Bible.InfoSource) then
     begin
       with bookView.BookTabInfo.Bible do
         s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse);
@@ -2063,7 +2063,7 @@ begin
     if (i < 0) then
       modName := ' '
     else
-      modName := mModules[i].mFullName;
+      modName := mModules[i].FullName;
     if not Assigned(PasswordBox) then
       PasswordBox := TPasswordBox.Create(self);
     with PasswordBox do
@@ -2560,7 +2560,7 @@ begin
 
     hotMenuItem := TMenuItem.Create(self);
     hotMenuItem.tag := integer(newMe);
-    hotMenuItem.Caption := newMe.mFullName;
+    hotMenuItem.Caption := newMe.FullName;
     hotMenuItem.OnClick := OnHotModuleClick;
 
     favouriteMenuItem.Insert(ix + i, hotMenuItem);
@@ -2702,28 +2702,25 @@ begin
   mDefaultLocation := DefaultLocation();
 end;
 
-procedure TMainForm.ActivateModuleView(moduleName: string);
+procedure TMainForm.ActivateModuleView(aModuleEntry: TModuleEntry);
 var
-  i: integer;
-  me: TModuleEntry;
   command: string;
 begin
-  i := mModules.FindByName(moduleName);
-  if i < 0 then
-  begin
-    g_ExceptionContext.Add('In GoModuleName: cannot find specified module name:' + moduleName);
-    raise Exception.Create('Exception mModules.FindByName failed!');
+
+  command := 'go ' + aModuleEntry.ShortPath + ' 1 1 0';
+
+  case aModuleEntry.modType of
+  modtypeDictionary: OpenOrCreateDictionaryTab('', aModuleEntry.FullName);
+  else
+    OpenOrCreateBookTab(
+        command,
+        SatelliteBible,
+        DefaultBookTabState(),
+        false);
+
   end;
-
-  me := mModules.Items[i];
-  command := 'go ' + me.mShortPath + ' 1 1 0';
-
-  OpenOrCreateBookTab(
-      command,
-      SatelliteBible,
-      DefaultBookTabState(),
-      false);
 end;
+
 
 procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
@@ -3150,7 +3147,7 @@ begin
   while Assigned(bibleModuleEntry) do
   begin
     s := bibleModuleEntry.getIniPath();
-    secBible.inifile := s;
+    secBible.SetInfoSource(s);
 
     // don't display New Testament mixed with Old Testament...
     if (bible.CurBook < 40) and (bible.Trait[bqmtOldCovenant]) and (not secBible.Trait[bqmtOldCovenant]) then
@@ -3292,7 +3289,7 @@ begin
       raise Exception.Create
         ('Модули не найдены! Проверьте наличие директории Library в корневой директории BibleQuote.');
 
-    Result := bibleModuleEntry.mShortPath;
+    Result := bibleModuleEntry.ShortPath;
   except
     on E: Exception do
     begin
@@ -3556,14 +3553,14 @@ begin
       for i := 0 to fc do
       begin
         try
-          tempBook.inifile :=
-            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).mShortPath + '\bibleqt.ini');
+          tempBook.SetInfoSource(
+            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).ShortPath + '\bibleqt.ini'));
 
           openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
 
           if openSuccess then
           begin
-            bible.inifile := tempBook.inifile;
+            bible.SetInfoSource(tempBook.InfoSource);
             break;
           end;
         except
@@ -3577,14 +3574,14 @@ begin
         begin
           try
 
-            modName := moduleEntry.mFullName;
+            modName := moduleEntry.FullName;
 
-            modPath := moduleEntry.mShortPath;
-            tempBook.inifile := MainFileExists(TPath.Combine(modPath, 'bibleqt.ini'));
+            modPath := moduleEntry.ShortPath;
+            tempBook.SetInfoSource( MainFileExists(TPath.Combine(modPath, 'bibleqt.ini')));
             openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin
-              bible.inifile := tempBook.inifile;
+              bible.SetInfoSource( tempBook.InfoSource);
               break;
             end;
           except
@@ -4208,7 +4205,7 @@ begin
   NewBookTab(command, satellite, state, '', true);
 end;
 
-procedure TMainForm.OpenOrCreateDictionaryTab(const searchText: string);
+procedure TMainForm.OpenOrCreateDictionaryTab(const searchText: string; aActiveDictName: String);
 var
   i: integer;
   tabInfo: IViewTabInfo;
@@ -4248,6 +4245,12 @@ begin
   dictionaryView := mWorkspace.DictionaryView as TDictionaryFrame;
   if (newTab) then
     dictionaryView.DisplayDictionaries;
+
+  if not aActiveDictName.IsEmpty then
+  begin
+    dictionaryView.SetActiveDictionary(aActiveDictName);
+  end;
+
 
   if (searchText.Length > 0) then
     dictionaryView.UpdateSearch(searchText);
@@ -4862,7 +4865,7 @@ begin
   hotMi := FavoriteItemFromModEntry(oldMe);
   if Assigned(hotMi) then
   begin
-    hotMi.Caption := newMe.mFullName;
+    hotMi.Caption := newMe.FullName;
     hotMi.tag := integer(newMe);
   end;
 
