@@ -136,7 +136,7 @@ begin
   mChapter := chapterIndex;
   mVerse := goverse;
 
-  mainBible.SetInfoSource( MainFileExists(bibleIniPath));
+  mainBible.SetInfoSource(ResolveFullPath(bibleIniPath));
   mainBible.OpenChapter(bookIndex, chapterIndex);
 
   if mMainView.mModules.IndexOf(mainBible.Name) = -1 then

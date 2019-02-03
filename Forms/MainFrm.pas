@@ -2974,13 +2974,13 @@ begin
     fname2 := Format('%s\%.2d\%.2d', [bible.SoundDirectory, book, chapter]);
   end;
 
-  find := MainFileExists(fname3 + '.wav');
+  find := ResolveFullPath(fname3 + '.wav');
   if find = '' then
-    find := MainFileExists(fname3 + '.mp3');
+    find := ResolveFullPath(fname3 + '.mp3');
   if find = '' then
-    find := MainFileExists(fname2 + '.wav');
+    find := ResolveFullPath(fname2 + '.wav');
   if find = '' then
-    find := MainFileExists(fname2 + '.mp3');
+    find := ResolveFullPath(fname2 + '.mp3');
 
   if find = '' then
     ShowMessage(Format(Lang.Say('SoundNotFound'), [mWorkspace.Browser.DocumentTitle]))
@@ -3537,7 +3537,7 @@ begin
       begin
         try
           tempBook.SetInfoSource(
-            MainFileExists(TModuleEntry(mFavorites.mModuleEntries[i]).ShortPath + '\bibleqt.ini'));
+            ResolveFullPath(TModuleEntry(mFavorites.mModuleEntries[i]).ShortPath + '\bibleqt.ini'));
 
           openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
 
@@ -3560,7 +3560,7 @@ begin
             modName := moduleEntry.FullName;
 
             modPath := moduleEntry.ShortPath;
-            tempBook.SetInfoSource( MainFileExists(TPath.Combine(modPath, 'bibleqt.ini')));
+            tempBook.SetInfoSource(ResolveFullPath(TPath.Combine(modPath, 'bibleqt.ini')));
             openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin

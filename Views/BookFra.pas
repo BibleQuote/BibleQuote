@@ -1864,7 +1864,7 @@ begin
     ix := mMainView.mModules.FindByName(name);
     if ix >= 0 then
     begin
-      ini := MainFileExists(TPath.Combine(mMainView.mModules[ix].ShortPath, 'bibleqt.ini'));
+      ini := ResolveFullPath(TPath.Combine(mMainView.mModules[ix].ShortPath, 'bibleqt.ini'));
       if ini <> BookTabInfo.SecondBible.InfoSource.FileName then
         BookTabInfo.SecondBible.SetInfoSource(ini);
 
@@ -2049,7 +2049,7 @@ label
   begin
     if oldPath = '' then
     begin
-      oldPath := MainFileExists(TPath.Combine(mMainView.mDefaultLocation, C_ModuleIniName));
+      oldPath := ResolveFullPath(TPath.Combine(mMainView.mDefaultLocation, C_ModuleIniName));
       if bwrHtml.GetTextLen() <= 0 then
       begin
         ProcessCommand(bookTabInfo, Format('go %s 1 1 1', [mMainView.mDefaultLocation]), hlFalse);
@@ -2104,7 +2104,7 @@ begin
         bibleLink.FromBqStringLocation(ConcreteCmd);
       end;
 
-      path := MainFileExists(bibleLink.GetIniFileShortPath());
+      path := ResolveFullPath(bibleLink.GetIniFileShortPath());
 
       if Length(path) < 1 then
         goto exitlabel;
@@ -2199,7 +2199,7 @@ begin
       if i > 0 then
       begin
         j := Pos('$$$', dup);
-        value := MainFileExists(TPath.Combine(Copy(dup, i + 3, j - i - 4), 'bibleqt.ini'));
+        value := ResolveFullPath(TPath.Combine(Copy(dup, i + 3, j - i - 4), 'bibleqt.ini'));
 
         if bookTabInfo.Bible.InfoSource.FileName <> value then
           bookTabInfo.Bible.SetInfoSource(value);
@@ -3079,7 +3079,7 @@ label lblErrNotFnd;
     begin
       me := GetRefBible(currentBibleIx);
       inc(currentBibleIx);
-      refBook.SetInfoSource( MainFileExists(me.getIniPath()));
+      refBook.SetInfoSource(ResolveFullPath(me.getIniPath()));
       Result := true;
     end
     else
@@ -3101,7 +3101,7 @@ begin
     if path <> C__bqAutoBible then
     begin
       // form the path to the ini module
-      path := MainFileExists(TPath.Combine(path, 'bibleqt.ini'));
+      path := ResolveFullPath(TPath.Combine(path, 'bibleqt.ini'));
       // try to load the module
       refBook.SetInfoSource(path);
     end
@@ -3355,7 +3355,7 @@ begin
   bible := TBible.Create(mMainView);
 
   iniPath := TPath.Combine(me.ShortPath, 'bibleqt.ini');
-  bible.SetInfoSource( MainFileExists(iniPath));
+  bible.SetInfoSource( ResolveFullPath(iniPath));
 
   if bible.isBible and wasBible and not fromBeginning then
   begin
