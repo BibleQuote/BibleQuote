@@ -257,9 +257,8 @@ function StrGetTokenByIx(tknString: string; tokenIx: integer): string;
 function GetTokenFromString(pStr: PChar; delim: Char; out len: integer): PChar;
 function PeekToken(pC: PChar; delim: Char): string;
 
-function MainFileExists(s: string): string;
+function ResolveFullPath(Path: string): String;
 function GetCallerEIP(): Pointer;
-function GetCallerEbP(): Pointer;
 procedure cleanUpInstalledFonts();
 
 type
@@ -1152,7 +1151,7 @@ end;
 
 function TModuleEntry.getIniPath: string;
 begin
-  result := MainFileExists(TPath.Combine(ShortPath, C_ModuleIniName));
+  result := ResolveFullPath(TPath.Combine(ShortPath, C_ModuleIniName));
 end;
 
 constructor TModuleEntry.Create(
@@ -1924,32 +1923,45 @@ begin
 
   end;
 
-  function MainFileExists(s: string): string;
+  function ResolveFullPath(Path: String): String;
   var
-    filePath, fullPath, modfolder: string;
+    Directory, ZipPath, FullPath, Root: string;
+    Roots: TArray<String>;
   begin
-    result := '';
-    // compressed modules take precedence over other modules
-    filePath := ExtractFilePath(s);
-    modfolder := Copy(filePath, 1, Length(filePath) - 1);
-    fullPath := TPath.Combine(TAppDirectories.Root, modfolder + '.bqb');
+    Directory := ExtractFileDir(Path);
 
-    if FileExists(fullPath) then
-      result := '?' + fullPath + '??' + C_ModuleIniName
-    else if FileExists(TPath.Combine(TAppDirectories.Root, s)) then
-      result := TPath.Combine(TAppDirectories.Root, s)
-    else if FileExists(TPath.Combine(AppConfig.SecondPath , s)) then
-      result := TPath.Combine(AppConfig.SecondPath, s)
+    // compressed modules take precedence over other modules
+    ZipPath := TPath.Combine(TAppDirectories.Root, Directory + '.bqb');
+    if FileExists(ZipPath) then
+      Result := '?' + ZipPath + '??' + C_ModuleIniName
+    else
+    begin
+      if TPath.IsPathRooted(Path) then
+        Result := Path;
+
+      Roots := [
+        TAppDirectories.Root,
+        TLibraryDirectories.Root,
+        TLibraryDirectories.Bibles,
+        TLibraryDirectories.Books,
+        TLibraryDirectories.Commentaries,
+        AppConfig.SecondPath];
+
+      for Root in Roots do
+      begin
+        FullPath := TPath.Combine(Root, Path);
+        if FileExists(FullPath) then
+        begin
+          Result := FullPath;
+          Exit;
+        end;
+      end;
+    end;
   end;
 
   function GetCallerEIP(): Pointer; assembler;
   asm
     mov eax,dword ptr [esp]
-  end;
-
-  function GetCallerEbP(): Pointer; assembler;
-  asm
-    mov eax, ebp
   end;
 
 {$ENDREGION}

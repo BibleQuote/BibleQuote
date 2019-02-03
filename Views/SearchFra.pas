@@ -646,7 +646,7 @@ begin
   mCurrentBook := TBible.Create(mMainView);
 
   iniPath := TPath.Combine(shortPath, 'bibleqt.ini');
-  mCurrentBook.SetInfoSource( MainFileExists(iniPath));
+  mCurrentBook.SetInfoSource(ResolveFullPath(iniPath));
   SearchListInit;
 
   if (mCurrentBook.isBible) then
