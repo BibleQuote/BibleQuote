@@ -54,7 +54,20 @@ end;
 
 class function TSelectEntityType.IsNativeInfoSource(
   aFileEntryPath: String): Boolean;
+var
+  EndPos: integer;
 begin
+  // check if module is archive
+  if (aFileEntryPath.StartsWith('?')) then
+  begin
+    EndPos := Pos('??', aFileEntryPath);
+    if (EndPos <= 0) then
+      raise Exception.Create('Invalid archive path: ' + aFileEntryPath);
+
+    Result := FileExists(Copy(aFileEntryPath, 2, EndPos - 2));
+    Exit;
+  end;
+
   Result := FileExists(FormBibleqtIniPath(aFileEntryPath));
 end;
 
