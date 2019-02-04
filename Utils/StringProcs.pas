@@ -17,7 +17,7 @@ function IniStringFirstPart(s: string): string;
 function IniStringSecondPart(s: string): string;
 
 function StrReplace(var s: string; const substr1, substr2: string; recurse: boolean): boolean;
-function StrColorUp(var s: string; const wrd, c1, c2: string; casesensitive: boolean): boolean;
+function StrColorUp(var Source: string; const Word, C1, C2: string; MatchCase: boolean): boolean;
 
 function StrDeleteFirstNumber(var s: string): string;
 function StrGetFirstNumber(s: string): string;
@@ -233,44 +233,36 @@ begin
     Result := '';
 end;
 
-function StrColorUp(var s: string; const wrd, c1, c2: string; casesensitive: boolean): boolean;
+function StrColorUp(var Source: string; const Word, C1, C2: string; MatchCase: Boolean): Boolean;
 var
-  i, len1: integer;
-  res, slow, wrdlow: string;
+  I, Len: integer;
+  Res: String;
+  StringSearchOptions: TStringSearchOptions;
 begin
-  if not casesensitive then
-  begin
-    slow := LowerCase(s);
-    wrdlow := LowerCase(wrd);
-  end
-  else
-  begin
-    slow := s;
-    wrdlow := wrd;
-  end;
+  StringSearchOptions := [soDown];
+  if MatchCase then
+    Include(StringSearchOptions, soMatchCase);
 
   Result := true;
 
-  i := Pos(wrdlow, slow);
-  if i = 0 then
+  I := FindPosition(Source, Word, 0, StringSearchOptions);
+  if I = 0 then
   begin
-    Result := false;
+    Result := False;
     Exit;
   end;
 
-  len1 := Length(wrdlow);
+  Len := Length(Word);
 
-  res := '';
+  Res := '';
   repeat
-    res := res + Copy(s, 1, i - 1) + c1 + Copy(s, i, Length(wrdlow)) + c2;
+    Res := Res + Copy(Source, 1, I - 1) + C1 + Copy(Source, I, Len) + C2;
+    Source := Copy(Source, I + Len, Length(Source));
 
-    s := Copy(s, i + len1, Length(s));
-    slow := Copy(slow, i + len1, Length(slow));
+    I := FindPosition(Source, Word, 0, StringSearchOptions);
+  until I = 0;
 
-    i := Pos(wrdlow, slow);
-  until i = 0;
-
-  s := res + s;
+  Source := Res + Source;
 end;
 
 function StrReplace(var s: string; const substr1, substr2: string; recurse: boolean): boolean;

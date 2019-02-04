@@ -8,7 +8,7 @@ uses
   Windows, Messages, SysUtils, Classes, IOUtils, Types,
   Graphics, Controls, Forms, Dialogs, IOProcs,
   StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices, AppPaths,
-  InfoSource;
+  InfoSource, StrUtils;
 
 const
   RusToEngTable: array [1 .. 27] of integer = (1, 2, 3, 4, 5, 20, 21, 22, 23,
@@ -143,11 +143,9 @@ const
   C_TotalPsalms = 150;
 
   // search params bits
-  spWordParts = $01;
-  spContainAll = $02;
-  spFreeOrder = $04;
-  spAnyCase = $08;
-  spExactPhrase = $10;
+type
+  TSearchOption = (soWordParts, soContainAll, soFreeOrder, soIgnoreCase, soExactPhrase, soSkipSearch);
+  TSearchOptions = set of TSearchOption;
 
 type
   TBibleSet = set of 0 .. 255;
@@ -261,8 +259,8 @@ type
     procedure InitializeAlphabet(aInfoSource: TInfoSource);
     procedure InitializePaths(aInfoSource: TInfoSource);
 
-    function SearchOK(source: string; words: TStrings; params: byte): boolean;
-    procedure SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean; callback: IBookSearchCallback);
+    function SearchOK(Source: string; Words: TStrings; SearchOptions: TSearchOptions): Boolean;
+    procedure SearchBook(Words: TStrings; SearchOptions: TSearchOptions; Book: Integer; RemoveStrongs: Boolean; Callback: IBookSearchCallback);
     procedure SetHTMLFilter(value: string);
 
     function toInternal(
@@ -359,7 +357,7 @@ type
     function OpenTSKReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
     function OpenRussianReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 
-    procedure Search(searchText: string; params: byte; bookset: TBibleSet; removeStrongs: boolean; callback: IBookSearchCallback);
+    procedure Search(SearchText: string; SearchOptions: TSearchOptions; Bookset: TBibleSet; RemoveStrongs: boolean; Callback: IBookSearchCallback);
     procedure StopSearching;
 
     procedure ClearBuffers;
@@ -807,120 +805,126 @@ begin
   Result := true;
 end;
 
-function TBible.SearchOK(source: string; words: TStrings; params: byte): boolean;
+function TBible.SearchOK(Source: string; Words: TStrings; SearchOptions: TSearchOptions): Boolean;
 var
-  i, lastpos, curpos: integer;
-  res, stopKeyword, sr: boolean;
-  src, wrd: string;
+  I, Lastpos, Curpos: Integer;
+  Res, StopKeyword, Sr: boolean;
+  Src, Wrd: string;
+  StringSearchOptions: TStringSearchOptions;
 begin
-  res := true;
+  Res := True;
+  Src := Source;
 
-  src := source;
+  StringSearchOptions := [soDown];
+  if not (soIgnoreCase in SearchOptions) then
+    Include(StringSearchOptions, soMatchCase);
 
-  if (params and spWordParts <> spWordParts) then
+  if not (soWordParts in SearchOptions) then
   begin
-    for i := 1 to length(src) do
-      if not GetAlphabetBit(integer(src[i])) then
-        src[i] := ' ';
+    for i := 1 to Length(Src) do
+      if not GetAlphabetBit(Integer(Src[i])) then
+        Src[i] := ' ';
 
     if FBible then
     begin
-      src := Trim(src);
-      StrDeleteFirstNumber(src);
+      Src := Trim(Src);
+      StrDeleteFirstNumber(Src);
     end;
 
-    src := ' ' + src + ' ';
+    Src := ' ' + Src + ' ';
   end;
 
-  if (params and spAnyCase = spAnyCase) then
-    src := LowerCase(src);
+  //if (soIgnoreCase in SearchOptions) then
+  //  Src := LowerCase(Src);
 
-  if not(params and spContainAll = spContainAll) then
+  if not (soContainAll in SearchOptions) then
   begin
-    res := False;
+    Res := False;
 
-    for i := 0 to words.Count - 1 do
+    for i := 0 to Words.Count - 1 do
     begin
-      wrd := words[i];
-      stopKeyword := ((wrd[1] = '-') or ((length(wrd) > 1) and (wrd[1] = ' ')
-        and (wrd[2] = '-')) { second } );
-      if stopKeyword then
-        if (params and $F0 > 0) then
-          continue // just skip as nothing
+      Wrd := Words[i];
+      StopKeyword := ((Wrd[1] = '-') or ((Length(Wrd) > 1) and (Wrd[1] = ' ') and (Wrd[2] = '-')) { second } );
+
+      if StopKeyword then
+        if (soSkipSearch in SearchOptions) then
+          Continue // just skip as nothing
         else
         begin
-          if wrd[1] = '-' then
-            wrd := Copy(wrd, 2, 1024)
+          if Wrd[1] = '-' then
+            Wrd := Copy(Wrd, 2, 1024)
           else
-            wrd := Copy(wrd, 3, 1024);
-          words.objects[i] := TObject(-1);
+            Wrd := Copy(Wrd, 3, 1024);
+          Words.Objects[i] := TObject(-1);
         end;
-      if (params and spAnyCase = spAnyCase) then
-        wrd := LowerCase(wrd);
-      sr := (Pos(wrd, src) > 0);
-      if stopKeyword and sr then
+
+      //if (soIgnoreCase in SearchOptions) then
+      //  Wrd := LowerCase(Wrd);
+
+      Sr := (FindPosition(Wrd, Src, 1, StringSearchOptions) > 0);
+      if StopKeyword and Sr then
       begin
-        res := False;
-        break;
+        Res := False;
+        Break;
       end;
 
-      res := res or sr;
+      Res := Res or Sr;
     end;
 
-    Result := res;
-    exit;
+    Result := Res;
+    Exit;
   end;
 
-  i := 0;
-  lastpos := 0;
+  I := 0;
+  Lastpos := 0;
 
   repeat
-    wrd := words[i];
-    stopKeyword := ((wrd[1] = '-') or ((length(wrd) > 1) and (wrd[1] = ' ') and
-      (wrd[2] = '-')) { second } );
-    if stopKeyword then
+    Wrd := Words[i];
+    StopKeyword := ((Wrd[1] = '-') or ((Length(Wrd) > 1) and (Wrd[1] = ' ') and (Wrd[2] = '-')) { second } );
+    if StopKeyword then
     begin
 
-      if (params and $F0 > 0) then
+      if (soSkipSearch in SearchOptions) then
       begin
         Inc(i);
-        continue;
+        Continue;
       end
       else
       begin
-        if wrd[1] = '-' then
-          wrd := Copy(wrd, 2, 1024)
+        if Wrd[1] = '-' then
+          Wrd := Copy(Wrd, 2, 1024)
         else
-          wrd := Copy(wrd, 3, 1024);
-
+          Wrd := Copy(Wrd, 3, 1024);
       end;
     end;
 
-    if (params and spAnyCase = spAnyCase) then
-      wrd := LowerCase(wrd);
+    //if (soIgnoreCase in SearchOptions) then
+    //  Wrd := LowerCase(Wrd);
 
-    curpos := Pos(wrd, src);
-    sr := (curpos > 0) xor stopKeyword;
+    Curpos := FindPosition(Src, Wrd, 1, StringSearchOptions);
+    Sr := (Curpos > 0) xor StopKeyword;
 
-    res := res and sr;
-    if not res then
-      break;
+    Res := Res and Sr;
+    if not Res then
+      Break;
 
-    if not stopKeyword and not(params and spFreeOrder = spFreeOrder) then
+    if not StopKeyword and not (soFreeOrder in SearchOptions) then
     begin
-      if curpos < lastpos then
+      if Curpos < Lastpos then
       begin
-        res := False;
-        break;
+        Res := False;
+        Break;
       end
       else
-        lastpos := curpos;
+        Lastpos := curpos;
     end;
-    words.objects[i] := TObject(curpos);
-    Inc(i);
-  until (not res) or (i = words.Count);
 
-  Result := res;
+    Words.Objects[i] := TObject(Curpos);
+    Inc(i);
+
+  until (not Res) or (i = Words.Count);
+
+  Result := Res;
 end;
 
 function compareKeyWords(List: TStringList; Index1, Index2: integer): integer;
@@ -928,17 +932,17 @@ begin
   Result := integer(List.objects[Index1]) - integer(List.objects[Index2]);
 end;
 
-procedure TBible.SearchBook(words: TStrings; params: byte; book: integer; removeStrongs: boolean; callback: IBookSearchCallback);
+procedure TBible.SearchBook(Words: TStrings; SearchOptions: TSearchOptions; Book: Integer; RemoveStrongs: Boolean; Callback: IBookSearchCallback);
 var
-  i, chapter, verse: integer;
-  btmp, tmpwords: TStringList; // lines buffer from the book
-  s, snew: string;
-  newparams: byte;
+  I, Chapter, Verse: Integer;
+  Btmp, TempWords: TStringList; // lines buffer from the book
+  S, SNew: string;
+  NewParams: TSearchOptions;
 begin
-  chapter := 0;
-  verse := 0;
+  Chapter := 0;
+  Verse := 0;
 
-  tmpwords := TStringList.Create;
+  TempWords := TStringList.Create;
 
   {
     first, we're search in the book as a whole string,
@@ -947,116 +951,113 @@ begin
     they will be used later on a verse basis
   }
 
-  if (params and spExactPhrase = spExactPhrase) and trait[bqmtStrongs] then
+  if (soExactPhrase in SearchOptions) and trait[bqmtStrongs] then
   begin
-    newparams := params - spExactPhrase + spWordParts;
+    NewParams := SearchOptions - [soExactPhrase] + [soWordParts];
     // we're filter results for exact phrases later...
     // in books with Strong's numbers we first search for non-exact phrase
-    s := Trim(words[0]);
-    while s <> '' do
+    S := Trim(Words[0]);
+    while S <> '' do
     begin
-      snew := DeleteFirstWord(s);
-      tmpwords.Add(snew);
+      SNew := DeleteFirstWord(S);
+      TempWords.Add(SNew);
     end;
   end
   else
   begin
-    if not(params and spFreeOrder = spFreeOrder) then
-      newparams := params + spFreeOrder
+    if not (soFreeOrder in SearchOptions) then
+      NewParams := SearchOptions + [soFreeOrder]
     else
-      newparams := params;
+      NewParams := SearchOptions;
 
-    tmpwords.AddStrings(words);
+    TempWords.AddStrings(Words);
   end;
 
   ReadHtmlTo(FPath + PathNames[book], BookLines, DefaultEncoding);
 
   // if the whole book doesn't have matches, just skip it
-  if not SearchOK(BookLines.Text, tmpwords, newparams or $F0) then
-    exit;
+  if not SearchOK(BookLines.Text, TempWords, NewParams + [soSkipSearch]) then
+    Exit;
 
-  if not(params and spFreeOrder = spFreeOrder) then
-    newparams := newparams - spFreeOrder;
+  if not (soFreeOrder in SearchOptions) then
+    NewParams := NewParams - [soFreeOrder];
 
   // reformat BookLines to complete VERSES, because verses can go in several lines
-  btmp := TStringList.Create;
+  Btmp := TStringList.Create;
 
-  s := '';
+  S := '';
 
-  for i := 0 to BookLines.Count - 1 do
+  for I := 0 to BookLines.Count - 1 do
   begin
-    if (Pos(FChapterSign, BookLines[i]) > 0) or
-      (Pos(FVerseSign, BookLines[i]) > 0) then
+    if (Pos(FChapterSign, BookLines[I]) > 0) or (Pos(FVerseSign, BookLines[I]) > 0) then
     begin
-      btmp.Add(s);
-      s := BookLines[i];
+      Btmp.Add(S);
+      S := BookLines[I];
     end
     else
-      s := s + ' ' + BookLines[i]; // concatenate paragraphs
+      S := S + ' ' + BookLines[I]; // concatenate paragraphs
   end;
 
-  btmp.Add(s);
+  Btmp.Add(S);
 
   BookLines.Clear;
-  BookLines.AddStrings(btmp);
+  BookLines.AddStrings(Btmp);
 
   // reformat finished
 
-  for i := 0 to BookLines.Count - 1 do
+  for I := 0 to BookLines.Count - 1 do
   begin
     if FStopSearching then
       break;
 
-    if Pos(FChapterSign, BookLines[i]) <> 0 then
+    if Pos(FChapterSign, BookLines[I]) <> 0 then
     begin
-      Inc(chapter);
-      verse := 0;
+      Inc(Chapter);
+      Verse := 0;
       continue;
     end;
 
-    if Pos(FVerseSign, BookLines[i]) <> 0 then
+    if Pos(FVerseSign, BookLines[I]) <> 0 then
     begin
-      Inc(verse);
+      Inc(Verse);
 
-      if SearchOK(BookLines[i], tmpwords, newparams) and (chapter > 0) then
+      if SearchOK(BookLines[I], TempWords, NewParams) and (Chapter > 0) then
       begin
-        if ((params and spExactPhrase = spExactPhrase) and trait[bqmtStrongs])
-          and (not SearchOK(DeleteStrongNumbers(BookLines[i]), words, params))
-        then
-          continue; // filter for exact phrases
+        if ((soExactPhrase in SearchOptions) and Trait[bqmtStrongs]) and (not SearchOK(DeleteStrongNumbers(BookLines[I]), Words, SearchOptions)) then
+          Continue; // filter for exact phrases
 
         Inc(FVersesFound);
-        if Assigned(callback) then
-          callback.OnVerseFound(Self, FVersesFound, book, chapter, verse, BookLines[i], removeStrongs);
+        if Assigned(Callback) then
+          Callback.OnVerseFound(Self, FVersesFound, Book, Chapter, Verse, BookLines[I], RemoveStrongs);
       end;
     end;
   end;
 
-  btmp.Free;
-  tmpwords.Free;
+  Btmp.Free;
+  TempWords.Free;
 end;
 
-procedure TBible.Search(searchText: string; params: byte; bookset: TBibleSet; removeStrongs: boolean; callback: IBookSearchCallback);
+procedure TBible.Search(SearchText: string; SearchOptions: TSearchOptions; Bookset: TBibleSet; RemoveStrongs: boolean; Callback: IBookSearchCallback);
 var
   words: TStrings;
   w: string;
   i: integer;
 begin
   words := TStringList.Create;
-  w := searchText;
+  w := SearchText;
 
   FLines.Clear;
 
   FVersesFound := 0;
   FStopSearching := False;
 
-  if (params and spExactPhrase <> spExactPhrase) then
+  if (soExactPhrase in SearchOptions) then
     while w <> '' do
       words.Add(DeleteFirstWord(w))
   else
-    words.Add(Trim(searchText));
+    words.Add(Trim(SearchText));
 
-  if (params and spWordParts <> spWordParts) then
+  if not (soWordParts in SearchOptions) then
   begin
     for i := 0 to words.Count - 1 do
       words[i] := ' ' + words[i] + ' ';
@@ -1065,20 +1066,20 @@ begin
   if words.Count > 0 then
   begin
     for i := 1 to FBookQty do
-      if (i - 1) in bookset then
+      if (i - 1) in Bookset then
       begin
         if FStopSearching then
           break;
 
-        if Assigned(callback) then
-          callback.OnVerseFound(Self, FVersesFound, i, 0, 0, '', removeStrongs);
+        if Assigned(Callback) then
+          Callback.OnVerseFound(Self, FVersesFound, i, 0, 0, '', RemoveStrongs);
         // just to know that there is a searching -- fire an event
         try
-          SearchBook(words, params, i, removeStrongs, callback);
+          SearchBook(words, SearchOptions, i, RemoveStrongs, Callback);
         except
           on e: Exception do
           begin
-            g_ExceptionContext.Add(Format('TBible.Search: s=%s | i(cbook)=%d', [searchText, i]));
+            g_ExceptionContext.Add(Format('TBible.Search: s=%s | i(cbook)=%d', [SearchText, i]));
             BqShowException(e);
           end;
         end;
@@ -1087,8 +1088,8 @@ begin
 
   words.Free;
 
-  if Assigned(callback) then
-    callback.OnSearchComplete(Self);
+  if Assigned(Callback) then
+    Callback.OnSearchComplete(Self);
 
 end;
 

@@ -141,108 +141,108 @@ end;
 
 procedure TSearchFrame.btnFindClick(Sender: TObject);
 var
-  s: set of 0 .. 255;
-  searchText, wrd, wrdnew, books: string;
-  params: byte;
-  lnks: TStringList;
-  book, chapter, v1, v2, linksCnt, i: integer;
+  S: set of 0 .. 255;
+  SearchText, Wrd, Wrdnew, Books: string;
+  SearchOptions: TSearchOptions;
+  Lnks: TStringList;
+  Book, Chapter, V1, V2, LinksCnt, I: integer;
 
-  function metabook(const bible: TBible; const str: string): Boolean;
+  function Metabook(const Bible: TBible; const Str: string): Boolean;
   var
-    wl: string;
+    Wl: string;
   label success;
   begin
-    wl := LowerCase(str);
-    if (Pos('нз', wl) = 1) or (Pos('nt', wl) = 1) then
+    Wl := LowerCase(Str);
+    if (Pos('нз', Wl) = 1) or (Pos('nt', Wl) = 1) then
     begin
 
-      if bible.Trait[bqmtNewCovenant] and bible.InternalToReference(40, 1, 1, book, chapter, v1) then
+      if Bible.Trait[bqmtNewCovenant] and Bible.InternalToReference(40, 1, 1, Book, Chapter, V1) then
       begin
-        s := s + [39 .. 65];
+        S := S + [39 .. 65];
       end;
-      goto success;
+      goto Success;
     end
-    else if (Pos('вз', wl) = 1) or (Pos('ot', wl) = 1) then
+    else if (Pos('вз', Wl) = 1) or (Pos('ot', Wl) = 1) then
     begin
-      if bible.Trait[bqmtOldCovenant] and bible.InternalToReference(1, 1, 1, book, chapter, v1) then
+      if Bible.Trait[bqmtOldCovenant] and Bible.InternalToReference(1, 1, 1, Book, Chapter, V1) then
       begin
-        s := s + [0 .. 38];
+        S := S + [0 .. 38];
       end;
-      goto success;
+      goto Success;
     end
-    else if (Pos('пят', wl) = 1) or (Pos('pent', wl) = 1) or
-      (Pos('тор', wl) = 1) or (Pos('tor', wl) = 1) then
+    else if (Pos('пят', Wl) = 1) or (Pos('pent', Wl) = 1) or
+      (Pos('тор', Wl) = 1) or (Pos('tor', Wl) = 1) then
     begin
-      if bible.Trait[bqmtOldCovenant] and bible.InternalToReference(1, 1, 1, book, chapter, v1) then
+      if Bible.Trait[bqmtOldCovenant] and Bible.InternalToReference(1, 1, 1, Book, Chapter, V1) then
       begin
-        s := s + [0 .. 4];
+        S := S + [0 .. 4];
       end;
-      goto success;
+      goto Success;
     end
-    else if (Pos('ист', wl) = 1) or (Pos('hist', wl) = 1) then
+    else if (Pos('ист', Wl) = 1) or (Pos('hist', Wl) = 1) then
     begin
-      if bible.Trait[bqmtOldCovenant] then
+      if Bible.Trait[bqmtOldCovenant] then
       begin
-        s := s + [0 .. 15];
+        S := S + [0 .. 15];
       end;
-      goto success;
+      goto Success;
     end
-    else if (Pos('уч', wl) = 1) or (Pos('teach', wl) = 1) then
+    else if (Pos('уч', Wl) = 1) or (Pos('teach', Wl) = 1) then
     begin
-      if bible.Trait[bqmtOldCovenant] then
+      if Bible.Trait[bqmtOldCovenant] then
       begin
-        s := s + [16 .. 21];
+        S := S + [16 .. 21];
       end;
-      goto success;
+      goto Success;
     end
-    else if (Pos('бпрор', wl) = 1) or (Pos('bproph', wl) = 1) then
+    else if (Pos('бпрор', Wl) = 1) or (Pos('bproph', Wl) = 1) then
     begin
-      if bible.Trait[bqmtOldCovenant] then
+      if Bible.Trait[bqmtOldCovenant] then
       begin
-        s := s + [22 .. 26];
+        S := S + [22 .. 26];
       end;
-      goto success;
+      goto Success;
     end
-    else if (Pos('мпрор', wl) = 1) or (Pos('mproph', wl) = 1) then
+    else if (Pos('мпрор', Wl) = 1) or (Pos('mproph', Wl) = 1) then
     begin
-      if bible.Trait[bqmtOldCovenant] then
+      if Bible.Trait[bqmtOldCovenant] then
       begin
-        s := s + [27 .. 38];
+        S := S + [27 .. 38];
       end;
-      goto success;
+      goto Success;
     end
-    else if (Pos('прор', wl) = 1) or (Pos('proph', wl) = 1) then
+    else if (Pos('прор', Wl) = 1) or (Pos('proph', Wl) = 1) then
     begin
-      if bible.Trait[bqmtOldCovenant] then
+      if Bible.Trait[bqmtOldCovenant] then
       begin
-        s := s + [22 .. 38];
-        if bible.Trait[bqmtNewCovenant] and bible.InternalToReference(66, 1, 1, book, chapter, v1) then
+        S := S + [22 .. 38];
+        if Bible.Trait[bqmtNewCovenant] and Bible.InternalToReference(66, 1, 1, Book, Chapter, V1) then
         begin
-          Include(s, 65);
+          Include(S, 65);
         end;
-        goto success;
+        goto Success;
       end
     end
-    else if (Pos('ева', wl) = 1) or (Pos('gos', wl) = 1) then
+    else if (Pos('ева', Wl) = 1) or (Pos('gos', Wl) = 1) then
     begin
-      if bible.Trait[bqmtNewCovenant] then
+      if Bible.Trait[bqmtNewCovenant] then
       begin
-        s := s + [39 .. 42];
+        S := S + [39 .. 42];
       end;
-      goto success;
+      goto Success;
     end
-    else if (Pos('пав', wl) = 1) or (Pos('paul', wl) = 1) then
+    else if (Pos('пав', Wl) = 1) or (Pos('paul', Wl) = 1) then
     begin
-      if bible.Trait[bqmtNewCovenant] and bible.InternalToReference(52, 1, 1, book, chapter, v1) then
+      if Bible.Trait[bqmtNewCovenant] and Bible.InternalToReference(52, 1, 1, Book, Chapter, V1) then
       begin
-        s := s + [book - 1 .. book + 12];
+        S := S + [Book - 1 .. Book + 12];
       end;
-      goto success;
+      goto Success;
     end;
 
     Result := false;
     Exit;
-  success:
+  Success:
     Result := true;
   end;
 
@@ -267,143 +267,153 @@ begin
   try
     mSearchState.IsSearching := true;
 
-    s := [];
+    S := [];
 
     if (not mCurrentBook.isBible)
     then
     begin
       if (cbList.ItemIndex <= 0) then
-        s := [0 .. mCurrentBook.BookQty - 1]
+        S := [0 .. mCurrentBook.BookQty - 1]
       else
-        s := [cbList.ItemIndex - 1];
+        S := [cbList.ItemIndex - 1];
     end
     else
     begin // FULL BIBLE SEARCH
-      searchText := Trim(cbList.Text);
-      linksCnt := cbList.Items.Count - 1;
+      SearchText := Trim(cbList.Text);
+      LinksCnt := cbList.Items.Count - 1;
       if not mSearchState.SearchBooksDDAltered then
         if (cbList.ItemIndex < 0) then
-          for i := 0 to linksCnt do
-            if CompareText(cbList.Items[i], searchText) = 0 then
+          for I := 0 to LinksCnt do
+            if CompareText(cbList.Items[I], SearchText) = 0 then
             begin
-              cbList.ItemIndex := i;
+              cbList.ItemIndex := I;
               break;
             end;
 
       if (cbList.ItemIndex < 0) or (mSearchState.SearchBooksDDAltered) then
       begin
-        lnks := TStringList.Create;
+        Lnks := TStringList.Create;
         try
-          books := '';
-          StrToLinks(searchText, lnks);
-          linksCnt := lnks.Count - 1;
-          for i := 0 to linksCnt do
+          Books := '';
+          StrToLinks(SearchText, Lnks);
+          LinksCnt := Lnks.Count - 1;
+          for I := 0 to LinksCnt do
           begin
-            if metabook(mCurrentBook, lnks[i]) then
+            if Metabook(mCurrentBook, Lnks[I]) then
             begin
 
-              books := books + FirstWord(lnks[i]) + ' ';
+              Books := Books + FirstWord(Lnks[I]) + ' ';
               continue
             end
-            else if mCurrentBook.OpenReference(lnks[i], book, chapter, v1, v2) and
-              (book > 0) and (book < 77) then
+            else if mCurrentBook.OpenReference(Lnks[I], Book, Chapter, V1, V2) and
+              (Book > 0) and (Book < 77) then
             begin
-              Include(s, book - 1);
-              if Pos(mCurrentBook.ShortNames[book], books) <= 0 then
+              Include(S, Book - 1);
+              if Pos(mCurrentBook.ShortNames[Book], Books) <= 0 then
               begin
 
-                books := books + mCurrentBook.ShortNames[book] + ' ';
+                Books := Books + mCurrentBook.ShortNames[Book] + ' ';
               end;
 
             end;
 
           end;
-          books := Trim(books);
-          if (Length(books) > 0) and (mSearchState.SearchBooksCache.IndexOf(books) < 0) then
-            mSearchState.SearchBooksCache.Add(books);
+          Books := Trim(Books);
+          if (Length(Books) > 0) and (mSearchState.SearchBooksCache.IndexOf(Books) < 0) then
+            mSearchState.SearchBooksCache.Add(Books);
 
         finally
-          lnks.Free();
+          Lnks.Free();
         end;
       end
       else
         case integer(cbList.Items.Objects[cbList.ItemIndex]) of
           0:
-            s := [0 .. 65];
+            S := [0 .. 65];
           -1:
-            s := [0 .. 38];
+            S := [0 .. 38];
           -2:
-            s := [39 .. 65];
+            S := [39 .. 65];
           -3:
-            s := [0 .. 4];
+            S := [0 .. 4];
           -4:
-            s := [5 .. 21];
+            S := [5 .. 21];
           -5:
-            s := [22 .. 38];
+            S := [22 .. 38];
           -6:
-            s := [39 .. 43];
+            S := [39 .. 43];
           -7:
-            s := [44 .. 65];
+            S := [44 .. 65];
           -8:
             begin
               if mCurrentBook.Trait[bqmtApocrypha] then
-                s := [66 .. mCurrentBook.BookQty - 1]
+                S := [66 .. mCurrentBook.BookQty - 1]
               else
-                s := [0];
+                S := [0];
             end;
         else
-          s := [cbList.ItemIndex - 8 - ord(mCurrentBook.Trait[bqmtApocrypha])];
+          S := [cbList.ItemIndex - 8 - ord(mCurrentBook.Trait[bqmtApocrypha])];
           // search in single book
         end;
     end;
 
-    searchText := Trim(cbSearch.Text);
-    StrReplace(searchText, '.', ' ', true);
-    StrReplace(searchText, ',', ' ', true);
-    StrReplace(searchText, ';', ' ', true);
-    StrReplace(searchText, '?', ' ', true);
-    StrReplace(searchText, '"', ' ', true);
-    searchText := Trim(searchText);
+    SearchText := Trim(cbSearch.Text);
+    StrReplace(SearchText, '.', ' ', true);
+    StrReplace(SearchText, ',', ' ', true);
+    StrReplace(SearchText, ';', ' ', true);
+    StrReplace(SearchText, '?', ' ', true);
+    StrReplace(SearchText, '"', ' ', true);
+    SearchText := Trim(SearchText);
 
-    if searchText <> '' then
+    if SearchText <> '' then
     begin
-      if cbSearch.Items.IndexOf(searchText) < 0 then
-        cbSearch.Items.Insert(0, searchText);
+      if cbSearch.Items.IndexOf(SearchText) < 0 then
+        cbSearch.Items.Insert(0, SearchText);
 
       mSearchState.SearchResults.Clear;
 
       mSearchState.SearchWords.Clear;
-      wrd := cbSearch.Text;
+      Wrd := cbSearch.Text;
 
       if not chkExactPhrase.Checked then
       begin
-        while wrd <> '' do
+        while Wrd <> '' do
         begin
-          wrdnew := DeleteFirstWord(wrd);
+          Wrdnew := DeleteFirstWord(Wrd);
 
-          mSearchState.SearchWords.Add(wrdnew);
+          mSearchState.SearchWords.Add(Wrdnew);
         end;
       end
       else
       begin
-        wrdnew := Trim(wrd);
-        mSearchState.SearchWords.Add(wrdnew);
+        Wrdnew := Trim(Wrd);
+        mSearchState.SearchWords.Add(Wrdnew);
       end;
 
-      params :=
-        spWordParts * (1 - ord(chkParts.Checked)) +
-        spContainAll * (1 - ord(chkAll.Checked)) +
-        spFreeOrder * (1 - ord(chkPhrase.Checked)) +
-        spAnyCase * (1 - ord(chkCase.Checked)) +
-        spExactPhrase * ord(chkExactPhrase.Checked);
+      SearchOptions := [];
 
-      if (params and spExactPhrase = spExactPhrase) and (params and spWordParts = spWordParts) then
-        params := params - spWordParts;
+      if not chkParts.Checked then
+        Include(SearchOptions, soWordParts);
+
+      if not chkAll.Checked then
+        Include(SearchOptions, soContainAll);
+
+      if not chkPhrase.Checked then
+        Include(SearchOptions, soFreeOrder);
+
+      if not chkCase.Checked then
+        Include(SearchOptions, soIgnoreCase);
+
+      if chkExactPhrase.Checked then
+        Include(SearchOptions, soExactPhrase);
+
+      if (SearchOptions >= [soExactPhrase, soWordParts]) then
+        Exclude(SearchOptions, soWordParts);
 
       mSearchState.SearchTime := GetTickCount;
 
       // TODO: fix search with strongs, currently false
-      mCurrentBook.Search(searchText, params, s, false, Self);
+      mCurrentBook.Search(SearchText, SearchOptions, S, False, Self);
       //mCurrentBook.Search(searchText, params, s, not (vtisShowStrongs in bookView.BookTabInfo.State), Self);
     end;
   finally
