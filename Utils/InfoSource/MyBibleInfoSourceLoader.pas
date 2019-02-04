@@ -95,6 +95,7 @@ begin
   try
 
     LoadRegularValues(aInfoSource, SQLiteConnection);
+    LoadPathValues(aInfoSource, aFileEntryPath);
 
   finally
     SQLiteConnection.Close;

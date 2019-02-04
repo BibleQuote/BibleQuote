@@ -13,7 +13,9 @@ uses
 const
 
   UNDEFAINED_IMAGEINDEX = -2;
-  DEFAULT_NATIVE_COVER_IMAGE = 'Default Native Cover Image';
+  NATIVE_COVER_DEFAULT_IMAGE = 'NATIVE_COVER_DEFAULT_IMAGE';
+  MYBIBLE_COVER_DEFAULT_IMAGE = 'MYBIBLE_COVER_DEFAULT_IMAGE';
+  SMALL_COVER_COEF = 3;
 
 
 type
@@ -67,7 +69,7 @@ type
 
     FFontBookName, FFontCopyright, FFontModuleVersion, FFontModType: TFont;
 
-    FCoverDefault: TPicture;
+    FCoverDefaults: TDictionary<String, TPicture>;
 
     FOnSelectModuleEvent: TSelectModuleEvent;
 
@@ -79,21 +81,25 @@ type
     procedure UpdateCoverDetailView();
 
     procedure UpdateBookViews();
-    function AddDefaultCoverImage(): Integer;
+    function AddDefaultCoverImage(aResource: String): Integer;
     function AddCoverImage(aName: String; aPicture: TPicture): Integer; overload;
     function AddImageToCoverCollection(aName: String; aImage: TWICImage): Integer;
     function GetWICImage(aPicture: TPicture): TWICImage;
     procedure SetCoverImageSize(aWidth, aHeight: Integer);
     procedure SetModuleCountLable();
     function IsSuitableCategory(aModType: TModuleType): Boolean;
+    function GetDefaultCoverKey(aModEntry: TModuleEntry): String;
 
     procedure InitFonts();
     function CreateFont(aSize: Integer = 10; aColor: Integer = clBlack;
                         aStyle: TFontStyles = []; aName: String = ''): TFont;
     procedure InitCoverDefault();
+    function LoadDefaultCoverImage(aResource:String): TPicture;
     function GetModuleTypeText(modType: TModuleType): string;
-    function GetCoverWidth(): integer;
-    function GetCoverHeight(): integer;
+    function GetCoverWidth(): Integer;
+    function GetSmallCoverWidth(): Integer;
+    function GetCoverHeight(): Integer;
+    function GetSmallCoverHeight(): Integer;
     procedure HidePageControlTabs(aPageControl: TPageControl);
   public
     constructor Create(AOwner: TComponent); reintroduce;
@@ -121,12 +127,13 @@ implementation
 
 {$R *.dfm}
 
-uses Jpeg;
+uses SelectEntityType;
 
 constructor TLibraryFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   mModules := TCachedModules.Create();
+  FCoverDefaults := TDictionary<String, TPicture>.Create;
 
   InitFonts();
   Translate();
@@ -164,8 +171,8 @@ end;
 
 destructor TLibraryFrame.Destroy();
 begin
-  if Assigned(FCoverDefault) then
-    FCoverDefault.Free;
+  if Assigned(FCoverDefaults) then
+    FCoverDefaults.Free;
 
   inherited;
 end;
@@ -185,16 +192,12 @@ begin
 end;
 
 procedure TLibraryFrame.InitCoverDefault();
-var origCoverImage: TPicture;
 begin
-  origCoverImage := nil;
-  try
-    origCoverImage := LoadResourceImage('CoverDefault');
-    FCoverDefault := StretchImage(origCoverImage, GetCoverWidth, GetCoverHeight);
-  finally
-    if Assigned(origCoverImage) then
-      origCoverImage.Free;
-  end;
+
+
+  FCoverDefaults.Add(NATIVE_COVER_DEFAULT_IMAGE, LoadDefaultCoverImage(NATIVE_COVER_DEFAULT_IMAGE));
+  FCoverDefaults.Add(MYBIBLE_COVER_DEFAULT_IMAGE, LoadDefaultCoverImage(MYBIBLE_COVER_DEFAULT_IMAGE));
+
 end;
 
 function TLibraryFrame.AddCoverImage(aName: String; aPicture: TPicture): Integer;
@@ -215,9 +218,9 @@ begin
 end;
 
 
-function TLibraryFrame.AddDefaultCoverImage(): Integer;
+function TLibraryFrame.AddDefaultCoverImage(aResource: String): Integer;
 begin
-  Result := AddCoverImage(DEFAULT_NATIVE_COVER_IMAGE, FCoverDefault);
+  Result := AddCoverImage(aResource, FCoverDefaults[aResource]);
 end;
 
 function TLibraryFrame.AddImageToCoverCollection(aName: String;
@@ -241,12 +244,23 @@ begin
     Font.Size := appConfig.MainFormFontSize;
 end;
 
-function TLibraryFrame.GetCoverWidth(): integer;
+function TLibraryFrame.GetCoverWidth(): Integer;
 begin
   Result := Round(COVER_WIDTH * Screen.PixelsPerInch / 96.0);
 end;
 
-function TLibraryFrame.GetCoverHeight(): integer;
+function TLibraryFrame.GetDefaultCoverKey(aModEntry: TModuleEntry): String;
+begin
+  Result := NATIVE_COVER_DEFAULT_IMAGE;
+
+  if (aModEntry.ModType = modtypeDictionary) and
+     (TSelectEntityType.IsMyBibleFileEntry(aModEntry.ShortPath))
+  then
+    Result := MYBIBLE_COVER_DEFAULT_IMAGE;
+
+end;
+
+function TLibraryFrame.GetCoverHeight(): Integer;
 begin
   Result := Round(COVER_HEIGHT * Screen.PixelsPerInch / 96.0);
 end;
@@ -283,6 +297,21 @@ begin
   // add only books of selected type
   if (aModType <> FilteredModType) then
     Result := false;
+
+end;
+
+function TLibraryFrame.LoadDefaultCoverImage(aResource: String): TPicture;
+var origCoverImage: TPicture;
+begin
+  origCoverImage := nil;
+  try
+    origCoverImage := LoadResourceImage(aResource);
+    Result := StretchImage(origCoverImage, GetCoverWidth, GetCoverHeight);
+  finally
+    if Assigned(origCoverImage) then
+      origCoverImage.Free;
+  end;
+
 
 end;
 
@@ -333,7 +362,7 @@ begin
     if Assigned(CoverPicture) then
       ImageIndex := AddCoverImage(ModEntry.ShortPath, CoverPicture)
     else
-      ImageIndex := AddDefaultCoverImage();
+      ImageIndex := AddDefaultCoverImage(GetDefaultCoverKey(ModEntry));
 
     Item.Value := ImageIndex;
     FFilteredModTypes[i] := Item;
@@ -368,7 +397,8 @@ begin
   lvBooks.SmallImages := nil;
   SetCoverImageSize(GetCoverWidth, GetCoverHeight);
   lvBooks.LargeImages := vimgCover;
-  lvBooks.Repaint;
+
+  UpdateBookViews();
 
   pcViews.ActivePage := tsCoverDetailView;
 
@@ -378,17 +408,20 @@ procedure TLibraryFrame.miDetailsViewStyleClick(Sender: TObject);
 begin
 
   lvBooks.LargeImages := nil;
-  SetCoverImageSize(32, 32);
+  SetCoverImageSize(GetSmallCoverWidth, GetSmallCoverHeight);
   lvBooks.SmallImages := vimgCover;
   lvBooks.ViewStyle := vsReport;
 
-  lvBooks.Repaint;
+  UpdateBookViews();
 
   pcViews.ActivePage := tsCoverDetailView;
 end;
 
 procedure TLibraryFrame.miTileViewStyleClick(Sender: TObject);
 begin
+
+  UpdateBookViews();
+
   pcViews.ActivePage := tsTileView;
 end;
 
@@ -415,6 +448,7 @@ begin
 
   UpdateCoverDetailView();
 end;
+
 
 procedure TLibraryFrame.SetCoverImageSize(aWidth, aHeight: Integer);
 begin
@@ -522,25 +556,30 @@ var
   i: Integer;
 begin
     // Cover view
-    lvBooks.Items.Count := FFilteredModTypes.Count;
-    AddDefaultCoverImage();
-    lvBooks.Update;
+    if miCoverViewStyle.Checked or miDetailsViewStyle.Checked then
+    begin
+      lvBooks.Items.Count := FFilteredModTypes.Count;
+      lvBooks.Repaint;
+    end;
 
 
-    // Tile view
-    vdtBooks.Clear;
-    vdtBooks.BeginUpdate;
+    if miTileViewStyle.Checked then
+    begin
+      // Tile view
+      vdtBooks.Clear;
+      vdtBooks.BeginUpdate;
 
-    try
+      try
 
-      for i := 0 to FFilteredModTypes.Count -1 do
-      begin
-        vdtBooks.InsertNode(nil, amAddChildLast, FFilteredModTypes[i].Key);
+        for i := 0 to FFilteredModTypes.Count -1 do
+        begin
+          vdtBooks.InsertNode(nil, amAddChildLast, FFilteredModTypes[i].Key);
+        end;
+
+      finally
+        vdtBooks.EndUpdate;
+
       end;
-
-    finally
-      vdtBooks.EndUpdate;
-
     end;
 
 
@@ -609,7 +648,7 @@ begin
   if PaintInfo.Node = nil then
     Exit;
 
-  modEntry := Sender.GetNodeData<TModuleEntry>(PaintInfo.Node);
+  ModEntry := Sender.GetNodeData<TModuleEntry>(PaintInfo.Node);
   if Assigned(modEntry) then
   begin
     Rect := TRect.Create(PaintInfo.CellRect);
@@ -624,7 +663,7 @@ begin
     if Assigned(coverPicture) then
       PaintInfo.Canvas.Draw(Rect.Left, PicTop, CoverPicture.Graphic)
     else
-      PaintInfo.Canvas.Draw(Rect.Left, PicTop, FCoverDefault.Graphic);
+      PaintInfo.Canvas.Draw(Rect.Left, PicTop, FCoverDefaults[GetDefaultCoverKey(ModEntry)].Graphic);
 
     Rect.Left := GetCoverWidth + 2 * COVER_OFFSET;
 
@@ -648,6 +687,16 @@ begin
     text := Lang.Say('StrBibleTranslations');
   end;
   Result := text;
+end;
+
+function TLibraryFrame.GetSmallCoverHeight: Integer;
+begin
+  Result := Trunc(GetCoverHeight / SMALL_COVER_COEF);
+end;
+
+function TLibraryFrame.GetSmallCoverWidth: integer;
+begin
+  Result := Trunc(GetCoverWidth / SMALL_COVER_COEF);
 end;
 
 function TLibraryFrame.GetWICImage(aPicture: TPicture): TWICImage;

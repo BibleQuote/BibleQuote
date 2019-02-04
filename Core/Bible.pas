@@ -684,7 +684,7 @@ begin
 
   InfoSource := TInfoSource.Create;
   try
-
+    InfoSource.InfoSourceType := InfoSourceType;
     InfoSourceLoader.LoadInfoSource(aFileEntryPath, InfoSource);
 
     if not Assigned(InfoSource) then exit;
@@ -1867,9 +1867,19 @@ begin
     end
     else
     begin
-      FPath := ExtractFilePath(aInfoSource.FileName);
-      FShortPath := ExtractRelativePath(TAppDirectories.Root, FPath);
-      FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
+
+      if aInfoSource.InfoSourceType = isNative then
+      begin
+        FPath := ExtractFilePath(aInfoSource.FileName);
+        FShortPath := ExtractRelativePath(TAppDirectories.Root, FPath);
+        FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
+      end
+      else begin
+        FPath := aInfoSource.FileName;
+        FShortPath := TPath.Combine(
+                        ExtractRelativePath(TAppDirectories.Root, ExtractFilePath(FPath)),
+                        ExtractFileName(FPath));
+      end;
     end;
 
     if Self.FBible then
