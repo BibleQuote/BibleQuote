@@ -17,8 +17,8 @@ type
   protected
     class function IsNativeFileEntry(aFileEntryPath: String): Boolean;
     class function IsNativeInfoSource(aFileEntryPath: String): Boolean;
-    class function IsMyBibleFileEntry(aFileEntryPath: String): Boolean;
   public
+    class function IsMyBibleFileEntry(aFileEntryPath: String): Boolean;
     class function SelectDictType(aFileEntryPath: String): TDictTypes;
     class function SelectInfoSourceType(aFileEntryPath: String): TInfoSourceTypes;
     class function FormBibleqtIniPath(aFileEntryPath: String): String;
