@@ -53,7 +53,7 @@ type
     modtypeComment,
     modtypeDictionary);
 
-  TModMatchType = (mmtName, mmtBookName, mmtCat, mmtPartial);
+  TModMatchType = (mmtName, mmtBookName, mmtCat, mmtPartial, nmtAuthor);
   TModMatchTypes = set of TModMatchType;
 
   TRectArray = array [0 .. 9] of TRect;
@@ -131,7 +131,7 @@ type
       aHasStrong: boolean); overload;
 
     procedure Assign(source: TModuleEntry);
-    function Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
+    function Match(aMatchLst: TStringList; var mi: TMatchInfoArray; aAllMatch: Boolean = false): TModMatchTypes;
 
     function BookNameByIx(ix: integer): string;
     function VisualSignature(): string;
@@ -158,6 +158,8 @@ type
     FCachedCoverLock : TCriticalSection;
 
     function DefaultModCats(): string;
+    procedure FixedResult(aFound: Boolean; aAllMatch: Boolean; var aModTypes: TModMatchTypes;
+          aModType: TModMatchType; var aFullMath: Boolean);
   end;
 
   TCachedModules = class(TObjectList)
@@ -1149,6 +1151,22 @@ begin
   inherited;
 end;
 
+procedure TModuleEntry.FixedResult(aFound: Boolean; aAllMatch: Boolean;
+  var aModTypes: TModMatchTypes; aModType: TModMatchType;
+  var aFullMath: Boolean);
+begin
+    if aFound then
+    begin
+      if not aAllMatch then
+      begin
+        Include(aModTypes, mmtName);
+      end;
+    end
+    else
+      aFullMath := False;
+
+end;
+
 function TModuleEntry.getIniPath: string;
 begin
   result := ResolveFullPath(TPath.Combine(ShortPath, C_ModuleIniName));
@@ -1200,149 +1218,136 @@ begin
   FHasStrong := aHasStrong;
 end;
 
-function TModuleEntry.Match(matchLst: TStringList; var mi: TMatchInfoArray; allMath: boolean = false): TModMatchTypes;
+function TModuleEntry.Match(aMatchLst: TStringList; var mi: TMatchInfoArray; aAllMatch: Boolean = false): TModMatchTypes;
 type
   TBQBookSet = set of byte;
 
 var
-  listIx, listCnt: integer;
-  matchStrUp, strCatsUp, strNameUP, strBNamesUp: string;
-  tagFullMatch, nameFullMatch, nameFound, tagFound, bookNameFound,
-  partialMacthed, foundBookNameHits, searchBookNames, booksetInit: boolean;
+  listIx: integer;
+  MatchStrUp, StrCatsUp, StrNameUP, StrBNamesUp, StrAuthorUp: String;
+  TagFullMatch, NameFullMatch, AuthorFullMatch, NameFound, AuthorFound, TagFound, BookNameFound,
+  PartialMacthed, FoundBookNameHits, SearchBookNames, BooksetInit: Boolean;
   p, pf: PChar;
   curHits, allHits: TBQBookSet;
   pbs: ^TBQBookSet;
   fndIx, newfndIx: byte;
   book_cnt, arrSz: integer;
 begin
-  listCnt := matchLst.count - 1;
-  result := [];
-  if listCnt < 0 then
-    exit;
-  strNameUP := LowerCase(FullName);
-  strCatsUp := LowerCase(ModCats);
-  strBNamesUp := LowerCase(ModBookNames);
+  Result := [];
+  if aMatchLst.count = 0 then exit;
 
-  tagFullMatch := true;
-  nameFullMatch := true;
-  partialMacthed := true;
+  StrNameUP := LowerCase(FullName);
+  StrAuthorUp := LowerCase(Author);
+  StrCatsUp := LowerCase(ModCats);
+  StrBNamesUp := LowerCase(ModBookNames);
+
+  TagFullMatch := true;
+  NameFullMatch := true;
+  AuthorFullMatch := true;
+  PartialMacthed := true;
   allHits := [];
   // for newfndIx:=1 to 255 do include(allHits,newfndIx);
-  searchBookNames := not(modType in [modtypeBible, modtypeComment]);
-  booksetInit := true;
-  for listIx := 0 to listCnt do
+  SearchBookNames := not(modType in [modtypeBible, modtypeComment]);
+  BooksetInit := true;
+  for listIx := 0 to aMatchLst.count - 1 do
   begin
     curHits := [];
-    matchStrUp := LowerCase(matchLst[listIx]);
-    nameFound := (Pos(matchStrUp, strNameUP) > 0);
-    if nameFound then
-    begin
-      if not allMath then
-      begin
-        Include(result, mmtName);
-      end;
-    end
-    else
-      nameFullMatch := false;
-    // else if allMath then begin  result:=mmtNone; exit end;
-    tagFound := Pos(matchStrUp, strCatsUp) > 0;
-    if tagFound then
-    begin
-      if not allMath then
-      begin
-        Include(result, mmtCat);
-        break;
-      end;
-    end
-    else
-    begin // not match cat
-      tagFullMatch := false;
-    end;
+    MatchStrUp := LowerCase(aMatchLst[listIx]);
 
-    p := PChar(Pointer(strBNamesUp));
-    pf := p + Length(strBNamesUp);
-    foundBookNameHits := false;
-    if searchBookNames
-    { or ((not tagFound)and (not nameFound))) } then
+    NameFound := Pos(MatchStrUp, StrNameUP) > 0;
+    FixedResult(NameFound, aAllMatch, Result, mmtName, NameFullMatch);
+
+    TagFound := Pos(matchStrUp, StrCatsUp) > 0;
+    FixedResult(TagFound, aAllMatch, Result, mmtCat, TagFullMatch);
+
+    AuthorFound := Pos(matchStrUp, StrAuthorUp) > 0;
+    FixedResult(AuthorFound, aAllMatch, Result, nmtAuthor, AuthorFullMatch);
+
+    p := PChar(Pointer(StrBNamesUp));
+    pf := p + Length(StrBNamesUp);
+    FoundBookNameHits := false;
+    if SearchBookNames then
     begin
 
       repeat
-        p := StrPosW(p, PChar(Pointer(matchStrUp)));
+        p := StrPosW(p, PChar(Pointer(MatchStrUp)));
         bookNameFound := p <> nil;
         if bookNameFound then
         begin
-          foundBookNameHits := true;
-          newfndIx := StrTokenIx(strBNamesUp, p - PChar(Pointer(strBNamesUp)) + 1);
+          FoundBookNameHits := true;
+          newfndIx := StrTokenIx(StrBNamesUp, p - PChar(Pointer(StrBNamesUp)) + 1);
           if newfndIx > 0 then
             Include(curHits, newfndIx);
 
-          inc(p, Length(matchStrUp));
+          inc(p, Length(MatchStrUp));
 
-          if not allMath then
+          if not aAllMatch then
           begin
-            Include(result, mmtBookName);
+            Include(Result, mmtBookName);
           end;
         end
 
-        until (p > pf) or (not bookNameFound);
-        if allMath then
+        until (p > pf) or (not BookNameFound);
+        if aAllMatch then
         begin
           // if foundBookNameHits then begin
-          if foundBookNameHits then
+          if FoundBookNameHits then
           begin
             // if books found
-            if booksetInit then
+            if BooksetInit then
             begin
               // if it's the first book entry
               allHits := allHits + curHits;
-              booksetInit := false;
+              BooksetInit := false;
             end
-            else if not(tagFound or nameFound) then
+            else if not(TagFound or NameFound or AuthorFound) then
             begin
               allHits := allHits * curHits;
             end;
           end
-          else if not(tagFound or nameFound) then
+          else if not(TagFound or NameFound or AuthorFound) then
             allHits := [];
-          foundBookNameHits := allHits <> [];
+          FoundBookNameHits := allHits <> [];
         end
         else
           allHits := allHits + curHits;
       end; // if search books
-      if allMath then
+      if aAllMatch then
       begin
-        if (not nameFound) and (not tagFound) and (not foundBookNameHits) then
+        if (not NameFound) and (not AuthorFound) and (not TagFound) and (not FoundBookNameHits) then
         begin
-          partialMacthed := false;
+          PartialMacthed := false;
           break;
         end;
       end
     end; // for
 
-    if allMath then
+    if aAllMatch then
     begin
 
-      if tagFullMatch then
-        Include(result, mmtCat);
-      if nameFullMatch then
-        Include(result, mmtName);
+      if TagFullMatch then
+        Include(Result, mmtCat);
+      if NameFullMatch then
+        Include(Result, mmtName);
+      if AuthorFullMatch then
+        Include(Result, nmtAuthor);
       if allHits <> [] then
       begin
-        Include(result, mmtBookName);
+        Include(Result, mmtBookName);
       end;
 
-      if result = [] then
+      if Result = [] then
       begin
-        if partialMacthed then
-          result := [mmtPartial]
+        if PartialMacthed then
+          Result := [mmtPartial]
       end; // not found full match
 
     end; // if allmatch
-    if mmtBookName in result then
+    if mmtBookName in Result then
     begin
       fndIx := 0;
       arrSz := Length(mi);
-      if allMath then
+      if aAllMatch then
         pbs := @allHits
       else
         pbs := @allHits;
@@ -1366,7 +1371,7 @@ begin
       until (fndIx = 0);
       SetLength(mi, book_cnt);
       if book_cnt <= 0 then
-        Exclude(result, mmtBookName);
+        Exclude(Result, mmtBookName);
     end;
 
   end;

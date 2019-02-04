@@ -7,7 +7,14 @@ uses
   Forms, Dialogs, VirtualTrees, Contnrs, StdCtrls, ExtCtrls, Math,
   Vcl.DockTabSet, Vcl.ComCtrls, Vcl.ToolWin, System.ImageList, MainFrm,
   Vcl.ImgList, TabData, Vcl.Menus, System.UITypes, BibleQuoteUtils, PlainUtils,
-  ImageUtils, AppIni;
+  ImageUtils, AppIni, Generics.Collections, Vcl.VirtualImageList,
+  Vcl.BaseImageCollection, Vcl.ImageCollection;
+
+const
+
+  UNDEFAINED_IMAGEINDEX = -2;
+  DEFAULT_NATIVE_COVER_IMAGE = 'Default Native Cover Image';
+
 
 type
   TBooksType = (
@@ -23,7 +30,20 @@ type
     edtFilter: TEdit;
     cmbBookType: TComboBox;
     btnClear: TButton;
+    pmViewStyle: TPopupMenu;
+    miTileViewStyle: TMenuItem;
+    miDetailsViewStyle: TMenuItem;
+    imgViewStyle: TImageList;
+    btnViewStyle: TButton;
+    pcViews: TPageControl;
+    tsCoverDetailView: TTabSheet;
+    tsTileView: TTabSheet;
     vdtBooks: TVirtualDrawTree;
+    miCoverViewStyle: TMenuItem;
+    lvBooks: TListView;
+    imgCoverCollection: TImageCollection;
+    vimgCover: TVirtualImageList;
+    lblModuleCount: TLabel;
 
     procedure btnClearClick(Sender: TObject);
     procedure cmbBookTypeChange(Sender: TObject);
@@ -34,9 +54,16 @@ type
     procedure vdtBooksMeasureItem(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
     procedure FrameResize(Sender: TObject);
     procedure vdtBooksCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+    procedure lvBooksDataHint(Sender: TObject; StartIndex, EndIndex: Integer);
+    procedure lvBooksData(Sender: TObject; Item: TListItem);
+    procedure lvBooksDblClick(Sender: TObject);
+    procedure miTileViewStyleClick(Sender: TObject);
+    procedure miCoverViewStyleClick(Sender: TObject);
+    procedure miDetailsViewStyleClick(Sender: TObject);
   private
     mUILock: Boolean;
     mModules: TCachedModules;
+    FFilteredModTypes: TList<TPair<TModuleEntry, Integer>>;
 
     FFontBookName, FFontCopyright, FFontModuleVersion, FFontModType: TFont;
 
@@ -49,6 +76,16 @@ type
     procedure UpdateBookList();
     procedure OnModulesAssign(Sender: TObject);
     procedure UpdateModuleTypes();
+    procedure UpdateCoverDetailView();
+
+    procedure UpdateBookViews();
+    function AddDefaultCoverImage(): Integer;
+    function AddCoverImage(aName: String; aPicture: TPicture): Integer; overload;
+    function AddImageToCoverCollection(aName: String; aImage: TWICImage): Integer;
+    function GetWICImage(aPicture: TPicture): TWICImage;
+    procedure SetCoverImageSize(aWidth, aHeight: Integer);
+    procedure SetModuleCountLable();
+    function IsSuitableCategory(aModType: TModuleType): Boolean;
 
     procedure InitFonts();
     function CreateFont(aSize: Integer = 10; aColor: Integer = clBlack;
@@ -57,6 +94,7 @@ type
     function GetModuleTypeText(modType: TModuleType): string;
     function GetCoverWidth(): integer;
     function GetCoverHeight(): integer;
+    procedure HidePageControlTabs(aPageControl: TPageControl);
   public
     constructor Create(AOwner: TComponent); reintroduce;
     procedure SetModules(modules: TCachedModules);
@@ -76,9 +114,14 @@ var
   COVER_OFFSET: integer = 10;
   TEXT_OFFSET:  integer = 10;
 
+
+
+
 implementation
 
 {$R *.dfm}
+
+uses Jpeg;
 
 constructor TLibraryFrame.Create(AOwner: TComponent);
 begin
@@ -87,7 +130,14 @@ begin
 
   InitFonts();
   Translate();
-  InitCoverDefault();  
+  InitCoverDefault();
+
+  FFilteredModTypes := TList<TPair<TModuleEntry, Integer>>.Create;
+
+  HidePageControlTabs(pcViews);
+
+
+  miTileViewStyleClick(nil);
 end;
 
 function TLibraryFrame.CreateFont(aSize: Integer; aColor: Integer;
@@ -116,8 +166,8 @@ destructor TLibraryFrame.Destroy();
 begin
   if Assigned(FCoverDefault) then
     FCoverDefault.Free;
-    
-  inherited;  
+
+  inherited;
 end;
 
 procedure TLibraryFrame.DrawTextNode(const PaintInfo: TVTPaintInfo; aRect: TRect;
@@ -147,6 +197,41 @@ begin
   end;
 end;
 
+function TLibraryFrame.AddCoverImage(aName: String; aPicture: TPicture): Integer;
+var
+  ImageIndex: Integer;
+  Image: TWICImage;
+begin
+  Result := vimgCover.GetIndexByName(aName);
+
+  if Result > -1 then exit;
+
+  Image := GetWICImage(aPicture);
+  ImageIndex := AddImageToCoverCollection(aName, Image);
+
+  vimgCover.Add(aName, ImageIndex);
+  Result := vimgCover.GetIndexByName(aName);
+
+end;
+
+
+function TLibraryFrame.AddDefaultCoverImage(): Integer;
+begin
+  Result := AddCoverImage(DEFAULT_NATIVE_COVER_IMAGE, FCoverDefault);
+end;
+
+function TLibraryFrame.AddImageToCoverCollection(aName: String;
+  aImage: TWICImage): Integer;
+var
+  ImageItem: TImageCollectionItem;
+begin
+  ImageItem := imgCoverCollection.Images.Add;
+  ImageItem.Name := aName;
+  ImageItem.SourceImages.Add.Image := aImage;
+
+  Result := imgCoverCollection.GetIndexByName(aName);
+end;
+
 procedure TLibraryFrame.ApplyConfig(appConfig: TAppConfig);
 begin
   if (appConfig.MainFormFontName <> Font.Name) then
@@ -174,6 +259,139 @@ begin
   FFontModType := CreateFont(9, clGray);
 end;
 
+function TLibraryFrame.IsSuitableCategory(aModType: TModuleType): Boolean;
+var
+  BooksType: TBooksType;
+  FilteredModType: TModuleType;
+begin
+
+  Result := True;
+
+  BooksType := TBooksType(cmbBookType.Items.Objects[cmbBookType.ItemIndex]);
+
+  if booksType = btAllBooks then exit;
+
+
+  FilteredModType := modtypeBible;
+  case booksType of
+    btBibles: FilteredModType := modtypeBible;
+    btCommentaries: FilteredModType := modtypeComment;
+    btOtherBooks: FilteredModType := modtypeBook;
+    btAllDictionaries: FilteredModType := modtypeDictionary;
+  end;
+
+  // add only books of selected type
+  if (aModType <> FilteredModType) then
+    Result := false;
+
+end;
+
+procedure TLibraryFrame.lvBooksData(Sender: TObject; Item: TListItem);
+var
+  ImageIndex: Integer;
+  ModEntry: TModuleEntry;
+begin
+
+  if Item.Index >= FFilteredModTypes.Count then exit;
+
+  ImageIndex := FFilteredModTypes[Item.Index].Value;
+
+  if ImageIndex >= 0 then
+    Item.ImageIndex := ImageIndex;
+
+  if lvBooks.ViewStyle <> vsReport then exit;
+
+  ModEntry := FFilteredModTypes[Item.Index].Key;
+
+  Item.Caption := ModEntry.FullName;
+  Item.SubItems.Add(ModEntry.Author);
+  Item.SubItems.Add(ModEntry.ModuleVersion);
+end;
+
+procedure TLibraryFrame.lvBooksDataHint(Sender: TObject; StartIndex,
+  EndIndex: Integer);
+var
+  i: Integer;
+  ModEntry : TModuleEntry;
+  CoverPicture : TPicture;
+  ImageIndex: Integer;
+  Item: TPair<TModuleEntry, Integer>;
+begin
+
+  if (StartIndex >= FFilteredModTypes.Count) or (EndIndex >= FFilteredModTypes.Count) then exit;
+
+  for i := StartIndex to EndIndex do
+  begin
+
+    if FFilteredModTypes[i].Value <> UNDEFAINED_IMAGEINDEX then continue;
+
+    Item := FFilteredModTypes[i];
+    ModEntry := Item.Key;
+
+    CoverPicture := ModEntry.GetCoverImage(GetCoverWidth, GetCoverHeight);
+
+    if Assigned(CoverPicture) then
+      ImageIndex := AddCoverImage(ModEntry.ShortPath, CoverPicture)
+    else
+      ImageIndex := AddDefaultCoverImage();
+
+    Item.Value := ImageIndex;
+    FFilteredModTypes[i] := Item;
+
+  end;
+
+end;
+
+procedure TLibraryFrame.lvBooksDblClick(Sender: TObject);
+var
+  SelectedItem : TListItem;
+  ListView: TListView;
+  ModEntry: TModuleEntry;
+begin
+
+  ListView := Sender as TListView;
+
+  SelectedItem := ListView.Selected;
+
+  if SelectedItem = nil then exit;
+
+  ModEntry := FFilteredModTypes[SelectedItem.Index].Key;
+
+  if Assigned(FOnSelectModuleEvent) then
+    FOnSelectModuleEvent(self, modEntry);
+
+end;
+
+procedure TLibraryFrame.miCoverViewStyleClick(Sender: TObject);
+begin
+  lvBooks.ViewStyle := vsIcon;
+  lvBooks.SmallImages := nil;
+  SetCoverImageSize(GetCoverWidth, GetCoverHeight);
+  lvBooks.LargeImages := vimgCover;
+  lvBooks.Repaint;
+
+  pcViews.ActivePage := tsCoverDetailView;
+
+end;
+
+procedure TLibraryFrame.miDetailsViewStyleClick(Sender: TObject);
+begin
+
+  lvBooks.LargeImages := nil;
+  SetCoverImageSize(32, 32);
+  lvBooks.SmallImages := vimgCover;
+  lvBooks.ViewStyle := vsReport;
+
+  lvBooks.Repaint;
+
+  pcViews.ActivePage := tsCoverDetailView;
+end;
+
+procedure TLibraryFrame.miTileViewStyleClick(Sender: TObject);
+begin
+  pcViews.ActivePage := tsTileView;
+end;
+
 procedure TLibraryFrame.UpdateModuleTypes;
 var index: integer;
 begin
@@ -194,6 +412,19 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
 
   UpdateModuleTypes();
+
+  UpdateCoverDetailView();
+end;
+
+procedure TLibraryFrame.SetCoverImageSize(aWidth, aHeight: Integer);
+begin
+  vimgCover.Width := aWidth;
+  vimgCover.Height := aHeight;
+end;
+
+procedure TLibraryFrame.SetModuleCountLable;
+begin
+  lblModuleCount.Caption := IntToStr(FFilteredModTypes.Count);
 end;
 
 procedure TLibraryFrame.SetModules(modules: TCachedModules);
@@ -223,6 +454,7 @@ begin
   UpdateBookList();
 end;
 
+
 procedure TLibraryFrame.FrameResize(Sender: TObject);
 begin
   vdtBooks.ReinitChildren(nil, true);
@@ -236,9 +468,7 @@ var
   modEntry: TModuleEntry;
   filterTokens: TStringList;
   matchType: TModMatchTypes;
-  booksType: TBooksType;
-  modType: TModuleType;
-  addBook: boolean;
+
 begin
   if mUILock then
     Exit;
@@ -247,8 +477,8 @@ begin
 
   try
     filterText := Trim(edtFilter.Text);
-    vdtBooks.Clear();
-    vdtBooks.BeginUpdate();
+
+    FFilteredModTypes.Clear();
 
     allMatch := false;
     if length(filterText) > 0 then
@@ -261,12 +491,13 @@ begin
     filterTokens := TStringList.Create();
     StrToTokens(filterText, ' ', filterTokens);
 
-    booksType := TBooksType(cmbBookType.Items.Objects[cmbBookType.ItemIndex]);
-
     count := mModules.Count - 1;
     for i := 0 to count do
     begin
       modEntry := TModuleEntry(mModules.Items[i]);
+
+      if not IsSuitableCategory(modEntry.modType) then continue;
+
       if length(filterText) > 0 then
       begin
         matchType := modEntry.Match(filterTokens, modEntry.mMatchInfo, allMatch);
@@ -274,30 +505,52 @@ begin
           Continue;
       end;
 
-      addBook := true;
-      if (booksType <> btAllBooks) then
-      begin
-        modType := modtypeBible;
-        case booksType of
-          btBibles: modType := modtypeBible;
-          btCommentaries: modType := modtypeComment;
-          btOtherBooks: modType := modtypeBook;
-          btAllDictionaries: modType := modtypeDictionary;
-        end;
-
-        // add only books of selected type
-        if (modEntry.modType <> modType) then
-          addBook := false;
-      end;
-
-      if (addBook) then
-        vdtBooks.InsertNode(nil, amAddChildLast, modEntry);
+      FFilteredModTypes.Add(TPair<TModuleEntry, Integer>.Create(modEntry, UNDEFAINED_IMAGEINDEX));
 
     end;
+
+    SetModuleCountLable();
+    UpdateBookViews();
+
   finally
     mUILock := false;
-    vdtBooks.EndUpdate;
   end;
+end;
+
+procedure TLibraryFrame.UpdateBookViews;
+var
+  i: Integer;
+begin
+    // Cover view
+    lvBooks.Items.Count := FFilteredModTypes.Count;
+    AddDefaultCoverImage();
+    lvBooks.Update;
+
+
+    // Tile view
+    vdtBooks.Clear;
+    vdtBooks.BeginUpdate;
+
+    try
+
+      for i := 0 to FFilteredModTypes.Count -1 do
+      begin
+        vdtBooks.InsertNode(nil, amAddChildLast, FFilteredModTypes[i].Key);
+      end;
+
+    finally
+      vdtBooks.EndUpdate;
+
+    end;
+
+
+end;
+
+procedure TLibraryFrame.UpdateCoverDetailView;
+begin
+  lvBooks.Columns[0].Caption := Lang.Say('StrModuleName');
+  lvBooks.Columns[1].Caption := Lang.Say('StrModuleAuthor');
+  lvBooks.Columns[2].Caption := Lang.Say('StrModuleVersion');
 end;
 
 procedure TLibraryFrame.vdtBooksCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
@@ -315,6 +568,8 @@ begin
 
   Result := OmegaCompareTxt(mod1.FullName, mod2.FullName);
 end;
+
+
 
 procedure TLibraryFrame.vdtBooksDblClick(Sender: TObject);
 var
@@ -393,6 +648,39 @@ begin
     text := Lang.Say('StrBibleTranslations');
   end;
   Result := text;
+end;
+
+function TLibraryFrame.GetWICImage(aPicture: TPicture): TWICImage;
+var
+  Image: TWICImage;
+  MemoryStream: TMemoryStream;
+begin
+  Image := TWICImage.Create;
+  Result := Image;
+  MemoryStream := TMemoryStream.Create;
+  try
+
+    aPicture.SaveToStream(MemoryStream);
+    MemoryStream.Position := 0;
+
+    Image.LoadFromStream(MemoryStream);
+
+  finally
+    MemoryStream.Free;
+  end;
+
+
+end;
+
+procedure TLibraryFrame.HidePageControlTabs(aPageControl: TPageControl);
+var
+  i: Integer;
+begin
+  for i := 0 to aPageControl.PageCount -1 do
+    aPageControl.Pages[i].TabVisible := False;
+
+
+
 end;
 
 procedure TLibraryFrame.vdtBooksFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
