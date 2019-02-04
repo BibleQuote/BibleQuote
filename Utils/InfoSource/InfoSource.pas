@@ -2,12 +2,13 @@ unit InfoSource;
 
 interface
 
-uses Classes, ChapterData, Generics.Collections, SysUtils;
+uses Classes, ChapterData, Generics.Collections, SysUtils, SelectEntityType;
 
 type
 
   TInfoSource = class
   private
+    FInfoSourceType: TInfoSourceTypes;
     FDataPairs: TStrings;
 
     FFileName: String;
@@ -77,6 +78,7 @@ type
     property FileName: String read FFileName write FFileName;
     property IsCommentary: Boolean read FIsCommentary write FIsCommentary;
     property DefaultEncoding: TEncoding read FDefaultEncoding write FDefaultEncoding;
+    property InfoSourceType: TInfoSourceTypes read FInfoSourceType write FInfoSourceType;
 
   end;
 
