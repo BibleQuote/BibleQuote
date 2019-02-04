@@ -3537,7 +3537,7 @@ begin
       begin
         try
           tempBook.SetInfoSource(
-            ResolveFullPath(TModuleEntry(mFavorites.mModuleEntries[i]).ShortPath + '\bibleqt.ini'));
+            ResolveFullPath(TPath.Combine(mFavorites.mModuleEntries[i].ShortPath, 'bibleqt.ini')));
 
           openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
 
