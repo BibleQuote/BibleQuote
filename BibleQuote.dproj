@@ -179,7 +179,13 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 <Platform value="Win64">False</Platform>
             </Platforms>
             <Deployment Version="3">
-                <DeployFile LocalName="E:\C++\DefaultMyBible.png" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="Resources\DefaultBibleQuote.png" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Resources\DefaultMyBible.png" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -188,12 +194,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 <DeployFile LocalName="Output\BibleQuote.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>BibleQuote.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="E:\C++\DefaultBibleQuote.png" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -819,13 +819,13 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>
         </RcItem>
-        <RcItem Include="E:\C++\DefaultBibleQuote.png">
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>NATIVE_COVER_DEFAULT_IMAGE</ResourceId>
-        </RcItem>
         <RcItem Include="E:\C++\DefaultMyBible.png">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>MYBIBLE_COVER_DEFAULT_IMAGE</ResourceId>
+        </RcItem>
+        <RcItem Include="Resources\DefaultBibleQuote.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>NATIVE_COVER_DEFAULT_IMAGE</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
@@ -847,7 +847,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
+&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -855,7 +857,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
+&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
@@ -863,7 +867,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
+&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
@@ -871,7 +877,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
+&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>
