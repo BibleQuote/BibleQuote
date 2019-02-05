@@ -7,7 +7,8 @@ uses
   Classes,
   Windows,
   StrUtils,
-  Graphics;
+  Graphics,
+  Character;
 
 function UpperCaseFirstLetter(s: string): string;
 
@@ -36,7 +37,7 @@ function ParseHTML(s, HTML: string): string;
 function Get_ANAME_VerseNumber(const s: string; start, iPos: integer): integer;
 function Get_AHREF_VerseCommand(const s: string; iPos: integer): string;
 
-function DeleteStrongNumbers(s: string): string;
+function DeleteStrongNumbers(S: String): String;
 function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
 
 // find string in SORTED list, maybe partial match
@@ -155,27 +156,35 @@ begin
 
 end;
 
-function DeleteStrongNumbers(s: string): string;
+function DeleteStrongNumbers(S: String): String;
 var
-  i, len: integer;
+  I, Len, Code: Integer;
+  Buf: String;
 begin
   Result := '';
-  len := Length(s);
-  for i := 1 to len do
+  Len := Length(S);
+  for I := 1 to Len do
   begin
-    if ((integer(s[i]) >= integer('0')) and (integer(s[i]) <= integer('9'))) or
-      ((i < len) and (s[i] = ' ') and ((integer(s[i + 1]) >= integer('0')) and
-      (integer(s[i + 1]) <= integer('9')))) then
+    if S[I].IsDigit then
       continue;
 
-    if ((integer(s[i]) = integer('G')) or (integer(s[i]) = integer('H'))) and
-      ((i < len) and
-      // (s[i] = ' ') and
-      ((integer(s[i + 1]) >= integer('0')) and
-      (integer(s[i + 1]) <= integer('9')))) then
-      continue;
+    if S[I].IsInArray(['G', 'H']) then
+    begin
+      if ((I < Len) and (S[I + 1].IsDigit)) then
+        continue;
+    end;
 
-    Result := Result + s[i];
+    if ((I < Len) and (S[I] = ' ')) then
+    begin
+      if S[I + 1].IsDigit then
+        continue;
+
+      if S[I + 1].IsInArray(['G', 'H']) then
+        if ((I < Len - 1) and (S[I + 2].IsDigit)) then
+          continue;
+    end;
+
+    Result := Result + S[I];
   end;
 end;
 
@@ -779,7 +788,7 @@ end;
 
 function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
 var
-  i, code: Integer;
+  code: Integer;
   s: string;
 begin
   s := Trim(source);
