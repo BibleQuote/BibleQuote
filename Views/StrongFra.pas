@@ -130,23 +130,24 @@ begin
   if Assigned(book) then
   begin
     word := GetStrongWordByIndex(pn.Index);
+    word := Copy(word, 1, 100); // reduce text to search
+    searchText := word;
 
     if book.StrongsPrefixed then
       bookTypeIndex := 0 // full book
     else
     begin
       if StartsText('H', word) then
-        searchText := '0' + Copy(word, 2, 100)
-      else if StartsText('G', word) then
-        searchText := Copy(word, 2, 100)
-      else
-        searchText := word;
+        searchText := word + ' 0' + word.Substring(2); // search for both numbers: with 'H' and '0' prefixes
+
+      if StartsText('G', word) then
+        searchText := word + ' ' + word.Substring(2); // search for both numbers: with 'G' prefix and without it
 
       StrongVal(word, num, isHebrew);
       bookTypeIndex := IfThen(isHebrew, 1 {old testament}, 2 {new testament});
     end;
 
-    mMainView.OpenOrCreateSearchTab(book.path, searchText, bookTypeIndex, true);
+    mMainView.OpenOrCreateSearchTab(book.path, searchText, bookTypeIndex, [soFreeOrder, soIgnoreCase]);
   end
   else
   begin

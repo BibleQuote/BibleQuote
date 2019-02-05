@@ -757,7 +757,7 @@ begin
 
     // color search result!!!
     for i := 0 to mSearchState.SearchWords.Count - 1 do
-      StrColorUp(s, mSearchState.SearchWords[i], '<*>', '</*>', chkCase.Checked);
+      StrColorUp(s, mSearchState.SearchWords[i], '<*>', '</*>', chkCase.Checked, chkParts.Checked);
 
     mSearchState.SearchResults.Add(
       Format('<a href="go %s %d %d %d 0">%s</a> <font face="%s">%s</font><br>',
