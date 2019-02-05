@@ -1237,10 +1237,10 @@ begin
   Result := [];
   if aMatchLst.count = 0 then exit;
 
-  StrNameUP := LowerCase(FullName);
-  StrAuthorUp := LowerCase(Author);
-  StrCatsUp := LowerCase(ModCats);
-  StrBNamesUp := LowerCase(ModBookNames);
+  StrNameUP := AnsiLowerCase(FullName);
+  StrAuthorUp := AnsiLowerCase(Author);
+  StrCatsUp := AnsiLowerCase(ModCats);
+  StrBNamesUp := AnsiLowerCase(ModBookNames);
 
   TagFullMatch := true;
   NameFullMatch := true;
@@ -1253,7 +1253,7 @@ begin
   for listIx := 0 to aMatchLst.count - 1 do
   begin
     curHits := [];
-    MatchStrUp := LowerCase(aMatchLst[listIx]);
+    MatchStrUp := AnsiLowerCase(aMatchLst[listIx]);
 
     NameFound := Pos(MatchStrUp, StrNameUP) > 0;
     FixedResult(NameFound, aAllMatch, Result, mmtName, NameFullMatch);
@@ -1816,10 +1816,10 @@ begin
       result := false;
       exit
     end;
-    s := LowerCase(Str);
+    s := AnsiLowerCase(Str);
     for I := 0 to c do
     begin
-      fnd := (Pos(LowerCase(tkns[I]), s) > 0);
+      fnd := (Pos(AnsiLowerCase(tkns[I]), s) > 0);
       if fnd xor fullMatch then
       begin
         result := fnd;
