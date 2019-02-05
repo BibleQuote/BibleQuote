@@ -823,6 +823,12 @@ begin
   if not (soWordParts in SearchOptions) then
   begin
     Include(StringSearchOptions, soWholeWord);
+
+    // cleanup text for search
+    for I := 1 to Length(Src) do
+      if not GetAlphabetBit(Integer(Src[i])) then
+        Src[i] := ' ';
+
     if FBible then
     begin
       Src := Trim(Src);

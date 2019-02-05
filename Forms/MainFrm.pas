@@ -322,7 +322,7 @@ type
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState; processCommand: boolean = true);
     procedure OpenOrCreateDictionaryTab(const searchText: string; aActiveDictName: String = '');
     procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
-    procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
+    procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; SearchOptions: TSearchOptions = []);
 
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
@@ -4050,7 +4050,7 @@ begin
     mWorkspace.UpdateCurrentTabContent(true);
 end;
 
-procedure TMainForm.OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; wholeWord: boolean = false);
+procedure TMainForm.OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; SearchOptions: TSearchOptions = []);
 var
   i: integer;
   tabInfo: IViewTabInfo;
@@ -4093,7 +4093,15 @@ begin
 
   searchView.cbSearch.Text := Trim(searchText);
 
-  searchView.chkParts.Checked := wholeWord;
+  if (SearchOptions <> []) then
+  begin
+    searchView.chkParts.Checked := not (soWordParts in SearchOptions);
+    searchView.chkAll.Checked := not (soContainAll in SearchOptions);
+    searchView.chkPhrase.Checked := not (soFreeOrder in SearchOptions);
+    searchView.chkCase.Checked := not (soIgnoreCase in SearchOptions);
+    searchView.chkExactPhrase.Checked := soExactPhrase in SearchOptions;
+  end;
+
   searchView.btnFindClick(Self);
 end;
 

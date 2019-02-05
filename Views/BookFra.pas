@@ -1328,7 +1328,11 @@ begin
   if not Assigned(BookTabInfo) then
     Exit;
 
-  mMainView.OpenOrCreateSearchTab(BookTabInfo.Bible.ShortPath, searchText, bookTypeIndex);
+  mMainView.OpenOrCreateSearchTab(
+    BookTabInfo.Bible.ShortPath,
+    searchText,
+    bookTypeIndex,
+    [soFreeOrder, soContainAll, soWordParts, soIgnoreCase]);
 end;
 
 procedure TBookFrame.pmBrowserPopup(Sender: TObject);
