@@ -816,26 +816,19 @@ begin
   Src := Source;
 
   StringSearchOptions := [soDown];
+
   if not (soIgnoreCase in SearchOptions) then
     Include(StringSearchOptions, soMatchCase);
 
   if not (soWordParts in SearchOptions) then
   begin
-    for i := 1 to Length(Src) do
-      if not GetAlphabetBit(Integer(Src[i])) then
-        Src[i] := ' ';
-
+    Include(StringSearchOptions, soWholeWord);
     if FBible then
     begin
       Src := Trim(Src);
       StrDeleteFirstNumber(Src);
     end;
-
-    Src := ' ' + Src + ' ';
   end;
-
-  //if (soIgnoreCase in SearchOptions) then
-  //  Src := LowerCase(Src);
 
   if not (soContainAll in SearchOptions) then
   begin
@@ -858,10 +851,7 @@ begin
           Words.Objects[i] := TObject(-1);
         end;
 
-      //if (soIgnoreCase in SearchOptions) then
-      //  Wrd := LowerCase(Wrd);
-
-      Sr := (FindPosition(Wrd, Src, 1, StringSearchOptions) > 0);
+      Sr := (FindPosition(Wrd, Src, 0, StringSearchOptions) > 0);
       if StopKeyword and Sr then
       begin
         Res := False;
@@ -898,10 +888,7 @@ begin
       end;
     end;
 
-    //if (soIgnoreCase in SearchOptions) then
-    //  Wrd := LowerCase(Wrd);
-
-    Curpos := FindPosition(Src, Wrd, 1, StringSearchOptions);
+    Curpos := FindPosition(Src, Wrd, 0, StringSearchOptions);
     Sr := (Curpos > 0) xor StopKeyword;
 
     Res := Res and Sr;
@@ -1023,8 +1010,9 @@ begin
 
       if SearchOK(BookLines[I], TempWords, NewParams) and (Chapter > 0) then
       begin
-        if ((soExactPhrase in SearchOptions) and Trait[bqmtStrongs]) and (not SearchOK(DeleteStrongNumbers(BookLines[I]), Words, SearchOptions)) then
-          Continue; // filter for exact phrases
+        if ((soExactPhrase in SearchOptions) and Trait[bqmtStrongs]) then
+          if (not SearchOK(DeleteStrongNumbers(BookLines[I]), Words, SearchOptions)) then
+            Continue; // filter for exact phrases
 
         Inc(FVersesFound);
         if Assigned(Callback) then
@@ -1051,17 +1039,11 @@ begin
   FVersesFound := 0;
   FStopSearching := False;
 
-  if (soExactPhrase in SearchOptions) then
+  if not (soExactPhrase in SearchOptions) then
     while w <> '' do
       words.Add(DeleteFirstWord(w))
   else
     words.Add(Trim(SearchText));
-
-  if not (soWordParts in SearchOptions) then
-  begin
-    for i := 0 to words.Count - 1 do
-      words[i] := ' ' + words[i] + ' ';
-  end;
 
   if words.Count > 0 then
   begin

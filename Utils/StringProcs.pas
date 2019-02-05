@@ -17,7 +17,7 @@ function IniStringFirstPart(s: string): string;
 function IniStringSecondPart(s: string): string;
 
 function StrReplace(var s: string; const substr1, substr2: string; recurse: boolean): boolean;
-function StrColorUp(var Source: string; const Word, C1, C2: string; MatchCase: boolean): boolean;
+procedure StrColorUp(var Source: string; const Word, C1, C2: string; MatchCase: Boolean; WholeWord: Boolean = False);
 
 function StrDeleteFirstNumber(var s: string): string;
 function StrGetFirstNumber(s: string): string;
@@ -233,36 +233,45 @@ begin
     Result := '';
 end;
 
-function StrColorUp(var Source: string; const Word, C1, C2: string; MatchCase: Boolean): Boolean;
+procedure StrColorUp(var Source: string; const Word, C1, C2: string; MatchCase: Boolean; WholeWord: Boolean = False);
 var
-  I, Len: integer;
+  StartIndex, MatchIndex: Integer; // zero based indices
+  Len: Integer;
   Res: String;
+  PrevString, MatchString: String;
   StringSearchOptions: TStringSearchOptions;
 begin
   StringSearchOptions := [soDown];
+
   if MatchCase then
     Include(StringSearchOptions, soMatchCase);
 
-  Result := true;
+  if WholeWord then
+    Include(StringSearchOptions, soWholeWord);
 
-  I := FindPosition(Source, Word, 0, StringSearchOptions);
-  if I = 0 then
-  begin
-    Result := False;
-    Exit;
-  end;
-
+  StartIndex := 0;
   Len := Length(Word);
 
   Res := '';
-  repeat
-    Res := Res + Copy(Source, 1, I - 1) + C1 + Copy(Source, I, Len) + C2;
-    Source := Copy(Source, I + Len, Length(Source));
+  while True do
+  begin
+    MatchIndex := FindPosition(Source, Word, StartIndex, StringSearchOptions);
 
-    I := FindPosition(Source, Word, 0, StringSearchOptions);
-  until I = 0;
+    if (MatchIndex = 0) then
+      Break;
 
-  Source := Res + Source;
+    MatchIndex  := MatchIndex - 1;
+    PrevString  := Copy(Source, StartIndex + 1, MatchIndex - StartIndex);
+    MatchString := Copy(Source, MatchIndex + 1, Len);
+
+    Res := Res + PrevString + C1 + MatchString + C2;
+
+    StartIndex := MatchIndex + Len;
+  end;
+
+  // Copy the rest of the string
+  Res := Res + Copy(Source, StartIndex + 1, Length(Source) - StartIndex);
+  Source := Res;
 end;
 
 function StrReplace(var s: string; const substr1, substr2: string; recurse: boolean): boolean;
@@ -738,7 +747,7 @@ var
 begin
   Result := 0;
   buf := PChar(sourceString);
-  pResult := SearchBuf(buf, Length(sourceString), startPos, Length(findString), findString, options);
+  pResult := SearchBuf(buf, Length(sourceString), startPos, 0, findString, options);
   if pResult <> nil then
     Result := (pResult - PChar(sourceString)) + 1;
 end;

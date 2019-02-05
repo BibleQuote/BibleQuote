@@ -48,7 +48,8 @@ end;
 
 destructor TBookmarksFrame.Destroy;
 begin
-  mBookmarks.RemoveOnChange(OnBookmarksChange);
+  if Assigned(mBookmarks) then
+    mBookmarks.RemoveOnChange(OnBookmarksChange);
 
   inherited;
 end;
