@@ -2237,7 +2237,6 @@ begin
       begin
         StrReplace(dBrowserSource, '<*>', '<font color="' + Color2Hex(AppConfig.SelTextColor) + '">', true);
         StrReplace(dBrowserSource, '</*>', '</font>', true);
-
       end;
 
       if bookTabInfo[vtisResolveLinks] then
