@@ -121,9 +121,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.1.0.591;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.1.0.592;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <VerInfo_Build>591</VerInfo_Build>
+        <VerInfo_Build>592</VerInfo_Build>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
     </PropertyGroup>
@@ -179,6 +179,12 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 <Platform value="Win64">False</Platform>
             </Platforms>
             <Deployment Version="3">
+                <DeployFile LocalName="Resources\DefaultBibleQuote.png" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="E:\C++\DefaultMyBible.png" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
@@ -188,12 +194,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 <DeployFile LocalName="Output\BibleQuote.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>BibleQuote.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="E:\C++\DefaultBibleQuote.png" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -819,13 +819,13 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>
         </RcItem>
-        <RcItem Include="E:\C++\DefaultBibleQuote.png">
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>NATIVE_COVER_DEFAULT_IMAGE</ResourceId>
-        </RcItem>
         <RcItem Include="E:\C++\DefaultMyBible.png">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>MYBIBLE_COVER_DEFAULT_IMAGE</ResourceId>
+        </RcItem>
+        <RcItem Include="Resources\DefaultBibleQuote.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>NATIVE_COVER_DEFAULT_IMAGE</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
