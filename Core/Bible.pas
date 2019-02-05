@@ -851,7 +851,7 @@ begin
           Words.Objects[i] := TObject(-1);
         end;
 
-      Sr := (FindPosition(Wrd, Src, 0, StringSearchOptions) > 0);
+      Sr := (FindPosition(Src, Wrd, 0, StringSearchOptions) > 0);
       if StopKeyword and Sr then
       begin
         Res := False;
