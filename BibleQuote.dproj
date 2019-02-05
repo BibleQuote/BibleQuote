@@ -185,15 +185,15 @@ $(PostBuildEvent)]]></PostBuildEvent>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Resources\DefaultMyBible.png" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="Output\BibleQuote.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>BibleQuote.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Resources\DefaultMyBible.png" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -819,13 +819,13 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>
         </RcItem>
-        <RcItem Include="E:\C++\DefaultMyBible.png">
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>MYBIBLE_COVER_DEFAULT_IMAGE</ResourceId>
-        </RcItem>
         <RcItem Include="Resources\DefaultBibleQuote.png">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>NATIVE_COVER_DEFAULT_IMAGE</ResourceId>
+        </RcItem>
+        <RcItem Include="Resources\DefaultMyBible.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>MYBIBLE_COVER_DEFAULT_IMAGE</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
