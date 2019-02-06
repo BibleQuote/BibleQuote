@@ -39,6 +39,7 @@ type
 
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
     procedure ShowXref(bibleIniPath: string; bookIndex, chapterIndex: integer; goverse: integer = 0);
   end;
 
@@ -56,6 +57,11 @@ begin
 
   // this browser doesn't have underlines...
   bwrXRef.htOptions := bwrXRef.htOptions + [htNoLinkUnderline];
+end;
+
+procedure TTSKFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 procedure TTSKFrame.bwrXRefHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);

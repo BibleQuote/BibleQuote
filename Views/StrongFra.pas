@@ -62,6 +62,7 @@ type
     procedure SetCurrentBook(shortPath: string);
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
     function GetBookPath(): string;
 
     procedure LoadStrongDictionaries();
@@ -235,6 +236,11 @@ begin
     stext := Trim(edtStrong.Text);
     ShowStrong(stext);
   end;
+end;
+
+procedure TStrongFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 procedure TStrongFrame.miRefCopyClick(Sender: TObject);

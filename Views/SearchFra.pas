@@ -71,6 +71,7 @@ type
     procedure DisplaySearchResults(page: integer);
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
 
     function GetBookPath(): string;
     property SearchState: TSearchTabState read mSearchState write mSearchState;
@@ -724,6 +725,11 @@ begin
   except
     // do nothing
   end;
+
+end;
+
+procedure TSearchFrame.EventFrameKeyDown(var Key: Char);
+begin
 
 end;
 

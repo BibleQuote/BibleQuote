@@ -114,6 +114,7 @@ type
 
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
     destructor Destroy; override;
 
     property OnSelectModule: TSelectModuleEvent read FOnSelectModuleEvent write FOnSelectModuleEvent;
@@ -530,6 +531,20 @@ var
 begin
   Edit := Sender as TEdit;
   PostMessage(Edit.Handle, EM_SETSEL, 0, Length(Edit.Text));
+end;
+
+procedure TLibraryFrame.EventFrameKeyDown(var Key: Char);
+begin
+
+  if not edtFilter.Focused then begin
+
+    edtFilter.SetFocus;
+    PostMessage(edtFilter.Handle, WM_CHAR, dword(Key), 0);
+    PostMessage(edtFilter.Handle, WM_KEYUP, VK_RIGHT, 0);
+
+    Key := #0;
+  end;
+
 end;
 
 procedure TLibraryFrame.FillBookListViewItems;

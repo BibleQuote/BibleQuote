@@ -222,6 +222,7 @@ type
     procedure ActivateTargetWorkspace();
     procedure AddNewWorkspace;
     procedure OpenNewWorkspace;
+    procedure PassKeyToActiveLibrary(var Key: Char);
   public
     SysHotKey: TSysHotKey;
 
@@ -2057,6 +2058,18 @@ begin
   //
 end;
 
+procedure TMainForm.PassKeyToActiveLibrary(var Key: Char);
+begin
+  if mWorkspaces.Count > 0 then
+  begin
+    if (mWorkspace.GetActiveTabInfo().GetViewType() <> vttLibrary) then exit;
+
+    mWorkspace.LibraryView.EventFrameKeyDown(Key);
+
+  end;
+  
+end;
+
 function TMainForm.PassWordFormShowModal(const aModule: WideString; out Pwd: WideString; out savePwd: Boolean): integer;
 var
   modName: string;
@@ -2332,6 +2345,10 @@ begin
       miPrintPreview.Click; // this turns preview off
     Exit;
   end;
+
+  // else pass a key to active Library
+  PassKeyToActiveLibrary(Key);
+
 end;
 
 function TMainForm.FavoriteItemFromModEntry(const me: TModuleEntry): TMenuItem;

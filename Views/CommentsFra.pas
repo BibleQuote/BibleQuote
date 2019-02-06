@@ -38,6 +38,7 @@ type
     procedure ApplyConfig(AppConfig: TAppConfig);
     procedure SetSourceBook(SourceBook: TBible);
     property SourceBook: TBible read FSourceBook write SetSourceBook;
+    procedure EventFrameKeyDown(var Key: Char);
 
     constructor Create(Owner: TComponent; MainView: TMainForm; Workspace: IWorkspace); reintroduce;
   end;
@@ -375,6 +376,11 @@ begin
 
   if (cbCommentSource.Items.Count > 0) then
     cbCommentSource.ItemIndex := 0;
+end;
+
+procedure TCommentsFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 procedure TCommentsFrame.Notification(Msg: IJclNotificationMessage);

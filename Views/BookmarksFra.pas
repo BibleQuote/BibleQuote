@@ -27,6 +27,7 @@ type
   public
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace; ABookmarks: TBroadcastStringList); reintroduce;
     destructor Destroy; override;
   end;
@@ -51,6 +52,11 @@ begin
   mBookmarks.RemoveOnChange(OnBookmarksChange);
 
   inherited;
+end;
+
+procedure TBookmarksFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 procedure TBookmarksFrame.OnBookmarksChange(Sender: TObject);

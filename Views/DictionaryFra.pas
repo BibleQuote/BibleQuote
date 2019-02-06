@@ -70,6 +70,7 @@ type
 
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
     procedure DisplayDictionaries;
     procedure DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
     procedure UpdateSearch(const searchText: string; const dictionaryIndex: integer = -1; const foundDictionaryIndex: integer = -1);
@@ -270,6 +271,11 @@ begin
     Key := #0;
     DisplayDictionary(edtDic.Text);
   end;
+end;
+
+procedure TDictionaryFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 procedure TDictionaryFrame.pmRefPopup(Sender: TObject);
