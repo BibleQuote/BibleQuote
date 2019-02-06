@@ -104,6 +104,14 @@ StrBooks = OTHER BOOKS
 StrCommentaries = COMMENTARIES
 StrAllDictionaries = ALL DICTIONARIES
 ;
+StrModuleName = Name
+StrModuleAuthor = Author
+StrModuleVersion = Version
+;
+StrLibraryTileView = Tile view
+StrLibraryCoverView =  Cover view
+StrLibraryDetailsView = Details view
+;
 FoundInSeveralDictionaries = found in several dictionaries
 FoundInOneDictionary = found in one dictionary
 ;

@@ -681,6 +681,10 @@ begin
   lvBooks.Columns[0].Caption := Lang.Say('StrModuleName');
   lvBooks.Columns[1].Caption := Lang.Say('StrModuleAuthor');
   lvBooks.Columns[2].Caption := Lang.Say('StrModuleVersion');
+
+  miTileViewStyle.Caption := Lang.Say('StrLibraryTileView');
+  miCoverViewStyle.Caption := Lang.Say('StrLibraryCoverView');
+  miDetailsViewStyle.Caption := Lang.Say('StrLibraryDetailsView');
 end;
 
 procedure TLibraryFrame.vdtBooksCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
