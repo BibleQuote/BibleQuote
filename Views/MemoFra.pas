@@ -55,6 +55,7 @@ type
     { Public declarations }
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
   end;
 
 implementation
@@ -73,6 +74,11 @@ begin
 
   if (appConfig.MainFormFontSize <> Font.Size) then
     Font.Size := appConfig.MainFormFontSize;
+end;
+
+procedure TMemoFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 procedure TMemoFrame.miMemoCopyClick(Sender: TObject);

@@ -60,6 +60,7 @@ type
     destructor Destroy; override;
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
 
     procedure TagAdded(tagId: int64; const txt: string; Show: Boolean);
     procedure TagRenamed(tagId: int64; const newTxt: string);
@@ -100,6 +101,11 @@ begin
   FreeAndNil(mTagsVersesList);
 
   inherited;
+end;
+
+procedure TTagsVersesFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 function TTagsVersesFrame.GetTagFilterTimer: TTimer;
