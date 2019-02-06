@@ -97,6 +97,8 @@ object LibraryFrame: TLibraryFrame
         IconOptions.AutoArrange = True
         LargeImages = vimgCover
         OwnerData = True
+        ReadOnly = True
+        RowSelect = True
         ParentDoubleBuffered = False
         TabOrder = 0
         OnData = lvBooksData
