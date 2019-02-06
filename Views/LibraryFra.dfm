@@ -71,6 +71,10 @@ object LibraryFrame: TLibraryFrame
     TabOrder = 4
     object tsCoverDetailView: TTabSheet
       Caption = 'Cover/Details view'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lvBooks: TListView
         Left = 0
         Top = 0
@@ -104,6 +108,10 @@ object LibraryFrame: TLibraryFrame
     object tsTileView: TTabSheet
       Caption = 'Tile view'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object vdtBooks: TVirtualDrawTree
         Left = 0
         Top = 0
