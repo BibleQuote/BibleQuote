@@ -63,6 +63,7 @@ type
     procedure miCoverViewStyleClick(Sender: TObject);
     procedure miDetailsViewStyleClick(Sender: TObject);
     procedure lvBooksResize(Sender: TObject);
+    procedure edtFilterEnter(Sender: TObject);
   private
     mUILock: Boolean;
     mModules: TCachedModules;
@@ -522,6 +523,14 @@ begin
   UpdateBookList();
 end;
 
+
+procedure TLibraryFrame.edtFilterEnter(Sender: TObject);
+var
+  Edit: TEdit;
+begin
+  Edit := Sender as TEdit;
+  PostMessage(Edit.Handle, EM_SETSEL, 0, Length(Edit.Text));
+end;
 
 procedure TLibraryFrame.FillBookListViewItems;
 var
