@@ -9,7 +9,7 @@ uses
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, Htmlview, VirtualTrees,
   HTMLEmbedInterfaces, DictInterface, Bible, ExceptionFrm, BibleQuoteConfig,
   StringProcs, BibleLinkParser, Clipbrd, Engine, JclNotify, NotifyMessages,
-  System.Contnrs, AppIni;
+  System.Contnrs, AppIni, Character;
 
 type
   TDictionaryFrame = class(TFrame, IDictionaryView, IJclListener)
@@ -47,6 +47,7 @@ type
     procedure miOpenNewViewClick(Sender: TObject);
     procedure miRefPrintClick(Sender: TObject);
     procedure tbtnToggleClick(Sender: TObject);
+    procedure bwrDicKeyPress(Sender: TObject; var Key: Char);
   private
     mWorkspace: IWorkspace;
     mMainView: TMainForm;
@@ -60,6 +61,7 @@ type
     function DictionaryStartup(maxAdd: integer = maxInt): Boolean;
     procedure UpdateDictionariesCombo;
     procedure Notification(msg: IJclNotificationMessage); reintroduce; stdcall;
+    procedure RedirectSymbolKey(var Key: Char);
 
     // finds the closest match for a word in merged
     // dictionary word list
@@ -121,6 +123,23 @@ begin
   // TODO: decide what source to use for hints
   // show hints from this source
   //GetBookView(self).BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
+end;
+
+procedure TDictionaryFrame.bwrDicKeyPress(Sender: TObject; var Key: Char);
+begin
+  RedirectSymbolKey(Key);
+end;
+
+procedure TDictionaryFrame.RedirectSymbolKey(var Key: Char);
+begin
+  if (Key.IsLetterOrDigit or Key.IsPunctuation) then
+  begin
+    PostMessage(edtDic.Handle, WM_CHAR, WPARAM(Key), 0);
+    edtDic.SetFocus;
+    Key := #0;
+  end;
+
+  // do not process further
 end;
 
 procedure TDictionaryFrame.bwrDicMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -374,6 +393,10 @@ procedure TDictionaryFrame.vstDicListKeyPress(Sender: TObject; var Key: Char);
 var
   ix: integer;
 begin
+  RedirectSymbolKey(Key);
+  if (Key = #0) then
+    Exit;
+
   ix := DicSelectedItemIndex();
   if (Key = #13) and (ix >= 0) then
     DisplayDictionary(mBqEngine.DictionaryTokens[ix]);

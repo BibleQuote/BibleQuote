@@ -109,7 +109,7 @@ object DictionaryFrame: TDictionaryFrame
         Top = 4
         Width = 232
         Height = 21
-        Hint = 'ent word to search here'
+        Hint = 'Enter word to search here'
         Align = alTop
         TabOrder = 1
         OnChange = edtDicChange
@@ -170,6 +170,7 @@ object DictionaryFrame: TDictionaryFrame
       PrintMarginTop = 2.000000000000000000
       PrintScale = 1.000000000000000000
       ScrollBars = ssVertical
+      OnKeyPress = bwrDicKeyPress
       OnHotSpotClick = bwrDicHotSpotClick
       OnHotSpotCovered = bwrDicHotSpotCovered
       OnMouseDouble = bwrDicMouseDouble
