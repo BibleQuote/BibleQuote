@@ -104,6 +104,14 @@ StrBooks = ДРУГИЕ КНИГИ
 StrCommentaries = КОММЕНТАРИИ
 StrAllDictionaries = ВСЕ СЛОВАРИ
 ;
+StrModuleName = Наименование
+StrModuleAuthor = Автор
+StrModuleVersion = Версия
+;
+StrLibraryTileView = Плитка
+StrLibraryCoverView =  Значки
+StrLibraryDetailsView = Таблица
+;
 FoundInSeveralDictionaries = найдено в нескольких словарях
 FoundInOneDictionary = найдено в одном словаре
 ;
