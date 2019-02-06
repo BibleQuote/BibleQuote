@@ -71,10 +71,6 @@ object LibraryFrame: TLibraryFrame
     TabOrder = 4
     object tsCoverDetailView: TTabSheet
       Caption = 'Cover/Details view'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lvBooks: TListView
         Left = 0
         Top = 0
@@ -83,16 +79,19 @@ object LibraryFrame: TLibraryFrame
         Align = alClient
         Columns = <
           item
-            AutoSize = True
             Caption = 'Description'
+            MinWidth = 150
+            Width = 141
           end
           item
-            AutoSize = True
             Caption = 'Author'
+            MinWidth = 100
+            Width = 141
           end
           item
-            AutoSize = True
             Caption = 'Version'
+            MinWidth = 100
+            Width = 141
           end>
         DoubleBuffered = True
         IconOptions.AutoArrange = True
@@ -103,15 +102,12 @@ object LibraryFrame: TLibraryFrame
         OnData = lvBooksData
         OnDataHint = lvBooksDataHint
         OnDblClick = lvBooksDblClick
+        OnResize = lvBooksResize
       end
     end
     object tsTileView: TTabSheet
       Caption = 'Tile view'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object vdtBooks: TVirtualDrawTree
         Left = 0
         Top = 0

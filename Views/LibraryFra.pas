@@ -62,6 +62,7 @@ type
     procedure miTileViewStyleClick(Sender: TObject);
     procedure miCoverViewStyleClick(Sender: TObject);
     procedure miDetailsViewStyleClick(Sender: TObject);
+    procedure lvBooksResize(Sender: TObject);
   private
     mUILock: Boolean;
     mModules: TCachedModules;
@@ -93,6 +94,7 @@ type
     procedure TileViewInfo(aListView: TListView; aIndex: Integer);
     procedure FillBookListViewItems();
     procedure LoadBookThumbnails(aStartIndex: Integer; aEndIndex: Integer);
+    procedure AdjustDetailsViewColumnsWidth();
 
     procedure InitFonts();
     function CreateFont(aSize: Integer = 10; aColor: Integer = clBlack;
@@ -238,6 +240,17 @@ begin
   ImageItem.SourceImages.Add.Image := aImage;
 
   Result := imgCoverCollection.GetIndexByName(aName);
+end;
+
+procedure TLibraryFrame.AdjustDetailsViewColumnsWidth();
+var
+  ClientWidth: Integer;
+begin
+  ClientWidth := lvBooks.ClientWidth;
+  lvBooks.Columns[0].Width := Trunc(ClientWidth * 0.6);
+  lvBooks.Columns[1].Width := Trunc(ClientWidth * 0.3);
+  lvBooks.Columns[2].Width := Trunc(ClientWidth * 0.1);
+
 end;
 
 procedure TLibraryFrame.ApplyConfig(appConfig: TAppConfig);
@@ -400,6 +413,12 @@ begin
   if Assigned(FOnSelectModuleEvent) then
     FOnSelectModuleEvent(self, modEntry);
 
+end;
+
+procedure TLibraryFrame.lvBooksResize(Sender: TObject);
+begin
+
+    AdjustDetailsViewColumnsWidth();
 end;
 
 procedure TLibraryFrame.miCoverViewStyleClick(Sender: TObject);
