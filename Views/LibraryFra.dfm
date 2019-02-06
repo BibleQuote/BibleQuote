@@ -91,6 +91,7 @@ object LibraryFrame: TLibraryFrame
             Caption = 'Version'
           end>
         DoubleBuffered = True
+        IconOptions.AutoArrange = True
         LargeImages = vimgCover
         OwnerData = True
         ParentDoubleBuffered = False
