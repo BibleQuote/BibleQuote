@@ -24,8 +24,10 @@ object LibraryFrame: TLibraryFrame
     Width = 110
     Height = 21
     Anchors = [akLeft, akTop, akRight]
+    HideSelection = False
     TabOrder = 0
     OnChange = edtFilterChange
+    OnEnter = edtFilterEnter
   end
   object cmbBookType: TComboBox
     Left = 155
@@ -81,7 +83,7 @@ object LibraryFrame: TLibraryFrame
           item
             Caption = 'Description'
             MinWidth = 150
-            Width = 141
+            Width = 150
           end
           item
             Caption = 'Author'
