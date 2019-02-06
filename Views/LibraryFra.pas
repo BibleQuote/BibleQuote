@@ -89,6 +89,10 @@ type
     procedure SetModuleCountLable();
     function IsSuitableCategory(aModType: TModuleType): Boolean;
     function GetDefaultCoverKey(aModEntry: TModuleEntry): String;
+    procedure TileView(aListView: TListView);
+    procedure TileViewInfo(aListView: TListView; aIndex: Integer);
+    procedure FillBookListViewItems();
+    procedure LoadBookThumbnails(aStartIndex: Integer; aEndIndex: Integer);
 
     procedure InitFonts();
     function CreateFont(aSize: Integer = 10; aColor: Integer = clBlack;
@@ -127,7 +131,7 @@ implementation
 
 {$R *.dfm}
 
-uses SelectEntityType;
+uses SelectEntityType, CommCtrl;
 
 constructor TLibraryFrame.Create(AOwner: TComponent);
 begin
@@ -143,8 +147,9 @@ begin
 
   HidePageControlTabs(pcViews);
 
-
   miTileViewStyleClick(nil);
+
+
 end;
 
 function TLibraryFrame.CreateFont(aSize: Integer; aColor: Integer;
@@ -300,6 +305,36 @@ begin
 
 end;
 
+procedure TLibraryFrame.LoadBookThumbnails(aStartIndex, aEndIndex: Integer);
+var
+  i: Integer;
+  ModEntry : TModuleEntry;
+  CoverPicture : TPicture;
+  ImageIndex: Integer;
+  Item: TPair<TModuleEntry, Integer>;
+
+begin
+  for i := aStartIndex to aEndIndex do
+  begin
+
+    if FFilteredModTypes[i].Value <> UNDEFAINED_IMAGEINDEX then continue;
+
+    Item := FFilteredModTypes[i];
+    ModEntry := Item.Key;
+
+    CoverPicture := ModEntry.GetCoverImage(GetCoverWidth, GetCoverHeight);
+
+    if Assigned(CoverPicture) then
+      ImageIndex := AddCoverImage(ModEntry.ShortPath, CoverPicture)
+    else
+      ImageIndex := AddDefaultCoverImage(GetDefaultCoverKey(ModEntry));
+
+    Item.Value := ImageIndex;
+    FFilteredModTypes[i] := Item;
+
+  end;
+end;
+
 function TLibraryFrame.LoadDefaultCoverImage(aResource: String): TPicture;
 var origCoverImage: TPicture;
 begin
@@ -339,35 +374,11 @@ end;
 
 procedure TLibraryFrame.lvBooksDataHint(Sender: TObject; StartIndex,
   EndIndex: Integer);
-var
-  i: Integer;
-  ModEntry : TModuleEntry;
-  CoverPicture : TPicture;
-  ImageIndex: Integer;
-  Item: TPair<TModuleEntry, Integer>;
 begin
 
   if (StartIndex >= FFilteredModTypes.Count) or (EndIndex >= FFilteredModTypes.Count) then exit;
 
-  for i := StartIndex to EndIndex do
-  begin
-
-    if FFilteredModTypes[i].Value <> UNDEFAINED_IMAGEINDEX then continue;
-
-    Item := FFilteredModTypes[i];
-    ModEntry := Item.Key;
-
-    CoverPicture := ModEntry.GetCoverImage(GetCoverWidth, GetCoverHeight);
-
-    if Assigned(CoverPicture) then
-      ImageIndex := AddCoverImage(ModEntry.ShortPath, CoverPicture)
-    else
-      ImageIndex := AddDefaultCoverImage(GetDefaultCoverKey(ModEntry));
-
-    Item.Value := ImageIndex;
-    FFilteredModTypes[i] := Item;
-
-  end;
+  LoadBookThumbnails(StartIndex, EndIndex);
 
 end;
 
@@ -420,9 +431,13 @@ end;
 procedure TLibraryFrame.miTileViewStyleClick(Sender: TObject);
 begin
 
+  lvBooks.SmallImages := nil;
+  SetCoverImageSize(GetCoverWidth, GetCoverHeight);
+  lvBooks.LargeImages := vimgCover;
+
   UpdateBookViews();
 
-  pcViews.ActivePage := tsTileView;
+  pcViews.ActivePage := tsCoverDetailView;
 end;
 
 procedure TLibraryFrame.UpdateModuleTypes;
@@ -489,6 +504,43 @@ begin
 end;
 
 
+procedure TLibraryFrame.FillBookListViewItems;
+var
+  i: Integer;
+  Item: TListItem;
+  ModEntry : TModuleEntry;
+  ImageIndex: Integer;
+
+begin
+  lvBooks.Items.BeginUpdate;
+
+  try
+
+    for i := 0 to FFilteredModTypes.Count -1 do
+    begin
+      ModEntry := FFilteredModTypes[i].Key;
+      Item := lvBooks.Items.Add;
+
+      ImageIndex := FFilteredModTypes[Item.Index].Value;
+
+      if ImageIndex >= 0 then
+        Item.ImageIndex := ImageIndex;
+
+      ModEntry := FFilteredModTypes[Item.Index].Key;
+
+      Item.Caption := ModEntry.FullName;
+      Item.SubItems.Add(ModEntry.Author);
+      Item.SubItems.Add(ModEntry.ModuleVersion);
+
+    end;
+
+  finally
+    lvBooks.Items.EndUpdate;
+
+  end;
+
+end;
+
 procedure TLibraryFrame.FrameResize(Sender: TObject);
 begin
   vdtBooks.ReinitChildren(nil, true);
@@ -551,13 +603,56 @@ begin
   end;
 end;
 
-procedure TLibraryFrame.UpdateBookViews;
+procedure TLibraryFrame.TileView(aListView: TListView);
 var
-  i: Integer;
+  tvi: TLVTILEVIEWINFO;
+  i: integer;
+begin
+  ListView_SetView(aListView.Handle, LV_VIEW_TILE);
+
+  for i := 0 to aListView.Items.Count - 1 do begin
+    TileViewInfo(alistView, i);
+  end;
+
+  tvi.cbSize := Sizeof(tvi);
+  tvi.dwMask := LVTVIM_COLUMNS;
+  // Requesting space to draw the caption + 3 subitems
+  tvi.cLines := aListView.Columns.Count;
+  ListView_SetTileViewInfo(aListView.Handle, tvi);
+end;
+
+
+procedure TLibraryFrame.TileViewInfo(aListView: TListView; aIndex: Integer);
+var
+  ti: TLVTILEINFO;
+  Order: array of Integer;
+begin
+    FillChar(ti, SizeOf(ti), 0);
+    ti.cbSize := SizeOf(ti);
+    // First item
+    ti.iItem := aIndex;
+    // Specifying the order for three columns
+    ti.cColumns := 6;
+    // Array initialization
+    SetLength(order, ti.cColumns);
+    // The order is 2nd, 3rd and 4th columns
+    order[0] := 1;
+    order[1] := 2;
+    order[2] := 3;
+    order[3] := 4;
+    ti.puColumns := PUINT(order);
+    ListView_SetTileInfo(aListView.Handle, ti);
+
+end;
+
+
+procedure TLibraryFrame.UpdateBookViews;
 begin
     // Cover view
     if miCoverViewStyle.Checked or miDetailsViewStyle.Checked then
     begin
+      lvBooks.Clear;
+      lvBooks.OwnerData := True;
       lvBooks.Items.Count := FFilteredModTypes.Count;
       lvBooks.Repaint;
     end;
@@ -566,20 +661,16 @@ begin
     if miTileViewStyle.Checked then
     begin
       // Tile view
-      vdtBooks.Clear;
-      vdtBooks.BeginUpdate;
+      lvBooks.OwnerData := False;
+      lvBooks.Clear;
 
-      try
+      LoadBookThumbnails(0, FFilteredModTypes.Count - 1);
+      FillBookListViewItems();
 
-        for i := 0 to FFilteredModTypes.Count -1 do
-        begin
-          vdtBooks.InsertNode(nil, amAddChildLast, FFilteredModTypes[i].Key);
-        end;
+      TileView(lvBooks);
 
-      finally
-        vdtBooks.EndUpdate;
-
-      end;
+      lvBooks.Repaint;
+      lvBooks.Refresh;
     end;
 
 
