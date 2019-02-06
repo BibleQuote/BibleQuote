@@ -62,6 +62,7 @@ type
     procedure SetCurrentBook(shortPath: string);
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
     function GetBookPath(): string;
 
     procedure LoadStrongDictionaries();
@@ -242,6 +243,11 @@ begin
   Ch := Char(Key);
   if ((Ch.IsSymbol or Ch.IsPunctuation or Ch.IsLetterOrDigit) and not (IsStrongChar(Ch))) then
     Key := #0;
+end;
+
+procedure TStrongFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 procedure TStrongFrame.miRefCopyClick(Sender: TObject);

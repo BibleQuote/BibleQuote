@@ -208,6 +208,7 @@ type
     property BookTabInfo: TBookTabInfo read GetBookTabInfo;
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure EventFrameKeyDown(var Key: Char);
     procedure UpdateModuleTreeSelection(book: TBible);
     procedure UpdateModuleTree(book: TBible);
     function GetCurrentBookNode(): PVirtualNode;
@@ -1176,6 +1177,11 @@ begin
   mMainView.miDeteleBibleTab.tag := itemIx;
   pt := dtsBible.ClientToScreen(pt);
   mMainView.pmEmpty.Popup(pt.X, pt.Y);
+end;
+
+procedure TBookFrame.EventFrameKeyDown(var Key: Char);
+begin
+
 end;
 
 procedure TBookFrame.FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
