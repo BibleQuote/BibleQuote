@@ -39,8 +39,7 @@ type
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure vstStrongKeyPress(Sender: TObject; var Key: Char);
     procedure vstStrongAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
-    procedure vstStrongKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure bwrStrongKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure bwrStrongKeyPress(Sender: TObject; var Key: Char);
   private
     mWorkspace: IWorkspace;
     mMainView: TMainForm;
@@ -55,7 +54,7 @@ type
     procedure CMShowingChanged(var Message: TMessage); MESSAGE CM_SHOWINGCHANGED;
     function GetStrongWordByIndex(ix: Integer): string;
     function IsStrongChar(Ch: Char): Boolean;
-    procedure HandleLetterOrDigitKeys(var Key: Word; Shift: TShiftState);
+    procedure RedirectAlphanumericKey(var Key: Char);
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
 
@@ -183,9 +182,9 @@ begin
   end;
 end;
 
-procedure TStrongFrame.bwrStrongKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TStrongFrame.bwrStrongKeyPress(Sender: TObject; var Key: Char);
 begin
-  HandleLetterOrDigitKeys(Key, Shift);
+  RedirectAlphanumericKey(Key);
 end;
 
 procedure TStrongFrame.bwrStrongMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -294,14 +293,15 @@ begin
     vstStrong.IterateSubtree(nil, SearchText, PChar(word));
 end;
 
-procedure TStrongFrame.HandleLetterOrDigitKeys(var Key: Word; Shift: TShiftState);
+procedure TStrongFrame.RedirectAlphanumericKey(var Key: Char);
 begin
-  if (Char(Key).IsLetterOrDigit and ((Shift = [ssShift]) or (Shift = []))) then
+  if (Key.IsLetterOrDigit) then
   begin
-    PostMessage(edtStrong.Handle, WM_CHAR, Key, 0);
+    PostMessage(edtStrong.Handle, WM_CHAR, WPARAM(Key), 0);
     edtStrong.SetFocus;
-    Key := 0;
+    Key := #0;
   end;
+
   // do not process further
 end;
 
@@ -449,15 +449,14 @@ begin
   end;
 end;
 
-procedure TStrongFrame.vstStrongKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  HandleLetterOrDigitKeys(Key, Shift);
-end;
-
 procedure TStrongFrame.vstStrongKeyPress(Sender: TObject; var Key: Char);
 var
   pn: PVirtualNode;
 begin
+  RedirectAlphanumericKey(Key);
+  if (Key = #0) then
+    Exit;
+
   pn := vstStrong.GetFirstSelected();
   if not Assigned(pn) then
     Exit;
