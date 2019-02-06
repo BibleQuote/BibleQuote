@@ -54,6 +54,7 @@ type
     procedure ShowStrong(stext: string);
     procedure CMShowingChanged(var Message: TMessage); MESSAGE CM_SHOWINGCHANGED;
     function GetStrongWordByIndex(ix: Integer): string;
+    function IsStrongChar(Ch: Char): Boolean;
     procedure HandleLetterOrDigitKeys(var Key: Word; Shift: TShiftState);
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
@@ -227,15 +228,21 @@ end;
 
 procedure TStrongFrame.edtStrongKeyPress(Sender: TObject; var Key: Char);
 var
-  stext: string;
+  SText: string;
+  Ch: Char;
 begin
   if Key = #13 then
   begin
     Key := #0;
 
-    stext := Trim(edtStrong.Text);
-    ShowStrong(stext);
+    SText := Trim(edtStrong.Text);
+    ShowStrong(SText);
+    Exit;
   end;
+
+  Ch := Char(Key);
+  if ((Ch.IsSymbol or Ch.IsPunctuation or Ch.IsLetterOrDigit) and not (IsStrongChar(Ch))) then
+    Key := #0;
 end;
 
 procedure TStrongFrame.miRefCopyClick(Sender: TObject);
@@ -296,6 +303,11 @@ begin
     Key := 0;
   end;
   // do not process further
+end;
+
+function TStrongFrame.IsStrongChar(Ch: Char): Boolean;
+begin
+  Result := Ch.IsDigit or Ch.ToUpper.IsInArray(['G', 'H']);
 end;
 
 function TStrongFrame.GetStrongWordByIndex(ix: Integer): string;
