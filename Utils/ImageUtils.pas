@@ -4,6 +4,7 @@ interface
 uses
   Windows, Vcl.Graphics, Classes, Jpeg, PngImage, Math, Wincodec;
 
+procedure SmoothResize(srcBitmap: TBitmap; destBitmap: TBitmap);
 function StretchImage(srcPicture: TPicture; width, heigth: integer): TPicture;
 function LoadResourceImage(resourceName: string): TPicture;
 function LoadResourceWICImage(resourceName: string): TWICImage;
@@ -81,10 +82,25 @@ begin
   end;
 end;
 
+procedure SmoothResize(srcBitmap: TBitmap; destBitmap: TBitmap);
+var pt:TPoint;
+    h: HDC;
+begin
+  h := destBitmap.Canvas.Handle;
+
+  GetBrushOrgEx(h, pt);
+  SetStretchBltMode(h, HALFTONE);
+  SetBrushOrgEx(h, pt.x, pt.y, @pt);
+  StretchBlt(h, 0, 0, destBitmap.Width-1,
+    destBitmap.Height-1, srcBitmap.Canvas.Handle,
+    0, 0, srcBitmap.Width-1, srcBitmap.Height-1,SRCCOPY);
+end;
+
 function StretchImage(srcPicture: TPicture; width, heigth: integer): TPicture;
 var
   resPicture: TPicture;
   rect: TRect;
+  Bitmap: TBitmap;
 begin
   rect.Left := 0;
   rect.Top := 0;
@@ -101,12 +117,18 @@ begin
     rect.Right := (heigth * srcPicture.Width) div srcPicture.Height;
   end;
 
-  resPicture := TPicture.Create;
-  resPicture.Bitmap.Assign(srcPicture.Graphic);
+  Bitmap := TBitmap.Create;
+  Bitmap.Assign(srcPicture.Graphic);
+  try
 
-  resPicture.Bitmap.Canvas.StretchDraw(rect, srcPicture.Graphic);
-  resPicture.Bitmap.Width := rect.Right;
-  resPicture.Bitmap.Height := rect.Bottom;
+    resPicture := TPicture.Create;
+
+    resPicture.Bitmap.Width := rect.Right;
+    resPicture.Bitmap.Height := rect.Bottom;
+    SmoothResize(Bitmap, resPicture.Bitmap);
+  finally
+    Bitmap.Free;
+  end;
 
   Result := resPicture;
 end;
