@@ -39,13 +39,14 @@ type
     btnViewStyle: TButton;
     pcViews: TPageControl;
     tsCoverDetailView: TTabSheet;
-    tsTileView: TTabSheet;
+    tsListView: TTabSheet;
     vdtBooks: TVirtualDrawTree;
     miCoverViewStyle: TMenuItem;
     lvBooks: TListView;
     imgCoverCollection: TImageCollection;
     vimgCover: TVirtualImageList;
     lblModuleCount: TLabel;
+    miListViewStyle: TMenuItem;
 
     procedure btnClearClick(Sender: TObject);
     procedure cmbBookTypeChange(Sender: TObject);
@@ -59,9 +60,7 @@ type
     procedure lvBooksDataHint(Sender: TObject; StartIndex, EndIndex: Integer);
     procedure lvBooksData(Sender: TObject; Item: TListItem);
     procedure lvBooksDblClick(Sender: TObject);
-    procedure miTileViewStyleClick(Sender: TObject);
-    procedure miCoverViewStyleClick(Sender: TObject);
-    procedure miDetailsViewStyleClick(Sender: TObject);
+    procedure miSomeViewStyleClick(Sender: TObject);
     procedure lvBooksResize(Sender: TObject);
     procedure edtFilterEnter(Sender: TObject);
     procedure lvBooksInfoTip(Sender: TObject; Item: TListItem;
@@ -95,11 +94,16 @@ type
     function GetDefaultCoverKey(aModEntry: TModuleEntry): String;
     procedure TileView(aListView: TListView);
     procedure TileViewInfo(aListView: TListView; aIndex: Integer);
-    procedure FillBookListViewItems();
+    procedure FillTileViewItems();
+    procedure FillListViewItems();
     procedure LoadBookThumbnails(aStartIndex: Integer; aEndIndex: Integer);
     procedure AdjustDetailsViewColumnsWidth();
     function GetToolTipForIcon(Item: TListItem): String;
     function AddAtNewLine(aDestination, aValue: String; aTitle: String = ''): String;
+    procedure PrepareListForBigImages();
+    procedure PrepareListForSmallImages();
+    procedure TurnOnVirtualDataForList();
+    procedure TurnOffVirtualDataForList();
 
     procedure InitFonts();
     function CreateFont(aSize: Integer = 10; aColor: Integer = clBlack;
@@ -155,7 +159,8 @@ begin
 
   HidePageControlTabs(pcViews);
 
-  miTileViewStyleClick(nil);
+  miTileViewStyle.Checked := True;
+  miSomeViewStyleClick(miTileViewStyle);
 
 
 end;
@@ -214,8 +219,6 @@ begin
 end;
 
 function TLibraryFrame.AddAtNewLine(aDestination, aValue: String; aTitle: String): String;
-var
-  TextTempl: String;
 begin
 
   Result := aDestination;
@@ -446,10 +449,12 @@ procedure TLibraryFrame.lvBooksInfoTip(Sender: TObject; Item: TListItem;
   var InfoTip: string);
 begin
 
-  if (Sender as TListView).ViewStyle = vsIcon then
+  if miCoverViewStyle.Checked then
   begin
     InfoTip := GetToolTipForIcon(Item);
-  end;
+  end
+  else
+    InfoTip := '';
 
 end;
 
@@ -459,42 +464,13 @@ begin
     AdjustDetailsViewColumnsWidth();
 end;
 
-procedure TLibraryFrame.miCoverViewStyleClick(Sender: TObject);
+procedure TLibraryFrame.miSomeViewStyleClick(Sender: TObject);
 begin
-  lvBooks.ViewStyle := vsIcon;
-  lvBooks.SmallImages := nil;
-  SetCoverImageSize(GetCoverWidth, GetCoverHeight);
-  lvBooks.LargeImages := vimgCover;
+
+  btnViewStyle.ImageIndex := (Sender as TMenuItem).ImageIndex;
 
   UpdateBookViews();
 
-  pcViews.ActivePage := tsCoverDetailView;
-
-end;
-
-procedure TLibraryFrame.miDetailsViewStyleClick(Sender: TObject);
-begin
-
-  lvBooks.LargeImages := nil;
-  SetCoverImageSize(GetSmallCoverWidth, GetSmallCoverHeight);
-  lvBooks.SmallImages := vimgCover;
-  lvBooks.ViewStyle := vsReport;
-
-  UpdateBookViews();
-
-  pcViews.ActivePage := tsCoverDetailView;
-end;
-
-procedure TLibraryFrame.miTileViewStyleClick(Sender: TObject);
-begin
-
-  lvBooks.SmallImages := nil;
-  SetCoverImageSize(GetCoverWidth, GetCoverHeight);
-  lvBooks.LargeImages := vimgCover;
-
-  UpdateBookViews();
-
-  pcViews.ActivePage := tsCoverDetailView;
 end;
 
 procedure TLibraryFrame.UpdateModuleTypes;
@@ -522,6 +498,20 @@ begin
 end;
 
 
+procedure TLibraryFrame.TurnOffVirtualDataForList;
+begin
+  lvBooks.OwnerData := False;
+  lvBooks.Clear;
+end;
+
+procedure TLibraryFrame.TurnOnVirtualDataForList;
+begin
+  lvBooks.Clear;
+  lvBooks.OwnerData := True;
+  lvBooks.Items.Count := FFilteredModTypes.Count;
+  lvBooks.Repaint;
+end;
+
 procedure TLibraryFrame.SetCoverImageSize(aWidth, aHeight: Integer);
 begin
   vimgCover.Width := aWidth;
@@ -543,6 +533,20 @@ end;
 procedure TLibraryFrame.OnModulesAssign(Sender: TObject);
 begin
   UpdateBookList();
+end;
+
+procedure TLibraryFrame.PrepareListForSmallImages;
+begin
+  lvBooks.LargeImages := nil;
+  SetCoverImageSize(GetSmallCoverWidth, GetSmallCoverHeight);
+  lvBooks.SmallImages := vimgCover;
+end;
+
+procedure TLibraryFrame.PrepareListForBigImages();
+begin
+  lvBooks.SmallImages := nil;
+  SetCoverImageSize(GetCoverWidth, GetCoverHeight);
+  lvBooks.LargeImages := vimgCover;
 end;
 
 procedure TLibraryFrame.btnClearClick(Sender: TObject);
@@ -583,7 +587,28 @@ begin
 
 end;
 
-procedure TLibraryFrame.FillBookListViewItems;
+procedure TLibraryFrame.FillListViewItems();
+var
+  i: Integer;
+begin
+    // Tile view
+    vdtBooks.Clear;
+    vdtBooks.BeginUpdate;
+
+    try
+
+      for i := 0 to FFilteredModTypes.Count -1 do
+      begin
+        vdtBooks.InsertNode(nil, amAddChildLast, FFilteredModTypes[i].Key);
+      end;
+
+    finally
+      vdtBooks.EndUpdate;
+
+    end;
+end;
+
+procedure TLibraryFrame.FillTileViewItems;
 var
   i: Integer;
   Item: TListItem;
@@ -591,13 +616,13 @@ var
   ImageIndex: Integer;
 
 begin
+  lvBooks.Items.Clear;
   lvBooks.Items.BeginUpdate;
 
   try
 
     for i := 0 to FFilteredModTypes.Count -1 do
     begin
-      ModEntry := FFilteredModTypes[i].Key;
       Item := lvBooks.Items.Add;
 
       ImageIndex := FFilteredModTypes[Item.Index].Value;
@@ -725,33 +750,49 @@ begin
 end;
 
 
-procedure TLibraryFrame.UpdateBookViews;
+procedure TLibraryFrame.UpdateBookViews();
 begin
     // Cover view
     if miCoverViewStyle.Checked or miDetailsViewStyle.Checked then
     begin
-      lvBooks.Clear;
-      lvBooks.OwnerData := True;
-      lvBooks.Items.Count := FFilteredModTypes.Count;
-      lvBooks.Repaint;
-    end;
+      TurnOnVirtualDataForList();
 
+      if miCoverViewStyle.Checked then
+      begin
+        PrepareListForBigImages();
+        lvBooks.ViewStyle := vsIcon;
+        pcViews.ActivePage := tsCoverDetailView;
+      end
+      else begin
+        PrepareListForSmallImages();
+        lvBooks.ViewStyle := vsReport;
+        pcViews.ActivePage := tsCoverDetailView;
+      end;
 
-    if miTileViewStyle.Checked then
+    end
+    else if miTileViewStyle.Checked then
     begin
+      PrepareListForBigImages();
+
       // Tile view
-      lvBooks.OwnerData := False;
-      lvBooks.Clear;
+      TurnOffVirtualDataForList();
 
       LoadBookThumbnails(0, FFilteredModTypes.Count - 1);
-      FillBookListViewItems();
+      FillTileViewItems();
 
       TileView(lvBooks);
 
       lvBooks.Repaint;
       lvBooks.Refresh;
-    end;
 
+      pcViews.ActivePage := tsCoverDetailView;
+    end
+    else if miListViewStyle.Checked then
+    begin
+      FillListViewItems();
+
+      pcViews.ActivePage := tsListView;
+    end;
 
 end;
 
