@@ -106,6 +106,7 @@ object LibraryFrame: TLibraryFrame
         OnData = lvBooksData
         OnDataHint = lvBooksDataHint
         OnDblClick = lvBooksDblClick
+        OnInfoTip = lvBooksInfoTip
         OnResize = lvBooksResize
       end
     end

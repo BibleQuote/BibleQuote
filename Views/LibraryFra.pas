@@ -64,6 +64,8 @@ type
     procedure miDetailsViewStyleClick(Sender: TObject);
     procedure lvBooksResize(Sender: TObject);
     procedure edtFilterEnter(Sender: TObject);
+    procedure lvBooksInfoTip(Sender: TObject; Item: TListItem;
+      var InfoTip: string);
   private
     mUILock: Boolean;
     mModules: TCachedModules;
@@ -96,6 +98,8 @@ type
     procedure FillBookListViewItems();
     procedure LoadBookThumbnails(aStartIndex: Integer; aEndIndex: Integer);
     procedure AdjustDetailsViewColumnsWidth();
+    function GetToolTipForIcon(Item: TListItem): String;
+    function AddAtNewLine(aDestination, aValue: String; aTitle: String = ''): String;
 
     procedure InitFonts();
     function CreateFont(aSize: Integer = 10; aColor: Integer = clBlack;
@@ -207,6 +211,27 @@ begin
   FCoverDefaults.Add(NATIVE_COVER_DEFAULT_IMAGE, LoadDefaultCoverImage(NATIVE_COVER_DEFAULT_IMAGE));
   FCoverDefaults.Add(MYBIBLE_COVER_DEFAULT_IMAGE, LoadDefaultCoverImage(MYBIBLE_COVER_DEFAULT_IMAGE));
 
+end;
+
+function TLibraryFrame.AddAtNewLine(aDestination, aValue: String; aTitle: String): String;
+var
+  TextTempl: String;
+begin
+
+  Result := aDestination;
+
+  if not aValue.IsEmpty then
+  begin
+    if not aDestination.IsEmpty then aDestination := aDestination + sLineBreak;
+
+    if not aTitle.IsEmpty then
+      aDestination := aDestination + Format('%s: %s', [aTitle, aValue])
+    else
+      aDestination := aDestination + aValue;
+
+    Result := aDestination;
+  end;
+  
 end;
 
 function TLibraryFrame.AddCoverImage(aName: String; aPicture: TPicture): Integer;
@@ -414,6 +439,17 @@ begin
 
   if Assigned(FOnSelectModuleEvent) then
     FOnSelectModuleEvent(self, modEntry);
+
+end;
+
+procedure TLibraryFrame.lvBooksInfoTip(Sender: TObject; Item: TListItem;
+  var InfoTip: string);
+begin
+
+  if (Sender as TListView).ViewStyle = vsIcon then
+  begin
+    InfoTip := GetToolTipForIcon(Item);
+  end;
 
 end;
 
@@ -835,6 +871,23 @@ end;
 function TLibraryFrame.GetSmallCoverWidth: integer;
 begin
   Result := Trunc(GetCoverWidth / SMALL_COVER_COEF);
+end;
+
+function TLibraryFrame.GetToolTipForIcon(Item: TListItem): String;
+var
+  ModEntry: TModuleEntry;
+begin
+
+  Result := '';
+
+  if Item.Index >= FFilteredModTypes.Count then exit;
+
+  ModEntry := FFilteredModTypes[Item.Index].Key;
+
+  Result := AddAtNewLine(Result, ModEntry.FullName);
+  Result := AddAtNewLine(Result, ModEntry.Author, Lang.Say('StrModuleAuthor'));
+  Result := AddAtNewLine(Result, ModEntry.ModuleVersion, Lang.Say('StrModuleVersion'));
+
 end;
 
 function TLibraryFrame.GetWICImage(aPicture: TPicture): TWICImage;
