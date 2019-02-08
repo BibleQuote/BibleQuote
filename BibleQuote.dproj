@@ -57,7 +57,7 @@
         <VerInfo_Locale>1049</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=BibleQuote;FileDescription=Quote the Bible with confidence;FileVersion=7.0.0.538;InternalName=BibleQuote;LegalCopyright=MIT;LegalTrademarks=;OriginalFilename=BibleQuote;ProductName=BibleQuote;ProductVersion=7.0.0.538;Comments=Quote the Bible with confidence;PrivateBuild=Yes</VerInfo_Keys>
         <DCC_ExeOutput>.\Output\</DCC_ExeOutput>
-        <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\Components\TChromeTabs\Lib;.\BqComponents;.\Components\FastMM4;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\Components\TChromeTabs\Lib;.\BqComponents;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PostBuildEvent><![CDATA[xcopy "$(PROJECTDIR)\Localization\*.lng" "$(OUTPUTDIR)Localization\" /d /s /y
 xcopy "$(PROJECTDIR)\Libs\*.dll" "$(OUTPUTDIR)" /d /s /y
 $(PostBuildEvent)]]></PostBuildEvent>

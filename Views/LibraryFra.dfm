@@ -19,9 +19,9 @@ object LibraryFrame: TLibraryFrame
     Caption = 'CNT'
   end
   object edtFilter: TEdit
-    Left = 3
+    Left = 4
     Top = 5
-    Width = 110
+    Width = 109
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     HideSelection = False
@@ -40,7 +40,7 @@ object LibraryFrame: TLibraryFrame
     OnChange = cmbBookTypeChange
   end
   object btnClear: TButton
-    Left = 311
+    Left = 310
     Top = 3
     Width = 75
     Height = 25
@@ -50,7 +50,7 @@ object LibraryFrame: TLibraryFrame
     OnClick = btnClearClick
   end
   object btnViewStyle: TButton
-    Left = 389
+    Left = 388
     Top = 3
     Width = 49
     Height = 25
@@ -63,21 +63,33 @@ object LibraryFrame: TLibraryFrame
     TabOrder = 3
   end
   object pcViews: TPageControl
-    Left = 3
-    Top = 32
-    Width = 435
-    Height = 313
-    ActivePage = tsCoverDetailView
+    Left = 0
+    Top = 27
+    Width = 441
+    Height = 330
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
+    ActivePage = tsListView
     Anchors = [akLeft, akTop, akRight, akBottom]
     Style = tsFlatButtons
     TabOrder = 4
     object tsCoverDetailView: TTabSheet
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
       Caption = 'Cover/Details view'
+      TabVisible = False
+      ExplicitTop = 27
+      ExplicitWidth = 427
+      ExplicitHeight = 282
       object lvBooks: TListView
         Left = 0
         Top = 0
-        Width = 427
-        Height = 282
+        Width = 433
+        Height = 320
         Align = alClient
         Columns = <
           item
@@ -106,16 +118,27 @@ object LibraryFrame: TLibraryFrame
         OnDblClick = lvBooksDblClick
         OnInfoTip = lvBooksInfoTip
         OnResize = lvBooksResize
+        ExplicitWidth = 427
+        ExplicitHeight = 282
       end
     end
     object tsListView: TTabSheet
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
       Caption = 'List view'
       ImageIndex = 1
+      TabVisible = False
+      ExplicitLeft = 6
+      ExplicitTop = 27
+      ExplicitWidth = 427
+      ExplicitHeight = 294
       object vdtBooks: TVirtualDrawTree
         Left = 0
         Top = 0
-        Width = 427
-        Height = 282
+        Width = 433
+        Height = 320
         Cursor = crHandPoint
         Align = alClient
         BevelInner = bvNone
