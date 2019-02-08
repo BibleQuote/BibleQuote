@@ -236,6 +236,7 @@ begin
   finally
     for I := 0 to ChapterDatas.Count -1 do
       ChapterDatas[i].Free;
+    ChapterDatas.Clear;
       
     FreeAndNil(ChapterDatas);
   end;

@@ -96,6 +96,8 @@ begin
     FChapterDatas[i].Free;
   end;
 
+  FChapterDatas.Clear;
+
 end;
 
 function TInfoSource.Clone: TInfoSource;
@@ -178,8 +180,9 @@ begin
   for I := 0 to aChapterDatas.Count - 1 do
   begin
     ChapterData := aChapterDatas[i].Clone();
-    ChapterDatas.Add(ChapterData);
+    FChapterDatas.Add(ChapterData);
   end;
+
 end;
 
 end.

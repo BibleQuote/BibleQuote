@@ -100,6 +100,8 @@ destructor TTagsVersesFrame.Destroy;
 begin
   FreeAndNil(mTagsVersesList);
 
+  FreeAndNil(mBookTabInfo);
+
   inherited;
 end;
 

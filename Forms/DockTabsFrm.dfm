@@ -12,7 +12,6 @@ object DockTabsForm: TDockTabsForm
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  OnClose = FormClose
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
   OnMouseActivate = FormMouseActivate

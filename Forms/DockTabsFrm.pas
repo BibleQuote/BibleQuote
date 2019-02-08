@@ -47,7 +47,6 @@ type
     procedure ctViewTabsTabDragDrop(Sender: TObject; X, Y: Integer; DragTabObject: IDragTabObject; Cancelled: Boolean; var TabDropOptions: TTabDropOptions);
     procedure FormCreate(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure mViewTabsOnPopup(Sender: TObject);
     procedure miCloseAllTabsClick(Sender: TObject);
   private
@@ -80,10 +79,12 @@ type
     procedure ApplyConfigFont(appConfig: TAppConfig);
     function GetImageCacheIndex(newTabInfo: TBookTabInfo): integer;
     function CacheImage(name: string; thumbnailImage: TWICImage): integer;
+    procedure ClearViewTabs();
   public
     { Public declarations }
 
     constructor Create(AOwner: TComponent; mainView: TMainForm); reintroduce;
+    destructor Destroy; override;
 
     procedure CloseActiveTab();
     procedure UpdateCurrentTabContent(restoreState: boolean);
@@ -533,20 +534,6 @@ begin
     self.Close; // close form when all tabs are closed
 end;
 
-procedure TDockTabsForm.FormClose(Sender: TObject; var Action: TCloseAction);
-var
-  i, C: integer;
-  data: TObject;
-begin
-  C := mViewTabs.Count - 1;
-  for i := 0 to C do
-  begin
-    data := TObject(mViewTabs[i]);
-    if Assigned(data) then
-      data.Free();
-  end;
-end;
-
 procedure TDockTabsForm.FormCreate(Sender: TObject);
 begin
   mMemoView := TMemoFrame.Create(nil);
@@ -701,6 +688,11 @@ begin
   mViewTabs.Clear;
 
   Close;
+end;
+
+procedure TDockTabsForm.ClearViewTabs;
+begin
+  mViewTabs.Clear;
 end;
 
 procedure TDockTabsForm.CloseActiveTab();
@@ -869,6 +861,14 @@ begin
       end;
     end;
   end;
+end;
+
+destructor TDockTabsForm.Destroy;
+begin
+
+  ClearViewTabs();
+
+  inherited;
 end;
 
 function TDockTabsForm.GetActiveTabInfo(): IViewTabInfo;

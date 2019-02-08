@@ -57,7 +57,7 @@
         <VerInfo_Locale>1049</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=BibleQuote;FileDescription=Quote the Bible with confidence;FileVersion=7.0.0.538;InternalName=BibleQuote;LegalCopyright=MIT;LegalTrademarks=;OriginalFilename=BibleQuote;ProductName=BibleQuote;ProductVersion=7.0.0.538;Comments=Quote the Bible with confidence;PrivateBuild=Yes</VerInfo_Keys>
         <DCC_ExeOutput>.\Output\</DCC_ExeOutput>
-        <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\Components\TChromeTabs\Lib;.\BqComponents;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\Components\TChromeTabs\Lib;.\BqComponents;.\Components\FastMM4;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PostBuildEvent><![CDATA[xcopy "$(PROJECTDIR)\Localization\*.lng" "$(OUTPUTDIR)Localization\" /d /s /y
 xcopy "$(PROJECTDIR)\Libs\*.dll" "$(OUTPUTDIR)" /d /s /y
 $(PostBuildEvent)]]></PostBuildEvent>
@@ -121,9 +121,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.1.0.598;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.1.0.599;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <VerInfo_Build>598</VerInfo_Build>
+        <VerInfo_Build>599</VerInfo_Build>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
     </PropertyGroup>
@@ -730,7 +730,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="IO\ModuleProcs.pas"/>
         <DCCReference Include="Data\TagsDb.pas">
             <Form>TagsDbEngine</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="Core\MultiLanguage.pas"/>
@@ -743,18 +742,15 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="IO\LayoutConfig.pas"/>
         <DCCReference Include="Views\BookFra.pas">
             <Form>BookFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Views\MemoFra.pas">
             <Form>MemoFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Core\FontManager.pas"/>
         <DCCReference Include="Views\LibraryFra.pas">
             <Form>LibraryFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Utils\ImageUtils.pas"/>
@@ -764,28 +760,23 @@ $(PostBuildEvent)]]></PostBuildEvent>
         </DCCReference>
         <DCCReference Include="Views\BookmarksFra.pas">
             <Form>BookmarksFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Collections\BroadcastList.pas"/>
         <DCCReference Include="Views\SearchFra.pas">
             <Form>SearchFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Views\TSKFra.pas">
             <Form>TSKFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Views\TagsVersesFra.pas">
             <Form>TagsVersesFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Views\DictionaryFra.pas">
             <Form>DictionaryFrame</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Views\CommentsFra.pas">
@@ -847,9 +838,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
-&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
-</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -857,9 +846,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
-&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
-</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
@@ -867,9 +854,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
-&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
-</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
@@ -877,9 +862,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
-&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
-</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>
