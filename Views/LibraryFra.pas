@@ -274,13 +274,15 @@ end;
 
 procedure TLibraryFrame.AdjustDetailsViewColumnsWidth();
 var
-  ClientWidth: Integer;
+  ListWidth: Integer;
 begin
 
-  ClientWidth := lvBooks.ClientWidth - GetSystemMetrics(SM_CYHSCROLL);
-  lvBooks.Columns[0].Width := Trunc(ClientWidth * 0.6);
-  lvBooks.Columns[1].Width := Trunc(ClientWidth * 0.3);
-  lvBooks.Columns[2].Width := Trunc(ClientWidth * 0.1);
+  ListWidth := lvBooks.ClientRect.Width;
+  lvBooks.Columns[2].Width := Trunc(ListWidth * 0.1);
+  lvBooks.Columns[1].Width := Trunc(ListWidth * 0.3);
+  lvBooks.Columns[0].Width := ListWidth - lvBooks.Columns[2].Width - lvBooks.Columns[1].Width;
+
+
 
 end;
 
