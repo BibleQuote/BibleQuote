@@ -108,9 +108,10 @@ StrModuleName = Name
 StrModuleAuthor = Author
 StrModuleVersion = Version
 ;
-StrLibraryTileView = Tile view
-StrLibraryCoverView =  Cover view
-StrLibraryDetailsView = Details view
+StrLibraryTileView = Tiles
+StrLibraryCoverView =  Cover
+StrLibraryDetailsView = Details
+StrLibraryListView = List
 ;
 FoundInSeveralDictionaries = found in several dictionaries
 FoundInOneDictionary = found in one dictionary

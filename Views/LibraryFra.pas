@@ -276,7 +276,8 @@ procedure TLibraryFrame.AdjustDetailsViewColumnsWidth();
 var
   ClientWidth: Integer;
 begin
-  ClientWidth := lvBooks.ClientWidth;
+
+  ClientWidth := lvBooks.ClientWidth - GetSystemMetrics(SM_CYHSCROLL);
   lvBooks.Columns[0].Width := Trunc(ClientWidth * 0.6);
   lvBooks.Columns[1].Width := Trunc(ClientWidth * 0.3);
   lvBooks.Columns[2].Width := Trunc(ClientWidth * 0.1);
@@ -406,7 +407,7 @@ begin
   if ImageIndex >= 0 then
     Item.ImageIndex := ImageIndex;
 
-  if lvBooks.ViewStyle <> vsReport then exit;
+  if ListView_GetView(lvBooks.Handle) <> LV_VIEW_DETAILS then exit;
 
   ModEntry := FFilteredModTypes[Item.Index].Key;
 
@@ -449,7 +450,7 @@ procedure TLibraryFrame.lvBooksInfoTip(Sender: TObject; Item: TListItem;
   var InfoTip: string);
 begin
 
-  if miCoverViewStyle.Checked then
+  if ListView_GetView(lvBooks.Handle) = LV_VIEW_ICON then
   begin
     InfoTip := GetToolTipForIcon(Item);
   end
@@ -460,7 +461,7 @@ end;
 
 procedure TLibraryFrame.lvBooksResize(Sender: TObject);
 begin
-
+  if ListView_GetView(lvBooks.Handle) = LV_VIEW_DETAILS then
     AdjustDetailsViewColumnsWidth();
 end;
 
@@ -805,6 +806,8 @@ begin
   miTileViewStyle.Caption := Lang.Say('StrLibraryTileView');
   miCoverViewStyle.Caption := Lang.Say('StrLibraryCoverView');
   miDetailsViewStyle.Caption := Lang.Say('StrLibraryDetailsView');
+  miListViewStyle.Caption := Lang.Say('StrLibraryListView');
+
 end;
 
 procedure TLibraryFrame.vdtBooksCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
