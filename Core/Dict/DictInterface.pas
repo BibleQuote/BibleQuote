@@ -10,6 +10,7 @@ type
     function GetWord(aIndex: Cardinal): String;
     function GetName(): String;
     function Lookup(aWord: String): String;
+    function GetDictDir(): String;
   end;
 
 implementation

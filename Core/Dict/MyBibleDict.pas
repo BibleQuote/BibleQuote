@@ -63,6 +63,7 @@ begin
   FName := aName;
   FSQLitePath := aSQLitePath;
   FWords.AddStrings(aWords);
+  FDictDir := ExtractFilePath(aSQLitePath);
 end;
 
 function TMyBibleDict.Lookup(aWord: String): String;

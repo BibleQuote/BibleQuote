@@ -180,6 +180,10 @@ begin
   else
     tt := res;
 
+  if (i >= 0) and (i < mBqEngine.DictionariesCount) then
+    bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].GetDictDir());
+
+
   bwrDic.LoadFromString(tt);
 end;
 

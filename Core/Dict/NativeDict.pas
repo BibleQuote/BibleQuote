@@ -9,7 +9,6 @@ type
   private
     FIndex: String;
     FDict: String;
-    FPath: String;
     FiLines: TStrings;
     Fii: Integer;
     Filinecount: Integer;
@@ -65,8 +64,7 @@ begin
 
   FIndex := IndexFile;
   FDict := DictFile;
-  FPath := ExtractFileName(IndexFile);
-  FPath := Copy(FPath, 1, Length(FPath) - 3);
+  FDictDir := ExtractFilePath(IndexFile);
 
   FiLines := ReadTextFileLines(FIndex, TEncoding.GetEncoding(1251));
 
