@@ -2460,6 +2460,7 @@ begin
     FreeAndNil(PasswordPolicy);
     FreeAndNil(mModules);
     FreeAndNil(mFavorites);
+    FreeAndNil(tempBook);
 
     cleanUpInstalledFonts();
 

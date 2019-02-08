@@ -455,6 +455,16 @@ begin
   if Assigned(mHistory) then
     FreeAndNil(mHistory);
 
+  if Assigned(mBible) then
+    mBible.Free;
+
+  if Assigned(mSecondBible) then
+    mSecondBible.Free;
+
+  if Assigned(mReferenceBible) then
+    mReferenceBible.Free;
+
+
   inherited;
 end;
 

@@ -4,7 +4,7 @@ interface
 
 type
 
-  TChapterData = class
+  TChapterData = class(TObject)
   private
     FPathName: String;
     FFullName: String;
