@@ -10,6 +10,7 @@ type
   protected
     FWords : TStrings;
     FName: String;
+    FDictDir: String;
 
   public
     constructor Create;
@@ -19,7 +20,7 @@ type
     function GetWord(aIndex: Cardinal): String;
     function GetName(): String;
     function Lookup(aWord: String): String; virtual; abstract;
-
+    function GetDictDir(): String;
 
   end;
 
@@ -39,6 +40,11 @@ begin
   FWords.Free();
 
   inherited;
+end;
+
+function TBaseDict.GetDictDir: String;
+begin
+  Result := FDictDir;
 end;
 
 function TBaseDict.GetName: String;
