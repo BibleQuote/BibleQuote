@@ -82,17 +82,15 @@ object LibraryFrame: TLibraryFrame
         Columns = <
           item
             Caption = 'Description'
-            MinWidth = 150
             Width = 150
           end
           item
             Caption = 'Author'
-            MinWidth = 100
             Width = 141
           end
           item
             Caption = 'Version'
-            MinWidth = 100
+            MinWidth = 60
             Width = 141
           end>
         DoubleBuffered = True
