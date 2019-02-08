@@ -123,6 +123,9 @@ begin
       AddFolderModules(TLibraryDirectories.Commentaries, tmpBook, background, modtypeComment);
       AddArchivedModules(TPath.Combine(TLibraryDirectories.CompressedModules, C_CommentariesSubDirectory), tmpBook, background, true);
 
+      AddFolderModules(TLibraryDirectories.Dictionaries, tmpBook, background, modtypeDictionary);
+      AddArchivedModules(TPath.Combine(TLibraryDirectories.CompressedModules, C_DictionariesSubDirectory), tmpBook, background, true);
+
       mScanDone := true;
       Result := true;
     end
