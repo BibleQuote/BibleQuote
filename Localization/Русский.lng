@@ -109,8 +109,9 @@ StrModuleAuthor = Автор
 StrModuleVersion = Версия
 ;
 StrLibraryTileView = Плитка
-StrLibraryCoverView =  Значки
+StrLibraryCoverView =  Обложки
 StrLibraryDetailsView = Таблица
+StrLibraryListView = Список
 ;
 FoundInSeveralDictionaries = найдено в нескольких словарях
 FoundInOneDictionary = найдено в одном словаре
