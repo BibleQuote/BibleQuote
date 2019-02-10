@@ -149,61 +149,61 @@ object MainForm: TMainForm
         ImageIndex = 7
         OnClick = tbtnAddLibraryTabClick
       end
-      object tbtnAddDictionaryTab: TToolButton
+      object tbtnAddCommentsTab: TToolButton
         Left = 70
+        Top = 0
+        Caption = 'tbtnAddCommentsTab'
+        ImageIndex = 22
+        OnClick = tbtnAddCommentsTabClick
+      end
+      object tbtnAddDictionaryTab: TToolButton
+        Left = 102
         Top = 0
         Caption = 'tbtnAddDictionaryTab'
         ImageIndex = 20
         OnClick = tbtnAddDictionaryTabClick
       end
       object tbtnAddTSKTab: TToolButton
-        Left = 102
+        Left = 134
         Top = 0
         Caption = 'Add TSK tab'
         ImageIndex = 18
         OnClick = tbtnAddTSKTabClick
       end
       object tbtnAddStrongTab: TToolButton
-        Left = 134
+        Left = 166
         Top = 0
         Caption = 'Add strong tab'
         ImageIndex = 21
         OnClick = tbtnAddStrongTabClick
       end
       object tbtnAddSearchTab: TToolButton
-        Left = 166
+        Left = 198
         Top = 0
         Caption = 'Search'
         ImageIndex = 17
         OnClick = tbtnAddSearchTabClick
       end
       object tbtnAddBookmarksTab: TToolButton
-        Left = 198
+        Left = 230
         Top = 0
         Caption = 'Bookmarks'
         ImageIndex = 16
         OnClick = tbtnAddBookmarksTabClick
       end
       object tbtnAddTagsVersesTab: TToolButton
-        Left = 230
+        Left = 262
         Top = 0
         Caption = 'tbtnAddTagsVersesTab'
         ImageIndex = 19
         OnClick = tbtnAddTagsVersesTabClick
       end
       object tbtnAddMemoTab: TToolButton
-        Left = 262
+        Left = 294
         Top = 0
         Caption = 'Add memo tab'
         ImageIndex = 15
         OnClick = tbtnAddMemoTabClick
-      end
-      object tbtnAddCommentsTab: TToolButton
-        Left = 294
-        Top = 0
-        Caption = 'tbtnAddCommentsTab'
-        ImageIndex = 22
-        OnClick = tbtnAddCommentsTabClick
       end
       object tbtnLastSeparator: TToolButton
         Left = 326

@@ -46,7 +46,6 @@ type
 
     mCurrentBook: TBible;
     mLoaded: boolean;
-    mLoading: boolean;
 
     FStrongsConcordance: TStrongsConcordance;
 
@@ -205,7 +204,6 @@ begin
   inherited Create(AOwner);
 
   mLoaded := false;
-  mLoading := false;
 
   mMainView := AMainView;
   mWorkspace := AWorkspace;
@@ -478,7 +476,7 @@ begin
   // load dictionaries on the first show
   if not (csDesigning in ComponentState) then begin
     if Showing then begin
-      if mLoaded or mLoading then
+      if mLoaded then
         Exit;
 
       LoadStrongDictionaries();
@@ -488,30 +486,16 @@ begin
 end;
 
 procedure TStrongFrame.LoadStrongDictionaries();
-var
-  proc: ITask;
 begin
-  mLoading := true;
-  proc := TTask.Create(
-    procedure
-    begin
-      FStrongsConcordance.Initialize;
-
-      TThread.Queue(nil, procedure
-      begin
-        try
-          vstStrong.BeginUpdate();
-          vstStrong.Clear;
-          vstStrong.RootNodeCount := FStrongsConcordance.GetTotalWords;
-        finally
-          vstStrong.EndUpdate();
-        end;
-      end);
-
-      mLoading := false;
-      mLoaded := true;
-    end);
-  proc.Start;
+  FStrongsConcordance.Initialize;
+  vstStrong.BeginUpdate();
+  try
+    vstStrong.Clear;
+    vstStrong.RootNodeCount := FStrongsConcordance.GetTotalWords;
+  finally
+    vstStrong.EndUpdate();
+    mLoaded := true;
+  end;
 end;
 
 end.

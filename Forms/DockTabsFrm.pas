@@ -91,7 +91,7 @@ type
     procedure UpdateBookView();
     procedure UpdateViewAs(tabType: TViewTabType);
 
-    function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
+    function AddBookTab(newTabInfo: TBookTabInfo; Reload: Boolean = True): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
     function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
@@ -110,6 +110,7 @@ type
     procedure MakeActive();
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ChangeTabIndex(Index: Integer);
 
     // getters
     function GetBrowser: THTMLViewer;
@@ -594,6 +595,19 @@ begin
     mCommentsView]);
 end;
 
+procedure TDockTabsForm.ChangeTabIndex(Index: Integer);
+var
+  WasUpdateSet: Boolean;
+begin
+  WasUpdateSet := UpdateOnTabChange;
+  UpdateOnTabChange := False;
+  try
+    ChromeTabs.ActiveTabIndex := Index;
+  finally
+    UpdateOnTabChange := WasUpdateSet;
+  end;
+end;
+
 procedure TDockTabsForm.FormDeactivate(Sender: TObject);
 var
   tabInfo: IViewTabInfo;
@@ -876,7 +890,7 @@ begin
   Result := GetTabInfo(ctViewTabs.ActiveTabIndex);
 end;
 
-function TDockTabsForm.AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
+function TDockTabsForm.AddBookTab(newTabInfo: TBookTabInfo; Reload: Boolean = True): TChromeTab;
 var
   newTab: TChromeTab;
 begin
@@ -885,7 +899,7 @@ begin
   newTab.Data := newTabInfo;
 
   mViewTabs.Add(newTabInfo);
-  UpdateTabContent(newTab);
+  UpdateTabContent(newTab, Reload);
 
   newTab.ImageIndex := GetImageCacheIndex(newTabInfo);
   Result := newTab;
@@ -1031,7 +1045,6 @@ var
   MsgAppConfigChanged: IAppConfigChangedMessage;
   MsgActiveBookChanged: IActiveBookChangedMessage;
   ActiveTabInfo: IViewTabInfo;
-  CommentsTabInfo: TCommentsTabInfo;
 begin
   if Supports(Msg, IAppConfigChangedMessage, MsgAppConfigChanged) then
   begin

@@ -82,7 +82,14 @@ uses
   NativeInfoSourceLoader in 'Utils\InfoSource\NativeInfoSourceLoader.pas',
   InfoSource in 'Utils\InfoSource\InfoSource.pas',
   MyBibleInfoSourceLoader in 'Utils\InfoSource\MyBibleInfoSourceLoader.pas',
-  MyBibleUtils in 'Utils\MyBibleUtils.pas';
+  MyBibleUtils in 'Utils\MyBibleUtils.pas',
+  GoCommand in 'Core\Commands\GoCommand.pas',
+  FileCommand in 'Core\Commands\FileCommand.pas',
+  CommandInterface in 'Core\Commands\CommandInterface.pas',
+  CommandFactory in 'Core\Commands\CommandFactory.pas',
+  CommandBase in 'Core\Commands\CommandBase.pas',
+  CommandFactoryInterface in 'Core\Commands\CommandFactoryInterface.pas',
+  FileNameCommand in 'Core\Commands\FileNameCommand.pas';
 
 {$R *.res}
 
