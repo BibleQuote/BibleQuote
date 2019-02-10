@@ -223,6 +223,7 @@ type
     procedure AddNewWorkspace;
     procedure OpenNewWorkspace;
     procedure PassKeyToActiveLibrary(var Key: Char);
+    function CreateBookTabInfo(book: TBible): TBookTabInfo;
   public
     SysHotKey: TSysHotKey;
 
@@ -288,6 +289,8 @@ type
     mFontManager: TFontManager;
 
     PasswordPolicy: TPasswordPolicy;
+    LastLink: TBibleLink;
+
     tempBook: TBible;
     G_XRefVerseCmd: string;
     // OLD VARABLES END
@@ -561,6 +564,16 @@ begin
   bookView := GetBookView(self);
   if Assigned(bookView) then
     Result := bookView.GetAutoTxt(btInfo, cmd, maxWords, fnt, passageSignature);
+end;
+
+function TMainForm.CreateBookTabInfo(book: TBible): TBookTabInfo;
+var
+  tabInfo: TBookTabInfo;
+begin
+  tabInfo := TBookTabInfo.Create(book, '', SatelliteBible, '', DefaultBookTabState);
+  tabInfo.SecondBible := TBible.Create(self);
+  tabInfo.ReferenceBible := TBible.Create(self);
+  Result := tabInfo;
 end;
 
 procedure TMainForm.OpenNewWorkspace;
@@ -1163,17 +1176,8 @@ begin
 end;
 
 function TMainForm.CreateNewBookTabInfo(): TBookTabInfo;
-var
-  book: TBible;
-  tabInfo: TBookTabInfo;
 begin
-  book := CreateNewBibleInstance();
-
-  tabInfo := TBookTabInfo.Create(book, '', SatelliteBible, '', DefaultBookTabState());
-  tabInfo.SecondBible := TBible.Create(self);
-  tabInfo.ReferenceBible := TBible.Create(self);
-
-  Result := tabInfo;
+  Result := CreateBookTabInfo(CreateNewBibleInstance());
 end;
 
 procedure TMainForm.LoadUserMemos;
@@ -2705,23 +2709,88 @@ end;
 
 procedure TMainForm.ActivateModuleView(aModuleEntry: TModuleEntry);
 var
-  command: string;
+  Command, DstPath: string;
+  BibleLink, Link: TBibleLink;
+  DestBook: TBible;
+  I: Integer;
+  tabInfo: IViewTabInfo;
+  bookTabInfo, curTabInfo, newTabInfo: TBookTabInfo;
+  bookView: TBookFrame;
+  state: TBookTabInfoState;
 begin
-
-  command := 'go ' + aModuleEntry.ShortPath + ' 1 1 0';
-
-  case aModuleEntry.modType of
-  modtypeDictionary: OpenOrCreateDictionaryTab('', aModuleEntry.FullName);
+  case aModuleEntry.modType of modtypeDictionary:
+    OpenOrCreateDictionaryTab('', aModuleEntry.FullName);
   else
-    OpenOrCreateBookTab(
-        command,
-        SatelliteBible,
-        DefaultBookTabState(),
-        false);
+    DestBook := CreateNewBibleInstance();
+    DestBook.SetInfoSource(aModuleEntry.ShortPath);
+    if (DestBook.InternalToReference(LastLink, BibleLink) >= 0) then
+      Command := BibleLink.ToCommand(aModuleEntry.ShortPath)
+    else
+      Command := 'go ' + aModuleEntry.ShortPath + ' 1 1 0';
 
+    ActivateTargetWorkspace;
+
+    for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
+    begin
+      tabInfo := mWorkspace.GetTabInfo(i);
+      if not (tabInfo is TBookTabInfo) then
+        continue;
+
+      bookTabInfo := TBookTabInfo(tabInfo);
+
+      // get module path from the tab's command
+      if (link.FromBqStringLocation(bookTabInfo.Location, DstPath)) then
+      begin
+        // compare if tab's module path matches to target module path
+        if (CompareText(aModuleEntry.ShortPath, dstPath) <> 0) then
+          continue; // paths are not equal, skip the tab
+      end;
+
+      bookView := GetBookView(self);
+      mWorkspace.ChangeTabIndex(i);
+
+      bookView.SafeProcessCommand(bookTabInfo, command, hlDefault);
+
+      mWorkspace.UpdateCurrentTabContent;
+      Exit;
+    end;
+
+    // no matching tab found, open new tab
+    try
+      bookView := GetBookView(self);
+      if (mWorkspace.ChromeTabs.ActiveTabIndex >= 0) then
+      begin
+        // save current tab state
+        curTabInfo := bookView.BookTabInfo;
+        if (Assigned(curTabInfo)) then
+        begin
+           curTabInfo.SaveState(mWorkspace);
+        end;
+      end;
+
+      state := DefaultBookTabState;
+      newTabInfo := TBookTabInfo.Create(DestBook, command, SatelliteBible, '', state);
+
+      newTabInfo.SecondBible := TBible.Create(self);
+      newTabInfo.ReferenceBible := TBible.Create(self);
+      newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
+      newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
+
+      mWorkspace.AddBookTab(newTabInfo, False);
+      mWorkspace.ChromeTabs.ActiveTabIndex := mWorkspace.ChromeTabs.Tabs.Count - 1;
+
+      MemosOn := vtisShowNotes in state;
+
+      bookView.SafeProcessCommand(newTabInfo, Command, hlDefault);
+      mWorkspace.UpdateCurrentTabContent;
+    except
+      on E: Exception do
+      begin
+        BqShowException(E);
+      end;
+    end;
   end;
 end;
-
 
 procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
@@ -4028,7 +4097,6 @@ var
   i: integer;
   tabInfo: IViewTabInfo;
   strongTabInfo: TStrongTabInfo;
-  wasUpdateSet: boolean;
   strongView: TStrongFrame;
 begin
   strongTabInfo := nil;
@@ -4041,14 +4109,7 @@ begin
       continue;
 
     strongTabInfo := TStrongTabInfo(tabInfo);
-
-    wasUpdateSet := mWorkspace.UpdateOnTabChange;
-    mWorkspace.UpdateOnTabChange := false;
-    try
-      mWorkspace.ChromeTabs.ActiveTabIndex := i;
-    finally
-      mWorkspace.UpdateOnTabChange := wasUpdateSet;
-    end;
+    mWorkspace.ChangeTabIndex(i);
   end;
 
   if not Assigned(strongTabInfo) then
@@ -4073,7 +4134,6 @@ var
   i: integer;
   tabInfo: IViewTabInfo;
   searchTabInfo: TSearchTabInfo;
-  wasUpdateSet: boolean;
   searchView: TSearchFrame;
 begin
   searchTabInfo := nil;
@@ -4087,13 +4147,7 @@ begin
 
     searchTabInfo := TSearchTabInfo(tabInfo);
 
-    wasUpdateSet := mWorkspace.UpdateOnTabChange;
-    mWorkspace.UpdateOnTabChange := false;
-    try
-      mWorkspace.ChromeTabs.ActiveTabIndex := i;
-    finally
-      mWorkspace.UpdateOnTabChange := wasUpdateSet;
-    end;
+    mWorkspace.ChangeTabIndex(i);
   end;
 
   if not Assigned(searchTabInfo) then
@@ -4128,7 +4182,6 @@ var
   i: integer;
   tabInfo: IViewTabInfo;
   tskTabInfo: TTSKTabInfo;
-  wasUpdateSet: boolean;
   tskView: TTSKFrame;
   iniPath: string;
 begin
@@ -4143,13 +4196,7 @@ begin
 
     tskTabInfo := TTSKTabInfo(tabInfo);
 
-    wasUpdateSet := mWorkspace.UpdateOnTabChange;
-    mWorkspace.UpdateOnTabChange := false;
-    try
-      mWorkspace.ChromeTabs.ActiveTabIndex := i;
-    finally
-      mWorkspace.UpdateOnTabChange := wasUpdateSet;
-    end;
+    mWorkspace.ChangeTabIndex(i);
   end;
 
   if not Assigned(tskTabInfo) then
@@ -4175,7 +4222,6 @@ var
   tabInfo: IViewTabInfo;
   bookTabInfo: TBookTabInfo;
   bookView: TBookFrame;
-  wasUpdateSet: boolean;
   srcPath, dstPath: string;
   link: TBibleLink;
 begin
@@ -4202,14 +4248,7 @@ begin
     end;
 
     bookView := GetBookView(self);
-
-    wasUpdateSet := mWorkspace.UpdateOnTabChange;
-    mWorkspace.UpdateOnTabChange := false;
-    try
-      mWorkspace.ChromeTabs.ActiveTabIndex := i;
-    finally
-      mWorkspace.UpdateOnTabChange := wasUpdateSet;
-    end;
+    mWorkspace.ChangeTabIndex(i);
 
     if (processCommand) then
       bookView.SafeProcessCommand(bookTabInfo, command, hlDefault);
@@ -4227,7 +4266,6 @@ var
   i: integer;
   tabInfo: IViewTabInfo;
   dicTabInfo: TDictionaryTabInfo;
-  wasUpdateSet: boolean;
   dictionaryView: TDictionaryFrame;
   newTab: boolean;
 begin
@@ -4243,13 +4281,7 @@ begin
 
     dicTabInfo := TDictionaryTabInfo(tabInfo);
 
-    wasUpdateSet := mWorkspace.UpdateOnTabChange;
-    mWorkspace.UpdateOnTabChange := false;
-    try
-      mWorkspace.ChromeTabs.ActiveTabIndex := i;
-    finally
-      mWorkspace.UpdateOnTabChange := wasUpdateSet;
-    end;
+    mWorkspace.ChangeTabIndex(i);
   end;
 
   if not Assigned(dicTabInfo) then

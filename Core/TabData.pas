@@ -372,7 +372,7 @@ type
     procedure UpdateBookView();
     procedure UpdateCurrentTabContent(restoreState: boolean = true);
 
-    function AddBookTab(newTabInfo: TBookTabInfo): TChromeTab;
+    function AddBookTab(newTabInfo: TBookTabInfo; Reload: Boolean = True): TChromeTab;
     function AddMemoTab(newTabInfo: TMemoTabInfo): TChromeTab;
     function AddLibraryTab(newTabInfo: TLibraryTabInfo): TChromeTab;
     function AddBookmarksTab(newTabInfo: TBookmarksTabInfo): TChromeTab;
@@ -385,6 +385,7 @@ type
 
     procedure MakeActive();
     procedure UpdateBookTabHeader();
+    procedure ChangeTabIndex(Index: Integer);
 
     // getters
     function GetBrowser: THTMLViewer;

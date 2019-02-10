@@ -450,18 +450,21 @@ end;
 function TBible.ReferenceToInternal(const moduleRelatedRef: TBibleLink; out independent: TBibleLink): integer;
 begin
   moduleRelatedRef.AssignTo(independent);
+
   Result := ord(ReferenceToInternal(
     moduleRelatedRef.book,
     moduleRelatedRef.chapter,
     moduleRelatedRef.vstart,
     independent.book,
-    independent.chapter, independent.vstart)) - 1;
+    independent.chapter,
+    independent.vstart)) - 1;
 
   if Result < 0 then
   begin
     Result := -2;
     exit;
   end;
+
   Inc(Result, ord(ReferenceToInternal(
     moduleRelatedRef.book,
     moduleRelatedRef.chapter,

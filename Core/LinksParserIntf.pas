@@ -108,7 +108,7 @@ begin
     vend := 0;
     if path = 'go' then
       path := ExtractFirstTkn(loc)
-    else { if path='file' then }
+    else
     begin
       Result := false;
       exit;

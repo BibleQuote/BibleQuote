@@ -12,7 +12,7 @@ uses
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
   Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
-  StrongsConcordance;
+  StrongsConcordance, CommandInterface, CommandFactoryInterface;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -122,7 +122,6 @@ type
     procedure FormMouseActivate(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y, HitTest: Integer; var MouseActivate: TMouseActivate);
     procedure ToggleQuickSearchPanel(const enable: Boolean);
 
-    function ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
     procedure SafeProcessCommand(bookTabInfo: TBookTabInfo; wsLocation: string; hlOption: TbqHLVerseOption);
     function PreProcessAutoCommand(RefBook: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
     function GoAddress(bookTabInfo: TBookTabInfo; var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
@@ -167,6 +166,7 @@ type
     mSatelliteForm: TForm;
     mSatelliteLibraryView: TLibraryFrame;
     mHistoryOn: boolean;
+    mCommandFactory: ICommandFactory;
 
     mBrowserSearchPosition: Longint;
     mUpdateOnTreeNodeSelect: boolean;
@@ -198,6 +198,9 @@ type
 
     property HistoryOn: boolean read mHistoryOn write mHistoryOn;
 
+    function ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean; overload;
+    function ProcessCommand(Cmd: ICommand; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean; overload;
+    
     procedure AdjustBibleTabs(moduleName: string = '');
     procedure LoadSecondBookByName(const name: string);
     procedure LoadBibleToXref(cmd: string; const id: string);
@@ -218,7 +221,7 @@ type
 implementation
 
 {$R *.dfm}
-uses DockTabsFrm;
+uses DockTabsFrm, CommandFactory;
 
 function TBookFrame.GetBookTabInfo(): TBookTabInfo;
 var
@@ -890,6 +893,7 @@ begin
   inherited Create(AOwner);
   mMainView := mainView;
   mWorkspace := workspace;
+  mCommandFactory := TCommandFactory.Create(mainView, workspace, Self);
 
   FStrongsConcordance := mMainView.StrongsConcordance;
 
@@ -2041,276 +2045,31 @@ begin
   end;
 end;
 
-function TBookFrame.ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
-var
-  value, dup, path, oldPath, ConcreteCmd: string;
-  focusVerse: integer;
-  i, j, oldbook, oldchapter, status: integer;
-  wasSearchHistory, wasFile: Boolean;
-  browserpos: Longint;
-  dBrowserSource: string;
-  oldSignature: string;
-  navRslt: TNavigateResult;
-  bibleLink: TBibleLinkEx;
-label
-  exitlabel;
-
-  procedure revertToOldLocation();
-  begin
-    if oldPath = '' then
-    begin
-      oldPath := ResolveFullPath(TPath.Combine(mMainView.mDefaultLocation, C_ModuleIniName));
-      if bwrHtml.GetTextLen() <= 0 then
-      begin
-        ProcessCommand(bookTabInfo, Format('go %s 1 1 1', [mMainView.mDefaultLocation]), hlFalse);
-        Exit;
-      end;
-    end;
-
-    bookTabInfo.Bible.SetInfoSource(oldPath);
-    bibleLink.modName := bookTabInfo.Bible.ShortPath;
-    bibleLink.book := oldbook;
-    bibleLink.chapter := oldchapter;
-
-    mMainView.UpdateBookView();
-  end;
-
+function TBookFrame.ProcessCommand(Cmd: ICommand; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
 begin
   if disableHistory then
     mHistoryOn := false;
 
   Result := false;
 
-  if command = '' then
-    Exit; // exit, the command is empty
+  if not Assigned(Cmd) then
+    Exit;
 
   Screen.Cursor := crHourGlass;
   mMainView.mInterfaceLock := true;
   try
-    wasFile := false;
-    browserpos := bwrHtml.Position;
     bwrHtml.tag := bsText;
 
-    oldPath := bookTabInfo.Bible.InfoSource.FileName;
-    oldbook := bookTabInfo.Bible.CurBook;
-    oldchapter := bookTabInfo.Bible.CurChapter;
+    if not (Cmd.Execute(hlVerses)) then
+      Exit;
 
-    dup := command; // command copy
-
-    if bibleLink.FromBqStringLocation(dup) then
-    begin
-      // make path to module's ini
-      if bibleLink.IsAutoBible() then
-      begin
-        if bookTabInfo.Bible.isBible then
-          value := bookTabInfo.Bible.ShortPath
-        else if bookTabInfo.SecondBible.isBible then
-          value := bookTabInfo.SecondBible.ShortPath
-        else
-          value := '';
-        status := PreProcessAutoCommand(bookTabInfo.ReferenceBible, dup, value, ConcreteCmd);
-        if status <= -2 then
-          Exit; // fail
-        bibleLink.FromBqStringLocation(ConcreteCmd);
-      end;
-
-      path := ResolveFullPath(bibleLink.GetIniFileShortPath());
-
-      if Length(path) < 1 then
-        goto exitlabel;
-
-      oldSignature := bookTabInfo.Bible.FullPassageSignature(bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, 0, 0);
-
-      // try to load module
-      if path <> bookTabInfo.Bible.InfoSource.FileName then
-        try
-          bookTabInfo.Bible.SetInfoSource( path );
-        except // revert to old location if something goes wrong
-          revertToOldLocation();
-        end;
-
-      try
-        // read and display
-        navRslt := GoAddress(bookTabInfo, bibleLink.book, bibleLink.chapter, bibleLink.vstart, bibleLink.vend, hlVerses);
-        // save history
-        if navRslt > nrEndVerseErr then
-        begin
-          focusVerse := 0;
-        end;
-
-        with bookTabInfo.Bible do
-          if (bibleLink.vstart = 0) or (navRslt > nrEndVerseErr) then
-            // if the final verse is not specified
-            // looks like
-            // "go module_folder book_no Chapter_no verse_start_no 0 mod_shortname
-
-            command := Format('go %s %d %d %d 0 $$$%s %s',
-              [ShortPath, CurBook, CurChapter, focusVerse,
-              // history comment
-              FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, 0), ShortName])
-          else
-            command := Format('go %s %d %d %d %d $$$%s %s',
-              [ShortPath, CurBook, CurChapter, bibleLink.vstart, bibleLink.vend,
-              // history comment
-              FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, bibleLink.vend), ShortName]);
-
-        HistoryAdd(command);
-
-        // here we set proper name to tab
-        with bookTabInfo.Bible, mWorkspace.ChromeTabs do
-        begin
-          if ActiveTabIndex >= 0 then
-            try
-              // save the context
-              bookTabInfo.Location := command;
-              bookTabInfo.LocationType := vtlModule;
-
-              bookTabInfo.IsCompareTranslation := false;
-              bookTabInfo.CompareTranslationText := '';
-
-              if navRslt <= nrEndVerseErr then
-                bookTabInfo[vtisHighLightVerses] := hlVerses = hlTrue
-              else
-                bookTabInfo[vtisHighLightVerses] := false;
-              bookTabInfo.Title := Format('%.6s-%.6s:%d', [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
-
-            except
-              on E: Exception do
-                BqShowException(E);
-            end;
-        end;
-
-        AppConfig.LastCommand := command;
-      except
-        on E: TBQPasswordException do
-        begin
-          mMainView.PasswordPolicy.InvalidatePassword(E.mArchive);
-          MessageBox(self.Handle, PChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
-          revertToOldLocation();
-        end;
-        on E: TBQException do
-        begin
-          MessageBox(self.Handle, PChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
-          revertToOldLocation();
-        end
-        else
-          revertToOldLocation(); // in any case
-      end;
-
-      goto exitlabel;
-    end; // first word is go
-
-    if FirstWord(dup) = 'file' then
-    begin
-      wasFile := true; // *** - not a favorite
-      wasSearchHistory := false;
-      // if a Bible path was stored with file... (after search procedure)
-      i := Pos('***', dup);
-      if i > 0 then
-      begin
-        j := Pos('$$$', dup);
-        value := ResolveFullPath(TPath.Combine(Copy(dup, i + 3, j - i - 4), 'bibleqt.ini'));
-
-        if bookTabInfo.Bible.InfoSource.FileName <> value then
-          bookTabInfo.Bible.SetInfoSource(value);
-
-
-        wasSearchHistory := true;
-      end;
-
-      DeleteFirstWord(dup);
-
-      i := Pos('***', dup);
-      if i = 0 then
-        i := Length(dup);
-      j := Pos('$$$', dup);
-
-      if i > j then
-        path := Copy(dup, 1, j - 1)
-      else
-        path := Copy(dup, 1, i - 1);
-
-      if not FileExists(path) then
-      begin
-        ShowMessage(Format(Lang.Say('FileNotFound'), [path]));
-        goto exitlabel;
-      end;
-
-      bwrHtml.Base := ExtractFilePath(path);
-      ReadHtmlTo(path, dBrowserSource, TEncoding.GetEncoding(1251));
-
-      if wasSearchHistory then
-      begin
-        StrReplace(dBrowserSource, '<*>', '<font color="' + Color2Hex(AppConfig.SelTextColor) + '">', true);
-        StrReplace(dBrowserSource, '</*>', '</font>', true);
-      end;
-
-      if bookTabInfo[vtisResolveLinks] then
-      begin
-        dBrowserSource := ResolveLinks(dBrowserSource, bookTabInfo[vtisFuzzyResolveLinks]);
-      end;
-      bwrHtml.LoadFromString(dBrowserSource);
-      value := '';
-      if Trim(bwrHtml.DocumentTitle) <> '' then
-        value := bwrHtml.DocumentTitle
-      else
-        value := ExtractFileName(path);
-
-      if Length(value) <= 0 then
-        try
-          value := 'Unknown';
-          raise Exception.Create('File open- cannot extract valid name');
-        except
-          on E: Exception do
-            BqShowException(E);
-        end;
-
-      if (bookTabInfo.History.Count > 0) and (bookTabInfo.History[0] = command) then
-        bwrHtml.Position := browserpos;
-
-      HistoryAdd(command);
-
-      if wasSearchHistory then
-        bwrHtml.tag := bsSearch
-      else
-        bwrHtml.tag := bsFile;
-
-      bookTabInfo.Title := Format('%.12s', [value]);
-      bookTabInfo.Location := command;
-      bookTabInfo.LocationType := vtlFile;
-
-      bookTabInfo.IsCompareTranslation := false;
-      bookTabInfo.CompareTranslationText := '';
-
-      goto exitlabel;
-    end; // first word is "file"
-
-    if ExtractFileName(dup) = dup then
-      try
-        bwrHtml.LoadFromFile(bwrHtml.Base + dup);
-        bookTabInfo.Title := Format('%.12s', [command]);
-
-        bookTabInfo.Location := command;
-        bookTabInfo.LocationType := vtlFile;
-
-        bookTabInfo.IsCompareTranslation := false;
-        bookTabInfo.CompareTranslationText := '';
-      except
-        on E: Exception do
-          BqShowException(E);
-      end;
-
-  exitlabel:
     mWorkspace.UpdateBookTabHeader();
     mNotifier.Notify(TActiveBookChangedMessage.Create(bookTabInfo.Bible));
-
-    if Length(path) <= 0 then
-      Exit;
 
     Result := true;
     SelectModuleTreeNode(bookTabInfo.Bible);
 
-    if (not wasFile) then
+    if not (bookTabInfo.LocationType = vtlFile) then
       AdjustBibleTabs();
   finally
     mMainView.mInterfaceLock := false;
@@ -2320,7 +2079,22 @@ begin
       mHistoryOn := true;
 
   end;
-end; // proc processcommand
+end;
+
+function TBookFrame.ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
+var
+  Cmd: ICommand;
+begin
+  Result := False;
+  if command = '' then
+    Exit; // exit, the command is empty
+
+  Cmd := mCommandFactory.CreateCommand(bookTabInfo, command);
+  if not Assigned(Cmd) then
+    Exit;
+        
+  Result := ProcessCommand(Cmd, hlVerses, disableHistory);
+end;
 
 procedure TBookFrame.UpdateHistory();
 var
@@ -3364,7 +3138,7 @@ begin
   bible := TBible.Create(mMainView);
 
   iniPath := TPath.Combine(me.ShortPath, 'bibleqt.ini');
-  bible.SetInfoSource( ResolveFullPath(iniPath));
+  bible.SetInfoSource(ResolveFullPath(iniPath));
 
   if bible.isBible and wasBible and not fromBeginning then
   begin
