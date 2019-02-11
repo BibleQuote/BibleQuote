@@ -90,6 +90,10 @@ uses
   CommandBase in 'Core\Commands\CommandBase.pas',
   CommandFactoryInterface in 'Core\Commands\CommandFactoryInterface.pas',
   FileNameCommand in 'Core\Commands\FileNameCommand.pas';
+  MyBibleUtils in 'Utils\MyBibleUtils.pas',
+  DownloadModulesFrm in 'Forms\DownloadModulesFrm.pas' {DownloadModulesForm},
+  ThirdPartModulesProcs in 'IO\ThirdPartModulesProcs.pas',
+  JsonProcs in 'Utils\JsonProcs.pas';
 
 {$R *.res}
 

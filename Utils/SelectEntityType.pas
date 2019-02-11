@@ -19,6 +19,10 @@ type
     class function IsNativeInfoSource(aFileEntryPath: String): Boolean;
   public
     class function IsMyBibleFileEntry(aFileEntryPath: String): Boolean;
+    class function IsMyBibleDictionary(aFileEntryPath: String): Boolean;
+    class function IsMyBibleBible(aFileEntryPath: String): Boolean;
+    class function IsMyBibleCommentary(aFileEntryPath: String): Boolean;
+
     class function SelectDictType(aFileEntryPath: String): TDictTypes;
     class function SelectInfoSourceType(aFileEntryPath: String): TInfoSourceTypes;
     class function FormBibleqtIniPath(aFileEntryPath: String): String;
@@ -40,10 +44,32 @@ begin
   Result := BibleqtIniPath;
 end;
 
+class function TSelectEntityType.IsMyBibleBible(
+  aFileEntryPath: String): Boolean;
+begin
+  Result := TRegEx.IsMatch(aFileEntryPath.ToLower(), '^.*\.plan(\.sqlite3)?$')
+end;
+
+class function TSelectEntityType.IsMyBibleCommentary(
+  aFileEntryPath: String): Boolean;
+begin
+  Result := TRegEx.IsMatch(aFileEntryPath.ToLower(), '^.*\.commentary(\.sqlite3)?$')
+end;
+
+class function TSelectEntityType.IsMyBibleDictionary(
+  aFileEntryPath: String): Boolean;
+begin
+  Result := TRegEx.IsMatch(aFileEntryPath.ToLower(), '^.*\.dictionary(\.sqlite3)?$')
+end;
+
 class function TSelectEntityType.IsMyBibleFileEntry(
   aFileEntryPath: String): Boolean;
 begin
-  Result := FileExists(aFileEntryPath) and TRegEx.IsMatch(aFileEntryPath.ToLower(), '^.*\.dictionary\.sqlite3$')
+  Result := FileExists(aFileEntryPath) and (
+      IsMyBibleDictionary(aFileEntryPath)
+      or IsMyBibleCommentary(aFileEntryPath)
+      or IsMyBibleBible(aFileEntryPath)
+    )
 end;
 
 class function TSelectEntityType.IsNativeFileEntry(

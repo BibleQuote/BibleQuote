@@ -813,6 +813,12 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\Commands\CommandBase.pas"/>
         <DCCReference Include="Core\Commands\CommandFactoryInterface.pas"/>
         <DCCReference Include="Core\Commands\FileNameCommand.pas"/>
+        <DCCReference Include="Forms\DownloadModulesFrm.pas">
+            <Form>DownloadModulesForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="IO\ThirdPartModulesProcs.pas"/>
+        <DCCReference Include="Utils\JsonProcs.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>
@@ -845,7 +851,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
+&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -853,7 +861,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
+&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
@@ -861,7 +871,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
+&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
@@ -869,7 +881,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y</PostBuildEvent>
+        <PostBuildEvent>xcopy &quot;$(PROJECTDIR)\Localization\*.lng&quot; &quot;$(OUTPUTDIR)Localization\&quot; /d /s /y
+&amp;&amp;xcopy &quot;$(PROJECTDIR)\Libs\*.dll&quot; &quot;$(OUTPUTDIR)&quot; /d /s /y
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>
