@@ -98,11 +98,11 @@ CBCaseNotCaption = не различать прописные и заглавн�
 CBPartsNotCaption = выражения могут быть частями слов
 CBPhraseNotCaption = слова могут следовать в любом порядке
 ;
-StrAllBooks = ВСЕ КНИГИ
-StrBibleTranslations = ПЕРЕВОДЫ БИБЛИИ
-StrBooks = ДРУГИЕ КНИГИ
+StrAllBooks = ВСЕ МОДУЛИ
+StrBibleTranslations = БИБЛИИ
+StrBooks = КНИГИ
 StrCommentaries = КОММЕНТАРИИ
-StrAllDictionaries = ВСЕ СЛОВАРИ
+StrAllDictionaries = СЛОВАРИ
 ;
 StrModuleName = Наименование
 StrModuleAuthor = Автор

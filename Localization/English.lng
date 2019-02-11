@@ -98,11 +98,11 @@ CBCaseNotCaption = case unsensitive search
 CBPartsNotCaption = parts of words are allowed
 CBPhraseNotCaption = words can be in any order
 ;
-StrAllBooks = ALL BOOKS
-StrBibleTranslations = BIBLE TRANSLATIONS
-StrBooks = OTHER BOOKS
+StrAllBooks = ALL MODULES
+StrBibleTranslations = BIBLES
+StrBooks = BOOKS
 StrCommentaries = COMMENTARIES
-StrAllDictionaries = ALL DICTIONARIES
+StrAllDictionaries = DICTIONARIES
 ;
 StrModuleName = Name
 StrModuleAuthor = Author
