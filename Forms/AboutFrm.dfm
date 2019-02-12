@@ -1893,9 +1893,9 @@ object AboutForm: TAboutForm
   end
   object lblDevs: TLabel
     Left = 8
-    Top = 232
+    Top = 216
     Width = 517
-    Height = 130
+    Height = 146
     Alignment = taCenter
     AutoSize = False
     Caption = 'ABOUT TEXT'
