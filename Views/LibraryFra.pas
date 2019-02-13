@@ -16,6 +16,7 @@ const
   NATIVE_COVER_DEFAULT_IMAGE = 'NATIVE_COVER_DEFAULT_IMAGE';
   MYBIBLE_COVER_DEFAULT_IMAGE = 'MYBIBLE_COVER_DEFAULT_IMAGE';
   SMALL_COVER_COEF = 3;
+  MIN_COLUMN_WIDTH = 141;
 
 
 type
@@ -116,6 +117,7 @@ type
     function GetCoverHeight(): Integer;
     function GetSmallCoverHeight(): Integer;
     procedure HidePageControlTabs(aPageControl: TPageControl);
+    procedure ListViewSetMinWidthColunms();
   public
     constructor Create(AOwner: TComponent); reintroduce;
     procedure SetModules(modules: TCachedModules);
@@ -158,6 +160,8 @@ begin
   FFilteredModTypes := TList<TPair<TModuleEntry, Integer>>.Create;
 
   HidePageControlTabs(pcViews);
+
+  ListViewSetMinWidthColunms();
 
   miTileViewStyle.Checked := True;
   miSomeViewStyleClick(miTileViewStyle);
@@ -275,12 +279,19 @@ end;
 procedure TLibraryFrame.AdjustDetailsViewColumnsWidth();
 var
   ListWidth: Integer;
+  ColumnVersionWidth, ColumnAuthorWidth, ColumnDescriptionWidth: Integer;
 begin
 
   ListWidth := lvBooks.ClientRect.Width;
-  lvBooks.Columns[2].Width := Trunc(ListWidth * 0.1);
-  lvBooks.Columns[1].Width := Trunc(ListWidth * 0.3);
-  lvBooks.Columns[0].Width := ListWidth - lvBooks.Columns[2].Width - lvBooks.Columns[1].Width;
+  ColumnVersionWidth := Max(MIN_COLUMN_WIDTH, Trunc(ListWidth * 0.1));
+  ColumnAuthorWidth := Max(MIN_COLUMN_WIDTH, Trunc(ListWidth * 0.3));
+  ColumnDescriptionWidth := ListWidth - ColumnVersionWidth - ColumnAuthorWidth;
+
+  lvBooks.Columns.BeginUpdate;
+  lvBooks.Columns[0].Width := ColumnDescriptionWidth;
+  lvBooks.Columns[1].Width := ColumnAuthorWidth;
+  lvBooks.Columns[2].Width := ColumnVersionWidth;
+  lvBooks.Columns.EndUpdate;
 
 
 
@@ -349,6 +360,12 @@ begin
   if (aModType <> FilteredModType) then
     Result := false;
 
+end;
+
+procedure TLibraryFrame.ListViewSetMinWidthColunms;
+begin
+  lvBooks.Columns[1].MinWidth := MIN_COLUMN_WIDTH;
+  lvBooks.Columns[2].MinWidth := MIN_COLUMN_WIDTH;
 end;
 
 procedure TLibraryFrame.LoadBookThumbnails(aStartIndex, aEndIndex: Integer);
@@ -770,7 +787,10 @@ begin
         PrepareListForSmallImages();
         lvBooks.ViewStyle := vsReport;
         pcViews.ActivePage := tsCoverDetailView;
+        AdjustDetailsViewColumnsWidth();
       end;
+
+
 
     end
     else if miTileViewStyle.Checked then

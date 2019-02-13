@@ -71,7 +71,7 @@ object LibraryFrame: TLibraryFrame
     Margins.Top = 0
     Margins.Right = 0
     Margins.Bottom = 0
-    ActivePage = tsListView
+    ActivePage = tsCoverDetailView
     Anchors = [akLeft, akTop, akRight, akBottom]
     Style = tsFlatButtons
     TabOrder = 4
@@ -82,9 +82,6 @@ object LibraryFrame: TLibraryFrame
       Margins.Bottom = 0
       Caption = 'Cover/Details view'
       TabVisible = False
-      ExplicitTop = 27
-      ExplicitWidth = 427
-      ExplicitHeight = 282
       object lvBooks: TListView
         Left = 0
         Top = 0
@@ -118,8 +115,6 @@ object LibraryFrame: TLibraryFrame
         OnDblClick = lvBooksDblClick
         OnInfoTip = lvBooksInfoTip
         OnResize = lvBooksResize
-        ExplicitWidth = 427
-        ExplicitHeight = 282
       end
     end
     object tsListView: TTabSheet
@@ -130,10 +125,6 @@ object LibraryFrame: TLibraryFrame
       Caption = 'List view'
       ImageIndex = 1
       TabVisible = False
-      ExplicitLeft = 6
-      ExplicitTop = 27
-      ExplicitWidth = 427
-      ExplicitHeight = 294
       object vdtBooks: TVirtualDrawTree
         Left = 0
         Top = 0
