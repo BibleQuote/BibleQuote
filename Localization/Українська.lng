@@ -1,4 +1,4 @@
-
+﻿
 ; СИСТЕМНІ ПОВІДОМЛЕННЯ ===================================
 
 ; Увага:
@@ -98,11 +98,20 @@ CBCaseNotCaption = не розрізняти прописні і заголов�
 CBPartsNotCaption = вирази можуть бути частинами слів
 CBPhraseNotCaption = слова можуть слідувати в будь-якому порядку
 ;
-StrAllBooks = ВСІ МОДУЛИ
+StrAllBooks = ВСІ МОДУЛІ
 StrBibleTranslations = БІБЛІЇ
 StrBooks = КНИГИ
 StrCommentaries = КОМЕНТАРІ
 StrAllDictionaries = СЛОВНИКИ
+;
+StrModuleName = Назва
+StrModuleAuthor = Автор
+StrModuleVersion = Версія
+;
+StrLibraryTileView = Плитка
+StrLibraryCoverView =  Обкладинки
+StrLibraryDetailsView = Таблиця
+StrLibraryListView = Список
 ;
 FoundInSeveralDictionaries = знайдено в кількох словниках
 FoundInOneDictionary = знайдено в одному словнику
@@ -168,8 +177,6 @@ MainForm.tbtnAddLibraryTab.Caption = Бібліотека
 MainForm.tbtnAddLibraryTab.Hint = Перегляд бібліотеки
 MainForm.tbtnAddBookmarksTab.Caption = Закладки
 MainForm.tbtnAddBookmarksTab.Hint = Відкрити закладки
-MainForm.tbtnAddCommentsTab.Caption = Коментарі
-MainForm.tbtnAddCommentsTab.Hint = Коментарі
 MainForm.tbtnAddDictionaryTab.Caption = Словники
 MainForm.tbtnAddDictionaryTab.Hint = Словники
 MainForm.tbtnAddMemoTab.Caption = Особисті нотатки
@@ -186,7 +193,7 @@ MainForm.tbtnNewForm.Caption = Нова форма
 MainForm.tbtnNewForm.Hint = Відкрити нову форму
 MainForm.tbtnResolveLinks.Caption = Розпізнавати біблійні посилання
 MainForm.tbtnResolveLinks.Hint = Розпізнавати біблійні посилання
-MainForm.trayIcon.Hint = Цитата з Біблії
+MainForm.trayIcon.Hint = BibleQuote
 
 DockTabsForm.btnBookSelect.Hint = Виберіть книгу для пошуку
 DockTabsForm.btnClear.Caption = Очистити
