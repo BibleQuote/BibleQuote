@@ -113,6 +113,15 @@ StrLibraryCoverView =  Einband
 StrLibraryDetailsView = Details
 StrLibraryListView = Liste
 ;
+StrModuleName = Name
+StrModuleAuthor = Autor
+StrModuleVersion = Version
+;
+StrLibraryTileView = Kacheln
+StrLibraryCoverView =  Einband
+StrLibraryDetailsView = Details
+StrLibraryListView = Liste
+;
 FoundInSeveralDictionaries = in mehreren Wörterbüchern gefunden
 FoundInOneDictionary = in einem Wörterbuch gefunden
 ;
