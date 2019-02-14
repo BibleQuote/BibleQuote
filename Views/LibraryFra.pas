@@ -16,7 +16,8 @@ const
   NATIVE_COVER_DEFAULT_IMAGE = 'NATIVE_COVER_DEFAULT_IMAGE';
   MYBIBLE_COVER_DEFAULT_IMAGE = 'MYBIBLE_COVER_DEFAULT_IMAGE';
   SMALL_COVER_COEF = 3;
-  MIN_COLUMN_WIDTH = 141;
+  MIN_AUTHOR_COLUMN_WIDTH = 141;
+  MIN_VERSION_COLUMN_WIDTH = 80;
 
 
 type
@@ -283,8 +284,8 @@ var
 begin
 
   ListWidth := lvBooks.ClientRect.Width;
-  ColumnVersionWidth := Max(MIN_COLUMN_WIDTH, Trunc(ListWidth * 0.1));
-  ColumnAuthorWidth := Max(MIN_COLUMN_WIDTH, Trunc(ListWidth * 0.3));
+  ColumnVersionWidth := MIN_VERSION_COLUMN_WIDTH;
+  ColumnAuthorWidth := Max(MIN_AUTHOR_COLUMN_WIDTH, Trunc(ListWidth * 0.3));
   ColumnDescriptionWidth := ListWidth - ColumnVersionWidth - ColumnAuthorWidth;
 
   lvBooks.Columns.BeginUpdate;
@@ -364,8 +365,8 @@ end;
 
 procedure TLibraryFrame.ListViewSetMinWidthColunms;
 begin
-  lvBooks.Columns[1].MinWidth := MIN_COLUMN_WIDTH;
-  lvBooks.Columns[2].MinWidth := MIN_COLUMN_WIDTH;
+  lvBooks.Columns[1].MinWidth := MIN_AUTHOR_COLUMN_WIDTH;
+  lvBooks.Columns[2].MinWidth := MIN_VERSION_COLUMN_WIDTH;
 end;
 
 procedure TLibraryFrame.LoadBookThumbnails(aStartIndex, aEndIndex: Integer);
