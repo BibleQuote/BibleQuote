@@ -125,7 +125,8 @@ type
     miStrictLogic: TMenuItem;
     miFuzzyLogic: TMenuItem;
     tlbResolveLnks: TToolBar;
-    tbtnDownloadModules: TToolButton;
+    tbtnSpace1: TToolButton;
+    tbtnSpace2: TToolButton;
     miShowSignatures: TMenuItem;
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
@@ -141,8 +142,6 @@ type
     imgCollection: TImageCollection;
     vimgIcons: TVirtualImageList;
     tbtnAddCommentsTab: TToolButton;
-    ToolButton1: TToolButton;
-    miDownloadModules: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -215,8 +214,6 @@ type
     procedure tbtnAddStrongTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
     procedure tbtnAddCommentsTabClick(Sender: TObject);
-    procedure miDownloadModulesClick(Sender: TObject);
-    procedure tbtnDownloadModulesClick(Sender: TObject);
   private
     FStrongsConcordance: TStrongsConcordance;
 
@@ -451,8 +448,7 @@ uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
   StrUtils, CommCtrl, DockTabsFrm,
   HintTools, sevenZipHelper, BookFra, TSKFra, DictionaryFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
-  EngineInterfaces, StringProcs, LinksParser, StrongFra, SearchFra, AppPaths,
-  DownloadModulesFrm;
+  EngineInterfaces, StringProcs, LinksParser, StrongFra, SearchFra, AppPaths;
 
 {$R *.DFM}
 
@@ -3098,20 +3094,6 @@ begin
   end;
 end;
 
-procedure TMainForm.miDownloadModulesClick(Sender: TObject);
-var
-  DownloadModules: TDownloadModulesForm;
-begin
-  DownloadModules := TDownloadModulesForm.Create(Self);
-  try
-    DownloadModules.ShowModal;
-
-  finally
-    DownloadModules.Free;
-  end;
-
-end;
-
 procedure TMainForm.CopyPassageToClipboard();
 var
   trCount: integer;
@@ -3546,11 +3528,6 @@ var
 begin
   newTabInfo := TTSKTabInfo.Create();
   mWorkspace.AddTSKTab(newTabInfo);
-end;
-
-procedure TMainForm.tbtnDownloadModulesClick(Sender: TObject);
-begin
-  miDownloadModules.Click();
 end;
 
 procedure TMainForm.tbtnResolveLinksClick(Sender: TObject);

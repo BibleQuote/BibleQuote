@@ -116,22 +116,7 @@ StrLibraryListView = List
 FoundInSeveralDictionaries = found in several dictionaries
 FoundInOneDictionary = found in one dictionary
 ;
-StrTPModulesStartRegistryDownloading = Start registry downloading. Wait please...
-StrTPModulesFinishRegistryDownloading = Finish registry downloading. Extract data. Wait please...
-StrTPModulesUpdatingModulesInfoFinished = Updating modules info was finished
-StrModuleWasDownloaded = Module was downloaded. Coping is going...
-StrModuleDownloadedSuccessfully = Module [%s] was downloaded successfully
-;
-StrTPModuleStatus = Status
-StrTPModuleCaption = Caption
-StrTPModuleTitle = Title
-StrTPModuleCommentary = Commentary
-StrTPModuleSize = Size
-StrTPModuleDate = Date
-StrTPModuleStatusPending = Pending...
-StrTPModuleStatusInstalled = Installed
-StrTPModuleStatusNotDownloaded = 
-;
+
 MainForm.JCRU_Home.Caption = JesusChrist.ru - Christian fellowship site
 MainForm.JCRU_Software.Caption = Free Christian software
 MainForm.JCRU_Bible.Caption = Bible online
@@ -210,8 +195,6 @@ MainForm.tbtnNewForm.Caption = New workspace
 MainForm.tbtnNewForm.Hint = Create new workspace
 MainForm.tbtnResolveLinks.Caption = Recognize Bible Links
 MainForm.tbtnResolveLinks.Hint = Recognize Bible Links
-MainForm.tbtnDownloadModules.Caption = Download modules
-MainForm.tbtnDownloadModules.Hint = Download modules
 MainForm.trayIcon.Hint = BibleQuote
 
 DockTabsForm.btnBookSelect.Hint = Select a book to search
@@ -342,12 +325,8 @@ ConfigForm.tsCopyOptions.Caption = Parameters of copying
 ConfigForm.tsFavouriteEx.Caption = Favorite modules
 ConfigForm.tsInterface.Caption = Interface
 ConfigForm.tsOtherOptions.Caption = Other options
-;
+
 ExceptionForm.btnDetails.Caption = Details
 ExceptionForm.btnOk.Caption = OK
 ExceptionForm.Caption = An error occurred!
 ExceptionForm.lblStacktrace.Caption = The exception stacktrace was:
-;
-DownloadModulesForm.Caption = Thirdpart modules
-DownloadModulesForm.tbtnDownloadModule.Caption = Download module
-DownloadModulesForm.tbtnDownloadModule.Hint = Download module

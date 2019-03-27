@@ -62,8 +62,6 @@ function FindEncodingMetatag(const ansiText: string; out rBeginPos: Integer; out
 
 function LoadBibleqtIniFileEncoding(const aFileName: string; defaultEncoding: TEncoding): TEncoding;
 
-function GetTempDirectory(aCreateSubDir: Boolean = False): String;
-
 implementation
 
 uses SevenZipVCL, sevenZipHelper, BibleQuoteUtils;
@@ -752,28 +750,6 @@ begin
     dLines.Free;
 
   end;
-
-end;
-
-function GetTempDirectory(aCreateSubDir: Boolean): String;
-var
-  tempFolder: array[0..MAX_PATH] of Char;
-  GUID: TGUID;
-  SubDir: String;
-  TempDir: String;
-begin
-
-  GetTempPath(MAX_PATH, @tempFolder);
-  TempDir := StrPas(tempFolder);
-
-  if aCreateSubDir then begin
-    CreateGUID(GUID);
-    SubDir := LeftStr(GUIDToString(GUID), 8);
-    TempDir := TPath.Combine(TempDir, SubDir);
-    ForceDirectories(TempDir);
-  end;
-
-  Result := TempDir;
 
 end;
 
