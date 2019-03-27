@@ -125,6 +125,10 @@ object LibraryFrame: TLibraryFrame
       Caption = 'List view'
       ImageIndex = 1
       TabVisible = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object vdtBooks: TVirtualDrawTree
         Left = 0
         Top = 0
