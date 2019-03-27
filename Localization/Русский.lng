@@ -116,7 +116,22 @@ StrLibraryListView = Список
 FoundInSeveralDictionaries = найдено в нескольких словарях
 FoundInOneDictionary = найдено в одном словаре
 ;
-
+StrTPModulesStartRegistryDownloading = Начата загрузка реестра модулей. Пожалуйста подождите...
+StrTPModulesFinishRegistryDownloading = Завершена загрузка реестра модулей. Идет извелечение данных. Пожалуйста подождите...
+StrTPModulesUpdatingModulesInfoFinished = Обновление информации о модулях завершено
+StrModuleWasDownloaded = Модуль загруженю Идет копирование файлов...
+StrModuleDownloadedSuccessfully = Модуль [%s] был загружен успешно
+;
+StrTPModuleStatus = Статус
+StrTPModuleCaption = Заголовок
+StrTPModuleTitle = Наименование
+StrTPModuleCommentary = Комментарий
+StrTPModuleSize = Размер
+StrTPModuleDate = Дата
+StrTPModuleStatusPending = Ожидание...
+StrTPModuleStatusInstalled = Установлен
+StrTPModuleStatusNotDownloaded = 
+;
 MainForm.JCRU_Home.Caption = JesusChrist.ru - сервер христианского общения
 MainForm.JCRU_Software.Caption = Бесплатные христианские софт-твари
 MainForm.JCRU_Bible.Caption = Библия в Интернете
@@ -195,6 +210,8 @@ MainForm.tbtnNewForm.Caption = Новая рабочая область
 MainForm.tbtnNewForm.Hint = Создать рабочую область
 MainForm.tbtnResolveLinks.Caption = Распознавать библейские ссылки
 MainForm.tbtnResolveLinks.Hint = Распознавать библейские ссылки
+MainForm.tbtnDownloadModules.Caption = Загрузка сторонних модулей
+MainForm.tbtnDownloadModules.Hint = Загрузка сторонних модулей
 MainForm.trayIcon.Hint = BibleQuote
 
 DockTabsForm.btnBookSelect.Hint = Выберите книгу для поиска
@@ -330,3 +347,7 @@ ExceptionForm.btnDetails.Caption = Подробности
 ExceptionForm.btnOk.Caption = OK
 ExceptionForm.Caption = Обнаружена ошибка!
 ExceptionForm.lblStacktrace.Caption = Протокол исключения:
+;
+DownloadModulesForm.Caption = Сторонние модули
+DownloadModulesForm.tbtnDownloadModule.Caption = Загрузить модуль
+DownloadModulesForm.tbtnDownloadModule.Hint = Загрузить модуль

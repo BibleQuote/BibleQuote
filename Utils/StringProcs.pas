@@ -51,6 +51,8 @@ function StripHtmlMarkup(const source: string): string;
 function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
 function RepeatString(const s: string; count: cardinal): string;
 
+function StreamToString(const aStream: TStream; const Encoding: TEncoding): String;
+
 const
   DefaultHTMLFilter
     : string =
@@ -819,6 +821,16 @@ var
 begin
   for i := 1 to count do
     Result := Result + s;
+end;
+
+function StreamToString(const aStream: TStream; const Encoding: TEncoding): String;
+var
+  StringBytes: TBytes;
+begin
+  aStream.Position := 0;
+  SetLength(StringBytes, aStream.Size);
+  aStream.ReadBuffer(StringBytes, aStream.Size);
+  Result := Encoding.GetString(StringBytes);
 end;
 
 end.
