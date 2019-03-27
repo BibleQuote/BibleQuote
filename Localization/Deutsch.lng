@@ -98,11 +98,29 @@ CBCaseNotCaption = Groß- und Kleinschreibung ignorieren
 CBPartsNotCaption = gesuchte Wörter dürfen in den Ergebnissen nur teilweise enthalten sein
 CBPhraseNotCaption = Wörter in beliebiger Reihenfolge
 ;
-StrAllBooks = ALLE BüCHER
-StrBibleTranslations = BIBELüBERSETZUNGEN
-StrBooks = ANDERE BüCHER
+StrAllBooks = ALLE MODULE
+StrBibleTranslations = BIBELÜBERSETZUNGEN
+StrBooks = ANDERE BÜCHER
 StrCommentaries = KOMMENTARE
-StrAllDictionaries = ALLE WöRTERBüCHER
+StrAllDictionaries = ALLE WÖRTERBÜCHER
+;
+StrModuleName = Name
+StrModuleAuthor = Autor
+StrModuleVersion = Version
+;
+StrLibraryTileView = Kacheln
+StrLibraryCoverView =  Einband
+StrLibraryDetailsView = Details
+StrLibraryListView = Liste
+;
+StrModuleName = Name
+StrModuleAuthor = Autor
+StrModuleVersion = Version
+;
+StrLibraryTileView = Kacheln
+StrLibraryCoverView =  Einband
+StrLibraryDetailsView = Details
+StrLibraryListView = Liste
 ;
 StrModuleName = Name
 StrModuleAuthor = Autor
