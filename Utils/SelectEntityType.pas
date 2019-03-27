@@ -47,13 +47,13 @@ end;
 class function TSelectEntityType.IsMyBibleBible(
   aFileEntryPath: String): Boolean;
 begin
-  Result := TRegEx.IsMatch(aFileEntryPath.ToLower(), '^.*\.plan(\.sqlite3)?$')
+  Result := TRegEx.IsMatch(aFileEntryPath.ToLower(), '^rst.*(\.sqlite3)?$')
 end;
 
 class function TSelectEntityType.IsMyBibleCommentary(
   aFileEntryPath: String): Boolean;
 begin
-  Result := TRegEx.IsMatch(aFileEntryPath.ToLower(), '^.*\.commentary(\.sqlite3)?$')
+  Result := TRegEx.IsMatch(aFileEntryPath.ToLower(), '^.*\.commentaries(\.sqlite3)?$')
 end;
 
 class function TSelectEntityType.IsMyBibleDictionary(
