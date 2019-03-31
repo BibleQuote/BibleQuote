@@ -870,8 +870,8 @@ begin
       dstForm := dstTabs.Owner as TDockTabsForm;
       if Assigned(dstForm) then
       begin
-        dstForm.Activate();
-        dstForm.OnActivate(self);
+        dstForm.MakeActive;
+        dstForm.UpdateCurrentTabContent(true);
       end;
     end;
   end;
