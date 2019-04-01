@@ -297,7 +297,6 @@ object BookFrame: TBookFrame
         Top = 0
         Caption = 'Reference info'
         ImageIndex = 15
-        Visible = False
         OnClick = tbtnReferenceInfoClick
       end
     end
