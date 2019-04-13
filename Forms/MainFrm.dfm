@@ -110,7 +110,6 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 528
       ExplicitHeight = 14
     end
     object tlbMain: TToolBar
@@ -273,7 +272,6 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
-      ExplicitLeft = 389
       object cbLinks: TComboBox
         Left = 0
         Top = 0
@@ -296,7 +294,7 @@ object MainForm: TMainForm
     Top = 40
     Width = 95
     Height = 129
-    Font.Charset = ANSI_CHARSET
+    Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Arial Unicode MS'

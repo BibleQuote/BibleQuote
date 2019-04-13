@@ -3234,7 +3234,7 @@ begin
   bibleModuleEntry := mModules.ModTypedAsFirst(modtypeBible);
   while Assigned(bibleModuleEntry) do
   begin
-    s := bibleModuleEntry.getIniPath();
+    s := bibleModuleEntry.GetInfoPath();
     secBible.SetInfoSource(s);
 
     // don't display New Testament mixed with Old Testament...
@@ -3952,6 +3952,7 @@ begin
 
     bookView.tbtnMemos.Down := MemosOn;
 
+    // todo: it's unclear while trying to load Satellite for Commentary
     if not tabInfo.Bible.isBible then
     begin
       try

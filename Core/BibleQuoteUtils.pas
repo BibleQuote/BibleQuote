@@ -138,7 +138,7 @@ type
     function BibleBookPresent(ix: integer): boolean;
     function GetCoverImage(width, height: integer): TPicture;
 
-    function getIniPath(): string;
+    function GetInfoPath(): string;
 
     property ShortPath: String read FShortPath;
     property FullPath: String read FFullPath;
@@ -1167,9 +1167,12 @@ begin
 
 end;
 
-function TModuleEntry.getIniPath: string;
+function TModuleEntry.GetInfoPath(): string;
 begin
-  result := ResolveFullPath(TPath.Combine(ShortPath, C_ModuleIniName));
+  if FileExists(ShortPath) then
+    Result := ShortPath
+  else
+    Result := ResolveFullPath(TPath.Combine(ShortPath, C_ModuleIniName));
 end;
 
 constructor TModuleEntry.Create(

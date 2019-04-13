@@ -21,9 +21,9 @@ type
     class function TrimName(aRow: String): String;
     class function TrimNameEvaluator(const Match: TMatch): String;
   protected
-    class function OpenBibleqtIniFile(aInfoSource: TInfoSource; aBibleqtIniPath: String): TStrings;
+    class function OpenBibleqtIniFile(aInfoSource: TInfoSource; aNativeInfoPath: String): TStrings;
     procedure LoadRegularValues(aInfoSource: TInfoSource);
-    procedure LoadPathValues(aInfoSource: TInfoSource; aIniPath: String);
+    procedure LoadPathValues(aInfoSource: TInfoSource; aNativeInfoPath: String);
     class procedure RemoveGarbage(aDataPairs: TStrings);
 
     function ReadStringValue(aKey: String; aDefault: String = ''): String;
@@ -58,13 +58,8 @@ begin
 end;
 
 function TNativeInfoSourceLoader.IsCommentary(aFileEntryPath: String): Boolean;
-var
-  S: String;
 begin
-  S := ExtractFileDir(aFileEntryPath);
-
-  s := ExtractFileName(s);
-  Result := UpperCase(s) = 'COMMENTARIES';
+  Result := TRegEx.IsMatch(aFileEntryPath.ToUpper(), '\\COMMENTARIES\\')
 end;
 
 procedure TNativeInfoSourceLoader.LoadInfoSource(
@@ -73,7 +68,7 @@ var
   BibleqtIniPath: String;  
 begin
 
-  BibleqtIniPath := TSelectEntityType.FormBibleqtIniPath(aFileEntryPath);
+  BibleqtIniPath := TSelectEntityType.FormNativeInfoPath(aFileEntryPath);
 
   FDataPairs := OpenBibleqtIniFile(aInfoSource, BibleqtIniPath);
   try
@@ -117,13 +112,13 @@ begin
 end;
 
 class function TNativeInfoSourceLoader.OpenBibleqtIniFile(aInfoSource: TInfoSource;
-   aBibleqtIniPath: String): TStrings;
+   aNativeInfoPath: String): TStrings;
 var
   DataPairs: TStrings;
   FileText: String;
 begin
-  aInfoSource.DefaultEncoding := LoadBibleqtIniFileEncoding(aBibleqtIniPath, aInfoSource.DefaultEncoding);
-  FileText := ReadTextFile(aBibleqtIniPath, aInfoSource.DefaultEncoding);
+  aInfoSource.DefaultEncoding := LoadBibleqtIniFileEncoding(aNativeInfoPath, aInfoSource.DefaultEncoding);
+  FileText := ReadTextFile(aNativeInfoPath, aInfoSource.DefaultEncoding);
 
   DataPairs := TStringList.Create();
   Result := DataPairs;
@@ -182,7 +177,7 @@ begin
   end;
 end;
 
-procedure TNativeInfoSourceLoader.LoadPathValues(aInfoSource: TInfoSource; aIniPath: String);
+procedure TNativeInfoSourceLoader.LoadPathValues(aInfoSource: TInfoSource; aNativeInfoPath: String);
 var
   ChapterData: TChapterData;
   ChapterDatas : TList<TChapterData>;
@@ -191,9 +186,9 @@ var
   Value: String;
 begin
 
-  aInfoSource.FileName := aIniPath;
-  aInfoSource.IsCompressed := aIniPath[1]='?';
-  aInfoSource.IsCommentary := IsCommentary(aIniPath);
+  aInfoSource.FileName := aNativeInfoPath;
+  aInfoSource.IsCompressed := aNativeInfoPath[1]='?';
+  aInfoSource.IsCommentary := IsCommentary(aNativeInfoPath);
 
   ChapterDatas := TList<TChapterData>.Create;
   try

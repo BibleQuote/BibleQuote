@@ -2067,6 +2067,7 @@ begin
     mNotifier.Notify(TActiveBookChangedMessage.Create(bookTabInfo.Bible));
 
     Result := true;
+    tbtnSatellite.Enabled := not bookTabInfo.Bible.InfoSource.IsCommentary;
     SelectModuleTreeNode(bookTabInfo.Bible);
 
     if not (bookTabInfo.LocationType = vtlFile) then
@@ -2226,7 +2227,7 @@ begin
     begin
       me := mMainView.mModules[prefModIx];
       if me.modType = modtypeBible then
-        Result := refBook.LinkValidnessStatus(me.getIniPath(), bl, true)
+        Result := refBook.LinkValidnessStatus(me.GetInfoPath(), bl, true)
       else
         Result := -2;
     end
@@ -2240,7 +2241,7 @@ begin
       for refIx := 0 to refCnt do
       begin
         me := GetRefBible(refIx);
-        Result := refBook.LinkValidnessStatus(me.getIniPath(), bl, true);
+        Result := refBook.LinkValidnessStatus(me.GetInfoPath(), bl, true);
         if Result > -2 then
           break;
       end;
@@ -2372,7 +2373,7 @@ begin
       { // now UseParaBible will be used if satellite text is found... }
       begin
 
-        secondBible.SetInfoSource( modEntry.getIniPath());
+        secondBible.SetInfoSource( modEntry.GetInfoPath());
 
         secondbook_right_aligned := secondBible.UseRightAlignment;
         UseParaBible := secondBible.ModuleType = bqmBible;
@@ -2862,7 +2863,7 @@ label lblErrNotFnd;
     begin
       me := GetRefBible(currentBibleIx);
       inc(currentBibleIx);
-      refBook.SetInfoSource(ResolveFullPath(me.getIniPath()));
+      refBook.SetInfoSource(ResolveFullPath(me.GetInfoPath()));
       Result := true;
     end
     else
