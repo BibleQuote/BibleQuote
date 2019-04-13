@@ -2067,6 +2067,7 @@ begin
     mNotifier.Notify(TActiveBookChangedMessage.Create(bookTabInfo.Bible));
 
     Result := true;
+    tbtnSatellite.Enabled := not bookTabInfo.Bible.InfoSource.IsCommentary;
     SelectModuleTreeNode(bookTabInfo.Bible);
 
     if not (bookTabInfo.LocationType = vtlFile) then

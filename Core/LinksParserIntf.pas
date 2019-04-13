@@ -231,7 +231,9 @@ end;
 
 function TBibleLinkEx.GetIniFileShortPath(): string;
 begin
-  Result := TPath.Combine(modName, C_ModuleIniName);
+  Result := modName;
+  if not FileExists(modName) then
+    Result := TPath.Combine(modName, C_ModuleIniName);
 end;
 
 destructor TBibleBookNameEntry.Destroy;

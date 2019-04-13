@@ -412,6 +412,18 @@ type
     property RecognizeBibleLinks: boolean read mRecognizeBibleLinks write mRecognizeBibleLinks;
     property FuzzyResolve: boolean read mFuzzyResolveLinks write mFuzzyResolveLinks;
 
+  private
+    // extract to separate class on the basis Strategy pattern
+    // Native
+    class function NativeGetChapter(aChapter: Integer; aLines: TStrings;
+      aFilePath: String; aDefaultEncoding: TEncoding;
+      aChapterSign, aVerseSign: String; aIncludeChapterHeader: Boolean;
+      var aChapterHead: String): Boolean;
+
+    // MyBible
+    class function MyBibleGetChapter(aBook, aChapter: Integer; aLines: TStrings;
+      aFilePath: String): Boolean;
+
   end;
 
   IBookSearchCallback = interface
@@ -422,7 +434,8 @@ type
 implementation
 
 uses PlainUtils, bibleLinkParser, ExceptionFrm, SelectEntityType,
-     InfoSourceLoaderFabric, InfoSourceLoaderInterface;
+     InfoSourceLoaderFabric, InfoSourceLoaderInterface, FireDAC.Comp.Client,
+     MyBibleUtils;
 
 constructor TBible.Create(uiServices: IBibleWinUIServices);
 begin
@@ -652,6 +665,7 @@ begin
     FInfoSource.Free;
 
   FInfoSource := aInfoSource.Clone();
+  FInfoSource.InfoSourceType := aInfoSource.InfoSourceType;
 
   InitializeFields(aInfoSource);
   InitializeTraits(aInfoSource);
@@ -729,10 +743,10 @@ function TBible.OpenChapter(
   book, chapter: integer;
   forceResolveLinks: boolean = False): boolean;
 var
-  j, k, ichapter: integer;
-  foundchapter: boolean;
   recLnks: boolean;
+  GetChapterSuccess: Boolean;
 begin
+  Result := False;
 
   FLines.Clear;
   if bqmsFontsInstallPending in mModuleState then
@@ -740,52 +754,23 @@ begin
 
   mChapterHead := '';
   if (book <= 0) or (book > BookQty) or (chapter <= 0) or
-    (chapter > ChapterQtys[book]) then
+    (chapter > ChapterQtys[book]) then exit;
+
+  // read text dependence of source type: Native/MyBible, Bible/Commentary
+  if (FInfoSource.InfoSourceType = isMyBible)
+     and (InfoSource.IsCommentary) then
   begin
-    Result := False;
-    exit;
+    if not MyBibleGetChapter(book, chapter, FLines, FPath) then exit;
+  end
+  else begin
+    // todo: get data from InfoSource
+    if not NativeGetChapter(chapter, FLines,
+      FPath + PathNames[book], DefaultEncoding, FChapterSign, FVerseSign,
+      trait[bqmtIncludeChapterHead], mChapterHead) then exit;
   end;
-  ReadHtmlTo(FPath + PathNames[book], BookLines, DefaultEncoding);
 
-  ichapter := 0;
-
-  j := -1;
-
-  repeat
-    Inc(j);
-    if Pos(FChapterSign, BookLines[j]) > 0 then
-      Inc(ichapter);
-  until (j = BookLines.Count - 1) or (ichapter = chapter);
-
-  foundchapter := (ichapter = chapter);
-
-  if ichapter = chapter then
-  begin
-    if foundchapter then
-      k := j + 1
-    else
-      k := j;
-
-    for j := k to BookLines.Count - 1 do
-    begin
-      if Pos(FChapterSign, BookLines[j]) > 0 then
-        break;
-
-      if Pos(FVerseSign, BookLines[j]) > 0 then
-      begin
-        FLines.Add(BookLines[j]); // add newly found verse of this chapter
-      end
-      else if FLines.Count > 0 then
-        FLines[FLines.Count - 1] := FLines[FLines.Count - 1] + ' ' +
-          BookLines[j]
-      else if trait[bqmtIncludeChapterHead] then
-        mChapterHead := mChapterHead + BookLines[j];
-      // add to current verse (paragraph)
-    end;
-
-    FBook := book;
-    FChapter := chapter;
-  end;
+  FBook := book;
+  FChapter := chapter;
 
   if FFiltered and (FLines.Count <> 0) then
     FLines.Text := ParseHTML(FLines.Text, FHTML);
@@ -1290,6 +1275,89 @@ begin
     g_ExceptionContext.Add('TBible.LinkValidnessStatus.bl=' + bl.ToCommand(''));
   end;
 
+end;
+
+class function TBible.MyBibleGetChapter(aBook, aChapter: Integer;
+  aLines: TStrings; aFilePath: String): Boolean;
+var
+  SQLiteQuery: TFDQuery;
+  ChapterText: String;
+begin
+  Result := False;
+
+  SQLiteQuery := TMyBibleUtils.CreateQuery(aFilePath);
+  try
+
+    ChapterText := TMyBibleUtils.GetChapter(SQLiteQuery, aBook, aChapter);
+    aLines.Add(ChapterText);
+
+    Result := True;
+  finally
+    TMyBibleUtils.CloseOpenConnection(SQLiteQuery);
+  end;
+end;
+
+class function TBible.NativeGetChapter(aChapter: Integer; aLines: TStrings;
+  aFilePath: String; aDefaultEncoding: TEncoding;
+  aChapterSign, aVerseSign: String; aIncludeChapterHeader: Boolean;
+  var aChapterHead: String): Boolean;
+var
+  iChapter: Integer;
+  FoundChapter: Boolean;
+  j, k: Integer;
+  BookLines: TStrings;
+begin
+
+  BookLines := TStringList.Create;
+  try
+
+    ReadHtmlTo(aFilePath, BookLines, aDefaultEncoding);
+
+    iChapter := 0;
+
+    j := -1;
+
+    repeat
+      Inc(j);
+      if Pos(aChapterSign, BookLines[j]) > 0 then
+        Inc(iChapter);
+    until (j = BookLines.Count - 1) or (iChapter = aChapter);
+
+    FoundChapter := (iChapter = aChapter);
+
+    if iChapter = aChapter then
+    begin
+      if foundchapter then
+        k := j + 1
+      else
+        k := j;
+
+      for j := k to BookLines.Count - 1 do
+      begin
+        if Pos(aChapterSign, BookLines[j]) > 0 then
+          break;
+
+        if Pos(aVerseSign, BookLines[j]) > 0 then
+        begin
+          aLines.Add(BookLines[j]); // add newly found verse of this chapter
+        end
+        else if aLines.Count > 0 then
+          aLines[aLines.Count - 1] := aLines[aLines.Count - 1] + ' ' +
+            BookLines[j]
+        else if aIncludeChapterHeader then
+          aChapterHead := aChapterHead + BookLines[j];
+        // add to current verse (paragraph)
+      end;
+
+      Result := True;
+
+    end
+    else
+      Result := False;
+
+  finally
+    BookLines.Free;
+  end;
 end;
 
 function TBible.ShortPassageSignature(book, chapter, fromverse,

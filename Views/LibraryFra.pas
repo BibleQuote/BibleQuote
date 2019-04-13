@@ -316,7 +316,7 @@ function TLibraryFrame.GetDefaultCoverKey(aModEntry: TModuleEntry): String;
 begin
   Result := NATIVE_COVER_DEFAULT_IMAGE;
 
-  if (aModEntry.ModType = modtypeDictionary) and
+  if (aModEntry.ModType in [modtypeDictionary, modtypeComment] ) and
      (TSelectEntityType.IsMyBibleFileEntry(aModEntry.ShortPath))
   then
     Result := MYBIBLE_COVER_DEFAULT_IMAGE;
