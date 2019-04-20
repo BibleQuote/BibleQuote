@@ -72,9 +72,10 @@ class function TMyBibleUtils.GetBibleBookQty(aSQLiteQuery: TFDQuery;
 begin
   Result := 0;
 
-  aSQLiteQuery.SQL.Text := 'select book_number, count(*) as chapterqty from ( '+
+  aSQLiteQuery.SQL.Text := 'select C.*, books.long_name as name from '+
+                           '(select book_number, count(*) as chapterqty from ( '+
                            ' select book_number, chapter, count(*) as verseqty from verses group by book_number, chapter '+
-                           ' ) B group by book_number';
+                           ') B group by book_number ) C left join books where books.book_number= C.book_number';
   aSQLiteQuery.Open();
 
   try
@@ -175,6 +176,7 @@ class function TMyBibleUtils.FillChapterDatas(aSQLiteQuery: TFDQuery;
 var
   BookQty: Integer;
   ChapterData: TChapterData;
+  BookName : String;
 begin
   BookQty := 0;
 
@@ -182,7 +184,12 @@ begin
   begin
 
     ChapterData:= TChapterData.Create;
-    ChapterData.FullName := 'Book '+ aSQLiteQuery.FieldByName('book_number').AsString;
+    if aSQLiteQuery.FindField('name') <> nil then
+      BookName := aSQLiteQuery.FieldByName('name').AsString
+    else
+      BookName := 'Book '+ aSQLiteQuery.FieldByName('book_number').AsString;
+
+    ChapterData.FullName := BookName;
     ChapterData.ShortName := ChapterData.FullName;
     ChapterData.ChapterQty := aSQLiteQuery.FieldByName('chapterqty').AsInteger;
     aChapterDatas.Add(ChapterData);
