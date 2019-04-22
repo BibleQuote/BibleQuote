@@ -12,6 +12,7 @@ type
     class function GetInfoValue(aSQLiteQuery: TFDQuery; aKey: String): String;
     class function GetBookNumber(aSQLiteQuery: TFDQuery; aSourceTable: String; aBook: Integer): Integer;
     class function FillChapterDatas(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
+    class function IsTableExists(aSQLiteQuery: TFDQuery; aTableName: String): Boolean;
   public
     class function GetCommentaryBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
     class function GetBibleBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
@@ -37,7 +38,7 @@ type
 
 implementation
 
-uses SysUtils;
+uses SysUtils, BibleQuoteUtils;
 
 class function TMyBibleUtils.GetSingleValue(aSQLiteQuery: TFDQuery;
   aSqlQuery: String): String;
@@ -75,7 +76,7 @@ begin
   aSQLiteQuery.SQL.Text := 'select C.*, books.long_name as name from '+
                            '(select book_number, count(*) as chapterqty from ( '+
                            ' select book_number, chapter, count(*) as verseqty from verses group by book_number, chapter '+
-                           ') B group by book_number ) C left join books where books.book_number= C.book_number';
+                           ') B group by book_number ) C left join books ON books.book_number= C.book_number';
   aSQLiteQuery.Open();
 
   try
@@ -132,10 +133,22 @@ begin
 end;
 
 class function TMyBibleUtils.GetCommentaryBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
+var
+  BookTableExist: Boolean;
+  Query: String;
 begin
   Result := 0;
 
-  aSQLiteQuery.SQL.Text := 'SELECT book_number, count(*) as chapterqty FROM commentaries group by book_number order by book_number';
+  Query:= 'SELECT book_number, count(*) as chapterqty FROM commentaries group by book_number order by book_number';
+
+  if IsTableExists(aSQLiteQuery, 'books') then
+  begin
+    Query := 'select C.*, books.short_name as name from ('+
+             Query+
+             ') C left join books ON books.book_number= C.book_number';
+  end;
+
+  aSQLiteQuery.SQL.Text := Query;
   aSQLiteQuery.Open();
 
   try
@@ -184,10 +197,12 @@ begin
   begin
 
     ChapterData:= TChapterData.Create;
+    BookName := '';
     if aSQLiteQuery.FindField('name') <> nil then
-      BookName := aSQLiteQuery.FieldByName('name').AsString
-    else
-      BookName := 'Book '+ aSQLiteQuery.FieldByName('book_number').AsString;
+      BookName := aSQLiteQuery.FieldByName('name').AsString;
+
+    if (BookName.IsEmpty) then
+      BookName := Lang.Say(Format('StrBibleBook%d', [BookQty+1]));
 
     ChapterData.FullName := BookName;
     ChapterData.ShortName := ChapterData.FullName;
@@ -266,6 +281,18 @@ begin
   Result := SQLiteConnection;
 end;
 
+
+class function TMyBibleUtils.IsTableExists(aSQLiteQuery: TFDQuery;
+  aTableName: String): Boolean;
+var
+  Name :String;
+begin
+
+  Name := GetSingleValue(aSQLiteQuery, Format('SELECT name FROM sqlite_master WHERE type=''table'' AND name like ''%s''', [aTableName]));
+
+  Result := not Name.IsEmpty;
+
+end;
 
 class procedure TMyBibleUtils.CloseDatabase(aSQLiteConnection: TFDConnection);
 begin
