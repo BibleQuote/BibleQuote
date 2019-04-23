@@ -1316,7 +1316,7 @@ begin
   SQLiteQuery := TMyBibleUtils.CreateQuery(aFilePath);
   try
 
-    TMyBibleUtils.GetCommentaryChapter(SQLiteQuery, aBook, aChapter.MaxValue, aLines);
+    TMyBibleUtils.GetCommentaryChapter(SQLiteQuery, aBook, aChapter, aLines);
 
     Result := True;
   finally

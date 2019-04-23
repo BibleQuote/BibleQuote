@@ -190,6 +190,7 @@ var
   BookQty: Integer;
   ChapterData: TChapterData;
   BookName : String;
+  BookNumber: Integer;
 begin
   BookQty := 0;
 
@@ -198,11 +199,15 @@ begin
 
     ChapterData:= TChapterData.Create;
     BookName := '';
+
+
     if aSQLiteQuery.FindField('name') <> nil then
       BookName := aSQLiteQuery.FieldByName('name').AsString;
 
-    if (BookName.IsEmpty) then
-      BookName := Lang.Say(Format('StrBibleBook%d', [BookQty+1]));
+    if (BookName.IsEmpty) then begin
+      BookNumber := aSQLiteQuery.FieldByName('book_number').AsInteger;
+      BookName := Lang.Say(Format('StrMyBibleBook%d', [BookNumber]));
+    end;
 
     ChapterData.FullName := BookName;
     ChapterData.ShortName := ChapterData.FullName;
