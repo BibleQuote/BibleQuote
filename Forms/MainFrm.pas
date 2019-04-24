@@ -63,6 +63,8 @@ type
   TBookNodeData = record
     Caption: string;
     NodeType: TBookNodeType;
+    BookNumber: Integer;
+    ChapterNumber: Integer;
   end;
 
   TNavigateResult = (

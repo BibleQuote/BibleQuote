@@ -188,6 +188,13 @@ type
     function IsPsalms(bible: TBible; bookIndex: integer): Boolean;
     procedure SelectModuleTreeNode(bible: TBible);
     function GetChildNodeByIndex(parentNode: PVirtualNode; index: Integer): PVirtualNode;
+    function GetChildNodeByBookNumber(aBookNumber: Integer): PVirtualNode;
+    function GetChildNodeByChapterNumber(aParentNode: PVirtualNode; aChapterNumber: Integer): PVirtualNode;
+    function GetFirstChild(aParentNode: PVirtualNode): PVirtualNode;
+    function GetBookNumber(aData: PBookNodeData; aDefault: Integer = 0): Integer;
+    function GetChapterNumber(aData: PBookNodeData; aDefault: Integer = 0): Integer;
+    function GetBookNumberForNode(aNode: PVirtualNode; aDefault: Integer = 0): Integer;
+    function GetChapterNumberForNode(aNode: PVirtualNode; aDefault: Integer = 0): Integer;
     procedure UpdateModuleTreeFont(book: TBible);
     procedure AddBookmarkTagged(tagName: string);
     procedure AddThemedBookmarkClick(Sender: TObject);
@@ -222,6 +229,33 @@ implementation
 
 {$R *.dfm}
 uses DockTabsFrm, CommandFactory;
+
+function TBookFrame.GetBookNumber(aData: PBookNodeData;
+  aDefault: Integer): Integer;
+begin
+
+  Result := aDefault;
+
+  if not Assigned(aData) then exit;
+
+  if aData.BookNumber > 0 then
+    Result := aData.BookNumber;
+
+end;
+
+function TBookFrame.GetBookNumberForNode(aNode: PVirtualNode; aDefault: Integer): Integer;
+var
+  Data: PBookNodeData;
+begin
+  Result := aDefault;
+
+  if not Assigned(aNode) then exit;
+
+  Data := vdtModules.GetNodeData(aNode);
+
+  Result := GetBookNumber(Data, aDefault);
+
+end;
 
 function TBookFrame.GetBookTabInfo(): TBookTabInfo;
 var
@@ -312,13 +346,13 @@ begin
 
     if (data.NodeType = btBook) then
     begin
-      bookIndex := node.Index + 1;
-      chapterIndex := 1;
+      bookIndex := GetBookNumber(data, node.Index + 1);
+      chapterIndex := GetChapterNumberForNode(GetFirstChild(node), 1);
     end
     else
     begin
-      bookIndex := node.Parent.Index + 1;
-      chapterIndex := node.Index + 1;
+      bookIndex :=  GetBookNumber( data, node.Parent.Index + 1);
+      chapterIndex := GetChapterNumber(data, node.Index + 1);
     end;
 
     bible := BookTabInfo.Bible;
@@ -377,6 +411,7 @@ var
   bookIndex, chapterIndex: integer;
   chapterString: string;
   bible: TBible;
+
 begin
   with Sender do
   begin
@@ -401,6 +436,8 @@ begin
     begin
       Data.Caption := bible.FullNames[Node.Index + 1];
       Data.NodeType := btBook;
+      Data.BookNumber := bible.GetBookNumberAt(Node.Index);
+
     end
     else
     begin
@@ -426,6 +463,8 @@ begin
 
       Data.Caption := chapterString;
       Data.NodeType := btChapter;
+      Data.BookNumber := bible.GetBookNumberAt(Node.Parent.Index);
+      Data.ChapterNumber := bible.GetChapterNumberAt(Node.Parent.Index, Node.Index)
     end;
   end;
 end;
@@ -1503,6 +1542,11 @@ begin
   end;
 end;
 
+function TBookFrame.GetFirstChild(aParentNode: PVirtualNode): PVirtualNode;
+begin
+  Result := vdtModules.GetFirstChild(aParentNode);
+end;
+
 function TBookFrame.GetCurrentHistoryIndex(): integer;
 var
   menuItem: TMenuItem;
@@ -1978,20 +2022,27 @@ end;
 
 procedure TBookFrame.SelectModuleTreeNode(bible: TBible);
 var
-  i: Integer;
+
+  BookNumber : Integer;
+  ChapterNumber: Integer;
   bookNode: PVirtualNode;
   chapterNode: PVirtualNode;
 begin
-  i := bible.CurBook - 1;
+  BookNumber := bible.CurBook;
   if bible.BookQty > 0 then
   begin
-    bookNode := GetChildNodeByIndex(nil, i);
+
+    bookNode := GetChildNodeByBookNumber(BookNumber);
+    //bookNode := GetChildNodeByBookNumber(nil, i);
     if Assigned(bookNode) then
     begin
-      i := bible.CurChapter - 1;
-      if (i < 0) then
-        i := 0;
-      chapterNode := GetChildNodeByIndex(bookNode, i);
+      ChapterNumber := bible.CurChapter;
+      if (ChapterNumber < 0) then
+        ChapterNumber :=  GetChapterNumberForNode( GetFirstChild(bookNode) );
+
+      //chapterNode := GetChildNodeByIndex(bookNode, i);
+      chapterNode := GetChildNodeByChapterNumber(bookNode, ChapterNumber);
+
       if Assigned(chapterNode) then
       begin
         if (vdtModules.Selected[chapterNode] = False) then
@@ -2018,6 +2069,92 @@ begin
       end;
     end;
   end;
+end;
+
+function TBookFrame.GetChapterNumber(aData: PBookNodeData;
+  aDefault: Integer): Integer;
+begin
+
+  Result := aDefault;
+
+  if not Assigned(aData) then exit;
+
+  if aData.ChapterNumber > 0 then
+    Result := aData.ChapterNumber;
+
+
+end;
+
+function TBookFrame.GetChapterNumberForNode(aNode: PVirtualNode; aDefault: Integer): Integer;
+var
+  Data: PBookNodeData;
+begin
+  Result := aDefault;
+
+  if not Assigned(aNode) then exit;
+
+  Data := vdtModules.GetNodeData(aNode);
+
+  Result := GetChapterNumber(Data);
+
+end;
+
+function TBookFrame.GetChildNodeByBookNumber(aBookNumber: Integer): PVirtualNode;
+var
+  Data: PBookNodeData;
+  Node : PVirtualNode;
+begin
+  Result := nil;
+
+  Node := vdtModules.GetFirst();
+
+  while True do
+  begin
+
+    if not Assigned(Node) then exit;
+    Data := vdtModules.GetNodeData(Node);
+
+    if (Data.BookNumber = aBookNumber) then
+    begin
+      Result := Node;
+      exit;
+    end;
+
+    Node := vdtModules.GetNext(Node);
+
+  end;
+
+end;
+
+function TBookFrame.GetChildNodeByChapterNumber(aParentNode: PVirtualNode;
+  aChapterNumber: Integer): PVirtualNode;
+var
+  Data: PBookNodeData;
+  Node : PVirtualNode;
+begin
+  Result := nil;
+
+  if (vsHasChildren in aParentNode.States) then
+  begin
+    Node := vdtModules.GetFirstChild(aParentNode);
+
+    while True do
+    begin
+
+      if not Assigned(Node) then exit;
+      Data := vdtModules.GetNodeData(Node);
+
+      if (Data.ChapterNumber = aChapterNumber) then
+      begin
+        Result := Node;
+        exit;
+      end;
+
+      Node := vdtModules.GetNextSibling(Node);
+
+    end;
+  end;
+
 end;
 
 function TBookFrame.GetChildNodeByIndex(parentNode: PVirtualNode; index: Integer): PVirtualNode;
@@ -2068,7 +2205,7 @@ begin
 
     Result := true;
     tbtnSatellite.Enabled := not bookTabInfo.Bible.InfoSource.IsCommentary;
-    SelectModuleTreeNode(bookTabInfo.Bible);
+    //SelectModuleTreeNode(bookTabInfo.Bible);
 
     if not (bookTabInfo.LocationType = vtlFile) then
       AdjustBibleTabs();
@@ -2289,28 +2426,17 @@ begin
   locVerseEnd := toverse;
 
   // check and correction of the book
-  if book < 1 then
+  if not bible.IsValidBookNumber(book) then
   begin
     Result := nrBookErr;
     book := 1;
-  end
-  else if book > bible.BookQty then
-  begin
-    book := bible.BookQty;
-    Result := nrBookErr;
   end;
 
   // check and correct chapter number
-  if chapter < 0 then
+  if not bible.IsValidChapterNumber(book, chapter) then
   begin
     Result := nrChapterErr;
     chapter := 1;
-  end
-  else if chapter > bible.ChapterQtys[book] then
-  begin
-    if Result = nrSuccess then
-      Result := nrChapterErr;
-    chapter := bible.ChapterQtys[book];
   end;
 
   if Result <> nrSuccess then

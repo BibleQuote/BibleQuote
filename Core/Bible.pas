@@ -8,7 +8,7 @@ uses
   Windows, Messages, SysUtils, Classes, IOUtils, Types,
   Graphics, Controls, Forms, Dialogs, IOProcs,
   StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices, AppPaths,
-  InfoSource, StrUtils;
+  InfoSource, StrUtils, Generics.Collections;
 
 const
   RusToEngTable: array [1 .. 27] of integer = (1, 2, 3, 4, 5, 20, 21, 22, 23,
@@ -150,6 +150,10 @@ type
 type
   TBibleSet = set of 0 .. 255;
 
+  // book_number + chapter number list
+  TChapterNumber = TPair<Integer, TIntegerDynArray>;
+  TChapterNumbers = TList<TChapterNumber>;
+
 type
   IBookSearchCallback = interface;
   TBible = class;
@@ -258,6 +262,7 @@ type
     procedure InitializeChapterData(aInfoSource: TInfoSource);
     procedure InitializeAlphabet(aInfoSource: TInfoSource);
     procedure InitializePaths(aInfoSource: TInfoSource);
+    procedure InitChapterArrays();
 
     function SearchOK(Source: string; Words: TStrings; SearchOptions: TSearchOptions): Boolean;
     procedure SearchBook(Words: TStrings; SearchOptions: TSearchOptions; Book: Integer; RemoveStrongs: Boolean; Callback: IBookSearchCallback);
@@ -278,6 +283,7 @@ type
 
   public
     ChapterQtys: array [1 .. MAX_BOOKQTY] of integer;
+    ChapterNumbers: TChapterNumbers;
     FullNames: array [1 .. MAX_BOOKQTY] of string;
 
     // variants for shortening the title of the book
@@ -289,6 +295,14 @@ type
     function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
     function GetModuleName(): string;
     function GetAuthor(): string;
+
+    function GetBookNumberIndex(aBookNumber: Integer): Integer;
+    function GetChapterNumberIndex(aBookNumber, aChapterNumber: Integer): Integer;
+
+    function GetBookNumberAt(aIndex: Integer): Integer;
+    function GetChapterNumberAt(aParentIndex, aIndex: Integer): Integer;
+    function IsValidChapterNumber(aBookNumber, aChapterNumber: Integer): Boolean;
+    function IsValidBookNumber(aBookNumber: Integer): Boolean;
 
     function SetInfoSource(aFileEntryPath: String): Boolean; overload;
     function SetInfoSource(aInfoSource: TInfoSource): Boolean; overload;
@@ -437,7 +451,7 @@ implementation
 
 uses PlainUtils, bibleLinkParser, ExceptionFrm, SelectEntityType,
      InfoSourceLoaderFabric, InfoSourceLoaderInterface, FireDAC.Comp.Client,
-     MyBibleUtils;
+     MyBibleUtils, ChapterData;
 
 constructor TBible.Create(uiServices: IBibleWinUIServices);
 begin
@@ -446,6 +460,7 @@ begin
   mCategories := TStringList.Create();
   mShortNamesVars := TStringList.Create();
   mUIServices := uiServices;
+  ChapterNumbers := TChapterNumbers.Create;
 
   FInfoSource := TInfoSource.Create;
 end;
@@ -456,6 +471,7 @@ begin
   FLines.Free;
   mCategories.Free();
   mShortNamesVars.Free();
+  FreeAndNil(ChapterNumbers);
 
   FreeAndNil(FInfoSource);
 
@@ -487,6 +503,24 @@ begin
     independent.book,
     independent.chapter,
     independent.vend)) - 1);
+end;
+
+function TBible.GetBookNumberIndex(aBookNumber: Integer): Integer;
+var
+  i: Integer;
+begin
+
+  Result := -1;
+
+  if ChapterNumbers.Count = 0 then exit;
+
+  for I := 0 to ChapterNumbers.Count do
+    if ChapterNumbers[i].Key = aBookNumber then
+    begin
+      Result := i;
+      exit;
+    end;
+
 end;
 
 function TBible.ChapterCountForBook(bk: integer; internalAddr: boolean)
@@ -586,6 +620,50 @@ begin
     Result := FModuleAuthor
   else
     Result := FCopyright;
+end;
+
+function TBible.GetBookNumberAt(aIndex: Integer): Integer;
+begin
+
+  if ChapterNumbers.Count > 0 then
+    Result := ChapterNumbers[aIndex].Key
+  else
+    Result := aIndex + 1;
+
+end;
+
+function TBible.GetChapterNumberAt(aParentIndex, aIndex: Integer): Integer;
+begin
+
+  if ChapterNumbers.Count > 0 then
+    Result := ChapterNumbers[aParentIndex].Value[aIndex]
+  else
+    Result := aIndex + 1;
+
+end;
+
+function TBible.GetChapterNumberIndex(aBookNumber,
+  aChapterNumber: Integer): Integer;
+var
+  BookIndex : Integer;
+  ChapterList: TIntegerDynArray;
+  i: integer;
+begin
+
+  Result:= -1;
+
+  BookIndex:= GetBookNumberIndex(aBookNumber);
+  if BookIndex = -1 then exit;
+
+  ChapterList := ChapterNumbers[BookIndex].Value;
+
+  for i := 0 to High(ChapterList) do
+    if ChapterList[i] = aChapterNumber then
+    begin
+      Result := i;
+      exit;
+    end;
+
 end;
 
 function TBible.GetStucture: string;
@@ -755,8 +833,9 @@ begin
     InstallFonts();
 
   mChapterHead := '';
-  if (book <= 0) or (book > BookQty) or (chapter <= 0) or
-    (chapter > ChapterQtys[book]) then exit;
+  if ( not (IsValidBookNumber(book) and IsValidChapterNumber(book, chapter))) then exit;
+  {if (book <= 0) or (book > BookQty) or (chapter <= 0) or
+    (chapter > ChapterQtys[book]) then exit;}
 
   // read text dependence of source type: Native/MyBible, Bible/Commentary
   if FInfoSource.InfoSourceType = isMyBible then
@@ -1232,6 +1311,28 @@ function TBible.isEnglish: boolean;
 begin
   Result := ((not trait[bqmtOldCovenant] and trait[bqmtNewCovenant]) and
     (ChapterQtys[6] = 16)) or (ChapterQtys[45] = 16);
+end;
+
+function TBible.IsValidBookNumber(aBookNumber: Integer): Boolean;
+begin
+  Result:= False;
+
+  if ChapterNumbers.Count = 0 then
+    Result:= (aBookNumber > 0) and (aBookNumber <= BookQty)
+  else
+    Result := GetBookNumberIndex(aBookNumber) <> -1;
+
+end;
+
+function TBible.IsValidChapterNumber(aBookNumber, aChapterNumber: Integer): Boolean;
+begin
+  Result:= False;
+
+  if ChapterNumbers.Count = 0 then
+    Result:= (aBookNumber > 0) and (aBookNumber <= BookQty)
+  else
+    Result := GetChapterNumberIndex(aBookNumber, aChapterNumber) <> -1;
+
 end;
 
 function TBible.LinkValidnessStatus(
@@ -1995,6 +2096,17 @@ begin
       FOnChangeModule(Self);
 end;
 
+procedure TBible.InitChapterArrays;
+var
+  i : Integer;
+begin
+  for i := 1 to MAX_BOOKQTY do
+    ChapterQtys[i] := 0; // clear
+
+  ChapterNumbers.Clear;
+
+end;
+
 procedure TBible.InitializeAlphabet(aInfoSource: TInfoSource);
 var
   i: Integer;
@@ -2011,26 +2123,39 @@ end;
 
 procedure TBible.InitializeChapterData(aInfoSource: TInfoSource);
 var
-  i, index: Integer;
+  i, j, index: Integer;
   ShortName: String;
-
+  ChapterList: TIntegerDynArray;
+  ChapterData: TChapterData;
+  ChapterNumber: TChapterNumber;
 begin
 
-  for i := 1 to MAX_BOOKQTY do
-    ChapterQtys[i] := 0; // clear
+  InitChapterArrays();
 
   for i := 0 to aInfoSource.ChapterDatas.Count -1 do
   begin
     index := i + 1;
 
-    PathNames[index] := aInfoSource.ChapterDatas[i].PathName;
-    FullNames[index] := aInfoSource.ChapterDatas[i].FullName;
+    ChapterData := aInfoSource.ChapterDatas[i];
 
-    ShortName := aInfoSource.ChapterDatas[i].ShortName;
+    PathNames[index] := ChapterData.PathName;
+    FullNames[index] := ChapterData.FullName;
+
+    ShortName := ChapterData.ShortName;
     SetShortNameVars(index, ShortName);
     ShortNames[index] := FirstWord(ShortNamesVars[index]);
 
-    ChapterQtys[index] := aInfoSource.ChapterDatas[i].ChapterQty;
+    ChapterQtys[index] := ChapterData.ChapterQty;
+
+    if (ChapterData.BookNumber > 0) and (Length(ChapterData.ChapterNumbers) > 0) then
+    begin
+      ChapterList := Copy(ChapterData.ChapterNumbers, 0, Length(ChapterData.ChapterNumbers));
+
+      ChapterNumber := TChapterNumber.Create(ChapterData.BookNumber, ChapterList);
+      ChapterNumbers.Add(ChapterNumber);
+    end;
+
+
   end;
 
 end;
