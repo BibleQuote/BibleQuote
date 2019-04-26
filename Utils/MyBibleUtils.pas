@@ -148,9 +148,11 @@ var
 begin
   Result := 0;
 
-  Query:= 'SELECT book_number, count(*) as chapterqty FROM commentaries '+
+  Query:= 'SELECT book_number, count(*) as chapterqty FROM ( '+
+          ' select book_number, chapter_number_from from commentaries' +
           ' where ' + CHAPTER_NOT_NULL_CONDITION +
-          'group by book_number order by book_number';
+          ' group by book_number, chapter_number_from' +
+          ') B group by book_number order by book_number';
 
   if IsTableExists(aSQLiteQuery, 'books') then
   begin
