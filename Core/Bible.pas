@@ -304,6 +304,9 @@ type
     function IsValidChapterNumber(aBookNumber, aChapterNumber: Integer): Boolean;
     function IsValidBookNumber(aBookNumber: Integer): Boolean;
 
+    function GetFirstBookNumber(): Integer;
+    function GetFirstChapterNumber(): Integer;
+
     function SetInfoSource(aFileEntryPath: String): Boolean; overload;
     function SetInfoSource(aInfoSource: TInfoSource): Boolean; overload;
 
@@ -514,7 +517,7 @@ begin
 
   if ChapterNumbers.Count = 0 then exit;
 
-  for I := 0 to ChapterNumbers.Count do
+  for I := 0 to ChapterNumbers.Count-1 do
     if ChapterNumbers[i].Key = aBookNumber then
     begin
       Result := i;
@@ -704,6 +707,34 @@ begin
     Result := TEncoding.GetEncoding(1251);
 end;
 
+function TBible.GetFirstBookNumber: Integer;
+begin
+
+  if ChapterNumbers.Count = 0 then
+    Result:= 1
+  else
+    Result := GetBookNumberAt(0);
+
+end;
+
+function TBible.GetFirstChapterNumber: Integer;
+var
+  BookNumber: Integer;
+begin
+
+  BookNumber:= GetFirstBookNumber();
+
+  if ChapterNumbers.Count = 0 then
+    Result:= 1
+  else
+  begin
+    if Length(ChapterNumbers[0].Value)>0 then
+      Result := ChapterNumbers[0].Value[0]
+    else
+      raise Exception.Create('Unknown default chapter');
+  end;
+end;
+
 function TBible.getTraitState(trait: TbqModuleTrait): boolean;
 begin
   Result := trait in mTraits;
@@ -834,8 +865,6 @@ begin
 
   mChapterHead := '';
   if ( not (IsValidBookNumber(book) and IsValidChapterNumber(book, chapter))) then exit;
-  {if (book <= 0) or (book > BookQty) or (chapter <= 0) or
-    (chapter > ChapterQtys[book]) then exit;}
 
   // read text dependence of source type: Native/MyBible, Bible/Commentary
   if FInfoSource.InfoSourceType = isMyBible then
@@ -2147,8 +2176,11 @@ begin
 
     ChapterQtys[index] := ChapterData.ChapterQty;
 
-    if (ChapterData.BookNumber > 0) and (Length(ChapterData.ChapterNumbers) > 0) then
+    if (ChapterData.BookNumber > 0) then
     begin
+      if Length(ChapterData.ChapterNumbers) = 0 then
+        raise Exception.Create('Empty chapter list for book '+IntToStr(ChapterData.BookNumber));
+
       ChapterList := Copy(ChapterData.ChapterNumbers, 0, Length(ChapterData.ChapterNumbers));
 
       ChapterNumber := TChapterNumber.Create(ChapterData.BookNumber, ChapterList);

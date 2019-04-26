@@ -2429,14 +2429,14 @@ begin
   if not bible.IsValidBookNumber(book) then
   begin
     Result := nrBookErr;
-    book := 1;
+    book := bible.GetFirstBookNumber();
   end;
 
   // check and correct chapter number
   if not bible.IsValidChapterNumber(book, chapter) then
   begin
     Result := nrChapterErr;
-    chapter := 1;
+    chapter := bible.GetFirstChapterNumber();;
   end;
 
   if Result <> nrSuccess then

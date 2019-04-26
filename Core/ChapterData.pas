@@ -14,7 +14,7 @@ type
     FChapterQty: Integer;
     FBookNumber: Integer;
   public
-    ChapterNumbers: TIntegerDynArray;
+    ChapterNumbers: TArray<Integer>;
 
   public
     property PathName: String read FPathName write FPathName;

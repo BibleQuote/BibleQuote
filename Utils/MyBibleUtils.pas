@@ -4,18 +4,28 @@ interface
 
 uses Classes, System.Types, FireDAC.Comp.Client, Generics.Collections, ChapterData;
 
+const
+
+  CHAPTER_NOT_NULL_CONDITION = 'chapter_number_from is not null and verse_number_from is not null '+
+                               ' and chapter_number_to is not null and verse_number_to is not null ';
+
 type
 
   TMyBibleUtils = class
   private
     class function GetSingleValue(aSQLiteQuery: TFDQuery; aSqlQuery: String): String;
+    class procedure GetMultiValues(aSQLiteQuery: TFDQuery; aSqlQuert:String; aLines: TStrings);
     class function GetInfoValue(aSQLiteQuery: TFDQuery; aKey: String): String;
     class function GetBookNumber(aSQLiteQuery: TFDQuery; aSourceTable: String; aBook: Integer): Integer;
-    class function FillChapterDatas(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>;
-        aChapterNumberQueryTempl: String = ''): Integer;
+
+    class function FillChapterDatas(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
+    class procedure FillAllChapterNumbers(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>;
+      aChapterNumberQueryTempl: String);
     class function FillChapterNumbers(aSQLiteQuery: TFDQuery;
-      aChapterNumberQuery: String): TIntegerDynArray;
+      aChapterNumberQuery: String): TArray<Integer>;
+
     class function IsTableExists(aSQLiteQuery: TFDQuery; aTableName: String): Boolean;
+
   public
     class function GetCommentaryBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
     class function GetBibleBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
@@ -29,6 +39,7 @@ type
                     aSQLiteQuery: TFDQuery);
     class procedure GetCommentaryChapter(aSQLiteQuery: TFDQuery; aBook, aChapter: Integer; aLines: TStrings);
     class procedure GetBibleChapter(aSQLiteQuery: TFDQuery; aBook, aChapter: Integer; aLines: TStrings);
+
 
     class function OpenDatabase(aFileEntryPath: String): TFDConnection;
     class procedure CloseDatabase(aSQLiteConnection: TFDConnection);
@@ -50,6 +61,7 @@ begin
 
   aSQLiteQuery.SQL.Text := aSqlQuery;
   aSQLiteQuery.Open();
+  aSQLiteQuery.FetchAll();
 
   try
 
@@ -74,9 +86,9 @@ end;
 class function TMyBibleUtils.GetBibleBookQty(aSQLiteQuery: TFDQuery;
   aChapterDatas: TList<TChapterData>): Integer;
 var
-  ChapterNumberQuery, ChapterNumberQueryTempl: String;
+  ChapterNumberQueryTempl: String;
   i: integer;
-  ChapterNumbers: TIntegerDynArray;
+
 begin
   Result := 0;
 
@@ -85,47 +97,29 @@ begin
                            ' select book_number, chapter, count(*) as verseqty from verses group by book_number, chapter '+
                            ') B group by book_number ) C left join books ON books.book_number= C.book_number';
   aSQLiteQuery.Open();
+  aSQLiteQuery.FetchAll();
 
   try
 
-
     Result := FillChapterDatas(aSQLiteQuery, aChapterDatas);
-
-    ChapterNumberQueryTempl := 'select chapter as chapter_number, count(*) from verses where book_number=%d group by chapter';
-    for I := 0 to aChapterDatas.Count - 1 do
-    begin
-      ChapterNumberQuery := Format( ChapterNumberQueryTempl, [aChapterDatas[i].BookNumber]);
-      ChapterNumbers := FillChapterNumbers(aSQLiteQuery, ChapterNumberQuery );
-      aChapterDatas[i].ChapterNumbers := Copy(ChapterNumbers, 0, Length(ChapterNumbers));
-    end;
 
   finally
     aSQLiteQuery.Close;
   end;
+
+  ChapterNumberQueryTempl := 'select chapter as chapter_number, count(*) from verses where book_number=%d group by chapter';
+  FillAllChapterNumbers(aSQLiteQuery, aChapterDatas, ChapterNumberQueryTempl);
 
 end;
 
 class procedure TMyBibleUtils.GetBibleChapter(aSQLiteQuery: TFDQuery; aBook,
   aChapter: Integer; aLines: TStrings);
 var
-  BookNumber: Integer;
-  ChapterText: string;
+  Query: String;
 begin
 
-  aSQLiteQuery.SQL.Text := Format('SELECT text FROM [verses] where book_number=%d  and chapter=%d', [aBook, aChapter]);
-  aSQLiteQuery.Open();
-
-  try
-
-    while not aSQLiteQuery.Eof do
-    begin
-      aLines.Add(aSQLiteQuery.Fields[0].AsString);
-      aSQLiteQuery.Next;
-    end;
-
-  finally
-    aSQLiteQuery.Close;
-  end;
+  Query:= Format('SELECT text FROM [verses] where book_number=%d  and chapter=%d', [aBook, aChapter]);
+  GetMultiValues(aSQLiteQuery, Query, aLines);
 
 end;
 
@@ -150,10 +144,13 @@ class function TMyBibleUtils.GetCommentaryBookQty(aSQLiteQuery: TFDQuery; aChapt
 var
   BookTableExist: Boolean;
   Query: String;
+  ChapterNumberQueryTempl: String;
 begin
   Result := 0;
 
-  Query:= 'SELECT book_number, count(*) as chapterqty FROM commentaries group by book_number order by book_number';
+  Query:= 'SELECT book_number, count(*) as chapterqty FROM commentaries '+
+          ' where ' + CHAPTER_NOT_NULL_CONDITION +
+          'group by book_number order by book_number';
 
   if IsTableExists(aSQLiteQuery, 'books') then
   begin
@@ -164,14 +161,18 @@ begin
 
   aSQLiteQuery.SQL.Text := Query;
   aSQLiteQuery.Open();
+  aSQLiteQuery.FetchAll();
 
   try
-
     Result := FillChapterDatas(aSQLiteQuery, aChapterDatas);
-
   finally
     aSQLiteQuery.Close;
   end;
+
+  ChapterNumberQueryTempl := 'select chapter_number_from as chapter_number, count(*) '+
+                             ' from commentaries where book_number=%d and '+ CHAPTER_NOT_NULL_CONDITION +
+                             ' group by chapter_number_from';
+  FillAllChapterNumbers(aSQLiteQuery, aChapterDatas, ChapterNumberQueryTempl);
 
 end;
 
@@ -179,6 +180,27 @@ end;
 class function TMyBibleUtils.GetLanguage(aSQLiteQuery: TFDQuery): String;
 begin
   Result := GetInfoValue(aSQLiteQuery, 'language');
+end;
+
+class procedure TMyBibleUtils.GetMultiValues(aSQLiteQuery: TFDQuery;
+  aSqlQuert: String; aLines: TStrings);
+begin
+
+  aSQLiteQuery.SQL.Text := aSqlQuert;
+  aSQLiteQuery.Open();
+  aSQLiteQuery.FetchAll();
+
+  try
+
+    while not aSQLiteQuery.Eof do
+    begin
+      aLines.Add(aSQLiteQuery.Fields[0].AsString);
+      aSQLiteQuery.Next;
+    end;
+
+  finally
+    aSQLiteQuery.Close;
+  end;
 end;
 
 class function TMyBibleUtils.GetDictName(aSQLiteQuery: TFDQuery): String;
@@ -199,7 +221,7 @@ end;
 
 
 class function TMyBibleUtils.FillChapterDatas(aSQLiteQuery: TFDQuery;
-  aChapterDatas: TList<TChapterData>; aChapterNumberQueryTempl: String): Integer;
+  aChapterDatas: TList<TChapterData>): Integer;
 var
   BookQty: Integer;
   ChapterData: TChapterData;
@@ -228,13 +250,6 @@ begin
     ChapterData.ShortName := ChapterData.FullName;
     ChapterData.ChapterQty := aSQLiteQuery.FieldByName('chapterqty').AsInteger;
 
-    if not aChapterNumberQueryTempl.IsEmpty then
-    begin
-      ChapterNumberQuery := Format(aChapterNumberQueryTempl, [ChapterData.BookNumber]);
-      ChapterData.ChapterNumbers := FillChapterNumbers(aSQLiteQuery, ChapterNumberQuery);
-    end;
-
-
     aChapterDatas.Add(ChapterData);
 
     BookQty := BookQty + 1;
@@ -246,8 +261,27 @@ begin
 
 end;
 
+class procedure TMyBibleUtils.FillAllChapterNumbers(aSQLiteQuery: TFDQuery;
+  aChapterDatas: TList<TChapterData>; aChapterNumberQueryTempl: String);
+var
+  ChapterNumberQuery: String;
+  ChapterNumbers: TIntegerDynArray;
+  i: Integer;
+  BookNumber: Integer;
+begin
+
+  for i := 0 to aChapterDatas.Count - 1 do
+  begin
+    BookNumber := aChapterDatas[i].BookNumber;
+    ChapterNumberQuery := Format( aChapterNumberQueryTempl, [aChapterDatas[i].BookNumber]);
+    ChapterNumbers := FillChapterNumbers(aSQLiteQuery, ChapterNumberQuery );
+    aChapterDatas[i].ChapterNumbers := Copy(ChapterNumbers, 0, Length(ChapterNumbers));
+  end;
+
+end;
+
 class function TMyBibleUtils.FillChapterNumbers(aSQLiteQuery: TFDQuery;
-  aChapterNumberQuery: String): TIntegerDynArray;
+  aChapterNumberQuery: String): TArray<Integer>;
 var
 
   i: Integer;
@@ -255,15 +289,18 @@ begin
   aSQLiteQuery.Close();
   aSQLiteQuery.SQL.Text := aChapterNumberQuery;
   aSQLiteQuery.Open();
+  aSQLiteQuery.FetchAll();
 
   try
 
     i := 0;
 
-    SetLength(Result, aSQLiteQuery.RowsAffected);
+    SetLength(Result, aSQLiteQuery.RecordCount);
+    aSQLiteQuery.First;
 
     while not aSQLiteQuery.Eof do
     begin
+
       Result[i] := aSQLiteQuery.FieldByName('chapter_number').AsInteger;
 
       i := i+1;
@@ -281,6 +318,7 @@ class procedure TMyBibleUtils.FillWords(aWords: TStrings;
 begin
   aSQLiteQuery.SQL.Text := 'SELECT topic FROM [dictionary]';
   aSQLiteQuery.Open();
+  aSQLiteQuery.FetchAll();
 
   try
 
@@ -299,16 +337,12 @@ end;
 class procedure TMyBibleUtils.GetCommentaryChapter(aSQLiteQuery: TFDQuery; aBook,
   aChapter: Integer; aLines: TStrings);
 var
-  BookNumber: Integer;
-  ChapterText: string;
+  Query: String;
 begin
 
-  BookNumber := GetBookNumber(aSQLiteQuery, 'commentaries', aBook);
+  Query:=  Format('SELECT text FROM [commentaries] where book_number=%d and chapter_number_from=%d order by chapter_number_from ', [aBook, aChapter]);
+  GetMultiValues(aSQLiteQuery, Query, aLines);
 
-  ChapterText := GetSingleValue(aSQLiteQuery,
-    Format('SELECT text FROM [commentaries] where book_number=%d order by chapter_number_from limit 1 offset %d', [BookNumber, aChapter-1]));
-
-  aLines.Add(ChapterText);
 end;
 
 class function TMyBibleUtils.GetChapterString(aSQLiteQuery: TFDQuery): String;
