@@ -444,7 +444,10 @@ begin
     end
     else
     begin
-      chapterIndex := bible.GetChapterNumberAt(node.Parent.Index, Node.Index) + IfThen(bible.Trait[bqmtZeroChapter], 0, 1);
+      if bible.Trait[bqmtZeroChapter] then
+        chapterIndex := 0
+      else
+        chapterIndex := bible.GetChapterNumberAt(node.Parent.Index, Node.Index);
 
       if (chapterIndex = 0) and (Length(Trim(bible.ChapterZeroString)) > 0) then
       begin

@@ -640,7 +640,7 @@ begin
   if BookIndex > -1 then
     Result := ShortNames[BookIndex+1]
   else
-    Result := ShortNames[BookIndex];
+    Result := ShortNames[aBookNumber];
 
 end;
 
@@ -707,7 +707,7 @@ begin
   if (BookIndex > -1) then
     Result := Length(ChapterNumbers[BookIndex].Value)
   else
-    Result := ChapterQtys[BookIndex];
+    Result := ChapterQtys[aBookNumber];
 
 end;
 
@@ -781,14 +781,14 @@ function TBible.GetFullNames(aBookNumber: Integer): String;
 var
   BookIndex: Integer;
 begin
-  Result := 'FullName';
+  Result := '';
 
   BookIndex := GetBookNumberIndex(aBookNumber);
 
   if BookIndex > -1 then
     Result := FullNames[BookIndex+1]
   else
-    Result := FullNames[BookIndex];
+    Result := FullNames[aBookNumber];
 
 end;
 
