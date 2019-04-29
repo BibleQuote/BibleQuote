@@ -257,6 +257,13 @@ type
     mShortNamesVars: TStringList;
     mModuleType: TbqModuleType;
 
+    ChapterQtys: array [1 .. MAX_BOOKQTY] of integer;
+    ChapterNumbers: TChapterNumbers;
+    FullNames: array [1 .. MAX_BOOKQTY] of string;
+    // variants for shortening the title of the book
+    ShortNames: array [1 .. MAX_BOOKQTY] of string;
+    PathNames: array [1 .. MAX_BOOKQTY] of string;
+
     procedure InitializeFields(aInfoSource: TInfoSource);
     procedure InitializeTraits(aInfoSource: TInfoSource);
     procedure InitializeChapterData(aInfoSource: TInfoSource);
@@ -282,14 +289,11 @@ type
     procedure setTraitState(trait: TbqModuleTrait; state: boolean);
 
   public
-    ChapterQtys: array [1 .. MAX_BOOKQTY] of integer;
-    ChapterNumbers: TChapterNumbers;
-    FullNames: array [1 .. MAX_BOOKQTY] of string;
 
-    // variants for shortening the title of the book
-    ShortNames: array [1 .. MAX_BOOKQTY] of string;
+    function GetChapterQtys(aBookNumber: Integer): Integer;
+    function GetShortNames(aBookNumber: Integer): String;
+    function GetFullNames(aBookNumber: Integer): String;
 
-    PathNames: array [1 .. MAX_BOOKQTY] of string;
     function GetStucture(): string;
     function GetDefaultEncoding(): TEncoding;
     function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
@@ -531,6 +535,14 @@ function TBible.ChapterCountForBook(bk: integer; internalAddr: boolean)
 var
   obk, och, ovs: integer;
 begin
+
+
+  if (ChapterNumbers.Count>0) and (GetBookNumberIndex(bk) > -1) then
+  begin
+    Result:= Length(ChapterNumbers[GetBookNumberIndex(bk)].Value);
+    exit;
+  end;
+
   if internalAddr then
   begin
     if not InternalToReference(bk, 1, 1, obk, och, ovs) then
@@ -617,6 +629,21 @@ begin
     Result := FName;
 end;
 
+function TBible.GetShortNames(aBookNumber: Integer): String;
+var
+  BookIndex: Integer;
+begin
+  Result := '';
+
+  BookIndex := GetBookNumberIndex(aBookNumber);
+
+  if BookIndex > -1 then
+    Result := ShortNames[BookIndex+1]
+  else
+    Result := ShortNames[BookIndex];
+
+end;
+
 function TBible.GetAuthor: string;
 begin
   if (FModuleAuthor <> '') then
@@ -669,6 +696,21 @@ begin
 
 end;
 
+function TBible.GetChapterQtys(aBookNumber: Integer): Integer;
+var
+  BookIndex: Integer;
+begin
+  Result := 0;
+
+  BookIndex := GetBookNumberIndex(aBookNumber);
+
+  if (BookIndex > -1) then
+    Result := Length(ChapterNumbers[BookIndex].Value)
+  else
+    Result := ChapterQtys[BookIndex];
+
+end;
+
 function TBible.GetStucture: string;
 var
   bookIx, bookCnt: integer;
@@ -690,11 +732,11 @@ begin
   begin
     if not FBible then
     begin
-      s := FullNames[bookIx];
+      s := GetFullNames(bookIx);
       bookNames.Add(s);
     end
     else
-      bookNames.Add(inttoStr(ord(Copy(FullNames[bookIx], 1, 5) <> '-----')));
+      bookNames.Add(inttoStr(ord(Copy(GetFullNames(bookIx), 1, 5) <> '-----')));
   end;
   Result := StringReplace(bookNames.Text, #$D#$A, '|', [rfReplaceAll]);
 end;
@@ -733,6 +775,21 @@ begin
     else
       raise Exception.Create('Unknown default chapter');
   end;
+end;
+
+function TBible.GetFullNames(aBookNumber: Integer): String;
+var
+  BookIndex: Integer;
+begin
+  Result := 'FullName';
+
+  BookIndex := GetBookNumberIndex(aBookNumber);
+
+  if BookIndex > -1 then
+    Result := FullNames[BookIndex+1]
+  else
+    Result := FullNames[BookIndex];
+
 end;
 
 function TBible.getTraitState(trait: TbqModuleTrait): boolean;
@@ -1542,22 +1599,25 @@ end;
 function TBible.FullPassageSignature(book, chapter, fromverse, toverse: integer): string;
 var
   offset: integer;
+  FullName: String;
 begin
   if trait[bqmtZeroChapter] then
     offset := 1
   else
     offset := 0;
 
+  FullName := GetFullNames(book);
+
   if (fromverse <= 1) and (toverse = 0) then
-    Result := Format('%s %d', [FullNames[book], chapter - offset])
+    Result := Format('%s %d', [FullName, chapter - offset])
   else if (fromverse > 1) and (toverse = 0) then
-    Result := Format('%s %d:%d', [FullNames[book], chapter - offset, fromverse])
+    Result := Format('%s %d:%d', [FullName, chapter - offset, fromverse])
   else if toverse = fromverse then
-    Result := Format('%s %d:%d', [FullNames[book], chapter - offset, fromverse])
+    Result := Format('%s %d:%d', [FullName, chapter - offset, fromverse])
   else if toverse = fromverse + 1 then
-    Result := Format('%s %d:%d,%d', [FullNames[book], chapter - offset, fromverse, toverse])
+    Result := Format('%s %d:%d,%d', [FullName, chapter - offset, fromverse, toverse])
   else
-    Result := Format('%s %d:%d-%d', [FullNames[book], chapter - offset, fromverse, toverse]);
+    Result := Format('%s %d:%d-%d', [FullName, chapter - offset, fromverse, toverse]);
 end;
 
 function TBible.CountVerses(book, chapter: integer): integer;

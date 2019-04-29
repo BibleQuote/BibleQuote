@@ -187,7 +187,7 @@ begin
   RefText := Format
     ('<a name=%d><a href="go %s %d %d %d"><font face=%s>%s%d:%d</font></a><br><font face="%s">%s</font><p>',
     [tmpverse, mainBible.ShortPath, mainBible.CurBook, mainBible.CurChapter,
-    tmpverse, AppConfig.DefFontName, mainBible.ShortNames[mainBible.CurBook],
+    tmpverse, AppConfig.DefFontName, mainBible.GetShortNames(mainBible.CurBook),
     mainBible.CurChapter, tmpverse, mainBible.fontName, s]);
 
   slink := ti.ReadString(IntToStr(chapter), IntToStr(verse), '');

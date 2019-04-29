@@ -1538,7 +1538,7 @@ begin
     if CurChapter > 1 then
       cmd := Format('go %s %d %d', [ShortPath, CurBook, CurChapter - 1])
     else if CurBook > 1 then
-      cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, ChapterQtys[CurBook - 1]]);
+      cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, GetChapterQtys(CurBook - 1)]);
 
   bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
   Windows.SetFocus(mWorkspace.Browser.Handle);
@@ -1566,7 +1566,7 @@ begin
     Exit;
 
   with bookView.BookTabInfo.Bible do
-    if CurChapter < ChapterQtys[CurBook] then
+    if CurChapter < GetChapterQtys(CurBook) then
       cmd := Format('go %s %d %d', [ShortPath, CurBook, CurChapter + 1])
     else if CurBook < BookQty then
       cmd := Format('go %s %d %d', [ShortPath, CurBook + 1, 1]);
@@ -3719,7 +3719,7 @@ begin
   AddLine(Lines, '<b>Location:</b> ' + Copy(bible.path, 1, Length(bible.path) - 1) + ' <a href="editini=' + bible.path + 'bibleqt.ini">ini</a><br>');
 
   for i := 1 to bible.BookQty do
-    AddLine(Lines, '<b>' + bible.FullNames[i] + ':</b> ' + bible.ShortNamesVars[i] + '<br>');
+    AddLine(Lines, '<b>' + bible.GetFullNames(i) + ':</b> ' + bible.ShortNamesVars[i] + '<br>');
   AddLine(Lines, '<br><br><br>');
 
   if not Assigned(CopyrightForm) then

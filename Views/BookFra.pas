@@ -322,7 +322,7 @@ var
   chaptersCount: integer;
 begin
   try
-    chaptersCount := bible.ChapterQtys[bookIndex];
+    chaptersCount := bible.GetChapterQtys(bookIndex);
     Result := (chaptersCount = C_TotalPsalms) or (chaptersCount = C_TotalPsalms + 1);
   except
     Result := False;
@@ -391,12 +391,14 @@ procedure TBookFrame.vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVir
 var
   Level: Integer;
   bible: TBible;
+  Data: PBookNodeData;
 begin
   Level := Sender.GetNodeLevel(Node);
   if Assigned(BookTabInfo) then
   begin
     bible := BookTabInfo.Bible;
-    ChildCount := IfThen(Level = 0, bible.ChapterQtys[Node.Index + 1], 0);
+    Data := Sender.GetNodeData(Node);
+    ChildCount := IfThen(Level = 0, bible.GetChapterQtys(Data.BookNumber), 0);
   end
   else
   begin
@@ -434,14 +436,15 @@ begin
 
     if (Level = 0) then
     begin
-      Data.Caption := bible.FullNames[Node.Index + 1];
+
       Data.NodeType := btBook;
       Data.BookNumber := bible.GetBookNumberAt(Node.Index);
+      Data.Caption := bible.GetFullNames(  Data.BookNumber );
 
     end
     else
     begin
-      chapterIndex := Integer(Node.Index) + IfThen(bible.Trait[bqmtZeroChapter], 0, 1);
+      chapterIndex := bible.GetChapterNumberAt(node.Parent.Index, Node.Index) + IfThen(bible.Trait[bqmtZeroChapter], 0, 1);
 
       if (chapterIndex = 0) and (Length(Trim(bible.ChapterZeroString)) > 0) then
       begin
@@ -449,7 +452,8 @@ begin
       end
       else
       begin
-        bookIndex := node.Parent.Index + 1;
+        bookIndex := bible.GetBookNumberAt(node.Parent.Index);
+
         if (IsPsalms(bible, bookIndex)) then
           chapterString := Trim(bible.ChapterStringPs)
         else
@@ -1970,7 +1974,7 @@ begin
   UpdateModuleTreeFont(book);
 
   vdtModules.RootNodeCount := book.BookQty;
-  UpdateModuleTreeSelection(book);
+  //UpdateModuleTreeSelection(book);
 end;
 
 procedure TBookFrame.UpdateModuleTreeSelection(book: TBible);
@@ -2564,8 +2568,8 @@ begin
   if toverse = 0 then
   begin // display the entire chapter
     // if only one chapter in the book
-    if bible.ChapterQtys[book] = 1 then
-      head := bible.FullNames[book]
+    if bible.GetChapterQtys(book) = 1 then
+      head := bible.GetFullNames(book)
     else
       head := bible.FullPassageSignature(book, chapter, 1, 0);
   end
@@ -2660,7 +2664,7 @@ begin
     begin // if bible display verse numbers
 
       if MainForm.miShowSignatures.Checked then
-        ss := bible.ShortNames[bible.CurBook] + IntToStr(bible.CurChapter) + ':'
+        ss := bible.GetShortNames(bible.CurBook) + IntToStr(bible.CurChapter) + ':'
       else
         ss := '';
 
@@ -2879,7 +2883,7 @@ begin
 
   Randomize();
   bookIndex := Random(book.BookQty) + 1;
-  chapterIndex := Random(book.ChapterQtys[bookIndex]) + 1;
+  chapterIndex := Random(book.GetChapterQtys(bookIndex)) + 1;
   verseIndex := Random(book.CountVerses(bookIndex, chapterIndex)) + 1;
 
   ProcessCommand(BookTabInfo, Format('go %s %d %d %d', [book.ShortPath, bookIndex, chapterIndex, verseIndex]), hlTrue);
