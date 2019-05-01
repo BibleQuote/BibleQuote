@@ -223,7 +223,7 @@ begin
 
     if aInfoSource.IsCommentary then
       LoadCommentaryValues(aInfoSource, SQLiteConnection)
-    else
+    else if aInfoSource.IsBible then
       LoadBibleValues(aInfoSource, SQLiteConnection);
 
 
