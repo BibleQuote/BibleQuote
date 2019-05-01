@@ -444,12 +444,10 @@ begin
     end
     else
     begin
-      if bible.Trait[bqmtZeroChapter] then
-        chapterIndex := 0
-      else
-        chapterIndex := bible.GetChapterNumberAt(node.Parent.Index, Node.Index);
 
-      if (chapterIndex = 0) and (Length(Trim(bible.ChapterZeroString)) > 0) then
+      chapterIndex := bible.GetChapterNumberAt(node.Parent.Index, Node.Index);
+
+      if (bible.Trait[bqmtZeroChapter]) and (chapterIndex = 1) and (Length(Trim(bible.ChapterZeroString)) > 0) then
       begin
         chapterString := Trim(bible.ChapterZeroString);
       end
@@ -465,7 +463,8 @@ begin
         if (Length(chapterString) > 0) then
           chapterString := chapterString + ' ';
 
-        chapterString := chapterString + IntToStr(chapterIndex);
+        chapterString := chapterString + IntToStr(chapterIndex - ifthen(bible.Trait[bqmtZeroChapter], 1, 0) );
+
       end;
 
       Data.Caption := chapterString;
