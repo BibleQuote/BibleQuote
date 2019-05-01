@@ -258,6 +258,7 @@ begin
       DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
       History := TMyBibleUtils.GetHistory(SQLiteQuery);
 
+      aInfoSource.HTMLFilter := '<t <pb';
       aInfoSource.BibleName := DictName;
       aInfoSource.BibleShortName := DictName;
       aInfoSource.ModuleVersion := ExtractLastChangedDat(History);
