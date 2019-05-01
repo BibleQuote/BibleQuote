@@ -118,7 +118,7 @@ var
   Query: String;
 begin
 
-  Query:= Format('SELECT text FROM [verses] where book_number=%d  and chapter=%d', [aBook, aChapter]);
+  Query:= Format('SELECT verse || '' '' || text FROM [verses] where book_number=%d  and chapter=%d order by verse', [aBook, aChapter]);
   GetMultiValues(aSQLiteQuery, Query, aLines);
 
 end;
