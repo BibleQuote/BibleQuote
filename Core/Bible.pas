@@ -1578,22 +1578,25 @@ function TBible.ShortPassageSignature(book, chapter, fromverse,
   toverse: integer): string;
 var
   offset: integer;
+  ShortName: String;
 begin
   if trait[bqmtZeroChapter] then
     offset := 1
   else
     offset := 0;
 
+  ShortName := GetShortNames(book);
+
   if (fromverse <= 1) and (toverse = 0) then
-    Result := Format('%s%d', [ShortNames[book], chapter - offset])
+    Result := Format('%s%d', [ShortName, chapter - offset])
   else if (fromverse > 1) and (toverse = 0) then
-    Result := Format('%s%d:%d', [ShortNames[book], chapter - offset, fromverse])
+    Result := Format('%s%d:%d', [ShortName, chapter - offset, fromverse])
   else if toverse = fromverse then
-    Result := Format('%s%d:%d', [ShortNames[book], chapter - offset, fromverse])
+    Result := Format('%s%d:%d', [ShortName, chapter - offset, fromverse])
   else if toverse = fromverse + 1 then
-    Result := Format('%s%d:%d,%d', [ShortNames[book], chapter - offset, fromverse, toverse])
+    Result := Format('%s%d:%d,%d', [ShortName, chapter - offset, fromverse, toverse])
   else
-    Result := Format('%s%d:%d-%d', [ShortNames[book], chapter - offset, fromverse, toverse]);
+    Result := Format('%s%d:%d-%d', [ShortName, chapter - offset, fromverse, toverse]);
 end;
 
 function TBible.FullPassageSignature(book, chapter, fromverse, toverse: integer): string;
