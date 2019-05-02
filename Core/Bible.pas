@@ -289,10 +289,10 @@ type
     procedure setTraitState(trait: TbqModuleTrait; state: boolean);
 
   public
-
     function GetChapterQtys(aBookNumber: Integer): Integer;
     function GetShortNames(aBookNumber: Integer): String;
     function GetFullNames(aBookNumber: Integer): String;
+    function GetTSKShortNames(aBookNumber: Integer): String;
 
     function GetStucture(): string;
     function GetDefaultEncoding(): TEncoding;
@@ -795,6 +795,21 @@ end;
 function TBible.getTraitState(trait: TbqModuleTrait): boolean;
 begin
   Result := trait in mTraits;
+end;
+
+function TBible.GetTSKShortNames(aBookNumber: Integer): String;
+var
+  BookIndex: Integer;
+begin
+  Result := '';
+
+  BookIndex := GetBookNumberIndex(aBookNumber);
+
+  if BookIndex > -1 then
+    Result := TSKShortNames[BookIndex+1]
+  else
+    Result := TSKShortNames[aBookNumber];
+
 end;
 
 function TBible.GetVerse(i: Cardinal): string;
@@ -1344,7 +1359,7 @@ begin
   name := ' ' + LowerCase(name) + ' ';
 
   for ibook := 1 to 66 do
-    if Pos(string(name), string(' ' + LowerCase(TSKShortNames[ibook]) + ' ')) <> 0
+    if Pos(string(name), string(' ' + LowerCase(GetTSKShortNames(ibook)) + ' ')) <> 0
     then
     begin
       book := ibook;

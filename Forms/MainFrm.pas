@@ -4209,7 +4209,7 @@ var
   tabInfo: IViewTabInfo;
   tskTabInfo: TTSKTabInfo;
   tskView: TTSKFrame;
-  iniPath: string;
+  InfoPath: string;
 begin
   tskTabInfo := nil;
   ActivateTargetWorkspace();
@@ -4234,8 +4234,8 @@ begin
   tskView := mWorkspace.TSKView as TTSKFrame;
   if Assigned(bookTabInfo) then
   begin
-    iniPath := TPath.Combine(bookTabInfo.Bible.path, 'bibleqt.ini');
-    tskView.ShowXref(iniPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
+    InfoPath := bookTabInfo.Bible.InfoSource.FileName;
+    tskView.ShowXref(InfoPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
     mWorkspace.UpdateCurrentTabContent(false);
   end
   else

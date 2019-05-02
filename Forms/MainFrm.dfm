@@ -5560,7 +5560,7 @@ object MainForm: TMainForm
   object appEvents: TApplicationEvents
     OnException = appEventsException
     Left = 315
-    Top = 51
+    Top = 43
   end
   object pmRecLinksOptions: TPopupMenu
     Images = vimgIcons

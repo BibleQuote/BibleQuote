@@ -40,7 +40,7 @@ type
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
-    procedure ShowXref(bibleIniPath: string; bookIndex, chapterIndex: integer; goverse: integer = 0);
+    procedure ShowXref(aInfoPath: String; bookIndex, chapterIndex: integer; goverse: integer = 0);
   end;
 
 implementation
@@ -116,7 +116,7 @@ begin
     bwrXRef.SectionList.FindSourcePos(bwrXRef.RightMouseClickPos));
 end;
 
-procedure TTSKFrame.ShowXref(bibleIniPath: string; bookIndex, chapterIndex: integer; goverse: integer = 0);
+procedure TTSKFrame.ShowXref(aInfoPath: String; bookIndex, chapterIndex: integer; goverse: integer = 0);
 var
   ti: TMultiLanguage;
   tf: TSearchRec;
@@ -131,18 +131,18 @@ var
   path: string;
   mainBible, secondBible: TBible;
 begin
-  if bibleIniPath = '' then
+  if aInfoPath = '' then
     Exit;
 
   mainBible := TBible.Create(mMainView);
   secondBible := TBible.Create(mMainView);
 
-  mBibleIniPath := bibleIniPath;
+  mBibleIniPath := aInfoPath;
   mBook := bookIndex;
   mChapter := chapterIndex;
   mVerse := goverse;
 
-  mainBible.SetInfoSource(ResolveFullPath(bibleIniPath));
+  mainBible.SetInfoSource(ResolveFullPath(aInfoPath));
   mainBible.OpenChapter(bookIndex, chapterIndex);
 
   if mMainView.mModules.IndexOf(mainBible.Name) = -1 then
