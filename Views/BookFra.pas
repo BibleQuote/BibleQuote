@@ -199,6 +199,7 @@ type
     procedure AddBookmarkTagged(tagName: string);
     procedure AddThemedBookmarkClick(Sender: TObject);
     procedure NotifyFontChanged(delta: integer);
+    procedure FixBookNumberForLink(var aBibleLnk: TBibleLink; aBible: TBible);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace); reintroduce;
@@ -228,7 +229,7 @@ type
 implementation
 
 {$R *.dfm}
-uses DockTabsFrm, CommandFactory;
+uses DockTabsFrm, CommandFactory, SelectEntityType;
 
 function TBookFrame.GetBookNumber(aData: PBookNodeData;
   aDefault: Integer): Integer;
@@ -1230,6 +1231,20 @@ end;
 
 procedure TBookFrame.EventFrameKeyDown(var Key: Char);
 begin
+
+end;
+
+procedure TBookFrame.FixBookNumberForLink(var aBibleLnk: TBibleLink; aBible: TBible);
+var
+  MyBibleBookNumber: Integer;
+begin
+
+  if (TSelectEntityType.IsMyBibleFileEntry(aBible.InfoSource.FileName)) then
+  begin
+    MyBibleBookNumber := aBible.NativeToMyBibleBookNumber(aBibleLnk.book);
+    aBibleLnk.book := MyBibleBookNumber;
+  end;
+
 
 end;
 
@@ -2365,6 +2380,9 @@ begin
       goto Fail;
     if not bl.FromBqStringLocation(cmd, dp) then
       goto Fail;
+
+    FixBookNumberForLink(bl, RefBook);
+
     prefModIx := mMainView.mModules.FindByFolder(prefModule);
     if prefModIx >= 0 then
     begin
