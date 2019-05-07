@@ -253,7 +253,9 @@ begin
       s := '';
       for j := fromverse to toverse do
       begin
-        snew := secondBible.Verses[j - 1];
+
+        snew := secondBible.GetVerseByNumber(j);
+
         s := s + ' ' + StrDeleteFirstNumber(snew);
         snew := DeleteStrongNumbers(snew);
         s := s + ' ' + snew;
@@ -267,12 +269,12 @@ begin
         RefText := RefText +
           Format
           ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, book, chapter, fromverse, 0, passageSig, mainBible.fontName, s])
+          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, 0, passageSig, mainBible.fontName, s])
       else
         RefText := RefText +
           Format
           ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, book, chapter, fromverse, toverse, passageSig, mainBible.fontName, s]);
+          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, toverse, passageSig, mainBible.fontName, s]);
     end;
 
     AddLine(RefLines, RefText);

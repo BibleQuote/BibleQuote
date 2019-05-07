@@ -295,6 +295,9 @@ type
     function getTraitState(trait: TbqModuleTrait): boolean;
     procedure setTraitState(trait: TbqModuleTrait; state: boolean);
     function GetIsMyBybleModule(): Boolean;
+    function IsNativeEmptyParagraph(aBookLine: String): Boolean;
+    function IsNativeCaption(aBookLine: String): Boolean;
+    function GetClearVerses(aLines: TStrings): TStringList;
 
   public
     function GetChapterQtys(aBookNumber: Integer): Integer;
@@ -380,6 +383,8 @@ type
 
     property SoundDirectory: string read FSoundDir;
     property StrongsPrefixed: boolean read FStrongsPrefixed;
+
+    function GetVerseByNumber(aVerseNumber: Integer): String;
 
     constructor Create(uiServices: IBibleWinUIServices); reintroduce;
     destructor Destroy; override;
@@ -471,7 +476,7 @@ implementation
 
 uses PlainUtils, bibleLinkParser, ExceptionFrm, SelectEntityType,
      InfoSourceLoaderFabric, InfoSourceLoaderInterface, FireDAC.Comp.Client,
-     MyBibleUtils, ChapterData;
+     MyBibleUtils, ChapterData, System.Masks, RegularExpressions;
 
 constructor TBible.Create(uiServices: IBibleWinUIServices);
 begin
@@ -823,6 +828,58 @@ begin
     raise ERangeError.Create('Invalid verse Number');
   end;
   Result := FLines[i];
+end;
+
+function TBible.IsNativeEmptyParagraph(aBookLine: String): Boolean;
+begin
+  Result := ((Trim(aBookLine) = '<p></p>') or (Trim(aBookLine).IsEmpty));
+end;
+
+function TBible.IsNativeCaption(aBookLine: String): Boolean;
+begin
+  aBookLine := aBookLine.Replace('<p>', '');
+  Result := MatchesMask(aBookLine, '<i>*</i>');
+end;
+
+function TBible.GetClearVerses(aLines: TStrings): TStringList;
+var
+  i: Integer;
+begin
+  Result := TStringList.Create;
+
+  for I := 0 to aLines.Count-1 do
+  begin
+    if not (IsNativeEmptyParagraph(aLines[i]) or IsNativeCaption(aLines[i]) )  then
+      Result.Add(aLines[i]);
+  end;
+
+end;
+
+
+function TBible.GetVerseByNumber(aVerseNumber: Integer): String;
+var
+  i, curVerse: Integer;
+  Verse: String;
+  ClearVerses: TStringList;
+begin
+
+  Result := '';
+
+  if IsMyBibleModule then
+    Result := Verses[aVerseNumber - 1]
+  else
+  begin
+
+    ClearVerses:= GetClearVerses(FLines);
+    try
+
+      if aVerseNumber < ClearVerses.Count then
+        Result := ClearVerses[aVerseNumber-1];
+
+    finally
+      ClearVerses.Free;
+    end;
+  end;
 end;
 
 procedure TBible.SetHTMLFilter(value: string);
@@ -1497,6 +1554,20 @@ begin
 
 end;
 
+procedure ClearMyBibleTags(var aLines: TStrings);
+var
+  i: Integer;
+  RegEx: TRegEx;
+  Options: TRegExOptions;
+begin
+  Options := [roMultiLine];
+  RegEx := TRegEx.Create('<S>(?P<word>.*?)<\/S>', Options);
+
+  for I := 0 to aLines.Count-1 do
+    aLines[i] := RegEx.Replace(aLines[i], '');
+
+end;
+
 class function TBible.MyBibleBibleGetChapter(aBook, aChapter: Integer;
   aLines: TStrings; aFilePath: String): Boolean;
 var
@@ -1508,6 +1579,8 @@ begin
   try
 
     TMyBibleUtils.GetBibleChapter(SQLiteQuery, aBook, aChapter, aLines);
+
+    ClearMyBibleTags(aLines);
 
     Result := True;
   finally
@@ -1561,6 +1634,8 @@ var
   j, k: Integer;
   BookLines: TStrings;
 begin
+
+
 
   BookLines := TStringList.Create;
   try
