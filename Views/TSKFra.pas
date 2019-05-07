@@ -45,6 +45,8 @@ type
 
 implementation
 
+uses SelectEntityType;
+
 {$R *.dfm}
 constructor TTSKFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
 begin
@@ -130,6 +132,7 @@ var
   diff: integer;
   path: string;
   mainBible, secondBible: TBible;
+  NativeBookNumber, OriginalBookNumber: Integer;
 begin
   if aInfoPath = '' then
     Exit;
@@ -156,7 +159,18 @@ begin
 
   secondBible.SetInfoSource( mainBible.InfoSource.FileName);
 
-  mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, goverse, book, chapter, verse);
+  if mainbible.IsMyBibleModule then
+  begin
+    NativeBookNumber := mainBible.MyBibleToNativeBookNumber(mainBible.CurBook);
+    mainBible.ReferenceToEnglish(NativeBookNumber, mainBible.CurChapter, goverse, book, chapter, verse);
+    OriginalBookNumber := mainBible.NativeToMyBibleBookNumber(book);
+
+  end
+  else begin
+    mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, goverse, book, chapter, verse);
+    OriginalBookNumber := book;
+  end;
+
   s := IntToStr(book);
 
   if Length(s) = 1 then
@@ -200,6 +214,9 @@ begin
     // get xrefs
     for i := 0 to Links.Count - 1 do
     begin
+
+
+
       if not secondBible.OpenTSKReference(Links[i], book, chapter, fromverse, toverse) then
         continue;
 
@@ -217,7 +234,13 @@ begin
         toverse := fromverse; // if one verse
 
       try
-        secondBible.OpenChapter(book, chapter);
+        if secondBible.IsMyBibleModule then
+          OriginalBookNumber := secondBible.NativeToMyBibleBookNumber(book)
+        else
+          OriginalBookNumber := book;
+
+
+        secondBible.OpenChapter( OriginalBookNumber, chapter);
       except
         continue;
       end;

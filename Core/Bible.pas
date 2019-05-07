@@ -255,6 +255,8 @@ type
     procedure ClearAlphabetBits();
     procedure SetAlphabetBit(aCode: integer; aValue: boolean);
     function GetAlphabetBit(aCode: integer): boolean;
+  private
+    FIsMyBible: Boolean;
 
   protected
     mRecognizeBibleLinks: boolean;
@@ -292,12 +294,13 @@ type
     function GetVerse(i: Cardinal): string;
     function getTraitState(trait: TbqModuleTrait): boolean;
     procedure setTraitState(trait: TbqModuleTrait; state: boolean);
+    function GetIsMyBybleModule(): Boolean;
 
   public
     function GetChapterQtys(aBookNumber: Integer): Integer;
     function GetShortNames(aBookNumber: Integer): String;
     function GetFullNames(aBookNumber: Integer): String;
-    function GetTSKShortNames(aBookNumber: Integer): String;
+    function GetTSKShortNames(aNativeBookNumber: Integer): String;
 
     function GetStucture(): string;
     function GetDefaultEncoding(): TEncoding;
@@ -313,6 +316,7 @@ type
     function IsValidChapterNumber(aBookNumber, aChapterNumber: Integer): Boolean;
     function IsValidBookNumber(aBookNumber: Integer): Boolean;
     function NativeToMyBibleBookNumber(aNativeBookNumber: Integer): Integer;
+    function MyBibleToNativeBookNumber(aMyBibleBookNumber: Integer): Integer;
 
     function GetFirstBookNumber(): Integer;
     function GetFirstChapterNumber(): Integer;
@@ -326,7 +330,10 @@ type
       internalAddr: boolean = true;
       checkverse: boolean = true): integer;
 
+
+
     function SyncToBible(const refBible: TBible; const bl: TBibleLink; out outBibleLink): integer;
+    property IsMyBibleModule: Boolean read GetIsMyBybleModule;
     property path: string read FPath;
     property ShortPath: string read FShortPath;
     property Name: string read GetModuleName;
@@ -803,19 +810,9 @@ begin
   Result := trait in mTraits;
 end;
 
-function TBible.GetTSKShortNames(aBookNumber: Integer): String;
-var
-  BookIndex: Integer;
+function TBible.GetTSKShortNames(aNativeBookNumber: Integer): String;
 begin
-  Result := '';
-
-  BookIndex := GetBookNumberIndex(aBookNumber);
-
-  if BookIndex > -1 then
-    Result := TSKShortNames[BookIndex+1]
-  else
-    Result := TSKShortNames[aBookNumber];
-
+  Result := TSKShortNames[aNativeBookNumber];
 end;
 
 function TBible.GetVerse(i: Cardinal): string;
@@ -1420,6 +1417,12 @@ begin
     (ChapterQtys[6] = 16)) or (ChapterQtys[45] = 16);
 end;
 
+
+function TBible.GetIsMyBybleModule: Boolean;
+begin
+  Result := InfoSource.InfoSourceType = isMyBible;
+end;
+
 function TBible.IsValidBookNumber(aBookNumber: Integer): Boolean;
 begin
   Result:= False;
@@ -1530,6 +1533,22 @@ begin
   finally
     TMyBibleUtils.CloseOpenConnection(SQLiteQuery);
   end;
+end;
+
+function TBible.MyBibleToNativeBookNumber(aMyBibleBookNumber: Integer): Integer;
+var
+  i: Integer;
+begin
+
+  Result := 1;
+
+  for I := Low(NativeToMyBibleMap) to High(NativeToMyBibleMap) do
+    if NativeToMyBibleMap[i] = aMyBibleBookNumber then
+    begin
+      Result := i;
+      exit;
+    end;
+
 end;
 
 class function TBible.NativeGetChapter(aChapter: Integer; aLines: TStrings;

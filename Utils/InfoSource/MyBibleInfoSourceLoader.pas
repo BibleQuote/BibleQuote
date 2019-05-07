@@ -142,6 +142,8 @@ begin
 
       aInfoSource.BookQty := BookQty;
       aInfoSource.ChapterDatas := ChapterDatas;
+      aInfoSource.OldTestament := BookQty in [39, 66];
+      aInfoSource.NewTestament := BookQty = 27;
 
       aInfoSource.StrongNumbers := TMyBibleUtils.GetStrong(SQLiteQuery);
 

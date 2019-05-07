@@ -4235,6 +4235,7 @@ begin
   if Assigned(bookTabInfo) then
   begin
     InfoPath := bookTabInfo.Bible.InfoSource.FileName;
+
     tskView.ShowXref(InfoPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
     mWorkspace.UpdateCurrentTabContent(false);
   end
