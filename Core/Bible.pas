@@ -630,6 +630,7 @@ var
 
 function TBible.GetShortNameVars(bookIx: integer): string;
 begin
+
   dec(bookIx);
   if (bookIx < 0) or (bookIx >= mShortNamesVars.Count) then
     raise ERangeError.CreateFmt
@@ -2594,6 +2595,8 @@ function TBible.ReferenceToEnglish(
 var
   newTestamentOnly, englishbible: boolean;
   offset, savebook, checkNamesResult: integer;
+  ShortName: String;
+  ShortNameIndex: Integer;
 begin
   Result := true;
 
@@ -2620,12 +2623,15 @@ begin
     (ChapterQtys[45] = 16);
   // in English Bible ROMANS follows ACTS instead of JAMES
   savebook := book;
-  if newTestamentOnly then
-    Inc(book, 39);
   if checkShortNames then
   begin
+    ShortNameIndex := savebook;
+    if newTestamentOnly then
+      ShortNameIndex := savebook -39;
+    ShortName := ShortNamesVars[ ShortNameIndex ];
+
     checkNamesResult := BookShortNamesToRussianBible
-      (ShortNamesVars[savebook], ebook);
+      (ShortName, ebook);
     if checkNamesResult > 30 then
     begin
       book := ebook;
