@@ -2617,7 +2617,7 @@ begin
     exit;
   end;
 
-  newTestamentOnly := not trait[bqmtOldCovenant] or trait[bqmtNewCovenant];
+  newTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
   // (not FHasOT) and FHasNT;
   englishbible := (newTestamentOnly and (ChapterQtys[6] = 16)) or
     (ChapterQtys[45] = 16);
