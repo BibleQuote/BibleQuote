@@ -17,10 +17,10 @@ const
   EngToRusTable: array [1 .. 27] of integer = (1, 2, 3, 4, 5, 13, 14, 15, 16,
     17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 6, 7, 8, 9, 10, 11, 12, 27);
 
-  NativeToMyBibleMap: array[1..66] of Integer = (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120,
-  130, 140, 150, 160, 190, 220, 230, 240, 250, 260, 290, 300, 310, 330, 340, 350, 360, 370, 380, 390, 400,
-  410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 600, 610,
-  620, 630, 640, 650, 660, 670, 680, 690, 700, 710, 720, 730);
+  NativeToMyBibleMap: array[1..66] of Integer = (10, 20,30, 40, 50, 60, 70, 80, 90, 100, 110,
+  120, 130, 140, 150, 160, 190, 220, 230, 240, 250, 260, 290, 300, 310, 330, 340, 350, 360, 370, 380, 390,
+  400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 660, 670, 680, 690, 700, 710, 720, 520, 530,
+  540, 550, 560, 570, 580, 590, 600, 610, 620, 630, 640, 650, 730);
 
 const
 
@@ -298,6 +298,7 @@ type
     function IsNativeEmptyParagraph(aBookLine: String): Boolean;
     function IsNativeCaption(aBookLine: String): Boolean;
     function GetClearVerses(aLines: TStrings): TStringList;
+    function GetFirstWord(aRow: String): String;
 
   public
     function GetChapterQtys(aBookNumber: Integer): Integer;
@@ -795,6 +796,19 @@ begin
   end;
 end;
 
+function TBible.GetFirstWord(aRow: String): String;
+var
+  i: Integer;
+begin
+
+  Result:= '';
+
+  i:= pos(' ', aRow);
+  if i > 0 then
+    Result:= LeftStr(aRow, i-1);
+
+end;
+
 function TBible.GetFullNames(aBookNumber: Integer): String;
 var
   BookIndex: Integer;
@@ -844,13 +858,22 @@ end;
 function TBible.GetClearVerses(aLines: TStrings): TStringList;
 var
   i: Integer;
+  CurVerseNumber: Integer;
+  FirstWord: String;
+  iFirstWord, iCode: Integer;
 begin
   Result := TStringList.Create;
+  CurVerseNumber := 1;
 
   for I := 0 to aLines.Count-1 do
   begin
-    if not (IsNativeEmptyParagraph(aLines[i]) or IsNativeCaption(aLines[i]) )  then
+    FirstWord := GetFirstWord( aLines[i]);
+    val(FirstWord, iFirstWord, iCode);
+    if (iCode = 0) and (iFirstWord = CurVerseNumber) then
+    begin
       Result.Add(aLines[i]);
+      CurVerseNumber := CurVerseNumber + 1;
+    end;
   end;
 
 end;

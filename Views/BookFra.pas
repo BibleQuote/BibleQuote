@@ -3099,11 +3099,11 @@ begin
       for i := effectiveLnk.vstart to C do
       begin
         if maxWords = 0 then
-          txt := txt + DeleteStrongNumbers(refBook.Verses[i - 1]) + delimiter
+          txt := txt + DeleteStrongNumbers(refBook.GetVerseByNumber(i)) + delimiter
         else
         begin
           line := StrLimitToWordCnt(
-            DeleteStrongNumbers(refBook.Verses[i - 1]),
+            DeleteStrongNumbers(refBook.GetVerseByNumber(i)),
             maxWords - wordCounter, wordsAdded, limited);
 
           inc(wordCounter, wordsAdded);
@@ -3116,13 +3116,13 @@ begin
         end;
       end;
       if maxWords = 0 then
-        txt := txt + DeleteStrongNumbers(refBook.Verses[C])
+        txt := txt + DeleteStrongNumbers(refBook.GetVerseByNumber(C+1))
       else
       begin
         if not limited then
         begin
           line := StrLimitToWordCnt(
-            DeleteStrongNumbers(refBook.Verses[C]),
+            DeleteStrongNumbers(refBook.GetVerseByNumber(C+1)),
             maxWords - wordCounter, wordsAdded, limited);
 
           txt := txt + line;
