@@ -233,13 +233,12 @@ begin
       if toverse < fromverse then
         toverse := fromverse; // if one verse
 
+      if secondBible.IsMyBibleModule then
+        OriginalBookNumber := secondBible.NativeToMyBibleBookNumber(book)
+      else
+        OriginalBookNumber := book;
+
       try
-        if secondBible.IsMyBibleModule then
-          OriginalBookNumber := secondBible.NativeToMyBibleBookNumber(book)
-        else
-          OriginalBookNumber := book;
-
-
         secondBible.OpenChapter( OriginalBookNumber, chapter);
       except
         continue;
@@ -264,7 +263,7 @@ begin
 
       StrDeleteFirstNumber(s);
       passageSig := Format('<font face="%s">%s</font>',
-        [AppConfig.DefFontName, secondBible.ShortPassageSignature(book, chapter, fromverse, toverse)]);
+        [AppConfig.DefFontName, secondBible.ShortPassageSignature(OriginalBookNumber, chapter, fromverse, toverse)]);
       if toverse = fromverse then
         RefText := RefText +
           Format

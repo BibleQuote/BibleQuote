@@ -92,7 +92,7 @@ var
 begin
   Result := 0;
 
-  aSQLiteQuery.SQL.Text := 'select C.*, books.long_name as name from '+
+  aSQLiteQuery.SQL.Text := 'select C.*, books.long_name as name, books.short_name as short_name from '+
                            '(select book_number, count(*) as chapterqty from ( '+
                            ' select book_number, chapter, count(*) as verseqty from verses group by book_number, chapter '+
                            ') B group by book_number ) C left join books ON books.book_number= C.book_number';
@@ -228,6 +228,7 @@ var
   BookQty: Integer;
   ChapterData: TChapterData;
   BookName : String;
+  ShortName: String;
 
   ChapterNumberQuery: String;
 begin
@@ -236,7 +237,7 @@ begin
   while not aSQLiteQuery.Eof do
   begin
 
-    ChapterData:= TChapterData.Create;
+    ChapterData:= TChapterData.Create();
     BookName := '';
 
     ChapterData.BookNumber := aSQLiteQuery.FieldByName('book_number').AsInteger;
@@ -248,8 +249,13 @@ begin
       BookName := Lang.Say(Format('StrMyBibleBook%d', [ChapterData.BookNumber]));
     end;
 
+    ShortName := ChapterData.FullName;
+    if aSQLiteQuery.FindField('short_name') <> nil then
+      ShortName := aSQLiteQuery.FieldByName('short_name').AsString;
+
+
     ChapterData.FullName := BookName;
-    ChapterData.ShortName := ChapterData.FullName;
+    ChapterData.ShortName := ShortName;
     ChapterData.ChapterQty := aSQLiteQuery.FieldByName('chapterqty').AsInteger;
 
     aChapterDatas.Add(ChapterData);
