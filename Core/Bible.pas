@@ -392,6 +392,7 @@ type
 
     function OpenChapter(book, chapter: integer;
       forceResolveLinks: boolean = False): boolean;
+    function GetShortNameVarByBookNumber(aBookNumber: Integer): String;
 
     function OpenReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
     function OpenTSKReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
@@ -628,7 +629,30 @@ var
   bookNames: TStringList = nil;
 {$J-}
 
+function TBible.GetShortNameVarByBookNumber(aBookNumber: Integer): String;
+var
+  NativeBookNumber : Integer;
+  NewTestamentOnly: Boolean;
+  index: Integer;
+begin
+
+  NewTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
+
+  if IsMyBibleModule and NewTestamentOnly then
+  begin
+    index := aBookNumber - 39;
+    
+  end
+  else
+    index := aBookNumber;
+
+  Result := ShortNamesVars[index];
+
+end;
+
 function TBible.GetShortNameVars(bookIx: integer): string;
+var
+  ShortNameIndex: Integer;
 begin
 
   dec(bookIx);
@@ -2596,7 +2620,7 @@ var
   newTestamentOnly, englishbible: boolean;
   offset, savebook, checkNamesResult: integer;
   ShortName: String;
-  ShortNameIndex: Integer;
+
 begin
   Result := true;
 
@@ -2625,10 +2649,8 @@ begin
   savebook := book;
   if checkShortNames then
   begin
-    ShortNameIndex := savebook;
-    if newTestamentOnly then
-      ShortNameIndex := savebook -39;
-    ShortName := ShortNamesVars[ ShortNameIndex ];
+
+    ShortName := GetShortNameVarByBookNumber( savebook );
 
     checkNamesResult := BookShortNamesToRussianBible
       (ShortName, ebook);
