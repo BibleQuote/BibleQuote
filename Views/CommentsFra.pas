@@ -193,7 +193,7 @@ begin
 
   CommentaryModule := FMainView.mModules[CommentaryIdx];
   CommentaryBook := TBible.Create(FMainView);
-  CommentaryBook.SetInfoSource(CommentaryModule.getIniPath());
+  CommentaryBook.SetInfoSource(CommentaryModule.GetInfoPath());
 
   FSourceBook.ReferenceToInternal(FSourceBook.CurBook, FSourceBook.CurChapter, 1, IntBook, IntChapter, IntVerse);
   IsSuccess := CommentaryBook.InternalToReference(IntBook, IntChapter, IntVerse, B, C, V);
@@ -334,7 +334,7 @@ begin
     begin
       try
         RefBook := TBible.Create(FMainView);
-        RefBook.SetInfoSource(CommentaryModule.getIniPath());
+        RefBook.SetInfoSource(CommentaryModule.GetInfoPath());
 
         LinkStatus := RefBook.LinkValidnessStatus(RefBook.InfoSource.FileName, InternalBibleLink, true, false);
         if (LinkStatus > -2) or (not Address) or (not doFilter) then

@@ -63,6 +63,8 @@ type
   TBookNodeData = record
     Caption: string;
     NodeType: TBookNodeType;
+    BookNumber: Integer;
+    ChapterNumber: Integer;
   end;
 
   TNavigateResult = (
@@ -1536,7 +1538,7 @@ begin
     if CurChapter > 1 then
       cmd := Format('go %s %d %d', [ShortPath, CurBook, CurChapter - 1])
     else if CurBook > 1 then
-      cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, ChapterQtys[CurBook - 1]]);
+      cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, GetChapterQtys(CurBook - 1)]);
 
   bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
   Windows.SetFocus(mWorkspace.Browser.Handle);
@@ -1564,7 +1566,7 @@ begin
     Exit;
 
   with bookView.BookTabInfo.Bible do
-    if CurChapter < ChapterQtys[CurBook] then
+    if CurChapter < GetChapterQtys(CurBook) then
       cmd := Format('go %s %d %d', [ShortPath, CurBook, CurChapter + 1])
     else if CurBook < BookQty then
       cmd := Format('go %s %d %d', [ShortPath, CurBook + 1, 1]);
@@ -3234,7 +3236,7 @@ begin
   bibleModuleEntry := mModules.ModTypedAsFirst(modtypeBible);
   while Assigned(bibleModuleEntry) do
   begin
-    s := bibleModuleEntry.getIniPath();
+    s := bibleModuleEntry.GetInfoPath();
     secBible.SetInfoSource(s);
 
     // don't display New Testament mixed with Old Testament...
@@ -3717,7 +3719,7 @@ begin
   AddLine(Lines, '<b>Location:</b> ' + Copy(bible.path, 1, Length(bible.path) - 1) + ' <a href="editini=' + bible.path + 'bibleqt.ini">ini</a><br>');
 
   for i := 1 to bible.BookQty do
-    AddLine(Lines, '<b>' + bible.FullNames[i] + ':</b> ' + bible.ShortNamesVars[i] + '<br>');
+    AddLine(Lines, '<b>' + bible.GetFullNames(i) + ':</b> ' + bible.ShortNamesVars[i] + '<br>');
   AddLine(Lines, '<br><br><br>');
 
   if not Assigned(CopyrightForm) then
@@ -3952,6 +3954,7 @@ begin
 
     bookView.tbtnMemos.Down := MemosOn;
 
+    // todo: it's unclear while trying to load Satellite for Commentary
     if not tabInfo.Bible.isBible then
     begin
       try
@@ -4206,7 +4209,7 @@ var
   tabInfo: IViewTabInfo;
   tskTabInfo: TTSKTabInfo;
   tskView: TTSKFrame;
-  iniPath: string;
+  InfoPath: string;
 begin
   tskTabInfo := nil;
   ActivateTargetWorkspace();
@@ -4231,8 +4234,9 @@ begin
   tskView := mWorkspace.TSKView as TTSKFrame;
   if Assigned(bookTabInfo) then
   begin
-    iniPath := TPath.Combine(bookTabInfo.Bible.path, 'bibleqt.ini');
-    tskView.ShowXref(iniPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
+    InfoPath := bookTabInfo.Bible.InfoSource.FileName;
+
+    tskView.ShowXref(InfoPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
     mWorkspace.UpdateCurrentTabContent(false);
   end
   else

@@ -310,10 +310,10 @@ begin
               (Book > 0) and (Book < 77) then
             begin
               Include(S, Book - 1);
-              if Pos(mCurrentBook.ShortNames[Book], Books) <= 0 then
+              if Pos(mCurrentBook.GetShortNames(Book), Books) <= 0 then
               begin
 
-                Books := Books + mCurrentBook.ShortNames[Book] + ' ';
+                Books := Books + mCurrentBook.GetShortNames(Book) + ' ';
               end;
 
             end;
@@ -750,7 +750,7 @@ begin
   if not Assigned(bible) then
     Exit;
 
-  lblSearch.Caption := Format('[%d] %s', [NumVersesFound, bible.FullNames[book]]);
+  lblSearch.Caption := Format('[%d] %s', [NumVersesFound, bible.GetFullNames(book)]);
 
   if s <> '' then
   begin
@@ -804,7 +804,7 @@ begin
       Items.AddObject(Lang.Say('SearchAllBooks'), TObject(0));
 
       for i := 1 to mCurrentBook.BookQty do
-        Items.AddObject(mCurrentBook.FullNames[i], TObject(i));
+        Items.AddObject(mCurrentBook.GetFullNames(i), TObject(i));
 
       Items.EndUpdate;
       ItemIndex := 0;
@@ -836,7 +836,7 @@ begin
       Items.AddObject(Lang.Say('SearchAP'), TObject(-8)); // Apocrypha
 
     for i := 1 to mCurrentBook.BookQty do
-      Items.AddObject(mCurrentBook.FullNames[i], TObject(i));
+      Items.AddObject(mCurrentBook.GetFullNames(i), TObject(i));
 
     Items.EndUpdate;
     ItemIndex := 0;

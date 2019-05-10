@@ -114,7 +114,7 @@ begin
             FBookTabInfo[vtisHighLightVerses] := hlVerses = hlTrue
           else
             FBookTabInfo[vtisHighLightVerses] := false;
-          FBookTabInfo.Title := Format('%.6s-%.6s:%d', [ShortName, ShortNames[CurBook], CurChapter - ord(Trait[bqmtZeroChapter])]);
+          FBookTabInfo.Title := Format('%.6s-%.6s:%d', [ShortName, GetShortNames(CurBook), CurChapter - ord(Trait[bqmtZeroChapter])]);
 
         except
           on E: Exception do

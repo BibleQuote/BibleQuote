@@ -40,10 +40,12 @@ type
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
-    procedure ShowXref(bibleIniPath: string; bookIndex, chapterIndex: integer; goverse: integer = 0);
+    procedure ShowXref(aInfoPath: String; bookIndex, chapterIndex: integer; goverse: integer = 0);
   end;
 
 implementation
+
+uses SelectEntityType;
 
 {$R *.dfm}
 constructor TTSKFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
@@ -116,7 +118,7 @@ begin
     bwrXRef.SectionList.FindSourcePos(bwrXRef.RightMouseClickPos));
 end;
 
-procedure TTSKFrame.ShowXref(bibleIniPath: string; bookIndex, chapterIndex: integer; goverse: integer = 0);
+procedure TTSKFrame.ShowXref(aInfoPath: String; bookIndex, chapterIndex: integer; goverse: integer = 0);
 var
   ti: TMultiLanguage;
   tf: TSearchRec;
@@ -130,19 +132,20 @@ var
   diff: integer;
   path: string;
   mainBible, secondBible: TBible;
+  NativeBookNumber, OriginalBookNumber: Integer;
 begin
-  if bibleIniPath = '' then
+  if aInfoPath = '' then
     Exit;
 
   mainBible := TBible.Create(mMainView);
   secondBible := TBible.Create(mMainView);
 
-  mBibleIniPath := bibleIniPath;
+  mBibleIniPath := aInfoPath;
   mBook := bookIndex;
   mChapter := chapterIndex;
   mVerse := goverse;
 
-  mainBible.SetInfoSource(ResolveFullPath(bibleIniPath));
+  mainBible.SetInfoSource(ResolveFullPath(aInfoPath));
   mainBible.OpenChapter(bookIndex, chapterIndex);
 
   if mMainView.mModules.IndexOf(mainBible.Name) = -1 then
@@ -156,7 +159,18 @@ begin
 
   secondBible.SetInfoSource( mainBible.InfoSource.FileName);
 
-  mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, goverse, book, chapter, verse);
+  if mainbible.IsMyBibleModule then
+  begin
+    NativeBookNumber := mainBible.MyBibleToNativeBookNumber(mainBible.CurBook);
+    mainBible.ReferenceToEnglish(NativeBookNumber, mainBible.CurChapter, goverse, book, chapter, verse);
+    OriginalBookNumber := mainBible.NativeToMyBibleBookNumber(book);
+
+  end
+  else begin
+    mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, goverse, book, chapter, verse);
+    OriginalBookNumber := book;
+  end;
+
   s := IntToStr(book);
 
   if Length(s) = 1 then
@@ -187,7 +201,7 @@ begin
   RefText := Format
     ('<a name=%d><a href="go %s %d %d %d"><font face=%s>%s%d:%d</font></a><br><font face="%s">%s</font><p>',
     [tmpverse, mainBible.ShortPath, mainBible.CurBook, mainBible.CurChapter,
-    tmpverse, AppConfig.DefFontName, mainBible.ShortNames[mainBible.CurBook],
+    tmpverse, AppConfig.DefFontName, mainBible.GetShortNames(mainBible.CurBook),
     mainBible.CurChapter, tmpverse, mainBible.fontName, s]);
 
   slink := ti.ReadString(IntToStr(chapter), IntToStr(verse), '');
@@ -200,6 +214,9 @@ begin
     // get xrefs
     for i := 0 to Links.Count - 1 do
     begin
+
+
+
       if not secondBible.OpenTSKReference(Links[i], book, chapter, fromverse, toverse) then
         continue;
 
@@ -216,8 +233,13 @@ begin
       if toverse < fromverse then
         toverse := fromverse; // if one verse
 
+      if secondBible.IsMyBibleModule then
+        OriginalBookNumber := secondBible.NativeToMyBibleBookNumber(book, True)
+      else
+        OriginalBookNumber := book;
+
       try
-        secondBible.OpenChapter(book, chapter);
+        secondBible.OpenChapter( OriginalBookNumber, chapter);
       except
         continue;
       end;
@@ -230,7 +252,9 @@ begin
       s := '';
       for j := fromverse to toverse do
       begin
-        snew := secondBible.Verses[j - 1];
+
+        snew := secondBible.GetVerseByNumber(j);
+
         s := s + ' ' + StrDeleteFirstNumber(snew);
         snew := DeleteStrongNumbers(snew);
         s := s + ' ' + snew;
@@ -239,17 +263,17 @@ begin
 
       StrDeleteFirstNumber(s);
       passageSig := Format('<font face="%s">%s</font>',
-        [AppConfig.DefFontName, secondBible.ShortPassageSignature(book, chapter, fromverse, toverse)]);
+        [AppConfig.DefFontName, secondBible.ShortPassageSignature(OriginalBookNumber, chapter, fromverse, toverse)]);
       if toverse = fromverse then
         RefText := RefText +
           Format
           ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, book, chapter, fromverse, 0, passageSig, mainBible.fontName, s])
+          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, 0, passageSig, mainBible.fontName, s])
       else
         RefText := RefText +
           Format
           ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, book, chapter, fromverse, toverse, passageSig, mainBible.fontName, s]);
+          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, toverse, passageSig, mainBible.fontName, s]);
     end;
 
     AddLine(RefLines, RefText);
