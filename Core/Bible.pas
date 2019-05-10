@@ -319,7 +319,7 @@ type
     function GetChapterNumberAt(aParentIndex, aIndex: Integer): Integer;
     function IsValidChapterNumber(aBookNumber, aChapterNumber: Integer): Boolean;
     function IsValidBookNumber(aBookNumber: Integer): Boolean;
-    function NativeToMyBibleBookNumber(aNativeBookNumber: Integer): Integer;
+    function NativeToMyBibleBookNumber(aNativeBookNumber: Integer; WithNumberCorrection: Boolean = False): Integer;
     function MyBibleToNativeBookNumber(aMyBibleBookNumber: Integer): Integer;
     function CorrectNewTestamentBookNumber(aNativeBookNumber: Integer): Integer;
 
@@ -1738,10 +1738,11 @@ begin
   end;
 end;
 
-function TBible.NativeToMyBibleBookNumber(aNativeBookNumber: Integer): Integer;
+function TBible.NativeToMyBibleBookNumber(aNativeBookNumber: Integer; WithNumberCorrection: Boolean): Integer;
 begin
 
-  aNativeBookNumber := CorrectNewTestamentBookNumber(aNativeBookNumber);
+  if WithNumberCorrection then
+    aNativeBookNumber := CorrectNewTestamentBookNumber(aNativeBookNumber);
 
   Result := NativeToMyBibleMap[aNativeBookNumber];
 

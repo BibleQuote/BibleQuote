@@ -234,7 +234,7 @@ begin
         toverse := fromverse; // if one verse
 
       if secondBible.IsMyBibleModule then
-        OriginalBookNumber := secondBible.NativeToMyBibleBookNumber(book)
+        OriginalBookNumber := secondBible.NativeToMyBibleBookNumber(book, True)
       else
         OriginalBookNumber := book;
 
