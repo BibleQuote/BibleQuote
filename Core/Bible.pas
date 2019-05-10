@@ -321,6 +321,7 @@ type
     function IsValidBookNumber(aBookNumber: Integer): Boolean;
     function NativeToMyBibleBookNumber(aNativeBookNumber: Integer): Integer;
     function MyBibleToNativeBookNumber(aMyBibleBookNumber: Integer): Integer;
+    function CorrectNewTestamentBookNumber(aNativeBookNumber: Integer): Integer;
 
     function GetFirstBookNumber(): Integer;
     function GetFirstChapterNumber(): Integer;
@@ -1739,7 +1740,11 @@ end;
 
 function TBible.NativeToMyBibleBookNumber(aNativeBookNumber: Integer): Integer;
 begin
+
+  aNativeBookNumber := CorrectNewTestamentBookNumber(aNativeBookNumber);
+
   Result := NativeToMyBibleMap[aNativeBookNumber];
+
 end;
 
 function TBible.ShortPassageSignature(book, chapter, fromverse,
@@ -1789,6 +1794,20 @@ begin
     Result := Format('%s %d:%d,%d', [FullName, chapter - offset, fromverse, toverse])
   else
     Result := Format('%s %d:%d-%d', [FullName, chapter - offset, fromverse, toverse]);
+end;
+
+function TBible.CorrectNewTestamentBookNumber(
+  aNativeBookNumber: Integer): Integer;
+var
+  NewTestamentOnly: Boolean;
+begin
+  NewTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
+
+  if (NewTestamentOnly and IsMyBibleModule) then
+    aNativeBookNumber := aNativeBookNumber + 39;
+
+  Result := aNativeBookNumber;
+
 end;
 
 function TBible.CountVerses(book, chapter: integer): integer;
