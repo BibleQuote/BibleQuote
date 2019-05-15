@@ -294,7 +294,7 @@ object MainForm: TMainForm
     Top = 40
     Width = 95
     Height = 129
-    Font.Charset = RUSSIAN_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Arial Unicode MS'
