@@ -1,7 +1,7 @@
 object ConfigForm: TConfigForm
   Left = 402
   Top = 230
-  BorderStyle = bsSizeToolWin
+  BorderIcons = [biSystemMenu]
   Caption = 'ConfigForm'
   ClientHeight = 435
   ClientWidth = 466
@@ -34,10 +34,6 @@ object ConfigForm: TConfigForm
     object tsInterface: TTabSheet
       Caption = 'tsInterface'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         458
         368)
@@ -246,10 +242,6 @@ object ConfigForm: TConfigForm
     end
     object tsCopyOptions: TTabSheet
       Caption = 'tsCopyOptions'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         458
         368)
@@ -313,10 +305,6 @@ object ConfigForm: TConfigForm
     end
     object tsFavouriteEx: TTabSheet
       Caption = 'tsFavouriteEx'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         458
         368)
@@ -533,10 +521,6 @@ object ConfigForm: TConfigForm
     object tsOtherOptions: TTabSheet
       Caption = 'tsOtherOptions'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         458
         368)
