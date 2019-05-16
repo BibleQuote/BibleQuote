@@ -3,7 +3,7 @@ unit LayoutConfigTests;
 interface
 uses
   DUnitX.TestFramework, Classes, LayoutConfig, SysUtils, RegularExpressions,
-  Rest.Json, IOUtils, System.JSON;
+  Rest.Json, IOUtils, System.JSON, Generics.Collections;
 
 type
 
@@ -55,55 +55,55 @@ begin
   layoutConfig := TLayoutConfig.Load(path);
 
   Assert.IsNotNull(layoutConfig);
-  Assert.AreEqual(2, layoutConfig.TabsViewList.Count);
-  Assert.AreEqual(2, layoutConfig.TabsViewList[0].BookTabs.Count);
-  Assert.AreEqual(1, layoutConfig.TabsViewList[1].BookTabs.Count);
+  Assert.AreEqual(2, layoutConfig.WorkspaceSettingsList.Count);
+  Assert.AreEqual(2, layoutConfig.WorkspaceSettingsList[0].BookTabs.Count);
+  Assert.AreEqual(1, layoutConfig.WorkspaceSettingsList[1].BookTabs.Count);
 
-  Assert.AreEqual('Test location 1', layoutConfig.TabsViewList[0].BookTabs[0].Location);
-  Assert.AreEqual('Title 1', layoutConfig.TabsViewList[0].BookTabs[0].Title);
-  Assert.AreEqual('Test location 3', layoutConfig.TabsViewList[1].BookTabs[0].Location);
-  Assert.AreEqual('Title 3', layoutConfig.TabsViewList[1].BookTabs[0].Title);
+  Assert.AreEqual('Test location 1', layoutConfig.WorkspaceSettingsList[0].BookTabs[0].Location);
+  Assert.AreEqual('Title 1', layoutConfig.WorkspaceSettingsList[0].BookTabs[0].Title);
+  Assert.AreEqual('Test location 3', layoutConfig.WorkspaceSettingsList[1].BookTabs[0].Location);
+  Assert.AreEqual('Title 3', layoutConfig.WorkspaceSettingsList[1].BookTabs[0].Title);
 end;
 
 procedure TestLayoutConfig.SaveLayoutConfigTest_ShouldNotThrow();
 var
   path: string;
   layoutConfig: TLayoutConfig;
-  tabsSettings: TTabsViewSettings;
+  workspaceSettings: TWorkspaceSettings;
   tabSettings: TBookTabSettings;
 begin
   path := GetFilePath('layout_config_temp.json');
   layoutConfig := TLayoutConfig.Create;
 
-  tabsSettings := TTabsViewSettings.Create;
+  workspaceSettings := TWorkspaceSettings.Create;
 
   tabSettings := TBookTabSettings.Create;
   tabSettings.Location := 'Test location 1';
   tabSettings.Title := 'Title 1';
 
-  tabsSettings.AddTabSettings(tabSettings);
+  workspaceSettings.AddTabSettings(tabSettings);
 
   tabSettings := TBookTabSettings.Create;
   tabSettings.Location := 'Test location 2';
   tabSettings.Title := 'Title 2';
 
-  tabsSettings.AddTabSettings(tabSettings);
-  layoutConfig.TabsViewList.Add(tabsSettings);
+  workspaceSettings.AddTabSettings(tabSettings);
+  layoutConfig.WorkspaceSettingsList.Add(workspaceSettings);
 
-  tabsSettings := TTabsViewSettings.Create;
+  workspaceSettings := TWorkspaceSettings.Create;
 
   tabSettings := TBookTabSettings.Create;
   tabSettings.Location := 'Test location 3';
   tabSettings.Title := 'Title 3';
 
-  tabsSettings.AddTabSettings(tabSettings);
+  workspaceSettings.AddTabSettings(tabSettings);
 
   tabSettings := TBookTabSettings.Create;
   tabSettings.Location := 'Test location 4';
   tabSettings.Title := 'Title 4';
 
-  tabsSettings.AddTabSettings(tabSettings);
-  layoutConfig.TabsViewList.Add(tabsSettings);
+  workspaceSettings.AddTabSettings(tabSettings);
+  layoutConfig.WorkspaceSettingsList.Add(workspaceSettings);
 
   Assert.WillNotRaise(procedure begin layoutConfig.Save(path); end);
 end;
