@@ -58,6 +58,7 @@ type
     VerseHighlightColor: TColor;
 
     LastCommand: string;
+    LastBibleCommand: string;
     LocalizationFile: string;
 
     HotKeyChoice: integer;
@@ -126,6 +127,7 @@ begin
     ini.WriteString(C_SectionUI, 'VerseHighlightColor', Color2Hex(VerseHighlightColor));
 
     ini.WriteString(C_SectionDefaults, 'LastCommand', LastCommand);
+    ini.WriteString(C_SectionDefaults, 'LastBibleCommand', LastBibleCommand);
     ini.WriteString(C_SectionDefaults, 'LocalizationFile', LocalizationFile);
 
     ini.WriteInteger(C_SectionDefaults, 'HotKeyChoice', HotKeyChoice);
@@ -190,6 +192,7 @@ begin
     VerseHighlightColor := Hex2Color(ini.ReadString(C_SectionUI, 'VerseHighlightColor', Color2Hex(clInfoBk)));
 
     LastCommand := ini.ReadString(C_SectionDefaults, 'LastCommand', '');
+    LastBibleCommand := ini.ReadString(C_SectionDefaults, 'LastBibleCommand', '');
     LocalizationFile := ini.ReadString(C_SectionDefaults, 'LocalizationFile', '');
 
     HotKeyChoice := ini.ReadInteger(C_SectionDefaults, 'HotKeyChoice', 0);

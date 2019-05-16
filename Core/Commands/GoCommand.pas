@@ -128,6 +128,9 @@ begin
     end;
 
     AppConfig.LastCommand := FCommand;
+    if (FBookTabInfo.Bible.isBible) then
+      AppConfig.LastBibleCommand := FCommand;
+
   except
     on E: TBQPasswordException do
     begin

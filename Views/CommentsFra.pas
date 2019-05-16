@@ -30,6 +30,7 @@ type
     FLastCommentaryBook: String;
 
     procedure ShowComments();
+    function GetSourceBible(): TBible;
     function FilterCommentSources(): integer;
     procedure DisplayAllSources;
     procedure Notification(Msg: IJclNotificationMessage); stdcall;
@@ -142,6 +143,36 @@ begin
   FilterCommentSources();
 end;
 
+function TCommentsFrame.GetSourceBible(): TBible;
+var
+  SourceBible: TBible;
+  BibleLink: TBibleLinkEx;
+  Path: String;
+begin
+  SourceBible := FSourceBook;
+  if not Assigned(SourceBible) then
+  begin
+    // source is not set explicitly
+    SourceBible := TBible.Create(FMainView);
+
+    // try to resolve source bible from the last command
+    if (AppConfig.LastBibleCommand <> '') then
+    begin
+      BibleLink.FromBqStringLocation(AppConfig.LastBibleCommand);
+      Path := ResolveFullPath(bibleLink.GetIniFileShortPath());
+      try
+        SourceBible.SetInfoSource(Path);
+
+        SourceBible.OpenChapter(BibleLink.book, BibleLink.chapter);
+      except
+        // skip error
+      end;
+    end;
+  end;
+
+  Result := SourceBible;
+end;
+
 procedure TCommentsFrame.ShowComments();
 var
   B, C, V: Integer;
@@ -152,6 +183,7 @@ var
   S, Aname: string;
   CommentaryModule: TModuleEntry;
   CommentaryBook: TBible;
+  SourceBible: TBible;
 
   function FailedToLoadComment(const Key: string; const DefReason: string): string;
   begin
@@ -163,10 +195,8 @@ var
 
 label lblSetOutput;
 begin
-  if not Assigned(FSourceBook) then
-    Exit;
-
-  if not FSourceBook.isBible then
+  SourceBible := GetSourceBible();
+  if not SourceBible.isBible then
     Exit;
 
   Lines := '';
@@ -195,7 +225,7 @@ begin
   CommentaryBook := TBible.Create(FMainView);
   CommentaryBook.SetInfoSource(CommentaryModule.GetInfoPath());
 
-  FSourceBook.ReferenceToInternal(FSourceBook.CurBook, FSourceBook.CurChapter, 1, IntBook, IntChapter, IntVerse);
+  SourceBible.ReferenceToInternal(SourceBible.CurBook, SourceBible.CurChapter, 1, IntBook, IntChapter, IntVerse);
   IsSuccess := CommentaryBook.InternalToReference(IntBook, IntChapter, IntVerse, B, C, V);
   if not IsSuccess then
   begin
@@ -309,17 +339,17 @@ var
   CommentaryModule: TModuleEntry;
   RefBook: TBible;
   LastCommentary: string;
+  SourceBible: TBible;
 begin
   Result := -1;
   doFilter := sbtnMeaningfulOnly.Down;
 
-  if (FSourceBook = nil) then
-    Exit;
+  SourceBible := GetSourceBible();
 
   Address := true;
 
-  BibleLink.Build(FSourceBook.CurBook, FSourceBook.CurChapter, 0, 0);
-  LinkStatus := FSourceBook.ReferenceToInternal(BibleLink, InternalBibleLink);
+  BibleLink.Build(SourceBible.CurBook, SourceBible.CurChapter, 0, 0);
+  LinkStatus := SourceBible.ReferenceToInternal(BibleLink, InternalBibleLink);
   if LinkStatus = -2 then
     Address := false;
 
