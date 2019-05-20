@@ -1043,7 +1043,7 @@ end;
 procedure TDockTabsForm.Notification(Msg: IJclNotificationMessage);
 var
   MsgAppConfigChanged: IAppConfigChangedMessage;
-  MsgActiveBookChanged: IActiveBookChangedMessage;
+  MsgActiveBookChanged: IActiveBibleChangedMessage;
   ActiveTabInfo: IViewTabInfo;
 begin
   if Supports(Msg, IAppConfigChangedMessage, MsgAppConfigChanged) then
@@ -1051,12 +1051,12 @@ begin
     ApplyConfig(AppConfig);
   end;
 
-  if Supports(Msg, IActiveBookChangedMessage, MsgActiveBookChanged) then
+  if Supports(Msg, IActiveBibleChangedMessage, MsgActiveBookChanged) then
   begin
     ActiveTabInfo := GetActiveTabInfo();
     if (ActiveTabInfo is TCommentsTabInfo) then
     begin
-      mCommentsView.SetSourceBook(MsgActiveBookChanged.GetActiveBook);
+      mCommentsView.ShowComments();
       ActiveTabInfo.SaveState(Self);
     end;
   end;

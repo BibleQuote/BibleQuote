@@ -123,7 +123,6 @@ type
     procedure ToggleQuickSearchPanel(const enable: Boolean);
 
     procedure SafeProcessCommand(bookTabInfo: TBookTabInfo; wsLocation: string; hlOption: TbqHLVerseOption);
-    function PreProcessAutoCommand(RefBook: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
     function GoAddress(bookTabInfo: TBookTabInfo; var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
 
     procedure HistoryAdd(s: string);
@@ -206,6 +205,8 @@ type
 
     property HistoryOn: boolean read mHistoryOn write mHistoryOn;
 
+    function PreProcessAutoCommand(RefBible: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT; overload;
+    function PreProcessAutoCommand(const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT; overload;
     function ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean; overload;
     function ProcessCommand(Cmd: ICommand; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean; overload;
     
@@ -597,6 +598,7 @@ var
   bl: TBibleLink;
   modIx, status, num: integer;
   isHebrew: boolean;
+  RefBible: TBible;
 begin
   if Pos('s', SRC) = 1 then
   begin
@@ -651,20 +653,28 @@ begin
   end
   else
   begin
-    status := PreProcessAutoCommand(BookTabInfo.ReferenceBible, unicodeSRC, replaceModPath, ConcreteCmd);
-    if status > -2 then
-      status := GetModuleText(ConcreteCmd, fontName, bl, ws2, wstr, [gmtBulletDelimited, gmtLookupRefBibles, gmtEffectiveAddress]);
+    RefBible := TBible.Create(mMainView);
 
-    if status < 0 then
-      wstr := ConcreteCmd + #13#10 + Lang.SayDefault('HintNotFound', '--not found--')
-    else
-    begin
-      wstr := wstr + ' (' + BookTabInfo.ReferenceBible.ShortName + ')'#13#10;
-      if ws2 <> '' then
-        wstr := wstr + ws2
+    try
+      status := PreProcessAutoCommand(RefBible, unicodeSRC, replaceModPath, ConcreteCmd);
+      if status > -2 then
+        status := GetModuleText(ConcreteCmd, fontName, bl, ws2, wstr, [gmtBulletDelimited, gmtLookupRefBibles, gmtEffectiveAddress]);
+
+      if status < 0 then
+        wstr := ConcreteCmd + #13#10 + Lang.SayDefault('HintNotFound', '--not found--')
       else
-        wstr := wstr + Lang.SayDefault('HintNotFound', '--not found--');
+      begin
+
+        wstr := wstr + ' (' + RefBible.ShortName + ')'#13#10;
+        if ws2 <> '' then
+          wstr := wstr + ws2
+        else
+          wstr := wstr + Lang.SayDefault('HintNotFound', '--not found--');
+      end;
+    finally
+      RefBible.Free;
     end;
+
   end;
   viewer.Hint := wstr;
 end;
@@ -2222,7 +2232,9 @@ begin
       Exit;
 
     mWorkspace.UpdateBookTabHeader();
-    mNotifier.Notify(TActiveBookChangedMessage.Create(bookTabInfo.Bible));
+
+    if (bookTabInfo.Bible.isBible) then
+      mNotifier.Notify(TActiveBibleChangedMessage.Create());
 
     Result := true;
     tbtnSatellite.Enabled := not bookTabInfo.Bible.InfoSource.IsCommentary;
@@ -2357,7 +2369,21 @@ begin
   ProcessCommand(bookTabInfo, Format('go %s %d %d %d', [mMainView.mDefaultLocation, 1, 1, 1]), hlDefault);
 end;
 
-function TBookFrame.PreProcessAutoCommand(RefBook: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
+function TBookFrame.PreProcessAutoCommand(const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
+var
+  RefBible: TBible;
+begin
+  RefBible := TBible.Create(mMainView);
+
+  try
+    Result := PreProcessAutoCommand(RefBible, cmd, prefModule, ConcreteCmd);
+  finally
+    RefBible.Free;
+  end;
+
+end;
+
+function TBookFrame.PreProcessAutoCommand(RefBible: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
 label Fail;
 var
   ps, refCnt, refIx, prefModIx: integer;
@@ -2365,12 +2391,6 @@ var
   bl, moduleEffectiveLink: TBibleLink;
   dp: string;
 begin
-  if not Assigned(RefBook) then
-  begin
-    Result := -2;
-    Exit;
-  end;
-
   me := nil;
   try
     if Pos('go', Trim(cmd)) <> 1 then
@@ -2381,14 +2401,16 @@ begin
     if not bl.FromBqStringLocation(cmd, dp) then
       goto Fail;
 
-    FixBookNumberForLink(bl, RefBook);
-
     prefModIx := mMainView.mModules.FindByFolder(prefModule);
     if prefModIx >= 0 then
     begin
       me := mMainView.mModules[prefModIx];
       if me.modType = modtypeBible then
-        Result := refBook.LinkValidnessStatus(me.GetInfoPath(), bl, true)
+      begin
+        RefBible.SetInfoSource(me.GetInfoPath());
+        FixBookNumberForLink(bl, RefBible);
+        Result := RefBible.LinkValidnessStatus(me.GetInfoPath(), bl, true)
+      end
       else
         Result := -2;
     end
@@ -2402,14 +2424,16 @@ begin
       for refIx := 0 to refCnt do
       begin
         me := GetRefBible(refIx);
-        Result := refBook.LinkValidnessStatus(me.GetInfoPath(), bl, true);
+        RefBible.SetInfoSource(me.GetInfoPath());
+        FixBookNumberForLink(bl, RefBible);
+        Result := RefBible.LinkValidnessStatus(me.GetInfoPath(), bl, true);
         if Result > -2 then
           break;
       end;
     end;
     if Result > -2 then
     begin
-      refBook.InternalToReference(bl, moduleEffectiveLink);
+      RefBible.InternalToReference(bl, moduleEffectiveLink);
       if (me <> nil) then
         ConcreteCmd := moduleEffectiveLink.ToCommand(me.ShortPath);
       Exit;
@@ -2915,7 +2939,7 @@ var
   bl: TBibleLink;
   status_load: integer;
 begin
-  status_load := PreProcessAutoCommand(BookTabInfo.ReferenceBible, cmd, BookTabInfo.SecondBible.ShortPath, ConcreteCmd);
+  status_load := PreProcessAutoCommand(cmd, BookTabInfo.SecondBible.ShortPath, ConcreteCmd);
 
   if status_load <= -2 then
     Exit;
@@ -2962,7 +2986,7 @@ begin
       prefBible := currentModule.ShortPath
     else
       prefBible := '';
-    status_GetModTxt := PreProcessAutoCommand(btinfo.ReferenceBible, cmd, prefBible, Result);
+    status_GetModTxt := PreProcessAutoCommand(cmd, prefBible, Result);
   end
   else
     Result := cmd;

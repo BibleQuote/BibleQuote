@@ -52,9 +52,8 @@ type
     ['{49231BC0-05A6-43AB-8F3B-D2FF68838F2A}']
   end;
 
-  IActiveBookChangedMessage = interface
+  IActiveBibleChangedMessage = interface
     ['{F921D625-E8D2-412C-993F-8222D522B81B}']
-    function GetActiveBook: TBible;
   end;
 
   IModulesLoadedMessage = interface
@@ -136,12 +135,7 @@ type
     function GetBibleName: string;
   end;
 
-  TActiveBookChangedMessage = class(TJclBaseNotificationMessage, IActiveBookChangedMessage)
-  private
-    FActiveBook: TBible;
-  public
-    constructor Create(ActiveBook: TBible);
-    function GetActiveBook: TBible;
+  TActiveBibleChangedMessage = class(TJclBaseNotificationMessage, IActiveBibleChangedMessage)
   end;
 
   TModulesLoadedMessage = class(TJclBaseNotificationMessage, IModulesLoadedMessage)
@@ -267,17 +261,6 @@ end;
 function TDefaultBibleChangedMessage.GetBibleName: string;
 begin
   Result := FBibleName;
-end;
-
-{ TActiveBookChangedMessage }
-constructor TActiveBookChangedMessage.Create(ActiveBook: TBible);
-begin
-  FActiveBook := ActiveBook;
-end;
-
-function TActiveBookChangedMessage.GetActiveBook: TBible;
-begin
-  Result := FActiveBook;
 end;
 
 end.
