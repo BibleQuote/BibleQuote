@@ -71,7 +71,6 @@ object CommentsFrame: TCommentsFrame
       TabOrder = 0
       OnChange = cbCommentSourceChange
       OnCloseUp = cbCommentSourceCloseUp
-      OnDropDown = cbCommentSourceDropDown
     end
   end
   object bwrComments: THTMLViewer

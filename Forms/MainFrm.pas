@@ -295,6 +295,8 @@ type
 
     PasswordPolicy: TPasswordPolicy;
     LastLink: TBibleLink;
+    LastBibleLink: TBibleLink;
+    LastBiblePath: String;
 
     tempBook: TBible;
     G_XRefVerseCmd: string;
@@ -578,7 +580,6 @@ var
 begin
   tabInfo := TBookTabInfo.Create(book, '', SatelliteBible, '', DefaultBookTabState);
   tabInfo.SecondBible := TBible.Create(self);
-  tabInfo.ReferenceBible := TBible.Create(self);
   Result := tabInfo;
 end;
 
@@ -2778,7 +2779,6 @@ begin
       newTabInfo := TBookTabInfo.Create(DestBook, command, SatelliteBible, '', state);
 
       newTabInfo.SecondBible := TBible.Create(self);
-      newTabInfo.ReferenceBible := TBible.Create(self);
       newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
       newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
 
@@ -3470,7 +3470,7 @@ begin
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
-    status := bookView.PreProcessAutoCommand(bookView.BookTabInfo.ReferenceBible, cmd, prefBible, ConcreteCmd);
+    status := bookView.PreProcessAutoCommand(cmd, prefBible, ConcreteCmd);
     if status <= -2 then
       Exit;
   end;
@@ -4375,7 +4375,6 @@ begin
     newTabInfo := TBookTabInfo.Create(newBible, command, satellite, Title, state);
 
     newTabInfo.SecondBible := TBible.Create(self);
-    newTabInfo.ReferenceBible := TBible.Create(self);
     newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
     newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
 

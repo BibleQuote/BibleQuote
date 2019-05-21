@@ -50,7 +50,7 @@ begin
       Value := FBookTabInfo.SecondBible.ShortPath
     else
       Value := '';
-    Status := FBookView.PreProcessAutoCommand(FBookTabInfo.ReferenceBible, dup, Value, ConcreteCmd);
+    Status := FBookView.PreProcessAutoCommand(dup, Value, ConcreteCmd);
     if Status <= -2 then
     begin
       Result := False;
@@ -125,9 +125,17 @@ begin
     with FBookTabInfo.Bible do
     begin
       ReferenceToInternal(bibleLink, FMainView.LastLink);
+      if (FBookTabInfo.Bible.isBible) then
+      begin
+        FMainView.LastBiblePath := FBookTabInfo.Bible.ShortPath;
+        ReferenceToInternal(bibleLink, FMainView.LastBibleLink);
+      end;
     end;
 
     AppConfig.LastCommand := FCommand;
+    if (FBookTabInfo.Bible.isBible) then
+      AppConfig.LastBibleCommand := FCommand;
+
   except
     on E: TBQPasswordException do
     begin

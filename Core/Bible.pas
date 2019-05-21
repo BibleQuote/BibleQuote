@@ -2320,8 +2320,6 @@ begin
 
   mCategories.Clear();
   StrToTokens(aInfoSource.Categories, '|', mCategories);
-
-
 end;
 
 procedure TBible.InitializePaths(aInfoSource: TInfoSource);

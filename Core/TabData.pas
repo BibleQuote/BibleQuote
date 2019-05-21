@@ -114,7 +114,6 @@ type
     mCopyrightNotice: string;
     mTitle: string;
     mBible, mSecondBible: TBible;
-    mReferenceBible: TBible;
 
     mHistory: TStrings;
     mHistoryIndex: integer;
@@ -149,7 +148,6 @@ type
 
     property Bible: TBible read mBible;
     property SecondBible: TBible read mSecondBible write mSecondBible;
-    property ReferenceBible: TBible read mReferenceBible write mReferenceBible;
 
     property LocationType: TBookTabLocType read mLocationType write mLocationType;
     property BrowserState: TBrowserState read mBrowserState;
@@ -336,11 +334,8 @@ type
   TCommentsTabInfo = class(TInterfacedObject, IViewTabInfo)
   private
     FMeaningfulOnly: Boolean;
-    FCommentaryText: String;
     FCommentaryBookIndex: integer;
-    FCommentaryBooks: TStringList;
     FBrowserState: TBrowserState;
-    FSourceBook: TBible;
   public
     procedure SaveState(const workspace: IWorkspace);
     procedure RestoreState(const workspace: IWorkspace);
@@ -461,10 +456,6 @@ begin
 
   if Assigned(mSecondBible) then
     mSecondBible.Free;
-
-  if Assigned(mReferenceBible) then
-    mReferenceBible.Free;
-
 
   inherited;
 end;
@@ -1031,7 +1022,6 @@ constructor TCommentsTabInfo.Create();
 begin
   inherited Create();
   FBrowserState := TBrowserState.Create;
-  FCommentaryBooks := TStringList.Create;
 end;
 
 constructor TCommentsTabInfo.Create(settings: TCommentsTabSettings);
@@ -1061,12 +1051,7 @@ begin
   commentsFrame := workspace.CommentsView as TCommentsFrame;
   with commentsFrame do
   begin
-    FSourceBook := SourceBook;
     FMeaningfulOnly := sbtnMeaningfulOnly.Down;
-    FCommentaryText := bwrComments.DocumentSource;
-
-    FCommentaryBooks.Clear;
-    FCommentaryBooks.AddStrings(cbCommentSource.Items);
 
     FCommentaryBookIndex := cbCommentSource.ItemIndex;
 
@@ -1081,12 +1066,10 @@ begin
   commentsFrame := workspace.CommentsView as TCommentsFrame;
   with commentsFrame do
   begin
-    SourceBook := FSourceBook;
     sbtnMeaningfulOnly.Down := FMeaningfulOnly;
-    bwrComments.LoadFromString(FCommentaryText);
 
-    cbCommentSource.Clear;
-    cbCommentSource.Items.AddStrings(FCommentaryBooks);
+    FilterCommentSources();
+    ShowComments();
     cbCommentSource.ItemIndex := FCommentaryBookIndex;
 
     RestoreBrowserState(bwrComments);

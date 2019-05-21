@@ -19,25 +19,22 @@ type
     procedure sbtnMeaningfulOnlyClick(Sender: TObject);
     procedure cbCommentSourceChange(Sender: TObject);
     procedure cbCommentSourceCloseUp(Sender: TObject);
-    procedure cbCommentSourceDropDown(Sender: TObject);
     procedure bwrCommentsHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
   private
     FMainView: TMainForm;
     FWorkspace: IWorkspace;
     FBqEngine: TBibleQuoteEngine;
     FNotifier: IJclNotifier;
-    FSourceBook: TBible;
     FLastCommentaryBook: String;
 
-    procedure ShowComments();
-    function FilterCommentSources(): integer;
-    procedure DisplayAllSources;
+    function GetSourceBible(): TBible;
     procedure Notification(Msg: IJclNotificationMessage); stdcall;
   public
+    function FilterCommentSources(): integer;
+    procedure DisplayAllSources;
+    procedure ShowComments();
     procedure Translate();
     procedure ApplyConfig(AppConfig: TAppConfig);
-    procedure SetSourceBook(SourceBook: TBible);
-    property SourceBook: TBible read FSourceBook write SetSourceBook;
     procedure EventFrameKeyDown(var Key: Char);
 
     constructor Create(Owner: TComponent; MainView: TMainForm; Workspace: IWorkspace); reintroduce;
@@ -99,9 +96,6 @@ var
   Status: integer;
   BookView: TBookFrame;
 begin
-  if not Assigned(FSourceBook) then
-    Exit;
-
   Handled := true;
   Command := SRC;
   AutoCmd := Pos(C__bqAutoBible, Command) <> 0;
@@ -109,12 +103,7 @@ begin
   BookView := TBookFrame(FWorkspace.BookView);
   if AutoCmd then
   begin
-    if FSourceBook.isBible then
-      PrefBible := FSourceBook.ShortPath
-    else
-      PrefBible := '';
-
-    Status := BookView.PreProcessAutoCommand(FSourceBook, Command, PrefBible, ConcreteCmd);
+    Status := BookView.PreProcessAutoCommand(Command, FMainView.LastBiblePath, ConcreteCmd);
     if Status <= -2 then
       Exit;
 
@@ -137,9 +126,27 @@ begin
   end;
 end;
 
-procedure TCommentsFrame.cbCommentSourceDropDown(Sender: TObject);
+function TCommentsFrame.GetSourceBible(): TBible;
+var
+  SourceBible: TBible;
+  BibleLink: TBibleLink;
+  EffectiveLink: TBibleLink;
+  Path: String;
 begin
-  FilterCommentSources();
+  SourceBible := TBible.Create(FMainView);
+
+  // resolve source bible from the last link
+  BibleLink := FMainView.LastBibleLink;
+  Path := FMainView.LastBiblePath;
+  try
+    SourceBible.SetInfoSource(Path);
+    if (SourceBible.InternalToReference(BibleLink, EffectiveLink) >= 0) then
+      SourceBible.OpenChapter(EffectiveLink.book, EffectiveLink.chapter);
+  except
+    // skip error
+  end;
+
+  Result := SourceBible;
 end;
 
 procedure TCommentsFrame.ShowComments();
@@ -152,6 +159,7 @@ var
   S, Aname: string;
   CommentaryModule: TModuleEntry;
   CommentaryBook: TBible;
+  SourceBible: TBible;
 
   function FailedToLoadComment(const Key: string; const DefReason: string): string;
   begin
@@ -163,12 +171,7 @@ var
 
 label lblSetOutput;
 begin
-  if not Assigned(FSourceBook) then
-    Exit;
-
-  if not FSourceBook.isBible then
-    Exit;
-
+  SourceBible := GetSourceBible();
   Lines := '';
   if Length(Trim(cbCommentSource.Text)) = 0 then
   begin
@@ -195,7 +198,7 @@ begin
   CommentaryBook := TBible.Create(FMainView);
   CommentaryBook.SetInfoSource(CommentaryModule.GetInfoPath());
 
-  FSourceBook.ReferenceToInternal(FSourceBook.CurBook, FSourceBook.CurChapter, 1, IntBook, IntChapter, IntVerse);
+  SourceBible.ReferenceToInternal(SourceBible.CurBook, SourceBible.CurChapter, 1, IntBook, IntChapter, IntVerse);
   IsSuccess := CommentaryBook.InternalToReference(IntBook, IntChapter, IntVerse, B, C, V);
   if not IsSuccess then
   begin
@@ -309,17 +312,16 @@ var
   CommentaryModule: TModuleEntry;
   RefBook: TBible;
   LastCommentary: string;
+  SourceBible: TBible;
 begin
   Result := -1;
   doFilter := sbtnMeaningfulOnly.Down;
-
-  if (FSourceBook = nil) then
-    Exit;
+  SourceBible := GetSourceBible();
 
   Address := true;
 
-  BibleLink.Build(FSourceBook.CurBook, FSourceBook.CurChapter, 0, 0);
-  LinkStatus := FSourceBook.ReferenceToInternal(BibleLink, InternalBibleLink);
+  BibleLink.Build(SourceBible.CurBook, SourceBible.CurChapter, 0, 0);
+  LinkStatus := SourceBible.ReferenceToInternal(BibleLink, InternalBibleLink);
   if LinkStatus = -2 then
     Address := false;
 
@@ -392,12 +394,6 @@ begin
     if (cbCommentSource.Items.Count = 0) then
       DisplayAllSources;
   end;
-end;
-
-procedure TCommentsFrame.SetSourceBook(SourceBook: TBible);
-begin
-  FSourceBook := SourceBook;
-  ShowComments();
 end;
 
 end.
