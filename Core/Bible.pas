@@ -255,8 +255,6 @@ type
     procedure ClearAlphabetBits();
     procedure SetAlphabetBit(aCode: integer; aValue: boolean);
     function GetAlphabetBit(aCode: integer): boolean;
-  private
-    FIsMyBible: Boolean;
 
   protected
     mRecognizeBibleLinks: boolean;
@@ -632,7 +630,6 @@ var
 
 function TBible.GetShortNameVarByBookNumber(aBookNumber: Integer): String;
 var
-  NativeBookNumber : Integer;
   NewTestamentOnly: Boolean;
   index: Integer;
 begin
@@ -652,8 +649,6 @@ begin
 end;
 
 function TBible.GetShortNameVars(bookIx: integer): string;
-var
-  ShortNameIndex: Integer;
 begin
 
   dec(bookIx);
@@ -907,8 +902,6 @@ end;
 
 function TBible.GetVerseByNumber(aVerseNumber: Integer): String;
 var
-  i, curVerse: Integer;
-  Verse: String;
   ClearVerses: TStringList;
 begin
 
@@ -1036,7 +1029,6 @@ function TBible.OpenChapter(
   forceResolveLinks: boolean = False): boolean;
 var
   recLnks: boolean;
-  GetChapterSuccess: Boolean;
 begin
   Result := False;
 
@@ -2401,7 +2393,7 @@ end;
 
 procedure TBible.InitializeChapterData(aInfoSource: TInfoSource);
 var
-  i, j, index: Integer;
+  i, index: Integer;
   ShortName: String;
   ChapterList: TIntegerDynArray;
   ChapterData: TChapterData;

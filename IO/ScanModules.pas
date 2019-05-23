@@ -136,12 +136,7 @@ begin
           Exit;
       except
         on E: TBQException do
-        begin
-          // TODO: implement it!
-          // if Assigned(OnArchiveModuleLoadFailed) then
-          // OnArchiveModuleLoadFailed(self, E);
-        end
-        else { do nothing }
+          // failed to load module, skip it
       end;
       SearchResult := FindNext(SearchRec);
     until (SearchResult <> 0);
@@ -172,36 +167,42 @@ begin
         Continue;
       end;
 
-      ModulePath := TPath.Combine(Directory, SearchRec.Name);
 
-      if FTempBook.SetInfoSource(ModulePath) then
-      begin
+      try
+        ModulePath := TPath.Combine(Directory, SearchRec.Name);
 
-        ModEntry := TModuleEntry.Create(
-          ModType,
-          FTempBook.Name,
-          FTempBook.ShortName,
-          FTempBook.ShortPath,
-          EmptyWideStr,
-          FTempBook.GetStucture(),
-          FTempBook.Categories,
-          FTempBook.Author,
-          FTempBook.ModuleVersion,
-          FTempBook.ModuleImage,
-          FTempBook.trait[bqmtStrongs]);
+        if FTempBook.SetInfoSource(ModulePath) then
+        begin
 
-        Modules.Add(ModEntry);
-        if (IsLimit(Modules)) then
-          Exit;
-      end
-      else
-      begin
-        // failed to identify the module from the search record
+          ModEntry := TModuleEntry.Create(
+            ModType,
+            FTempBook.Name,
+            FTempBook.ShortName,
+            FTempBook.ShortPath,
+            EmptyWideStr,
+            FTempBook.GetStucture(),
+            FTempBook.Categories,
+            FTempBook.Author,
+            FTempBook.ModuleVersion,
+            FTempBook.ModuleImage,
+            FTempBook.trait[bqmtStrongs]);
 
-        // scan subdirectory
-        IsDirectory := (SearchRec.Attr and faDirectory) = faDirectory;
-        if (IsDirectory) then
-          ScanDirectory(Modules, ModulePath, ModType);
+          Modules.Add(ModEntry);
+          if (IsLimit(Modules)) then
+            Exit;
+        end
+        else
+        begin
+          // failed to identify the module from the search record
+
+          // scan subdirectory
+          IsDirectory := (SearchRec.Attr and faDirectory) = faDirectory;
+          if (IsDirectory) then
+            ScanDirectory(Modules, ModulePath, ModType);
+        end;
+      except
+        on E: TBQException do
+          // failed to load module, skip it
       end;
 
       SearchResult := FindNext(SearchRec);
@@ -311,7 +312,6 @@ end;
 procedure TScanThread.Execute;
 var
   FoundModules: TCachedModules;
-  I: Integer;
 begin
   Busy := True;
   try

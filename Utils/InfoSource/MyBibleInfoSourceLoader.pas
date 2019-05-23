@@ -122,9 +122,7 @@ procedure TMyBibleInfoSourceLoader.LoadBibleValues(aInfoSource: TInfoSource;
 var
   SQLiteQuery: TFDQuery;
   BookQty: Integer;
-  History: String;
   ChapterDatas: TList<TChapterData>;
-  I: Integer;
   Language: String;
 
 begin
@@ -166,7 +164,6 @@ procedure TMyBibleInfoSourceLoader.LoadCommentaryValues(
 var
   SQLiteQuery: TFDQuery;
   BookQty: Integer;
-  History: String;
   ChapterDatas: TList<TChapterData>;
   Language: String;
 begin

@@ -91,7 +91,7 @@ end;
 
 procedure TCommentsFrame.bwrCommentsHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
-  Command, PrefBible, ConcreteCmd: string;
+  Command, ConcreteCmd: string;
   AutoCmd: Boolean;
   Status: integer;
   BookView: TBookFrame;

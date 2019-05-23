@@ -87,7 +87,6 @@ class function TMyBibleUtils.GetBibleBookQty(aSQLiteQuery: TFDQuery;
   aChapterDatas: TList<TChapterData>): Integer;
 var
   ChapterNumberQueryTempl: String;
-  i: integer;
 
 begin
   Result := 0;
@@ -142,7 +141,6 @@ end;
 
 class function TMyBibleUtils.GetCommentaryBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
 var
-  BookTableExist: Boolean;
   Query: String;
   ChapterNumberQueryTempl: String;
 begin
@@ -229,8 +227,6 @@ var
   ChapterData: TChapterData;
   BookName : String;
   ShortName: String;
-
-  ChapterNumberQuery: String;
 begin
   BookQty := 0;
 

@@ -201,7 +201,6 @@ type
     procedure DictionariesLoading(Sender: TObject);
     procedure DictionariesLoaded(Sender: TObject);
     procedure ModulesScanDone(Modules: TCachedModules);
-    procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
     procedure TogglePreview();
 
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
@@ -892,11 +891,6 @@ begin
   mNotifier.Notify(TModulesLoadedMessage.Create);
 end;
 
-procedure TMainForm.ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
-begin
-  MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
-end;
-
 procedure TMainForm.SaveMru;
 var
   mi: TMemIniFile;
@@ -1389,8 +1383,6 @@ begin
   mScanThread := TScanThread.Create(mScanner);
 
   mScanThread.OnScanDone := ModulesScanDone;
-  // TODO: implement it
-  //mModuleLoader.OnArchiveModuleLoadFailed := ArchiveModuleLoadFailed;
 
   MainFormInitialized := false; // prohibit re-entry into FormShow
   mWorkspaces := TList<IWorkspace>.Create;

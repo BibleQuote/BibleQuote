@@ -97,7 +97,7 @@ object MainForm: TMainForm
       Left = 588
       Top = 4
       Width = 37
-      Height = 14
+      Height = 26
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -110,12 +110,12 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
+      ExplicitHeight = 14
     end
     object tlbMain: TToolBar
       Left = 1
       Top = 1
       Width = 332
-      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -217,7 +217,6 @@ object MainForm: TMainForm
       Left = 333
       Top = 1
       Width = 116
-      Height = 29
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
@@ -261,7 +260,6 @@ object MainForm: TMainForm
       Left = 449
       Top = 1
       Width = 136
-      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -278,7 +276,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 136
-        Height = 23
+        Height = 22
         Margins.Top = 0
         Margins.Bottom = 0
         Align = alClient
