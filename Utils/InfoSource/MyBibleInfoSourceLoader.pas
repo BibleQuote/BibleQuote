@@ -3,7 +3,7 @@ unit MyBibleInfoSourceLoader;
 interface
 
 uses Classes, InfoSourceLoaderInterface, InfoSource, FireDAC.Comp.Client,
- ChapterData, Generics.Collections;
+ ChapterData, Generics.Collections, IOUtils;
 
 type
   TMyBibleInfoSourceLoader = class(TInterfacedObject, IInfoSourceLoader)
@@ -242,6 +242,9 @@ begin
   aInfoSource.FileName := aFileEntryPath;
   aInfoSource.IsCompressed := false;
 
+  // the cover image is supposed to be in the same folder as db file
+  aInfoSource.ModuleImage := TPath.Combine(
+    ExtractFileDir(aFileEntryPath), 'image.jpg');
 end;
 
 procedure TMyBibleInfoSourceLoader.LoadRegularValues(aInfoSource: TInfoSource;
