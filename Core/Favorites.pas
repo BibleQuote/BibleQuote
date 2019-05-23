@@ -103,7 +103,7 @@ begin
   mfnDelFromIface := fnDelFromIFace;
   mfnReplaceInIFace := fnReplaceInIface;
   mfnInsertIface := fnInsertIface;
-  mModuleEntries := TCachedModules.Create(true);
+  mModuleEntries := TCachedModules.Create();
   mfnForceLoadMods := forceLoadModules;
 end;
 

@@ -71,7 +71,7 @@ begin
       IsMyBibleDictionary(aFileEntryPath)
       or IsMyBibleCommentary(aFileEntryPath)
       or IsMyBibleBible(aFileEntryPath)
-    )
+    );
 end;
 
 class function TSelectEntityType.IsNativeFileEntry(
@@ -120,8 +120,6 @@ end;
 
 class function TSelectEntityType.SelectInfoSourceType(aFileEntryPath: String): TInfoSourceTypes;
 begin
-
-
   if IsNativeInfoSource(aFileEntryPath) then
   begin
     Result := isNative;
@@ -134,10 +132,7 @@ begin
     exit;
   end;
 
-
-
   Result := isNone;
-
 end;
 
 

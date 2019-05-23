@@ -111,6 +111,7 @@ type
     function FindModule(aCaption: String; aModuleType: TThirdPartyModuleTypes): TThirdPartyModule; overload;
     function FindModule(aIndex: Integer; aModuleType: TThirdPartyModuleTypes): TThirdPartyModule; overload;
     function GetModuleDir(aModuleType: TThirdPartyModuleTypes): String;
+    function GetModulePath(aModule: TThirdPartyModule): String;
     function AppendSQLiteExt(aFileName: String): String;
     function FindOutModuleStatus(aModule: TThirdPartyModule): TThirdPartyStatuses;
   public
@@ -186,7 +187,13 @@ const
   SqliteFile = '.SQLite3';
 var
   Stream: TFileStream;
+  Directory: String;
 begin
+  Directory := ExtractFileDir(aDestFilePath);
+  if not DirectoryExists(Directory) then
+  begin
+    CreateDir(Directory);
+  end;
 
   Stream := TFileStream.Create(aDestFilePath, fmCreate);
   try
@@ -194,8 +201,6 @@ begin
   finally
     Stream.Free;
   end;
-
-
 end;
 
 function TDownloadModulesForm.FindModule(aCaption: String;
@@ -243,8 +248,7 @@ function TDownloadModulesForm.FindOutModuleStatus(
 var
   ProspectiveModulePath : String;
 begin
-  ProspectiveModulePath := TPath.Combine(GetModuleDir(aModule.ModuleType),
-        AppendSQLiteExt(aModule.FileName));
+  ProspectiveModulePath := GetModulePath(aModule);
 
   if FileExists(ProspectiveModulePath) then
     Result := tpsInstalled
@@ -333,6 +337,14 @@ begin
 
   Result := TThirdPartyModuleTypes(tcModules.Tabs.Objects[tcModules.TabIndex]);
 
+end;
+
+function TDownloadModulesForm.GetModulePath(aModule: TThirdPartyModule): String;
+var
+  ModuleDir: String;
+begin
+  ModuleDir := TPath.Combine(GetModuleDir(aModule.ModuleType), ExtractFileName(aModule.FileName));
+  Result := TPath.Combine(ModuleDir, AppendSQLiteExt(aModule.FileName));
 end;
 
 function TDownloadModulesForm.GetModuleDir(
@@ -590,9 +602,8 @@ begin
     Module := FindModule(aCaption, aModuleType);
 
     if not Assigned(Module) then exit;
-    
 
-    DestFilePath := TPath.Combine( GetModuleDir(aModuleType),  AppendSQLiteExt(Module.FileName));
+    DestFilePath := GetModulePath(Module);
 
     ExtractSqliteFile(aDownloadedFilePath, DestFilePath);
 

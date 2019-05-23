@@ -41,7 +41,6 @@ uses
   StringProcs in 'Utils\StringProcs.pas',
   BackgroundServices in 'IO\BackgroundServices.pas',
   IOProcs in 'IO\IOProcs.pas',
-  ModuleProcs in 'IO\ModuleProcs.pas',
   TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule},
   MultiLanguage in 'Core\MultiLanguage.pas',
   TabData in 'Core\TabData.pas',
@@ -92,7 +91,8 @@ uses
   FileNameCommand in 'Core\Commands\FileNameCommand.pas',
   DownloadModulesFrm in 'Forms\DownloadModulesFrm.pas' {DownloadModulesForm},
   ThirdPartModulesProcs in 'IO\ThirdPartModulesProcs.pas',
-  JsonProcs in 'Utils\JsonProcs.pas';
+  JsonProcs in 'Utils\JsonProcs.pas',
+  ScanModules in 'IO\ScanModules.pas';
 
 {$R *.res}
 

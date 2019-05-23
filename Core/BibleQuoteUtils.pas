@@ -173,6 +173,7 @@ type
     function GetArchivedCount(): integer;
   public
     procedure Assign(source: TCachedModules);
+    procedure CopyRange(source: TCachedModules);
     function FindByName(const name: string; fromix: integer = 0): integer;
     function ResolveModuleByNames(const modName, modShortName: string) : TModuleEntry;
     function IndexOf(const name: string; fromix: integer = 0) : integer; overload;
@@ -181,6 +182,7 @@ type
     function GetModTypedAsCount(modType: TModuleType): integer;
     function ModTypedAsFirst(modType: TModuleType): TModuleEntry;
     function ModTypedAsNext(modType: TModuleType): TModuleEntry;
+    procedure SaveToFile(Path: String);
     procedure _Sort();
 
     property Items[Index: integer]: TModuleEntry read GetItem write SetItem; default;
@@ -1480,16 +1482,59 @@ begin
   { TCachedModules }
 
   procedure TCachedModules.Assign(source: TCachedModules);
+  begin
+    Clear();
+    CopyRange(source);
+
+    if Assigned(FOnAssignEvent) then
+      FOnAssignEvent(Self);
+  end;
+
+  procedure TCachedModules.CopyRange(source: TCachedModules);
   var
     I, cnt: integer;
   begin
     cnt := source.count - 1;
-    Clear();
     for I := 0 to cnt do
       Add(TModuleEntry.Create(TModuleEntry(source.Items[I])));
+  end;
 
-    if Assigned(FOnAssignEvent) then
-      FOnAssignEvent(Self);
+  procedure TCachedModules.SaveToFile(Path: string);
+  var
+    ModStringList: TStringList;
+    Count, I: Integer;
+    ModuleEntry: TModuleEntry;
+  begin
+    ModStringList := TStringList.Create();
+    try
+      if Count <= 0 then
+        Exit;
+
+      ModStringList.Add('v5');
+
+      for I := 0 to Count - 1 do
+      begin
+        ModuleEntry := TModuleEntry(Self[I]);
+        with ModStringList, ModuleEntry do
+        begin
+          Add(IntToStr(ord(ModType)));
+          Add(FullName);
+          Add(ShortName);
+          Add(ShortPath);
+          Add(FullPath);
+          Add(ModBookNames);
+          Add(ModCats);
+          Add(Author);
+          Add(CoverPath);
+          Add(BoolToStr(HasStrong));
+          Add('***');
+        end;
+      end;
+
+      ModStringList.SaveToFile(Path, TEncoding.UTF8);
+    finally
+      ModStringList.Free()
+    end;
   end;
 
   function __ModEntryCmp(Item1, Item2: TModuleEntry): integer;
