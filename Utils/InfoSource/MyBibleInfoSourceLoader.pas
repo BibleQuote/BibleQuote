@@ -3,7 +3,7 @@ unit MyBibleInfoSourceLoader;
 interface
 
 uses Classes, InfoSourceLoaderInterface, InfoSource, FireDAC.Comp.Client,
- ChapterData, Generics.Collections;
+ ChapterData, Generics.Collections, IOUtils;
 
 type
   TMyBibleInfoSourceLoader = class(TInterfacedObject, IInfoSourceLoader)
@@ -122,9 +122,7 @@ procedure TMyBibleInfoSourceLoader.LoadBibleValues(aInfoSource: TInfoSource;
 var
   SQLiteQuery: TFDQuery;
   BookQty: Integer;
-  History: String;
   ChapterDatas: TList<TChapterData>;
-  I: Integer;
   Language: String;
 
 begin
@@ -166,7 +164,6 @@ procedure TMyBibleInfoSourceLoader.LoadCommentaryValues(
 var
   SQLiteQuery: TFDQuery;
   BookQty: Integer;
-  History: String;
   ChapterDatas: TList<TChapterData>;
   Language: String;
 begin
@@ -242,6 +239,9 @@ begin
   aInfoSource.FileName := aFileEntryPath;
   aInfoSource.IsCompressed := false;
 
+  // the cover image is supposed to be in the same folder as db file
+  aInfoSource.ModuleImage := TPath.Combine(
+    ExtractFileDir(aFileEntryPath), 'image.jpg');
 end;
 
 procedure TMyBibleInfoSourceLoader.LoadRegularValues(aInfoSource: TInfoSource;

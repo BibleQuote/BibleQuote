@@ -90,7 +90,6 @@ var
   status: integer;
   modIx: integer;
   modPath: string;
-  bookTabInfo: TBookTabInfo;
   modEntry: TModuleEntry;
 begin
   modIx := mMainView.mModules.FindByName(AppConfig.DefaultBible);
@@ -104,7 +103,6 @@ begin
   if (modIx >= 0) then
   begin
     modPath := mMainView.mModules[modIx].ShortPath;
-    bookTabInfo := mMainView.CreateNewBookTabInfo();
 
     if (Pos(C__bqAutoBible, SRC) <> 0) then
     begin

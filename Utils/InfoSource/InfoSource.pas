@@ -9,7 +9,6 @@ type
   TInfoSource = class
   private
     FInfoSourceType: TInfoSourceTypes;
-    FDataPairs: TStrings;
 
     FFileName: String;
     FBibleName, FBibleShortName, FCopyright: String;

@@ -16,7 +16,7 @@ uses
   VirtualTrees, ToolWin, StdCtrls, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
-  VdtEditlink, bqGradientPanel, ModuleProcs,
+  VdtEditlink, bqGradientPanel,
   Engine, MultiLanguage, LinksParserIntf, HTMLEmbedInterfaces,
   MetaFilePrinter, NativeDict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
   TabData, Favorites, ThinCaptionedDockTree,
@@ -24,7 +24,7 @@ uses
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, FontManager, BroadcastList, JclNotify, NotifyMessages,
   AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
-  StrongsConcordance;
+  StrongsConcordance, ScanModules;
 
 const
 
@@ -200,8 +200,7 @@ type
     procedure CompareTranslations();
     procedure DictionariesLoading(Sender: TObject);
     procedure DictionariesLoaded(Sender: TObject);
-    procedure ModulesScanDone(Sender: TObject);
-    procedure ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
+    procedure ModulesScanDone(Modules: TCachedModules);
     procedure TogglePreview();
 
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
@@ -229,6 +228,7 @@ type
     procedure OpenNewWorkspace;
     procedure PassKeyToActiveLibrary(var Key: Char);
     function CreateBookTabInfo(book: TBible): TBookTabInfo;
+    procedure InitModuleScanner();
   public
     SysHotKey: TSysHotKey;
 
@@ -251,7 +251,8 @@ type
     mscrollbarX: integer;
     mHTMLViewerSite: THTMLViewerSite;
     mBqEngine: TBibleQuoteEngine;
-    mModuleLoader: TModuleLoader;
+    mScanner: TModulesScanner;
+    mScanThread: TScanThread;
     mTranslated: Boolean;
 
     mWorkspace: IWorkspace;
@@ -342,7 +343,7 @@ type
     procedure CopyPassageToClipboard();
 
     function LoadDictionaries(foreground: Boolean): Boolean;
-    function LoadModules(background: Boolean): Boolean;
+    procedure StartScanModules();
     function LoadHotModulesConfig(): Boolean;
     procedure SaveHotModulesConfig();
     function AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
@@ -353,8 +354,6 @@ type
     function ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
     function InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
     procedure SetFavouritesShortcuts();
-
-    function UpdateFromCashed(): Boolean;
 
     procedure SaveMru();
     procedure LoadMru();
@@ -377,8 +376,9 @@ type
     procedure LoadConfiguration;
     procedure SaveConfiguration;
     procedure SetBibleTabsHintsState(showHints: Boolean = true);
-    procedure MainMenuInit(cacheupdate: Boolean);
+    procedure InitModules(updateCache: Boolean);
     procedure ActivateModuleView(aModuleEntry: TModuleEntry);
+    procedure ScanFirstModules();
 
     function ChooseColor(color: TColor): TColor;
 
@@ -843,23 +843,18 @@ begin
   FreeAndNil(mIcn);
 end;
 
-function TMainForm.LoadModules(background: Boolean): Boolean;
+procedure TMainForm.StartScanModules();
 var
   icn: TIcon;
 begin
-  Result := false;
   try
-    if not Assigned(tempBook) then
-    begin
-      tempBook := TBible.Create(self);
+    icn := TIcon.Create;
+    ilImages.GetIcon(33, icn);
+    imgLoadProgress.Picture.Graphic := icn;
+    imgLoadProgress.Show();
 
-      icn := TIcon.Create;
-      ilImages.GetIcon(33, icn);
-      imgLoadProgress.Picture.Graphic := icn;
-      imgLoadProgress.Show();
-    end;
-
-    Result := mModuleLoader.LoadModules(tempBook, background);
+    if not (mScanThread.Started) then
+      mScanThread.Start();
   except
     on E: Exception do
     begin
@@ -885,18 +880,16 @@ begin
   FreeAndNil(mIcn);
 end;
 
-procedure TMainForm.ModulesScanDone(Sender: TObject);
+procedure TMainForm.ModulesScanDone(Modules: TCachedModules);
 begin
   if not Assigned(mModules) then
     mModules := TCachedModules.Create(true);
 
-  mModules.Assign(mModuleLoader.CachedModules);
-  mNotifier.Notify(TModulesLoadedMessage.Create);
-end;
+  mModules.Assign(Modules);
 
-procedure TMainForm.ArchiveModuleLoadFailed(Sender: TObject; E: TBQException);
-begin
-  MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
+  UpdateBookView();
+
+  mNotifier.Notify(TModulesLoadedMessage.Create);
 end;
 
 procedure TMainForm.SaveMru;
@@ -1236,7 +1229,7 @@ begin
 
     SaveWorkspaces();
     try
-      mModuleLoader.SaveCachedModules();
+      mModules.SaveToFile(TPath.Combine(TAppDirectories.UserSettings, C_CachedModsFileName));
     except
       on E: Exception do
       begin
@@ -1375,6 +1368,7 @@ begin
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
+
 begin
   mFontManager := TFontManager.Create();
   FStrongsConcordance := TStrongsConcordance.Create();
@@ -1382,11 +1376,6 @@ begin
 
   mBqEngine := TBibleQuoteEngine.Create();
   mNotifier := TJclBaseNotifier.Create;
-
-  mModuleLoader := TModuleLoader.Create();
-
-  mModuleLoader.OnScanDone := ModulesScanDone;
-  mModuleLoader.OnArchiveModuleLoadFailed := ArchiveModuleLoadFailed;
 
   MainFormInitialized := false; // prohibit re-entry into FormShow
   mWorkspaces := TList<IWorkspace>.Create;
@@ -1411,6 +1400,9 @@ begin
   Bookmarks := TBroadcastStringList.Create;
 
   LoadConfiguration;
+  InitModuleScanner();
+  InitModules(false);
+
   InitHotkeysSupport();
   InitializeTaggedBookMarks();
 
@@ -1448,8 +1440,6 @@ begin
 
   LoadLocalization();
 
-  MainMenuInit(false);
-
   LoadWorkspaces();
   LoadHotModulesConfig();
 
@@ -1460,6 +1450,19 @@ begin
   Application.OnIdle := self.Idle;
   Application.OnActivate := self.OnActivate;
   Application.OnDeactivate := self.OnDeactivate;
+end;
+
+procedure TMainForm.InitModuleScanner();
+var
+  scanBook: TBible;
+begin
+  scanBook := TBible.Create(Self);
+  mModules := TCachedModules.Create();
+  mScanner := TModulesScanner.Create(scanBook);
+  mScanThread := TScanThread.Create(mScanner);
+
+  mScanThread.OnScanDone := ModulesScanDone;
+  mScanner.SecondDirectory := AppConfig.SecondPath;
 end;
 
 function TMainForm.GetIViewerBase(): IHtmlViewerBase;
@@ -2427,16 +2430,14 @@ end;
 
 procedure TMainForm.ForceForegroundLoad;
 begin
-  if not mModuleLoader.ScanDone then
-  begin
-    repeat
-      LoadModules(false);
-    until mModuleLoader.ScanDone;
+  if not (mScanThread.Started) then
+    mScanThread.Start;
 
-    Application.OnIdle := nil;
-    self.UpdateFromCashed();
-  end;
+  mScanThread.WaitFor;
 
+  mModules.Assign(mScanThread.Modules);
+
+  mDefaultLocation := DefaultLocation();
   if not mDictionariesFullyInitialized then
   begin
     mDictionariesFullyInitialized := LoadDictionaries(true);
@@ -2489,22 +2490,6 @@ end;
 
 procedure TMainForm.Idle(Sender: TObject; var Done: Boolean);
 begin
-  // background modules loading
-  if not mModuleLoader.ScanDone then
-  begin
-    LoadModules(true);
-    if mModuleLoader.ScanDone then
-    begin
-      self.UpdateFromCashed();
-      self.UpdateBookView();
-    end
-    else
-    begin
-      Done := false;
-      Exit;
-    end;
-  end;
-
   if not mDictionariesFullyInitialized then
   begin
     mDictionariesFullyInitialized := LoadDictionaries(false);
@@ -2690,28 +2675,36 @@ begin
   end;
 end;
 
-procedure TMainForm.MainMenuInit(cacheupdate: Boolean);
+procedure TMainForm.InitModules(updateCache: Boolean);
 var
-  R: Boolean;
+  Loaded: Boolean;
 begin
-  if cacheupdate then
+  if updateCache then
   begin
-    mModuleLoader.CachedModules.Clear();
-    LoadModules(false);
+    mModules.Clear();
+    ScanFirstModules();
   end
   else
   begin
-    R := mModuleLoader.LoadCachedModules;
-    if R then
-      R := UpdateFromCashed();
-    if not R then
-    begin // failed to load and update
-      LoadModules(false);
-    end
-    else
-      mModuleLoader.CachedModules.Clear();
+    Loaded := mScanner.TryLoadCachedModules(mModules);
+
+    if not Loaded then
+      ScanFirstModules();
   end;
   mDefaultLocation := DefaultLocation();
+  StartScanModules();
+end;
+
+procedure TMainForm.ScanFirstModules();
+var
+  Scanner: TModulesScanner;
+  LoadBook: TBible;
+begin
+  LoadBook := TBible.Create(Self);
+  Scanner := TModulesScanner.Create(LoadBook, 5 {Load max 5 books});
+  Scanner.SecondDirectory := AppConfig.SecondPath;
+
+  mModules.CopyRange(Scanner.Scan());
 end;
 
 procedure TMainForm.ActivateModuleView(aModuleEntry: TModuleEntry);
@@ -3894,20 +3887,6 @@ begin
   mWorkspace.AddMemoTab(newTabInfo);
 end;
 
-function TMainForm.UpdateFromCashed(): Boolean;
-begin
-  try
-    if not Assigned(mModules) then
-      mModules := TCachedModules.Create(true);
-    mModules.Assign(mModuleLoader.CachedModules);
-
-    Result := true;
-    mDefaultLocation := DefaultLocation();
-  except
-    Result := false;
-  end;
-end;
-
 procedure TMainForm.ClearCopyrights();
 begin
   lblTitle.Caption := '';
@@ -4797,7 +4776,9 @@ begin
   if ConfigForm.edtSelectPath.Text <> AppConfig.SecondPath then
   begin
     AppConfig.SecondPath := ConfigForm.edtSelectPath.Text;
-    MainMenuInit(true);
+    mScanner.SecondDirectory := AppConfig.SecondPath;
+    InitModuleScanner();
+    InitModules(true);
   end;
 
   fnt := TFont.Create;

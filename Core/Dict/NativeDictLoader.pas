@@ -24,7 +24,6 @@ function TNativeDictLoader.LoadDictionaries(aFileEntryPath: String;
   aEngine: IbqEngineDicTraits): Boolean;
 var
   DictFileList: TStringDynArray;
-  i: Integer;
   Dictionary: TNativeDict;
   InfoSource: TInfoSource;
 begin
