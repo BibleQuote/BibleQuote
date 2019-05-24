@@ -323,7 +323,11 @@ begin
     Busy := False;
 
     if Assigned(FOnScanDone) then
-      FOnScanDone(FModules);
+      Synchronize(
+        procedure()
+        begin
+          FOnScanDone(FModules);
+        end);
   end;
 end;
 

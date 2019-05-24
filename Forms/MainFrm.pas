@@ -228,6 +228,7 @@ type
     procedure OpenNewWorkspace;
     procedure PassKeyToActiveLibrary(var Key: Char);
     function CreateBookTabInfo(book: TBible): TBookTabInfo;
+    procedure InitModuleScanner();
   public
     SysHotKey: TSysHotKey;
 
@@ -1367,8 +1368,7 @@ begin
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
-var
-  scanBook: TBible;
+
 begin
   mFontManager := TFontManager.Create();
   FStrongsConcordance := TStrongsConcordance.Create();
@@ -1376,13 +1376,6 @@ begin
 
   mBqEngine := TBibleQuoteEngine.Create();
   mNotifier := TJclBaseNotifier.Create;
-
-  scanBook := TBible.Create(Self);
-  mModules := TCachedModules.Create();
-  mScanner := TModulesScanner.Create(scanBook);
-  mScanThread := TScanThread.Create(mScanner);
-
-  mScanThread.OnScanDone := ModulesScanDone;
 
   MainFormInitialized := false; // prohibit re-entry into FormShow
   mWorkspaces := TList<IWorkspace>.Create;
@@ -1407,6 +1400,9 @@ begin
   Bookmarks := TBroadcastStringList.Create;
 
   LoadConfiguration;
+  InitModuleScanner();
+  InitModules(false);
+
   InitHotkeysSupport();
   InitializeTaggedBookMarks();
 
@@ -1444,8 +1440,6 @@ begin
 
   LoadLocalization();
 
-  InitModules(false);
-
   LoadWorkspaces();
   LoadHotModulesConfig();
 
@@ -1456,6 +1450,19 @@ begin
   Application.OnIdle := self.Idle;
   Application.OnActivate := self.OnActivate;
   Application.OnDeactivate := self.OnDeactivate;
+end;
+
+procedure TMainForm.InitModuleScanner();
+var
+  scanBook: TBible;
+begin
+  scanBook := TBible.Create(Self);
+  mModules := TCachedModules.Create();
+  mScanner := TModulesScanner.Create(scanBook);
+  mScanThread := TScanThread.Create(mScanner);
+
+  mScanThread.OnScanDone := ModulesScanDone;
+  mScanner.SecondDirectory := AppConfig.SecondPath;
 end;
 
 function TMainForm.GetIViewerBase(): IHtmlViewerBase;
@@ -2695,6 +2702,8 @@ var
 begin
   LoadBook := TBible.Create(Self);
   Scanner := TModulesScanner.Create(LoadBook, 5 {Load max 5 books});
+  Scanner.SecondDirectory := AppConfig.SecondPath;
+
   mModules.CopyRange(Scanner.Scan());
 end;
 
@@ -4767,6 +4776,8 @@ begin
   if ConfigForm.edtSelectPath.Text <> AppConfig.SecondPath then
   begin
     AppConfig.SecondPath := ConfigForm.edtSelectPath.Text;
+    mScanner.SecondDirectory := AppConfig.SecondPath;
+    InitModuleScanner();
     InitModules(true);
   end;
 
