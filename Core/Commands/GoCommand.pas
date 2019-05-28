@@ -114,7 +114,13 @@ begin
             FBookTabInfo[vtisHighLightVerses] := hlVerses = hlTrue
           else
             FBookTabInfo[vtisHighLightVerses] := false;
-          FBookTabInfo.Title := Format('%.6s-%.6s:%d', [ShortName, GetShortNames(CurBook), CurChapter - ord(Trait[bqmtZeroChapter])]);
+
+          if (CurBook >= 0) then
+            FBookTabInfo.Title := Format(
+              '%.6s-%.6s:%d',
+              [ShortName, GetShortNames(CurBook), CurChapter - ord(Trait[bqmtZeroChapter])])
+          else
+            FBookTabInfo.Title := Format('%.6s', [ShortName])
 
         except
           on E: Exception do
@@ -122,13 +128,16 @@ begin
         end;
     end;
 
-    with FBookTabInfo.Bible do
+    if (bibleLink.book >= 0) then
     begin
-      ReferenceToInternal(bibleLink, FMainView.LastLink);
-      if (FBookTabInfo.Bible.isBible) then
+      with FBookTabInfo.Bible do
       begin
-        FMainView.LastBiblePath := FBookTabInfo.Bible.ShortPath;
-        ReferenceToInternal(bibleLink, FMainView.LastBibleLink);
+        ReferenceToInternal(bibleLink, FMainView.LastLink);
+        if (FBookTabInfo.Bible.isBible) then
+        begin
+          FMainView.LastBiblePath := FBookTabInfo.Bible.ShortPath;
+          ReferenceToInternal(bibleLink, FMainView.LastBibleLink);
+        end;
       end;
     end;
 

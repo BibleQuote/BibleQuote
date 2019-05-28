@@ -418,7 +418,6 @@ type
     function InstallFont(const specialPath: string): HRESULT;
     procedure TranslateConfigForm;
     procedure TranslateControl(form: TWinControl; fname: string = '');
-    procedure ShowReferenceInfo();
     procedure GoReference();
     function DefaultBookTabState(): TBookTabInfoState;
     procedure CopyVerse();
@@ -449,7 +448,7 @@ var
 
 implementation
 
-uses CopyrightFrm, InputFrm, ConfigFrm, PasswordDlg,
+uses InputFrm, ConfigFrm, PasswordDlg,
   BibleQuoteConfig,
   ExceptionFrm, AboutFrm, ShellAPI,
   StrUtils, CommCtrl, DockTabsFrm,
@@ -1709,20 +1708,24 @@ begin
   begin
     if Assigned(bookView.BookTabInfo.Bible.InfoSource) then
     begin
-      with bookView.BookTabInfo.Bible do
-        s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse);
+      try
+        with bookView.BookTabInfo.Bible do
+          s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse);
 
-      if bookView.BookTabInfo.Bible.Copyright <> '' then
-        s := s + '; © ' + bookView.BookTabInfo.Bible.Copyright
-      else
-        s := s + '; ' + Lang.Say('PublicDomainText');
+        if bookView.BookTabInfo.Bible.Copyright <> '' then
+          s := s + '; © ' + bookView.BookTabInfo.Bible.Copyright
+        else
+          s := s + '; ' + Lang.Say('PublicDomainText');
 
-      lblTitle.Hint := s + '   ';
+        lblTitle.Hint := s + '   ';
 
-      if Length(lblTitle.Hint) < 83 then
-        lblTitle.Caption := lblTitle.Hint
-      else
-        lblTitle.Caption := Copy(lblTitle.Hint, 1, 80) + '...';
+        if Length(lblTitle.Hint) < 83 then
+          lblTitle.Caption := lblTitle.Hint
+        else
+          lblTitle.Caption := Copy(lblTitle.Hint, 1, 80) + '...';
+      except
+        // skip error
+      end;
 
       bookView.UpdateModuleTree(bookView.BookTabInfo.Bible);
     end;
@@ -3405,6 +3408,9 @@ begin
     except
     end;
   end;
+  if not Assigned(bookView) then
+    Exit;
+
   bookView.ProcessCommand(bookTabInfo, bookTabInfo.Location, TbqHLVerseOption(ord(bookTabInfo[vtisHighLightVerses])));
 end;
 
@@ -3687,47 +3693,6 @@ begin
   finally
     Links.Free;
   end;
-end;
-
-procedure TMainForm.ShowReferenceInfo;
-var
-  Lines: string;
-  cc: Integer;
-  i: Integer;
-  bookView: TBookFrame;
-  bible: TBible;
-begin
-  Lines := '<body bgcolor=#EBE8E2>';
-  bookView := GetBookView(self);
-  bible := bookView.BookTabInfo.Bible;
-
-  AddLine(Lines, '<h2>' + bible.Name + '</h2>');
-  cc := bible.Categories.Count - 1;
-
-  if cc >= 0 then
-  begin
-    AddLine(Lines, '<font Size=-1><b>Метки:</b><br><i>' + TokensToStr(bible.Categories, '<br>     ', false) + '</i></font><br>');
-  end;
-
-  AddLine(Lines, '<b>Location:</b> ' + Copy(bible.path, 1, Length(bible.path) - 1) + ' <a href="editini=' + bible.path + 'bibleqt.ini">ini</a><br>');
-
-  for i := 1 to bible.BookQty do
-    AddLine(Lines, '<b>' + bible.GetFullNames(i) + ':</b> ' + bible.ShortNamesVars[i] + '<br>');
-  AddLine(Lines, '<br><br><br>');
-
-  if not Assigned(CopyrightForm) then
-    CopyrightForm := TCopyrightForm.Create(self);
-  CopyrightForm.lblModName.Caption := bible.Name;
-
-  if Length(Trim(bible.Copyright)) = 0 then
-    CopyrightForm.lblCopyRightNotice.Caption := Lang.Say('PublicDomainText')
-  else
-    CopyrightForm.lblCopyRightNotice.Caption := bible.Copyright;
-
-  CopyrightForm.Caption := bible.Name;
-  CopyrightForm.bwrCopyright.LoadFromString(Lines);
-  CopyrightForm.ActiveControl := CopyrightForm.bwrCopyright;
-  CopyrightForm.ShowModal;
 end;
 
 procedure TMainForm.TranslateControl(form: TWinControl; fname: string = '');

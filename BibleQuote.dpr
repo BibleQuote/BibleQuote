@@ -11,7 +11,6 @@ uses
   SysUtils,
   MainFrm in 'Forms\MainFrm.pas' {MainForm},
   InputFrm in 'Forms\InputFrm.pas' {InputForm},
-  CopyrightFrm in 'Forms\CopyrightFrm.pas' {CopyrightForm},
   ConfigFrm in 'Forms\ConfigFrm.pas' {ConfigForm},
   ExceptionFrm in 'Forms\ExceptionFrm.pas' {ExceptionForm},
   AboutFrm in 'Forms\AboutFrm.pas' {AboutForm},

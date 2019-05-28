@@ -309,6 +309,7 @@ type
     function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
     function GetModuleName(): string;
     function GetAuthor(): string;
+    function GetAllVerses(): string;
 
     function GetBookNumberIndex(aBookNumber: Integer): Integer;
     function GetChapterNumberIndex(aBookNumber, aChapterNumber: Integer): Integer;
@@ -389,6 +390,7 @@ type
     constructor Create(uiServices: IBibleWinUIServices); reintroduce;
     destructor Destroy; override;
 
+    function OpenCopyright(): Boolean;
     function OpenChapter(book, chapter: integer;
       forceResolveLinks: boolean = False): boolean;
     function GetShortNameVarByBookNumber(aBookNumber: Integer): String;
@@ -841,8 +843,11 @@ begin
   if BookIndex > -1 then
     Result := FullNames[BookIndex+1]
   else
+  begin
+    if (aBookNumber <= 0) then
+      Exit;
     Result := FullNames[aBookNumber];
-
+  end;
 end;
 
 function TBible.getTraitState(trait: TbqModuleTrait): boolean;
@@ -863,6 +868,20 @@ begin
     raise ERangeError.Create('Invalid verse Number');
   end;
   Result := FLines[i];
+end;
+
+function TBible.GetAllVerses(): string;
+var
+  I: Integer;
+  sb: TStringBuilder;
+begin
+  Result := '';
+  sb := TStringBuilder.Create();
+  for I := 0 to FLines.Count - 1 do
+  begin
+    sb.AppendLine(FLines[I]);
+  end;
+  Result := sb.ToString;
 end;
 
 function TBible.IsNativeEmptyParagraph(aBookLine: String): Boolean;
@@ -1022,6 +1041,31 @@ begin
     Include(mTraits, trait)
   else
     Exclude(mTraits, trait);
+end;
+
+function TBible.OpenCopyright(): Boolean;
+var
+  CopyrightPath: String;
+  CopyrightLines: TStrings;
+begin
+  Result := False;
+
+  CopyrightPath := TPath.Combine(Self.ShortPath, 'copyright.htm');
+  CopyrightPath := ResolveFullPath(CopyrightPath);
+
+  if (CopyrightPath <> '') then
+    begin
+      try
+        CopyrightLines := ReadHtml(CopyrightPath, DefaultEncoding);
+
+        FLines.Clear;
+        FLines.AddStrings(CopyrightLines);
+        _InternalSetContext(-1, 1);
+        Result := True;
+      Except
+        // do nothing
+      end;
+    end;
 end;
 
 function TBible.OpenChapter(
