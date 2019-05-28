@@ -310,6 +310,7 @@ CopyOptionsAddReference_ShortAtEnd = Kurze Fußnote am Ende des Abschnittes
 ConfigForm.Caption = Einstellungen
 ConfigForm.btnCancel.Caption = Abbrechen
 ConfigForm.btnDeletePath.Caption = x
+ConfigForm.btnRestoreDefaults.Caption = Restore defaults (t)
 ConfigForm.btnOK.Caption = OK
 ConfigForm.btnSelectPath.Caption = ...
 ConfigForm.chkAddLineBreaks.Caption = Zeilenumbruch am Ende jedes Verses einfügen

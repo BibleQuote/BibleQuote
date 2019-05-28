@@ -309,6 +309,7 @@ CopyOptionsAddReference_ShortAtEnd = Короткая подпись в конц
 ConfigForm.Caption = Настройки
 ConfigForm.btnCancel.Caption = Отмена
 ConfigForm.btnDeletePath.Caption = x
+ConfigForm.btnRestoreDefaults.Caption = Сбросить
 ConfigForm.btnOK.Caption = OK
 ConfigForm.btnSelectPath.Caption = ...
 ConfigForm.chkAddLineBreaks.Caption = Добавлять перенос строки после каждого стиха

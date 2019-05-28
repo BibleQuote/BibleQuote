@@ -283,6 +283,7 @@ CopyOptionsAddReference_ShortAtEnd = Կարճ ստորագրություն հա�
 ConfigForm.Caption = Կարգավորումներ
 ConfigForm.btnCancel.Caption = Չեղարկում
 ConfigForm.btnDeletePath.Caption = x
+ConfigForm.btnRestoreDefaults.Caption = Restore defaults (t)
 ConfigForm.btnOK.Caption = Լավ
 ConfigForm.btnSelectPath.Caption = ...
 ConfigForm.chkAddLineBreaks.Caption = Ավելացնել տողանցում յուրաքանչյուր խոսքից հետո

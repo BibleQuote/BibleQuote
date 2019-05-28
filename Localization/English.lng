@@ -309,6 +309,7 @@ CopyOptionsAddReference_ShortAtEnd = Short reference at the end of each passage
 ConfigForm.Caption = Parameters
 ConfigForm.btnCancel.Caption = Cancel
 ConfigForm.btnDeletePath.Caption = x
+ConfigForm.btnRestoreDefaults.Caption = Restore defaults
 ConfigForm.btnOK.Caption = OK
 ConfigForm.btnSelectPath.Caption = ...
 ConfigForm.chkAddLineBreaks.Caption = Add line breaks at the end of each verse

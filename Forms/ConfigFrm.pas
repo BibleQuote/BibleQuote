@@ -66,6 +66,7 @@ type
     cbLanguage: TComboBox;
     grpLocalization: TGroupBox;
     lblLanguage: TLabel;
+    btnRestoreDefaults: TButton;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure btnCancelClick(Sender: TObject);
     procedure btnSelectPathClick(Sender: TObject);
@@ -76,22 +77,29 @@ type
     procedure btnSecondaryFontClick(Sender: TObject);
     procedure btnPrimaryFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure btnRestoreDefaultsClick(Sender: TObject);
   private
     FPrimaryFont: TFont;
     FSecondaryFont: TFont;
     FDialogsFont: TFont;
     FDefaultFontSize: integer;
 
+    FModules: TCachedModules;
+    FFavorites: TFavoriteModules;
+
     procedure DisplayPrimaryFont;
     procedure DisplaySecondaryFont;
     procedure DisplayDialogsFont;
     procedure FillLanguages();
+    procedure FillFavourites();
+    procedure FillDefaultBibles();
+    procedure InitConfiguration();
   public
     property PrimaryFont: TFont read FPrimaryFont;
     property SecondaryFont: TFont read FSecondaryFont;
     property DialogsFont: TFont read FDialogsFont;
 
-    procedure LoadConfiguration(modules: TCachedModules; favorites: TFavoriteModules);
+    procedure SetModules(Modules: TCachedModules; Favorites: TFavoriteModules);
   end;
 
 var
@@ -214,6 +222,12 @@ begin
   end;
 end;
 
+procedure TConfigForm.btnRestoreDefaultsClick(Sender: TObject);
+begin
+  AppConfig.RestoreDefaults();
+  InitConfiguration;
+end;
+
 procedure TConfigForm.btnSecondaryFontClick(Sender: TObject);
 begin
   if not Assigned(FSecondaryFont) then
@@ -251,12 +265,15 @@ begin
   edtPrimaryFont.Text := FPrimaryFont.Name + ', ' + IntToStr(FPrimaryFont.Size);
 end;
 
-procedure TConfigForm.LoadConfiguration(modules: TCachedModules; favorites: TFavoriteModules);
-var
-  allBibles: TStringList;
-  strongBibles: TSTringList;
-  i: integer;
-  moduleCount: integer;
+procedure TConfigForm.SetModules(Modules: TCachedModules; Favorites: TFavoriteModules);
+begin
+  FModules := Modules;
+  FFavorites := Favorites;
+
+  InitConfiguration();
+end;
+
+procedure TConfigForm.InitConfiguration();
 begin
   if (appConfig.MainFormFontName <> Font.Name) then
     Font.Name := appConfig.MainFormFontName;
@@ -271,136 +288,16 @@ begin
   chkFullContextOnRestrictedLinks.Checked := AppConfig.FullContextLinks;
   chkHighlightVerseHits.Checked := AppConfig.HighlightVerseHits;
   rgHotKeyChoice.ItemIndex := AppConfig.HotKeyChoice;
-  moduleCount := modules.Count - 1;
 
-  // fill the list of available modules for favorites
-  cbAvailableModules.Clear;
-  allBibles := TStringList.Create;
-  try
-    allBibles.Sorted := true;
+  chkCopyVerseNumbers.Checked := AppConfig.AddVerseNumbers;
+  chkCopyFontParams.Checked := AppConfig.AddFontParams;
+  chkAddReference.Checked := AppConfig.AddReference;
+  rgAddReference.ItemIndex := AppConfig.AddReferenceChoice;
+  chkAddLineBreaks.Checked := AppConfig.AddLineBreaks;
+  chkAddModuleName.Checked := AppConfig.AddModuleName;
 
-    allBibles.BeginUpdate;
-    try
-      for i := 0 to moduleCount do
-      begin
-        allBibles.Add(modules[i].FullName);
-      end;
-    finally
-      allBibles.EndUpdate;
-    end;
-
-    cbAvailableModules.Items.BeginUpdate;
-    try
-      cbAvailableModules.Items.Clear;
-      for i := 0 to allBibles.Count - 1 do
-      begin
-        cbAvailableModules.Items.Add(allBibles[i]);
-      end;
-    finally
-      cbAvailableModules.Items.EndUpdate;
-    end;
-  finally
-    allBibles.Free;
-  end;
-
-  if moduleCount >= 0 then
-    cbAvailableModules.ItemIndex := 0;
-
-  // fill the list of available modules for default bible
-  cbDefaultBible.Clear;
-  allBibles := TStringList.Create;
-  strongBibles := TStringList.Create;
-  try
-    allBibles.Sorted := true;
-    strongBibles.Sorted := true;
-
-    allBibles.BeginUpdate;
-    strongBibles.BeginUpdate;
-    try
-      for i := 0 to moduleCount do
-      begin
-        if (modules[i].modType = modtypeBible) then
-        begin
-          allBibles.Add(modules[i].FullName);
-
-          if (modules[i].HasStrong) then
-            strongBibles.Add(modules[i].FullName);
-        end;
-      end;
-    finally
-      allBibles.EndUpdate;
-      strongBibles.EndUpdate;
-    end;
-    cbDefaultBible.Items.BeginUpdate;
-
-    try
-      cbDefaultBible.Items.Clear;
-      cbDefaultBible.Items.Add('');
-      for i := 0 to allBibles.Count - 1 do
-      begin
-        cbDefaultBible.Items.Add(allBibles[i]);
-      end;
-    finally
-      cbDefaultBible.Items.EndUpdate;
-    end;
-
-    if (AppConfig.DefaultBible = '') then
-    begin
-      cbDefaultBible.ItemIndex := 0;
-    end
-    else
-    begin
-      for i := 0 to cbDefaultBible.Items.Count - 1 do
-      begin
-        if (OmegaCompareTxt(AppConfig.DefaultBible, cbDefaultBible.Items[i], -1, false) = 0) then
-        begin
-          cbDefaultBible.ItemIndex := i;
-          break;
-        end;
-      end;
-    end;
-
-    cbDefaultStrongBible.Items.BeginUpdate;
-    try
-      cbDefaultStrongBible.Items.Clear;
-      cbDefaultStrongBible.Items.Add('');
-      for i := 0 to strongBibles.Count - 1 do
-      begin
-        cbDefaultStrongBible.Items.Add(strongBibles[i]);
-      end;
-    finally
-      cbDefaultStrongBible.Items.EndUpdate;
-    end;
-
-    if (AppConfig.DefaultStrongBible = '') then
-    begin
-      cbDefaultStrongBible.ItemIndex := 0;
-    end
-    else
-    begin
-      for i := 0 to cbDefaultStrongBible.Items.Count - 1 do
-      begin
-        if (OmegaCompareTxt(AppConfig.DefaultStrongBible, cbDefaultStrongBible.Items[i], -1, false) = 0) then
-        begin
-          cbDefaultStrongBible.ItemIndex := i;
-          break;
-        end;
-      end;
-    end;
-
-  finally
-    allBibles.Free;
-    strongBibles.Free;
-  end;
-
-  moduleCount := favorites.mModuleEntries.Count - 1;
-  lbFavourites.Clear;
-  lbFavourites.Items.BeginUpdate;
-  for i := 0 to moduleCount do
-  begin
-    lbFavourites.Items.Add(favorites.mModuleEntries[i].FullName);
-  end;
-  lbFavourites.Items.EndUpdate;
+  FillFavourites();
+  FillDefaultBibles();
 
   FPrimaryFont := TFont.Create();
   FPrimaryFont.Name := AppConfig.DefFontName;
@@ -424,6 +321,150 @@ begin
   clrHyperlinks.Selected := AppConfig.HotSpotColor;
   clrVerseHighlight.Selected := AppConfig.VerseHighlightColor;
   clrSearchText.Selected := AppConfig.SelTextColor;
+end;
+
+procedure TConfigForm.FillDefaultBibles();
+var
+  allBibles: TStringList;
+  strongBibles: TStringList;
+  moduleCount: Integer;
+  I: Integer;
+begin
+  cbDefaultBible.Clear;
+  cbDefaultBible.Items.Clear;
+  cbDefaultStrongBible.Items.Clear;
+
+  if not Assigned(FModules) then
+    Exit;
+
+  moduleCount := FModules.Count - 1;
+
+  allBibles := TStringList.Create;
+  strongBibles := TStringList.Create;
+  try
+    allBibles.Sorted := true;
+    strongBibles.Sorted := true;
+    allBibles.BeginUpdate;
+    strongBibles.BeginUpdate;
+    try
+      for I := 0 to moduleCount do
+      begin
+        if (FModules[I].modType = modtypeBible) then
+        begin
+          allBibles.Add(FModules[I].FullName);
+          if (FModules[I].HasStrong) then
+            strongBibles.Add(FModules[I].FullName);
+        end;
+      end;
+    finally
+      allBibles.EndUpdate;
+      strongBibles.EndUpdate;
+    end;
+    cbDefaultBible.Items.BeginUpdate;
+    try
+      cbDefaultBible.Items.Add('');
+      for I := 0 to allBibles.Count - 1 do
+      begin
+        cbDefaultBible.Items.Add(allBibles[I]);
+      end;
+    finally
+      cbDefaultBible.Items.EndUpdate;
+    end;
+    if (AppConfig.DefaultBible = '') then
+    begin
+      cbDefaultBible.ItemIndex := 0;
+    end
+    else
+    begin
+      for I := 0 to cbDefaultBible.Items.Count - 1 do
+      begin
+        if (OmegaCompareTxt(AppConfig.DefaultBible, cbDefaultBible.Items[I], -1, false) = 0) then
+        begin
+          cbDefaultBible.ItemIndex := I;
+          break;
+        end;
+      end;
+    end;
+    cbDefaultStrongBible.Items.BeginUpdate;
+    try
+      cbDefaultStrongBible.Items.Add('');
+      for I := 0 to strongBibles.Count - 1 do
+      begin
+        cbDefaultStrongBible.Items.Add(strongBibles[I]);
+      end;
+    finally
+      cbDefaultStrongBible.Items.EndUpdate;
+    end;
+    if (AppConfig.DefaultStrongBible = '') then
+    begin
+      cbDefaultStrongBible.ItemIndex := 0;
+    end
+    else
+    begin
+      for I := 0 to cbDefaultStrongBible.Items.Count - 1 do
+      begin
+        if (OmegaCompareTxt(AppConfig.DefaultStrongBible, cbDefaultStrongBible.Items[I], -1, false) = 0) then
+        begin
+          cbDefaultStrongBible.ItemIndex := I;
+          break;
+        end;
+      end;
+    end;
+  finally
+    allBibles.Free;
+    strongBibles.Free;
+  end;
+end;
+
+procedure TConfigForm.FillFavourites();
+var
+  I: Integer;
+  allModules: TStringList;
+begin
+  cbAvailableModules.Clear;
+  lbFavourites.Clear;
+  cbAvailableModules.Items.Clear;
+
+  if not Assigned(FFavorites) then
+    Exit;
+
+  if not Assigned(FModules) then
+    Exit;
+
+  allModules := TStringList.Create;
+  try
+    allModules.Sorted := true;
+    allModules.BeginUpdate;
+    try
+      for I := 0 to FModules.Count - 1 do
+      begin
+        allModules.Add(FModules[I].FullName);
+      end;
+    finally
+      allModules.EndUpdate;
+    end;
+    cbAvailableModules.Items.BeginUpdate;
+    try
+      for I := 0 to allModules.Count - 1 do
+      begin
+        cbAvailableModules.Items.Add(allModules[I]);
+      end;
+    finally
+      cbAvailableModules.Items.EndUpdate;
+    end;
+  finally
+    allModules.Free;
+  end;
+
+  if cbAvailableModules.Items.Count > 0 then
+    cbAvailableModules.ItemIndex := 0;
+
+  lbFavourites.Items.BeginUpdate;
+  for i := 0 to FFavorites.mModuleEntries.Count - 1 do
+  begin
+    lbFavourites.Items.Add(FFavorites.mModuleEntries[i].FullName);
+  end;
+  lbFavourites.Items.EndUpdate;
 end;
 
 procedure TConfigForm.FillLanguages();

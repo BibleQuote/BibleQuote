@@ -290,6 +290,7 @@ CopyOptionsAddReference_FullAtEnd = Повний підпис в кінці ур
 ConfigForm.Caption = Налаштування
 ConfigForm.btnCancel.Caption = Відміна
 ConfigForm.btnDeletePath.Caption = x
+ConfigForm.btnRestoreDefaults.Caption = Сбросить (t)
 ConfigForm.btnOK.Caption = OK
 ConfigForm.btnSelectPath.Caption = ...
 ConfigForm.chkAddLineBreaks.Caption = Додавати перенесення рядка після кожного вірша

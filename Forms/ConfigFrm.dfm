@@ -27,7 +27,7 @@ object ConfigForm: TConfigForm
     Top = 0
     Width = 466
     Height = 396
-    ActivePage = tsInterface
+    ActivePage = tsFavouriteEx
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
@@ -635,6 +635,17 @@ object ConfigForm: TConfigForm
     ModalResult = 2
     TabOrder = 2
     OnClick = btnCancelClick
+  end
+  object btnRestoreDefaults: TButton
+    Left = 8
+    Top = 402
+    Width = 105
+    Height = 25
+    Anchors = [akTop, akBottom]
+    Caption = 'btnRestoreDefaults'
+    Default = True
+    TabOrder = 3
+    OnClick = btnRestoreDefaultsClick
   end
   object FontDialog: TFontDialog
     Font.Charset = DEFAULT_CHARSET
