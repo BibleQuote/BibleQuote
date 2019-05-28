@@ -1,4 +1,4 @@
-unit AppIni;
+﻿unit AppIni;
 
 interface
 
@@ -14,6 +14,9 @@ const
   C_SectionDefaults = 'Defaults';
 
   C_ConfigIniFile = 'bibleqt.ini';
+
+  C_DefaultLanguage = 'Русский';
+  C_DefaultLanguageFile = 'Русский.lng';
 
 type
   TAppConfig = class
@@ -54,7 +57,6 @@ type
     HotSpotColor: TColor;
     BackgroundColor: TColor;
     SelTextColor: TColor;
-    //HyperlinksColor: TColor;
     VerseHighlightColor: TColor;
 
     LastCommand: string;
@@ -71,13 +73,14 @@ type
     FullContextLinks: boolean;
     HighlightVerseHits: boolean;
 
+    procedure RestoreDefaults();
     procedure Save();
     procedure Load();
-    function Copy(): TAppConfig;
   end;
 
 var
   AppConfig: TAppConfig;
+  DefaultAppConfig: TAppConfig;
 
 implementation
 
@@ -123,7 +126,6 @@ begin
     ini.WriteString(C_SectionUI, 'HotSpotColor', Color2Hex(HotSpotColor));
     ini.WriteString(C_SectionUI, 'BackgroundColor', Color2Hex(BackgroundColor));
     ini.WriteString(C_SectionUI, 'SelTextColor', Color2Hex(SelTextColor));
-    //ini.WriteString(C_SectionUI, 'HyperlinksColor', Color2Hex(HyperlinksColor));
     ini.WriteString(C_SectionUI, 'VerseHighlightColor', Color2Hex(VerseHighlightColor));
 
     ini.WriteString(C_SectionDefaults, 'LastCommand', LastCommand);
@@ -146,6 +148,60 @@ begin
   end;
 end;
 
+procedure TAppConfig.RestoreDefaults;
+begin
+  LocalizationFile := C_DefaultLanguageFile;
+
+  MainFormFontName := 'Microsoft Sans Serif';
+  MainFormFontSize := 9;
+
+  MainFormWidth := 0;
+  MainFormHeight := 0;
+  MainFormTop := 0;
+  MainFormLeft := 0;
+
+  MainFormMaximized := false;
+  MinimizeToTray := false;
+
+  LibFormWidth := 400;
+  LibFormHeight := 600;
+  LibFormTop := 100;
+  LibFormLeft := 100;
+
+  AddVerseNumbers := true;
+  AddFontParams := false;
+  AddReference := true;
+  AddReferenceChoice := 1;
+  AddLineBreaks := true;
+  AddModuleName := false;
+
+  DefFontName := 'Microsoft Sans Serif';
+  DefFontSize := 12;
+  DefFontColor := clWindowText;
+
+  RefFontName := 'Microsoft Sans Serif';
+  RefFontSize := 12;
+  RefFontColor := clWindowText;
+
+  HotSpotColor := clHotLight;
+  BackgroundColor := clWhite;
+  SelTextColor := clRed;
+  VerseHighlightColor := clInfoBk;
+
+  LastCommand := '';
+  LastBibleCommand := '';
+
+  HotKeyChoice := 0;
+
+  SecondPath := '';
+  DefaultBible := '';
+  DefaultStrongBible := '';
+  SatelliteBible := '';
+  SaveDirectory := GetMyDocuments;
+  FullContextLinks := true;
+  HighlightVerseHits := true;
+end;
+
 procedure TAppConfig.Load;
 var
   ini: TMemIniFile;
@@ -154,66 +210,60 @@ begin
   path := GetAppConfigPath();
   ini := TMemIniFile.Create(path, TEncoding.Unicode);
   try
-    MainFormFontName := ini.ReadString(C_SectionMainForm, 'FontName', 'Microsoft Sans Serif');
-    MainFormFontSize := ini.ReadInteger(C_SectionMainForm, 'FontSize', 9);
+    MainFormFontName := ini.ReadString(C_SectionMainForm, 'FontName', DefaultAppConfig.MainFormFontName);
+    MainFormFontSize := ini.ReadInteger(C_SectionMainForm, 'FontSize', DefaultAppConfig.MainFormFontSize);
 
-    MainFormWidth := ini.ReadInteger(C_SectionMainForm, 'Width', 0);
-    MainFormHeight := ini.ReadInteger(C_SectionMainForm, 'Height', 0);
-    MainFormTop := ini.ReadInteger(C_SectionMainForm, 'Top', 0);
-    MainFormLeft := ini.ReadInteger(C_SectionMainForm, 'Left', 0);
+    MainFormWidth := ini.ReadInteger(C_SectionMainForm, 'Width', DefaultAppConfig.MainFormWidth);
+    MainFormHeight := ini.ReadInteger(C_SectionMainForm, 'Height', DefaultAppConfig.MainFormHeight);
+    MainFormTop := ini.ReadInteger(C_SectionMainForm, 'Top', DefaultAppConfig.MainFormTop);
+    MainFormLeft := ini.ReadInteger(C_SectionMainForm, 'Left', DefaultAppConfig.MainFormLeft);
 
-    MainFormMaximized := ini.ReadBool(C_SectionMainForm, 'Maximized', false);
-    MinimizeToTray := ini.ReadBool(C_SectionMainForm, 'MinimizeToTray', false);
+    MainFormMaximized := ini.ReadBool(C_SectionMainForm, 'Maximized', DefaultAppConfig.MainFormMaximized);
+    MinimizeToTray := ini.ReadBool(C_SectionMainForm, 'MinimizeToTray', DefaultAppConfig.MinimizeToTray);
 
-    LibFormWidth := ini.ReadInteger(C_SectionLibForm, 'Width', 400);
-    LibFormHeight := ini.ReadInteger(C_SectionLibForm, 'Height', 600);
-    LibFormTop := ini.ReadInteger(C_SectionLibForm, 'Top', 100);
-    LibFormLeft := ini.ReadInteger(C_SectionLibForm, 'Left', 100);
+    LibFormWidth := ini.ReadInteger(C_SectionLibForm, 'Width', DefaultAppConfig.LibFormWidth);
+    LibFormHeight := ini.ReadInteger(C_SectionLibForm, 'Height', DefaultAppConfig.LibFormHeight);
+    LibFormTop := ini.ReadInteger(C_SectionLibForm, 'Top', DefaultAppConfig.LibFormTop);
+    LibFormLeft := ini.ReadInteger(C_SectionLibForm, 'Left', DefaultAppConfig.LibFormLeft);
 
-    AddVerseNumbers := ini.ReadBool(C_SectionCopyOptions, 'AddVerseNumbers', true);
-    AddFontParams := ini.ReadBool(C_SectionCopyOptions, 'AddFontParams', false);
-    AddReference := ini.ReadBool(C_SectionCopyOptions, 'AddReference', true);
-    AddReferenceChoice := ini.ReadInteger(C_SectionCopyOptions, 'AddReferenceChoice', 1);
-    AddLineBreaks := ini.ReadBool(C_SectionCopyOptions, 'AddLineBreaks', true);
-    AddModuleName := ini.ReadBool(C_SectionCopyOptions, 'AddModuleName', false);
+    AddVerseNumbers := ini.ReadBool(C_SectionCopyOptions, 'AddVerseNumbers', DefaultAppConfig.AddVerseNumbers);
+    AddFontParams := ini.ReadBool(C_SectionCopyOptions, 'AddFontParams', DefaultAppConfig.AddFontParams);
+    AddReference := ini.ReadBool(C_SectionCopyOptions, 'AddReference', DefaultAppConfig.AddReference);
+    AddReferenceChoice := ini.ReadInteger(C_SectionCopyOptions, 'AddReferenceChoice', DefaultAppConfig.AddReferenceChoice);
+    AddLineBreaks := ini.ReadBool(C_SectionCopyOptions, 'AddLineBreaks', DefaultAppConfig.AddLineBreaks);
+    AddModuleName := ini.ReadBool(C_SectionCopyOptions, 'AddModuleName', DefaultAppConfig.AddModuleName);
 
-    DefFontName := ini.ReadString(C_SectionUI, 'DefFontName', 'Microsoft Sans Serif');
-    DefFontSize := ini.ReadInteger(C_SectionUI, 'DefFontSize', 12);
-    DefFontColor := Hex2Color(ini.ReadString(C_SectionUI, 'DefFontColor', Color2Hex(clWindowText)));
+    DefFontName := ini.ReadString(C_SectionUI, 'DefFontName', DefaultAppConfig.DefFontName);
+    DefFontSize := ini.ReadInteger(C_SectionUI, 'DefFontSize', DefaultAppConfig.DefFontSize);
+    DefFontColor := Hex2Color(ini.ReadString(C_SectionUI, 'DefFontColor', Color2Hex(DefaultAppConfig.DefFontColor)));
 
-    RefFontName := ini.ReadString(C_SectionUI, 'RefFontName', 'Microsoft Sans Serif');
-    RefFontSize := ini.ReadInteger(C_SectionUI, 'RefFontSize', 12);
-    RefFontColor := Hex2Color(ini.ReadString(C_SectionUI, 'RefFontColor', Color2Hex(clWindowText)));
+    RefFontName := ini.ReadString(C_SectionUI, 'RefFontName', DefaultAppConfig.RefFontName);
+    RefFontSize := ini.ReadInteger(C_SectionUI, 'RefFontSize', DefaultAppConfig.RefFontSize);
+    RefFontColor := Hex2Color(ini.ReadString(C_SectionUI, 'RefFontColor', Color2Hex(DefaultAppConfig.RefFontColor)));
 
-    HotSpotColor := Hex2Color(ini.ReadString(C_SectionUI, 'HotSpotColor', Color2Hex(clHotLight)));
-    BackgroundColor := Hex2Color(ini.ReadString(C_SectionUI, 'BackgroundColor', Color2Hex(clWindow)));
-    SelTextColor := Hex2Color(ini.ReadString(C_SectionUI, 'SelTextColor', Color2Hex(clRed)));
-    //HyperlinksColor := Hex2Color(ini.ReadString(C_SectionUI, 'HyperlinksColor', Color2Hex(clWindowText)));
-    VerseHighlightColor := Hex2Color(ini.ReadString(C_SectionUI, 'VerseHighlightColor', Color2Hex(clInfoBk)));
+    HotSpotColor := Hex2Color(ini.ReadString(C_SectionUI, 'HotSpotColor', Color2Hex(DefaultAppConfig.HotSpotColor)));
+    BackgroundColor := Hex2Color(ini.ReadString(C_SectionUI, 'BackgroundColor', Color2Hex(DefaultAppConfig.BackgroundColor)));
+    SelTextColor := Hex2Color(ini.ReadString(C_SectionUI, 'SelTextColor', Color2Hex(DefaultAppConfig.SelTextColor)));
+    VerseHighlightColor := Hex2Color(ini.ReadString(C_SectionUI, 'VerseHighlightColor', Color2Hex(DefaultAppConfig.VerseHighlightColor)));
 
-    LastCommand := ini.ReadString(C_SectionDefaults, 'LastCommand', '');
-    LastBibleCommand := ini.ReadString(C_SectionDefaults, 'LastBibleCommand', '');
-    LocalizationFile := ini.ReadString(C_SectionDefaults, 'LocalizationFile', '');
+    LastCommand := ini.ReadString(C_SectionDefaults, 'LastCommand', DefaultAppConfig.LastCommand);
+    LastBibleCommand := ini.ReadString(C_SectionDefaults, 'LastBibleCommand', DefaultAppConfig.LastBibleCommand);
+    LocalizationFile := ini.ReadString(C_SectionDefaults, 'LocalizationFile', DefaultAppConfig.LocalizationFile);
 
-    HotKeyChoice := ini.ReadInteger(C_SectionDefaults, 'HotKeyChoice', 0);
+    HotKeyChoice := ini.ReadInteger(C_SectionDefaults, 'HotKeyChoice', DefaultAppConfig.HotKeyChoice);
 
-    SecondPath := ini.ReadString(C_SectionDefaults, 'SecondPath', '');
-    DefaultBible := ini.ReadString(C_SectionDefaults, 'DefaultBible', '');
-    DefaultStrongBible := ini.ReadString(C_SectionDefaults, 'DefaultStrongBible', '');
-    SatelliteBible := ini.ReadString(C_SectionDefaults, 'SatelliteBible', '');
-    SaveDirectory := ini.ReadString(C_SectionDefaults, 'SaveDirectory', GetMyDocuments);
-    FullContextLinks := ini.ReadBool(C_SectionDefaults, 'FullContextLinks', true);
-    HighlightVerseHits := ini.ReadBool(C_SectionDefaults, 'HighlightVerseHits', true);
+    SecondPath := ini.ReadString(C_SectionDefaults, 'SecondPath', DefaultAppConfig.SecondPath);
+    DefaultBible := ini.ReadString(C_SectionDefaults, 'DefaultBible', DefaultAppConfig.DefaultBible);
+    DefaultStrongBible := ini.ReadString(C_SectionDefaults, 'DefaultStrongBible', DefaultAppConfig.DefaultStrongBible);
+    SatelliteBible := ini.ReadString(C_SectionDefaults, 'SatelliteBible', DefaultAppConfig.SatelliteBible);
+    SaveDirectory := ini.ReadString(C_SectionDefaults, 'SaveDirectory', DefaultAppConfig.SaveDirectory);
+    FullContextLinks := ini.ReadBool(C_SectionDefaults, 'FullContextLinks', DefaultAppConfig.FullContextLinks);
+    HighlightVerseHits := ini.ReadBool(C_SectionDefaults, 'HighlightVerseHits', DefaultAppConfig.HighlightVerseHits);
   finally
     ini.Free;
   end;
 end;
 
-function TAppConfig.Copy(): TAppConfig;
-begin
-
-end;
-    
 function TAppConfig.GetAppConfigPath(): string;
 var
   fileName: string;
@@ -221,6 +271,20 @@ begin
   fileName := TPath.GetFileName(Application.ExeName);
   fileName := ChangeFileExt(fileName, '.ini');
   Result := TPath.Combine(TAppDirectories.UserSettings, fileName);
+end;
+
+initialization
+begin
+  AppConfig := TAppConfig.Create;
+
+  DefaultAppConfig := TAppConfig.Create;
+  DefaultAppConfig.RestoreDefaults;
+end;
+
+finalization
+begin
+  FreeAndNil(AppConfig);
+  FreeAndNil(DefaultAppConfig);
 end;
 
 end.

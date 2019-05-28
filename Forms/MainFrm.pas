@@ -52,9 +52,6 @@ const
 
   DefaultSelTextColor = '#FF0000';
 
-  DefaultLanguage = 'Русский';
-  DefaultLanguageFile = 'Русский.lng';
-
 type
   TControlProc = reference to procedure (const AControl: TControl);
   TBookNodeType = (btChapter, btBook);
@@ -510,7 +507,7 @@ begin
         BqShowException(E, '', true);
       end;
     end;
-    AppConfig := TAppConfig.Create;
+
     try
       AppConfig.Load;
     except
@@ -1616,12 +1613,12 @@ begin
           langFiles.Add(F.Name);
 
           // check if file is default localization file
-          if (langFile = DefaultLanguageFile) then
+          if (langFile = C_DefaultLanguageFile) then
           begin
             // try to apply it
             loaded := LoadLocalizationFile(langFile);
             if (loaded) then
-              AppConfig.LocalizationFile := DefaultLanguageFile;
+              AppConfig.LocalizationFile := C_DefaultLanguageFile;
 
             break;
           end;
@@ -3715,12 +3712,6 @@ begin
   if Assigned(ConfigForm) then
   begin
     Lang.TranslateControl(ConfigForm);
-    ConfigForm.chkCopyVerseNumbers.Checked := AppConfig.AddVerseNumbers;
-    ConfigForm.chkCopyFontParams.Checked := AppConfig.AddFontParams;
-    ConfigForm.chkAddReference.Checked := AppConfig.AddReference;
-    ConfigForm.rgAddReference.ItemIndex := AppConfig.AddReferenceChoice;
-    ConfigForm.chkAddLineBreaks.Checked := AppConfig.AddLineBreaks;
-    ConfigForm.chkAddModuleName.Checked := AppConfig.AddModuleName;
 
     ConfigForm.rgAddReference.Items[0] := Lang.Say('CopyOptionsAddReference_ShortAtBeginning');
     ConfigForm.rgAddReference.Items[1] := Lang.Say('CopyOptionsAddReference_ShortAtEnd');
@@ -4635,7 +4626,7 @@ begin
   reload := false;
   ForceForegroundLoad();
 
-  ConfigForm.LoadConfiguration(mModules, mFavorites);
+  ConfigForm.SetModules(mModules, mFavorites);
 
   if ConfigForm.ShowModal = mrCancel then
     Exit;
