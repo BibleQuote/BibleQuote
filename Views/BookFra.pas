@@ -199,6 +199,13 @@ type
     procedure AddThemedBookmarkClick(Sender: TObject);
     procedure NotifyFontChanged(delta: integer);
     procedure FixBookNumberForLink(var aBibleLnk: TBibleLink; aBible: TBible);
+    procedure DisplayCopyrightNotice(bookTabInfo: TBookTabInfo);
+    procedure DisplayTitle(bookTabInfo: TBookTabInfo; title: string; fontName: string);
+    function GetBookHead(bible: TBible; book: Integer; chapter: Integer; fromverse: Integer; toverse: Integer): String;
+    function GetBibleFont(Bible: TBible): String;
+    function GetChapterText(bookTabInfo: TBookTabInfo; highlightRange: TPoint; locVerseStart: Integer; locVerseEnd: Integer; chapter: Integer): String;
+    function GetParagraphTag(bible: TBible): String;
+    function IsParabibleUsed(bookTabInfo: TBookTabInfo): Boolean;
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace); reintroduce;
@@ -1675,8 +1682,20 @@ begin
 end;
 
 procedure TBookFrame.tbtnReferenceInfoClick(Sender: TObject);
+var
+  CopyrightPath: String;
 begin
-  mMainView.ShowReferenceInfo();
+  CopyrightPath := TPath.Combine(BookTabInfo.Bible.ShortPath, 'copyright.htm');
+  CopyrightPath := ResolveFullPath(CopyrightPath);
+
+  if (CopyrightPath <> '') then
+  begin
+    try
+      ProcessCommand(BookTabInfo, 'go ' + ExtractFileDir(CopyrightPath) + ' -1', hlDefault);
+    Except
+      // do nothing
+    end;
+  end;
 end;
 
 procedure TBookFrame.ToggleStrongNumbers();
@@ -2450,28 +2469,43 @@ end;
 
 function TBookFrame.GoAddress(bookTabInfo: TBookTabInfo; var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
 var
-  paragraph, hlParaStart, hlParaEnd, hlstyle, Title, head, Text, s, strVerseNumber, ss: string;
+  Title, head, Text, Signature: string;
   verse: integer;
-  locVerseStart, locVerseEnd, bverse, everse: integer;
-  i, ipos, B, C, V, ib, ic, iv, chapterCount: integer;
-  UseParaBible, opened, multiHl, isCommentary, showStrongs: Boolean;
-  dBrowserSource, wsMemoTxt: string;
+  locVerseStart, locVerseEnd: integer;
+  i: integer;
+  opened, multiHl: Boolean;
+  dBrowserSource: string;
   fontName, uiFontName: string;
-  fistBookCell, SecondbookCell: string;
-  mainbook_right_aligned, secondbook_right_aligned, hlCurrent: Boolean;
-  hlVerseStyle: integer;
-  highlight_verse: TPoint;
-  modEntry: TModuleEntry;
-  bible, secondBible: TBible;
+  HighlightRange: TPoint;
+  bible: TBible;
 begin
   bible := bookTabInfo.Bible;
-  secondBible := bookTabInfo.SecondBible;
+
   // check and correction of the book number
-  highlight_verse := Point(fromverse, toverse);
-  UseParaBible := false;
+  HighlightRange := Point(fromverse, toverse);
   Result := nrSuccess;
   locVerseStart := fromverse;
   locVerseEnd := toverse;
+
+  // open copyright if the book number is negative
+  if (book < 0) then
+  begin
+    if (bible.OpenCopyright()) then
+    begin
+      book := -1;
+      chapter := 1;
+      fromverse := 0;
+      toverse := 0; // reset verse on chapter err
+
+      bwrHtml.Base := bible.path;
+      bwrHtml.LoadFromString(bible.GetAllVerses());
+
+      DisplayTitle(bookTabInfo, bible.ShortName, GetBibleFont(bible));
+      DisplayCopyrightNotice(bookTabInfo);
+
+      Exit;
+    end;
+  end;
 
   // check and correction of the book
   if not bible.IsValidBookNumber(book) then
@@ -2489,7 +2523,7 @@ begin
 
   if Result <> nrSuccess then
   begin
-    highlight_verse := Point(0, 0);
+    HighlightRange := Point(0, 0);
     fromverse := 0;
     toverse := 0; // reset verse on chapter err
     locVerseStart := 1;
@@ -2510,7 +2544,8 @@ begin
     begin
       if Result = nrSuccess then
         Result := nrChapterErr;
-      highlight_verse := Point(0, 0);
+
+      HighlightRange := Point(0, 0);
       bible.OpenChapter(1, 1);
       book := 1;
       chapter := 1;
@@ -2521,57 +2556,12 @@ begin
     end;
   end;
 
-  chapterCount := bible.ChapterCountForBook(bible.CurBook, false);
-  mainbook_right_aligned := bible.UseRightAlignment;
-
-  // search for a secondary Bible if the first module is bible
-  if bible.isBible then
-  begin
-    isCommentary := bible.InfoSource.IsCommentary;
-    showStrongs := bookTabInfo[vtisShowStrongs];
-    s := bookTabInfo.SatelliteName;
-    if (s = '------') or isCommentary then
-      UseParaBible := false
-    else
-    begin
-      // search in the list of modules
-      try
-        modEntry := mMainView.mModules.ResolveModuleByNames(s, '');
-      except
-        on E: Exception do
-        begin
-          BqShowException(E, Format('GoAddress err: mod=%s | book=%d | chapter=%d', [bible.Name, book, chapter]));
-        end;
-      end;
-      if Assigned(modEntry) then
-      { // now UseParaBible will be used if satellite text is found... }
-      begin
-
-        secondBible.SetInfoSource( modEntry.GetInfoPath());
-
-        secondbook_right_aligned := secondBible.UseRightAlignment;
-        UseParaBible := secondBible.ModuleType = bqmBible;
-
-        // if the primary module displays an NT, and the second one does not contain an NT
-        if (((bible.CurBook < 40) and (bible.Trait[bqmtOldCovenant])) and (not secondBible.Trait[bqmtOldCovenant])) or
-        // or if in the primary OT module and the second one does not contain OT
-          (((bible.CurBook > 39) or (bible.Trait[bqmtNewCovenant] and
-          (not bible.Trait[bqmtOldCovenant]))) and
-          (not SecondBible.Trait[bqmtNewCovenant])) then
-          UseParaBible := false; // cancel display
-      end; // if UseParaBible is found in the list of modules
-    end; // if a secondary Bible is selected
-  end // if the module is bible
-
-  else
-    isCommentary := false;
-
   // check and correct start verse
   if fromverse > bible.VerseQty then
   begin
     fromverse := 0;
     locVerseStart := 1;
-    highlight_verse.X := 0;
+    HighlightRange.X := 0;
     if Result = nrSuccess then
       Result := nrStartVerseErr;
   end;
@@ -2581,265 +2571,39 @@ begin
   begin
     if (toverse < fromverse) and (toverse <= bible.VerseQty) then
     begin
-      toverse := highlight_verse.Y;
-      highlight_verse.Y := highlight_verse.X;
-      highlight_verse.X := toverse;
+      toverse := HighlightRange.Y;
+      HighlightRange.Y := HighlightRange.X;
+      HighlightRange.X := toverse;
     end
     else
-      highlight_verse.Y := highlight_verse.X;
+      HighlightRange.Y := HighlightRange.X;
     toverse := 0;
     locVerseEnd := 0;
     if Result = nrSuccess then
       Result := nrEndVerseErr;
   end;
 
-  if (highlight_verse.X <= 0) and (highlight_verse.Y > 0) then
-    highlight_verse.X := highlight_verse.Y;
+  if (HighlightRange.X <= 0) and (HighlightRange.Y > 0) then
+    HighlightRange.X := HighlightRange.Y;
 
   if hlVerses = hlFalse then
-    highlight_verse := Point(-1, -1);
-
-  if bible.Trait[bqmtNoForcedLineBreaks] then
-    paragraph := ''
-  else
   begin
-    if (bible.isBible) then
-      paragraph := ' <BR>'
-    else
-      paragraph := '<P>';
+    HighlightRange.X := -1;
+    HighlightRange.Y := -1;
   end;
 
-  if toverse = 0 then
-  begin // display the entire chapter
-    // if only one chapter in the book
-    if bible.GetChapterQtys(book) = 1 then
-      head := bible.GetFullNames(book)
-    else
-      head := bible.FullPassageSignature(book, chapter, 1, 0);
-  end
-  else
-    head := bible.FullPassageSignature(book, chapter, fromverse, toverse);
+  head := GetBookHead(bible, book, chapter, fromverse, toverse);
 
   Title := '<head>'#13#10'<title>' + head + '</title>'#13#10 + bqPageStyle + #13#10'</head>';
+
   if Length(bible.DesiredUIFont) > 0 then
     uiFontName := bible.DesiredUIFont
   else
     uiFontName := AppConfig.DefFontName;
+
   head := '<font face="' + uiFontName + '">' + head + '</font>';
 
-  Text := '';
-  if locVerseStart = 0 then
-  begin
-    locVerseStart := 1;
-  end;
-
-  bverse := 1;
-  if (locVerseStart > 0) and (not AppConfig.FullContextLinks) then
-    bverse := locVerseStart;
-
-  if (locVerseEnd = 0) or (AppConfig.FullContextLinks) then
-    everse := bible.VerseQty
-  else
-    everse := locVerseEnd;
-
-  mMainView.CurFromVerse := bverse;
-  mMainView.CurToVerse := everse;
-
-  opened := false;
-
-  if UseParaBible then
-  begin
-    if bible.Trait[bqmtZeroChapter] and (chapter = 1) then
-      // in chapter zero in primary view
-      UseParaBible := false;
-  end;
-
-  if UseParaBible then
-  begin
-    if ((Length(SecondBible.fontName) > 0)) or (SecondBible.desiredCharset > 2)
-    then
-      fontName := mMainView.FontManager.SuggestFont(self.Handle, SecondBible.fontName, SecondBible.path, SecondBible.desiredCharset)
-    else
-      fontName := AppConfig.DefFontName;
-    bwrHtml.DefFontName := fontName;
-  end;
-
-  Text := bible.ChapterHead;
-
-  for verse := bverse to everse do
-  begin
-    s := bible.Verses[verse - 1];
-    if (highlight_verse.X > 0) and (highlight_verse.Y > 0) and (AppConfig.HighlightVerseHits) then
-    begin
-      hlCurrent := (verse <= highlight_verse.Y) and (verse >= highlight_verse.X);
-      hlVerseStyle := ord(verse = highlight_verse.X) + (ord(verse = highlight_verse.Y) shl 1);
-    end
-    else
-    begin
-      hlCurrent := false;
-      hlVerseStyle := 0;
-    end;
-    if hlCurrent then
-    begin
-      hlstyle := 'background-color:' + Color2Hex(AppConfig.VerseHighlightColor) + ';';
-      if bible.Trait[bqmtNoForcedLineBreaks] then
-      begin
-        hlParaStart := '<span style="';
-        hlParaEnd := '</span>';
-      end
-      else
-      begin
-        hlParaStart := '<div style="';
-        hlParaEnd := '</div>';
-      end;
-      hlParaStart := hlParaStart + hlstyle + '">';
-
-    end
-    else
-    begin
-      hlParaStart := '';
-      hlParaEnd := '';
-      hlstyle := '';
-    end;
-
-    strVerseNumber := StrDeleteFirstNumber(s);
-
-    if (bible.isBible) and (not isCommentary) then
-    begin // if bible display verse numbers
-
-      if MainForm.miShowSignatures.Checked then
-        ss := bible.GetShortNames(bible.CurBook) + IntToStr(bible.CurChapter) + ':'
-      else
-        ss := '';
-
-      strVerseNumber := '<a href="verse ' + strVerseNumber
-        + '" CLASS=OmegaVerseNumber>' +
-        ss + strVerseNumber + '</a>';
-
-      if bible.Trait[bqmtNoForcedLineBreaks] then
-        strVerseNumber := '<sup>' + strVerseNumber + '</sup>';
-
-      if bible.Trait[bqmtStrongs] then
-      begin
-        if (not showStrongs) then
-          s := DeleteStrongNumbers(s)
-        else
-          s := FormatStrongNumbers(s, (bible.CurBook < 40) and (bible.Trait[bqmtOldCovenant]), true);
-      end;
-    end;
-    // if the module is non bible or there is no secondary Bible
-    if (not bible.isBible) or (not UseParaBible) then
-    begin // no satellite text
-      if mainbook_right_aligned then
-        Text := Text + Format
-          (#13#10'%s<F>%s</F><a name="bqverse%d">%s</a>%s',
-          [hlParaStart, s, verse, strVerseNumber, hlParaEnd])
-      else
-      begin
-        if (bible.isBible) and (not bible.Trait[bqmtNoForcedLineBreaks])
-        then
-          Text := Text + Format
-            (#13#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s',
-            [hlParaStart, verse, strVerseNumber, s, hlParaEnd])
-        else
-          Text := Text + Format
-            (#13#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s',
-            [hlParaStart, verse, strVerseNumber, s, hlParaEnd]);
-      end;
-      if (not hlCurrent) or ((hlVerseStyle and 2 > 0) and not bible.isBible)
-      then
-        Text := Text + paragraph;
-    end
-    else
-    begin
-      if UseParaBible then
-      begin // if text is found in the secondary Bible
-        try
-          with bible do
-            ReferenceToInternal(CurBook, CurChapter, verse, B, C, V);
-
-          SecondBible.InternalToReference(B, C, V, ib, ic, iv);
-
-          if (ib <> SecondBible.CurBook) or (ic <> SecondBible.CurChapter) or (not opened) then
-          begin
-            opened := SecondBible.OpenChapter(ib, ic);
-            UseParaBible := opened;
-          end;
-        except
-          UseParaBible := false;
-        end;
-
-        if iv <= 0 then
-          iv := 1;
-        if mainbook_right_aligned then
-          fistBookCell :=
-            '<table width=100% cellpadding=0 border=0 cellspacing=10em >' +
-            '<tr style="' + hlstyle + '"><td valign=top width=50% align=right>'
-            + Format(#13#10'<a name="bqverse%d">%s <F>%s</F> ',
-            [verse, strVerseNumber, s])
-        else
-          fistBookCell :=
-            '<table width=100% cellpadding=0 border=0 cellspacing=10em >' +
-            '<tr style="' + hlstyle + '"><td valign=top width=50% align=left>' +
-            Format(#13#10'<a name="bqverse%d">%s<F> %s</F></a>',
-            [verse, strVerseNumber, s]);
-
-        SecondbookCell := '';
-
-        if iv <= SecondBible.verseCount() then
-        begin
-          ss := SecondBible.Verses[iv - 1];
-          StrDeleteFirstNumber(ss);
-          if SecondBible.Trait[bqmtStrongs] then
-            if showStrongs then
-              ss := FormatStrongNumbers(ss, B < 40, true)
-            else
-              ss := DeleteStrongNumbers(ss);
-          if secondbook_right_aligned then
-            SecondbookCell :=
-              Format
-              ('</td><td valign=top width=50%% align=right><font size=1>%d:%d</font><font face="%s">%s</font>',
-              [ic, iv, fontName, ss]) + '</td></tr></table>' + #13#10
-          else
-            SecondbookCell :=
-              Format
-              ('</td><td valign=top width=50%%><font face="Arial" size=1>%d:%d </font><font face="%s">%s</font>',
-              [ic, iv, fontName, ss]) + '</td></tr></table>' + #13#10;
-        end;
-        if Length(SecondbookCell) <= 0 then
-          SecondbookCell :=
-            '</td><td valign=top width=50%> </td></tr></table>'#13#10;
-
-        Text := Text + fistBookCell + SecondbookCell;
-
-      end;
-    end;
-
-    // memos...
-    if mMainView.MemosOn then
-    begin // if notes are enabled
-      with bible do // search for 'Быт.1:1 RST $$$' in Memos.
-        i := FindString(
-          mMainView.Memos,
-          ShortPassageSignature(CurBook, CurChapter, verse, verse) + ' ' + ShortName + ' $$$');
-
-      if i > -1 then
-      begin // found memo
-        wsMemoTxt := '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>' + Comment(mMainView.Memos[i]) + '</font>' + paragraph;
-        if bookTabInfo[vtisResolveLinks] then
-          wsMemoTxt := ResolveLinks(wsMemoTxt, bookTabInfo[vtisFuzzyResolveLinks]);
-
-        Text := Text + wsMemoTxt;
-      end;
-    end; // if notes are enabled
-  end;
-  if not UseParaBible then
-  begin
-    if mainbook_right_aligned then
-      Text := '<div style="text-align:right">' + Text + '</div>'
-    else
-      Text := '<div style="text-align:justify">' + Text + '</div>'
-  end;
+  Text := GetChapterText(bookTabInfo, HighlightRange, locVerseStart, locVerseEnd, chapter);
 
   dBrowserSource := mMainView.TextTemplate;
   StrReplace(dBrowserSource, '%HEAD%', head, false);
@@ -2850,18 +2614,13 @@ begin
   else
     fontName := '';
 
-  // if a font is specified, but is not yet selected in browser properties or encoding is specified
-  if (Length(fontName) <= 0) and ((Length(bible.fontName) > 0) or (bible.desiredCharset > 2)) then
-    fontName := mMainView.FontManager.SuggestFont(self.Handle, bible.fontName, bible.path, bible.desiredCharset);
-
-  if Length(fontName) <= 0 then
-    fontName := AppConfig.DefFontName;
+  if (Length(fontName) <= 0) then
+    fontName := GetBibleFont(bible);
 
   bwrHtml.DefFontName := fontName;
   StrReplace(dBrowserSource, '<F>', '<font face="' + fontName + '">', true);
   StrReplace(dBrowserSource, '</F>', '</font>', true);
 
-  // fonts processing
   dBrowserSource := '<HTML>' + Title + dBrowserSource + '</HTML>';
   bwrHtml.Base := bible.path;
 
@@ -2881,12 +2640,12 @@ begin
   end;
 
   bwrHtml.Position := 0;
-  multiHl := (highlight_verse.X > 0) and (highlight_verse.Y > 0) and (highlight_verse.Y <> highlight_verse.X);
+  multiHl := (HighlightRange.X > 0) and (HighlightRange.Y > 0) and (HighlightRange.Y <> HighlightRange.X);
 
-  if highlight_verse.X > 0 then
-    verse := highlight_verse.X
-  else if highlight_verse.Y > 0 then
-    verse := highlight_verse.Y
+  if HighlightRange.X > 0 then
+    verse := HighlightRange.X
+  else if HighlightRange.Y > 0 then
+    verse := HighlightRange.Y
   else
     verse := 0;
 
@@ -2896,26 +2655,10 @@ begin
 
   mMainView.VersePosition := verse;
 
-  s := bible.ShortName + ' ' + bible.FullPassageSignature(book, chapter, fromverse, toverse);
+  Signature := bible.ShortName + ' ' + bible.FullPassageSignature(book, chapter, fromverse, toverse);
 
-  mMainView.lblTitle.Font.Name := fontName;
-  mMainView.lblTitle.Caption := s;
-  mMainView.lblTitle.Hint := s + '   ';
-
-  try
-    bookTabInfo.TitleLocation := s;
-    bookTabInfo.TitleFont := fontName;
-  except
-  end;
-  if bible.Copyright <> '' then
-  begin
-    s := '; © ' + bible.Copyright;
-  end
-  else
-    s := '; ' + Lang.Say('PublicDomainText');
-
-  if Assigned(bookTabInfo) then
-    bookTabInfo.CopyrightNotice := s;
+  DisplayTitle(bookTabInfo, Signature, fontName);
+  DisplayCopyrightNotice(bookTabInfo);
 end;
 
 procedure TBookFrame.GoRandomPlace;
@@ -3337,6 +3080,353 @@ begin
   end // both previous and current are bibles
   else
     SafeProcessCommand(bookTabInfo, 'go ' + bible.ShortPath + ' 1 1 0', hlFalse);
+end;
+
+function TBookFrame.IsParabibleUsed(bookTabInfo: TBookTabInfo): Boolean;
+var
+  modEntry: TModuleEntry;
+  Satellite: String;
+  IsCommentary: Boolean;
+  Bible, SecondBible: TBible;
+begin
+  Result := False;
+
+  Bible := bookTabInfo.Bible;
+  SecondBible := bookTabInfo.SecondBible;
+
+  // search for a secondary Bible if the first module is bible
+  if Bible.isBible then
+  begin
+    IsCommentary := Bible.InfoSource.IsCommentary;
+    Satellite := bookTabInfo.SatelliteName;
+    if (Satellite = '------') or IsCommentary then
+      Result := False
+    else
+    begin
+      modEntry := nil;
+      // search in the list of modules
+      try
+        modEntry := mMainView.mModules.ResolveModuleByNames(Satellite, '');
+      except
+        on E: Exception do
+        begin
+          BqShowException(E, Format('Failed to load satellite bible ''%s''', [Satellite]));
+        end;
+      end;
+
+      if Assigned(modEntry) then
+      { // now UseParaBible will be used if satellite text is found... }
+      begin
+        SecondBible.SetInfoSource(modEntry.GetInfoPath);
+        Result := SecondBible.ModuleType = bqmBible;
+        // if the primary module displays an NT, and the second one does not contain an NT
+        if (((Bible.CurBook < 40) and (Bible.Trait[bqmtOldCovenant])) and (not SecondBible.Trait[bqmtOldCovenant])) or // or if in the primary OT module and the second one does not contain OT
+        (((Bible.CurBook > 39) or (Bible.Trait[bqmtNewCovenant] and (not Bible.Trait[bqmtOldCovenant]))) and (not SecondBible.Trait[bqmtNewCovenant])) then
+          Result := False;
+      end;
+      // cancel display
+    end;
+    // if UseParaBible is found in the list of modules
+  end;
+end;
+
+
+function TBookFrame.GetParagraphTag(bible: TBible): String;
+begin
+  if bible.Trait[bqmtNoForcedLineBreaks] then
+    Result := ''
+  else
+  begin
+    if (bible.isBible) then
+      Result := ' <BR>'
+    else
+      Result := '<P>';
+  end;
+end;
+
+function TBookFrame.GetChapterText(bookTabInfo: TBookTabInfo; highlightRange: TPoint; locVerseStart: Integer; locVerseEnd: Integer; chapter: Integer): String;
+var
+  Bible, SecondBible: TBible;
+  bverse, everse: Integer;
+  hlCurrent: Boolean;
+  hlVerseStyle: Integer;
+  hlstyle, hlParaStart, hlParaEnd: string;
+  strVerseNumber: string;
+  s, ss: string;
+  B, C, V, ib, ic, iv: Integer;
+  fistBookCell, SecondbookCell: string;
+  MemoText: string;
+  Verse, I: Integer;
+  fontName: String;
+  UseParaBible: Boolean;
+  rightAligned, secondRightAligned: Boolean;
+  isCommentary, showStrongs: Boolean;
+  opened: Boolean;
+  paragraph: string;
+begin
+  Bible := bookTabInfo.Bible;
+  SecondBible := bookTabInfo.SecondBible;
+  rightAligned := bible.UseRightAlignment;
+
+  showStrongs  := bible.isBible and bookTabInfo[vtisShowStrongs];
+  isCommentary := bible.isBible and bible.InfoSource.IsCommentary;
+
+  UseParaBible := IsParabibleUsed(bookTabInfo);
+  paragraph := GetParagraphTag(bible);
+
+  secondRightAligned := False;
+  if (UseParaBible) then
+    secondRightAligned := secondBible.UseRightAlignment;
+
+  Text := '';
+  if locVerseStart = 0 then
+  begin
+    locVerseStart := 1;
+  end;
+
+  bverse := 1;
+  if (locVerseStart > 0) and (not AppConfig.FullContextLinks) then
+    bverse := locVerseStart;
+  if (locVerseEnd = 0) or (AppConfig.FullContextLinks) then
+    everse := bible.VerseQty
+  else
+    everse := locVerseEnd;
+
+  mMainView.CurFromVerse := bverse;
+  mMainView.CurToVerse := everse;
+
+  opened := false;
+
+  if UseParaBible then
+  begin
+    if bible.Trait[bqmtZeroChapter] and (chapter = 1) then
+      // in chapter zero in primary view
+      UseParaBible := false;
+  end;
+
+  if UseParaBible then
+  begin
+    fontName := GetBibleFont(secondBible);
+    bwrHtml.DefFontName := fontName;
+  end;
+
+  Text := bible.ChapterHead;
+  for Verse := bverse to everse do
+  begin
+    s := bible.Verses[Verse - 1];
+    if (highlightRange.X > 0) and (highlightRange.Y > 0) and (AppConfig.HighlightVerseHits) then
+    begin
+      hlCurrent := (Verse <= highlightRange.Y) and (Verse >= highlightRange.X);
+      hlVerseStyle := ord(Verse = highlightRange.X) + (ord(Verse = highlightRange.Y) shl 1);
+    end
+    else
+    begin
+      hlCurrent := false;
+      hlVerseStyle := 0;
+    end;
+    if hlCurrent then
+    begin
+      hlstyle := 'background-color:' + Color2Hex(AppConfig.VerseHighlightColor) + ';';
+      if bible.Trait[bqmtNoForcedLineBreaks] then
+      begin
+        hlParaStart := '<span style="';
+        hlParaEnd := '</span>';
+      end
+      else
+      begin
+        hlParaStart := '<div style="';
+        hlParaEnd := '</div>';
+      end;
+      hlParaStart := hlParaStart + hlstyle + '">';
+    end
+    else
+    begin
+      hlParaStart := '';
+      hlParaEnd := '';
+      hlstyle := '';
+    end;
+    strVerseNumber := StrDeleteFirstNumber(s);
+    if (bible.isBible) and (not isCommentary) then
+    begin
+      // if bible display verse numbers
+      if MainForm.miShowSignatures.Checked then
+        ss := bible.GetShortNames(bible.CurBook) + IntToStr(bible.CurChapter) + ':'
+      else
+        ss := '';
+      strVerseNumber := '<a href="verse ' + strVerseNumber + '" CLASS=OmegaVerseNumber>' + ss + strVerseNumber + '</a>';
+      if bible.Trait[bqmtNoForcedLineBreaks] then
+        strVerseNumber := '<sup>' + strVerseNumber + '</sup>';
+      if bible.Trait[bqmtStrongs] then
+      begin
+        if (not showStrongs) then
+          s := DeleteStrongNumbers(s)
+        else
+          s := FormatStrongNumbers(s, (bible.CurBook < 40) and (bible.Trait[bqmtOldCovenant]), true);
+      end;
+    end;
+    // if the module is non bible or there is no secondary Bible
+    if (not bible.isBible) or (not UseParaBible) then
+    begin
+      // no satellite text
+      if rightAligned then
+        Text := Text +
+          Format(''#13''#10'%s<F>%s</F><a name="bqverse%d">%s</a>%s', [hlParaStart, s, Verse, strVerseNumber, hlParaEnd])
+      else
+      begin
+        if (bible.isBible) and (not bible.Trait[bqmtNoForcedLineBreaks]) then
+          Text := Text +
+            Format(''#13''#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s', [hlParaStart, Verse, strVerseNumber, s, hlParaEnd])
+        else
+          Text := Text +
+            Format(''#13''#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s', [hlParaStart, Verse, strVerseNumber, s, hlParaEnd]);
+      end;
+
+      if (not hlCurrent) or ((hlVerseStyle and 2 > 0) and not bible.isBible) then
+        Text := Text + paragraph;
+
+    end
+    else
+    begin
+      if UseParaBible then
+      begin
+        // if text is found in the secondary Bible
+        try
+          with bible do
+            ReferenceToInternal(CurBook, CurChapter, Verse, B, C, V);
+
+          SecondBible.InternalToReference(B, C, V, ib, ic, iv);
+
+          if (ib <> SecondBible.CurBook) or (ic <> SecondBible.CurChapter) or (not opened) then
+          begin
+            opened := SecondBible.OpenChapter(ib, ic);
+            UseParaBible := opened;
+          end;
+
+        except
+          UseParaBible := false;
+        end;
+
+        if iv <= 0 then
+          iv := 1;
+
+        if rightAligned then
+          fistBookCell :=
+            '<table width=100% cellpadding=0 border=0 cellspacing=10em >' +
+            '<tr style="' + hlstyle + '"><td valign=top width=50% align=right>' +
+            Format(''#13''#10'<a name="bqverse%d">%s <F>%s</F> ', [Verse, strVerseNumber, s])
+        else
+          fistBookCell :=
+            '<table width=100% cellpadding=0 border=0 cellspacing=10em >' +
+            '<tr style="' + hlstyle + '"><td valign=top width=50% align=left>' +
+            Format(''#13''#10'<a name="bqverse%d">%s<F> %s</F></a>', [Verse, strVerseNumber, s]);
+
+        SecondbookCell := '';
+
+        if iv <= SecondBible.verseCount then
+        begin
+          ss := SecondBible.Verses[iv - 1];
+          StrDeleteFirstNumber(ss);
+          if SecondBible.Trait[bqmtStrongs] then
+            if showStrongs then
+              ss := FormatStrongNumbers(ss, B < 40, true)
+            else
+              ss := DeleteStrongNumbers(ss);
+          if secondRightAligned then
+            SecondbookCell := Format('</td><td valign=top width=50%% align=right><font size=1>%d:%d</font><font face="%s">%s</font>', [ic, iv, fontName, ss]) + '</td></tr></table>' + ''#13''#10''
+          else
+            SecondbookCell := Format('</td><td valign=top width=50%%><font face="Arial" size=1>%d:%d </font><font face="%s">%s</font>', [ic, iv, fontName, ss]) + '</td></tr></table>' + ''#13''#10'';
+        end;
+
+        if Length(SecondbookCell) <= 0 then
+          SecondbookCell := '</td><td valign=top width=50%> </td></tr></table>'#13''#10'';
+
+        Text := Text + fistBookCell + SecondbookCell;
+      end;
+    end;
+
+    // memos...
+    if mMainView.MemosOn then
+    begin
+      // if notes are enabled
+      with bible do
+        // search for 'Быт.1:1 RST $$$' in Memos.
+        I := FindString(mMainView.Memos, ShortPassageSignature(CurBook, CurChapter, Verse, Verse) + ' ' + ShortName + ' $$$');
+      if I > -1 then
+      begin
+        // found memo
+        MemoText := '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>' + Comment(mMainView.Memos[Verse]) + '</font>' + paragraph;
+
+        if bookTabInfo[vtisResolveLinks] then
+          MemoText := ResolveLinks(MemoText, bookTabInfo[vtisFuzzyResolveLinks]);
+
+        Text := Text + MemoText;
+      end;
+    end;
+  end;
+
+  if not UseParaBible then
+  begin
+    if rightAligned then
+      Text := '<div style="text-align:right">' + Text + '</div>'
+    else
+      Text := '<div style="text-align:justify">' + Text + '</div>';
+  end;
+
+  Result := Text;
+end;
+
+function TBookFrame.GetBibleFont(Bible: TBible): String;
+begin
+  if ((Length(Bible.fontName) > 0)) or (Bible.desiredCharset > 2) then
+    Result := mMainView.FontManager.SuggestFont(self.Handle, Bible.fontName, Bible.path, Bible.desiredCharset)
+  else
+    Result := AppConfig.DefFontName;
+end;
+
+function TBookFrame.GetBookHead(bible: TBible; book: Integer; chapter: Integer; fromverse: Integer; toverse: Integer): String;
+begin
+  if toverse = 0 then
+  begin
+    // return the entire chapter
+    // if only one chapter in the book
+    if bible.GetChapterQtys(book) = 1 then
+      Result := bible.GetFullNames(book)
+    else
+      Result := bible.FullPassageSignature(book, chapter, 1, 0);
+  end
+  else
+    Result := bible.FullPassageSignature(book, chapter, fromverse, toverse);
+end;
+
+procedure TBookFrame.DisplayTitle(bookTabInfo: TBookTabInfo; title: string; fontName: string);
+begin
+  mMainView.lblTitle.Font.Name := fontName;
+  mMainView.lblTitle.Caption := title;
+  mMainView.lblTitle.Hint := title + '   ';
+
+  if Assigned(bookTabInfo) then
+  begin
+    bookTabInfo.TitleLocation := title;
+    bookTabInfo.TitleFont := fontName;
+  end;
+
+end;
+
+procedure TBookFrame.DisplayCopyrightNotice(bookTabInfo: TBookTabInfo);
+var
+  Notice: String;
+  Book: TBible;
+begin
+  if not Assigned(bookTabInfo) then
+    Exit;
+
+  Book := bookTabInfo.Bible;
+  if Book.Copyright <> '' then
+    Notice := '; © ' + Book.Copyright
+  else
+    Notice := '; ' + Lang.Say('PublicDomainText');
+
+  bookTabInfo.CopyrightNotice := Notice;
 end;
 
 end.
