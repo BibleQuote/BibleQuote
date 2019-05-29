@@ -5,6 +5,7 @@ interface
 type
 
   TDictTypes = (
+    dtNone,
     dtNative,
     dtMyBible);
 
@@ -77,7 +78,9 @@ end;
 class function TSelectEntityType.IsNativeFileEntry(
   aFileEntryPath: String): Boolean;
 begin
-  Result := DirectoryExists(aFileEntryPath);
+  Result :=
+    DirectoryExists(aFileEntryPath) and
+    (Length(TDirectory.GetFiles(aFileEntryPath, '*.idx')) > 0);
 end;
 
 class function TSelectEntityType.IsNativeInfoSource(
@@ -114,7 +117,7 @@ begin
     exit;
   end;
 
-  raise Exception.Create('Missing type of file entry: '+aFileEntryPath);
+  Result := dtNone;
 
 end;
 

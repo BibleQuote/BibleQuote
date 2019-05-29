@@ -64,6 +64,10 @@ function LoadBibleqtIniFileEncoding(const aFileName: string; defaultEncoding: TE
 
 function GetTempDirectory(aCreateSubDir: Boolean = False): String;
 
+function IsDirectory(const DirName: string): Boolean;
+
+function IsFlagSet(const Flags, Mask: Integer): Boolean;
+
 implementation
 
 uses SevenZipVCL, sevenZipHelper, BibleQuoteUtils;
@@ -789,5 +793,20 @@ begin
     result := '';
   end;
 end;
+
+
+function IsDirectory(const DirName: string): Boolean;
+var
+  Attr: Integer;  // directory's file attributes
+begin
+  Attr := SysUtils.FileGetAttr(DirName);
+  Result := (Attr <> -1) and IsFlagSet(Attr, SysUtils.faDirectory);
+end;
+
+function IsFlagSet(const Flags, Mask: Integer): Boolean;
+begin
+  Result := Mask = (Flags and Mask);
+end;
+
 
 end.
