@@ -223,9 +223,15 @@ begin
 end;
 
 procedure TConfigForm.btnRestoreDefaultsClick(Sender: TObject);
+var
+  Msg: String;
 begin
-  AppConfig.RestoreDefaults();
-  InitConfiguration;
+  Msg := Lang.SayDefault('ResetSettingsTextPrompt', 'Вы уверены, что хотите сбросить настройки?');
+  if MessageDlg(Msg, TMsgDlgType.mtConfirmation, [mbYes, mbNo], 0, mbNo) =  mrYes then
+  begin
+    AppConfig.RestoreDefaults();
+    InitConfiguration;
+  end;
 end;
 
 procedure TConfigForm.btnSecondaryFontClick(Sender: TObject);

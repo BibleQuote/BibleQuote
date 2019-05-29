@@ -90,6 +90,7 @@ TabCommentaries = Kommentare
 
 DeleteBookmarkTextPrompt = Lesezeichen löschen?
 DeleteBookmarkTitle = Löschvorgang bestätigen
+ResetSettingsTextPrompt = Are you sure you want to reset settings? (t)
 
 ; FORM ELEMENTS AND MENU ITEMS =================================
 
