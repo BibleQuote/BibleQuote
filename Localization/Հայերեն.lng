@@ -90,6 +90,7 @@ TabCommentaries = Մեկնաբանություններ
 
 DeleteBookmarkTextPrompt = Ջնջել էջանշանը?
 DeleteBookmarkTitle = Հաստատել ջնջումը
+ResetSettingsTextPrompt = Are you sure you want to reset settings? (t)
 
 ; Ձևատարրեր և մենյու =================================
 

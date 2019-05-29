@@ -90,6 +90,7 @@ TabCommentaries = Комментарии
 
 DeleteBookmarkTextPrompt = Удалить закладку?
 DeleteBookmarkTitle = Подтвердите удаление
+ResetSettingsTextPrompt = Вы уверены, что хотите сбросить настройки?
 
 ; ЭЛЕМЕНТЫ ФОРМЫ И МЕНЮ =================================
 

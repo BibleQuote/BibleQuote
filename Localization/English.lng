@@ -90,6 +90,7 @@ TabCommentaries = Commentaries
 
 DeleteBookmarkTextPrompt = Delete bookmark?
 DeleteBookmarkTitle = Confirm deletion
+ResetSettingsTextPrompt = Are you sure you want to reset settings?
 
 ; FORM ELEMENTS AND MENU ITEMS =================================
 
