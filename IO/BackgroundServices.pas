@@ -4,7 +4,8 @@ interface
 
 uses
   Classes, SyncObjs, SysUtils, DictInterface, Windows, BibleQuoteUtils, EngineInterfaces,
-  TagsDb, Types, IOUtils, AppPaths, DictLoaderInterface, DictLoaderFabric;
+  TagsDb, Types, IOUtils, AppPaths, DictLoaderInterface, DictLoaderFabric,
+  IOProcs;
 
 type
 
@@ -134,6 +135,12 @@ begin
     exit;
 
   FileEntries := TDirectory.GetFileSystemEntries(aPath);
+  if (Length(FileEntries) <= 0) then
+  begin
+      Result := E_NOINTERFACE;
+      Exit;
+  end;
+
   for i := 0 to Length(FileEntries) - 1 do
   begin
 
@@ -145,8 +152,10 @@ begin
 
     if not Assigned(DictLoader) then
     begin
-      Result := E_NOINTERFACE;
-      exit;
+      if (IsDirectory(FileEntryPath) and DirectoryExists(FileEntryPath)) then
+        _LoadDictionaries(FileEntryPath);
+
+      continue;
     end;
 
     if not DictLoader.LoadDictionaries(FileEntryPath, Engine) then exit;
