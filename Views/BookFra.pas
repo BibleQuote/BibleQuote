@@ -964,7 +964,7 @@ begin
   mSatelliteForm := TForm.Create(self);
   mSatelliteForm.OnDeactivate := OnSatelliteFormDeactivate;
 
-  mSatelliteLibraryView := TLibraryFrame.Create(nil);
+  mSatelliteLibraryView := TLibraryFrame.Create(nil, mMainView, mWorkspace);
   mSatelliteLibraryView.OnSelectModule := OnSelectSatelliteModule;
   mSatelliteLibraryView.cmbBookType.Enabled := false;
   mSatelliteLibraryView.cmbBookType.ItemIndex := 1;
@@ -1735,7 +1735,7 @@ begin
     Exit;
   end;
 
-  mSatelliteLibraryView.SetModules(mMainView.mModules);
+  mSatelliteLibraryView.UpdateBookList();
 
   mSatelliteForm.Width := AppConfig.LibFormWidth;
   mSatelliteForm.Height := AppConfig.LibFormHeight;

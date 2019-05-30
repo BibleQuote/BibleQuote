@@ -31,6 +31,13 @@ type
   end;
 
   TLibraryTabSettings = class(TTabSettings)
+  private
+    FViewMode: String;
+  protected
+    procedure WriteJsonBody(json: TJSONObject); override;
+    procedure ReadJsonBody(json: TJSONObject); override;
+  public
+    property ViewMode: string read FViewMode write FViewMode;
   end;
 
   TBookmarksTabSettings = class(TTabSettings)
@@ -357,6 +364,16 @@ begin
   Title := json.GetValue<string>('Title', '');
   History := json.GetValue<string>('History', '');
   HistoryIndex := json.GetValue<integer>('HistoryIndex', 0);
+end;
+
+procedure TLibraryTabSettings.WriteJsonBody(json: TJSONObject);
+begin
+  json.AddPair('ViewMode', ViewMode);
+end;
+
+procedure TLibraryTabSettings.ReadJsonBody(json: TJSONObject);
+begin
+  ViewMode := json.GetValue<string>('ViewMode', '');
 end;
 
 procedure TTSKTabSettings.WriteJsonBody(json: TJSONObject);

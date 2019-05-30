@@ -95,7 +95,7 @@ begin
   mBookSelectForm := TForm.Create(self);
   mBookSelectForm.OnDeactivate := OnBookSelectFormDeactivate;
 
-  mBookSelectView := TLibraryFrame.Create(nil);
+  mBookSelectView := TLibraryFrame.Create(nil, mMainView, mWorkspace);
   mBookSelectView.OnSelectModule := OnBookSelect;
   mBookSelectView.cmbBookType.Enabled := true;
   mBookSelectView.cmbBookType.ItemIndex := 0;
@@ -130,7 +130,7 @@ end;
 
 procedure TSearchFrame.btnBookSelectClick(Sender: TObject);
 begin
-  mBookSelectView.SetModules(mMainView.mModules);
+  mBookSelectView.UpdateBookList();
 
   mBookSelectForm.Width := AppConfig.LibFormWidth;
   mBookSelectForm.Height := AppConfig.LibFormHeight;

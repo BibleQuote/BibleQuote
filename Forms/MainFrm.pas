@@ -1099,7 +1099,7 @@ begin
         end
         else if (tabSettings is TLibraryTabSettings) then
         begin
-          mWorkspace.AddLibraryTab(TLibraryTabInfo.Create());
+          mWorkspace.AddLibraryTab(TLibraryTabInfo.Create(TLibraryTabSettings(tabSettings)));
           addTabResult := true;
         end
         else if (tabSettings is TBookmarksTabSettings) then
@@ -1330,13 +1330,14 @@ begin
       end;
 
       activeTabInfo := workspace.GetActiveTabInfo();
+      activeTabInfo.SaveState(workspace);
       for i := 0 to tabCount - 1 do
       begin
         try
           data := workspace.ChromeTabs.Tabs[i].Data;
           if not Supports(data, IViewTabInfo, tabInfo) then
             continue;
-          tabInfo.SaveState(workspace);
+
           tabSettings := tabInfo.GetSettings;
 
           if tabInfo = activeTabInfo then

@@ -418,8 +418,9 @@ begin
   if (tabInfo.GetViewType = vttLibrary) then
   begin
     ActivateFrame(mLibraryView);
-    mLibraryView.SetModules(mMainView.mModules);
     mMainView.ClearCopyrights();
+    if (restoreState) then
+      UpdateViewAs(vttLibrary);
   end;
 
   if (tabInfo.GetViewType = vttBookmarks) then
@@ -541,7 +542,7 @@ begin
   mMemoView.Parent := pnlMain;
   mMemoView.Align := alClient;
 
-  mLibraryView := TLibraryFrame.Create(nil);
+  mLibraryView := TLibraryFrame.Create(nil, mMainView, self);
   mLibraryView.Parent := pnlMain;
   mLibraryView.Align := alClient;
   mLibraryView.OnSelectModule := OnSelectModule;

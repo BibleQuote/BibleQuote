@@ -5,6 +5,13 @@ interface
 uses Controls, ComCtrls;
 
 type
+  TLibraryViewMode = (
+    lvmCover,
+    lvmTile,
+    lvmList,
+    lvmDetail
+  );
+
   TEnumControlsProc = function (AControl: TControl): Boolean of object;
 
   TUITools = class

@@ -4,7 +4,7 @@ interface
 
 uses
   Inifiles, Classes, Graphics, SysUtils, Forms, StringProcs, SystemInfo,
-  AppPaths, IOUtils;
+  AppPaths, IOUtils, Types.Extensions, UITools;
 
 const
   C_SectionMainForm = 'MainForm';
@@ -62,6 +62,7 @@ type
     LastCommand: string;
     LastBibleCommand: string;
     LocalizationFile: string;
+    LastLibraryViewMode: TLibraryViewMode;
 
     HotKeyChoice: integer;
 
@@ -83,6 +84,8 @@ var
   DefaultAppConfig: TAppConfig;
 
 implementation
+
+uses TabData;
 
 procedure TAppConfig.Save;
 var
@@ -131,6 +134,7 @@ begin
     ini.WriteString(C_SectionDefaults, 'LastCommand', LastCommand);
     ini.WriteString(C_SectionDefaults, 'LastBibleCommand', LastBibleCommand);
     ini.WriteString(C_SectionDefaults, 'LocalizationFile', LocalizationFile);
+    ini.WriteString(C_SectionDefaults, 'LastLibraryViewMode', TExtensions.EnumToString(LastLibraryViewMode));
 
     ini.WriteInteger(C_SectionDefaults, 'HotKeyChoice', HotKeyChoice);
 
@@ -190,6 +194,7 @@ begin
 
   LastCommand := '';
   LastBibleCommand := '';
+  LastLibraryViewMode := lvmDetail;
 
   HotKeyChoice := 0;
 
@@ -206,6 +211,7 @@ procedure TAppConfig.Load;
 var
   ini: TMemIniFile;
   path: string;
+  vmode: string;
 begin
   path := GetAppConfigPath();
   ini := TMemIniFile.Create(path, TEncoding.Unicode);
@@ -249,6 +255,9 @@ begin
     LastCommand := ini.ReadString(C_SectionDefaults, 'LastCommand', DefaultAppConfig.LastCommand);
     LastBibleCommand := ini.ReadString(C_SectionDefaults, 'LastBibleCommand', DefaultAppConfig.LastBibleCommand);
     LocalizationFile := ini.ReadString(C_SectionDefaults, 'LocalizationFile', DefaultAppConfig.LocalizationFile);
+
+    vmode := ini.ReadString(C_SectionDefaults, 'LastLibraryViewMode', '');
+    LastLibraryViewMode := TExtensions.StringToEnum(vmode, DefaultAppConfig.LastLibraryViewMode);
 
     HotKeyChoice := ini.ReadInteger(C_SectionDefaults, 'HotKeyChoice', DefaultAppConfig.HotKeyChoice);
 

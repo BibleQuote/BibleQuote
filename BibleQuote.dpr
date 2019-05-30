@@ -91,7 +91,8 @@ uses
   DownloadModulesFrm in 'Forms\DownloadModulesFrm.pas' {DownloadModulesForm},
   ThirdPartModulesProcs in 'IO\ThirdPartModulesProcs.pas',
   JsonProcs in 'Utils\JsonProcs.pas',
-  ScanModules in 'IO\ScanModules.pas';
+  ScanModules in 'IO\ScanModules.pas',
+  Types.Extensions in 'Utils\Types.Extensions.pas';
 
 {$R *.res}
 
