@@ -6,7 +6,7 @@ uses System.UITypes, System.Classes, Winapi.Windows, SysUtils,
      Vcl.Controls, Vcl.Graphics, Bible, HtmlView,
      Vcl.Tabs, Vcl.DockTabSet, ChromeTabs, ChromeTabsTypes, ChromeTabsUtils,
      ChromeTabsControls, ChromeTabsClasses, ChromeTabsLog, LayoutConfig,
-     BibleQuoteUtils, AppIni;
+     BibleQuoteUtils, AppIni, Types.Extensions, UITools;
 
 type
   TViewTabType = (
@@ -192,11 +192,21 @@ type
   end;
 
   TLibraryTabInfo = class(TInterfacedObject, IViewTabInfo)
+  private
+    mViewMode: TLibraryViewMode;
+    mSelectedIndex: Integer;
+  public
+    property ViewMode: TLibraryViewMode read mViewMode write mViewMode;
+    property SelectedIndex: Integer read mSelectedIndex write mSelectedIndex;
+
     procedure SaveState(const workspace: IWorkspace);
     procedure RestoreState(const workspace: IWorkspace);
     function GetViewType(): TViewTabType;
     function GetSettings(): TTabSettings;
     function GetCaption(): string;
+
+    constructor Create(); overload;
+    constructor Create(settings: TLibraryTabSettings); overload;
   end;
 
   TBookmarksTabInfo = class(TInterfacedObject, IViewTabInfo)
@@ -424,7 +434,8 @@ type
 
 implementation
 
-uses BookFra, SearchFra, TSKFra, DictionaryFra, StrongFra, CommentsFra;
+uses BookFra, SearchFra, TSKFra, DictionaryFra, StrongFra, CommentsFra,
+     LibraryFra;
 
 constructor TBrowserState.Create;
 begin
@@ -597,6 +608,22 @@ end;
 
 { TLibraryTabInfo }
 
+constructor TLibraryTabInfo.Create();
+begin
+  inherited Create();
+
+  mSelectedIndex := -1;
+  mViewMode := lvmDetail;
+end;
+
+constructor TLibraryTabInfo.Create(settings: TLibraryTabSettings);
+begin
+  inherited Create();
+
+  mSelectedIndex := -1;
+  mViewMode := TExtensions.StringToEnum(settings.ViewMode, lvmDetail);
+end;
+
 function TLibraryTabInfo.GetViewType(): TViewTabType;
 begin
   Result := vttLibrary;
@@ -608,18 +635,35 @@ begin
 end;
 
 function TLibraryTabInfo.GetSettings(): TTabSettings;
+var
+  tabSettings: TLibraryTabSettings;
 begin
-  Result := TLibraryTabSettings.Create;
+  tabSettings := TLibraryTabSettings.Create;
+
+  tabSettings.ViewMode := TExtensions.EnumToString<TLibraryViewMode>(mViewMode);
+
+  Result := tabSettings;
 end;
 
 procedure TLibraryTabInfo.SaveState(const workspace: IWorkspace);
+var
+  libraryFrame: TLibraryFrame;
 begin
-// nothing to save
+  libraryFrame := workspace.LibraryView as TLibraryFrame;
+  mViewMode := libraryFrame.GetViewMode();
+  mSelectedIndex := libraryFrame.GetSelectedIndex();
 end;
 
 procedure TLibraryTabInfo.RestoreState(const workspace: IWorkspace);
+var
+  libraryFrame: TLibraryFrame;
 begin
-// nothing to save
+  libraryFrame := workspace.LibraryView as TLibraryFrame;
+  if Assigned(libraryFrame) then
+  begin
+    libraryFrame.SelectViewMode(mViewMode);
+    libraryFrame.SelectItem(mSelectedIndex);
+  end;
 end;
 
 { TBookmarksTabInfo }

@@ -8,7 +8,8 @@ uses
   Vcl.DockTabSet, Vcl.ComCtrls, Vcl.ToolWin, System.ImageList, MainFrm,
   Vcl.ImgList, TabData, Vcl.Menus, System.UITypes, BibleQuoteUtils, PlainUtils,
   ImageUtils, AppIni, Generics.Collections, Vcl.VirtualImageList,
-  Vcl.BaseImageCollection, Vcl.ImageCollection;
+  Vcl.BaseImageCollection, Vcl.ImageCollection, NotifyMessages, JclNotify,
+  UITools;
 
 const
 
@@ -30,7 +31,7 @@ type
 
   TSelectModuleEvent = procedure(Sender: TObject; modEntry: TModuleEntry) of object;
 
-  TLibraryFrame = class(TFrame, ILibraryView)
+  TLibraryFrame = class(TFrame, ILibraryView, IJclListener)
     edtFilter: TEdit;
     cmbBookType: TComboBox;
     btnClear: TButton;
@@ -69,7 +70,9 @@ type
       var InfoTip: string);
   private
     mUILock: Boolean;
-    mModules: TCachedModules;
+    mMainView: TMainForm;
+    mWorkspace: IWorkspace;
+
     FFilteredModTypes: TList<TPair<TModuleEntry, Integer>>;
 
     FFontBookName, FFontCopyright, FFontModuleVersion, FFontModType: TFont;
@@ -80,12 +83,10 @@ type
 
     procedure DrawTextNode(const PaintInfo: TVTPaintInfo; aRect: TRect;
                            var aTop: Integer; aFont: TFont; aText: String);
-    procedure UpdateBookList();
     procedure OnModulesAssign(Sender: TObject);
     procedure UpdateModuleTypes();
     procedure UpdateCoverDetailView();
 
-    procedure UpdateBookViews();
     function AddDefaultCoverImage(aResource: String): Integer;
     function AddCoverImage(aName: String; aPicture: TPicture): Integer; overload;
     function AddImageToCoverCollection(aName: String; aImage: TWICImage): Integer;
@@ -119,13 +120,21 @@ type
     function GetSmallCoverHeight(): Integer;
     procedure HidePageControlTabs(aPageControl: TPageControl);
     procedure ListViewSetMinWidthColunms();
+    procedure Notification(Msg: IJclNotificationMessage); stdcall;
+    procedure SelectNodeByIndex(Index: Integer);
   public
-    constructor Create(AOwner: TComponent); reintroduce;
-    procedure SetModules(modules: TCachedModules);
+    constructor Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace); reintroduce;
 
+    procedure UpdateBookList();
+    procedure UpdateBookViews();
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
+    procedure SelectViewMode(viewMode: TLibraryViewMode);
+    function GetViewMode(): TLibraryViewMode;
+    function GetSelectedIndex(): Integer;
+    procedure SelectItem(Index: Integer);
+
     destructor Destroy; override;
 
     property OnSelectModule: TSelectModuleEvent read FOnSelectModuleEvent write FOnSelectModuleEvent;
@@ -148,10 +157,15 @@ implementation
 
 uses SelectEntityType, CommCtrl;
 
-constructor TLibraryFrame.Create(AOwner: TComponent);
+constructor TLibraryFrame.Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace);
+var
+  viewMode: TLibraryViewMode;
 begin
   inherited Create(AOwner);
-  mModules := TCachedModules.Create();
+  mMainView := mainView;
+  mWorkspace := workspace;
+  mMainView.GetNotifier.Add(self);
+
   FCoverDefaults := TDictionary<String, TPicture>.Create;
 
   InitFonts();
@@ -164,10 +178,7 @@ begin
 
   ListViewSetMinWidthColunms();
 
-  miTileViewStyle.Checked := True;
-  miSomeViewStyleClick(miTileViewStyle);
-
-
+  SelectViewMode(AppConfig.LastLibraryViewMode);
 end;
 
 function TLibraryFrame.CreateFont(aSize: Integer; aColor: Integer;
@@ -211,12 +222,10 @@ begin
     PaintInfo.Canvas.Font := aFont;
     Height := Windows.DrawText(PaintInfo.Canvas.Handle, PChar(Pointer(aText)), -1, DrawRect, DT_WORDBREAK);
     aTop := aTop + Height + TEXT_OFFSET;
-
 end;
 
 procedure TLibraryFrame.InitCoverDefault();
 begin
-
 
   FCoverDefaults.Add(NATIVE_COVER_DEFAULT_IMAGE, LoadDefaultCoverImage(NATIVE_COVER_DEFAULT_IMAGE));
   FCoverDefaults.Add(MYBIBLE_COVER_DEFAULT_IMAGE, LoadDefaultCoverImage(MYBIBLE_COVER_DEFAULT_IMAGE));
@@ -293,9 +302,6 @@ begin
   lvBooks.Columns[1].Width := ColumnAuthorWidth;
   lvBooks.Columns[2].Width := ColumnVersionWidth;
   lvBooks.Columns.EndUpdate;
-
-
-
 end;
 
 procedure TLibraryFrame.ApplyConfig(appConfig: TAppConfig);
@@ -544,13 +550,6 @@ begin
   lblModuleCount.Caption := IntToStr(FFilteredModTypes.Count);
 end;
 
-procedure TLibraryFrame.SetModules(modules: TCachedModules);
-begin
-  mModules := modules;
-  mModules.OnAssignEvent := OnModulesAssign;
-  UpdateBookList();
-end;
-
 procedure TLibraryFrame.OnModulesAssign(Sender: TObject);
 begin
   UpdateBookList();
@@ -618,7 +617,7 @@ begin
 
     try
 
-      for i := 0 to FFilteredModTypes.Count -1 do
+      for i := 0 to FFilteredModTypes.Count - 1 do
       begin
         vdtBooks.InsertNode(nil, amAddChildLast, FFilteredModTypes[i].Key);
       end;
@@ -679,7 +678,7 @@ var
   modEntry: TModuleEntry;
   filterTokens: TStringList;
   matchType: TModMatchTypes;
-
+  modules: TCachedModules;
 begin
   if mUILock then
     Exit;
@@ -702,10 +701,11 @@ begin
     filterTokens := TStringList.Create();
     StrToTokens(filterText, ' ', filterTokens);
 
-    count := mModules.Count - 1;
+    modules := mMainView.mModules;
+    count := modules.Count - 1;
     for i := 0 to count do
     begin
-      modEntry := TModuleEntry(mModules.Items[i]);
+      modEntry := TModuleEntry(modules.Items[i]);
 
       if not IsSuitableCategory(modEntry.modType) then continue;
 
@@ -770,6 +770,75 @@ begin
 
 end;
 
+function TLibraryFrame.GetSelectedIndex(): Integer;
+var
+  SelectedNode: PVirtualNode;
+begin
+  if (GetViewMode() = lvmList) then
+  begin
+    Result := -1;
+    SelectedNode := vdtBooks.GetFirstSelected;
+    if Assigned(SelectedNode) then
+      Result := SelectedNode.Index;
+  end
+  else
+    Result := lvBooks.ItemIndex;
+end;
+
+procedure TLibraryFrame.SelectItem(Index: Integer);
+begin
+  if (GetViewMode() = lvmList) then
+    SelectNodeByIndex(Index)
+  else
+  begin
+    if (Index < lvBooks.Items.Count) then
+      lvBooks.ItemIndex := Index;
+  end;
+end;
+
+procedure TLibraryFrame.SelectNodeByIndex(Index: Integer);
+var
+  Node : PVirtualNode;
+begin
+
+  Node := vdtBooks.GetFirst();
+  while (Node <> nil)  and (Node.Index <> Index) do begin
+    Node := vdtBooks.GetNext(Node);
+  end;
+
+  if Assigned(Node) then
+    vdtBooks.Selected[Node] := True;
+end;
+
+procedure TLibraryFrame.SelectViewMode(viewMode: TLibraryViewMode);
+var
+  menuItem: TMenuItem;
+begin
+  case viewMode of
+    lvmCover: menuItem := miCoverViewStyle;
+    lvmTile:  menuItem := miTileViewStyle;
+    lvmList:  menuItem := miListViewStyle;
+  else
+    menuItem := miDetailsViewStyle;
+  end;
+
+  menuItem.Checked := True;
+  miSomeViewStyleClick(menuItem);
+
+  AppConfig.LastLibraryViewMode := viewMode;
+end;
+
+function TLibraryFrame.GetViewMode(): TLibraryViewMode;
+begin
+  if (miCoverViewStyle.Checked) then
+    Result := lvmCover
+  else if (miTileViewStyle.Checked) then
+    Result := lvmTile
+  else if (miListViewStyle.Checked) then
+    Result := lvmList
+  else
+    Result := lvmDetail;
+end;
 
 procedure TLibraryFrame.UpdateBookViews();
 begin
@@ -1037,6 +1106,14 @@ begin
 
     NodeHeight := Max(coverHeight, textHeight);
   end;
+end;
+
+procedure TLibraryFrame.Notification(Msg: IJclNotificationMessage);
+var
+  MsgModulesLoaded: IModulesLoadedMessage;
+begin
+  if Supports(Msg, IModulesLoadedMessage, MsgModulesLoaded) then
+    UpdateBookList;
 end;
 
 end.
