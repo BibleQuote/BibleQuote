@@ -82,10 +82,6 @@ object LibraryFrame: TLibraryFrame
       Margins.Bottom = 0
       Caption = 'Cover/Details view'
       TabVisible = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lvBooks: TListView
         Left = 0
         Top = 0
@@ -107,6 +103,7 @@ object LibraryFrame: TLibraryFrame
             Width = 141
           end>
         DoubleBuffered = True
+        HideSelection = False
         IconOptions.AutoArrange = True
         LargeImages = vimgCover
         OwnerData = True
