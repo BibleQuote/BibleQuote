@@ -181,9 +181,10 @@ procedure TNativeInfoSourceLoader.LoadPathValues(aInfoSource: TInfoSource; aNati
 var
   ChapterData: TChapterData;
   ChapterDatas : TList<TChapterData>;
-  i: Integer;
+  i, j: Integer;
   Name: String;
   Value: String;
+  BookNumber: Integer;
 begin
 
   aInfoSource.FileName := aNativeInfoPath;
@@ -191,6 +192,7 @@ begin
   aInfoSource.IsCommentary := IsCommentary(aNativeInfoPath);
 
   ChapterDatas := TList<TChapterData>.Create;
+  BookNumber := 1;
   try
 
   for I := 0 to FDataPairs.Count - 1 do
@@ -206,6 +208,8 @@ begin
       ChapterDatas.Add(ChapterData);
 
       ChapterData.PathName := Value;
+      ChapterData.BookNumber := BookNumber;
+      BookNumber := BookNumber + 1;
     end
     else if Name = 'FullName' then
     begin
@@ -220,7 +224,12 @@ begin
     else if Name = 'ChapterQty' then
     begin
       if Assigned(ChapterData) then
+      begin
         ChapterData.ChapterQty := StrToInt(Value);
+        SetLength(ChapterData.ChapterNumbers, ChapterData.ChapterQty);
+        for J := 1 to ChapterData.ChapterQty do
+          ChapterData.ChapterNumbers[J - 1] := J;
+      end;
     end;
 
   end;

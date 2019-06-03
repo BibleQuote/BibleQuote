@@ -1518,6 +1518,7 @@ procedure TMainForm.GoPrevChapter;
 var
   cmd: string;
   bookView: TBookFrame;
+  PrevBook, PrevChapter: Integer;
 begin
   bookView := GetBookView(self);
 
@@ -1536,10 +1537,10 @@ begin
     Exit;
 
   with bookView.BookTabInfo.Bible do
-    if CurChapter > 1 then
-      cmd := Format('go %s %d %d', [ShortPath, CurBook, CurChapter - 1])
-    else if CurBook > 1 then
-      cmd := Format('go %s %d %d', [ShortPath, CurBook - 1, GetChapterQtys(CurBook - 1)]);
+  begin
+    GetPrevChapterNumber(CurBook, CurChapter, PrevBook, PrevChapter);
+    cmd := Format('go %s %d %d', [ShortPath, PrevBook, PrevChapter])
+  end;
 
   bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
   Windows.SetFocus(mWorkspace.Browser.Handle);
@@ -1549,6 +1550,7 @@ procedure TMainForm.GoNextChapter;
 var
   cmd: string;
   bookView: TBookFrame;
+  NextBook, NextChapter: Integer;
 begin
   bookView := GetBookView(self);
 
@@ -1567,10 +1569,10 @@ begin
     Exit;
 
   with bookView.BookTabInfo.Bible do
-    if CurChapter < GetChapterQtys(CurBook) then
-      cmd := Format('go %s %d %d', [ShortPath, CurBook, CurChapter + 1])
-    else if CurBook < BookQty then
-      cmd := Format('go %s %d %d', [ShortPath, CurBook + 1, 1]);
+  begin
+    GetNextChapterNumber(CurBook, CurChapter, NextBook, NextChapter);
+    cmd := Format('go %s %d %d', [ShortPath, NextBook, NextChapter])
+  end;
 
   bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
   Windows.SetFocus(mWorkspace.Browser.Handle);

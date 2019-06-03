@@ -185,7 +185,6 @@ type
 
     function OpenChapter: Boolean;
     function IsPsalms(bible: TBible; bookIndex: integer): Boolean;
-    procedure SelectModuleTreeNode(bible: TBible);
     function GetChildNodeByIndex(parentNode: PVirtualNode; index: Integer): PVirtualNode;
     function GetChildNodeByBookNumber(aBookNumber: Integer): PVirtualNode;
     function GetChildNodeByChapterNumber(aParentNode: PVirtualNode; aChapterNumber: Integer): PVirtualNode;
@@ -214,7 +213,7 @@ type
 
     function PreProcessAutoCommand(RefBible: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT; overload;
     function PreProcessAutoCommand(const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT; overload;
-    function ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean; overload;
+    function ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false; updateTreeSelection: boolean = true): Boolean; overload;
     function ProcessCommand(Cmd: ICommand; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean; overload;
     
     procedure AdjustBibleTabs(moduleName: string = '');
@@ -366,7 +365,7 @@ begin
 
     bible := BookTabInfo.Bible;
     command := Format('go %s %d %d', [bible.ShortPath, bookIndex, chapterIndex]);
-    Result := ProcessCommand(BookTabInfo, command, hlDefault);
+    Result := ProcessCommand(BookTabInfo, command, hlDefault, false, false);
   end;
 end;
 
@@ -2020,7 +2019,6 @@ begin
   UpdateModuleTreeFont(book);
 
   vdtModules.RootNodeCount := book.BookQty;
-  //UpdateModuleTreeSelection(book);
 end;
 
 procedure TBookFrame.UpdateModuleTreeSelection(book: TBible);
@@ -2030,14 +2028,14 @@ var
 begin
   vdtModules.ClearSelection;
 
-  bookIndex := book.CurBook - 1;
+  bookIndex := book.GetBookNumberIndex(book.CurBook);
   if (bookIndex < 0) then
     bookIndex := 0;
 
   bookNode := GetChildNodeByIndex(nil, bookIndex);
   if Assigned(bookNode) then
   begin
-    chapterIndex := book.CurChapter - 1;
+    chapterIndex := book.GetChapterNumberIndex(book.CurBook, book.CurChapter);
     if (chapterIndex < 0) then
       chapterIndex := 0;
 
@@ -2065,57 +2063,6 @@ begin
         vdtModules.Selected[bookNode] := True;
       finally
         mUpdateOnTreeNodeSelect := true;
-      end;
-    end;
-  end;
-end;
-
-procedure TBookFrame.SelectModuleTreeNode(bible: TBible);
-var
-
-  BookNumber : Integer;
-  ChapterNumber: Integer;
-  bookNode: PVirtualNode;
-  chapterNode: PVirtualNode;
-begin
-  BookNumber := bible.CurBook;
-  if bible.BookQty > 0 then
-  begin
-
-    bookNode := GetChildNodeByBookNumber(BookNumber);
-    //bookNode := GetChildNodeByBookNumber(nil, i);
-    if Assigned(bookNode) then
-    begin
-      ChapterNumber := bible.CurChapter;
-      if (ChapterNumber < 0) then
-        ChapterNumber :=  GetChapterNumberForNode( GetFirstChild(bookNode) );
-
-      //chapterNode := GetChildNodeByIndex(bookNode, i);
-      chapterNode := GetChildNodeByChapterNumber(bookNode, ChapterNumber);
-
-      if Assigned(chapterNode) then
-      begin
-        if (vdtModules.Selected[chapterNode] = False) then
-        begin
-          if (vdtModules.Expanded[bookNode] = False) then
-            vdtModules.Expanded[bookNode] := True;
-
-            mUpdateOnTreeNodeSelect := false;
-            try
-              vdtModules.Selected[chapterNode] := True;
-            finally
-              mUpdateOnTreeNodeSelect := true;
-            end;
-        end;
-      end
-      else
-      begin
-        mUpdateOnTreeNodeSelect := false;
-        try
-          vdtModules.Selected[bookNode] := True;
-        finally
-          mUpdateOnTreeNodeSelect := true;
-        end;
       end;
     end;
   end;
@@ -2257,7 +2204,6 @@ begin
 
     Result := true;
     tbtnSatellite.Enabled := not bookTabInfo.Bible.InfoSource.IsCommentary;
-    //SelectModuleTreeNode(bookTabInfo.Bible);
 
     if not (bookTabInfo.LocationType = vtlFile) then
       AdjustBibleTabs();
@@ -2271,7 +2217,7 @@ begin
   end;
 end;
 
-function TBookFrame.ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean;
+function TBookFrame.ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false; updateTreeSelection: boolean = true): Boolean;
 var
   Cmd: ICommand;
 begin
@@ -2284,6 +2230,8 @@ begin
     Exit;
         
   Result := ProcessCommand(Cmd, hlVerses, disableHistory);
+  if (Result and updateTreeSelection) then
+    UpdateModuleTreeSelection(bookTabInfo.Bible);
 end;
 
 procedure TBookFrame.UpdateHistory();
@@ -2518,7 +2466,7 @@ begin
   if not bible.IsValidChapterNumber(book, chapter) then
   begin
     Result := nrChapterErr;
-    chapter := bible.GetFirstChapterNumber();;
+    chapter := bible.GetFirstChapterNumber();
   end;
 
   if Result <> nrSuccess then
