@@ -3103,14 +3103,15 @@ var
   s, ss: string;
   B, C, V, ib, ic, iv: Integer;
   fistBookCell, SecondbookCell: string;
-  MemoText: string;
+  ChapterText, MemoText: string;
   Verse, I: Integer;
-  fontName: String;
+  fontName: string;
   UseParaBible: Boolean;
   rightAligned, secondRightAligned: Boolean;
   isCommentary, showStrongs: Boolean;
   opened: Boolean;
   paragraph: string;
+  TextBuilder: TStringBuilder;
 begin
   Bible := bookTabInfo.Bible;
   SecondBible := bookTabInfo.SecondBible;
@@ -3126,7 +3127,7 @@ begin
   if (UseParaBible) then
     secondRightAligned := secondBible.UseRightAlignment;
 
-  Text := '';
+  TextBuilder := TStringBuilder.Create;
   if locVerseStart = 0 then
   begin
     locVerseStart := 1;
@@ -3158,7 +3159,7 @@ begin
     bwrHtml.DefFontName := fontName;
   end;
 
-  Text := bible.ChapterHead;
+  TextBuilder.Append(bible.ChapterHead);
   for Verse := bverse to everse do
   begin
     s := bible.Verses[Verse - 1];
@@ -3217,20 +3218,20 @@ begin
     begin
       // no satellite text
       if rightAligned then
-        Text := Text +
-          Format(''#13''#10'%s<F>%s</F><a name="bqverse%d">%s</a>%s', [hlParaStart, s, Verse, strVerseNumber, hlParaEnd])
+        TextBuilder.Append(
+          Format(''#13''#10'%s<F>%s</F><a name="bqverse%d">%s</a>%s', [hlParaStart, s, Verse, strVerseNumber, hlParaEnd]))
       else
       begin
         if (bible.isBible) and (not bible.Trait[bqmtNoForcedLineBreaks]) then
-          Text := Text +
-            Format(''#13''#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s', [hlParaStart, Verse, strVerseNumber, s, hlParaEnd])
+          TextBuilder.Append(
+            Format(''#13''#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s', [hlParaStart, Verse, strVerseNumber, s, hlParaEnd]))
         else
-          Text := Text +
-            Format(''#13''#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s', [hlParaStart, Verse, strVerseNumber, s, hlParaEnd]);
+          TextBuilder.Append(
+            Format(''#13''#10'%s<a name="bqverse%d">%s <F>%s</F></a>%s', [hlParaStart, Verse, strVerseNumber, s, hlParaEnd]));
       end;
 
       if (not hlCurrent) or ((hlVerseStyle and 2 > 0) and not bible.isBible) then
-        Text := Text + paragraph;
+        TextBuilder.Append(paragraph);
 
     end
     else
@@ -3288,7 +3289,7 @@ begin
         if Length(SecondbookCell) <= 0 then
           SecondbookCell := '</td><td valign=top width=50%> </td></tr></table>'#13''#10'';
 
-        Text := Text + fistBookCell + SecondbookCell;
+        TextBuilder.Append(fistBookCell + SecondbookCell);
       end;
     end;
 
@@ -3307,20 +3308,21 @@ begin
         if bookTabInfo[vtisResolveLinks] then
           MemoText := ResolveLinks(MemoText, bookTabInfo[vtisFuzzyResolveLinks]);
 
-        Text := Text + MemoText;
+        TextBuilder.Append(MemoText);
       end;
     end;
   end;
 
+  ChapterText := TextBuilder.ToString;
   if not UseParaBible then
   begin
     if rightAligned then
-      Text := '<div style="text-align:right">' + Text + '</div>'
+      ChapterText := '<div style="text-align:right">' + ChapterText + '</div>'
     else
-      Text := '<div style="text-align:justify">' + Text + '</div>';
+      ChapterText := '<div style="text-align:justify">' + ChapterText + '</div>';
   end;
 
-  Result := Text;
+  Result := ChapterText;
 end;
 
 function TBookFrame.GetBibleFont(Bible: TBible): String;
