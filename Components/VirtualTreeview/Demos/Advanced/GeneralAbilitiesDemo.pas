@@ -27,7 +27,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, VirtualTrees, ComCtrls, ExtCtrls, ImgList, Menus,
-  StdActns, ActnList, VTHeaderPopup, UITypes;
+  StdActns, ActnList, VirtualTrees.HeaderPopup, UITypes;
 
 type
   TGeneralForm = class(TForm)
@@ -51,6 +51,7 @@ type
     GroupBox1: TGroupBox;
     Label19: TLabel;
     MainColumnUpDown: TUpDown;
+    ScrollBox1: TScrollBox;
     procedure BitBtn1Click(Sender: TObject);
     procedure VST2InitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode;
       var InitialStates: TVirtualNodeInitStates);
