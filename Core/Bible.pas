@@ -306,7 +306,6 @@ type
 
     function GetStucture(): string;
     function GetDefaultEncoding(): TEncoding;
-    function ChapterCountForBook(bk: integer; internalAddr: boolean): integer;
     function GetModuleName(): string;
     function GetAuthor(): string;
     function GetAllVerses(): string;
@@ -324,6 +323,13 @@ type
 
     function GetFirstBookNumber(): Integer;
     function GetFirstChapterNumber(): Integer;
+    function GetLastBookNumber(): Integer;
+    function GetLastChapterNumber(): Integer;
+
+    function GetNextBookNumber(): Integer;
+    function GetPrevBookNumber(): Integer;
+    procedure GetNextChapterNumber(BookNumber, ChapterNumber: Integer; var NextBookNumber: Integer; var NextChapterNumber: Integer);
+    procedure GetPrevChapterNumber(BookNumber, ChapterNumber: Integer; var PrevBookNumber: Integer; var PrevChapterNumber: Integer);
 
     function SetInfoSource(aFileEntryPath: String): Boolean; overload;
     function SetInfoSource(aInfoSource: TInfoSource): Boolean; overload;
@@ -542,44 +548,13 @@ begin
 
   if ChapterNumbers.Count = 0 then exit;
 
-  for I := 0 to ChapterNumbers.Count-1 do
+  for I := 0 to ChapterNumbers.Count - 1 do
     if ChapterNumbers[i].Key = aBookNumber then
     begin
       Result := i;
       exit;
     end;
 
-end;
-
-function TBible.ChapterCountForBook(bk: integer; internalAddr: boolean)
-  : integer;
-var
-  obk, och, ovs: integer;
-begin
-
-
-  if (ChapterNumbers.Count>0) and (GetBookNumberIndex(bk) > -1) then
-  begin
-    Result:= Length(ChapterNumbers[GetBookNumberIndex(bk)].Value);
-    exit;
-  end;
-
-  if internalAddr then
-  begin
-    if not InternalToReference(bk, 1, 1, obk, och, ovs) then
-    begin
-      Result := -1;
-      exit;
-    end;
-  end
-  else
-    obk := bk;
-  if obk > BookQty then
-    Result := -1
-  else
-  begin
-    Result := ChapterQtys[obk];
-  end;
 end;
 
 procedure TBible.ClearAlphabetBits();
@@ -696,22 +671,12 @@ end;
 
 function TBible.GetBookNumberAt(aIndex: Integer): Integer;
 begin
-
-  if ChapterNumbers.Count > 0 then
-    Result := ChapterNumbers[aIndex].Key
-  else
-    Result := aIndex + 1;
-
+  Result := ChapterNumbers[aIndex].Key
 end;
 
 function TBible.GetChapterNumberAt(aParentIndex, aIndex: Integer): Integer;
 begin
-
-  if ChapterNumbers.Count > 0 then
-    Result := ChapterNumbers[aParentIndex].Value[aIndex]
-  else
-    Result := aIndex + 1;
-
+  Result := ChapterNumbers[aParentIndex].Value[aIndex]
 end;
 
 function TBible.GetChapterNumberIndex(aBookNumber,
@@ -793,30 +758,133 @@ end;
 
 function TBible.GetFirstBookNumber: Integer;
 begin
+  Result := GetBookNumberAt(0);
+end;
 
-  if ChapterNumbers.Count = 0 then
-    Result:= 1
-  else
-    Result := GetBookNumberAt(0);
+function TBible.GetLastBookNumber(): Integer;
+begin
+  Result := GetBookNumberAt(ChapterNumbers.Count - 1);
+end;
 
+function TBible.GetLastChapterNumber(): Integer;
+var
+  BookIndex: Integer;
+  TotalChapters: Integer;
+begin
+  BookIndex := GetBookNumberIndex(CurBook);
+  TotalChapters := Length(ChapterNumbers[BookIndex].Value);
+  Result := GetChapterNumberAt(BookIndex, TotalChapters - 1);
 end;
 
 function TBible.GetFirstChapterNumber: Integer;
 var
-  BookNumber: Integer;
+  BookIndex: Integer;
 begin
-
-  BookNumber:= GetFirstBookNumber();
-
-  if ChapterNumbers.Count = 0 then
-    Result:= 1
+  BookIndex := GetBookNumberIndex(CurBook);
+  if Length(ChapterNumbers[BookIndex].Value)>0 then
+    Result := ChapterNumbers[BookIndex].Value[0]
   else
+    raise Exception.Create('Unknown default chapter');
+end;
+
+function TBible.GetNextBookNumber(): Integer;
+var
+  BookIndex: Integer;
+begin
+  Result := -1;
+
+  BookIndex := GetBookNumberIndex(CurBook);
+  if (BookIndex >= 0) then
   begin
-    if Length(ChapterNumbers[0].Value)>0 then
-      Result := ChapterNumbers[0].Value[0]
+    BookIndex := BookIndex + 1;
+    if (BookIndex >= ChapterNumbers.Count) then
+      // we're behind the last book, go the first book
+      Result := GetFirstBookNumber()
     else
-      raise Exception.Create('Unknown default chapter');
+      Result := GetBookNumberAt(BookIndex);
   end;
+
+end;
+
+function TBible.GetPrevBookNumber(): Integer;
+var
+  BookIndex: Integer;
+begin
+  Result := -1;
+
+  BookIndex := GetBookNumberIndex(CurBook);
+  if (BookIndex >= 0) then
+  begin
+    BookIndex := BookIndex - 1;
+    if (BookIndex < 0) then
+      // we're before the first book, go to the last book
+      Result := GetLastBookNumber()
+    else if (BookIndex < ChapterNumbers.Count) then
+      Result := GetBookNumberAt(BookIndex);
+  end;
+
+end;
+
+procedure TBible.GetNextChapterNumber(BookNumber, ChapterNumber: Integer; var NextBookNumber: Integer; var NextChapterNumber: Integer);
+var
+  BookIndex: Integer;
+  ChapterIndex: Integer;
+begin
+  BookIndex := GetBookNumberIndex(BookNumber);
+  ChapterIndex := GetChapterNumberIndex(BookNumber, ChapterNumber);
+  ChapterIndex := ChapterIndex + 1; // next chapter
+  if (ChapterIndex >= Length(ChapterNumbers[BookIndex].Value)) then
+  begin
+    // we're behind the last chapter of the book, go next book
+    BookIndex := BookIndex + 1;
+    if BookIndex >= ChapterNumbers.Count then
+    begin
+      // we're behind the last chapter of the last book, go to the beggining of the first book
+      NextBookNumber := GetBookNumberAt(0);
+      NextChapterNumber := ChapterNumbers[0].Value[0];
+      Exit;
+    end;
+
+    NextBookNumber := GetBookNumberAt(BookIndex);
+    NextChapterNumber := ChapterNumbers[BookIndex].Value[0];
+    Exit;
+  end;
+
+  NextBookNumber := BookNumber;
+  NextChapterNumber := GetChapterNumberAt(BookIndex, ChapterIndex);
+end;
+
+procedure TBible.GetPrevChapterNumber(BookNumber, ChapterNumber: Integer; var PrevBookNumber: Integer; var PrevChapterNumber: Integer);
+var
+  BookIndex: Integer;
+  ChapterIndex: Integer;
+  TotalChapters: Integer;
+begin
+  BookIndex := GetBookNumberIndex(BookNumber);
+  ChapterIndex := GetChapterNumberIndex(BookNumber, ChapterNumber);
+  ChapterIndex := ChapterIndex - 1; // previous chapter
+  if (ChapterIndex < 0) then
+  begin
+    // we're before the first chapter of the book, go previous book
+    BookIndex := BookIndex - 1;
+    if BookIndex < 0 then
+    begin
+      // we're before the first chapter of the first book, go to the end of the last book
+      PrevBookNumber := GetLastBookNumber();
+      BookIndex := GetBookNumberIndex(PrevBookNumber);
+      TotalChapters := Length(ChapterNumbers[BookIndex].Value);
+      PrevChapterNumber := GetChapterNumberAt(BookIndex, TotalChapters - 1);
+      Exit;
+    end;
+
+    PrevBookNumber := GetBookNumberAt(BookIndex);
+    TotalChapters := Length(ChapterNumbers[BookIndex].Value);
+    PrevChapterNumber := ChapterNumbers[BookIndex].Value[TotalChapters - 1];
+    Exit;
+  end;
+
+  PrevBookNumber := BookNumber;
+  PrevChapterNumber := GetChapterNumberAt(BookIndex, ChapterIndex);
 end;
 
 function TBible.GetFirstWord(aRow: String): String;
