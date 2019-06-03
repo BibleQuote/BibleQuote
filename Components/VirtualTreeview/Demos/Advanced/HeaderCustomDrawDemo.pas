@@ -118,7 +118,7 @@ begin
             FBackBitmap1.Width := PaintRectangle.Right - PaintRectangle.Left;
             FBackBitmap1.Height := PaintRectangle.Bottom - PaintRectangle.Top;
             FillBackground(PaintRectangle, FBackbitmap1.Canvas);
-            if IsHoverIndex and MMXAvailable then
+            if IsHoverIndex then
               PaintSelection(FBackBitmap1);
             TargetCanvas.Draw(PaintRectangle.Left, Paintrectangle.Top, FBackbitmap1);
           end;
