@@ -568,8 +568,8 @@ begin
   else if Pos('s', unicodeSRC) = 1 then
   begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
-    if (StrongVal(scode, num, isHebrew)) then
-      mMainView.OpenOrCreateStrongTab(BookTabInfo, num);
+    // TODO: check if strong number is valid
+    mMainView.OpenOrCreateStrongTab(BookTabInfo, scode);
   end
   else
   begin
@@ -611,9 +611,10 @@ begin
     scode := Copy(SRC, 2, Length(SRC) - 1);
     if (StrongVal(scode, num, isHebrew)) then
     begin
-      if (FStrongsConcordance.Initialize) then
+      if (FStrongsConcordance.EnsureStrongLoaded) then
       begin
-        viewer.Hint := Trim(StripHtmlMarkup(FStrongsConcordance.Lookup(num, isHebrew)));
+        // TODO: check if strong number is valid
+        viewer.Hint := Trim(StripHtmlMarkup(FStrongsConcordance.Lookup(scode)));
       end;
       Exit;
     end;
@@ -857,7 +858,8 @@ begin
   text := Trim(bwrHtml.SelText);
   Val(text, num, code);
   if code = 0 then
-    mMainView.OpenOrCreateStrongTab(BookTabInfo, num)
+    // TODO: check if selected text is strong number
+    //mMainView.OpenOrCreateStrongTab(BookTabInfo, num)
   else
   begin
     if (text.Length > 0) then

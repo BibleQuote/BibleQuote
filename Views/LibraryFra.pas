@@ -158,8 +158,6 @@ implementation
 uses SelectEntityType, CommCtrl;
 
 constructor TLibraryFrame.Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace);
-var
-  viewMode: TLibraryViewMode;
 begin
   inherited Create(AOwner);
   mMainView := mainView;

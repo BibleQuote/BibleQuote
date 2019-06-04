@@ -13,7 +13,9 @@ type
     FDictDir: String;
 
   public
-    constructor Create;
+    constructor Create; overload;
+    constructor Create(Words: TStringList); overload;
+
     destructor Destroy(); override;
 
     function GetWordCount(): Cardinal;
@@ -29,9 +31,15 @@ implementation
 { TBaseDict }
 uses SysUtils;
 
+
 constructor TBaseDict.Create;
 begin
   FWords := TStringList.Create();
+end;
+
+constructor TBaseDict.Create(Words: TStringList);
+begin
+  FWords := Words;
 end;
 
 destructor TBaseDict.Destroy;

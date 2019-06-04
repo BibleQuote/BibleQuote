@@ -82,6 +82,10 @@ object LibraryFrame: TLibraryFrame
       Margins.Bottom = 0
       Caption = 'Cover/Details view'
       TabVisible = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lvBooks: TListView
         Left = 0
         Top = 0
@@ -149,7 +153,6 @@ object LibraryFrame: TLibraryFrame
         Colors.UnfocusedSelectionBorderColor = 15106675
         Header.AutoSizeIndex = 0
         Header.MainColumn = -1
-        HintAnimation = hatFade
         HintMode = hmHint
         ParentShowHint = False
         ShowHint = True
