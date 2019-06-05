@@ -330,7 +330,7 @@ type
     procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState; processCommand: boolean = true);
     procedure OpenOrCreateDictionaryTab(const searchText: string; aActiveDictName: String = '');
-    procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; number: String);
+    procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; number: Integer; isHebrew: Boolean);
     procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; SearchOptions: TSearchOptions = []);
 
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
@@ -4055,7 +4055,7 @@ begin
   end;
 end;
 
-procedure TMainForm.OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; number: String);
+procedure TMainForm.OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; number: Integer; isHebrew: Boolean);
 var
   i: integer;
   tabInfo: IViewTabInfo;
@@ -4085,9 +4085,7 @@ begin
   if Assigned(bookTabInfo) then
   begin
     strongView.SetCurrentBook(bookTabInfo.Bible.ShortPath);
-    // TODO: check if strong number is valid
-    strongView.DisplayStrongs(number);
-    //strongView.DisplayStrongs(number, (bookTabInfo.Bible.CurBook < 40) and (bookTabInfo.Bible.Trait[bqmtOldCovenant]));
+    strongView.DisplayStrongs(number, isHebrew);
     mWorkspace.UpdateCurrentTabContent(false);
   end
   else

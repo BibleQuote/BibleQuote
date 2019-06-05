@@ -489,9 +489,10 @@ var
   scode, unicodeSRC: string;
   cb: THTMLViewer;
   ws: string;
-  iscontrolDown, isHebrew: Boolean;
+  iscontrolDown: Boolean;
   bookTabState: TBookTabInfoState;
-  num: integer;
+  strongNum: Integer;
+  isHebrew: Boolean;
 begin
   unicodeSRC := SRC;
   iscontrolDown := IsDown(VK_CONTROL);
@@ -568,8 +569,8 @@ begin
   else if Pos('s', unicodeSRC) = 1 then
   begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
-    // TODO: check if strong number is valid
-    mMainView.OpenOrCreateStrongTab(BookTabInfo, scode);
+    if (StrongVal(scode, strongNum, isHebrew)) then
+      mMainView.OpenOrCreateStrongTab(BookTabInfo, strongNum, isHebrew);
   end
   else
   begin
@@ -605,6 +606,7 @@ var
   modIx, status, num: integer;
   isHebrew: boolean;
   RefBible: TBible;
+  res: String;
 begin
   if Pos('s', SRC) = 1 then
   begin
@@ -613,8 +615,8 @@ begin
     begin
       if (FStrongsConcordance.EnsureStrongLoaded) then
       begin
-        // TODO: check if strong number is valid
-        viewer.Hint := Trim(StripHtmlMarkup(FStrongsConcordance.Lookup(scode)));
+        res := FStrongsConcordance.Lookup(FormatStrong(num, isHebrew));
+        viewer.Hint := Trim(StripHtmlMarkup(res));
       end;
       Exit;
     end;
@@ -847,8 +849,9 @@ end;
 
 procedure TBookFrame.bwrHtmlMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-  num, code: integer;
+  num: integer;
   text: string;
+  hebrew: boolean;
 begin
   if not mMainView.mDictionariesFullyInitialized then
   begin
@@ -856,10 +859,8 @@ begin
   end;
 
   text := Trim(bwrHtml.SelText);
-  Val(text, num, code);
-  if code = 0 then
-    // TODO: check if selected text is strong number
-    //mMainView.OpenOrCreateStrongTab(BookTabInfo, num)
+  if StrongVal(text, num, hebrew) then
+    mMainView.OpenOrCreateStrongTab(BookTabInfo, num, hebrew)
   else
   begin
     if (text.Length > 0) then

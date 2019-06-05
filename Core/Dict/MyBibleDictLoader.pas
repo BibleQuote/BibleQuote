@@ -39,13 +39,15 @@ var
   Words: TStringList;
   SQLiteConnection: TFDConnection;
 begin
+  Words := TStringList.Create();
 
+  SQLiteConnection := nil;
+  SQLiteQuery := nil;
   try
     SQLiteConnection := TMyBibleUtils.OpenDatabase(aDictFilePath);
 
     SQLiteQuery := TFDQuery.Create(nil);
     SQLiteQuery.Connection := SQLiteConnection;
-    Words := TStringList.Create();
     try
 
       DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
@@ -68,8 +70,12 @@ begin
       SQLiteQuery.Free();
     end;
 
-    SQLiteConnection.Close();
-    SQLiteConnection.Free();
+    if Assigned(SQLiteConnection) then
+    begin
+      SQLiteConnection.Close();
+      SQLiteConnection.Free();
+    end;
+
     Words.Free();
   end;
 

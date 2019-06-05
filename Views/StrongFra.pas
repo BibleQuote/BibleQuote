@@ -56,7 +56,7 @@ type
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
 
-    procedure DisplayStrongs(number: String);
+    procedure DisplayStrongs(number: Integer; isHebrew: Boolean);
     procedure SetCurrentBook(shortPath: string);
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
@@ -174,7 +174,11 @@ var
   scode: string;
 begin
   if Pos('s', SRC) = 1 then
-    DisplayStrongs(sCode);
+  begin
+    scode := Copy(SRC, 2, Length(SRC) - 1);
+    if StrongVal(scode, num, isHebrew) then
+      DisplayStrongs(num, isHebrew);
+  end;
 end;
 
 procedure TStrongFrame.bwrStrongKeyPress(Sender: TObject; var Key: Char);
@@ -184,15 +188,15 @@ end;
 
 procedure TStrongFrame.bwrStrongMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-  num, code: integer;
+  text: String;
+  num: Integer;
+  hebrew: Boolean;
 begin
-  Val(Trim(bwrStrong.SelText), num, code);
-
-  if code = 0 then
-    // TODO: check if strong number
-    //DisplayStrongs(bwrStrong.SelText)
+  text := Trim(bwrStrong.SelText);
+  if StrongVal(text, num, hebrew) then
+    DisplayStrongs(num, hebrew)
   else
-    mMainView.OpenOrCreateDictionaryTab(Trim(bwrStrong.SelText));
+    mMainView.OpenOrCreateDictionaryTab(text);
 end;
 
 constructor TStrongFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
@@ -210,9 +214,12 @@ begin
 end;
 
 procedure TStrongFrame.ShowStrong(stext: string);
+var
+  hebrew: Boolean;
+  num: Integer;
 begin
-  // TODO: check if number is valid
-  DisplayStrongs(stext);
+  if StrongVal(stext, num, hebrew) then
+    DisplayStrongs(num, hebrew);
 end;
 
 procedure TStrongFrame.edtStrongKeyPress(Sender: TObject; var Key: Char);
@@ -305,16 +312,19 @@ begin
   Result := Ch.IsDigit or Ch.ToUpper.IsInArray(['G', 'H']);
 end;
 
-procedure TStrongFrame.DisplayStrongs(number: String);
+procedure TStrongFrame.DisplayStrongs(number: Integer; isHebrew: Boolean);
 var
   res, Copyright: string;
-  i: integer;
+  sword, letter: string;
 begin
+  sword := FormatStrong(number, isHebrew);
+
   try
     FStrongsConcordance.EnsureStrongLoaded;
 
-    res := FStrongsConcordance.StrongDict.Lookup(number);
-    StrReplace(res, '<h4>', '<h4>', false);
+    res := FStrongsConcordance.StrongDict.Lookup(sword);
+    letter := Copy(sword, 1, 1);
+    StrReplace(res, '<h4>', '<h4>' + letter, false);
     Copyright := FStrongsConcordance.StrongDict.GetName();
   except
     on e: Exception do
@@ -331,10 +341,10 @@ begin
     AddLine(res, '<p><font size=-1>' + Copyright + '</font>');
     bwrStrong.LoadFromString(res);
 
-    edtStrong.Text := number;
+    edtStrong.Text := sword;
     edtStrong.SelectAll;
 
-    SelectStrongWord(number);
+    SelectStrongWord(sword);
   end;
 
 end;

@@ -48,6 +48,8 @@ function PosCIL(aSubString: string; const aString: string; aStartPos: integer = 
 
 function FindPosition(const sourceString, findString: string; const startPos: integer; options: TStringSearchOptions): integer;
 function StripHtmlMarkup(const source: string): string;
+function IsValidStrong(const source: string): boolean;
+function FormatStrong(const number: Integer; const isHebrew: Boolean): String;
 function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
 function RepeatString(const s: string; count: cardinal): string;
 
@@ -786,6 +788,19 @@ begin
           Inc(count);
         end;
   SetLength(Result, count);
+end;
+
+function IsValidStrong(const source: string): boolean;
+var
+  num: integer;
+  isHebrew: boolean;
+begin
+  Result := StrongVal(source, num, isHebrew);
+end;
+
+function FormatStrong(const number: Integer; const isHebrew: Boolean): String;
+begin
+  Result := IfThen(isHebrew, 'H', 'G') + IntToStr(number);
 end;
 
 function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
