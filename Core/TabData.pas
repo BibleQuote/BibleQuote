@@ -194,10 +194,12 @@ type
   TLibraryTabInfo = class(TInterfacedObject, IViewTabInfo)
   private
     mViewMode: TLibraryViewMode;
-    mSelectedIndex: Integer;
+    mModuleIndex: Integer;
+    mModuleTypeIndex: Integer;
   public
     property ViewMode: TLibraryViewMode read mViewMode write mViewMode;
-    property SelectedIndex: Integer read mSelectedIndex write mSelectedIndex;
+    property ModuleIndex: Integer read mModuleIndex write mModuleIndex;
+    property ModuleTypeIndex: Integer read mModuleTypeIndex write mModuleTypeIndex;
 
     procedure SaveState(const workspace: IWorkspace);
     procedure RestoreState(const workspace: IWorkspace);
@@ -612,7 +614,7 @@ constructor TLibraryTabInfo.Create();
 begin
   inherited Create();
 
-  mSelectedIndex := -1;
+  mModuleIndex := -1;
   mViewMode := lvmDetail;
 end;
 
@@ -620,7 +622,7 @@ constructor TLibraryTabInfo.Create(settings: TLibraryTabSettings);
 begin
   inherited Create();
 
-  mSelectedIndex := -1;
+  mModuleIndex := -1;
   mViewMode := TExtensions.StringToEnum(settings.ViewMode, lvmDetail);
 end;
 
@@ -651,7 +653,8 @@ var
 begin
   libraryFrame := workspace.LibraryView as TLibraryFrame;
   mViewMode := libraryFrame.GetViewMode();
-  mSelectedIndex := libraryFrame.GetSelectedIndex();
+  mModuleIndex := libraryFrame.GetSelectedIndex();
+  mModuleTypeIndex := libraryFrame.GetModuleTypeIndex();
 end;
 
 procedure TLibraryTabInfo.RestoreState(const workspace: IWorkspace);
@@ -661,8 +664,9 @@ begin
   libraryFrame := workspace.LibraryView as TLibraryFrame;
   if Assigned(libraryFrame) then
   begin
+    libraryFrame.SelectModuleTypeIndex(mModuleTypeIndex);
     libraryFrame.SelectViewMode(mViewMode);
-    libraryFrame.SelectItem(mSelectedIndex);
+    libraryFrame.SelectItem(mModuleIndex);
   end;
 end;
 
