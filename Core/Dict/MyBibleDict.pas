@@ -16,7 +16,6 @@ type
     procedure Initialize(aName: String; aWords: TStrings; aSQLitePath: String);
 
     function Lookup(aWord: String): String; override;
-
   end;
 
 implementation

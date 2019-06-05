@@ -149,7 +149,6 @@ object LibraryFrame: TLibraryFrame
         Colors.UnfocusedSelectionBorderColor = 15106675
         Header.AutoSizeIndex = 0
         Header.MainColumn = -1
-        HintAnimation = hatFade
         HintMode = hmHint
         ParentShowHint = False
         ShowHint = True

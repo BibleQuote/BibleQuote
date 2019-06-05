@@ -130,10 +130,15 @@ type
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
-    procedure SelectViewMode(viewMode: TLibraryViewMode);
+
     function GetViewMode(): TLibraryViewMode;
+    procedure SelectViewMode(viewMode: TLibraryViewMode);
+
     function GetSelectedIndex(): Integer;
     procedure SelectItem(Index: Integer);
+
+    function GetModuleTypeIndex(): Integer;
+    procedure SelectModuleTypeIndex(Index: Integer);
 
     destructor Destroy; override;
 
@@ -158,8 +163,6 @@ implementation
 uses SelectEntityType, CommCtrl;
 
 constructor TLibraryFrame.Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace);
-var
-  viewMode: TLibraryViewMode;
 begin
   inherited Create(AOwner);
   mMainView := mainView;
@@ -794,6 +797,25 @@ begin
     if (Index < lvBooks.Items.Count) then
       lvBooks.ItemIndex := Index;
   end;
+end;
+
+function TLibraryFrame.GetModuleTypeIndex(): Integer;
+begin
+  Result := cmbBookType.ItemIndex;
+end;
+
+procedure TLibraryFrame.SelectModuleTypeIndex(Index: Integer);
+begin
+  with cmbBookType do
+  begin
+    if ((Items.Count > Index) and (Index >= 0)) then
+      ItemIndex := Index
+    else if (Items.Count > 0) then
+      ItemIndex := 0
+    else
+      ItemIndex := -1;
+  end;
+  UpdateBookList;
 end;
 
 procedure TLibraryFrame.SelectNodeByIndex(Index: Integer);

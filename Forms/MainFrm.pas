@@ -330,7 +330,7 @@ type
     procedure OpenOrCreateTSKTab(bookTabInfo: TBookTabInfo; goverse: integer = 0);
     procedure OpenOrCreateBookTab(const command: string; const satellite: string; state: TBookTabInfoState; processCommand: boolean = true);
     procedure OpenOrCreateDictionaryTab(const searchText: string; aActiveDictName: String = '');
-    procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
+    procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; number: Integer; isHebrew: Boolean);
     procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; SearchOptions: TSearchOptions = []);
 
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
@@ -1369,7 +1369,6 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   mFontManager := TFontManager.Create();
   FStrongsConcordance := TStrongsConcordance.Create();
-  FStrongsConcordance.Initialize;
 
   mBqEngine := TBibleQuoteEngine.Create();
   mNotifier := TJclBaseNotifier.Create;
@@ -4056,7 +4055,7 @@ begin
   end;
 end;
 
-procedure TMainForm.OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; num: integer);
+procedure TMainForm.OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; number: Integer; isHebrew: Boolean);
 var
   i: integer;
   tabInfo: IViewTabInfo;
@@ -4086,7 +4085,7 @@ begin
   if Assigned(bookTabInfo) then
   begin
     strongView.SetCurrentBook(bookTabInfo.Bible.ShortPath);
-    strongView.DisplayStrongs(num, (bookTabInfo.Bible.CurBook < 40) and (bookTabInfo.Bible.Trait[bqmtOldCovenant]));
+    strongView.DisplayStrongs(number, isHebrew);
     mWorkspace.UpdateCurrentTabContent(false);
   end
   else

@@ -7,10 +7,9 @@ uses Classes, DictLoaderInterface, EngineInterfaces, IOUtils, Types, FireDAC.Com
 
 type
   TMyBibleDictLoader = class(TInterfacedObject, IDictLoader)
-  protected
-    function LoadDictionary(aDictFilePath: String; aSQLiteConnection: TFDConnection): TMyBibleDict;
   public
     function LoadDictionaries(aFileEntryPath: String; aEngine: IbqEngineDicTraits): Boolean;
+    procedure LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String);
   end;
 
 implementation
@@ -22,58 +21,40 @@ uses ExceptionFrm, SysUtils;
 function TMyBibleDictLoader.LoadDictionaries(aFileEntryPath: String;
   aEngine: IbqEngineDicTraits): Boolean;
 var
-  SQLiteConnection: TFDConnection;
   Dictionary: TMyBibleDict;
 begin
+  Dictionary := TMyBibleDict.Create;
+  LoadDictionary(Dictionary, aFileEntryPath);
 
-  SQLiteConnection := TFDConnection.Create(nil);
-  SQLiteConnection.DriverName := 'SQLite';
-
-  try
-
-    Dictionary := LoadDictionary(aFileEntryPath, SQLiteConnection);
-
-    if Assigned(Dictionary) then
-      aEngine.AddDictionary(Dictionary);
-
-  finally
-    SQLiteConnection.Close;
-    SQLiteConnection.Free;
-  end;
+  if Assigned(Dictionary) then
+    aEngine.AddDictionary(Dictionary);
 
   Result := True;
 end;
 
-function TMyBibleDictLoader.LoadDictionary(aDictFilePath: String;
-  aSQLiteConnection: TFDConnection): TMyBibleDict;
+procedure TMyBibleDictLoader.LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String);
 var
-  Dictionary: TMyBibleDict;
   SQLiteQuery: TFDQuery;
   DictName: String;
   Words: TStringList;
+  SQLiteConnection: TFDConnection;
 begin
-  Result := nil;
-
-  if aSQLiteConnection.Connected then aSQLiteConnection.Close;
-
-  aSQLiteConnection.Params.Values['Database'] := aDictFilePath;
-  aSQLiteConnection.Open();
-
-  SQLiteQuery := TFDQuery.Create(nil);
-  SQLiteQuery.Connection := aSQLiteConnection;
   Words := TStringList.Create();
 
+  SQLiteConnection := nil;
+  SQLiteQuery := nil;
   try
+    SQLiteConnection := TMyBibleUtils.OpenDatabase(aDictFilePath);
+
+    SQLiteQuery := TFDQuery.Create(nil);
+    SQLiteQuery.Connection := SQLiteConnection;
     try
 
       DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
 
       TMyBibleUtils.FillWords(Words, SQLiteQuery);
 
-      Dictionary := TMyBibleDict.Create;
       Dictionary.Initialize(DictName, Words, aDictFilePath);
-
-      Result := Dictionary;
 
     except
       on e: Exception do
@@ -83,12 +64,20 @@ begin
     end;
 
   finally
-    aSQLiteConnection.Close();
-    SQLiteQuery.Close();
-    SQLiteQuery.Free();
+    if Assigned(SQLiteQuery) then
+    begin
+      SQLiteQuery.Close();
+      SQLiteQuery.Free();
+    end;
+
+    if Assigned(SQLiteConnection) then
+    begin
+      SQLiteConnection.Close();
+      SQLiteConnection.Free();
+    end;
+
     Words.Free();
   end;
-
 
 end;
 

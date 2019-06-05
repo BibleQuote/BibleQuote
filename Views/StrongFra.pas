@@ -51,13 +51,12 @@ type
 
     procedure ShowStrong(stext: string);
     procedure CMShowingChanged(var Message: TMessage); MESSAGE CM_SHOWINGCHANGED;
-    function GetStrongWordByIndex(ix: Integer): string;
     function IsStrongChar(Ch: Char): Boolean;
     procedure RedirectAlphanumericKey(var Key: Char);
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
 
-    procedure DisplayStrongs(num: integer; hebrew: Boolean);
+    procedure DisplayStrongs(number: Integer; isHebrew: Boolean);
     procedure SetCurrentBook(shortPath: string);
     procedure Translate();
     procedure ApplyConfig(appConfig: TAppConfig);
@@ -96,7 +95,7 @@ begin
   if not Assigned(pn) then
     Exit;
 
-  Result := GetStrongWordByIndex(pn.Index);
+  Result := vstStrong.Text[pn, 0];
 end;
 
 procedure TStrongFrame.tbtnSearchClick(Sender: TObject);
@@ -129,7 +128,7 @@ begin
 
   if Assigned(book) then
   begin
-    word := GetStrongWordByIndex(pn.Index);
+    word := vstStrong.Text[pn, 0];
     word := Copy(word, 1, 100); // reduce text to search
     searchText := word;
 
@@ -189,14 +188,15 @@ end;
 
 procedure TStrongFrame.bwrStrongMouseDouble(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-  num, code: integer;
+  text: String;
+  num: Integer;
+  hebrew: Boolean;
 begin
-  Val(Trim(bwrStrong.SelText), num, code);
-
-  if code = 0 then
-    DisplayStrongs(num, Copy(Trim(bwrStrong.SelText), 1, 1) = '0')
+  text := Trim(bwrStrong.SelText);
+  if StrongVal(text, num, hebrew) then
+    DisplayStrongs(num, hebrew)
   else
-    mMainView.OpenOrCreateDictionaryTab(Trim(bwrStrong.SelText));
+    mMainView.OpenOrCreateDictionaryTab(text);
 end;
 
 constructor TStrongFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace);
@@ -215,13 +215,11 @@ end;
 
 procedure TStrongFrame.ShowStrong(stext: string);
 var
-  isHebrew, valid: Boolean;
+  hebrew: Boolean;
   num: Integer;
 begin
-  valid := StrongVal(stext, num, isHebrew);
-
-  if valid then
-    DisplayStrongs(num, isHebrew);
+  if StrongVal(stext, num, hebrew) then
+    DisplayStrongs(num, hebrew);
 end;
 
 procedure TStrongFrame.edtStrongKeyPress(Sender: TObject; var Key: Char);
@@ -278,7 +276,7 @@ procedure TStrongFrame.SearchText(Sender: TBaseVirtualTree; Node: PVirtualNode; 
 var
   word, sText: string;
 begin
-  word := GetStrongWordByIndex(Node.Index);
+  word := vstStrong.Text[Node, 0];
 
   sText := string(data);
   if Length(sText) > 0 then
@@ -314,47 +312,20 @@ begin
   Result := Ch.IsDigit or Ch.ToUpper.IsInArray(['G', 'H']);
 end;
 
-function TStrongFrame.GetStrongWordByIndex(ix: Integer): string;
+procedure TStrongFrame.DisplayStrongs(number: Integer; isHebrew: Boolean);
 var
-  initialized: boolean;
+  res, Copyright: string;
+  sword, letter: string;
 begin
-  initialized := FStrongsConcordance.Initialize;
-  if (not initialized) then
-  begin
-    ShowMessage('Can not initialize Strong''s dictionary');
-    Result := '';
-    Exit;
-  end;
-
-  Result := FStrongsConcordance.GetStrongWordByIndex(ix);
-end;
-
-procedure TStrongFrame.DisplayStrongs(num: integer; hebrew: Boolean);
-var
-  res, s, Copyright: string;
-  i: integer;
-begin
-  s := IntToStr(num);
-  for i := Length(s) to 4 do
-    s := '0' + s;
+  sword := FormatStrong(number, isHebrew);
 
   try
-    if hebrew or (num = 0) then
-    begin
-      FStrongsConcordance.EnsureStrongHebrewLoaded;
+    FStrongsConcordance.EnsureStrongLoaded;
 
-      res := FStrongsConcordance.Hebrew.Lookup(s);
-      StrReplace(res, '<h4>', '<h4>H', false);
-      Copyright := FStrongsConcordance.Hebrew.GetName();
-    end
-    else
-    begin
-      FStrongsConcordance.EnsureStrongGreekLoaded;
-
-      res := FStrongsConcordance.Greek.Lookup(s);
-      StrReplace(res, '<h4>', '<h4>G', false);
-      Copyright := FStrongsConcordance.Greek.GetName();
-    end;
+    res := FStrongsConcordance.StrongDict.Lookup(sword);
+    letter := Copy(sword, 1, 1);
+    StrReplace(res, '<h4>', '<h4>' + letter, false);
+    Copyright := FStrongsConcordance.StrongDict.GetName();
   except
     on e: Exception do
     begin
@@ -370,12 +341,10 @@ begin
     AddLine(res, '<p><font size=-1>' + Copyright + '</font>');
     bwrStrong.LoadFromString(res);
 
-    s := IfThen(hebrew, 'H', 'G') + IntToStr(num);
-
-    edtStrong.Text := s;
+    edtStrong.Text := sword;
     edtStrong.SelectAll;
 
-    SelectStrongWord(s);
+    SelectStrongWord(sword);
   end;
 
 end;
@@ -444,7 +413,7 @@ begin
     Exit;
 
   try
-    CellText := GetStrongWordByIndex(Node.Index);
+    CellText := FStrongsConcordance.StrongDict.GetWord(Node.Index);
   except
     on E: Exception do
     begin
@@ -487,7 +456,7 @@ end;
 
 procedure TStrongFrame.LoadStrongDictionaries();
 begin
-  FStrongsConcordance.Initialize;
+  FStrongsConcordance.EnsureStrongLoaded;
   vstStrong.BeginUpdate();
   try
     vstStrong.Clear;

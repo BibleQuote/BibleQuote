@@ -1,170 +1,117 @@
-unit StrongsConcordance;
+﻿unit StrongsConcordance;
 
 interface
 
-uses Windows, Classes, SysUtils, IOUtils, IOProcs, NativeDict, AppPaths, StrUtils,
-     SyncObjs, StringProcs;
+uses Windows, Classes, SysUtils, IOUtils, IOProcs, MyBibleDict, AppPaths, StrUtils,
+     SyncObjs, StringProcs, MyBibleDictLoader, Math;
 
 type
+  TStrongWordList = class(TStringList)
+   function CompareStrings(const S1, S2: string): Integer; override;
+  end;
+
   TStrongsConcordance = class
   private
-    FStrongHebrew, FStrongGreek: TNativeDict;
+    FStrongDict: TMyBibleDict;
     FLock: TCriticalSection;
-    FHebrewLoaded, FGreekLoaded: boolean;
-    function InitializeDictionary(dict: TNativeDict; idxFilename: string; htmFilename: string): boolean;
+    FStrongLoaded: boolean;
+    function InitializeDictionary(Dictionary: TMyBibleDict; filename: string): boolean;
   public
     constructor Create;
     destructor Destroy(); override;
 
-    function Initialize: boolean;
-    function EnsureStrongHebrewLoaded(): boolean;
-    function EnsureStrongGreekLoaded(): boolean;
-    function GetStrongWordByIndex(ix: Integer): string;
+    function EnsureStrongLoaded(): boolean;
     function GetTotalWords(): integer;
-    function Lookup(stext: string): string; overload;
-    function Lookup(num: integer; isHebrew: boolean): string; overload;
+    function Lookup(number: string): string; overload;
 
-    property Hebrew: TNativeDict read FStrongHebrew;
-    property Greek: TNativeDict read FStrongGreek;
+    property StrongDict: TMyBibleDict read FStrongDict;
     property TotalWords: integer read GetTotalWords;
   end;
 
 implementation
 
-uses NativeInfoSourceLoader, InfoSource;
+uses MyBibleInfoSourceLoader, InfoSource;
+
+function TStrongWordList.CompareStrings(const S1, S2: string): Integer;
+var
+  H1, H2: Boolean;
+  Num1, Num2: Integer;
+begin
+  if (StrongVal(S1, Num1, H1) and StrongVal(S2, Num2, H2)) then
+  begin
+    if (H1 xor H2) then
+      Result := IfThen(H1, -1, 1)
+    else
+      Result := Num1 - Num2;
+  end
+  else
+    Result := inherited CompareStrings(S1, S2);
+end;
 
 constructor TStrongsConcordance.Create;
+var
+  Words: TStrongWordList;
 begin
   inherited Create;
 
   FLock := TCriticalSection.Create;
 
-  FStrongHebrew := TNativeDict.Create;
-  FStrongGreek := TNativeDict.Create;
+  Words := TStrongWordList.Create;
+  Words.Sorted := True;
+  FStrongDict := TMyBibleDict.Create(Words);
+  FStrongLoaded := False;
 end;
 
 destructor TStrongsConcordance.Destroy;
 begin
   FreeAndNil(FLock);
-  FreeAndNil(FStrongHebrew);
-  FreeAndNil(FStrongGreek);
+  FreeAndNil(FStrongDict);
 
   inherited;
 end;
 
-function TStrongsConcordance.Initialize: boolean;
+function TStrongsConcordance.EnsureStrongLoaded(): boolean;
 begin
-  inherited Create;
-  Result := EnsureStrongHebrewLoaded() and EnsureStrongGreekLoaded();
+  if not FStrongLoaded then
+    FStrongLoaded := InitializeDictionary(FStrongDict, 'Лексикон.dictionary.SQLite3');
+
+  Result := FStrongLoaded;
 end;
 
-function TStrongsConcordance.EnsureStrongHebrewLoaded(): boolean;
-begin
-  if not FHebrewLoaded then
-    FHebrewLoaded := InitializeDictionary(Hebrew, 'hebrew.idx', 'hebrew.htm');
-
-  Result := FHebrewLoaded;
-end;
-
-function TStrongsConcordance.EnsureStrongGreekLoaded(): boolean;
-begin
-  if not FGreekLoaded then
-    FGreekLoaded := InitializeDictionary(Greek, 'greek.idx', 'greek.htm');
-
-  Result := FGreekLoaded;
-end;
-
-function TStrongsConcordance.InitializeDictionary(dict: TNativeDict; idxFilename: string; htmFilename: string): boolean;
+function TStrongsConcordance.InitializeDictionary(Dictionary: TMyBibleDict; filename: string): boolean;
 var
-  IdxFilePath: string;
-  HtmFilePath: string;
-  InfoSource: TInfoSource;
+  SqlitePath: string;
+  Loader: TMyBibleDictLoader;
 begin
-  IdxFilePath := TPath.Combine(TLibraryDirectories.Strong, idxFilename);
-  HtmFilePath := TPath.Combine(TLibraryDirectories.Strong, htmFilename);
-
-  InfoSource := TNativeInfoSourceLoader.LoadNativeInfoSource(TLibraryDirectories.Strong);
+  Result := False;
+  SqlitePath := TPath.Combine(TLibraryDirectories.Strong, filename);
+  Loader := TMyBibleDictLoader.Create;
 
   FLock.Acquire;
   try
-    Result := dict.Initialize(IdxFilePath, HtmFilePath, InfoSource);
-  finally
-    FLock.Release;
-    infoSource.Free;
-  end;
-end;
+    Loader.LoadDictionary(Dictionary, SqlitePath);
 
-function TStrongsConcordance.GetStrongWordByIndex(ix: Integer): string;
-var
-  isHebrew: Boolean;
-  num: Integer;
-  word: string;
-begin
-  FLock.Acquire;
-  try
-    if (ix < Hebrew.GetWordCount()) then
-    begin
-      word := Hebrew.GetWord(ix);
-      isHebrew := true;
-    end
-    else
-    begin
-      ix := ix - Hebrew.GetWordCount();
-      word := Greek.GetWord(ix);
-      isHebrew := false;
-    end;
+    Result := True;
   finally
     FLock.Release;
   end;
-
-  num := StrToInt(word);
-  Result := IfThen(isHebrew, 'H', 'G') + IntToStr(num);
 end;
 
 function TStrongsConcordance.GetTotalWords(): integer;
 begin
   FLock.Acquire;
   try
-    Result := Hebrew.GetWordCount() + Greek.GetWordCount();
+    Result := StrongDict.GetWordCount();
   finally
     FLock.Release;
   end;
 end;
 
-function TStrongsConcordance.Lookup(stext: string): string;
-var
-  isHebrew, valid: Boolean;
-  num: Integer;
+function TStrongsConcordance.Lookup(number: string): string;
 begin
-  valid := StrongVal(stext, num, isHebrew);
-
-  if valid then
-  begin
-    Result := Lookup(num, isHebrew);
-  end;
-end;
-
-function TStrongsConcordance.Lookup(num: integer; isHebrew: boolean): string;
-var
-  i: Integer;
-  s: string;
-begin
-  Result := '';
-
-  s := IntToStr(num);
-  for i := Length(s) to 4 do
-    s := '0' + s;
-
-  if isHebrew or (num = 0) then
-  begin
-    if EnsureStrongHebrewLoaded() then
-      Result := Hebrew.Lookup(s);
-  end
-  else
-  begin
-    if EnsureStrongGreekLoaded() then
-      Result := Greek.Lookup(s);
-  end;
+  EnsureStrongLoaded;
+  Result := StrongDict.Lookup(number);
 end;
 
 end.
+
