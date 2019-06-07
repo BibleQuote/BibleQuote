@@ -637,7 +637,7 @@ begin
   with aModuleJson do
   begin
     abr := ReadString('abr');
-    des := ReadString('des');
+    des := ReadString('des', '');
     cmt := ReadString('cmt');
     upd := ReadString('upd');
     siz := ReadString('siz');

@@ -39,8 +39,6 @@ object DownloadModulesForm: TDownloadModulesForm
     Align = alClient
     TabOrder = 1
     OnChange = tcModulesChange
-    ExplicitTop = 0
-    ExplicitHeight = 470
     object lvModules: TListView
       Left = 4
       Top = 6
@@ -81,9 +79,6 @@ object DownloadModulesForm: TDownloadModulesForm
       TabOrder = 0
       ViewStyle = vsReport
       OnData = lvModulesData
-      ExplicitLeft = 5
-      ExplicitTop = 4
-      ExplicitHeight = 460
     end
   end
   object ToolBar1: TToolBar
