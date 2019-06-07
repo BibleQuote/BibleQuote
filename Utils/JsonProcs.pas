@@ -8,7 +8,8 @@ type
   TJsonObjectHelper = class helper for TJsonObject
     private
     public
-      function ReadString(aKey: String): String;
+      function ReadString(aKey: String): String; overload;
+      function ReadString(aKey: String; aDefault: String): String; overload;
       function ReadStringArray(aKey: String): TArray<String>;
       function GetArray(aKey: String): TJsonArray;
   end;
@@ -20,6 +21,17 @@ implementation
 function TJsonObjectHelper.ReadString(aKey: String): String;
 begin
   Result := Self.Get(aKey).JsonValue.Value;
+end;
+
+function TJsonObjectHelper.ReadString(aKey: String; aDefault: String): String;
+var
+  Pair: TJSONPair;
+begin
+  Pair := Self.Get(aKey);
+  if (not Assigned(Pair)) then
+    Result := aDefault
+  else
+    Result := Self.Get(aKey).JsonValue.Value;
 end;
 
 function TJsonObjectHelper.ReadStringArray(aKey: String): TArray<String>;
