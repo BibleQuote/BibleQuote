@@ -6,8 +6,7 @@ uses Classes, System.Types, FireDAC.Comp.Client, Generics.Collections, ChapterDa
 
 const
 
-  CHAPTER_NOT_NULL_CONDITION = 'chapter_number_from is not null and verse_number_from is not null '+
-                               ' and chapter_number_to is not null and verse_number_to is not null ';
+  CHAPTER_NOT_NULL_CONDITION = 'chapter_number_from is not null and verse_number_from is not null ';
 
 type
 
