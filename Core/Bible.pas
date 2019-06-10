@@ -2527,7 +2527,7 @@ begin
     SetShortNameVars(index, ShortName);
     ShortNames[index] := FirstWord(ShortNamesVars[index]);
 
-    ChapterQtys[index] := ChapterData.ChapterQty;
+    ChapterQtys[index] := Length(ChapterData.ChapterNumbers);
 
     if (ChapterData.BookNumber > 0) then
     begin
