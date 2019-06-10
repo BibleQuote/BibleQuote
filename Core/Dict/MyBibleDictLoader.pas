@@ -35,7 +35,7 @@ end;
 procedure TMyBibleDictLoader.LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String);
 var
   SQLiteQuery: TFDQuery;
-  DictName: String;
+  DictName, Style: String;
   Words: TStringList;
   SQLiteConnection: TFDConnection;
 begin
@@ -51,10 +51,11 @@ begin
     try
 
       DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
+      Style := TMyBibleUtils.GetStyle(SQLiteQuery);
 
       TMyBibleUtils.FillWords(Words, SQLiteQuery);
 
-      Dictionary.Initialize(DictName, Words, aDictFilePath);
+      Dictionary.Initialize(DictName, Words, aDictFilePath, Style);
 
     except
       on e: Exception do

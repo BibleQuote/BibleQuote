@@ -314,7 +314,7 @@ end;
 
 procedure TStrongFrame.DisplayStrongs(number: Integer; isHebrew: Boolean);
 var
-  res, Copyright: string;
+  res, Copyright, Style: string;
   sword, letter: string;
 begin
   sword := FormatStrong(number, isHebrew);
@@ -325,7 +325,9 @@ begin
     res := FStrongsConcordance.StrongDict.Lookup(sword);
     letter := Copy(sword, 1, 1);
     StrReplace(res, '<h4>', '<h4>' + letter, false);
+
     Copyright := FStrongsConcordance.StrongDict.GetName();
+    Style := FStrongsConcordance.StrongDict.Style;
   except
     on e: Exception do
     begin
@@ -337,6 +339,9 @@ begin
   if res <> '' then
   begin
     res := FormatStrongNumbers(res, false, false);
+
+    if Length(Style) > 0 then
+      res := Format('<style>%s</style>', [Style]) + res;
 
     AddLine(res, '<p><font size=-1>' + Copyright + '</font>');
     bwrStrong.LoadFromString(res);

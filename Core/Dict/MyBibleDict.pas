@@ -8,14 +8,16 @@ type
   TMyBibleDict = class(TBaseDict)
   private
     FSQLitePath: String;
+    FStyle: String;
   protected
     function SearchWordDescriptionInDB(aWord: String): String;
     function FixedLinks(aDescription: String): String;
     function RemoveHRefEvaluator(const Match: TMatch): String;
   public
-    procedure Initialize(aName: String; aWords: TStrings; aSQLitePath: String);
+    procedure Initialize(aName: String; aWords: TStrings; aSQLitePath: String; aStyle: String = '');
 
     function Lookup(aWord: String): String; override;
+    property Style: String read FStyle;
   end;
 
 implementation
@@ -57,9 +59,10 @@ begin
 end;
 
 procedure TMyBibleDict.Initialize(aName: String; aWords: TStrings;
-  aSQLitePath: String);
+  aSQLitePath: String; aStyle: String = '');
 begin
   FName := aName;
+  FStyle := aStyle;
   FSQLitePath := aSQLitePath;
   FWords.AddStrings(aWords);
   FDictDir := ExtractFilePath(aSQLitePath);
