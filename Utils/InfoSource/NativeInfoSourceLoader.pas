@@ -181,6 +181,7 @@ procedure TNativeInfoSourceLoader.LoadPathValues(aInfoSource: TInfoSource; aNati
 var
   ChapterData: TChapterData;
   ChapterDatas : TList<TChapterData>;
+  ChapterQty: Integer;
   i, j: Integer;
   Name: String;
   Value: String;
@@ -225,9 +226,9 @@ begin
     begin
       if Assigned(ChapterData) then
       begin
-        ChapterData.ChapterQty := StrToInt(Value);
-        SetLength(ChapterData.ChapterNumbers, ChapterData.ChapterQty);
-        for J := 1 to ChapterData.ChapterQty do
+        ChapterQty := StrToInt(Value);
+        SetLength(ChapterData.ChapterNumbers, ChapterQty);
+        for J := 1 to ChapterQty do
           ChapterData.ChapterNumbers[J - 1] := J;
       end;
     end;

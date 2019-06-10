@@ -11,7 +11,6 @@ type
     FPathName: String;
     FFullName: String;
     FShortName: String;
-    FChapterQty: Integer;
     FBookNumber: Integer;
   public
     ChapterNumbers: TArray<Integer>;
@@ -20,7 +19,6 @@ type
     property PathName: String read FPathName write FPathName;
     property FullName: String read FFullName write FFullName;
     property ShortName: String read FShortName write FShortName;
-    property ChapterQty: Integer read FChapterQty write FChapterQty;
     property BookNumber: Integer read FBookNumber write FBookNumber;
 
     function Clone(): TChapterData;
@@ -39,7 +37,6 @@ begin
   ChapterData.PathName := Self.FPathName;
   ChapterData.FullName := Self.FFullName;
   ChapterData.ShortName := Self.FShortName;
-  ChapterData.ChapterQty := Self.FChapterQty;
   ChapterData.BookNumber := Self.FBookNumber;
   ChapterData.ChapterNumbers := Self.ChapterNumbers;
 
