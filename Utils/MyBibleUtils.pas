@@ -37,6 +37,7 @@ type
     class function GetDictName(aSQLiteQuery: TFDQuery): String;
     class function GetStrong(aSQLiteQuery: TFDQuery): Boolean;
     class function GetHistory(aSQLiteQuery: TFDQuery): String;
+    class function GetStyle(aSQLiteQuery: TFDQuery): String;
     class procedure FillWords(aWords: TStrings;
                     aSQLiteQuery: TFDQuery);
     class procedure GetCommentaryChapter(aSQLiteQuery: TFDQuery; aBook, aChapter: Integer; aLines: TStrings);
@@ -222,12 +223,15 @@ begin
   Result := GetInfoValue(aSQLiteQuery, 'is_strong') = 'true';
 end;
 
-
 class function TMyBibleUtils.GetHistory(aSQLiteQuery: TFDQuery): String;
 begin
   Result := GetInfoValue(aSQLiteQuery, 'history_of_changes');
 end;
 
+class function TMyBibleUtils.GetStyle(aSQLiteQuery: TFDQuery): String;
+begin
+  Result := GetInfoValue(aSQLiteQuery, 'html_style');
+end;
 
 class function TMyBibleUtils.FillChapterDatas(aSQLiteQuery: TFDQuery;
   aChapterDatas: TList<TChapterData>): Integer;
