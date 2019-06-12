@@ -121,9 +121,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.2.0.664;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.2.0.674;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <VerInfo_Build>664</VerInfo_Build>
+        <VerInfo_Build>674</VerInfo_Build>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
     </PropertyGroup>
@@ -817,6 +817,12 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Utils\JsonProcs.pas"/>
         <DCCReference Include="IO\ScanModules.pas"/>
         <DCCReference Include="Utils\Types.Extensions.pas"/>
+        <DCCReference Include="HTML\HTMLParser.pas"/>
+        <DCCReference Include="HTML\DOMCore.pas"/>
+        <DCCReference Include="HTML\Entities.pas"/>
+        <DCCReference Include="HTML\Formatter.pas"/>
+        <DCCReference Include="HTML\HtmlReader.pas"/>
+        <DCCReference Include="HTML\HtmlTags.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>

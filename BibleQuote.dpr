@@ -92,7 +92,13 @@ uses
   ThirdPartModulesProcs in 'IO\ThirdPartModulesProcs.pas',
   JsonProcs in 'Utils\JsonProcs.pas',
   ScanModules in 'IO\ScanModules.pas',
-  Types.Extensions in 'Utils\Types.Extensions.pas';
+  Types.Extensions in 'Utils\Types.Extensions.pas',
+  HTMLParser in 'HTML\HTMLParser.pas',
+  DOMCore in 'HTML\DOMCore.pas',
+  Entities in 'HTML\Entities.pas',
+  Formatter in 'HTML\Formatter.pas',
+  HtmlReader in 'HTML\HtmlReader.pas',
+  HtmlTags in 'HTML\HtmlTags.pas';
 
 {$R *.res}
 
