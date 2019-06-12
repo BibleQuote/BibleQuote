@@ -343,7 +343,6 @@ begin
 
   if res <> '' then
   begin
-    res := FormatStrongNumbers(res, false, false);
     AddLine(res, '<p><font size=-1>' + Copyright + '</font>');
 
     html := Format('<html><head>%s</head><body>%s</body></html>', [
