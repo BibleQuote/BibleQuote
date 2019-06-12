@@ -38,7 +38,7 @@ function Get_ANAME_VerseNumber(const s: string; start, iPos: integer): integer;
 function Get_AHREF_VerseCommand(const s: string; iPos: integer): string;
 
 function DeleteStrongNumbers(S: String): String;
-function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
+function FormatStrongNumbers(s: string; supercase: boolean): string;
 
 // find string in SORTED list, maybe partial match
 function FindString(List: TStringList; s: string): integer;
@@ -90,7 +90,7 @@ begin
     Result := e;
 end;
 
-function FormatStrongNumbers(s: string; hebrew: boolean; supercase: boolean): string;
+function FormatStrongNumbers(s: string; supercase: boolean): string;
 var
   i, len: integer;
   isNum: boolean;

@@ -3213,7 +3213,7 @@ begin
         if (not showStrongs) then
           s := DeleteStrongNumbers(s)
         else
-          s := FormatStrongNumbers(s, (bible.CurBook < 40) and (bible.Trait[bqmtOldCovenant]), true);
+          s := FormatStrongNumbers(s, true);
       end;
     end;
     // if the module is non bible or there is no secondary Bible
@@ -3280,7 +3280,7 @@ begin
           StrDeleteFirstNumber(ss);
           if SecondBible.Trait[bqmtStrongs] then
             if showStrongs then
-              ss := FormatStrongNumbers(ss, B < 40, true)
+              ss := FormatStrongNumbers(ss, true)
             else
               ss := DeleteStrongNumbers(ss);
           if secondRightAligned then

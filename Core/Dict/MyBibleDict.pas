@@ -2,7 +2,7 @@
 
 interface
 
-uses Classes, BaseDict, RegularExpressions;
+uses Classes, BaseDict, RegularExpressions, StringProcs;
 
 type
   TMyBibleDict = class(TBaseDict)
@@ -12,7 +12,7 @@ type
   protected
     function SearchWordDescriptionInDB(aWord: String): String;
     function FixedLinks(aDescription: String): String;
-    function RemoveHRefEvaluator(const Match: TMatch): String;
+    function FormatHRef(const Match: TMatch): String;
   public
     procedure Initialize(aName: String; aWords: TStrings; aSQLitePath: String; aStyle: String = '');
 
@@ -25,19 +25,22 @@ implementation
 { TMyBibleDict }
 uses FireDAC.Comp.Client, SysUtils;
 
-function TMyBibleDict.RemoveHRefEvaluator(const Match: TMatch): String;
+function TMyBibleDict.FormatHRef(const Match: TMatch): String;
+var
+  Letter: String;
 begin
 
   Result := Match.Value;
 
-  if Match.Groups.Count < 0  then exit;
+  if Match.Groups.Count < 0 then exit;
 
-  if Match.Groups.Count >=2 then
+  if Match.Groups.Count >= 3 then
   begin
-      Result:= Match.Groups[1].Value;
+    Result := Match.Groups['text'].Value;
+    Letter := Match.Groups['letter'].Value;
+    if (UpperCase(Letter) = 'S') then
+      Result := FormatStrongNumbers(Result, False);
   end;
-
-
 end;
 
 function TMyBibleDict.FixedLinks(aDescription: String): String;
@@ -49,11 +52,11 @@ begin
 
   Options := [roMultiLine];
 
-  RegEx := TRegEx.Create('<a href=''.?:.*?''>(?P<word>.*?)</a>', Options);
+  RegEx := TRegEx.Create('<a href=''(?P<letter>.?):.*?''>(?P<text>.*?)</a>', Options);
 
   if RegEx.IsMatch(aDescription) then
   begin
-    Result := RegEx.Replace(aDescription, RemoveHRefEvaluator);
+    Result := RegEx.Replace(aDescription, FormatHRef);
   end;
 
 end;
