@@ -9,7 +9,8 @@ uses
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, HTMLEmbedInterfaces,
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
   ExceptionFrm, NativeDict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
-  StrongsConcordance, Math, Character;
+  StrongsConcordance, Math, Character, HtmlParser, DOMCore, Formatter,
+  HtmlTags;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -53,6 +54,9 @@ type
     procedure CMShowingChanged(var Message: TMessage); MESSAGE CM_SHOWINGCHANGED;
     function IsStrongChar(Ch: Char): Boolean;
     procedure RedirectAlphanumericKey(var Key: Char);
+    function ProcessCustomTags(htmlString: String): String;
+    procedure ProcessElementCustomTags(const Element: TElement);
+    function IsStandardTag(const Element: TElement): Boolean;
   public
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
 
@@ -316,6 +320,7 @@ procedure TStrongFrame.DisplayStrongs(number: Integer; isHebrew: Boolean);
 var
   res, Copyright, Style: string;
   sword, letter: string;
+  html: string;
 begin
   sword := FormatStrong(number, isHebrew);
 
@@ -339,12 +344,20 @@ begin
   if res <> '' then
   begin
     res := FormatStrongNumbers(res, false, false);
-
-    if Length(Style) > 0 then
-      res := Format('<style>%s</style>', [Style]) + res;
-
     AddLine(res, '<p><font size=-1>' + Copyright + '</font>');
-    bwrStrong.LoadFromString(res);
+
+    html := Format('<html><head>%s</head><body>%s</body></html>', [
+      IfThen(Length(Style) > 0, Format('<style>%s</style>', [Style]), ''),
+      res]);
+
+    try
+      html := ProcessCustomTags(html);
+    Except
+      // failed to process html
+      // try to display it without processing
+    end;
+
+    bwrStrong.LoadFromString(html);
 
     edtStrong.Text := sword;
     edtStrong.SelectAll;
@@ -360,6 +373,73 @@ begin
 
   if Assigned(mCurrentBook) then
     Result := mCurrentBook.ShortPath;
+end;
+
+function TStrongFrame.ProcessCustomTags(htmlString: String): String;
+var
+  HtmlDoc: TDocument;
+  Parser: THtmlParser;
+  Formatter: TBaseFormatter;
+begin
+  Parser := THtmlParser.Create;
+  try
+    HtmlDoc := Parser.parseString(htmlString);
+  finally
+    Parser.Free
+  end;
+
+  ProcessElementCustomTags(HtmlDoc.documentElement);
+  Formatter := THtmlFormatter.Create;
+  try
+    Result := Formatter.getText(HtmlDoc);
+  finally
+    Formatter.Free
+  end;
+
+  HtmlDoc.Free;
+end;
+
+procedure TStrongFrame.ProcessElementCustomTags(const Element: TElement);
+var
+  I: Integer;
+  ChildNode: TNode;
+  TagName: String;
+  ClassAttr: TAttr;
+begin
+  // replace custom tags with 'span' tags
+  // and add a class of the same name for these 'span' tags
+  // e.g. <df> tag becomes <span class="df"> tag
+
+  if Element.nodeType <> ELEMENT_NODE then
+    Exit;
+
+  if not (IsStandardTag(Element)) then
+  begin
+    TagName := Element.tagName;
+
+    Element.nodeName := 'span';
+    ClassAttr := Element.getAttributeNode('class');
+
+    if not Assigned(ClassAttr) then
+      Element.setAttribute('class', TagName)
+    else
+      ClassAttr.value := ClassAttr.value + ' ' + TagName;
+  end;
+
+  for I := 0 to Element.childNodes.length - 1 do
+  begin
+    ChildNode := Element.childNodes.item(I);
+    if (ChildNode.nodeType = ELEMENT_NODE) then
+      ProcessElementCustomTags(ChildNode as TElement);
+  end;
+end;
+
+function TStrongFrame.IsStandardTag(const Element: TElement): Boolean;
+var
+  Tag: THtmlTag;
+begin
+  Tag := HtmlTagList.GetTagByName(Element.tagName);
+  Result := Tag.Number <> UNKNOWN_TAG;
 end;
 
 procedure TStrongFrame.Translate();
