@@ -118,12 +118,7 @@ type
     miOpenNewView: TMenuItem;
     appEvents: TApplicationEvents;
     reClipboard: TRichEdit;
-    miRecognizeBibleLinks: TMenuItem;
-    tbtnResolveLinks: TToolButton;
-    pmRecLinksOptions: TPopupMenu;
-    miStrictLogic: TMenuItem;
-    miFuzzyLogic: TMenuItem;
-    tlbResolveLnks: TToolBar;
+    tlbDownloads: TToolBar;
     tbtnDownloadModules: TToolButton;
     miShowSignatures: TMenuItem;
     pnlStatusBar: TPanel;
@@ -140,7 +135,7 @@ type
     imgCollection: TImageCollection;
     vimgIcons: TVirtualImageList;
     tbtnAddCommentsTab: TToolButton;
-    ToolButton1: TToolButton;
+    tbtnSep: TToolButton;
     miDownloadModules: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure miPrintClick(Sender: TObject);
@@ -180,9 +175,6 @@ type
     procedure appEventsException(Sender: TObject; E: Exception);
 
     function LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
-    procedure miRecognizeBibleLinksClick(Sender: TObject);
-    procedure tbtnResolveLinksClick(Sender: TObject);
-    procedure miChooseLogicClick(Sender: TObject);
     procedure pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
     procedure imgLoadProgressClick(Sender: TObject);
 
@@ -519,8 +511,6 @@ begin
     fnt.Name := AppConfig.MainFormFontName;
     fnt.Size := AppConfig.MainFormFontSize;
 
-    miRecognizeBibleLinks.Enabled := true;
-    tbtnResolveLinks.Enabled := true;
     MainForm.Font := fnt;
 
     Screen.HintFont.Assign(fnt);
@@ -1770,7 +1760,6 @@ end;
 procedure TMainForm.EnableToolbars(aEnabled: Boolean);
 begin
   EnableToolbarButtons(tlbMain, aEnabled);
-  EnableToolbarButtons(tlbResolveLnks, aEnabled);
   EnableToolbarButtons(tbLinksToolBar, aEnabled);
 end;
 
@@ -3553,11 +3542,6 @@ begin
   miDownloadModules.Click();
 end;
 
-procedure TMainForm.tbtnResolveLinksClick(Sender: TObject);
-begin
-  miRecognizeBibleLinks.Click();
-end;
-
 procedure TMainForm.cbModulesCloseUp(Sender: TObject);
 begin
   try
@@ -3728,42 +3712,6 @@ begin
       (pmRef.PopupComponent as THTMLViewer).Print(MinPage, MaxPage)
 end;
 
-procedure TMainForm.miRecognizeBibleLinksClick(Sender: TObject);
-var
-  nV: Boolean;
-  vti: TBookTabInfo;
-  bookView: TBookFrame;
-  imageIx, browserpos: integer;
-begin
-  nV := miRecognizeBibleLinks.Checked;
-  bookView := GetBookView(self);
-  vti := bookView.BookTabInfo;
-  vti[vtisResolveLinks] := nV;
-
-  if nV then
-  begin
-    if vti[vtisFuzzyResolveLinks] then
-      imageIx := 13
-    else
-      imageIx := 11;
-  end
-  else
-    imageIx := 12;
-
-  tbtnResolveLinks.ImageIndex := imageIx;
-
-  if (vti.Bible.RecognizeBibleLinks <> nV) or (vti[vtisPendingReload]) then
-  begin
-    browserpos := mWorkspace.Browser.Position;
-    vti.Bible.FuzzyResolve := vti[vtisFuzzyResolveLinks];
-    vti.Bible.RecognizeBibleLinks := nV;
-    bookView.SafeProcessCommand(vti, vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
-    vti[vtisPendingReload] := false;
-    mWorkspace.Browser.Position := browserpos;
-  end;
-
-end;
-
 procedure TMainForm.miRefCopyClick(Sender: TObject);
 var
   trCount: integer;
@@ -3873,23 +3821,7 @@ begin
 
     bookView.tbtnStrongNumbers.Enabled := tabInfo.Bible.Trait[bqmtStrongs];
     MemosOn := tabInfo[vtisShowNotes];
-    bookView.miMemosToggle.Checked := MemosOn;
-
-    if tabInfo[vtisResolveLinks] then
-    begin
-      if tabInfo[vtisFuzzyResolveLinks] then
-        i := 13
-      else
-        i := 11;
-    end
-    else
-      i := 12;
-
-    tbtnResolveLinks.ImageIndex := i;
-
-    miRecognizeBibleLinks.Checked := tabInfo[vtisResolveLinks];
-
-    bookView.tbtnMemos.Down := MemosOn;
+    bookView.SyncView();
 
     // todo: it's unclear while trying to load Satellite for Commentary
     if not tabInfo.Bible.isBible then
@@ -4376,30 +4308,6 @@ begin
     end;
   except
     Result.Free();
-  end;
-end;
-
-procedure TMainForm.miChooseLogicClick(Sender: TObject);
-var
-  mi: TMenuItem;
-  ti: TBookTabInfo;
-  reload: Boolean;
-begin
-  mi := Sender as TMenuItem;
-  ti := GetBookView(self).BookTabInfo;
-  reload := (ti[vtisFuzzyResolveLinks] xor (Sender = miFuzzyLogic));
-
-  if (Assigned(ti)) then
-  begin
-    if not ti[vtisResolveLinks] then
-      ti[vtisResolveLinks] := true;
-    ti[vtisFuzzyResolveLinks] := mi = miFuzzyLogic;
-    if reload then
-    begin
-      miRecognizeBibleLinks.Checked := true;
-      ti[vtisPendingReload] := true;
-      miRecognizeBibleLinksClick(self);
-    end;
   end;
 end;
 
@@ -4921,10 +4829,7 @@ procedure TMainForm.EnableBookTools(enable: boolean);
 begin
   miQuickNav.Enabled := enable;
   miQuickSearch.Enabled := enable;
-  miRecognizeBibleLinks.Enabled := enable;
   miShowSignatures.Enabled := enable;
-
-  tbtnResolveLinks.Enabled := enable;
 
   miPrint.Enabled := enable;
   miPrintPreview.Enabled := enable;

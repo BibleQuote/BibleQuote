@@ -1502,7 +1502,7 @@ begin
   procedure TCachedModules.SaveToFile(Path: string);
   var
     ModStringList: TStringList;
-    Count, I: Integer;
+    I: Integer;
     ModuleEntry: TModuleEntry;
   begin
     ModStringList := TStringList.Create();

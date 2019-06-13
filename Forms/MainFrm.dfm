@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 15
+  TextHeight = 14
   object pnlModules: TPanel
     Left = 0
     Top = 34
@@ -96,7 +96,7 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 588
       Top = 4
-      Width = 38
+      Width = 37
       Height = 26
       Margins.Right = 7
       Align = alLeft
@@ -110,7 +110,7 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 15
+      ExplicitHeight = 14
     end
     object tlbMain: TToolBar
       Left = 1
@@ -213,7 +213,7 @@ object MainForm: TMainForm
         Style = tbsSeparator
       end
     end
-    object tlbResolveLnks: TToolBar
+    object tlbDownloads: TToolBar
       Left = 333
       Top = 1
       Width = 116
@@ -221,7 +221,7 @@ object MainForm: TMainForm
       Margins.Bottom = 0
       Align = alLeft
       ButtonHeight = 32
-      ButtonWidth = 54
+      ButtonWidth = 35
       DrawingStyle = dsGradient
       EdgeInner = esNone
       EdgeOuter = esNone
@@ -229,29 +229,17 @@ object MainForm: TMainForm
       Images = vimgIcons
       List = True
       TabOrder = 0
-      object tbtnResolveLinks: TToolButton
-        AlignWithMargins = True
-        Left = 0
-        Top = 0
-        AutoSize = True
-        Caption = 'Recognize Bible Links'
-        DropdownMenu = pmRecLinksOptions
-        ImageIndex = 11
-        Style = tbsDropDown
-        OnClick = tbtnResolveLinksClick
-      end
       object tbtnDownloadModules: TToolButton
-        Left = 56
+        Left = 0
         Top = 0
         Caption = 'Download modules'
         ImageIndex = 23
         OnClick = tbtnDownloadModulesClick
       end
-      object ToolButton1: TToolButton
-        Left = 110
+      object tbtnSep: TToolButton
+        Left = 35
         Top = 0
         Width = 6
-        Caption = 'ToolButton1'
         ImageIndex = 24
         Style = tbsSeparator
       end
@@ -276,7 +264,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 136
-        Height = 23
+        Height = 22
         Margins.Top = 0
         Margins.Bottom = 0
         Align = alClient
@@ -3658,11 +3646,6 @@ object MainForm: TMainForm
         ShortCut = 16498
         OnClick = miQuickSearchClick
       end
-      object miRecognizeBibleLinks: TMenuItem
-        AutoCheck = True
-        Caption = 'Recognize Bible Links'
-        OnClick = miRecognizeBibleLinksClick
-      end
       object miDownloadModules: TMenuItem
         Caption = 'Download modules'
         OnClick = miDownloadModulesClick
@@ -5561,29 +5544,6 @@ object MainForm: TMainForm
     OnException = appEventsException
     Left = 315
     Top = 43
-  end
-  object pmRecLinksOptions: TPopupMenu
-    Images = vimgIcons
-    OnChange = pmRecLinksOptionsChange
-    Left = 128
-    Top = 46
-    object miStrictLogic: TMenuItem
-      AutoCheck = True
-      Caption = 'Use only strict logic'
-      GroupIndex = 1
-      ImageIndex = 11
-      RadioItem = True
-      OnClick = miChooseLogicClick
-    end
-    object miFuzzyLogic: TMenuItem
-      AutoCheck = True
-      Caption = 'Use Fuzzy Logic'
-      Checked = True
-      GroupIndex = 1
-      ImageIndex = 13
-      RadioItem = True
-      OnClick = miChooseLogicClick
-    end
   end
   object imgCollection: TImageCollection
     Images = <
