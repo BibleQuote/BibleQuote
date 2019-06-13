@@ -27,7 +27,7 @@ object ConfigForm: TConfigForm
     Top = 0
     Width = 466
     Height = 396
-    ActivePage = tsFavouriteEx
+    ActivePage = tsOtherOptions
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
@@ -295,7 +295,7 @@ object ConfigForm: TConfigForm
       end
       object chkAddLineBreaks: TCheckBox
         Left = 13
-        Top = 208
+        Top = 207
         Width = 442
         Height = 17
         Anchors = [akLeft, akTop, akRight]
@@ -610,6 +610,15 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Highlight verse hits'
         TabOrder = 6
+      end
+      object chkShowVerseSignatures: TCheckBox
+        Left = 8
+        Top = 241
+        Width = 447
+        Height = 17
+        Anchors = [akLeft, akTop, akRight]
+        Caption = 'Show signatures for every verse'
+        TabOrder = 7
       end
     end
   end

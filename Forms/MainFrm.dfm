@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 14
+  TextHeight = 15
   object pnlModules: TPanel
     Left = 0
     Top = 34
@@ -96,8 +96,8 @@ object MainForm: TMainForm
       AlignWithMargins = True
       Left = 588
       Top = 4
-      Width = 37
-      Height = 26
+      Width = 38
+      Height = 15
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -110,12 +110,12 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 14
     end
     object tlbMain: TToolBar
       Left = 1
       Top = 1
       Width = 332
+      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -217,6 +217,7 @@ object MainForm: TMainForm
       Left = 333
       Top = 1
       Width = 116
+      Height = 29
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
@@ -248,6 +249,7 @@ object MainForm: TMainForm
       Left = 449
       Top = 1
       Width = 136
+      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -3645,14 +3647,6 @@ object MainForm: TMainForm
         Caption = #1041#1099#1089#1090#1088#1086#1077' '#1086#1090#1082#1088#1099#1090#1080#1077' '#1087#1086#1080#1089#1082#1072
         ShortCut = 16498
         OnClick = miQuickSearchClick
-      end
-      object miDownloadModules: TMenuItem
-        Caption = 'Download modules'
-        OnClick = miDownloadModulesClick
-      end
-      object miShowSignatures: TMenuItem
-        Caption = 'Show signatures for every verse'
-        OnClick = miShowSignaturesClick
       end
       object miActionsSep1: TMenuItem
         Caption = '-'

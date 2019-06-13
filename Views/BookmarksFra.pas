@@ -26,7 +26,7 @@ type
     procedure RefreshBookmarks();
   public
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace; ABookmarks: TBroadcastStringList); reintroduce;
     destructor Destroy; override;
@@ -127,7 +127,7 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
-procedure TBookmarksFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TBookmarksFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 begin
   if (appConfig.MainFormFontName <> Font.Name) then
     Font.Name := appConfig.MainFormFontName;

@@ -63,7 +63,7 @@ type
     procedure DisplayStrongs(number: Integer; isHebrew: Boolean);
     procedure SetCurrentBook(shortPath: string);
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
     function GetBookPath(): string;
 
@@ -214,7 +214,7 @@ begin
 
   FStrongsConcordance := AMainView.StrongsConcordance;
 
-  ApplyConfig(AppConfig);
+  ApplyConfig(AppConfig, AppConfig);
 end;
 
 procedure TStrongFrame.ShowStrong(stext: string);
@@ -447,7 +447,7 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
-procedure TStrongFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TStrongFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 var
   browserpos: integer;
 begin

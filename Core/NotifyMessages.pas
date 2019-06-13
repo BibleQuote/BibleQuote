@@ -2,7 +2,7 @@ unit NotifyMessages;
 
 interface
 
-uses JclNotify, TabData, Bible;
+uses JclNotify, TabData, Bible, AppIni;
 
 type
 
@@ -50,6 +50,8 @@ type
 
   IAppConfigChangedMessage = interface
     ['{49231BC0-05A6-43AB-8F3B-D2FF68838F2A}']
+    function GetConfig: TAppConfig;
+    function GetOldConfig: TAppConfig;
   end;
 
   IActiveBibleChangedMessage = interface
@@ -125,6 +127,14 @@ type
   end;
 
   TAppConfigChangedMessage = class(TJclBaseNotificationMessage, IAppConfigChangedMessage)
+  private
+    FOldConfig: TAppConfig;
+    FConfig: TAppConfig;
+  public
+    constructor Create(oldConfig, config: TAppConfig);
+
+    function GetConfig: TAppConfig;
+    function GetOldConfig: TAppConfig;
   end;
 
   TDefaultBibleChangedMessage = class(TJclBaseNotificationMessage, IDefaultBibleChangedMessage)
@@ -249,6 +259,24 @@ end;
 function TTagRenamedMessage.GetNewText: string;
 begin
   Result := FNewText;
+end;
+
+{ TAppConfigChangedMessage }
+
+constructor TAppConfigChangedMessage.Create(oldConfig, config: TAppConfig);
+begin
+  FOldConfig := oldConfig;
+  FConfig := config;
+end;
+
+function TAppConfigChangedMessage.GetOldConfig: TAppConfig;
+begin
+  Result := FOldConfig;
+end;
+
+function TAppConfigChangedMessage.GetConfig: TAppConfig;
+begin
+  Result := FConfig;
 end;
 
 { TDefaultBibleChangedMessage }

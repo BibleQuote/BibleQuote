@@ -232,7 +232,7 @@ type
     function GetBookTabInfo: TBookTabInfo;
     property BookTabInfo: TBookTabInfo read GetBookTabInfo;
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
     procedure UpdateModuleTreeSelection(book: TBible);
     procedure UpdateModuleTree(book: TBible);
@@ -297,7 +297,7 @@ begin
   mSatelliteForm.Caption := Lang.SayDefault('SelectParaBible', 'Select secondary bible');
 end;
 
-procedure TBookFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TBookFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 var
   browserpos: integer;
 begin
@@ -329,8 +329,19 @@ begin
   if (appConfig.MainFormFontSize <> Font.Size) then
     Font.Size := appConfig.MainFormFontSize;
 
-  if Assigned(BookTabInfo) and Assigned(BookTabInfo.Bible) then
-    UpdateModuleTreeFont(BookTabInfo.Bible);
+  if Assigned(BookTabInfo) then
+  begin
+    if Assigned(BookTabInfo.Bible) then
+      UpdateModuleTreeFont(BookTabInfo.Bible);
+
+    if (appConfig.ShowVerseSignatures <> oldConfig.ShowVerseSignatures) then
+    begin
+      browserpos := bwrHtml.Position;
+      ProcessCommand(BookTabInfo, BookTabInfo.Location, TbqHLVerseOption(ord(BookTabInfo[vtisHighLightVerses])));
+      bwrHtml.Position := browserpos;
+    end;
+
+  end;
 end;
 
 function TBookFrame.IsPsalms(bible: TBible; bookIndex: integer): Boolean;
@@ -789,7 +800,7 @@ begin
     Exit;
 
   AppConfig.DefFontSize := defFontSz;
-  mNotifier.Notify(TAppConfigChangedMessage.Create());
+  mNotifier.Notify(TAppConfigChangedMessage.Create(AppConfig, AppConfig));
 end;
 
 procedure TBookFrame.bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -994,7 +1005,7 @@ begin
   mUpdateOnTreeNodeSelect := true;
   mHistoryOn := true;
 
-  ApplyConfig(AppConfig);
+  ApplyConfig(AppConfig, AppConfig);
   RealignToolBars(Self);
 end;
 
@@ -3286,7 +3297,7 @@ begin
     if (bible.isBible) and (not isCommentary) then
     begin
       // if bible display verse numbers
-      if MainForm.miShowSignatures.Checked then
+      if AppConfig.ShowVerseSignatures then
         ss := bible.GetShortNames(bible.CurBook) + IntToStr(bible.CurChapter) + ':'
       else
         ss := '';

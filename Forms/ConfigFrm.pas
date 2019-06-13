@@ -68,6 +68,7 @@ type
     grpLocalization: TGroupBox;
     lblLanguage: TLabel;
     btnRestoreDefaults: TButton;
+    chkShowVerseSignatures: TCheckBox;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure btnCancelClick(Sender: TObject);
     procedure btnSelectPathClick(Sender: TObject);
@@ -302,6 +303,7 @@ begin
   rgAddReference.ItemIndex := AppConfig.AddReferenceChoice;
   chkAddLineBreaks.Checked := AppConfig.AddLineBreaks;
   chkAddModuleName.Checked := AppConfig.AddModuleName;
+  chkShowVerseSignatures.Checked := AppConfig.ShowVerseSignatures;
 
   FillFavourites();
   FillDefaultBibles();

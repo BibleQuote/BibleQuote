@@ -71,7 +71,7 @@ type
     destructor Destroy; override;
 
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
     procedure DisplayDictionaries;
     procedure DisplayDictionary(const s: string; const foundDictionaryIndex: integer = -1);
@@ -245,7 +245,7 @@ begin
   mMainView.GetNotifier.Add(self);
   mTokenNodes := TObjectList.Create(false);
 
-  ApplyConfig(AppConfig);
+  ApplyConfig(AppConfig, AppConfig);
 end;
 
 destructor TDictionaryFrame.Destroy;
@@ -338,7 +338,7 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
-procedure TDictionaryFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TDictionaryFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 var
   browserpos: integer;
 begin

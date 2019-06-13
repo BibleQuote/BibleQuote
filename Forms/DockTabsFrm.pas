@@ -109,7 +109,7 @@ type
 
     procedure MakeActive();
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure ChangeTabIndex(Index: Integer);
 
     // getters
@@ -1049,7 +1049,7 @@ var
 begin
   if Supports(Msg, IAppConfigChangedMessage, MsgAppConfigChanged) then
   begin
-    ApplyConfig(AppConfig);
+    ApplyConfig(MsgAppConfigChanged.GetConfig(), MsgAppConfigChanged.GetOldConfig());
   end;
 
   if Supports(Msg, IActiveBibleChangedMessage, MsgActiveBookChanged) then
@@ -1063,19 +1063,19 @@ begin
   end;
 end;
 
-procedure TDockTabsForm.ApplyConfig(appConfig: TAppConfig);
+procedure TDockTabsForm.ApplyConfig(appConfig, oldConfig: TAppConfig);
 begin
   try
-    mBookView.ApplyConfig(appConfig);
-    mMemoView.ApplyConfig(appConfig);
-    mLibraryView.ApplyConfig(appConfig);
-    mBookmarksView.ApplyConfig(appConfig);
-    mSearchView.ApplyConfig(appConfig);
-    mTagsVersesView.ApplyConfig(appConfig);
-    mDictionaryView.ApplyConfig(appConfig);
-    mStrongView.ApplyConfig(appConfig);
-    mTSKView.ApplyConfig(appConfig);
-    mCommentsView.ApplyConfig(appConfig);
+    mBookView.ApplyConfig(appConfig, oldConfig);
+    mMemoView.ApplyConfig(appConfig, oldConfig);
+    mLibraryView.ApplyConfig(appConfig, oldConfig);
+    mBookmarksView.ApplyConfig(appConfig, oldConfig);
+    mSearchView.ApplyConfig(appConfig, oldConfig);
+    mTagsVersesView.ApplyConfig(appConfig, oldConfig);
+    mDictionaryView.ApplyConfig(appConfig, oldConfig);
+    mStrongView.ApplyConfig(appConfig, oldConfig);
+    mTSKView.ApplyConfig(appConfig, oldConfig);
+    mCommentsView.ApplyConfig(appConfig, oldConfig);
   except
     on E: Exception do
     begin
