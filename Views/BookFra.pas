@@ -69,6 +69,10 @@ type
     tbtnSep01: TToolButton;
     tbtnToggle: TToolButton;
     tbtnForward: TToolButton;
+    tbtnResolveLinks: TToolButton;
+    pmRecLinksOptions: TPopupMenu;
+    miStrictLogic: TMenuItem;
+    miFuzzyLogic: TMenuItem;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure miCompareClick(Sender: TObject);
@@ -158,6 +162,8 @@ type
     procedure vdtModulesInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
     procedure vdtModulesInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     procedure tbtnToggleClick(Sender: TObject);
+    procedure miChangeLogicClick(Sender: TObject);
+    procedure tbtnResolveLinksClick(Sender: TObject);
   private
     { Private declarations }
     mMainView: TMainForm;
@@ -205,6 +211,7 @@ type
     function GetChapterText(bookTabInfo: TBookTabInfo; highlightRange: TPoint; locVerseStart: Integer; locVerseEnd: Integer; chapter: Integer): String;
     function GetParagraphTag(bible: TBible): String;
     function IsParabibleUsed(bookTabInfo: TBookTabInfo): Boolean;
+    procedure SetResolveLinks(Resolve: Boolean; FuzzyLogic: Boolean);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace); reintroduce;
@@ -231,6 +238,7 @@ type
     procedure UpdateModuleTree(book: TBible);
     function GetCurrentBookNode(): PVirtualNode;
     procedure OpenModule(moduleName: string; fromBeginning: Boolean = false);
+    procedure SyncView();
   end;
 
 implementation
@@ -819,12 +827,6 @@ begin
     bwrHtml.PositionTo('endofchapterNMFHJAHSTDGF123');
   end;
 
-  if Key = $4C { THE L KEY } then
-  begin
-    mMainView.miRecognizeBibleLinks.Click();
-    Exit
-  end;
-
   if ssAlt in Shift then
   begin
     if Key = VK_LEFT then
@@ -1407,6 +1409,25 @@ begin
   NavigateToSearch(bwrHtml.SelText);
 end;
 
+procedure TBookFrame.miChangeLogicClick(Sender: TObject);
+var
+  mi: TMenuItem;
+  reload: Boolean;
+begin
+  mi := Sender as TMenuItem;
+
+  if (Assigned(BookTabInfo)) then
+  begin
+    reload := not BookTabInfo[vtisResolveLinks] or (BookTabInfo[vtisFuzzyResolveLinks] xor (Sender = miFuzzyLogic));
+
+    if reload then
+    begin
+      BookTabInfo[vtisPendingReload] := True;
+      SetResolveLinks(True, mi = miFuzzyLogic);
+    end;
+  end;
+end;
+
 procedure TBookFrame.NavigateToSearch(searchText: string; bookTypeIndex: integer = -1);
 begin
   searchText := Trim(searchText);
@@ -1697,6 +1718,41 @@ begin
     Except
       // do nothing
     end;
+  end;
+end;
+
+procedure TBookFrame.tbtnResolveLinksClick(Sender: TObject);
+var
+  ResolveLinks: Boolean;
+begin
+  ResolveLinks := (vtisResolveLinks in BookTabInfo.State);
+  SetResolveLinks(not ResolveLinks, True);
+end;
+
+procedure TBookFrame.SetResolveLinks(Resolve: Boolean; FuzzyLogic: Boolean);
+var
+  BrowserPos: Integer;
+  Book: TBible;
+begin
+  if not Assigned(BookTabInfo) then
+    Exit;
+
+  BookTabInfo[vtisResolveLinks] := Resolve;
+  BookTabInfo[vtisFuzzyResolveLinks] := FuzzyLogic;
+
+  SyncView();
+
+  Book := BookTabInfo.Bible;
+  if (Book.RecognizeBibleLinks <> Resolve) or (BookTabInfo[vtisPendingReload]) then
+  begin
+    BrowserPos := bwrHtml.Position;
+
+    Book.RecognizeBibleLinks := Resolve;
+    Book.FuzzyResolve := FuzzyLogic;
+
+    SafeProcessCommand(BookTabInfo, BookTabInfo.Location, TbqHLVerseOption(ord(BookTabInfo[vtisHighLightVerses])));
+    BookTabInfo[vtisPendingReload] := False;
+    bwrHtml.Position := BrowserPos;
   end;
 end;
 
@@ -3031,6 +3087,35 @@ begin
   end // both previous and current are bibles
   else
     SafeProcessCommand(bookTabInfo, 'go ' + bible.ShortPath + ' 1 1 0', hlFalse);
+end;
+
+procedure TBookFrame.SyncView();
+var
+  ImageIndex: Integer;
+  ResolveLinks, FuzzyLogic, MemosOn: Boolean;
+begin
+  if Assigned(BookTabInfo) then
+  begin
+    ResolveLinks := BookTabInfo[vtisResolveLinks];
+    FuzzyLogic := BookTabInfo[vtisFuzzyResolveLinks];
+    MemosOn := BookTabInfo[vtisShowNotes];
+
+    if ResolveLinks then
+      ImageIndex := IfThen(FuzzyLogic, 21, 20)
+    else
+      ImageIndex := 19;
+
+    tbtnResolveLinks.ImageIndex := ImageIndex;
+
+    miFuzzyLogic.Checked := ResolveLinks and FuzzyLogic;
+    miStrictLogic.Checked := ResolveLinks and not FuzzyLogic;
+
+    if (miMemosToggle.Checked <> MemosOn) then
+      miMemosToggle.Checked := MemosOn;
+
+    if (tbtnMemos.Down <> MemosOn) then
+      tbtnMemos.Down := MemosOn;
+  end;
 end;
 
 function TBookFrame.IsParabibleUsed(bookTabInfo: TBookTabInfo): Boolean;

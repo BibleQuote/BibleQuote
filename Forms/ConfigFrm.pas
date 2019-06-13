@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, IOUtils, Forms,
   FileCtrl, ExtCtrls, Buttons, StdCtrls, ComCtrls, Vcl.Dialogs,
-  AppIni, PlainUtils, Favorites, BibleQuoteUtils, AppPaths, StringProcs;
+  AppIni, PlainUtils, Favorites, BibleQuoteUtils, AppPaths, StringProcs,
+  System.UITypes;
 
 type
   TConfigForm = class(TForm)
