@@ -70,7 +70,7 @@ type
 
     procedure DisplaySearchResults(page: integer);
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
 
     function GetBookPath(): string;
@@ -102,7 +102,7 @@ begin
   mBookSelectView.Align := TAlign.alClient;
   mBookSelectView.Parent := mBookSelectForm;
 
-  ApplyConfig(AppConfig);
+  ApplyConfig(AppConfig, AppConfig);
 end;
 
 procedure TSearchFrame.OnBookSelectFormDeactivate(Sender: TObject);
@@ -565,7 +565,7 @@ begin
   mBookSelectForm.Caption := Lang.SayDefault('SelectBook', 'Select book');
 end;
 
-procedure TSearchFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TSearchFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 var
   browserpos: integer;
 begin

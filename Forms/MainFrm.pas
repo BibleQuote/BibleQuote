@@ -120,7 +120,6 @@ type
     reClipboard: TRichEdit;
     tlbDownloads: TToolBar;
     tbtnDownloadModules: TToolButton;
-    miShowSignatures: TMenuItem;
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
     tbtnNewForm: TToolButton;
@@ -136,7 +135,6 @@ type
     vimgIcons: TVirtualImageList;
     tbtnAddCommentsTab: TToolButton;
     tbtnSep: TToolButton;
-    miDownloadModules: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -178,8 +176,6 @@ type
     procedure pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
     procedure imgLoadProgressClick(Sender: TObject);
 
-    procedure miShowSignaturesClick(Sender: TObject);
-
     function CreateNewBookTabInfo(): TBookTabInfo;
     function CreateWorkspace(viewName: string): IWorkspace;
     procedure CreateInitialWorkspace();
@@ -205,7 +201,6 @@ type
     procedure tbtnAddStrongTabClick(Sender: TObject);
     procedure tbtnAddLibraryTabClick(Sender: TObject);
     procedure tbtnAddCommentsTabClick(Sender: TObject);
-    procedure miDownloadModulesClick(Sender: TObject);
     procedure tbtnDownloadModulesClick(Sender: TObject);
   private
     FStrongsConcordance: TStrongsConcordance;
@@ -1248,6 +1243,7 @@ begin
     AppConfig.AddReferenceChoice := ConfigForm.rgAddReference.ItemIndex;
     AppConfig.AddLineBreaks := ConfigForm.chkAddLineBreaks.Checked;
     AppConfig.AddModuleName := ConfigForm.chkAddModuleName.Checked;
+    AppConfig.ShowVerseSignatures := ConfigForm.chkShowVerseSignatures.Checked;
 
     AppConfig.MinimizeToTray := trayIcon.MinimizeToTray;
     AppConfig.SaveDirectory := SaveFileDialog.InitialDir;
@@ -3084,20 +3080,6 @@ begin
   end;
 end;
 
-procedure TMainForm.miDownloadModulesClick(Sender: TObject);
-var
-  DownloadModules: TDownloadModulesForm;
-begin
-  DownloadModules := TDownloadModulesForm.Create(Self);
-  try
-    DownloadModules.ShowModal;
-
-  finally
-    DownloadModules.Free;
-  end;
-
-end;
-
 procedure TMainForm.CopyPassageToClipboard();
 var
   trCount: integer;
@@ -3155,21 +3137,6 @@ begin
     CopyHTMLToClipBoard('', mHTMLSelection)
   else
     reClipboard.CopyToClipboard;
-end;
-
-procedure TMainForm.miShowSignaturesClick(Sender: TObject);
-var
-  bookView: TBookFrame;
-  vti: TBookTabInfo;
-  savePosition: integer;
-begin
-  miShowSignatures.Checked := not miShowSignatures.Checked;
-
-  bookView := GetBookView(self);
-  vti := bookView.BookTabInfo;
-  savePosition := mWorkspace.Browser.Position;
-  bookView.ProcessCommand(vti, vti.Location, TbqHLVerseOption(ord(vti[vtisHighLightVerses])));
-  mWorkspace.Browser.Position := savePosition;
 end;
 
 procedure TMainForm.CompareTranslations();
@@ -3538,8 +3505,16 @@ begin
 end;
 
 procedure TMainForm.tbtnDownloadModulesClick(Sender: TObject);
+var
+  DownloadModules: TDownloadModulesForm;
 begin
-  miDownloadModules.Click();
+  DownloadModules := TDownloadModulesForm.Create(Self);
+  try
+    DownloadModules.ShowModal;
+
+  finally
+    DownloadModules.Free;
+  end;
 end;
 
 procedure TMainForm.cbModulesCloseUp(Sender: TObject);
@@ -4532,6 +4507,7 @@ var
   bookView: TBookFrame;
   bible: TBible;
   fnt: TFont;
+  OldConfig: TAppConfig;
 begin
   reload := false;
   ForceForegroundLoad();
@@ -4541,6 +4517,7 @@ begin
   if ConfigForm.ShowModal = mrCancel then
     Exit;
 
+  OldConfig := AppConfig.Clone();
   langIdx := ConfigForm.cbLanguage.ItemIndex;
   if (langIdx >= 0) then
   begin
@@ -4626,6 +4603,8 @@ begin
   AppConfig.AddReferenceChoice := ConfigForm.rgAddReference.ItemIndex;
   AppConfig.AddLineBreaks := ConfigForm.chkAddLineBreaks.Checked;
   AppConfig.AddModuleName := ConfigForm.chkAddModuleName.Checked;
+  AppConfig.ShowVerseSignatures := ConfigForm.chkShowVerseSignatures.Checked;
+
   AppConfig.HotKeyChoice := ConfigForm.rgHotKeyChoice.ItemIndex;
   trayIcon.MinimizeToTray := ConfigForm.chkMinimizeToTray.Checked;
   if AppConfig.FullContextLinks <> ConfigForm.chkFullContextOnRestrictedLinks.Checked
@@ -4661,7 +4640,7 @@ begin
     fnt.Free;
   end;
 
-  mNotifier.Notify(TAppConfigChangedMessage.Create());
+  mNotifier.Notify(TAppConfigChangedMessage.Create(OldConfig, AppConfig));
 
   if reload then
     DeferredReloadViewPages();
@@ -4829,7 +4808,6 @@ procedure TMainForm.EnableBookTools(enable: boolean);
 begin
   miQuickNav.Enabled := enable;
   miQuickSearch.Enabled := enable;
-  miShowSignatures.Enabled := enable;
 
   miPrint.Enabled := enable;
   miPrintPreview.Enabled := enable;

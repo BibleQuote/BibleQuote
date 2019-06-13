@@ -24,7 +24,7 @@ type
   ITabView = interface
   ['{85A340FA-D5E5-4F37-ABDD-A75A7B3B494C}']
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
   end;
 

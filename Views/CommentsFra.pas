@@ -34,7 +34,7 @@ type
     procedure DisplayAllSources;
     procedure ShowComments();
     procedure Translate();
-    procedure ApplyConfig(AppConfig: TAppConfig);
+    procedure ApplyConfig(AppConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
 
     constructor Create(Owner: TComponent; MainView: TMainForm; Workspace: IWorkspace); reintroduce;
@@ -56,7 +56,7 @@ begin
 
   FNotifier.Add(self);
 
-  ApplyConfig(AppConfig);
+  ApplyConfig(AppConfig, AppConfig);
 end;
 
 procedure TCommentsFrame.Translate();
@@ -65,7 +65,7 @@ begin
   Lang.TranslateControl(Self, 'DockTabsForm');
 end;
 
-procedure TCommentsFrame.ApplyConfig(AppConfig: TAppConfig);
+procedure TCommentsFrame.ApplyConfig(AppConfig, oldConfig: TAppConfig);
 begin
   with bwrComments do
   begin

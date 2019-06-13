@@ -128,7 +128,7 @@ type
     procedure UpdateBookList();
     procedure UpdateBookViews();
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
 
     function GetViewMode(): TLibraryViewMode;
@@ -307,7 +307,7 @@ begin
   lvBooks.Columns.EndUpdate;
 end;
 
-procedure TLibraryFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TLibraryFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 begin
   if (appConfig.MainFormFontName <> Font.Name) then
     Font.Name := appConfig.MainFormFontName;

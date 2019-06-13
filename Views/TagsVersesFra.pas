@@ -59,7 +59,7 @@ type
     constructor Create(AOwner: TComponent; AMainView: TMainForm; AWorkspace: IWorkspace); reintroduce;
     destructor Destroy; override;
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
 
     procedure TagAdded(tagId: int64; const txt: string; Show: Boolean);
@@ -680,7 +680,7 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
-procedure TTagsVersesFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TTagsVersesFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 begin
   if (appConfig.MainFormFontName <> Font.Name) then
     Font.Name := appConfig.MainFormFontName;

@@ -54,7 +54,7 @@ type
   public
     { Public declarations }
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
   end;
 
@@ -67,7 +67,7 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
-procedure TMemoFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TMemoFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 begin
   if (appConfig.MainFormFontName <> Font.Name) then
     Font.Name := appConfig.MainFormFontName;

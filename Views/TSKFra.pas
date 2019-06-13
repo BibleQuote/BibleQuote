@@ -38,7 +38,7 @@ type
     property Verse: integer read mVerse write mVerse;
 
     procedure Translate();
-    procedure ApplyConfig(appConfig: TAppConfig);
+    procedure ApplyConfig(appConfig, oldConfig: TAppConfig);
     procedure EventFrameKeyDown(var Key: Char);
     procedure ShowXref(aInfoPath: String; bookIndex, chapterIndex: integer; goverse: integer = 0);
   end;
@@ -55,7 +55,7 @@ begin
   mMainView := AMainView;
   mWorkspace := AWorkspace;
 
-  ApplyConfig(AppConfig);
+  ApplyConfig(AppConfig, AppConfig);
 
   // this browser doesn't have underlines...
   bwrXRef.htOptions := bwrXRef.htOptions + [htNoLinkUnderline];
@@ -293,7 +293,7 @@ begin
   Lang.TranslateControl(self, 'DockTabsForm');
 end;
 
-procedure TTSKFrame.ApplyConfig(appConfig: TAppConfig);
+procedure TTSKFrame.ApplyConfig(appConfig, oldConfig: TAppConfig);
 var
   browserpos: integer;
 begin
