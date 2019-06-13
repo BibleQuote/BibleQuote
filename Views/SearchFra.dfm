@@ -69,6 +69,7 @@ object SearchFrame: TSearchFrame
       Height = 22
       Anchors = [akTop, akRight]
       Caption = #1053#1072#1081#1090#1080
+      Default = True
       TabOrder = 2
       OnClick = btnFindClick
     end
