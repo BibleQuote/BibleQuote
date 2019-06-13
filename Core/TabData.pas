@@ -246,7 +246,6 @@ type
     mIsSearching: Boolean;
     mSearchResults: TStrings;
     mSearchWords: TStrings;
-    mSearchTime: int64;
     mSearchPage: integer; // what page we are in
     mSearchBrowserPosition: Longint; // list search results pages...
     mLastSearchResultsPage: integer; // to show/hide page results (Ctrl-F3)
@@ -258,7 +257,6 @@ type
     property IsSearching: boolean read mIsSearching write mIsSearching;
     property SearchResults: TStrings read mSearchResults write mSearchResults;
     property SearchWords: TStrings read mSearchWords write mSearchWords;
-    property SearchTime: int64 read mSearchTime write mSearchTime;
     property SearchPage: integer read mSearchPage write mSearchPage;
     property SearchBrowserPosition: integer read mSearchBrowserPosition write mSearchBrowserPosition;
     property LastSearchResultsPage: integer read mLastSearchResultsPage write mLastSearchResultsPage;
@@ -818,7 +816,6 @@ begin
 
   LastSearchResultsPage := srcObj.LastSearchResultsPage;
   SearchPageSize := srcObj.SearchPageSize;
-  SearchTime := srcObj.SearchTime;
   SearchPage := srcObj.SearchPage;
   SearchBrowserPosition := srcObj.SearchBrowserPosition;
   SearchBooksDDAltered := srcObj.SearchBooksDDAltered;

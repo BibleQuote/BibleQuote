@@ -411,8 +411,6 @@ begin
       if (SearchOptions >= [soExactPhrase, soWordParts]) then
         Exclude(SearchOptions, soWordParts);
 
-      mSearchState.SearchTime := GetTickCount;
-
       // TODO: fix search with strongs, currently false
       mCurrentBook.Search(SearchText, SearchOptions, S, False, Self);
       //mCurrentBook.Search(searchText, params, s, not (vtisShowStrongs in bookView.BookTabInfo.State), Self);
@@ -425,8 +423,6 @@ end;
 procedure TSearchFrame.BookSearchComplete(bible: TBible);
 begin
   mSearchState.IsSearching := false;
-  mSearchState.SearchTime := GetTickCount - mSearchState.SearchTime;
-  lblSearch.Caption := lblSearch.Caption + ' (' + IntToStr(mSearchState.SearchTime) + ')';
   DisplaySearchResults(1);
 end;
 
