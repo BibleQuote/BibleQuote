@@ -650,7 +650,7 @@ object ConfigForm: TConfigForm
     Top = 402
     Width = 105
     Height = 25
-    Anchors = [akTop, akBottom]
+    Anchors = [akLeft, akBottom]
     Caption = 'btnRestoreDefaults'
     Default = True
     TabOrder = 3
