@@ -27,7 +27,7 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 15
+  TextHeight = 14
   object pnlModules: TPanel
     Left = 0
     Top = 34
@@ -94,10 +94,10 @@ object MainForm: TMainForm
     GradientEndColor = clBtnFace
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 588
+      Left = 556
       Top = 4
-      Width = 38
-      Height = 15
+      Width = 37
+      Height = 26
       Margins.Right = 7
       Align = alLeft
       Anchors = []
@@ -110,12 +110,13 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
+      ExplicitLeft = 588
+      ExplicitHeight = 14
     end
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 332
-      Height = 29
+      Width = 300
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -163,50 +164,43 @@ object MainForm: TMainForm
         ImageIndex = 20
         OnClick = tbtnAddDictionaryTabClick
       end
-      object tbtnAddTSKTab: TToolButton
-        Left = 134
-        Top = 0
-        Caption = 'Add TSK tab'
-        ImageIndex = 18
-        OnClick = tbtnAddTSKTabClick
-      end
       object tbtnAddStrongTab: TToolButton
-        Left = 166
+        Left = 134
         Top = 0
         Caption = 'Add strong tab'
         ImageIndex = 21
         OnClick = tbtnAddStrongTabClick
       end
       object tbtnAddSearchTab: TToolButton
-        Left = 198
+        Left = 166
         Top = 0
         Caption = 'Search'
         ImageIndex = 17
         OnClick = tbtnAddSearchTabClick
       end
       object tbtnAddBookmarksTab: TToolButton
-        Left = 230
+        Left = 198
         Top = 0
         Caption = 'Bookmarks'
         ImageIndex = 16
         OnClick = tbtnAddBookmarksTabClick
       end
       object tbtnAddTagsVersesTab: TToolButton
-        Left = 262
+        Left = 230
         Top = 0
         Caption = 'tbtnAddTagsVersesTab'
         ImageIndex = 19
         OnClick = tbtnAddTagsVersesTabClick
       end
       object tbtnAddMemoTab: TToolButton
-        Left = 294
+        Left = 262
         Top = 0
         Caption = 'Add memo tab'
         ImageIndex = 15
         OnClick = tbtnAddMemoTabClick
       end
       object tbtnLastSeparator: TToolButton
-        Left = 326
+        Left = 294
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -214,10 +208,9 @@ object MainForm: TMainForm
       end
     end
     object tlbDownloads: TToolBar
-      Left = 333
+      Left = 301
       Top = 1
       Width = 116
-      Height = 29
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
@@ -230,6 +223,7 @@ object MainForm: TMainForm
       Images = vimgIcons
       List = True
       TabOrder = 0
+      ExplicitLeft = 333
       object tbtnDownloadModules: TToolButton
         Left = 0
         Top = 0
@@ -246,10 +240,9 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 449
+      Left = 417
       Top = 1
       Width = 136
-      Height = 29
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -262,6 +255,7 @@ object MainForm: TMainForm
       ShowCaptions = True
       TabOrder = 1
       Visible = False
+      ExplicitLeft = 449
       object cbLinks: TComboBox
         Left = 0
         Top = 0

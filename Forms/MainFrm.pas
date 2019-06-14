@@ -127,7 +127,6 @@ type
     tbtnAddLibraryTab: TToolButton;
     tbtnAddBookmarksTab: TToolButton;
     tbtnAddSearchTab: TToolButton;
-    tbtnAddTSKTab: TToolButton;
     tbtnAddTagsVersesTab: TToolButton;
     tbtnAddDictionaryTab: TToolButton;
     tbtnAddStrongTab: TToolButton;
@@ -195,7 +194,6 @@ type
     procedure tbtnAddMemoTabClick(Sender: TObject);
     procedure tbtnAddBookmarksTabClick(Sender: TObject);
     procedure tbtnAddSearchTabClick(Sender: TObject);
-    procedure tbtnAddTSKTabClick(Sender: TObject);
     procedure tbtnAddTagsVersesTabClick(Sender: TObject);
     procedure tbtnAddDictionaryTabClick(Sender: TObject);
     procedure tbtnAddStrongTabClick(Sender: TObject);
@@ -3494,14 +3492,6 @@ var
 begin
   newTabInfo := TTagsVersesTabInfo.Create();
   mWorkspace.AddTagsVersesTab(newTabInfo);
-end;
-
-procedure TMainForm.tbtnAddTSKTabClick(Sender: TObject);
-var
-  newTabInfo: TTSKTabInfo;
-begin
-  newTabInfo := TTSKTabInfo.Create();
-  mWorkspace.AddTSKTab(newTabInfo);
 end;
 
 procedure TMainForm.tbtnDownloadModulesClick(Sender: TObject);
