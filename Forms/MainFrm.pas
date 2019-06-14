@@ -437,7 +437,7 @@ uses InputFrm, ConfigFrm, PasswordDlg,
   HintTools, sevenZipHelper, BookFra, TSKFra, DictionaryFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
   EngineInterfaces, StringProcs, LinksParser, StrongFra, SearchFra, AppPaths,
-  DownloadModulesFrm;
+  DownloadModulesFrm, ScriptureProvider;
 
 {$R *.DFM}
 
@@ -3232,7 +3232,7 @@ begin
         fontName := secBible.fontName
       else
         fontName := AppConfig.DefFontName;
-      fontName := FontFromCharset(self.Canvas.Handle, secBible.desiredCharset, fontName);
+      fontName := FontFromCharset(secBible.desiredCharset, fontName);
     end;
 
     AddLine(dBrowserSource,
@@ -3405,6 +3405,7 @@ var
   bookView: TBookFrame;
   bible: TBible;
   status: integer;
+  ScriptProvider: TScriptureProvider;
 begin
   prefBible := '';
   bookView := GetBookView(self);
@@ -3422,9 +3423,14 @@ begin
   autoCmd := Pos(C__bqAutoBible, cmd) <> 0;
   if autoCmd then
   begin
-    status := bookView.PreProcessAutoCommand(cmd, prefBible, ConcreteCmd);
-    if status <= -2 then
-      Exit;
+    ScriptProvider := TScriptureProvider.Create(Self);
+    try
+      status := ScriptProvider.PreProcessAutoCommand(cmd, prefBible, ConcreteCmd);
+      if status <= -2 then
+        Exit;
+    finally
+      ScriptProvider.Free;
+    end;
   end;
 
   if not IsDown(VK_CONTROL) then
@@ -3766,7 +3772,6 @@ end;
 procedure TMainForm.UpdateBookView();
 var
   tabInfo: TBookTabInfo;
-  i: integer;
   bookView: TBookFrame;
 begin
   mInterfaceLock := true;

@@ -9,7 +9,7 @@ uses
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, Htmlview, VirtualTrees,
   HTMLEmbedInterfaces, DictInterface, Bible, ExceptionFrm, BibleQuoteConfig,
   StringProcs, BibleLinkParser, Clipbrd, Engine, JclNotify, NotifyMessages,
-  System.Contnrs, AppIni, Character;
+  System.Contnrs, AppIni, Character, ScriptureProvider;
 
 type
   TDictionaryFrame = class(TFrame, IDictionaryView, IJclListener)
@@ -54,6 +54,7 @@ type
     mXRefVerseCmd: string;
     mBqEngine: TBibleQuoteEngine;
     mTokenNodes: TObjectList;
+    mScriptureProvider: TScriptureProvider;
 
     function DicScrollNode(nd: PVirtualNode): Boolean;
     function DicSelectedItemIndex(out pn: PVirtualNode): integer; overload;
@@ -84,29 +85,19 @@ implementation
 uses BookFra;
 
 {$R *.dfm}
+
 procedure TDictionaryFrame.bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
 var
   concreteCmd: string;
   status: integer;
-  modIx: integer;
   modPath: string;
-  modEntry: TModuleEntry;
 begin
-  modIx := mMainView.mModules.FindByName(AppConfig.DefaultBible);
-  if (modIx < 0) then
+  modPath := mScriptureProvider.GetDefaultBibleSourcePath();
+  if modPath <> '' then
   begin
-    modEntry := mMainView.mModules.ModTypedAsFirst(modtypeBible);
-    if Assigned(modEntry) then
-      modIx := mMainView.mModules.FindByName(modEntry.FullName);
-  end;
-
-  if (modIx >= 0) then
-  begin
-    modPath := mMainView.mModules[modIx].ShortPath;
-
     if (Pos(C__bqAutoBible, SRC) <> 0) then
     begin
-      status := (TBookFrame(mWorkspace.BookView)).PreProcessAutoCommand(SRC, modPath, concreteCmd);
+      status := mScriptureProvider.PreProcessAutoCommand(SRC, modPath, concreteCmd);
       if status <= -2 then
         Exit;
     end;
@@ -118,10 +109,45 @@ begin
 end;
 
 procedure TDictionaryFrame.bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
+var
+  cmd, concreteCmd: string;
+  status: integer;
+  modPath: string;
 begin
-  // TODO: decide what source to use for hints
-  // show hints from this source
-  //GetBookView(self).BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
+
+  if (SRC = '') or (bwrDic.LinkAttributes.Count < 3) then
+  begin
+    bwrDic.Hint := '';
+    Application.CancelHint();
+    Exit;
+  end;
+
+  if Pos(bwrDic.LinkAttributes[2], 'CLASS=bqResolvedLink') <= 0 then
+    Exit;
+
+  cmd := PeekToken(Pointer(src), ' ');
+  if CompareText(cmd, 'go') <> 0 then
+    Exit;
+
+  if Length(cmd) <= 0 then
+    Exit;
+
+  try
+    modPath := mScriptureProvider.GetDefaultBibleSourcePath();
+    if modPath <> '' then
+    begin
+      if (Pos(C__bqAutoBible, SRC) <> 0) then
+      begin
+        status := mScriptureProvider.PreProcessAutoCommand(SRC, modPath, concreteCmd);
+        if status <= -2 then
+          Exit;
+      end;
+
+      bwrDic.Hint := mScriptureProvider.GetLinkHint(SRC, bwrDic.DefFontName, modPath);
+    end;
+  except
+    // skip error
+  end;
 end;
 
 procedure TDictionaryFrame.bwrDicKeyPress(Sender: TObject; var Key: Char);
@@ -240,6 +266,7 @@ begin
   mMainView := AMainView;
   mWorkspace := AWorkspace;
   mBqEngine := mMainView.BqEngine;
+  mScriptureProvider := TScriptureProvider.Create(AMainView);
 
   vstDicList.DefaultNodeHeight := mMainView.Canvas.TextHeight('X');
   mMainView.GetNotifier.Add(self);

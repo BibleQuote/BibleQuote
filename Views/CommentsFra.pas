@@ -8,7 +8,8 @@ uses
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
   Bible, BibleQuoteConfig, LinksParserIntf, PlainUtils, Engine,
   System.ImageList, Vcl.ImgList, AppIni,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Buttons, JclNotify, NotifyMessages;
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Buttons, JclNotify, NotifyMessages,
+  ScriptureProvider;
 
 type
   TCommentsFrame = class(TFrame, ICommentsView, IJclListener)
@@ -26,6 +27,7 @@ type
     FBqEngine: TBibleQuoteEngine;
     FNotifier: IJclNotifier;
     FLastCommentaryBook: String;
+    FScriptureProvider: TScriptureProvider;
 
     function GetSourceBible(): TBible;
     procedure Notification(Msg: IJclNotificationMessage); stdcall;
@@ -53,6 +55,8 @@ begin
   FWorkspace := Workspace;
   FBqEngine  := MainView.BqEngine;
   FNotifier  := MainView.mNotifier;
+
+  FScriptureProvider := TScriptureProvider.Create(MainView);
 
   FNotifier.Add(self);
 
@@ -103,7 +107,7 @@ begin
   BookView := TBookFrame(FWorkspace.BookView);
   if AutoCmd then
   begin
-    Status := BookView.PreProcessAutoCommand(Command, FMainView.LastBiblePath, ConcreteCmd);
+    Status := FScriptureProvider.PreProcessAutoCommand(Command, FMainView.LastBiblePath, ConcreteCmd);
     if Status <= -2 then
       Exit;
 

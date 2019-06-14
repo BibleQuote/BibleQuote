@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, CommandInterface, CommandBase, MainFrm,
   BookFra, TabData, LinksParserIntf, BibleQuoteUtils, SysUtils, AppIni,
-  ExceptionFrm, Bible, DockTabsFrm;
+  ExceptionFrm, Bible, DockTabsFrm, ScriptureProvider;
 
 type
   TGoCommand = class(TCommandBase)
@@ -38,6 +38,7 @@ var
   Status: Integer;
   navRslt: TNavigateResult;
   dup: String;
+  ScripProvider: TScriptureProvider;
 begin
   dup := FCommand;
 
@@ -50,7 +51,14 @@ begin
       Value := FBookTabInfo.SecondBible.ShortPath
     else
       Value := '';
-    Status := FBookView.PreProcessAutoCommand(dup, Value, ConcreteCmd);
+
+    try
+      ScripProvider := TScriptureProvider.Create(FMainView);
+      Status := ScripProvider.PreProcessAutoCommand(dup, Value, ConcreteCmd);
+    finally
+      ScripProvider.Free;
+    end;
+
     if Status <= -2 then
     begin
       Result := False;

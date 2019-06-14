@@ -10,7 +10,7 @@ uses
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
   ExceptionFrm, NativeDict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
   StrongsConcordance, Math, Character, HtmlParser, DOMCore, Formatter,
-  HtmlTags;
+  HtmlTags, BibleLinkParser, ScriptureProvider;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -41,12 +41,14 @@ type
     procedure vstStrongKeyPress(Sender: TObject; var Key: Char);
     procedure vstStrongAddToSelection(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure bwrStrongKeyPress(Sender: TObject; var Key: Char);
+    procedure bwrStrongHotSpotCovered(Sender: TObject; const SRC: string);
   private
     mWorkspace: IWorkspace;
     mMainView: TMainForm;
 
     mCurrentBook: TBible;
     mLoaded: boolean;
+    mScriptureProvider: TScriptureProvider;
 
     FStrongsConcordance: TStrongsConcordance;
 
@@ -176,12 +178,76 @@ var
   num: integer;
   isHebrew: boolean;
   scode: string;
+  modPath, cmd: string;
+  status: HRESULT;
 begin
   if Pos('s', SRC) = 1 then
   begin
     scode := Copy(SRC, 2, Length(SRC) - 1);
     if StrongVal(scode, num, isHebrew) then
+    begin
       DisplayStrongs(num, isHebrew);
+      Handled := True;
+    end;
+
+    Exit;
+  end;
+
+  modPath := mScriptureProvider.GetDefaultBibleSourcePath();
+  if modPath <> '' then
+  begin
+    if (Pos(C__bqAutoBible, SRC) <> 0) then
+    begin
+      status := mScriptureProvider.PreProcessAutoCommand(SRC, modPath, cmd);
+      if status <= -2 then
+        Exit;
+    end;
+
+    mMainView.OpenOrCreateBookTab(cmd, '', mMainView.DefaultBookTabState);
+  end;
+
+  Handled := true;
+end;
+
+procedure TStrongFrame.bwrStrongHotSpotCovered(Sender: TObject; const SRC: string);
+var
+  cmd, concreteCmd: string;
+  status: integer;
+  modPath: string;
+begin
+
+  if (SRC = '') or (bwrStrong.LinkAttributes.Count < 3) then
+  begin
+    bwrStrong.Hint := '';
+    Application.CancelHint();
+    Exit;
+  end;
+
+  if Pos(bwrStrong.LinkAttributes[2], 'CLASS=bqResolvedLink') <= 0 then
+    Exit;
+
+  cmd := PeekToken(Pointer(src), ' ');
+  if CompareText(cmd, 'go') <> 0 then
+    Exit;
+
+  if Length(cmd) <= 0 then
+    Exit;
+
+  try
+    modPath := mScriptureProvider.GetDefaultBibleSourcePath();
+    if modPath <> '' then
+    begin
+      if (Pos(C__bqAutoBible, SRC) <> 0) then
+      begin
+        status := mScriptureProvider.PreProcessAutoCommand(SRC, modPath, concreteCmd);
+        if status <= -2 then
+          Exit;
+      end;
+
+      bwrStrong.Hint := mScriptureProvider.GetLinkHint(SRC, bwrStrong.DefFontName, modPath);
+    end;
+  except
+    // skip error
   end;
 end;
 
@@ -211,6 +277,7 @@ begin
 
   mMainView := AMainView;
   mWorkspace := AWorkspace;
+  mScriptureProvider := TScriptureProvider.Create(AMainView);
 
   FStrongsConcordance := AMainView.StrongsConcordance;
 
@@ -343,6 +410,7 @@ begin
 
   if res <> '' then
   begin
+    res := ResolveLinks(res, True);
     AddLine(res, '<p><font size=-1>' + Copyright + '</font>');
 
     html := Format('<html><head>%s</head><body>%s</body></html>', [

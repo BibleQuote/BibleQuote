@@ -307,8 +307,8 @@ var
   confCopy: TAppConfig;
   tempIni: TMemIniFile;
 begin
+  tempIni := TMemIniFile.Create('');
   try
-    tempIni := TMemIniFile.Create('');
     Self.SaveTo(tempIni);
 
     confCopy := TAppConfig.Create();

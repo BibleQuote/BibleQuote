@@ -12,7 +12,8 @@ uses
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
   Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
-  StrongsConcordance, CommandInterface, CommandFactoryInterface;
+  StrongsConcordance, CommandInterface, CommandFactoryInterface,
+  ScriptureProvider;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -141,17 +142,6 @@ type
 
     procedure HistoryPopup(Sender: TObject);
 
-    function GetModuleText(
-      cmd: string;
-      out fontName: string;
-      out bl: TBibleLink;
-      out txt: string;
-      out passageSignature: string;
-      options: TgmtOptions = [];
-      maxWords: integer = 0): integer;
-
-    function GetRefBible(ix: integer): TModuleEntry;
-    function RefBiblesCount: integer;
     procedure RealignToolBars(AParent: TWinControl);
 
     procedure SelectSatelliteModule();
@@ -172,6 +162,7 @@ type
     mSatelliteLibraryView: TLibraryFrame;
     mHistoryOn: boolean;
     mCommandFactory: ICommandFactory;
+    mScriptureProvider: TScriptureProvider;
 
     mBrowserSearchPosition: Longint;
     mUpdateOnTreeNodeSelect: boolean;
@@ -218,8 +209,6 @@ type
 
     property HistoryOn: boolean read mHistoryOn write mHistoryOn;
 
-    function PreProcessAutoCommand(RefBible: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT; overload;
-    function PreProcessAutoCommand(const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT; overload;
     function ProcessCommand(bookTabInfo: TBookTabInfo; command: string; hlVerses: TbqHLVerseOption; disableHistory: boolean = false; updateTreeSelection: boolean = true): Boolean; overload;
     function ProcessCommand(Cmd: ICommand; hlVerses: TbqHLVerseOption; disableHistory: boolean = false): Boolean; overload;
     
@@ -619,12 +608,10 @@ end;
 
 procedure TBookFrame.BrowserHotSpotCovered(viewer: THTMLViewer; src: string);
 var
-  unicodeSRC, ConcreteCmd, scode: string;
-  wstr, ws2, fontName, replaceModPath: string;
-  bl: TBibleLink;
-  modIx, status, num: integer;
+  scode, cmd: string;
+  hintText, modPath: string;
+  modIx, num: integer;
   isHebrew: boolean;
-  RefBible: TBible;
   res: String;
 begin
   if Pos('s', SRC) = 1 then
@@ -652,19 +639,18 @@ begin
   if Pos(viewer.LinkAttributes[2], 'CLASS=bqResolvedLink') <= 0 then
     Exit;
 
-  unicodeSRC := SRC;
-  wstr := PeekToken(Pointer(unicodeSRC), ' ');
-  if SysUtils.CompareText(wstr, 'go') <> 0 then
+  cmd := PeekToken(Pointer(src), ' ');
+  if SysUtils.CompareText(cmd, 'go') <> 0 then
     Exit;
 
-  if Length(wstr) <= 0 then
+  if Length(cmd) <= 0 then
     Exit;
 
   if not Assigned(BookTabInfo) then
     Exit;
 
   if (viewer <> bwrHtml) and (BookTabInfo.Bible.isBible) then
-    replaceModPath := BookTabInfo.Bible.ShortPath
+    modPath := BookTabInfo.Bible.ShortPath
   else
   begin
     modIx := mMainView.mModules.FindByName(BookTabInfo.SatelliteName);
@@ -672,39 +658,12 @@ begin
       modIx := mMainView.mModules.FindByName(AppConfig.DefaultBible);
 
     if modIx >= 0 then
-      replaceModPath := mMainView.mModules[modIx].ShortPath;
+      modPath := mMainView.mModules[modIx].ShortPath;
   end;
 
-  if (replaceModPath = '') then
-  begin
-    wstr := Lang.SayDefault('SelectDefaultBible', 'Please select default translation in File -> Settings -> Favorite modules');
-  end
-  else
-  begin
-    RefBible := TBible.Create(mMainView);
+  hintText := mScriptureProvider.GetLinkHint(src, bwrHtml.DefFontName, modPath);
 
-    try
-      status := PreProcessAutoCommand(RefBible, unicodeSRC, replaceModPath, ConcreteCmd);
-      if status > -2 then
-        status := GetModuleText(ConcreteCmd, fontName, bl, ws2, wstr, [gmtBulletDelimited, gmtLookupRefBibles, gmtEffectiveAddress]);
-
-      if status < 0 then
-        wstr := ConcreteCmd + #13#10 + Lang.SayDefault('HintNotFound', '--not found--')
-      else
-      begin
-
-        wstr := wstr + ' (' + RefBible.ShortName + ')'#13#10;
-        if ws2 <> '' then
-          wstr := wstr + ws2
-        else
-          wstr := wstr + Lang.SayDefault('HintNotFound', '--not found--');
-      end;
-    finally
-      RefBible.Free;
-    end;
-
-  end;
-  viewer.Hint := wstr;
+  viewer.Hint := hintText;
 end;
 
 procedure TBookFrame.bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
@@ -976,6 +935,8 @@ begin
   FStrongsConcordance := mMainView.StrongsConcordance;
 
   mNotifier := mainView.mNotifier;
+  mScriptureProvider := TScriptureProvider.Create(mainView);
+
   mSatelliteForm := TForm.Create(self);
   mSatelliteForm.OnDeactivate := OnSatelliteFormDeactivate;
 
@@ -2075,7 +2036,7 @@ var
   uifont: string;
 begin
   if (Length(book.DesiredUIFont) > 0) then
-    uifont := mMainView.mFontManager.SuggestFont(mMainView.Canvas.Handle, book.DesiredUIFont, book.path, $7F)
+    uifont := mMainView.mFontManager.SuggestFont(book.DesiredUIFont, book.path, $7F)
   else
     uifont := mMainView.Font.Name;
 
@@ -2406,85 +2367,6 @@ begin
   ProcessCommand(bookTabInfo, Format('go %s %d %d %d', [mMainView.mDefaultLocation, 1, 1, 1]), hlDefault);
 end;
 
-function TBookFrame.PreProcessAutoCommand(const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
-var
-  RefBible: TBible;
-begin
-  RefBible := TBible.Create(mMainView);
-
-  try
-    Result := PreProcessAutoCommand(RefBible, cmd, prefModule, ConcreteCmd);
-  finally
-    RefBible.Free;
-  end;
-
-end;
-
-function TBookFrame.PreProcessAutoCommand(RefBible: TBible; const cmd: string; const prefModule: string; out ConcreteCmd: string): HRESULT;
-label Fail;
-var
-  ps, refCnt, refIx, prefModIx: integer;
-  me: TModuleEntry;
-  bl, moduleEffectiveLink: TBibleLink;
-  dp: string;
-begin
-  me := nil;
-  try
-    if Pos('go', Trim(cmd)) <> 1 then
-      goto Fail;
-    ps := Pos(C__bqAutoBible, cmd);
-    if ps = 0 then
-      goto Fail;
-    if not bl.FromBqStringLocation(cmd, dp) then
-      goto Fail;
-
-    prefModIx := mMainView.mModules.FindByFolder(prefModule);
-    if prefModIx >= 0 then
-    begin
-      me := mMainView.mModules[prefModIx];
-      if me.modType = modtypeBible then
-      begin
-        RefBible.SetInfoSource(me.GetInfoPath());
-        FixBookNumberForLink(bl, RefBible);
-        Result := RefBible.LinkValidnessStatus(me.GetInfoPath(), bl, true)
-      end
-      else
-        Result := -2;
-    end
-    else
-      Result := -2;
-
-    if Result < -1 then
-    begin
-      refCnt := RefBiblesCount() - 1;
-      Result := -2;
-      for refIx := 0 to refCnt do
-      begin
-        me := GetRefBible(refIx);
-        RefBible.SetInfoSource(me.GetInfoPath());
-        FixBookNumberForLink(bl, RefBible);
-        Result := RefBible.LinkValidnessStatus(me.GetInfoPath(), bl, true);
-        if Result > -2 then
-          break;
-      end;
-    end;
-    if Result > -2 then
-    begin
-      RefBible.InternalToReference(bl, moduleEffectiveLink);
-      if (me <> nil) then
-        ConcreteCmd := moduleEffectiveLink.ToCommand(me.ShortPath);
-      Exit;
-    end;
-  Fail:
-    Result := -2;
-    ConcreteCmd := cmd;
-  except
-    g_ExceptionContext.Add('PreProcessAutoCommand.cmd' + cmd);
-    g_ExceptionContext.Add('PreProcessAutoCommand.prefModule' + prefModule);
-    raise;
-  end;
-end;
-
 function TBookFrame.GoAddress(bookTabInfo: TBookTabInfo; var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
 var
   Title, head, Text, Signature: string;
@@ -2700,12 +2582,12 @@ var
   bl: TBibleLink;
   status_load: integer;
 begin
-  status_load := PreProcessAutoCommand(cmd, BookTabInfo.SecondBible.ShortPath, ConcreteCmd);
+  status_load := mScriptureProvider.PreProcessAutoCommand(cmd, BookTabInfo.SecondBible.ShortPath, ConcreteCmd);
 
   if status_load <= -2 then
     Exit;
 
-  status_load := GetModuleText(ConcreteCmd, fn, bl, ws, psg, [gmtLookupRefBibles]);
+  status_load := mScriptureProvider.GetModuleText(ConcreteCmd, bwrHtml.DefFontName, fn, bl, ws, psg, [gmtLookupRefBibles]);
   if status_load < 0 then
   begin
     MessageBeep(MB_ICONEXCLAMATION);
@@ -2747,7 +2629,7 @@ begin
       prefBible := currentModule.ShortPath
     else
       prefBible := '';
-    status_GetModTxt := PreProcessAutoCommand(cmd, prefBible, Result);
+    status_GetModTxt := mScriptureProvider.PreProcessAutoCommand(cmd, prefBible, Result);
   end
   else
     Result := cmd;
@@ -2756,8 +2638,8 @@ begin
   begin
     if Assigned(btinfo) then
     begin
-      status_GetModTxt := GetModuleText(
-        Result, fnt, bl, txt, passageSignature,
+      status_GetModTxt := mScriptureProvider.GetModuleText(
+        Result, bwrHtml.DefFontName, fnt, bl, txt, passageSignature,
         [gmtBulletDelimited, gmtEffectiveAddress, gmtLookupRefBibles], maxWords);
     end;
   end;
@@ -2771,215 +2653,6 @@ begin
     Result := 'Не найдено подходящей Библии для отображения отрывка(' + IntToStr(ord(autoCmd)) + ')';
   end;
 
-end;
-
-function TBookFrame.GetModuleText(
-  cmd: string;
-  out fontName: string;
-  out bl: TBibleLink;
-  out txt: string;
-  out passageSignature: string;
-  options: TgmtOptions = [];
-  maxWords: integer = 0): integer;
-var
-  i, verseCount, C, status_valid: integer;
-  path: string;
-  fontFound, addEllipsis, limited, linkValid: Boolean;
-  ibl, effectiveLnk: TBibleLink;
-  delimiter, line: string;
-  currentBibleIx, prefBibleCount, wordCounter, wordsAdded: integer;
-  refBook: TBible;
-label lblErrNotFnd;
-  function NextRefBible(): Boolean;
-  var
-    me: TModuleEntry;
-  begin
-    if currentBibleIx < prefBibleCount then
-    begin
-      me := GetRefBible(currentBibleIx);
-      inc(currentBibleIx);
-      refBook.SetInfoSource(ResolveFullPath(me.GetInfoPath()));
-      Result := true;
-    end
-    else
-      Result := false;
-
-  end;
-
-begin
-  Result := -1;
-  refBook := TBible.Create(mMainView);
-  try
-    linkValid := ibl.FromBqStringLocation(cmd, path);
-    if not linkValid then
-    begin
-      txt := 'Неверный аргумент GetModuleText:' + StackLst(GetCallerEIP(), nil);
-      Exit;
-    end;
-
-    if path <> C__bqAutoBible then
-    begin
-      // form the path to the ini module
-      path := ResolveFullPath(TPath.Combine(path, 'bibleqt.ini'));
-      // try to load the module
-      refBook.SetInfoSource(path);
-    end
-    else
-      raise Exception.Create('Неверный аргумент GetModuleText:не указан модуль');
-
-    if gmtLookupRefBibles in options then
-    begin
-      currentBibleIx := 0;
-      prefBibleCount := RefBiblesCount();
-    end;
-    repeat
-      if not(gmtEffectiveAddress in options) then
-      begin
-        if refBook.InternalToReference(ibl, effectiveLnk) < -1 then
-          goto lblErrNotFnd;
-      end
-      else
-        effectiveLnk := ibl;
-
-      status_valid := refBook.LinkValidnessStatus(refBook.InfoSource.FileName, effectiveLnk, false);
-      effectiveLnk.AssignTo(bl);
-      if status_valid < -1 then
-        goto lblErrNotFnd;
-      refBook.SetHTMLFilterX('', true);
-      refBook.OpenChapter(effectiveLnk.book, effectiveLnk.chapter);
-
-      // already opened?
-      passageSignature := refBook.ShortPassageSignature(
-        effectiveLnk.book,
-        effectiveLnk.chapter,
-        effectiveLnk.vstart,
-        effectiveLnk.vend);
-
-      verseCount := refBook.verseCount();
-      if effectiveLnk.vstart = 0 then
-        effectiveLnk.vstart := 1;
-      if effectiveLnk.vend <= 0 then
-        C := verseCount
-      else
-        C := effectiveLnk.vend;
-      if (effectiveLnk.vstart > verseCount) then
-        Exit;
-      if (effectiveLnk.vend > verseCount) then
-        effectiveLnk.vend := verseCount;
-
-      if gmtBulletDelimited in options then
-        delimiter := C_BulletChar + #32
-      else
-        delimiter := #13#10;
-      Dec(C);
-      if (C - effectiveLnk.vstart) > 10 then
-      begin
-        C := effectiveLnk.vstart + 10;
-        addEllipsis := true
-      end
-      else
-        addEllipsis := false;
-      wordCounter := 0;
-
-      for i := effectiveLnk.vstart to C do
-      begin
-        if maxWords = 0 then
-          txt := txt + DeleteStrongNumbers(refBook.GetVerseByNumber(i)) + delimiter
-        else
-        begin
-          line := StrLimitToWordCnt(
-            DeleteStrongNumbers(refBook.GetVerseByNumber(i)),
-            maxWords - wordCounter, wordsAdded, limited);
-
-          inc(wordCounter, wordsAdded);
-
-          txt := txt + line;
-          if not limited then
-            txt := txt + delimiter
-          else
-            break;
-        end;
-      end;
-      if maxWords = 0 then
-        txt := txt + DeleteStrongNumbers(refBook.GetVerseByNumber(C+1))
-      else
-      begin
-        if not limited then
-        begin
-          line := StrLimitToWordCnt(
-            DeleteStrongNumbers(refBook.GetVerseByNumber(C+1)),
-            maxWords - wordCounter, wordsAdded, limited);
-
-          txt := txt + line;
-        end;
-        addEllipsis := limited;
-      end;
-      if addEllipsis then
-        txt := txt + '...';
-
-      if Length(refBook.fontName) > 0 then
-      begin
-        fontFound := mMainView.mFontManager.PrepareFont(refBook.fontName, refBook.path);
-        fontName := refBook.fontName;
-      end
-      else
-        fontFound := false;
-      // if there is no preferred font or it is not found, and encoding is specified
-      if not fontFound and (refBook.desiredCharset >= 2) then
-      begin
-        // find the font with the desired encoding, take into account default font
-        if Length(refBook.fontName) > 0 then
-          fontName := refBook.fontName
-        else
-          fontName := '';
-        fontName := FontFromCharset(self.Handle, refBook.desiredCharset, bwrHtml.DefFontName);
-      end;
-      if Length(fontName) = 0 then
-        fontName := AppConfig.DefFontName;
-      Result := 0;
-      break;
-    lblErrNotFnd:
-
-    until (not(gmtLookupRefBibles in options)) or (not NextRefBible());
-  except
-  end;
-end;
-
-function TBookFrame.GetRefBible(ix: integer): TModuleEntry;
-var
-  i, cnt, bi: integer;
-  me: TModuleEntry;
-begin
-  cnt := mMainView.mFavorites.mModuleEntries.Count - 1;
-  bi := 0;
-  me := nil;
-
-  for i := 0 to cnt do
-  begin
-    me := mMainView.mFavorites.mModuleEntries[i];
-    if me.modType = modtypeBible then
-      inc(bi);
-    if bi > ix then
-    begin
-      break;
-    end;
-  end;
-
-  if bi > ix then
-    Result := me
-  else
-    Result := nil;
-end;
-
-function TBookFrame.RefBiblesCount: integer;
-var
-  i, cnt: integer;
-begin
-  cnt := mMainView.mFavorites.mModuleEntries.Count - 1;
-  Result := 0;
-  for i := 0 to cnt do
-    if mMainView.mFavorites.mModuleEntries[i].modType = modtypeBible then
-      inc(Result);
 end;
 
 procedure TBookFrame.RealignToolBars(AParent: TWinControl);
@@ -3427,7 +3100,7 @@ end;
 function TBookFrame.GetBibleFont(Bible: TBible): String;
 begin
   if ((Length(Bible.fontName) > 0)) or (Bible.desiredCharset > 2) then
-    Result := mMainView.FontManager.SuggestFont(self.Handle, Bible.fontName, Bible.path, Bible.desiredCharset)
+    Result := mMainView.FontManager.SuggestFont(Bible.fontName, Bible.path, Bible.desiredCharset)
   else
     Result := AppConfig.DefFontName;
 end;

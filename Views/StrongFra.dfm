@@ -143,6 +143,7 @@ object StrongFrame: TStrongFrame
       ScrollBars = ssVertical
       OnKeyPress = bwrStrongKeyPress
       OnHotSpotClick = bwrStrongHotSpotClick
+      OnHotSpotCovered = bwrStrongHotSpotCovered
       OnMouseDouble = bwrStrongMouseDouble
     end
   end
