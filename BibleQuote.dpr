@@ -98,7 +98,8 @@ uses
   Entities in 'HTML\Entities.pas',
   Formatter in 'HTML\Formatter.pas',
   HtmlReader in 'HTML\HtmlReader.pas',
-  HtmlTags in 'HTML\HtmlTags.pas';
+  HtmlTags in 'HTML\HtmlTags.pas',
+  ScriptureProvider in 'Core\ScriptureProvider.pas';
 
 {$R *.res}
 

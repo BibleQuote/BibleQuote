@@ -10,12 +10,12 @@ type
   public
     function ActivateFont(const fontPath: string): DWORD;
     function PrepareFont(const aFontName, aFontPath: string): Boolean;
-    function SuggestFont(aHDC: HDC; const desiredFontName, desiredFontPath: string; desiredCharset: integer): string;
+    function SuggestFont(const desiredFontName, desiredFontPath: string; desiredCharset: integer): string;
   end;
 
 implementation
 
-function TFontManager.SuggestFont(aHDC: HDC; const desiredFontName, desiredFontPath: string; desiredCharset: integer): string;
+function TFontManager.SuggestFont(const desiredFontName, desiredFontPath: string; desiredCharset: integer): string;
 begin
   if Length(desiredFontName) > 0 then
     if PrepareFont(desiredFontName, desiredFontPath) then
@@ -32,7 +32,7 @@ begin
       Result := desiredFontName
     else
       Result := AppConfig.DefFontName;
-    Result := FontFromCharset(aHDC, desiredCharset, Result);
+    Result := FontFromCharset(desiredCharset, Result);
   end;
   // if the font is still not found, take the font from the app settings
   if (Length(Result) <= 0) then

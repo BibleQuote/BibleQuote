@@ -246,7 +246,7 @@ function FileExistsEx(aPath: string): integer;
 function ArchiveFileSize(path: string): integer;
 function SpecialIO(const fileName: string; strings: TStrings; obf: int64; read: boolean = true): boolean;
 function FontExists(const fontName: string): boolean;
-function FontFromCharset(aHDC: HDC; charset: integer; desiredFont: string = ''): string;
+function FontFromCharset(charset: integer; desiredFont: string = ''): string;
 function ExtractModuleName(aModuleSignature: string): string;
 function StrPosW(const Str, SubStr: PChar): PChar;
 function ExctractName(const filename: string): string;
@@ -786,12 +786,15 @@ begin
   end;
 end;
 
-function FontFromCharset(aHDC: HDC; charset: integer; desiredFont: string = ''): string;
+function FontFromCharset(charset: integer; desiredFont: string = ''): string;
 var
   logFont: tagLOGFONT;
   fontNameLength: integer;
   fontName: array [0 .. 64] of Char;
+  DC: HDC;
 begin
+  DC := GetDC(GetDesktopWindow);
+
   __hitCount := 0;
   FillChar(logFont, sizeof(logFont), 0);
   FillChar(fontName, 64, 0);
@@ -803,7 +806,7 @@ begin
       fontNameLength := 31;
 
     Move(Pointer(desiredFont)^, logFont.lfFaceName, fontNameLength * 2);
-    EnumFontFamiliesEx(aHDC, logFont, @EnumFontFamExProc, 0, 0);
+    EnumFontFamiliesEx(DC, logFont, @EnumFontFamExProc, 0, 0);
     if __hitCount > 0 then
     begin
       result := desiredFont;
@@ -815,7 +818,7 @@ begin
   FillChar(logFont, sizeof(logFont), 0);
   FillChar(fontName, 64, 0);
   logFont.lfCharSet := charset;
-  EnumFontFamiliesEx(aHDC, logFont, @EnumFontFamExProc, integer(@fontName), 0);
+  EnumFontFamiliesEx(DC, logFont, @EnumFontFamExProc, integer(@fontName), 0);
   if (__hitCount > 0) and (fontName[0] <> #0) then
   begin
     result := PChar(@fontName);
