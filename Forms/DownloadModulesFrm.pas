@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, ThirdPartModulesProcs, SyncObjs,
   System.JSON, Generics.Collections, System.ImageList, Vcl.ImgList,
   Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
-  Vcl.ToolWin, Vcl.Menus;
+  Vcl.ToolWin, Vcl.Menus, Vcl.StdCtrls, UITools;
 
 const
   MYBIBLE_URLS: TArray<String> = [
@@ -62,12 +62,14 @@ type
     sbModules: TStatusBar;
     tcModules: TTabControl;
     lvModules: TListView;
-    ToolBar1: TToolBar;
+    tlbMain: TToolBar;
     tbtnDownloadModule: TToolButton;
     imgCollection: TImageCollection;
     vimgIcons: TVirtualImageList;
     pmModules: TPopupMenu;
     miDownloadModule: TMenuItem;
+    edtSearch: TEdit;
+    sep1: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -83,6 +85,7 @@ type
     FBibleModules: TThirdPartyModules;
     FCommentaryModules: TThirdPartyModules;
     FDictionaryModules: TThirdPartyModules;
+    FActiveModules: TThirdPartyModules;
     FHosts: THosts;
 
     procedure InitTabs();
@@ -99,13 +102,16 @@ type
     procedure ExtractSqliteFile(aDownloadedFile, aDestFilePath: String);
     procedure UploadRegisterJsonDataToList(aJson: TJsonObject);
     procedure UploadModuleJsonDataToList(aModuleJson: TJsonObject);
-    procedure ProcesseDownloadedModule(aCaption: String; aModuleType: TThirdPartyModuleTypes; aDownloadedFilePath: String);
+    procedure ProcessDownloadedModule(aCaption: String; aModuleType: TThirdPartyModuleTypes; aDownloadedFilePath: String);
     procedure SetModuleStatus(aCaption: String; aModuleType: TThirdPartyModuleTypes;
                         aStatus: TThirdPartyStatuses);
     procedure ClearThirdPartModules(); overload;
     procedure ClearThirdPartModules(aThirdPartyModules: TThirdPartyModules); overload;
     function SelectModules(aModuleType: TThirdPartyModuleTypes): TThirdPartyModules;
-    function SelectCurrentModules(): TThirdPartyModules;
+    procedure UpdateActiveModules(aModuleType: TThirdPartyModuleTypes);
+    function FilterModules(aModules: TThirdPartyModules; aSearchText: String): TThirdPartyModules;
+    function MatchesFilter(aModule: TThirdPartyModule; aSearch: String): Boolean;
+    procedure UpdateCurrentModules();
     function GetCurrentDisplayedModuleType(): TThirdPartyModuleTypes;
     function FormModuleUrl(aModuleUrls: TArray<String>; aHosts: THosts): TArray<String>;
     function FindModule(aCaption: String; aModuleType: TThirdPartyModuleTypes): TThirdPartyModule; overload;
@@ -114,6 +120,7 @@ type
     function GetModulePath(aModule: TThirdPartyModule): String;
     function AppendSQLiteExt(aFileName: String): String;
     function FindOutModuleStatus(aModule: TThirdPartyModule): TThirdPartyStatuses;
+    procedure ApplyFilter(Sender: TObject);
   public
     { Public declarations }
 
@@ -134,6 +141,8 @@ begin
   ClearThirdPartModules(FBibleModules);
   ClearThirdPartModules(FCommentaryModules);
   ClearThirdPartModules(FDictionaryModules);
+
+  FActiveModules.Clear;
 end;
 
 function TDownloadModulesForm.AppendSQLiteExt(aFileName: String): String;
@@ -154,6 +163,13 @@ var
 begin
   for Pair in aThirdPartyModules do
     Pair.Value.Free;
+end;
+
+procedure TDownloadModulesForm.ApplyFilter(Sender: TObject);
+begin
+  UpdateCurrentModules;
+  lvModules.Items.Count := FActiveModules.Count;
+  lvModules.Refresh;
 end;
 
 function TDownloadModulesForm.ExtractRegisterJson(
@@ -206,8 +222,8 @@ end;
 function TDownloadModulesForm.FindModule(aCaption: String;
   aModuleType: TThirdPartyModuleTypes): TThirdPartyModule;
 var
-  Modules: TThirdPartyModules;
   Pair: TThirdPartyPair;
+  Modules: TThirdPartyModules;
 begin
   Result := nil;
 
@@ -226,20 +242,15 @@ end;
 
 function TDownloadModulesForm.FindModule(aIndex: Integer;
   aModuleType: TThirdPartyModuleTypes): TThirdPartyModule;
-
-var
-  Modules: TThirdPartyModules;
 begin
 
   Result := nil;
 
-  Modules := SelectModules(aModuleType);
+  if not Assigned(FActiveModules) then exit;
 
-  if not Assigned(Modules) then exit;
+  if aIndex >= FActiveModules.Count then exit;
 
-  if aIndex >= Modules.Count then exit;
-
-  Result := Modules[aIndex].Value;
+  Result := FActiveModules[aIndex].Value;
 
 end;
 
@@ -270,10 +281,11 @@ begin
   FBibleModules := TThirdPartyModules.Create();
   FCommentaryModules := TThirdPartyModules.Create();
   FDictionaryModules := TThirdPartyModules.Create();
+  FActiveModules := TThirdPartyModules.Create();
   FHosts := THosts.Create();
 
   InitTabs();
-
+  edtSearch.OnChange := TDebouncedEvent.Wrap(ApplyFilter, 500, Self);
 end;
 
 procedure TDownloadModulesForm.FormDestroy(Sender: TObject);
@@ -286,6 +298,7 @@ begin
   FreeAndNil(FBibleModules);
   FreeAndNil(FCommentaryModules);
   FreeAndNil(FDictionaryModules);
+  FreeAndNil(FActiveModules);
   FreeAndNil(FHosts);
 end;
 
@@ -456,18 +469,17 @@ begin
   UpdateModuleRec := PUpdateModuleRec(Msg.WParam);
   try
     with UpdateModuleRec^ do
-      ProcesseDownloadedModule(Caption, TThirdPartyModuleTypes(ModuleType), FilePath);
+      ProcessDownloadedModule(Caption, TThirdPartyModuleTypes(ModuleType), FilePath);
 
   finally
     Dispose(UpdateModuleRec);
   end;
 
-
 end;
 
-function TDownloadModulesForm.SelectCurrentModules: TThirdPartyModules;
+procedure TDownloadModulesForm.UpdateCurrentModules;
 begin
-  Result := SelectModules(GetCurrentDisplayedModuleType());
+  UpdateActiveModules(GetCurrentDisplayedModuleType());
 end;
 
 function TDownloadModulesForm.SelectModules(
@@ -476,10 +488,50 @@ begin
   Result := nil;
 
   case aModuleType of
-    tpmtBible: Result:= FBibleModules;
+    tpmtBible: Result := FBibleModules;
     tpmtCommentary: Result := FCommentaryModules;
     tpmtDictionary: Result := FDictionaryModules;
   end;
+end;
+
+procedure TDownloadModulesForm.UpdateActiveModules(aModuleType: TThirdPartyModuleTypes);
+var
+  Modules: TThirdPartyModules;
+begin
+  Modules := SelectModules(aModuleType);
+  FActiveModules := FilterModules(Modules, edtSearch.Text)
+end;
+
+function TDownloadModulesForm.FilterModules(aModules: TThirdPartyModules; aSearchText: String): TThirdPartyModules;
+var
+  Modules: TThirdPartyModules;
+  I: Integer;
+begin
+  Modules := TThirdPartyModules.Create();
+  for I := 0 to aModules.Count - 1 do
+    if (MatchesFilter(aModules[I].Value, aSearchText)) then
+      Modules.Add(aModules[I]);
+
+  Result := Modules;
+end;
+
+function TDownloadModulesForm.MatchesFilter(aModule: TThirdPartyModule; aSearch: String): Boolean;
+begin
+  Result := False;
+
+  if (aSearch = '') then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  aSearch := UpperCase(aSearch);
+
+  if (Pos(aSearch, UpperCase(aModule.FCaption)) <> 0) then
+    Result := True
+  else if (Pos(aSearch, UpperCase(aModule.FTitle)) <> 0) then
+    Result := True;
+
 end;
 
 procedure TDownloadModulesForm.SetModuleStatus(aCaption: String;
@@ -505,14 +557,12 @@ begin
 end;
 
 procedure TDownloadModulesForm.tcModulesChange(Sender: TObject);
-var
-  Modules: TThirdPartyModules;
 begin
-  Modules := SelectCurrentModules();
+  UpdateCurrentModules();
 
-  if not Assigned(Modules) then exit;
+  if not Assigned(FActiveModules) then exit;
   
-  lvModules.Items.Count := Modules.Count;
+  lvModules.Items.Count := FActiveModules.Count;
   lvModules.Refresh;
 end;
 
@@ -584,12 +634,15 @@ begin
     end;
 
     sbModules.SimpleText := Lang.Say('StrTPModulesUpdatingModulesInfoFinished');
+    UpdateCurrentModules();
+    lvModules.Items.Count := FActiveModules.Count;
+    lvModules.Refresh;
   finally
     FUpdateModuleListCriticalSection.Leave;
   end;
 end;
 
-procedure TDownloadModulesForm.ProcesseDownloadedModule(aCaption: String;
+procedure TDownloadModulesForm.ProcessDownloadedModule(aCaption: String;
   aModuleType: TThirdPartyModuleTypes; aDownloadedFilePath: String);
 var
   DestFilePath: String;
@@ -611,7 +664,6 @@ begin
 
     if aModuleType = GetCurrentDisplayedModuleType() then
       lvModules.Refresh;
-
 
     sbModules.SimpleText := Format(Lang.Say('StrModuleDownloadedSuccessfully'),
                               [Module.Title]);
@@ -652,13 +704,7 @@ begin
   Modules := SelectModules(ThirdPartModule.ModuleType);
 
   if Assigned(Modules) then
-  begin
-    Modules.Add(TThirdPartyPair.Create(abr, ThirdPartModule));
-
-    if ThirdPartModule.ModuleType = GetCurrentDisplayedModuleType() then
-      lvModules.Items.Count := Modules.Count;
-
-  end
+    Modules.Add(TThirdPartyPair.Create(abr, ThirdPartModule))
   else
     ThirdPartModule.Free;
 

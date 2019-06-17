@@ -352,6 +352,8 @@ ExceptionForm.lblStacktrace.Caption = The exception stacktrace was:
 DownloadModulesForm.Caption = Thirdpart modules
 DownloadModulesForm.tbtnDownloadModule.Caption = Download module
 DownloadModulesForm.tbtnDownloadModule.Hint = Download module
+DownloadModulesForm.edtSearch.TextHint = Search modules...
+DownloadModulesForm.edtSearch.Hint = Search modules by caption or title
 ;
 StrMyBibleBook10 = Genesis
 StrMyBibleBook20 = Exodus
