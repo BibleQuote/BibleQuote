@@ -352,6 +352,8 @@ ExceptionForm.lblStacktrace.Caption = Протокол исключения:
 DownloadModulesForm.Caption = Сторонние модули
 DownloadModulesForm.tbtnDownloadModule.Caption = Загрузить модуль
 DownloadModulesForm.tbtnDownloadModule.Hint = Загрузить модуль
+DownloadModulesForm.edtSearch.TextHint = Поиск модулей...
+DownloadModulesForm.edtSearch.Hint = Поиск модулей по заголовку или названию
 ;
 StrMyBibleBook10 = Бытие
 StrMyBibleBook20 = Исход

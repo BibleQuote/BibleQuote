@@ -33,17 +33,19 @@ object DownloadModulesForm: TDownloadModulesForm
   end
   object tcModules: TTabControl
     Left = 0
-    Top = 36
+    Top = 32
     Width = 836
-    Height = 434
+    Height = 438
     Align = alClient
     TabOrder = 1
     OnChange = tcModulesChange
+    ExplicitTop = 36
+    ExplicitHeight = 434
     object lvModules: TListView
       Left = 4
       Top = 6
       Width = 828
-      Height = 424
+      Height = 428
       Align = alClient
       Columns = <
         item
@@ -79,20 +81,27 @@ object DownloadModulesForm: TDownloadModulesForm
       TabOrder = 0
       ViewStyle = vsReport
       OnData = lvModulesData
+      ExplicitLeft = 5
+      ExplicitTop = 4
+      ExplicitHeight = 438
     end
   end
-  object ToolBar1: TToolBar
-    Left = 0
-    Top = 0
-    Width = 836
-    Height = 36
+  object tlbMain: TToolBar
+    AlignWithMargins = True
+    Left = 5
+    Top = 5
+    Width = 826
+    Height = 22
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     AutoSize = True
-    ButtonHeight = 36
     ButtonWidth = 54
-    Caption = 'ToolBar1'
     Images = vimgIcons
     TabOrder = 2
     object tbtnDownloadModule: TToolButton
+      AlignWithMargins = True
       Left = 0
       Top = 0
       Caption = 'Download'
@@ -101,6 +110,25 @@ object DownloadModulesForm: TDownloadModulesForm
       ShowHint = True
       Style = tbsTextButton
       OnClick = tbtnDownloadModuleClick
+    end
+    object sep1: TToolButton
+      Left = 54
+      Top = 0
+      Width = 15
+      ImageIndex = 1
+      Style = tbsSeparator
+    end
+    object edtSearch: TEdit
+      AlignWithMargins = True
+      Left = 69
+      Top = 0
+      Width = 292
+      Height = 22
+      Hint = 'Search modules by caption or title'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      TextHint = 'Search modules...'
     end
   end
   object imgCollection: TImageCollection
