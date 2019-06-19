@@ -249,7 +249,7 @@ type
     procedure GoPrevChapter;
     procedure GoNextChapter;
     procedure PlaySound();
-    procedure OpenQuickSearch(Query: String);
+    procedure OpenQuickSearch();
     procedure FocusQuickNav();
   end;
 
@@ -1400,16 +1400,24 @@ begin
 end;
 
 procedure TBookFrame.miSearchWordClick(Sender: TObject);
+var
+  Query: String;
 begin
-  OpenQuickSearch(bwrHtml.SelText);
+  Query := bwrHtml.SelText;
+  if (Trim(Query) <> '') then
+  begin
+    Query := Copy(Query, 1, 100); // search only the first 100 chars from the selected text
+    NavigateToSearch(Query);
+  end
+  else
+    OpenQuickSearch();
 end;
 
-procedure TBookFrame.OpenQuickSearch(Query: String);
+procedure TBookFrame.OpenQuickSearch();
 var
   inputForm: TInputForm;
 begin
   inputForm := TInputForm.CreateText(Lang.SayDefault('QuickSearch', 'Быстрый ввод поисковой фразы'));
-  inputForm.edtValue.Text := Copy(Query, 1, 100);
   if inputForm.ShowModal = mrOk then
     if Assigned(BookTabInfo) then
       NavigateToSearch(InputForm.GetValue);
