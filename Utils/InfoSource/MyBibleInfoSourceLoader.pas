@@ -1,4 +1,4 @@
-unit MyBibleInfoSourceLoader;
+Ôªøunit MyBibleInfoSourceLoader;
 
 interface
 
@@ -38,7 +38,7 @@ begin
   if aLanguage = 'en' then
     Result:= 'Psalom'
   else
-    Result := 'œÒ‡ÎÓÏ';
+    Result := '–ü—Å–∞–ª–æ–º';
 
 end;
 
@@ -47,7 +47,7 @@ begin
   if aLanguage = 'en' then
     Result:= 'Chapter'
   else
-    Result := '√Î‡‚‡';
+    Result := '–ì–ª–∞–≤–∞';
 end;
 
 
