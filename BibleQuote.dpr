@@ -49,7 +49,7 @@ uses
   LayoutConfig in 'IO\LayoutConfig.pas',
   BookFra in 'Views\BookFra.pas' {BookFrame: TFrame},
   MemoFra in 'Views\MemoFra.pas' {MemoFrame: TFrame},
-  FontManager in 'Core\FontManager.pas',
+  ManageFonts in 'Core\ManageFonts.pas',
   LibraryFra in 'Views\LibraryFra.pas' {LibraryFrame: TFrame},
   ImageUtils in 'Utils\ImageUtils.pas',
   UITools in 'UI\UITools.pas',
@@ -99,7 +99,8 @@ uses
   Formatter in 'HTML\Formatter.pas',
   HtmlReader in 'HTML\HtmlReader.pas',
   HtmlTags in 'HTML\HtmlTags.pas',
-  ScriptureProvider in 'Core\ScriptureProvider.pas';
+  ScriptureProvider in 'Core\ScriptureProvider.pas',
+  AppStates in 'Core\AppStates.pas';
 
 {$R *.res}
 

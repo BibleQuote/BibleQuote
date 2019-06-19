@@ -4,7 +4,7 @@ interface
 
 uses Bible, LinksParserIntf, BibleQuoteUtils, MainFrm, SysUtils, PlainUtils,
      BibleQuoteConfig, SelectEntityType, ExceptionFrm, IOUtils, AppIni,
-     StringProcs;
+     StringProcs, ManageFonts;
 
 type
   TScriptureProvider = class
@@ -359,7 +359,7 @@ begin
 
       if Length(refBook.fontName) > 0 then
       begin
-        fontFound := FMainView.mFontManager.PrepareFont(refBook.fontName, refBook.path);
+        fontFound := FontManager.PrepareFont(refBook.fontName, refBook.path);
         fontName := refBook.fontName;
       end
       else

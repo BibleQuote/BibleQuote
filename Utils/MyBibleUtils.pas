@@ -180,7 +180,7 @@ begin
   for i := 0 to aChapterDatas.Count - 1 do
   begin
     BookNumber := aChapterDatas[i].BookNumber;
-    ChapterNumberQuery := Format(ChapterNumberQueryTempl, [aChapterDatas[i].BookNumber]);
+    ChapterNumberQuery := Format(ChapterNumberQueryTempl, [BookNumber]);
     ChapterNumbers := FillCommentaryChapterNumbers(aSQLiteQuery, ChapterNumberQuery );
     aChapterDatas[i].ChapterNumbers := Copy(ChapterNumbers, 0, Length(ChapterNumbers));
   end;

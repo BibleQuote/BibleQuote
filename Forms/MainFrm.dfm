@@ -94,7 +94,7 @@ object MainForm: TMainForm
     GradientEndColor = clBtnFace
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 556
+      Left = 478
       Top = 4
       Width = 37
       Height = 26
@@ -110,13 +110,12 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitLeft = 588
       ExplicitHeight = 14
     end
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 300
+      Width = 338
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -129,7 +128,7 @@ object MainForm: TMainForm
       GradientEndColor = clBtnFace
       Images = vimgIcons
       List = True
-      TabOrder = 2
+      TabOrder = 1
       object tbtnNewForm: TToolButton
         Left = 0
         Top = 0
@@ -199,48 +198,30 @@ object MainForm: TMainForm
         ImageIndex = 15
         OnClick = tbtnAddMemoTabClick
       end
-      object tbtnLastSeparator: TToolButton
+      object tbtnSep: TToolButton
         Left = 294
+        Top = 0
+        Width = 6
+        ImageIndex = 24
+        Style = tbsSeparator
+      end
+      object tbtnDownloadModules: TToolButton
+        Left = 300
+        Top = 0
+        Caption = 'Download modules'
+        ImageIndex = 23
+        OnClick = tbtnDownloadModulesClick
+      end
+      object tbtnLastSeparator: TToolButton
+        Left = 332
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
         Style = tbsSeparator
       end
     end
-    object tlbDownloads: TToolBar
-      Left = 301
-      Top = 1
-      Width = 116
-      Margins.Top = 0
-      Margins.Bottom = 0
-      Align = alLeft
-      ButtonHeight = 32
-      ButtonWidth = 35
-      DrawingStyle = dsGradient
-      EdgeInner = esNone
-      EdgeOuter = esNone
-      GradientEndColor = clBtnFace
-      Images = vimgIcons
-      List = True
-      TabOrder = 0
-      ExplicitLeft = 333
-      object tbtnDownloadModules: TToolButton
-        Left = 0
-        Top = 0
-        Caption = 'Download modules'
-        ImageIndex = 23
-        OnClick = tbtnDownloadModulesClick
-      end
-      object tbtnSep: TToolButton
-        Left = 35
-        Top = 0
-        Width = 6
-        ImageIndex = 24
-        Style = tbsSeparator
-      end
-    end
     object tbLinksToolBar: TToolBar
-      Left = 417
+      Left = 339
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -253,9 +234,8 @@ object MainForm: TMainForm
       GradientEndColor = clBtnFace
       List = True
       ShowCaptions = True
-      TabOrder = 1
+      TabOrder = 0
       Visible = False
-      ExplicitLeft = 449
       object cbLinks: TComboBox
         Left = 0
         Top = 0
@@ -3628,28 +3608,6 @@ object MainForm: TMainForm
         Caption = #1042#1099#1093#1086#1076
         ShortCut = 32883
         OnClick = miExitClick
-      end
-    end
-    object miActions: TMenuItem
-      Caption = #1054#1087#1077#1088#1072#1094#1080#1080
-      object miQuickNav: TMenuItem
-        Caption = #1041#1099#1089#1090#1088#1086#1077' '#1086#1090#1082#1088#1099#1090#1080#1077' '#1086#1090#1088#1099#1074#1082#1072
-        ShortCut = 16497
-        OnClick = miQuickNavClick
-      end
-      object miQuickSearch: TMenuItem
-        Caption = #1041#1099#1089#1090#1088#1086#1077' '#1086#1090#1082#1088#1099#1090#1080#1077' '#1087#1086#1080#1089#1082#1072
-        ShortCut = 16498
-        OnClick = miQuickSearchClick
-      end
-      object miActionsSep1: TMenuItem
-        Caption = '-'
-      end
-      object miSound: TMenuItem
-        Caption = #1055#1088#1086#1089#1083#1091#1096#1072#1090#1100' '#1079#1072#1087#1080#1089#1100' ('#1077#1089#1083#1080' '#1077#1089#1090#1100')'
-        ImageIndex = 14
-        ShortCut = 16505
-        OnClick = miSoundClick
       end
     end
     object miFavorites: TMenuItem

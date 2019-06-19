@@ -98,13 +98,11 @@ var
   Command, ConcreteCmd: string;
   AutoCmd: Boolean;
   Status: integer;
-  BookView: TBookFrame;
 begin
   Handled := true;
   Command := SRC;
   AutoCmd := Pos(C__bqAutoBible, Command) <> 0;
 
-  BookView := TBookFrame(FWorkspace.BookView);
   if AutoCmd then
   begin
     Status := FScriptureProvider.PreProcessAutoCommand(Command, FMainView.LastBiblePath, ConcreteCmd);
