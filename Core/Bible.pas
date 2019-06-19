@@ -707,8 +707,6 @@ function TBible.GetChapterQtys(aBookNumber: Integer): Integer;
 var
   BookIndex: Integer;
 begin
-  Result := 0;
-
   BookIndex := GetBookNumberIndex(aBookNumber);
 
   if (BookIndex > -1) then
@@ -1635,24 +1633,18 @@ end;
 
 function TBible.IsValidBookNumber(aBookNumber: Integer): Boolean;
 begin
-  Result:= False;
-
   if ChapterNumbers.Count = 0 then
     Result:= (aBookNumber > 0) and (aBookNumber <= BookQty)
   else
     Result := GetBookNumberIndex(aBookNumber) <> -1;
-
 end;
 
 function TBible.IsValidChapterNumber(aBookNumber, aChapterNumber: Integer): Boolean;
 begin
-  Result:= False;
-
   if ChapterNumbers.Count = 0 then
     Result:= (aBookNumber > 0) and (aBookNumber <= BookQty)
   else
     Result := GetChapterNumberIndex(aBookNumber, aChapterNumber) <> -1;
-
 end;
 
 function TBible.LinkValidnessStatus(

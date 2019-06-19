@@ -194,6 +194,8 @@ begin
 
   ChapterDatas := TList<TChapterData>.Create;
   BookNumber := 1;
+  ChapterData := nil;
+
   try
 
   for I := 0 to FDataPairs.Count - 1 do
@@ -343,8 +345,7 @@ begin
 
   if Match.Groups.Count < 0  then exit;
 
-  gc := Match.Groups.Count;
-  if Match.Groups.Count >=3 then
+  if Match.Groups.Count >= 3 then
   begin
       Name:= Match.Groups[1].Value.Trim;
       Value:= Match.Groups[2].Value;

@@ -52,8 +52,8 @@ begin
     else
       Value := '';
 
+    ScripProvider := TScriptureProvider.Create(FMainView);
     try
-      ScripProvider := TScriptureProvider.Create(FMainView);
       Status := ScripProvider.PreProcessAutoCommand(dup, Value, ConcreteCmd);
     finally
       ScripProvider.Free;

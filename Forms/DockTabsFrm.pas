@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Tabs, Vcl.DockTabSet, Vcl.ExtCtrls,
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ToolWin, Htmlview, System.Generics.Collections,
   System.ImageList, Vcl.ImgList, Vcl.Menus, TabData, BibleQuoteUtils,
-  ExceptionFrm, Math, MainFrm,
+  ExceptionFrm, Math, MainFrm, AppStates,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig, BookmarksFra,
   SearchFra, TSKFra, TagsVersesFra, DictionaryFra, StrongFra, AppIni,
@@ -551,7 +551,7 @@ begin
   mSearchView.Parent := pnlMain;
   mSearchView.Align := alClient;
 
-  mBookmarksView := TBookmarksFrame.Create(nil, mMainView, self, mMainView.Bookmarks);
+  mBookmarksView := TBookmarksFrame.Create(nil, mMainView, self);
   mBookmarksView.Parent := pnlMain;
   mBookmarksView.Align := alClient;
 

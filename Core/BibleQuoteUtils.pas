@@ -39,14 +39,6 @@ type
     constructor CreateFmt(const password, module: string; const Msg: string; const Args: array of const);
   end;
 
-  TBQInstalledFontInfo = class
-    mPath: string;
-    mFileNeedsCleanUp: boolean;
-    mHandle: HFont;
-    constructor Create(const aPath: string; afileNeedsCleanUp: boolean; aHandle: HFont);
-
-  end;
-
   TModuleType = (
     modtypeBible,
     modtypeBook,
@@ -245,11 +237,8 @@ function GetArchiveFromSpecial(const aSpecial: string; out filename: string): st
 function FileExistsEx(aPath: string): integer;
 function ArchiveFileSize(path: string): integer;
 function SpecialIO(const fileName: string; strings: TStrings; obf: int64; read: boolean = true): boolean;
-function FontExists(const fontName: string): boolean;
-function FontFromCharset(charset: integer; desiredFont: string = ''): string;
 function ExtractModuleName(aModuleSignature: string): string;
 function StrPosW(const Str, SubStr: PChar): PChar;
-function ExctractName(const filename: string): string;
 function IsDown(key: integer): boolean;
 function FileRemoveExtension(const path: string): string;
 procedure CopyHTMLToClipBoard(const Str: string; const htmlStr: string = '');
@@ -263,20 +252,8 @@ function PeekToken(pC: PChar; delim: Char): string;
 
 function ResolveFullPath(Path: string): String;
 function GetCallerEIP(): Pointer;
-procedure cleanUpInstalledFonts();
-
-type
-  PfnAddFontMemResourceEx = function(p1: Pointer; p2: DWORD; p3: PDesignVector; p4: LPDWORD): THandle; stdcall;
-
-type
-  PfnRemoveFontMemResourceEx = function(p1: THandle): BOOL; stdcall;
 
 var
-  G_AddFontMemResourceEx: PfnAddFontMemResourceEx;
-  G_RemoveFontMemResourceEx: PfnRemoveFontMemResourceEx;
-
-var
-  G_InstalledFonts: TStringList;
   Lang: TMultiLanguage;
   G_DebugEx: integer;
   G_NoCategoryStr: string = 'Без категории';
@@ -756,110 +733,6 @@ begin
   inherited CreateFmt(Msg, Args);
 end;
 
-var
-  __hitCount: integer;
-{$J+}
-	const lastPrec: integer = 0;
-{$J-}
-
-function EnumFontFamExProc(
-  lpelfe: PEnumLogFontEx; // logical-font data
-  lpntme: PEnumTextMetric; // physical-font data
-  FontType: DWORD; // type of font
-  lParam: lParam // application-defined data
-  ): integer; stdcall;
-var
-  str: string;
-begin
-  result := 1;
-  if (lpelfe^.elfLogFont.lfOutPrecision < OUT_STROKE_PRECIS) and (lParam <> 0)
-  then
-    exit;
-
-  inc(__hitCount);
-  if (lParam <> 0) and ((PChar(lParam)^ = #0) or
-    (lpelfe^.elfLogFont.lfOutPrecision > lastPrec)) then
-  begin
-    str := lpelfe^.elfFullName;
-    Move(lpelfe^.elfFullName, PChar(lParam)^, 64);
-    lastPrec := lpelfe^.elfLogFont.lfOutPrecision;
-  end;
-end;
-
-function FontFromCharset(charset: integer; desiredFont: string = ''): string;
-var
-  logFont: tagLOGFONT;
-  fontNameLength: integer;
-  fontName: array [0 .. 64] of Char;
-  DC: HDC;
-begin
-  DC := GetDC(GetDesktopWindow);
-
-  __hitCount := 0;
-  FillChar(logFont, sizeof(logFont), 0);
-  FillChar(fontName, 64, 0);
-  logFont.lfCharSet := charset;
-  fontNameLength := Length(desiredFont);
-  if fontNameLength > 0 then
-  begin
-    if (fontNameLength > 31) then
-      fontNameLength := 31;
-
-    Move(Pointer(desiredFont)^, logFont.lfFaceName, fontNameLength * 2);
-    EnumFontFamiliesEx(DC, logFont, @EnumFontFamExProc, 0, 0);
-    if __hitCount > 0 then
-    begin
-      result := desiredFont;
-      exit;
-    end;
-  end;
-  __hitCount := 0;
-  lastPrec := 0;
-  FillChar(logFont, sizeof(logFont), 0);
-  FillChar(fontName, 64, 0);
-  logFont.lfCharSet := charset;
-  EnumFontFamiliesEx(DC, logFont, @EnumFontFamExProc, integer(@fontName), 0);
-  if (__hitCount > 0) and (fontName[0] <> #0) then
-  begin
-    result := PChar(@fontName);
-    G_InstalledFonts.Add(result); // long font names workaround
-  end
-  else
-    result := EmptyStr;
-end;
-
-function FontExists(const fontName: string): boolean;
-begin
-  if G_InstalledFonts.IndexOf(fontName) >= 0 then
-  begin
-    result := true;
-    exit;
-  end;
-  result := Screen.Fonts.IndexOf(fontName) >= 0;
-end;
-
-function ExctractName(const filename: string): string;
-var
-  pC, pLastDot: PChar;
-begin
-  pC := PChar(Pointer(filename));
-  if (pC = nil) or (pC^ = #0) then
-  begin
-    result := '';
-    exit
-  end;
-  pLastDot := nil;
-  repeat
-    if pC^ = '.' then
-      pLastDot := pC;
-    inc(pC);
-  until (pC^ = #0);
-  if pLastDot <> nil then
-    result := Copy(filename, 1, pLastDot - PChar(Pointer(filename)))
-  else
-    result := filename;
-end;
-
 function ExtractModuleName(aModuleSignature: string): string;
 var
   ipos: integer;
@@ -904,76 +777,9 @@ begin
   result := nil;
 end;
 
-{ TBQInstalledFontInfo }
-
-constructor TBQInstalledFontInfo.Create(
-  const aPath: string;
-  afileNeedsCleanUp: boolean;
-  aHandle: HFont);
-begin
-  mHandle := aHandle;
-  mFileNeedsCleanUp := afileNeedsCleanUp;
-  mPath := aPath;
-end;
-
 function IsDown(key: integer): boolean;
 begin
   result := (Windows.GetKeyState(key) and $8000) <> 0;
-end;
-
-procedure cleanUpInstalledFonts();
-var
-  cnt, I: integer;
-  ifi: TBQInstalledFontInfo;
-  tf: array [0 .. 1023] of Char;
-  tempPathLen: integer;
-begin
-  ifi := nil;
-  if not(assigned(G_InstalledFonts)) then
-    exit;
-  cnt := G_InstalledFonts.count - 1;
-  if cnt > 0 then
-  begin
-    tempPathLen := GetTempPath(1023, tf);
-    if tempPathLen < 1024 then
-      for I := 0 to cnt do
-      begin
-        try
-          ifi := G_InstalledFonts.Objects[I] as TBQInstalledFontInfo;
-          if not assigned(ifi) then
-            continue; // for fake installed font - long font names workaround
-
-          if (ifi.mHandle <> 0) and assigned(G_RemoveFontMemResourceEx) then
-            G_RemoveFontMemResourceEx(ifi.mHandle)
-          else
-          begin
-            RemoveFontResource(PChar(Pointer(ifi.mPath)));
-            if ifi.mFileNeedsCleanUp then
-            begin
-              { Add the safe disposal of the font file }
-            end;
-          end;
-        except
-        end;
-        if (ifi <> nil) then
-          ifi.Free();
-      end; // for
-  end;
-  try
-    G_InstalledFonts.Free();
-  except
-  end;
-end;
-
-procedure load_proc();
-var
-  h: THandle;
-begin
-  h := LoadLibrary('gdi32.dll');
-  G_AddFontMemResourceEx := PfnAddFontMemResourceEx
-    (GetProcAddress(h, 'AddFontMemResourceEx'));
-  G_RemoveFontMemResourceEx := PfnRemoveFontMemResourceEx
-    (GetProcAddress(h, 'RemoveFontMemResourceEx'));
 end;
 
 function FormatHTMLClipboardHeader(HTMLText: string): string;
@@ -2082,10 +1888,6 @@ Include(JclStackTrackingOptions, stStack);
 // Initialize Exception tracking
 g_ExceptionContext := TbqExceptionContext.Create();
 JclStartExceptionTracking;
-G_InstalledFonts := TStringList.Create;
-G_InstalledFonts.Sorted := true;
-G_InstalledFonts.Duplicates := dupIgnore;
-load_proc();
 
 finalization
 

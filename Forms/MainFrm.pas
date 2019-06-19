@@ -22,9 +22,9 @@ uses
   TabData, Favorites, ThinCaptionedDockTree,
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
-  ChromeTabsLog, FontManager, BroadcastList, JclNotify, NotifyMessages,
+  ChromeTabsLog, ManageFonts, BroadcastList, JclNotify, NotifyMessages,
   AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
-  StrongsConcordance, ScanModules;
+  StrongsConcordance, ScanModules, AppStates;
 
 const
 
@@ -94,7 +94,6 @@ type
     trayIcon: TCoolTrayIcon;
     mmGeneral: TMainMenu;
     miFile: TMenuItem;
-    miActions: TMenuItem;
     miFavorites: TMenuItem;
     miHelpMenu: TMenuItem;
     miPrint: TMenuItem;
@@ -102,8 +101,6 @@ type
     miFileSep1: TMenuItem;
     miOptions: TMenuItem;
     miExit: TMenuItem;
-    miQuickNav: TMenuItem;
-    miQuickSearch: TMenuItem;
     miHotKey: TMenuItem;
     miAbout: TMenuItem;
     ilImages: TImageList;
@@ -118,7 +115,6 @@ type
     miOpenNewView: TMenuItem;
     appEvents: TApplicationEvents;
     reClipboard: TRichEdit;
-    tlbDownloads: TToolBar;
     tbtnDownloadModules: TToolButton;
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
@@ -141,9 +137,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure miExitClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure miSoundClick(Sender: TObject);
     procedure miHotkeyClick(Sender: TObject);
-    procedure miCopyPassageClick(Sender: TObject);
     procedure sbxPreviewResize(Sender: TObject);
     procedure pbPreviewPaint(Sender: TObject);
     procedure pbPreviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
@@ -155,8 +149,6 @@ type
     procedure miAboutClick(Sender: TObject);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
-    procedure miQuickNavClick(Sender: TObject);
-    procedure miQuickSearchClick(Sender: TObject);
     procedure miOptionsClick(Sender: TObject);
     procedure trayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
@@ -181,7 +173,6 @@ type
     function GenerateWorkspaceName(): string;
     procedure OnTabsFormActivate(Sender: TObject);
     procedure OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
-    procedure CompareTranslations();
     procedure DictionariesLoading(Sender: TObject);
     procedure DictionariesLoaded(Sender: TObject);
     procedure ModulesScanDone(Modules: TCachedModules);
@@ -204,13 +195,13 @@ type
     FStrongsConcordance: TStrongsConcordance;
 
     procedure NavigeTSKTab;
-    procedure PlaySound();
     procedure ActivateTargetWorkspace();
     procedure AddNewWorkspace;
     procedure OpenNewWorkspace;
     procedure PassKeyToActiveLibrary(var Key: Char);
     function CreateBookTabInfo(book: TBible): TBookTabInfo;
     procedure InitModuleScanner();
+    procedure InitHtmlTemplate;
   public
     SysHotKey: TSysHotKey;
 
@@ -221,7 +212,6 @@ type
     mDictionariesFullyInitialized, mTaggedBookmarksLoaded: Boolean;
     mDefaultLocation: string;
     mBibleTabsInCtrlKeyDownState: Boolean;
-    mHTMLSelection: string;
 
     mIcn: TIcon;
     mFavorites: TFavoriteModules;
@@ -242,48 +232,21 @@ type
 
     mNotifier: IJclNotifier;
 
-    // OLD VARABLES START
     mModules: TCachedModules;
 
     BrowserPosition: Longint; // this helps PgUp, PgDn to scroll chapters...
 
-    SatelliteBible: string;
-
-    // FLAGS
-
-    MainFormInitialized: Boolean; // for only one entrance into .FormShow
-
-    MemosOn: Boolean;
-
-    Memos: TStringList;
-    Bookmarks: TBroadcastStringList;
-
-    HelpFileName: string;
+    FRunOnce: Boolean; // for only one entrance into .FormShow
 
     TemplatePath: string;
-
     TextTemplate: string; // displaying passages
-
-    PrevButtonHint, NextButtonHint: string;
-
-    MainShiftState: TShiftState;
-
-    CurVerseNumber, CurSelStart, CurSelEnd: integer;
-
-    CurFromVerse, CurToVerse, VersePosition: integer;
-
-    mFlagCommonProfile: Boolean;
-
-    mFontManager: TFontManager;
 
     PasswordPolicy: TPasswordPolicy;
     LastLink: TBibleLink;
     LastBibleLink: TBibleLink;
     LastBiblePath: String;
 
-    tempBook: TBible;
     G_XRefVerseCmd: string;
-    // OLD VARABLES END
 
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
 
@@ -320,10 +283,6 @@ type
 
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
-    procedure AddBookmark(caption: string);
-    function AddMemo(caption: string): Boolean;
-    procedure CopyPassageToClipboard();
-
     function LoadDictionaries(foreground: Boolean): Boolean;
     procedure StartScanModules();
     function LoadHotModulesConfig(): Boolean;
@@ -345,10 +304,6 @@ type
 
     function RefBiblesCount(): integer;
     procedure FontChanged(delta: integer);
-    procedure LoadUserMemos();
-
-    procedure GoPrevChapter;
-    procedure GoNextChapter;
 
     procedure Translate();
     function TranslateInterface(locFile: string): Boolean;
@@ -365,10 +320,6 @@ type
     function ChooseColor(color: TColor): TColor;
 
     procedure OnHotModuleClick(Sender: TObject);
-
-    function CopyPassage(fromverse, toverse: integer): string;
-
-    procedure ConvertClipboard;
 
     procedure ShowSearchTab();
     procedure UpdateUIForType(tabType: TViewTabType);
@@ -402,9 +353,7 @@ type
     procedure TranslateControl(form: TWinControl; fname: string = '');
     procedure GoReference();
     function DefaultBookTabState(): TBookTabInfoState;
-    procedure CopyVerse();
 
-    property FontManager: TFontManager read mFontManager;
     property StrongsConcordance: TStrongsConcordance read FStrongsConcordance;
     property BqEngine: TBibleQuoteEngine read mBqEngine;
   public
@@ -480,7 +429,6 @@ end;
 
 procedure TMainForm.LoadConfiguration;
 var
-  fname: string;
   fnt: TFont;
 begin
   try
@@ -519,16 +467,8 @@ begin
 
     SaveFileDialog.InitialDir := AppConfig.SaveDirectory;
 
-    try
-      fname := TPath.Combine(TAppDirectories.UserSettings, 'bibleqt_bookmarks.ini');
-      if FileExists(fname) then
-        Bookmarks.LoadFromFile(fname);
-    except
-      on E: Exception do
-        BqShowException(E)
-    end;
+    AppState.Load();
 
-    LoadUserMemos();
     LoadMru();
 
     trayIcon.MinimizeToTray := AppConfig.MinimizeToTray;
@@ -553,11 +493,31 @@ begin
     Result := bookView.GetAutoTxt(btInfo, cmd, maxWords, fnt, passageSignature);
 end;
 
+procedure TMainForm.InitHtmlTemplate;
+var
+  TemplateFile: String;
+begin
+  // load HTML template from file, if exists
+  TemplatePath := TPath.Combine(TAppDirectories.Root, 'templates\default\');
+
+  TemplateFile := TPath.Combine(TemplatePath, 'text.htm');
+  if FileExists(TemplateFile) then
+    TextTemplate := TextFromFile(TemplateFile)
+  else
+    TextTemplate := DefaultTextTemplate;
+
+  if not StrReplace(TextTemplate, 'background="', 'background="' + TemplatePath, false) then
+    StrReplace(TextTemplate, 'background=', 'background=' + TemplatePath, false);
+
+  if not StrReplace(TextTemplate, 'src="', 'src="' + TemplatePath, false) then
+    StrReplace(TextTemplate, 'src=', 'src=' + TemplatePath, false);
+end;
+
 function TMainForm.CreateBookTabInfo(book: TBible): TBookTabInfo;
 var
   tabInfo: TBookTabInfo;
 begin
-  tabInfo := TBookTabInfo.Create(book, '', SatelliteBible, '', DefaultBookTabState);
+  tabInfo := TBookTabInfo.Create(book, '', '', '', DefaultBookTabState);
   tabInfo.SecondBible := TBible.Create(self);
   Result := tabInfo;
 end;
@@ -629,7 +589,7 @@ begin
 
   SetVScrollTracker(tabsForm.Browser);
 
-  (tabsForm.BookView as TBookFrame).miMemosToggle.Checked := MemosOn;
+  (tabsForm.BookView as TBookFrame).miMemosToggle.Checked := AppState.MemosOn;
   tabsForm.BibleTabs.Font.Assign(self.Font);
 
   h := self.Font.Height;
@@ -724,7 +684,7 @@ begin
     if R <> 0 then
       Exit; // abort;
     repeat
-      mFontManager.PrepareFont(FileRemoveExtension(sr.Name), awsFolder);
+      FontManager.PrepareFont(FileRemoveExtension(sr.Name), awsFolder);
       R := FindNext(sr);
     until R <> 0;
 
@@ -1159,49 +1119,7 @@ begin
   Result := CreateBookTabInfo(CreateNewBibleInstance());
 end;
 
-procedure TMainForm.LoadUserMemos;
-var
-  oldPath, newpath: string;
-  sl: TStringList;
-  i, C: integer;
-  s: string;
-begin
-  try
-    newpath := TPath.Combine(TAppDirectories.UserSettings, 'UserMemos.mls');
-    if FileExists(newpath) then
-    begin
-      Memos.LoadFromFile(newpath);
-      Exit;
-    end;
-    oldPath := TPath.Combine(TAppDirectories.UserSettings, 'bibleqt_memos.ini');
-    if not FileExists(oldPath) then
-      Exit;
-    sl := nil;
-    try
-      sl := TStringList.Create();
-      sl.LoadFromFile(oldPath);
-      C := sl.Count - 1;
-      Memos.Clear();
-      for i := 0 to C do
-      begin
-        s := sl[i];
-        if Length(s) > 2 then
-          Memos.Add(s);
-      end; // for
-    except
-      on E: Exception do
-        BqShowException(E)
-    end;
-    sl.Free();
-  except
-    on E: Exception do
-      BqShowException(E)
-  end;
-end;
-
 procedure TMainForm.SaveConfiguration;
-var
-  fname: string;
 begin
   try
     writeln(NowDateTimeString(), ':SaveConfiguration, userdir:', TAppDirectories.UserSettings);
@@ -1248,22 +1166,8 @@ begin
 
     AppConfig.Save;
 
-    try
-      fname := TPath.Combine(TAppDirectories.UserSettings, 'bibleqt_bookmarks.ini');
-      if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
-        Bookmarks.SaveToFile(fname, TEncoding.UTF8);
-    except
-      on E: Exception do
-        BqShowException(E)
-    end;
-    try
-      fname := TPath.Combine(TAppDirectories.UserSettings, 'UserMemos.mls');
-      if (not FileExists(fname)) or (FileGetAttr(fname) and faReadOnly <> faReadOnly) then
-        Memos.SaveToFile(fname, TEncoding.UTF8);
-    except
-      on E: Exception do
-        BqShowException(E)
-    end;
+    AppState.Save;
+
     try
       SaveMru();
     except
@@ -1349,15 +1253,13 @@ begin
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
-
 begin
-  mFontManager := TFontManager.Create();
   FStrongsConcordance := TStrongsConcordance.Create();
 
   mBqEngine := TBibleQuoteEngine.Create();
   mNotifier := TJclBaseNotifier.Create;
 
-  MainFormInitialized := false; // prohibit re-entry into FormShow
+  FRunOnce := false; // prohibit re-entry into FormShow
   mWorkspaces := TList<IWorkspace>.Create;
 
   CheckModuleInstall();
@@ -1369,15 +1271,6 @@ begin
   HintWindowClass := HintTools.TbqHintWindow;
 
   Lang := TMultiLanguage.Create(self);
-
-  HelpFileName := 'indexrus.htm';
-
-  Memos := TStringList.Create;
-  Memos.Sorted := true;
-
-  MemosOn := false;
-
-  Bookmarks := TBroadcastStringList.Create;
 
   LoadConfiguration;
   InitModuleScanner();
@@ -1405,18 +1298,7 @@ begin
       Self.WindowState := wsNormal;
   end;
 
-  TemplatePath := TPath.Combine(TAppDirectories.Root, 'templates\default\');
-
-  if FileExists(TPath.Combine(TemplatePath, 'text.htm')) then
-    TextTemplate := TextFromFile(TPath.Combine(TemplatePath, 'text.htm'))
-  else
-    TextTemplate := DefaultTextTemplate;
-
-  if not StrReplace(TextTemplate, 'background="', 'background="' + TemplatePath,false) then
-    StrReplace(TextTemplate, 'background=', 'background=' + TemplatePath, false);
-
-  if not StrReplace(TextTemplate, 'src="', 'src="' + TemplatePath, false) then
-    StrReplace(TextTemplate, 'src=', 'src=' + TemplatePath, false);
+  InitHtmlTemplate();
 
   LoadLocalization();
 
@@ -1495,70 +1377,6 @@ begin
       BqShowException(E);
     end;
   end;
-end;
-
-procedure TMainForm.GoPrevChapter;
-var
-  cmd: string;
-  bookView: TBookFrame;
-  PrevBook, PrevChapter: Integer;
-begin
-  bookView := GetBookView(self);
-
-  mScrollAcc := 0;
-  if sbxPreview.Visible then
-  begin
-    if CurPreviewPage > 0 then
-      CurPreviewPage := CurPreviewPage - 1;
-    Exit;
-  end;
-
-  if not bookView.tbtnPrevChapter.Enabled then
-    Exit;
-
-  if not Assigned(bookView.BookTabInfo) then
-    Exit;
-
-  with bookView.BookTabInfo.Bible do
-  begin
-    GetPrevChapterNumber(CurBook, CurChapter, PrevBook, PrevChapter);
-    cmd := Format('go %s %d %d', [ShortPath, PrevBook, PrevChapter])
-  end;
-
-  bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
-  Windows.SetFocus(mWorkspace.Browser.Handle);
-end;
-
-procedure TMainForm.GoNextChapter;
-var
-  cmd: string;
-  bookView: TBookFrame;
-  NextBook, NextChapter: Integer;
-begin
-  bookView := GetBookView(self);
-
-  mScrollAcc := 0;
-  if sbxPreview.Visible then
-  begin
-    if CurPreviewPage < MFPrinter.LastAvailablePage - 1 then
-      CurPreviewPage := CurPreviewPage + 1;
-    Exit;
-  end;
-
-  if not bookView.tbtnNextChapter.Enabled then
-    Exit;
-
-  if not Assigned(bookView.BookTabInfo) then
-    Exit;
-
-  with bookView.BookTabInfo.Bible do
-  begin
-    GetNextChapterNumber(CurBook, CurChapter, NextBook, NextChapter);
-    cmd := Format('go %s %d %d', [ShortPath, NextBook, NextChapter])
-  end;
-
-  bookView.ProcessCommand(bookView.BookTabInfo, cmd, hlFalse, true);
-  Windows.SetFocus(mWorkspace.Browser.Handle);
 end;
 
 procedure SetButtonHint(aButton: TToolButton; aMenuItem: TMenuItem);
@@ -1681,9 +1499,6 @@ begin
   if Assigned(bookView) then
     bookView.tbtnMemos.Hint := bookView.miMemosToggle.Caption + ' (' + ShortCutToText(bookView.miMemosToggle.ShortCut) + ')';
 
-  if Lang.Say('HelpFileName') <> 'HelpFileName' then
-    HelpFileName := Lang.Say('HelpFileName');
-
   Application.Title := MainForm.Caption;
   trayIcon.Hint := MainForm.Caption;
 
@@ -1693,7 +1508,7 @@ begin
     begin
       try
         with bookView.BookTabInfo.Bible do
-          s := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse);
+          s := bookView.GetCurrentBookPassage;
 
         if bookView.BookTabInfo.Bible.Copyright <> '' then
           s := s + '; © ' + bookView.BookTabInfo.Bible.Copyright
@@ -2006,7 +1821,7 @@ begin
 
   if visual then
   begin
-    MemosOn := vtisShowNotes in state;
+    AppState.MemosOn := vtisShowNotes in state;
     bookView.SafeProcessCommand(vti, AppConfig.LastCommand, hlDefault);
     UpdateBookView();
   end
@@ -2195,9 +2010,15 @@ begin
         sbxPreview.HorzScrollBar.Position := sbxPreview.HorzScrollBar.Range;
     end
     else if (Key = ord('Z')) and (Shift = [ssCtrl]) then
-      GoPrevChapter
+    begin
+      if (GetBookView(Self) <> nil) then
+        GetBookView(Self).GoPrevChapter;
+    end
     else if (Key = ord('X')) and (Shift = [ssCtrl]) then
-      GoNextChapter
+    begin
+      if (GetBookView(Self) <> nil) then
+        GetBookView(Self).GoNextChapter;
+    end
     else if (Key = ord('V')) and (Shift = [ssCtrl]) then
       miPrintPreview.Click
     else if (Key = ord('P')) and (Shift = [ssCtrl]) then
@@ -2215,8 +2036,6 @@ begin
       SetBibleTabsHintsState(true);
     end
   end;
-
-  MainShiftState := Shift;
 
   if Shift = [ssShift] then
   begin
@@ -2244,9 +2063,11 @@ begin
 
     case OldKey of
       ord('Z'):
-          GoPrevChapter;
+        if (GetBookView(Self) <> nil) then
+          GetBookView(Self).GoPrevChapter;
       ord('X'):
-          GoNextChapter;
+        if (GetBookView(Self) <> nil) then
+          GetBookView(Self).GoNextChapter;
       ord('C'), VK_INSERT:
         begin
           if GetDockWorkspace(self).ActiveControl = mWorkspace.Browser then
@@ -2269,16 +2090,20 @@ begin
       ord('M'):
         GetBookView(self).miMemosToggle.Click;
       ord('L'):
-        PlaySound();
+        if GetBookView(self) <> nil then
+          GetBookView(self).PlaySound;
       ord('G'), VK_F2:
-        miQuickNav.Click;
+        if GetBookView(self) <> nil then
+          GetBookView(self).FocusQuickNav;
       VK_F3:
-        miQuickSearch.Click;
+        if GetBookView(self) <> nil then
+          GetBookView(self).OpenQuickSearch('');
       VK_F5:
         if Assigned(GetBookView(self)) then
           GetBookView(self).CopyBrowserSelectionToClipboard();
       VK_F10:
-        PlaySound();
+        if GetBookView(self) <> nil then
+          GetBookView(self).PlaySound;
       VK_F11:
         miPrintPreview.Click;
       ord('0'):
@@ -2452,12 +2277,10 @@ begin
   BibleLinkParser.FinalizeParser();
   try
     GfxRenderers.TbqTagsRenderer.Done();
-    FreeAndNil(Memos);
-    FreeAndNil(Bookmarks);
+
     FreeAndNil(PasswordPolicy);
     FreeAndNil(mModules);
     FreeAndNil(mFavorites);
-    FreeAndNil(tempBook);
 
     cleanUpInstalledFonts();
 
@@ -2568,7 +2391,7 @@ var
 begin
   wsName := ExtractFileName(specialPath);
   wsFolder := ExtractFilePath(specialPath);
-  rslt := mFontManager.PrepareFont(FileRemoveExtension(wsName), wsFolder);
+  rslt := FontManager.PrepareFont(FileRemoveExtension(wsName), wsFolder);
   Result := -1 + ord(rslt);
 end;
 
@@ -2754,7 +2577,7 @@ begin
       end;
 
       state := DefaultBookTabState;
-      newTabInfo := TBookTabInfo.Create(DestBook, command, SatelliteBible, '', state);
+      newTabInfo := TBookTabInfo.Create(DestBook, command, '', '', state);
 
       newTabInfo.SecondBible := TBible.Create(self);
       newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
@@ -2763,7 +2586,7 @@ begin
       mWorkspace.AddBookTab(newTabInfo, False);
       mWorkspace.ChromeTabs.ActiveTabIndex := mWorkspace.ChromeTabs.Tabs.Count - 1;
 
-      MemosOn := vtisShowNotes in state;
+      AppState.MemosOn := vtisShowNotes in state;
 
       bookView.SafeProcessCommand(newTabInfo, Command, hlDefault);
       mWorkspace.UpdateCurrentTabContent;
@@ -2778,7 +2601,6 @@ end;
 
 procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  MainShiftState := Shift;
   if (Key = VK_CONTROL) then
   begin
     if G_ControlKeyDown then
@@ -2790,7 +2612,8 @@ begin
   then
     case Key of
       ord('H'):
-        miQuickNavClick(self); // H key
+        if GetBookView(self) <> nil then
+          GetBookView(self).FocusQuickNav;
     end;
 end;
 
@@ -2801,114 +2624,6 @@ begin
 
   if ColorDialog.Execute then
     Result := ColorDialog.color;
-end;
-
-function TMainForm.CopyPassage(fromverse, toverse: integer): string;
-var
-  i: integer;
-  s: string;
-  shiftDown: Boolean;
-  bible: TBible;
-  bookTabInfo: TBookTabInfo;
-begin
-  bookTabInfo := GetBookView(self).BookTabInfo;
-  bible := bookTabInfo.Bible;
-
-  Result := '';
-  for i := fromverse to toverse do
-  begin
-    s := bible.Verses[i - 1];
-    StrDeleteFirstNumber(s);
-
-    if bible.Trait[bqmtStrongs] and not (vtisShowStrongs in bookTabInfo.State) then
-      s := DeleteStrongNumbers(s);
-
-    if (AppConfig.AddVerseNumbers xor (IsDown(VK_CONTROL))) and
-      (fromverse > 0) and (fromverse <> toverse) then
-    begin
-      if AppConfig.AddReference and (AppConfig.AddReferenceChoice = 0) then
-      begin
-        with bible do
-          s := ShortPassageSignature(CurBook, CurChapter, i, i) + ' ' + s;
-
-        if AppConfig.AddModuleName then
-          s := bible.ShortName + ' ' + s;
-      end
-      else
-      begin
-        if not IsSpaceEndedString(s) then
-          s := s + ' ';
-
-        s := IntToStr(i) + ' ' + s;
-      end;
-    end;
-
-    if AppConfig.AddLineBreaks then
-    begin
-      shiftDown := IsDown(VK_SHIFT);
-      if (AppConfig.AddFontParams xor shiftDown) then
-      begin
-        s := s + '<br>'#13#10;
-      end
-      else
-        s := s + #13#10;
-      Result := Result + s;
-    end
-    else
-      Result := Result + ' ' + s;
-  end;
-
-  if AppConfig.AddReference and (AppConfig.AddReferenceChoice > 0) then
-  begin
-    if not AppConfig.AddLineBreaks then
-      Result := Result + ' ('
-    else
-      Result := Result + '(';
-
-    if AppConfig.AddModuleName then
-      Result := Result + bible.ShortName + ' ';
-
-    with bible do
-      if AppConfig.AddReferenceChoice = 1 then
-        Result := Result + ShortPassageSignature(CurBook, CurChapter, fromverse, toverse) + ')'
-      else
-        Result := Result + FullPassageSignature(CurBook, CurChapter, fromverse, toverse) + ')';
-  end;
-
-  s := ParseHTML(Result, '');
-
-  if not AppConfig.AddLineBreaks then
-    StrReplace(s, #13#10, ' ', true);
-
-  StrReplace(s, '  ', ' ', true);
-  StrReplace(s, '  ', ' ', true);
-  StrReplace(s, '  ', ' ', true);
-  if (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
-  begin
-    mHTMLSelection := Result;
-    InsertDefaultFontInfo(mHTMLSelection, AppConfig.DefFontName, AppConfig.DefFontSize);
-  end
-  else
-    mHTMLSelection := '';
-
-  Result := s;
-end;
-
-procedure TMainForm.CopyVerse();
-var
-  trCount: integer;
-begin
-  trCount := 7;
-  repeat
-    try
-      Clipboard.AsText := CopyPassage(CurVerseNumber, CurVerseNumber);
-      ConvertClipboard;
-      trCount := 0;
-    except
-      Dec(trCount);
-      sleep(100);
-    end;
-  until trCount <= 0;
 end;
 
 function CustomControlAtPos(
@@ -3010,55 +2725,6 @@ begin
   mWorkspace.AddStrongTab(newTabInfo);
 end;
 
-procedure TMainForm.miSoundClick(Sender: TObject);
-begin
-  PlaySound();
-end;
-
-procedure TMainForm.PlaySound();
-var
-  book, chapter, verse: integer;
-  fname3, fname2: string;
-  find: string;
-  bible: TBible;
-  btInfo: TBookTabInfo;
-begin
-  btInfo := GetBookView(self).BookTabInfo;
-  if not Assigned(btInfo) then
-    Exit;
-
-  bible := btInfo.Bible;
-
-  if not bible.isBible then
-    Exit;
-
-  bible.InternalToReference(bible.CurBook, bible.CurChapter, 1, book, chapter, verse);
-
-  if bible.SoundDirectory = '' then
-  begin // 3 digits
-    fname3 := Format('Sounds\%.2d\%.3d', [book, chapter]);
-    fname2 := Format('Sounds\%.2d\%.2d', [book, chapter]);
-  end
-  else
-  begin // 2 digits
-    fname3 := Format('%s\%.2d\%.3d', [bible.SoundDirectory, book, chapter]);
-    fname2 := Format('%s\%.2d\%.2d', [bible.SoundDirectory, book, chapter]);
-  end;
-
-  find := ResolveFullPath(fname3 + '.wav');
-  if find = '' then
-    find := ResolveFullPath(fname3 + '.mp3');
-  if find = '' then
-    find := ResolveFullPath(fname2 + '.wav');
-  if find = '' then
-    find := ResolveFullPath(fname2 + '.mp3');
-
-  if find = '' then
-    ShowMessage(Format(Lang.Say('SoundNotFound'), [mWorkspace.Browser.DocumentTitle]))
-  else
-    ShellExecute(Application.Handle, nil, PChar(find), nil, nil, SW_MINIMIZE);
-end;
-
 procedure TMainForm.miHotkeyClick(Sender: TObject);
 begin
   ConfigForm.pgcOptions.ActivePageIndex := 2;
@@ -3078,178 +2744,9 @@ begin
   end;
 end;
 
-procedure TMainForm.CopyPassageToClipboard();
-var
-  trCount: integer;
-begin
-  trCount := 7;
-  repeat
-    try
-      Clipboard.AsText := CopyPassage(CurSelStart, CurSelEnd);
-      ConvertClipboard;
-      trCount := 0;
-    except
-      Dec(trCount);
-      sleep(100);
-    end;
-  until trCount <= 0;
-end;
-
-procedure TMainForm.miCopyPassageClick(Sender: TObject);
-begin
-  CopyPassageToClipboard();
-end;
-
 procedure TMainForm.miPrintPreviewClick(Sender: TObject);
 begin
   TogglePreview();
-end;
-
-procedure TMainForm.ConvertClipboard;
-var
-  bookView: TBookFrame;
-  bible: TBible;
-begin
-  bookView := GetBookView(self);
-  if not Assigned(bookView) then
-    Exit;
-
-  bible := bookView.BookTabInfo.Bible;
-
-  if not (AppConfig.AddFontParams xor IsDown(VK_SHIFT)) then
-    Exit;
-
-  if bible.fontName <> '' then
-    reClipboard.Font.Name := bible.fontName
-  else
-    reClipboard.Font.Name := AppConfig.DefFontName;
-
-  reClipboard.Font.Size := AppConfig.DefFontSize;
-  reClipboard.Lines.Add(Clipboard.AsText);
-
-  reClipboard.SelectAll;
-  reClipboard.SelAttributes.CharSet := bookView.bwrHtml.CharSet;
-  reClipboard.SelAttributes.Name := reClipboard.Font.Name;
-
-  if Length(mHTMLSelection) > 0 then
-    CopyHTMLToClipBoard('', mHTMLSelection)
-  else
-    reClipboard.CopyToClipboard;
-end;
-
-procedure TMainForm.CompareTranslations();
-var
-  book, chapter, verse, ib, ic, iv: integer;
-  openSuccess: Boolean;
-  s: string;
-  dBrowserSource: string;
-  fontFound: Boolean;
-  fontName: string;
-  bibleModuleEntry: TModuleEntry;
-  bookTabInfo: TBookTabInfo;
-  bible, secBible: TBible;
-label LoopTail;
-begin
-  bookTabInfo := GetBookView(self).BookTabInfo;
-  if (not Assigned(bookTabInfo)) then
-    Exit;
-
-  bible := bookTabInfo.Bible;
-  if not bible.isBible then
-    Exit;
-
-  if (mWorkspace.ChromeTabs.ActiveTabIndex < 0) then
-    Exit;
-
-  secBible := bookTabInfo.SecondBible;
-
-  // try
-  dBrowserSource := '<font size=+1><table>';
-  mWorkspace.Browser.DefFontName := AppConfig.DefFontName;
-  bible.OpenChapter(bible.CurBook, bible.CurChapter);
-  s := bible.Verses[CurVerseNumber - 1];
-  StrDeleteFirstNumber(s);
-
-  if not (vtisShowStrongs in bookTabInfo.State) then
-    s := DeleteStrongNumbers(s);
-
-  AddLine(dBrowserSource,
-    Format
-    ('<tr><td valign=top><a href="go %s %d %d %d 0">%s&nbsp;%s</a>&nbsp;</td><td valign=top><font face="%s">%s</font></td>'#13#10,
-    [bible.ShortPath, bible.CurBook, bible.CurChapter, CurVerseNumber,
-    bible.ShortName, bible.ShortPassageSignature(bible.CurBook,
-    bible.CurChapter, CurVerseNumber, CurVerseNumber),
-    bible.fontName, s]));
-
-  AddLine(dBrowserSource, '<tr><td></td><td><hr width=100%></td></tr>'#13#10);
-  bibleModuleEntry := mModules.ModTypedAsFirst(modtypeBible);
-  while Assigned(bibleModuleEntry) do
-  begin
-    s := bibleModuleEntry.GetInfoPath();
-    secBible.SetInfoSource(s);
-
-    // don't display New Testament mixed with Old Testament...
-    if (bible.CurBook < 40) and (bible.Trait[bqmtOldCovenant]) and (not secBible.Trait[bqmtOldCovenant]) then
-      goto LoopTail;
-
-    if (bible.CurBook > 39) and (bible.Trait[bqmtNewCovenant]) and (not secBible.Trait[bqmtNewCovenant]) then
-      goto LoopTail;
-
-    with bible do
-      ReferenceToInternal(CurBook, CurChapter, CurVerseNumber, book, chapter, verse);
-
-    secBible.InternalToReference(book, chapter, verse, ib, ic, iv);
-
-    try
-      openSuccess := secBible.OpenChapter(ib, ic);
-    except
-      openSuccess := false
-
-    end;
-    if not openSuccess then
-      goto LoopTail;
-    if iv > secBible.verseCount() then
-      goto LoopTail;
-
-    s := secBible.Verses[iv - 1];
-    StrDeleteFirstNumber(s);
-
-    if not (vtisShowStrongs in bookTabInfo.State) then
-      s := DeleteStrongNumbers(s);
-
-    if Length(secBible.fontName) > 0 then
-    begin
-      fontFound := mFontManager.PrepareFont(secBible.fontName, secBible.path);
-      fontName := secBible.fontName;
-    end
-    else
-      fontFound := false;
-    // if there is no preferred font or it is not found and the encoding is specified
-    if not fontFound and (secBible.desiredCharset >= 2) then
-    begin
-      // find the font with the desired encoding
-      if Length(secBible.fontName) > 0 then
-        fontName := secBible.fontName
-      else
-        fontName := AppConfig.DefFontName;
-      fontName := FontFromCharset(secBible.desiredCharset, fontName);
-    end;
-
-    AddLine(dBrowserSource,
-      Format('<tr><td valign=top><a href="go %s %d %d %d 0">%s&nbsp;%s</a>&nbsp;' +
-      '<BR><SPAN STYLE="font-size:67%%">%s</SPAN></td><td valign=top><font face="%s">%s</font></td></tr>'#13#10,
-      [secBible.ShortPath, ib, ic, iv, secBible.ShortName,
-      secBible.ShortPassageSignature(ib, ic, iv, iv), secBible.Name,
-      fontName, s]));
-  LoopTail:
-    bibleModuleEntry := mModules.ModTypedAsNext(modtypeBible);
-  end;
-
-  AddLine(dBrowserSource, '</table>');
-  mWorkspace.Browser.LoadFromString(dBrowserSource);
-
-  bookTabInfo.IsCompareTranslation := true;
-  bookTabInfo.CompareTranslationText := dBrowserSource;
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
@@ -3257,9 +2754,10 @@ var
   workspace: IWorkspace;
   tabsForm: TDockTabsForm;
 begin
-  if MainFormInitialized then
+  if FRunOnce then
     Exit; // run only once...
-  MainFormInitialized := true;
+
+  FRunOnce := True;
 
   if (not mTranslated) then
   begin
@@ -3550,7 +3048,7 @@ procedure TMainForm.GoReference();
   modName, modPath: string;
   moduleEntry: TModuleEntry;
   bookView: TBookFrame;
-  bible: TBible;
+  bible, tempBook: TBible;
 label lblTail;
 begin
   bookView := GetBookView(self);
@@ -3595,8 +3093,7 @@ begin
     begin
       fc := mFavorites.mModuleEntries.Count - 1;
 
-      if not Assigned(tempBook) then
-        tempBook := TBible.Create(self);
+      tempBook := TBible.Create(self);
 
       for i := 0 to fc do
       begin
@@ -3629,7 +3126,7 @@ begin
             openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin
-              bible.SetInfoSource( tempBook.InfoSource);
+              bible.SetInfoSource(tempBook.InfoSource);
               break;
             end;
           except
@@ -3790,7 +3287,7 @@ begin
     bookView.tbtnSatellite.Down := (Length(tabInfo.SatelliteName) > 0) and (tabInfo.SatelliteName <> '------');
 
     bookView.tbtnStrongNumbers.Enabled := tabInfo.Bible.Trait[bqmtStrongs];
-    MemosOn := tabInfo[vtisShowNotes];
+    AppState.MemosOn := tabInfo[vtisShowNotes];
     bookView.SyncView();
 
     // todo: it's unclear while trying to load Satellite for Commentary
@@ -4226,7 +3723,7 @@ begin
     begin
       mWorkspace.ChromeTabs.ActiveTabIndex := mWorkspace.ChromeTabs.Tabs.Count - 1;
 
-      MemosOn := vtisShowNotes in state;
+      AppState.MemosOn := vtisShowNotes in state;
       cmd := command;
       if ((newTabInfo.History.Count > historyIndex) and (historyIndex >= 0)) then
         cmd := newTabInfo.History[historyIndex];
@@ -4356,87 +3853,6 @@ begin
       BqShowException(E);
   end;
   Result := true;
-end;
-
-procedure TMainForm.miQuickNavClick(Sender: TObject);
-var
-  bible: TBible;
-  bookView: TBookFrame;
-  passageSig: string;
-  inputForm: TInputForm;
-begin
-  bookView := GetBookView(self);
-  if not Assigned(bookView) or not Assigned(bookView.BookTabInfo) then
-    Exit;
-
-  bible := bookView.BookTabInfo.Bible;
-  with bible do
-    if CurFromVerse > 1 then
-      passageSig := ShortPassageSignature(CurBook, CurChapter, CurFromVerse, CurToVerse)
-    else
-      passageSig := ShortPassageSignature(CurBook, CurChapter, 1, 0);
-
-  inputForm := TInputForm.CreateText(miQuickNav.Caption, passageSig);
-  inputForm.SelectInputText;
-
-  if inputForm.ShowModal = mrOk then
-  begin
-    GetBookView(self).tedtReference.Text := inputForm.GetValue();
-    GoReference();
-
-    Windows.SetFocus(mWorkspace.Browser.Handle);
-  end;
-end;
-
-procedure TMainForm.miQuickSearchClick(Sender: TObject);
-var
-  bookFrame: TBookFrame;
-  inputForm: TInputForm;
-begin
-  inputForm := TInputForm.CreateText(miQuickSearch.Caption);
-
-  if inputForm.ShowModal = mrOk then
-  begin
-    bookFrame := GetBookView(self);
-    if Assigned(bookFrame.BookTabInfo) then
-    begin
-      bookFrame.NavigateToSearch(InputForm.GetValue);
-    end;
-  end;
-end;
-
-procedure TMainForm.AddBookmark(caption: string);
-var
-  newstring: string;
-  bible: TBible;
-  inputForm: TInputForm;
-begin
-  bible := GetBookView(self).BookTabInfo.Bible;
-  if bible.verseCount() = 0 then
-    bible.OpenChapter(bible.CurBook, bible.CurChapter);
-  if bible.Trait[bqmtStrongs] then
-    newstring := Trim(DeleteStrongNumbers(bible.Verses[CurVerseNumber - CurFromVerse]))
-  else
-    newstring := Trim(bible.Verses[CurVerseNumber - CurFromVerse]);
-
-  StrDeleteFirstNumber(newstring);
-
-  inputForm := TInputForm.CreateMemo(caption, newstring);
-
-  if inputForm.ShowModal = mrOk then
-  begin
-    with bible do
-      newstring :=
-        ShortPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber) + ' ' +
-        ShortName + ' ' +
-        inputForm.GetValue;
-
-    StrReplace(newstring, #13#10, ' ', true);
-
-    with bible do
-      Bookmarks.Insert(0, Format('go %s %d %d %d %d $$$%s',
-        [ShortPath, CurBook, CurChapter, CurVerseNumber, 0, newstring]));
-  end;
 end;
 
 function TMainForm.FindTaggedTopMenuItem(tag: integer): TMenuItem;
@@ -4665,42 +4081,6 @@ begin
   mWorkspace.AddSearchTab(newTabInfo);
 end;
 
-function TMainForm.AddMemo(caption: string): Boolean;
-var
-  newstring, signature: string;
-  i: integer;
-  inputForm: TInputForm;
-begin
-  Result := false;
-
-  with GetBookView(self).BookTabInfo.Bible do
-    signature := ShortPassageSignature(CurBook, CurChapter, CurVerseNumber, CurVerseNumber) + ' ' + ShortName + ' $$$';
-
-  // search for 'Быт.1:1 RST $$$' in Memos.
-  i := FindString(Memos, signature);
-
-  if i > -1 then // found memo
-    newstring := Comment(Memos[i])
-  else
-    newstring := '';
-
-  inputForm := TInputForm.CreateMemo(caption, newstring);
-
-  if inputForm.ShowModal = mrOk then
-  begin
-    newstring := inputForm.GetValue;
-    StrReplace(newstring, #13#10, ' ', true);
-
-    if i > -1 then
-      Memos.Delete(i); // for SORTED WideString, first delete it...
-
-    if Trim(newstring) <> '' then
-      Memos.Add(signature + newstring);
-
-    Result := true;
-  end;
-end;
-
 procedure TMainForm.trayIconClick(Sender: TObject);
 begin
   if MainForm.Visible then
@@ -4801,9 +4181,6 @@ end;
 
 procedure TMainForm.EnableBookTools(enable: boolean);
 begin
-  miQuickNav.Enabled := enable;
-  miQuickSearch.Enabled := enable;
-
   miPrint.Enabled := enable;
   miPrintPreview.Enabled := enable;
 end;

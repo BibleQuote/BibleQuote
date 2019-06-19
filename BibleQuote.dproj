@@ -121,9 +121,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.2.0.689;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.2.0.711;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <VerInfo_Build>689</VerInfo_Build>
+        <VerInfo_Build>711</VerInfo_Build>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
     </PropertyGroup>
@@ -744,7 +744,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <Form>MemoFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Core\FontManager.pas"/>
+        <DCCReference Include="Core\ManageFonts.pas"/>
         <DCCReference Include="Views\LibraryFra.pas">
             <Form>LibraryFrame</Form>
             <DesignClass>TFrame</DesignClass>
@@ -824,6 +824,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="HTML\HtmlReader.pas"/>
         <DCCReference Include="HTML\HtmlTags.pas"/>
         <DCCReference Include="Core\ScriptureProvider.pas"/>
+        <DCCReference Include="Core\AppStates.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>

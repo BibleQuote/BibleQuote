@@ -716,8 +716,6 @@ begin
 
   AddLine(dSource, '<a name="endofsearchresults"><p>' + s + '<br><p>');
 
-  //bwrSearch.CharSet := mWorkspace.Browser.CharSet;
-
   StrReplace(dSource, '<*>', '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>', true);
   StrReplace(dSource, '</*>', '</font>', true);
 
