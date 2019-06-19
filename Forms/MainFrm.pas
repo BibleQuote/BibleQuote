@@ -2097,7 +2097,7 @@ begin
           GetBookView(self).FocusQuickNav;
       VK_F3:
         if GetBookView(self) <> nil then
-          GetBookView(self).OpenQuickSearch('');
+          GetBookView(self).OpenQuickSearch();
       VK_F5:
         if Assigned(GetBookView(self)) then
           GetBookView(self).CopyBrowserSelectionToClipboard();
