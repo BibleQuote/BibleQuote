@@ -355,8 +355,15 @@ end;
 function TDownloadModulesForm.GetModulePath(aModule: TThirdPartyModule): String;
 var
   ModuleDir: String;
+  Match: TMatch;
 begin
   ModuleDir := TPath.Combine(GetModuleDir(aModule.ModuleType), ExtractFileName(aModule.FileName));
+
+  // remove module type suffix
+  Match := TRegEx.Match(ModuleDir, '^(?P<dir>.*?)\.(commentaries|dictionary)$', [roIgnoreCase]);
+  if (Match.Success) then
+    ModuleDir := Match.Groups['dir'].Value;
+
   Result := TPath.Combine(ModuleDir, AppendSQLiteExt(aModule.FileName));
 end;
 
