@@ -1,0 +1,334 @@
+﻿// název lokalizace=čeština
+// autor=Antonín Čížek v 7
+
+; SYSTEM MESSAGES ===================================
+
+; Note:
+; Long messages can be broken into several lines by placing '=' sign at the first position
+
+SoundNotFound = Namohu najít soubor "%s".
+= Pravděpodobně je třeba si zakoupit speciální audio verzi bible.
+= Prosím, kontaktujete autory.
+
+FileNotFound = Nemohu najít soubor %s
+GoingOnline = Nyní program BibleQuote otevře ve vašem internetovém prohlížeči soubor %s
+#1%s=Chyba při četní modulu %s. Modul je poškozen nebo bylo vloženo špatné heslo.
+
+lblPasswordNeeded=K otevření tohoto modulu vložte prosím heslo (%s)
+lblPassword=Heslo:
+btnCancel=Zrušit
+cbxSavePwd=Uložit heslo
+
+HelpFileName=indexeng.htm
+
+AllBooks = VŠECHNY
+OTOnly = SZ
+NTOnly = NZ
+APOnly = AP
+
+PublicDomainText = Tento text je public domain
+
+OneLetterWordsDeleted = Byly vypuštěny jednopísmenné části hledaného výrazu, protože se v textu vyskytují příliš často.
+SearchTitle = Výsledky pro: "%s"
+SearchHeaders = <b>Modul: %s<P>Rozsah vyhledávání: %s<P>
+SearchInterrupted = PROCES BYL PŘERUŠEN.<P>
+SearchOptions = Možnosti vyhledávání:</b>
+SearchResults = <b>Nalezeno: %d</b><P>
+
+SearchAllBooks = Všechny knihy modulu
+
+SearchWholeBible = CELÁ BIBLE
+SearchOT = STARÝ ZÁKON
+SearchNT = NOVÝ ZÁKON
+SearchPT = # Pentateuch
+SearchHP = # Historické a poetické knihy
+SearchPR = # Proroci
+SearchGA = # Evangelia a Skutky apoštolů
+SearchER = # Listy a Zjevení
+SearchAP = # Apokryfy
+
+ViewPrevPage = Předcházející stránka
+ViewNextPage = Následující stránka
+
+HolySriptCat = Písmo svaté, Bible
+NoCat = Bez kategorie
+CommentCat = Biblické komentáře
+catOT = Starý zákon
+catNT = Nový zákon
+catApocrypha = Apokryfy
+
+LibTabsAll = Vše
+LibTabsScriptures = Bible
+LibTabsBooks = Knihy
+LibTabsComments = Komentáře
+LibTabsTags = Tagy
+
+bqVerseTagNotUnique = Tag není možné přejmenovat, protože existuje jiný se stejným jménem
+bqErrorUnknown = Neznámá chyba
+bqError = Chyba
+bqStrongBibleNotDefined = Chcete-li provést vyhledávání, vyberte v nastavení modul s podporou Strongových čísel.
+
+commentsLoadFail = Komentář se nepodařilo zobrazit
+commentsCantFind = Komentáře chybí
+commentsOpenChapterFail = Nepodařilo se otevřít kapitolu
+
+HelpDocumentation = Dokumentace
+SelectBook = Zvlote knihu pro výběr
+SelectDefaultBible = Please select default translation in File -> Settings -> Favorite modules
+SelectParaBible = Vyberte sekundární bibli
+DeselectSec = Zrušit výběr
+CollapseAll = Sbalit vše
+HintNotFound = --nenalezeno--
+
+TabLibrary = Knihovna
+TabMemos = Osobní poznámky
+TabBookmarks = Záložky
+TabSearch = Hledat
+TabTSK = TSK
+TabDictionary = Slovníky
+TabTagsVerses = Tagy
+TabStrong = Strongův slovník
+TabCommentaries = Komentáře
+
+DeleteBookmarkTextPrompt = Odstranit záložku?
+DeleteBookmarkTitle = Potvrdit smazání
+
+; FORM ELEMENTS AND MENU ITEMS =================================
+
+CBAllNotCaption = hledaný výraz obsahuje všechna uvedená slova
+CBCaseNotCaption = nerozlišovat velká a malá písmena
+CBPartsNotCaption = výrazy mohou být částmi slov
+CBPhraseNotCaption = slova se mohou vyskytovat v libovolném pořadí
+;
+StrAllBooks = VŠECHNY MODULY
+StrBibleTranslations = BIBLE
+StrBooks = KNIHY
+StrCommentaries = KOMENTÁŘE
+StrAllDictionaries = SLOVNÍKY
+;
+StrModuleName = Jméno
+StrModuleAuthor = Autor
+StrModuleVersion = Verze
+;
+StrLibraryTileView = Dlaždice
+StrLibraryCoverView =  Obálky
+StrLibraryDetailsView = Detaily
+StrLibraryListView = Seznam
+;
+FoundInSeveralDictionaries = nalezeno v několika slovnících
+FoundInOneDictionary = nalezeno v jednom slovníku
+;
+
+MainForm.JCRU_Home.Caption = JesusChrist.ru - server křeťanského společenství
+MainForm.JCRU_Software.Caption = Bezplatný křesťanský software
+MainForm.JCRU_Bible.Caption = Bible online
+MainForm.JCRU_News.Caption = Novinky z celého světa
+MainForm.JCRU_Forum.Caption = Ruské křesťanské fórum
+MainForm.JCRU_Chat.Caption = Ruský historický křesťanký chat
+MainForm.JCRU_Library.Caption = Křesťanská knihovna clib.ru
+MainForm.JCRU_Docs.Caption = Duchovní četba
+MainForm.JCRU_Mail.Caption = Poštovní server
+
+MainForm.edtDic.Hint = Sem napište hledané slovo
+MainForm.lbBook.Hint = Vyberte knihu, v níž se má hledat
+MainForm.lbChapter.Hint = Vyberte kapitolu, v níž se má hledat
+MainForm.lblCtrl1.Caption = Ctrl+1
+MainForm.lblMemo.Caption = ....
+MainForm.miAbout.Caption = O programu
+MainForm.miActions.Caption = Hledání
+MainForm.miBGConfig.Caption = Vyberte barvu pozadí
+MainForm.miColors.Caption = Vyberte barvy
+MainForm.miCopy.Caption = Kopírovat vybraný text do schránky
+MainForm.miCopyOptions.Caption = Parametery kopírování
+MainForm.miCopyVerseNum.Caption = Kopírovat čísla veršů
+MainForm.miCopyVerseNumbers.Caption = Při kopírování vkládat čísla veršů
+MainForm.miDeteleBibleTab.Caption = Smazat
+MainForm.miDialogFontConfig.Caption= Font dialogových oken a rozhraní
+MainForm.miExit.Caption = Konec
+MainForm.miFavorites.Caption = Oblíbené moduly
+MainForm.miFile.Caption = Soubor
+MainForm.miFontConfig.Caption = Font hlavního okna
+MainForm.miFonts.Caption = Výběr fontu
+MainForm.miFoundTextConfig.Caption = Barva nalezeného textu a poznámek
+MainForm.miFuzzyLogic.Caption = Použít nepřesnou logiku
+MainForm.miHelp.Caption = Uživatelská příručka
+MainForm.miHelpMenu.Caption = Nápověda
+MainForm.miHotKey.Caption = Výběr oblíbených...
+MainForm.miHrefConfig.Caption = Výběr barvy hyperlinků
+MainForm.miHrefUnderline.Caption = Podtržení hyperlinků
+MainForm.miLanguage.Caption = Jazyk rozhraní
+MainForm.miOpenNewView.Caption = Otevřít v novém okně
+MainForm.miOpenPassage.Caption = Vybrat úryvek...
+MainForm.miOptions.Caption = Možnosti
+MainForm.miPrint.Caption = Tisk
+MainForm.miPrintPreview.Caption = Náhled
+MainForm.miQuickNav.Caption = Okno rychlé navigace
+MainForm.miQuickSearch.Caption =  Okno rychlého hledání
+MainForm.miRecognizeBibleLinks.Caption = Rozpoznávat biblické odkazy
+MainForm.miRefCopy.Caption = Kopírovat
+MainForm.miRefFontConfig.Caption = Font okna příručky
+MainForm.miRefPrint.Caption = Tisk
+MainForm.miShowSignatures.Caption = U každého verše uvádět celý odkaz
+MainForm.miSound.Caption = Poslouchat zvukový záznam, pokud existuje
+MainForm.miStrictLogic.Caption = Používat jen přesnou logiku
+MainForm.miTechnoForum.Caption = Diskuse nad 6. verzí "BibleQuote"
+MainForm.miVerseHighlightBG.Caption = Barva zvýrazněných veršů
+MainForm.miView.Caption = Ukázat
+MainForm.miWebSites.Caption = JesusChrist.ru
+MainForm.tbtnAddLibraryTab.Caption = Knihovna
+MainForm.tbtnAddLibraryTab.Hint = Knihovna
+MainForm.tbtnAddBookmarksTab.Caption = Poznámky
+MainForm.tbtnAddBookmarksTab.Hint = Poznámky
+MainForm.tbtnAddCommentsTab.Caption = Komentáře
+MainForm.tbtnAddCommentsTab.Hint = Komentáře
+MainForm.tbtnAddDictionaryTab.Caption = Slovníky
+MainForm.tbtnAddDictionaryTab.Hint = Slovníky
+MainForm.tbtnAddMemoTab.Caption = Poznámky
+MainForm.tbtnAddMemoTab.Hint = Poznámky
+MainForm.tbtnAddSearchTab.Caption = Hledat
+MainForm.tbtnAddSearchTab.Hint = Hledat
+MainForm.tbtnAddStrongTab.Caption = Strongovy lexikony
+MainForm.tbtnAddStrongTab.Hint = Strongovy lexikony
+MainForm.tbtnAddTagsVersesTab.Caption = Tagy
+MainForm.tbtnAddTagsVersesTab.Hint = Tagy
+MainForm.tbtnAddTSKTab.Caption = Křížové odkazy
+MainForm.tbtnAddTSKTab.Hint = Křížové odkazy
+MainForm.tbtnNewForm.Caption = Nový pracovní prostor
+MainForm.tbtnNewForm.Hint = Vytvořit nový pracovní prostor
+MainForm.tbtnResolveLinks.Caption = Rozpoznávat biblické odkazy
+MainForm.tbtnResolveLinks.Hint = Rozpoznávat biblické odkazy
+MainForm.trayIcon.Hint = BibleQuote
+
+DockTabsForm.btnBookSelect.Hint = Výběr knihy k vyhledávání
+DockTabsForm.btnClear.Caption = Vymazat
+DockTabsForm.btnFind.Caption = Najít
+DockTabsForm.btnFind.Hint = Začít/ukončit vyhledávání
+DockTabsForm.btnSearchOptions.Caption = <
+DockTabsForm.cbList.Hint = Rozsah vyhledávání
+DockTabsForm.cbQty.Hint = Počet výsledků k zobrazení
+DockTabsForm.cbSearch.Hint = vložte slovo nebo výraz k vyhledávání
+DockTabsForm.chkAll.Caption = hledaný výraz obsahuje alespoň jedno slovo
+DockTabsForm.chkAll.Hint = Příklad: budou zobrazny nejen verše, které obsahují "Ježíš Kristus", ale také ty, které obsahují "Ježíš" nebo "Kristus"
+DockTabsForm.chkCase.Caption = rozlišovat velká a malá písmena
+DockTabsForm.chkCase.Hint = Příklad: budou vyhledány verče obsahující "Bůh", ale ne "bůh"
+DockTabsForm.chkExactPhrase.Caption = hledat přesnou frázi
+DockTabsForm.chkExactPhrase.Hint = Příklad: verše, které obsahují "in that day", ale ne "in that very day"
+DockTabsForm.chkParts.Caption = hledat celá slova
+DockTabsForm.chkParts.Hint = Příklad: hledání výrazu "Christ", ale ne "christian"
+DockTabsForm.chkPhrase.Caption = slova po sobě jdou v zadném pořadí
+DockTabsForm.chkPhrase.Hint = Příklad: budou zobrazney verše, které obsahují výraz "Ježíš Kristus", ale ne "Kristus Ježíš"
+DockTabsForm.cbDic.Hint = Vyberte slovník k zobrazení zápisu
+DockTabsForm.cbDicFilter.Hint = Vyberte slovník, v němž budte hledat
+DockTabsForm.edtFilter.Hint = Uveďte slovo nebo výraz, které hledáte
+DockTabsForm.edtStrong.Hint = Uveďte Strongovo číslo
+DockTabsForm.lblDicFoundSeveral.Caption = nalezeno v několika slovnících
+DockTabsForm.lblSearch.Caption = Uveďte parametry hledání...
+DockTabsForm.lblSearch.Hint = Pomocí zúžení rozsahu vyhledávání a zadání přesných parametrů můžete dosáhnout lepších výsledků
+DockTabsForm.miAddBookmark.Caption = Přidat záložku...
+DockTabsForm.miAddBookmarkTagged.Caption = Přidat tag...
+DockTabsForm.miAddMemo.Caption = Vložit/upravit poznámku...
+DockTabsForm.miCloseAllOtherTabs.Caption = Zavřít ostatní okna
+DockTabsForm.miCloseAllTabs.Caption = Zavřít všechna okna
+DockTabsForm.miCloseTab.Caption = Zavřít okno
+DockTabsForm.miCompare.Caption = Porovnat překlady...
+DockTabsForm.miCopyPassage.Caption = Kopírovat...
+DockTabsForm.miCopySelection.Caption = Kopírovat vybraný text do schránky
+DockTabsForm.miCopyVerse.Caption = Kopírovat...
+DockTabsForm.miMemoCopy.Caption = Kopírovat
+DockTabsForm.miMemoCut.Caption = Vyjmout
+DockTabsForm.miMemoPaste.Caption = Vložit
+DockTabsForm.miMemosToggle.Caption = Ukázat/skrýt osobní poznámky
+DockTabsForm.miNewViewTab.Caption = Nové okno
+DockTabsForm.miSearchWindow.Caption = Hledat v tomto okně...
+DockTabsForm.miSearchWord.Caption = Hledat vybraný text
+DockTabsForm.pnlFindStrongNumber.Caption = najít verše s tímto číslem
+DockTabsForm.tbtnAddNode.Hint = Nová poznámka
+DockTabsForm.tbtnBack.Caption = Zpět
+DockTabsForm.tbtnBack.Hint = Předcházející záznam v historii (Backspace, Alt+šipka vlevo)
+DockTabsForm.tbtnCopy.Caption = Kopírovat
+DockTabsForm.tbtnCopy.Hint = Kopírovat výběr do schránky (Ctrl+F5)
+DockTabsForm.tbtnDelNode.Hint = Smazat poznámku
+DockTabsForm.tbtnForward.Caption = Vpřed
+DockTabsForm.tbtnForward.Hint = Následující záznam v historii (Alt+šipka vpravo)
+DockTabsForm.tbtnMatchCase.Hint = Vzít do úvahy seznam
+DockTabsForm.tbtnMatchWholeWord.Hint = Jen celá slova
+DockTabsForm.tbtnMemoBold.Hint = Tučené
+DockTabsForm.tbtnMemoFont.Hint = Písmo
+DockTabsForm.tbtnMemoItalic.Hint = Kurzíva
+DockTabsForm.tbtnMemoOpen.Hint = Otevřít
+DockTabsForm.tbtnMemoPainter.Hint = Barva písma
+DockTabsForm.tbtnMemoPrint.Hint = Tisknout
+DockTabsForm.tbtnMemoSave.Hint = Uložit
+DockTabsForm.tbtnMemoUnderline.Hint = Podtržení
+DockTabsForm.tbtnMemos.Caption = Poznámky
+DockTabsForm.tbtnMemos.Hint = Ukázat/skrýt poznámky (Ctrl+M)
+DockTabsForm.tbtnNextChapter.Caption = Následující kapitola
+DockTabsForm.tbtnNextChapter.Hint = Následující kapitola (Ctrl+X)
+DockTabsForm.tbtnPrevChapter.Caption = Předcházející kapitola
+DockTabsForm.tbtnPrevChapter.Hint = Předcházející kapitola (Ctrl+Z)
+DockTabsForm.tbtnQuickSearch.Hint = Najít v daném okně
+DockTabsForm.tbtnQuickSearchNext.Hint = Najít další
+DockTabsForm.tbtnQuickSearchPrev.Hint = Najít předcházející
+DockTabsForm.tbtnReference.Hint = Ukázat vybraný úryvek
+DockTabsForm.tbtnReferenceInfo.Hint = Informace o modulu
+DockTabsForm.tbtnSatellite.Caption = Paralelní text téže bible
+DockTabsForm.tbtnSatellite.Hint = Zavřít paralelní text
+DockTabsForm.tbtnSearch.Hint = Hledat
+DockTabsForm.tbtnStrongNumbers.Caption = Strongovy lexikony
+DockTabsForm.tbtnStrongNumbers.Hint = Zobrazit/skrýt Strongova čísla
+DockTabsForm.tbtnToggle.Hint = Zobrazit/skrýt navigační panel
+DockTabsForm.tedtQuickSearch.Hint = Vložte slovo nebo výraz k vyhledávání
+DockTabsForm.tedtReference.Hint = Uveďte nebo vložte odkaz na verš, např. Mk 10:30
+
+AboutForm.Caption = O programu
+AboutForm.btnOK.Caption = OK
+AboutForm.pnlDownloadLatest.Caption = Stáhnout poslední verzi
+AboutForm.pnlForum.Caption = Posoizení programu na fóru
+
+;
+CopyOptionsAddReference_FullAtEnd = Plný odkaz na konci úryvku
+CopyOptionsAddReference_ShortAtBeginning = Krátký odkaz na začátku každého verše
+CopyOptionsAddReference_ShortAtEnd = Krátký odkaz na konci každého verše
+;
+
+ConfigForm.Caption = Parametery
+ConfigForm.btnCancel.Caption = Zrušit
+ConfigForm.btnDeletePath.Caption = x
+ConfigForm.btnOK.Caption = OK
+ConfigForm.btnSelectPath.Caption = ...
+ConfigForm.chkAddLineBreaks.Caption = Připojit číslo verše na konec každého verše
+ConfigForm.chkAddModuleName.Caption = Připojit jméno modulu/překladu
+ConfigForm.chkAddReference.Caption = Připojit odkaz na úryvek
+ConfigForm.chkCopyFontParams.Caption = Kopírovat parametry písma
+ConfigForm.chkCopyFontParams.Hint = Kopírovat text jako RTF
+ConfigForm.chkCopyVerseNumbers.Caption = Kopírovat čísla veršů
+ConfigForm.chkFullContextOnRestrictedLinks.Caption = Plný seznam nepřístupných odkazů
+ConfigForm.chkHighlightVerseHits.Caption = Zvýraznit vybraný verš
+ConfigForm.chkMinimizeToTray.Caption = Minimalizovat na lištu
+ConfigForm.chkMinimizeToTray.Hint = Vytvořit ikonu vedle systémových hodin
+ConfigForm.grpLocalization.Caption = Jazyk rozhraní
+ConfigForm.grpFonts.Caption = Písma
+ConfigForm.grpColors.Caption = Barvy
+ConfigForm.lblAvailableModules.Caption = Dostupné moduly
+ConfigForm.lblBackgroundColor.Caption = Pozadí:
+ConfigForm.lblDefaultBible.Caption = Implicitní bible
+ConfigForm.lblDefaultStrongBible.Caption = Implicitní bible se Strongovými čísly
+ConfigForm.lblDialogsFont.Caption = Formuláře a dialogy:
+ConfigForm.lblFavourites.Caption = Oblíbené
+ConfigForm.lblHyperlinksColor.Caption = Hyperlinky:
+ConfigForm.lblLanguage.Caption = Jazyk:
+ConfigForm.lblPrimaryFont.Caption = Primární písmo:
+ConfigForm.lblSearchTextColor.Caption = Hledaný text a zprávy:
+ConfigForm.lblSecondaryFont.Caption = Sekundární písmo:
+ConfigForm.lblSelectSecondPath.Caption = Sekundární cesta k modulům
+ConfigForm.lblVerseHighlightColor.Caption = Zvýraznění veršů:
+ConfigForm.rgHotKeyChoice.Caption = Klávesové zkratky
+ConfigForm.tsCopyOptions.Caption = Parametry kopírování
+ConfigForm.tsFavouriteEx.Caption = Oblíbené moduly
+ConfigForm.tsInterface.Caption = Rozhraní
+ConfigForm.tsOtherOptions.Caption = Další možnosti
+
+ExceptionForm.btnDetails.Caption = Podrobnosti
+ExceptionForm.btnOk.Caption = OK
+ExceptionForm.Caption = Vyskytla se chyba!
+ExceptionForm.lblStacktrace.Caption = Protokol výjimek:
