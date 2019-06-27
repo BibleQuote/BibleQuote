@@ -10,7 +10,7 @@ uses
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
   ExceptionFrm, NativeDict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
   StrongsConcordance, Math, Character, HtmlParser, DOMCore, Formatter,
-  HtmlTags, BibleLinkParser, ScriptureProvider;
+  HtmlTags, BibleLinkParser, ScriptureProvider, DataServices;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -49,6 +49,7 @@ type
     mCurrentBook: TBible;
     mLoaded: boolean;
     mScriptureProvider: TScriptureProvider;
+    mDataService: TDataService;
 
     FStrongsConcordance: TStrongsConcordance;
 
@@ -87,7 +88,7 @@ begin
   if (shortPath = '') then
     Exit;
 
-  mCurrentBook := TBible.Create(mMainView);
+  mCurrentBook := TBible.Create();
 
   iniPath := TPath.Combine(shortPath, 'bibleqt.ini');
   mCurrentBook.SetInfoSource(ResolveFullPath(iniPath));
@@ -122,12 +123,12 @@ begin
   book := mCurrentBook;
   if not Assigned(book) then
   begin
-    defaultModIx := mMainView.mModules.FindByName(AppConfig.DefaultStrongBible);
+    defaultModIx := mDataService.Modules.FindByName(AppConfig.DefaultStrongBible);
 
     if defaultModIx >= 0 then
     begin
-      book := TBible.Create(mMainView);
-      bookPath := TPath.Combine(mMainView.mModules[defaultModIx].ShortPath, 'bibleqt.ini');
+      book := TBible.Create();
+      bookPath := TPath.Combine(mDataService.Modules[defaultModIx].ShortPath, 'bibleqt.ini');
       book.SetInfoSource(ResolveFullPath(bookPath));
     end;
   end;
@@ -277,6 +278,7 @@ begin
 
   mMainView := AMainView;
   mWorkspace := AWorkspace;
+  mDataService := AMainView.DataService;
   mScriptureProvider := TScriptureProvider.Create(AMainView);
 
   FStrongsConcordance := AMainView.StrongsConcordance;

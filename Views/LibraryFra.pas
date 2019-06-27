@@ -9,7 +9,7 @@ uses
   Vcl.ImgList, TabData, Vcl.Menus, System.UITypes, BibleQuoteUtils, PlainUtils,
   ImageUtils, AppIni, Generics.Collections, Vcl.VirtualImageList,
   Vcl.BaseImageCollection, Vcl.ImageCollection, NotifyMessages, JclNotify,
-  UITools;
+  UITools, DataServices;
 
 const
 
@@ -72,6 +72,7 @@ type
     mUILock: Boolean;
     mMainView: TMainForm;
     mWorkspace: IWorkspace;
+    mDataService: TDataService;
 
     FFilteredModTypes: TList<TPair<TModuleEntry, Integer>>;
 
@@ -167,6 +168,8 @@ begin
   inherited Create(AOwner);
   mMainView := mainView;
   mWorkspace := workspace;
+  mDataService := mainView.DataService;
+
   mMainView.GetNotifier.Add(self);
 
   FCoverDefaults := TDictionary<String, TPicture>.Create;
@@ -704,7 +707,7 @@ begin
     filterTokens := TStringList.Create();
     StrToTokens(filterText, ' ', filterTokens);
 
-    modules := mMainView.mModules;
+    modules := mDataService.Modules;
     count := modules.Count - 1;
     for i := 0 to count do
     begin

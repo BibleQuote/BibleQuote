@@ -6,10 +6,9 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
-  Bible, BibleQuoteConfig, LinksParserIntf, PlainUtils, Engine,
-  System.ImageList, Vcl.ImgList, AppIni,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Buttons, JclNotify, NotifyMessages,
-  ScriptureProvider;
+  Bible, BibleQuoteConfig, LinksParserIntf, PlainUtils, System.ImageList,
+  Vcl.ImgList, AppIni, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Buttons, JclNotify,
+  NotifyMessages, ScriptureProvider, DataServices;
 
 type
   TCommentsFrame = class(TFrame, ICommentsView, IJclListener)
@@ -24,10 +23,10 @@ type
   private
     FMainView: TMainForm;
     FWorkspace: IWorkspace;
-    FBqEngine: TBibleQuoteEngine;
     FNotifier: IJclNotifier;
     FLastCommentaryBook: String;
     FScriptureProvider: TScriptureProvider;
+    FDataService: TDataService;
 
     function GetSourceBible(): TBible;
     procedure Notification(Msg: IJclNotificationMessage); stdcall;
@@ -53,9 +52,9 @@ begin
 
   FMainView  := MainView;
   FWorkspace := Workspace;
-  FBqEngine  := MainView.BqEngine;
   FNotifier  := MainView.mNotifier;
 
+  FDataService := MainView.DataService;
   FScriptureProvider := TScriptureProvider.Create(MainView);
 
   FNotifier.Add(self);
@@ -135,7 +134,7 @@ var
   EffectiveLink: TBibleLink;
   Path: String;
 begin
-  SourceBible := TBible.Create(FMainView);
+  SourceBible := TBible.Create();
 
   // resolve source bible from the last link
   BibleLink := FMainView.LastBibleLink;
@@ -189,15 +188,15 @@ begin
       Exit;
   end;
 
-  CommentaryIdx := FMainView.mModules.IndexOf(cbCommentSource.Text);
+  CommentaryIdx := FDataService.Modules.IndexOf(cbCommentSource.Text);
   if CommentaryIdx < 0 then
   begin
     raise Exception.CreateFmt
       ('Cannot locate module for comments, module name: %s', [cbCommentSource.Text])
   end;
 
-  CommentaryModule := FMainView.mModules[CommentaryIdx];
-  CommentaryBook := TBible.Create(FMainView);
+  CommentaryModule := FDataService.Modules[CommentaryIdx];
+  CommentaryBook := TBible.Create();
   CommentaryBook.SetInfoSource(CommentaryModule.GetInfoPath());
 
   SourceBible.ReferenceToInternal(SourceBible.CurBook, SourceBible.CurChapter, 1, IntBook, IntChapter, IntVerse);
@@ -327,7 +326,7 @@ begin
   if LinkStatus = -2 then
     Address := false;
 
-  CommentaryModule := FMainView.mModules.ModTypedAsFirst(modtypeComment);
+  CommentaryModule := FDataService.Modules.ModTypedAsFirst(modtypeComment);
   LastCommentary := cbCommentSource.Text;
 
   cbCommentSource.Items.BeginUpdate;
@@ -337,7 +336,7 @@ begin
     while Assigned(CommentaryModule) do
     begin
       try
-        RefBook := TBible.Create(FMainView);
+        RefBook := TBible.Create();
         RefBook.SetInfoSource(CommentaryModule.GetInfoPath());
 
         LinkStatus := RefBook.LinkValidnessStatus(RefBook.InfoSource.FileName, InternalBibleLink, true, false);
@@ -348,7 +347,7 @@ begin
           if OmegaCompareTxt(CommentaryModule.FullName, LastCommentary, -1, true) = 0 then
             SelIndex := AddIndex;
         end;
-        CommentaryModule := FMainView.mModules.ModTypedAsNext(modtypeComment);
+        CommentaryModule := FDataService.Modules.ModTypedAsNext(modtypeComment);
       except
       end;
     end; // while
@@ -367,12 +366,12 @@ begin
   cbCommentSource.Items.BeginUpdate;
   try
     cbCommentSource.Items.Clear;
-    ModuleEntry := FMainView.mModules.ModTypedAsFirst(modtypeComment);
+    ModuleEntry := FDataService.Modules.ModTypedAsFirst(modtypeComment);
 
     while Assigned(ModuleEntry) do
     begin
       cbCommentSource.Items.Add(ModuleEntry.FullName);
-      ModuleEntry := FMainView.mModules.ModTypedAsNext(modtypeComment);
+      ModuleEntry := FDataService.Modules.ModTypedAsNext(modtypeComment);
     end;
   finally
     cbCommentSource.Items.EndUpdate;

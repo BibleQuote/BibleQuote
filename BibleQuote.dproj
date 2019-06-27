@@ -121,9 +121,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.2.0.712;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.2.0.725;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <VerInfo_Build>712</VerInfo_Build>
+        <VerInfo_Build>725</VerInfo_Build>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
     </PropertyGroup>
@@ -705,8 +705,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\BibleQuoteConfig.pas"/>
         <DCCReference Include="Core\BibleQuoteUtils.pas"/>
         <DCCReference Include="Core\CommandProcessor.pas"/>
-        <DCCReference Include="Core\Engine.pas"/>
-        <DCCReference Include="Core\EngineInterfaces.pas"/>
         <DCCReference Include="Utils\AppInfo.pas"/>
         <DCCReference Include="Utils\SystemInfo.pas"/>
         <DCCReference Include="UI\GfxRenderers.pas"/>
@@ -722,7 +720,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\Favorites.pas"/>
         <DCCReference Include="Utils\PlainUtils.pas"/>
         <DCCReference Include="Utils\StringProcs.pas"/>
-        <DCCReference Include="IO\BackgroundServices.pas"/>
         <DCCReference Include="IO\IOProcs.pas"/>
         <DCCReference Include="Data\TagsDb.pas">
             <Form>TagsDbEngine</Form>
@@ -815,7 +812,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         </DCCReference>
         <DCCReference Include="IO\ThirdPartModulesProcs.pas"/>
         <DCCReference Include="Utils\JsonProcs.pas"/>
-        <DCCReference Include="IO\ScanModules.pas"/>
+        <DCCReference Include="IO\DataScanning.pas"/>
         <DCCReference Include="Utils\Types.Extensions.pas"/>
         <DCCReference Include="HTML\HTMLParser.pas"/>
         <DCCReference Include="HTML\DOMCore.pas"/>
@@ -825,6 +822,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="HTML\HtmlTags.pas"/>
         <DCCReference Include="Core\ScriptureProvider.pas"/>
         <DCCReference Include="Core\AppStates.pas"/>
+        <DCCReference Include="Core\DataServices.pas"/>
+        <DCCReference Include="Core\Jobs.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>

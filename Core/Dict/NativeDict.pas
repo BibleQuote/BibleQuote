@@ -52,15 +52,13 @@ begin
   if IndexFile = FIndex then
   begin
     Result := true;
-    exit
+    Exit;
   end;
 
   result := false;
   // if not assigned(FiLines) then begin
   if (FileExistsEx(IndexFile) < 0) or (FileExistsEx(DictFile) < 0) then
-  begin
-    exit;
-  end;
+    Exit;
 
   FIndex := IndexFile;
   FDict := DictFile;
@@ -134,7 +132,9 @@ const
 begin
 
   if aText.StartsWith(BOM_UTF16) then
-    Result := StringReplace(aText, BOM_UTF16, '', [rfReplaceAll, rfIgnoreCase]);
+    Result := StringReplace(aText, BOM_UTF16, '', [rfReplaceAll, rfIgnoreCase])
+  else
+    Result := aText;
 end;
 
 end.

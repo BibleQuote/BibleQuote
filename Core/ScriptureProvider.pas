@@ -4,12 +4,13 @@ interface
 
 uses Bible, LinksParserIntf, BibleQuoteUtils, MainFrm, SysUtils, PlainUtils,
      BibleQuoteConfig, SelectEntityType, ExceptionFrm, IOUtils, AppIni,
-     StringProcs, ManageFonts;
+     StringProcs, ManageFonts, DataServices;
 
 type
   TScriptureProvider = class
   private
     FMainView: TMainForm;
+    FDataService: TDataService;
   public
     constructor Create(MainForm: TMainForm);
 
@@ -38,6 +39,7 @@ implementation
 constructor TScriptureProvider.Create(MainForm: TMainForm);
 begin
   FMainView := MainForm;
+  FDataService := MainForm.DataService;
 end;
 
 function TScriptureProvider.GetDefaultBibleSourcePath(): String;
@@ -47,16 +49,16 @@ var
 begin
   Result := '';
 
-  modIx := FMainView.mModules.FindByName(AppConfig.DefaultBible);
+  modIx := FDataService.Modules.FindByName(AppConfig.DefaultBible);
   if (modIx < 0) then
   begin
-    modEntry := FMainView.mModules.ModTypedAsFirst(modtypeBible);
+    modEntry := FDataService.Modules.ModTypedAsFirst(modtypeBible);
     if Assigned(modEntry) then
-      modIx := FMainView.mModules.FindByName(modEntry.FullName);
+      modIx := FDataService.Modules.FindByName(modEntry.FullName);
   end;
 
   if (modIx >= 0) then
-    Result := FMainView.mModules[modIx].ShortPath;
+    Result := FDataService.Modules[modIx].ShortPath;
 end;
 
 function TScriptureProvider.GetLinkHint(command: string; defFontName: string; modPath: string): String;
@@ -73,7 +75,7 @@ begin
   end
   else
   begin
-    RefBible := TBible.Create(FMainView);
+    RefBible := TBible.Create();
     try
       status := PreProcessAutoCommand(RefBible, command, modPath, ConcreteCmd);
 
@@ -116,10 +118,10 @@ begin
     if not bl.FromBqStringLocation(cmd, dp) then
       goto Fail;
 
-    prefModIx := FMainView.mModules.FindByFolder(prefModule);
+    prefModIx := FDataService.Modules.FindByFolder(prefModule);
     if prefModIx >= 0 then
     begin
-      me := FMainView.mModules[prefModIx];
+      me := FDataService.Modules[prefModIx];
       if me.modType = modtypeBible then
       begin
         RefBible.SetInfoSource(me.GetInfoPath());
@@ -248,7 +250,7 @@ label lblErrNotFnd;
 
 begin
   Result := -1;
-  refBook := TBible.Create(FMainView);
+  refBook := TBible.Create();
   try
     linkValid := ibl.FromBqStringLocation(cmd, path);
     if not linkValid then
@@ -390,7 +392,7 @@ function TScriptureProvider.PreProcessAutoCommand(const cmd: string; const prefM
 var
   RefBible: TBible;
 begin
-  RefBible := TBible.Create(FMainView);
+  RefBible := TBible.Create();
 
   try
     Result := PreProcessAutoCommand(RefBible, cmd, prefModule, ConcreteCmd);

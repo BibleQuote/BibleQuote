@@ -16,15 +16,14 @@ uses
   VirtualTrees, ToolWin, StdCtrls, IOProcs,
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
-  VdtEditlink, bqGradientPanel,
-  Engine, MultiLanguage, LinksParserIntf, HTMLEmbedInterfaces,
+  VdtEditlink, bqGradientPanel, MultiLanguage, LinksParserIntf, HTMLEmbedInterfaces,
   MetaFilePrinter, NativeDict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
   TabData, Favorites, ThinCaptionedDockTree,
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, ManageFonts, BroadcastList, JclNotify, NotifyMessages,
   AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
-  StrongsConcordance, ScanModules, AppStates;
+  StrongsConcordance, DataScanning, AppStates, DictInterface, DataServices;
 
 const
 
@@ -173,9 +172,9 @@ type
     function GenerateWorkspaceName(): string;
     procedure OnTabsFormActivate(Sender: TObject);
     procedure OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
-    procedure DictionariesLoading(Sender: TObject);
-    procedure DictionariesLoaded(Sender: TObject);
-    procedure ModulesScanDone(Modules: TCachedModules);
+
+    procedure ModulesScanComplete(Sender: TObject);
+    procedure DictScanComplete(Sender: TObject);
     procedure TogglePreview();
 
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
@@ -209,7 +208,7 @@ type
     ZoomIndex: integer;
     Zoom: double;
 
-    mDictionariesFullyInitialized, mTaggedBookmarksLoaded: Boolean;
+    mTaggedBookmarksLoaded: Boolean;
     mDefaultLocation: string;
     mBibleTabsInCtrlKeyDownState: Boolean;
 
@@ -222,9 +221,10 @@ type
     mScrollAcc: integer;
     mscrollbarX: integer;
     mHTMLViewerSite: THTMLViewerSite;
-    mBqEngine: TBibleQuoteEngine;
+
     mScanner: TModulesScanner;
-    mScanThread: TScanThread;
+    mDictScanner: TDictScanner;
+
     mTranslated: Boolean;
 
     mWorkspace: IWorkspace;
@@ -232,8 +232,7 @@ type
 
     mNotifier: IJclNotifier;
 
-    mModules: TCachedModules;
-
+    DataService: TDataService;
     BrowserPosition: Longint; // this helps PgUp, PgDn to scroll chapters...
 
     FRunOnce: Boolean; // for only one entrance into .FormShow
@@ -283,7 +282,6 @@ type
 
     function FindTaggedTopMenuItem(tag: integer): TMenuItem;
 
-    function LoadDictionaries(foreground: Boolean): Boolean;
     procedure StartScanModules();
     function LoadHotModulesConfig(): Boolean;
     procedure SaveHotModulesConfig();
@@ -298,7 +296,6 @@ type
 
     procedure SaveMru();
     procedure LoadMru();
-    procedure Idle(Sender: TObject; var Done: Boolean);
     procedure ForceForegroundLoad();
     function DefaultLocation(): string;
 
@@ -315,7 +312,6 @@ type
     procedure SetBibleTabsHintsState(showHints: Boolean = true);
     procedure InitModules(updateCache: Boolean);
     procedure ActivateModuleView(aModuleEntry: TModuleEntry);
-    procedure ScanFirstModules();
 
     function ChooseColor(color: TColor): TColor;
 
@@ -348,14 +344,12 @@ type
     procedure InitHotkeysSupport();
     procedure CheckModuleInstall();
     function InstallModule(const path: string): integer;
-    function InstallFont(const specialPath: string): HRESULT;
     procedure TranslateConfigForm;
     procedure TranslateControl(form: TWinControl; fname: string = '');
     procedure GoReference();
     function DefaultBookTabState(): TBookTabInfoState;
 
     property StrongsConcordance: TStrongsConcordance read FStrongsConcordance;
-    property BqEngine: TBibleQuoteEngine read mBqEngine;
   public
     mHandCur: TCursor;
 
@@ -380,12 +374,10 @@ var
 implementation
 
 uses InputFrm, ConfigFrm, PasswordDlg,
-  BibleQuoteConfig,
-  ExceptionFrm, AboutFrm, ShellAPI,
-  StrUtils, CommCtrl, DockTabsFrm,
-  HintTools, sevenZipHelper, BookFra, TSKFra, DictionaryFra,
+  BibleQuoteConfig, ExceptionFrm, AboutFrm, ShellAPI, StrUtils, CommCtrl,
+  DockTabsFrm, HintTools, sevenZipHelper, BookFra, TSKFra, DictionaryFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
-  EngineInterfaces, StringProcs, LinksParser, StrongFra, SearchFra, AppPaths,
+  StringProcs, LinksParser, StrongFra, SearchFra, AppPaths,
   DownloadModulesFrm, ScriptureProvider;
 
 {$R *.DFM}
@@ -518,7 +510,7 @@ var
   tabInfo: TBookTabInfo;
 begin
   tabInfo := TBookTabInfo.Create(book, '', '', '', DefaultBookTabState);
-  tabInfo.SecondBible := TBible.Create(self);
+  tabInfo.SecondBible := TBible.Create();
   Result := tabInfo;
 end;
 
@@ -713,7 +705,7 @@ begin
     f1Exists := FileExists(fn1);
     if f1Exists then
     begin
-      mFavorites.LoadModules(mModules, fn1)
+      mFavorites.LoadModules(DataService.Modules, fn1)
     end
     else
     begin
@@ -721,7 +713,7 @@ begin
       f2Exists := FileExists(fn2);
       if f2Exists then
       begin
-        mFavorites.LoadModules(mModules, fn2)
+        mFavorites.LoadModules(DataService.Modules, fn2)
       end
     end;
 
@@ -740,48 +732,6 @@ begin
   mFavorites.SaveModules(TPath.Combine(TAppDirectories.UserSettings, C_HotModulessFileName));
 end;
 
-function TMainForm.LoadDictionaries(foreground: Boolean): Boolean;
-begin
-  Result := mBqEngine[bqsDictionariesLoaded];
-  if not Result then
-  begin
-    if mBqEngine[bqsDictionariesLoading] then
-    begin
-      if not foreground then
-        Exit; // just wait
-    end;
-
-    mIcn := TIcon.Create;
-    ilImages.GetIcon(17, mIcn);
-    imgLoadProgress.Picture.Graphic := mIcn;
-    imgLoadProgress.Show();
-
-    mBqEngine.LoadDictionaries(TLibraryDirectories.Dictionaries, foreground);
-    if not foreground then
-      Exit;
-  end;
-  // init dic tokens list
-  Result := mBqEngine[bqsDictionariesListCreated];
-  if not Result then
-  begin
-    if mBqEngine[bqsDictionariesListCreating] and (not foreground) then
-    begin
-      Exit; // just wait
-    end;
-    mBqEngine.InitDictionaryItemsList(foreground);
-    if not foreground then
-      Exit;
-  end;
-
-  mNotifier.Notify(TDictionariesLoadedMessage.Create);
-
-  mDictionariesFullyInitialized := true;
-  Result := true;
-
-  imgLoadProgress.Hide();
-  FreeAndNil(mIcn);
-end;
-
 procedure TMainForm.StartScanModules();
 var
   icn: TIcon;
@@ -792,8 +742,9 @@ begin
     imgLoadProgress.Picture.Graphic := icn;
     imgLoadProgress.Show();
 
-    if not (mScanThread.Started) then
-      mScanThread.Start();
+    DataService.ScanModulesAsync;
+    DataService.ScanDictsAsync;
+
   except
     on E: Exception do
     begin
@@ -802,33 +753,17 @@ begin
   end;
 end;
 
-procedure TMainForm.DictionariesLoading(Sender: TObject);
+procedure TMainForm.ModulesScanComplete(Sender: TObject);
 begin
-  mIcn := TIcon.Create;
-  ilImages.GetIcon(17, mIcn);
-  imgLoadProgress.Picture.Graphic := mIcn;
-  imgLoadProgress.Show();
-end;
-
-procedure TMainForm.DictionariesLoaded(Sender: TObject);
-begin
-  mNotifier.Notify(TDictionariesLoadedMessage.Create);
-  mDictionariesFullyInitialized := true;
-
-  imgLoadProgress.Hide();
-  FreeAndNil(mIcn);
-end;
-
-procedure TMainForm.ModulesScanDone(Modules: TCachedModules);
-begin
-  if not Assigned(mModules) then
-    mModules := TCachedModules.Create(true);
-
-  mModules.Assign(Modules);
-
   UpdateBookView();
 
+  imgLoadProgress.Hide();
   mNotifier.Notify(TModulesLoadedMessage.Create);
+end;
+
+procedure TMainForm.DictScanComplete(Sender: TObject);
+begin
+  mNotifier.Notify(TDictionariesLoadedMessage.Create);
 end;
 
 procedure TMainForm.SaveMru;
@@ -1126,7 +1061,7 @@ begin
 
     SaveWorkspaces();
     try
-      mModules.SaveToFile(TPath.Combine(TAppDirectories.UserSettings, C_CachedModsFileName));
+      DataService.Modules.SaveToFile(TPath.Combine(TAppDirectories.UserSettings, C_CachedModsFileName));
     except
       on E: Exception do
       begin
@@ -1256,7 +1191,6 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FStrongsConcordance := TStrongsConcordance.Create();
 
-  mBqEngine := TBibleQuoteEngine.Create();
   mNotifier := TJclBaseNotifier.Create;
 
   FRunOnce := false; // prohibit re-entry into FormShow
@@ -1309,7 +1243,6 @@ begin
 
   mTranslated := TranslateInterface(AppConfig.LocalizationFile);
 
-  Application.OnIdle := self.Idle;
   Application.OnActivate := self.OnActivate;
   Application.OnDeactivate := self.OnDeactivate;
 end;
@@ -1318,13 +1251,17 @@ procedure TMainForm.InitModuleScanner();
 var
   scanBook: TBible;
 begin
-  scanBook := TBible.Create(Self);
-  mModules := TCachedModules.Create();
-  mScanner := TModulesScanner.Create(scanBook);
-  mScanThread := TScanThread.Create(mScanner);
+  scanBook := TBible.Create();
 
-  mScanThread.OnScanDone := ModulesScanDone;
+  mScanner := TModulesScanner.Create(scanBook);
   mScanner.SecondDirectory := AppConfig.SecondPath;
+
+  mDictScanner := TDictScanner.Create();
+
+  DataService := TDataService.Create(mScanner, mDictScanner);
+
+  DataService.OnScanModulesComplete := ModulesScanComplete;
+  DataService.OnScanDictsComplete := DictScanComplete;
 end;
 
 function TMainForm.GetIViewerBase(): IHtmlViewerBase;
@@ -1894,11 +1831,11 @@ begin
   try
     modShortPath := (ExtractFileName(aModule));
     modShortPath := Copy(modShortPath, 1, Length(modShortPath) - 4);
-    i := mModules.FindByFolder(modShortPath);
+    i := DataService.Modules.FindByFolder(modShortPath);
     if (i < 0) then
       modName := ' '
     else
-      modName := mModules[i].FullName;
+      modName := DataService.Modules[i].FullName;
     if not Assigned(PasswordBox) then
       PasswordBox := TPasswordBox.Create(self);
     with PasswordBox do
@@ -2240,18 +2177,8 @@ end;
 
 procedure TMainForm.ForceForegroundLoad;
 begin
-  if not (mScanThread.Started) then
-    mScanThread.Start;
-
-  mScanThread.WaitFor;
-
-  mModules.Assign(mScanThread.Modules);
-
-  mDefaultLocation := DefaultLocation();
-  if not mDictionariesFullyInitialized then
-  begin
-    mDictionariesFullyInitialized := LoadDictionaries(true);
-  end;
+  DataService.ScanModulesAndWait;
+  DataService.ScanDictsAndWait;
 end;
 
 procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -2272,14 +2199,11 @@ begin
   end;
 
   Flush(Output);
-  mBqEngine.Finalize();
-  mBqEngine := nil;
   BibleLinkParser.FinalizeParser();
   try
     GfxRenderers.TbqTagsRenderer.Done();
 
     FreeAndNil(PasswordPolicy);
-    FreeAndNil(mModules);
     FreeAndNil(mFavorites);
 
     cleanUpInstalledFonts();
@@ -2294,25 +2218,6 @@ end;
 procedure TMainForm.miExitClick(Sender: TObject);
 begin
   Close;
-end;
-
-procedure TMainForm.Idle(Sender: TObject; var Done: Boolean);
-begin
-  if not mDictionariesFullyInitialized then
-  begin
-    mDictionariesFullyInitialized := LoadDictionaries(false);
-    Done := false;
-    Exit;
-  end;
-  if not mBqEngine[bqsVerseListEngineInitialized] then
-  begin
-    if not mBqEngine[bqsVerseListEngineInitializing] then
-      mBqEngine.InitVerseListEngine(false);
-  end
-  else
-  begin
-    Done := true;
-  end;
 end;
 
 procedure TMainForm.imgLoadProgressClick(Sender: TObject);
@@ -2382,17 +2287,6 @@ begin
       BqShowException(E);
     end;
   end;
-end;
-
-function TMainForm.InstallFont(const specialPath: string): HRESULT;
-var
-  wsName, wsFolder: string;
-  rslt: Boolean;
-begin
-  wsName := ExtractFileName(specialPath);
-  wsFolder := ExtractFilePath(specialPath);
-  rslt := FontManager.PrepareFont(FileRemoveExtension(wsName), wsFolder);
-  Result := -1 + ord(rslt);
 end;
 
 function TMainForm.InstallModule(const path: string): integer;
@@ -2488,31 +2382,18 @@ var
   Loaded: Boolean;
 begin
   if updateCache then
-  begin
-    mModules.Clear();
-    ScanFirstModules();
-  end
+    DataService.ScanFirstModules()
   else
   begin
-    Loaded := mScanner.TryLoadCachedModules(mModules);
+    Loaded := DataService.LoadCachedModules();
 
     if not Loaded then
-      ScanFirstModules();
+      DataService.ScanFirstModules();
   end;
   mDefaultLocation := DefaultLocation();
+
   StartScanModules();
-end;
-
-procedure TMainForm.ScanFirstModules();
-var
-  Scanner: TModulesScanner;
-  LoadBook: TBible;
-begin
-  LoadBook := TBible.Create(Self);
-  Scanner := TModulesScanner.Create(LoadBook, 5 {Load max 5 books});
-  Scanner.SecondDirectory := AppConfig.SecondPath;
-
-  mModules.CopyRange(Scanner.Scan());
+  DataService.LoadTagsAsync();
 end;
 
 procedure TMainForm.ActivateModuleView(aModuleEntry: TModuleEntry);
@@ -2579,7 +2460,7 @@ begin
       state := DefaultBookTabState;
       newTabInfo := TBookTabInfo.Create(DestBook, command, '', '', state);
 
-      newTabInfo.SecondBible := TBible.Create(self);
+      newTabInfo.SecondBible := TBible.Create();
       newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
       newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
 
@@ -2820,7 +2701,7 @@ begin
 
     if not Assigned(bibleModuleEntry) then
     begin
-      bibleModuleEntry := mModules.ModTypedAsFirst(modtypeBible);
+      bibleModuleEntry := DataService.Modules.ModTypedAsFirst(modtypeBible);
     end;
     if not Assigned(bibleModuleEntry) then
       raise Exception.Create
@@ -3006,6 +2887,7 @@ begin
   try
     DownloadModules.ShowModal;
 
+    StartScanModules;
   finally
     DownloadModules.Free;
   end;
@@ -3093,7 +2975,7 @@ begin
     begin
       fc := mFavorites.mModuleEntries.Count - 1;
 
-      tempBook := TBible.Create(self);
+      tempBook := TBible.Create();
 
       for i := 0 to fc do
       begin
@@ -3114,7 +2996,7 @@ begin
       end;
       if not openSuccess then
       begin
-        moduleEntry := mModules.ModTypedAsFirst(modtypeBible);
+        moduleEntry := DataService.Modules.ModTypedAsFirst(modtypeBible);
         while Assigned(moduleEntry) do
         begin
           try
@@ -3131,7 +3013,7 @@ begin
             end;
           except
           end;
-          moduleEntry := mModules.ModTypedAsNext(modtypeBible);
+          moduleEntry := DataService.Modules.ModTypedAsNext(modtypeBible);
         end;
 
       end;
@@ -3710,7 +3592,7 @@ begin
 
     newTabInfo := TBookTabInfo.Create(newBible, command, satellite, Title, state);
 
-    newTabInfo.SecondBible := TBible.Create(self);
+    newTabInfo.SecondBible := TBible.Create();
     newTabInfo.Bible.RecognizeBibleLinks := vtisResolveLinks in state;
     newTabInfo.Bible.FuzzyResolve := vtisFuzzyResolveLinks in state;
 
@@ -3768,7 +3650,7 @@ function TMainForm.CreateNewBibleInstance(): TBible;
 begin
   Result := nil;
   try
-    Result := TBible.Create(self);
+    Result := TBible.Create();
     with Result do
     begin
       OnChangeModule := BookChangeModule;
@@ -3921,9 +3803,11 @@ var
   OldConfig: TAppConfig;
 begin
   reload := false;
+
+  mDefaultLocation := DefaultLocation();
   ForceForegroundLoad();
 
-  ConfigForm.SetModules(mModules, mFavorites);
+  ConfigForm.SetModules(DataService.Modules, mFavorites);
 
   if ConfigForm.ShowModal = mrCancel then
     Exit;
@@ -3946,7 +3830,7 @@ begin
   for i := 0 to moduleCount do
   begin
     try
-      mFavorites.AddModule(mModules.ResolveModuleByNames(ConfigForm.lbFavourites.Items[i], ''));
+      mFavorites.AddModule(DataService.Modules.ResolveModuleByNames(ConfigForm.lbFavourites.Items[i], ''));
     except
       on E: Exception do
       begin
@@ -3958,7 +3842,7 @@ begin
   if (ConfigForm.cbDefaultBible.ItemIndex >= 0) then
   begin
     defBible := ConfigForm.cbDefaultBible.Items[ConfigForm.cbDefaultBible.ItemIndex];
-    if (defBible <> '') and (mModules.ResolveModuleByNames(defBible, '') <> nil) then
+    if (defBible <> '') and (DataService.Modules.ResolveModuleByNames(defBible, '') <> nil) then
       AppConfig.DefaultBible := defBible
     else
       AppConfig.DefaultBible := '';
@@ -3969,7 +3853,7 @@ begin
   if (ConfigForm.cbDefaultStrongBible.ItemIndex >= 0) then
   begin
     defStrongBible := ConfigForm.cbDefaultStrongBible.Items[ConfigForm.cbDefaultStrongBible.ItemIndex];
-    if (defStrongBible <> '') and (mModules.ResolveModuleByNames(defStrongBible, '') <> nil) then
+    if (defStrongBible <> '') and (DataService.Modules.ResolveModuleByNames(defStrongBible, '') <> nil) then
       AppConfig.DefaultStrongBible := defStrongBible
     else
       AppConfig.DefaultStrongBible := '';

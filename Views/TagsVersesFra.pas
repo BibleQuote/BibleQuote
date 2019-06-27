@@ -7,10 +7,10 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, VirtualTrees,
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ToolWin, ExtCtrls, TagsDb, PlainUtils,
   InputFrm, TabData, MainFrm, BibleQuoteUtils, LinksParserIntf, VDTEditLink,
-  GfxRenderers, BookFra, Engine, Generics.Collections, System.Contnrs,
-  ShlObj, EngineInterfaces, ExceptionFrm, JclNotify, System.Types,
+  GfxRenderers, BookFra, Generics.Collections, System.Contnrs,
+  ShlObj, ExceptionFrm, JclNotify, System.Types,
   System.UITypes, System.ImageList, Vcl.ImgList, BibleQuoteConfig,
-  NotifyMessages, AppIni;
+  NotifyMessages, AppIni, DataServices;
 
 type
   TTagsVersesFrame = class(TFrame, ITagsVersesView, IJclListener, IVDTInfo)
@@ -41,8 +41,8 @@ type
     mFilterTagsTimer: TTimer;
     mWorkspace: IWorkspace;
     mMainView: TMainForm;
+    mDataService: TDataService;
     mTaggedBookmarksLoaded: Boolean;
-    mBqEngine: TBibleQuoteEngine;
     mscrollbarX: integer;
 
     mBookTabInfo: TBookTabInfo;
@@ -86,9 +86,9 @@ begin
 
   mMainView := AMainView;
   mWorkspace := AWorkspace;
+  mDataService := AMainView.DataService;
 
   mTagsVersesCached := false;
-  mBqEngine := mMainView.BqEngine;
 
   mBookTabInfo := mMainView.CreateNewBookTabInfo();
 
@@ -200,8 +200,10 @@ begin
 
   if inputForm.ShowModal <> mrOk then
     Exit;
+
   if not mTaggedBookmarksLoaded then
     LoadTaggedBookMarks();
+
   TagsDb.TagsDbEngine.AddTag(inputForm.GetValue, dummyTag);
 end;
 
@@ -722,14 +724,14 @@ begin
       Exit;
     end;
 
-    if not mBqEngine[bqsVerseListEngineInitialized] then
-      mBqEngine.InitVerseListEngine(true);
+    mDataService.LoadTagsAndWait;
 
     if not TagsDbEngine.fdTagsConnection.Connected then
     begin
       Fail();
       Exit;
     end;
+
     if CacheTagNames() <> S_OK then
     begin
       Fail();

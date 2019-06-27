@@ -2,13 +2,13 @@ unit MyBibleDictLoader;
 
 interface
 
-uses Classes, DictLoaderInterface, EngineInterfaces, IOUtils, Types, FireDAC.Comp.Client,
-     MyBibleDict, MyBibleUtils;
+uses Classes, DictLoaderInterface, IOUtils, Types, FireDAC.Comp.Client,
+     MyBibleDict, MyBibleUtils, DictInterface;
 
 type
   TMyBibleDictLoader = class(TInterfacedObject, IDictLoader)
   public
-    function LoadDictionaries(aFileEntryPath: String; aEngine: IbqEngineDicTraits): Boolean;
+    function LoadDictionaries(aFileEntryPath: String): IDict;
     procedure LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String);
   end;
 
@@ -18,18 +18,16 @@ implementation
 uses ExceptionFrm, SysUtils;
 
 
-function TMyBibleDictLoader.LoadDictionaries(aFileEntryPath: String;
-  aEngine: IbqEngineDicTraits): Boolean;
+function TMyBibleDictLoader.LoadDictionaries(aFileEntryPath: String): IDict;
 var
   Dictionary: TMyBibleDict;
 begin
+  Result := nil;
   Dictionary := TMyBibleDict.Create;
   LoadDictionary(Dictionary, aFileEntryPath);
 
   if Assigned(Dictionary) then
-    aEngine.AddDictionary(Dictionary);
-
-  Result := True;
+    Result := Dictionary;
 end;
 
 procedure TMyBibleDictLoader.LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String);
