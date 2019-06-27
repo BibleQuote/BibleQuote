@@ -1,14 +1,28 @@
-unit ScanModules;
+unit DataScanning;
 
 interface
 
 uses
   Classes, SyncObjs, System.Types, System.SysUtils, IOUtils, Contnrs,
-  bible, BibleQuoteUtils, BibleQuoteConfig, Engine, EngineInterfaces,
-  AppPaths, AppIni;
+  bible, BibleQuoteUtils, BibleQuoteConfig, AppPaths, AppIni, DictInterface,
+  System.Generics.Collections, DictLoaderInterface, SelectEntityType,
+  DictLoaderFabric, IOProcs;
 
 type
-  TScanCompleteEvent = procedure(CachedModules: TCachedModules) of object;
+  TDictData = class
+  private
+    FDicts: TList<IDict>;
+    FDictTokens: TBQStringList;
+  public
+    constructor Create(); overload;
+    constructor Create(Dicts: TList<IDict>; Tokens: TBQStringList); overload;
+
+    procedure Assign(DictData: TDictData);
+    procedure Clear();
+
+    property Dictionaries: TList<IDict> read FDicts;
+    property DictTokens: TBQStringList read FDictTokens;
+  end;
 
 type
   TModulesScanner = class
@@ -32,28 +46,124 @@ type
   end;
 
 type
-  TScanThread = class(TThread)
+  TDictScanner = class
   private
-    FSection: TCriticalSection;
-    FBusy: Boolean;
-    FModules: TCachedModules;
-    FScanner: TModulesScanner;
-    FOnScanDone: TScanCompleteEvent;
-  protected
-    procedure Execute; override;
-
-    function GetBusy(): Boolean;
-    procedure SetBusy(aVal: Boolean);
-    property Busy: Boolean read GetBusy write SetBusy;
+    procedure LoadDictionaries(Path: String; var Dics: TList<IDict>);
+    function InitDictionaryTokens(Dics: TList<IDict>): TBQStringList;
   public
-    constructor Create(Scanner: TModulesScanner);
-    destructor Destroy; override;
+    constructor Create();
 
-    property OnScanDone: TScanCompleteEvent read FOnScanDone write FOnScanDone;
-    property Modules: TCachedModules read FModules;
+    function Scan(): TDictData;
   end;
 
 implementation
+
+constructor TDictData.Create();
+begin
+  inherited Create;
+
+  FDicts := TList<IDict>.Create();
+  FDictTokens := TBQStringList.Create();
+end;
+
+constructor TDictData.Create(Dicts: TList<IDict>; Tokens: TBQStringList);
+begin
+  inherited Create;
+
+  FDictTokens := Tokens;
+  FDicts := Dicts;
+end;
+
+procedure TDictData.Assign(DictData: TDictData);
+begin
+  Clear();
+  FDicts.AddRange(DictData.Dictionaries);
+  FDictTokens.AddStrings(DictData.DictTokens);
+end;
+
+procedure TDictData.Clear();
+begin
+  FDicts.Clear;
+  FDictTokens.Clear;
+end;
+
+constructor TDictScanner.Create;
+begin
+  inherited Create();
+end;
+
+procedure TDictScanner.LoadDictionaries(Path: String; var Dics: TList<IDict>);
+var
+  FileEntries: TStringDynArray;
+  FileEntryPath: String;
+
+  I: Integer;
+  DictLoader: IDictLoader;
+  DictType: TDictTypes;
+  Dict: IDict;
+begin
+  FileEntries := TDirectory.GetFileSystemEntries(Path);
+
+  if (Length(FileEntries) > 0) then
+  begin
+    for I := 0 to Length(FileEntries) - 1 do
+    begin
+      FileEntryPath := FileEntries[i];
+
+      DictType := TSelectEntityType.SelectDictType(FileEntryPath);
+      DictLoader := TDictLoaderFabric.CreateDictLoader(DictType);
+
+      if not Assigned(DictLoader) then
+      begin
+        if (IsDirectory(FileEntryPath) and DirectoryExists(FileEntryPath)) then
+          LoadDictionaries(FileEntryPath, Dics);
+
+        Continue;
+      end;
+
+      Dict := DictLoader.LoadDictionaries(FileEntryPath);
+      if not Assigned(Dict) then
+        Continue;
+
+      Dics.Add(Dict);
+
+    end;
+  end;
+end;
+
+function TDictScanner.InitDictionaryTokens(Dics: TList<IDict>): TBQStringList;
+var
+  List: TBQStringList;
+  DicCount, DictIdx, WordIdx, WordCount: Integer;
+  Dict: IDict;
+begin
+  List := TBQStringList.Create;
+  List.Sorted := true;
+
+  DicCount := Dics.Count - 1;
+  for DictIdx := 0 to dicCount do
+  begin
+    Dict := Dics[DictIdx];
+    WordCount := Dict.GetWordCount() - 1;
+    for WordIdx := 0 to WordCount do
+      List.Add(Dict.GetWord(WordIdx));
+
+  end;
+
+  Result := List;
+end;
+
+function TDictScanner.Scan(): TDictData;
+var
+  Dics: TList<IDict>;
+  Tokens: TBQStringList;
+begin
+  Dics := TList<IDict>.Create();
+  LoadDictionaries(TLibraryDirectories.Dictionaries, Dics);
+  Tokens := InitDictionaryTokens(Dics);
+
+  Result := TDictData.Create(Dics, Tokens);
+end;
 
 constructor TModulesScanner.Create(TempBook: TBible; Limit: Integer = -1);
 begin
@@ -290,65 +400,6 @@ begin
     Result := False;
   end;
 
-end;
-
-constructor TScanThread.Create(Scanner: TModulesScanner);
-begin
-  FScanner := Scanner;
-  FSection := TCriticalSection.Create;
-  FModules := TCachedModules.Create(True);
-
-  inherited Create(True);
-end;
-
-destructor TScanThread.Destroy;
-begin
-  FreeAndNil(FSection);
-  FreeAndNil(FModules);
-
-  inherited;
-end;
-
-procedure TScanThread.Execute;
-var
-  FoundModules: TCachedModules;
-begin
-  Busy := True;
-  try
-    FModules.Clear;
-
-    FoundModules := FScanner.Scan();
-    FModules.Assign(FoundModules);
-  finally
-    Busy := False;
-
-    if Assigned(FOnScanDone) then
-      Synchronize(
-        procedure()
-        begin
-          FOnScanDone(FModules);
-        end);
-  end;
-end;
-
-function TScanThread.GetBusy: Boolean;
-begin
-  try
-    FSection.Acquire();
-    Result := FBusy;
-  finally
-    FSection.Release()
-  end;
-end;
-
-procedure TScanThread.SetBusy(aVal: Boolean);
-begin
-  try
-    FSection.Acquire();
-    FBusy := aVal;
-  finally
-    FSection.Release()
-  end;
 end;
 
 end.

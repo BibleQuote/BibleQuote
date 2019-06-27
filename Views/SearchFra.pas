@@ -650,7 +650,7 @@ begin
     Exit;
   end;
 
-  mCurrentBook := TBible.Create(mMainView);
+  mCurrentBook := TBible.Create();
 
   iniPath := TPath.Combine(shortPath, 'bibleqt.ini');
   mCurrentBook.SetInfoSource(ResolveFullPath(iniPath));

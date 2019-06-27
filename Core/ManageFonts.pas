@@ -20,6 +20,7 @@ type
     function ActivateFont(const fontPath: string): DWORD;
     function PrepareFont(const aFontName, aFontPath: string): Boolean;
     function SuggestFont(const desiredFontName, desiredFontPath: string; desiredCharset: integer): string;
+    function InstallFont(const specialPath: string): HRESULT;
   end;
 
 function FontExists(const fontName: string): boolean;
@@ -312,6 +313,17 @@ begin
     Screen.Fonts.Add(ExctractName(wsFile));
     InstalledFonts.AddObject(ExctractName(wsFile), TBQInstalledFontInfo.Create(wsArchive, fileNeedsCleanUp, fontHandle));
   end;
+end;
+
+function TFontManager.InstallFont(const specialPath: string): HRESULT;
+var
+  wsName, wsFolder: string;
+  rslt: Boolean;
+begin
+  wsName := ExtractFileName(specialPath);
+  wsFolder := ExtractFilePath(specialPath);
+  rslt := PrepareFont(FileRemoveExtension(wsName), wsFolder);
+  Result := -1 + ord(rslt);
 end;
 
 procedure load_proc();

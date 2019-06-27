@@ -7,7 +7,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
   MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser, Clipbrd,
-  AppPaths, AppIni;
+  AppPaths, AppIni, DataServices;
 
 type
   TTSKFrame = class(TFrame, ITSKView)
@@ -24,6 +24,7 @@ type
   private
     mMainView: TMainForm;
     mWorkspace: IWorkspace;
+    mDataService: TDataService;
 
     mXRefVerseCmd: string;
     mBibleIniPath: string;
@@ -54,6 +55,7 @@ begin
 
   mMainView := AMainView;
   mWorkspace := AWorkspace;
+  mDataService := AMainView.DataService;
 
   ApplyConfig(AppConfig, AppConfig);
 
@@ -137,8 +139,8 @@ begin
   if aInfoPath = '' then
     Exit;
 
-  mainBible := TBible.Create(mMainView);
-  secondBible := TBible.Create(mMainView);
+  mainBible := TBible.Create();
+  secondBible := TBible.Create();
 
   mBibleIniPath := aInfoPath;
   mBook := bookIndex;
@@ -148,7 +150,7 @@ begin
   mainBible.SetInfoSource(ResolveFullPath(aInfoPath));
   mainBible.OpenChapter(bookIndex, chapterIndex);
 
-  if mMainView.mModules.IndexOf(mainBible.Name) = -1 then
+  if mDataService.Modules.IndexOf(mainBible.Name) = -1 then
     Exit;
 
   if goverse = 0 then

@@ -13,7 +13,7 @@ uses
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
   Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
   StrongsConcordance, CommandInterface, CommandFactoryInterface,
-  ScriptureProvider, AppStates, ManageFonts;
+  ScriptureProvider, AppStates, ManageFonts, DataServices;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -165,6 +165,7 @@ type
     FHistoryOn: boolean;
     FCommandFactory: ICommandFactory;
     FScriptureProvider: TScriptureProvider;
+    FDataService: TDataService;
 
     FBrowserSearchPosition: Longint;
     FUpdateOnTreeNodeSelect: boolean;
@@ -676,12 +677,12 @@ begin
     modPath := BookTabInfo.Bible.ShortPath
   else
   begin
-    modIx := FMainView.mModules.FindByName(BookTabInfo.SatelliteName);
+    modIx := FDataService.Modules.FindByName(BookTabInfo.SatelliteName);
     if modIx < 0 then
-      modIx := FMainView.mModules.FindByName(AppConfig.DefaultBible);
+      modIx := FDataService.Modules.FindByName(AppConfig.DefaultBible);
 
     if modIx >= 0 then
-      modPath := FMainView.mModules[modIx].ShortPath;
+      modPath := FDataService.Modules[modIx].ShortPath;
   end;
 
   hintText := FScriptureProvider.GetLinkHint(src, bwrHtml.DefFontName, modPath);
@@ -848,10 +849,12 @@ var
   text: string;
   hebrew: boolean;
 begin
-  if not FMainView.mDictionariesFullyInitialized then
-  begin
-    FMainView.LoadDictionaries(true);
-  end;
+ // FDataService.ScanDictsAndWait;
+// TODO: ensure dictionaries are loaded
+//  if not FMainView.mDictionariesFullyInitialized then
+//  begin
+//    FMainView.LoadDictionaries(true);
+//  end;
 
   text := Trim(bwrHtml.SelText);
   if StrongVal(text, num, hebrew) then
@@ -954,6 +957,7 @@ begin
   FMainView := mainView;
   FWorkspace := workspace;
   FCommandFactory := TCommandFactory.Create(mainView, workspace, Self);
+  FDataService := mainView.DataService;
 
   FStrongsConcordance := FMainView.StrongsConcordance;
 
@@ -1058,10 +1062,10 @@ begin
       SelectSatelliteBibleByName('');
       Exit;
     end;
-    modIx := FMainView.mModules.FindByFolder(BookTabInfo.Bible.ShortPath);
+    modIx := FDataService.Modules.FindByFolder(BookTabInfo.Bible.ShortPath);
     if modIx >= 0 then
     begin
-      me := TModuleEntry(FMainView.mModules.Items[modIx]);
+      me := TModuleEntry(FDataService.Modules.Items[modIx]);
       if FMainView.mFavorites.AddModule(me) then
         AdjustBibleTabs();
     end;
@@ -1109,21 +1113,21 @@ begin
       if TabIndex = dtsBible.Tabs.Count - 1 then
       begin
         // drop on *** - last tab, adding new tab
-        modIx := FMainView.mModules.FindByFolder(bookTabInfo.Bible.ShortPath);
+        modIx := FDataService.Modules.FindByFolder(bookTabInfo.Bible.ShortPath);
         if modIx >= 0 then
         begin
-          me := TModuleEntry(FMainView.mModules.Items[modIx]);
+          me := TModuleEntry(FDataService.Modules.Items[modIx]);
           FMainView.mFavorites.AddModule(me);
           AdjustBibleTabs(bookTabInfo.Bible.ShortName);
         end;
         Exit;
       end;
       // replace
-      modIx := FMainView.mModules.FindByFolder(bookTabInfo.Bible.ShortPath);
+      modIx := FDataService.Modules.FindByFolder(bookTabInfo.Bible.ShortPath);
       if modIx < 0 then
         Exit;
 
-      me := TModuleEntry(FMainView.mModules.Items[modIx]);
+      me := TModuleEntry(FDataService.Modules.Items[modIx]);
       if not Assigned(me) then
         Exit;
 
@@ -2039,12 +2043,12 @@ var
   ix: integer;
   ini: string;
 begin
-  if (Assigned(FMainView.mModules)) then
+  if (Assigned(FDataService.Modules)) then
   begin
-    ix := FMainView.mModules.FindByName(name);
+    ix := FDataService.Modules.FindByName(name);
     if ix >= 0 then
     begin
-      ini := ResolveFullPath(TPath.Combine(FMainView.mModules[ix].ShortPath, 'bibleqt.ini'));
+      ini := ResolveFullPath(TPath.Combine(FDataService.Modules[ix].ShortPath, 'bibleqt.ini'));
       if ini <> BookTabInfo.SecondBible.InfoSource.FileName then
         BookTabInfo.SecondBible.SetInfoSource(ini);
 
@@ -2744,7 +2748,7 @@ var
   iniPath: string;
   bible: TBible;
 begin
-  i := FMainView.mModules.FindByName(moduleName);
+  i := FDataService.Modules.FindByName(moduleName);
 
   if i < 0 then
   begin
@@ -2752,7 +2756,7 @@ begin
     raise Exception.Create('Exception mModules.FindByName failed!');
   end;
 
-  me := FMainView.mModules.Items[i];
+  me := FDataService.Modules.Items[i];
 
   hlVerses := hlFalse;
   if not Assigned(BookTabInfo) then
@@ -2786,7 +2790,7 @@ begin
     end;
   end;
 
-  bible := TBible.Create(FMainView);
+  bible := TBible.Create();
 
   iniPath := TPath.Combine(me.ShortPath, 'bibleqt.ini');
   bible.SetInfoSource(ResolveFullPath(iniPath));
@@ -2868,7 +2872,7 @@ begin
       modEntry := nil;
       // search in the list of modules
       try
-        modEntry := FMainView.mModules.ResolveModuleByNames(Satellite, '');
+        modEntry := FDataService.Modules.ResolveModuleByNames(Satellite, '');
       except
         on E: Exception do
         begin
@@ -3418,7 +3422,7 @@ begin
     bible.fontName, s]));
 
   AddLine(dBrowserSource, '<tr><td></td><td><hr width=100%></td></tr>'#13#10);
-  bibleModuleEntry := FMainView.mModules.ModTypedAsFirst(modtypeBible);
+  bibleModuleEntry := FDataService.Modules.ModTypedAsFirst(modtypeBible);
   while Assigned(bibleModuleEntry) do
   begin
     s := bibleModuleEntry.GetInfoPath();
@@ -3478,7 +3482,7 @@ begin
       secBible.ShortPassageSignature(ib, ic, iv, iv), secBible.Name,
       fontName, s]));
   LoopTail:
-    bibleModuleEntry := FMainView.mModules.ModTypedAsNext(modtypeBible);
+    bibleModuleEntry := FDataService.Modules.ModTypedAsNext(modtypeBible);
   end;
 
   AddLine(dBrowserSource, '</table>');

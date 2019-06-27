@@ -8,7 +8,7 @@ uses
   Windows, Messages, SysUtils, Classes, IOUtils, Types,
   Graphics, Controls, Forms, Dialogs, IOProcs,
   StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices, AppPaths,
-  InfoSource, StrUtils, Generics.Collections;
+  InfoSource, StrUtils, Generics.Collections, ManageFonts;
 
 const
   RusToEngTable: array [1 .. 27] of integer = (1, 2, 3, 4, 5, 20, 21, 22, 23,
@@ -251,7 +251,6 @@ type
     mChapterHead: string;
     mInstallFontNames: string;
     mDesiredUIFont: string;
-    mUIServices: IBibleWinUIServices;
     procedure ClearAlphabetBits();
     procedure SetAlphabetBit(aCode: integer; aValue: boolean);
     function GetAlphabetBit(aCode: integer): boolean;
@@ -393,7 +392,7 @@ type
 
     function GetVerseByNumber(aVerseNumber: Integer): String;
 
-    constructor Create(uiServices: IBibleWinUIServices); reintroduce;
+    constructor Create(); reintroduce;
     destructor Destroy; override;
 
     function OpenCopyright(): Boolean;
@@ -487,13 +486,12 @@ uses PlainUtils, bibleLinkParser, ExceptionFrm, SelectEntityType,
      InfoSourceLoaderFabric, InfoSourceLoaderInterface, FireDAC.Comp.Client,
      MyBibleUtils, ChapterData, System.Masks, RegularExpressions;
 
-constructor TBible.Create(uiServices: IBibleWinUIServices);
+constructor TBible.Create();
 begin
   FLines := TStringList.Create;
   BookLines := TStringList.Create;
   mCategories := TStringList.Create();
   mShortNamesVars := TStringList.Create();
-  mUIServices := uiServices;
   ChapterNumbers := TChapterNumbers.Create;
 
   FInfoSource := TInfoSource.Create;
@@ -2571,7 +2569,7 @@ begin
       (pc + l)^ := #0;
       token := pc;
       (pc + l)^ := saveChar;
-      mUIServices.InstallFont(FPath + Trim(token));
+      FontManager.InstallFont(FPath + Trim(token));
 
       Inc(pc, l);
 

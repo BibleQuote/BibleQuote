@@ -8,8 +8,8 @@ uses
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ToolWin, System.ImageList, Vcl.ImgList,
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, Htmlview, VirtualTrees,
   HTMLEmbedInterfaces, DictInterface, Bible, ExceptionFrm, BibleQuoteConfig,
-  StringProcs, BibleLinkParser, Clipbrd, Engine, JclNotify, NotifyMessages,
-  System.Contnrs, AppIni, Character, ScriptureProvider;
+  StringProcs, BibleLinkParser, Clipbrd, JclNotify, NotifyMessages,
+  System.Contnrs, AppIni, Character, ScriptureProvider, DataServices;
 
 type
   TDictionaryFrame = class(TFrame, IDictionaryView, IJclListener)
@@ -52,8 +52,8 @@ type
     mWorkspace: IWorkspace;
     mMainView: TMainForm;
     mXRefVerseCmd: string;
-    mBqEngine: TBibleQuoteEngine;
     mTokenNodes: TObjectList;
+    mDataService: TDataService;
     mScriptureProvider: TScriptureProvider;
 
     function DicScrollNode(nd: PVirtualNode): Boolean;
@@ -179,14 +179,14 @@ var
   blResolveLinks, blFuzzy: Boolean;
   dicCount: integer;
 begin
-  dicCount := mBqEngine.DictionariesCount - 1;
+  dicCount := mDataService.Dictionaries.Count - 1;
   for i := 0 to dicCount do
-    if mBqEngine.Dictionaries[i].GetName() = cbDic.Items[cbDic.ItemIndex] then
+    if mDataService.Dictionaries[i].GetName() = cbDic.Items[cbDic.ItemIndex] then
     begin
       idx := DicSelectedItemIndex();
       if (idx >= 0) then
       begin
-        res := mBqEngine.Dictionaries[i].Lookup(mBqEngine.DictionaryTokens[idx]);
+        res := mDataService.Dictionaries[i].Lookup(mDataService.DictTokens[idx]);
         break;
       end;
     end;
@@ -204,8 +204,8 @@ begin
   else
     tt := res;
 
-  if (i >= 0) and (i < mBqEngine.DictionariesCount) then
-    bwrDic.Base := ExtractFileDir(mBqEngine.Dictionaries[i].GetDictDir());
+  if (i >= 0) and (i < mDataService.Dictionaries.Count) then
+    bwrDic.Base := ExtractFileDir(mDataService.Dictionaries[i].GetDictDir());
 
 
   bwrDic.LoadFromString(tt);
@@ -220,13 +220,13 @@ var
 begin
   if cbDicFilter.ItemIndex <> 0 then
   begin
-    dictionary := mBqEngine.Dictionaries[cbDicFilter.ItemIndex - 1];
+    dictionary := mDataService.Dictionaries[cbDicFilter.ItemIndex - 1];
     vstDicList.BeginUpdate();
     try
       mTokenNodes.Clear;
       vstDicList.Clear;
 
-      lst := mBqEngine.DictionaryTokens;
+      lst := mDataService.DictTokens;
       lst.BeginUpdate();
       try
         lst.Clear();
@@ -252,7 +252,8 @@ begin
   end
   else
   begin
-    mBqEngine.InitDictionaryItemsList(true);
+    // TODO: figure out this!
+    //mBqEngine.InitDictionaryItemsList(true);
     DictionaryStartup();
   end;
 
@@ -265,8 +266,8 @@ begin
 
   mMainView := AMainView;
   mWorkspace := AWorkspace;
-  mBqEngine := mMainView.BqEngine;
   mScriptureProvider := TScriptureProvider.Create(AMainView);
+  mDataService := mMainView.DataService;
 
   vstDicList.DefaultNodeHeight := mMainView.Canvas.TextHeight('X');
   mMainView.GetNotifier.Add(self);
@@ -297,7 +298,7 @@ begin
 
   if len > 0 then
   begin
-    lst := mBqEngine.DictionaryTokens;
+    lst := mDataService.DictTokens;
     cnt := lst.Count;
     if cnt <= 0 then
       Exit;
@@ -404,7 +405,7 @@ var
 begin
   ix := DicSelectedItemIndex();
   if ix >= 0 then
-    DisplayDictionary(mBqEngine.DictionaryTokens[ix]);
+    DisplayDictionary(mDataService.DictTokens[ix]);
 end;
 
 procedure TDictionaryFrame.vstDicListGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
@@ -415,7 +416,7 @@ begin
     Exit;
   try
     ix := integer(Sender.GetNodeData(Node)^);
-    CellText := mBqEngine.DictionaryTokens[ix];
+    CellText := mDataService.DictTokens[ix];
   except
     on E: Exception do
     begin
@@ -434,7 +435,7 @@ begin
 
   ix := DicSelectedItemIndex();
   if (Key = #13) and (ix >= 0) then
-    DisplayDictionary(mBqEngine.DictionaryTokens[ix]);
+    DisplayDictionary(mDataService.DictTokens[ix]);
 end;
 
 function TDictionaryFrame.DicScrollNode(nd: PVirtualNode): Boolean;
@@ -499,14 +500,14 @@ begin
     cbDic.Items.Clear;
 
     j := 0;
-    dicCount := mBqEngine.DictionariesCount - 1;
+    dicCount := mDataService.Dictionaries.Count - 1;
     for i := 0 to dicCount do
     begin
-      res := mBqEngine.Dictionaries[i].Lookup(mBqEngine.DictionaryTokens[dc_ix]);
+      res := mDataService.Dictionaries[i].Lookup(mDataService.DictTokens[dc_ix]);
       if res <> '' then
-        cbDic.Items.Add(mBqEngine.Dictionaries[i].GetName());
+        cbDic.Items.Add(mDataService.Dictionaries[i].GetName());
 
-      if mBqEngine.Dictionaries[i].GetName() = cbDicFilter.Items[cbDicFilter.ItemIndex] then
+      if mDataService.Dictionaries[i].GetName() = cbDicFilter.Items[cbDicFilter.ItemIndex] then
         j := cbDic.Items.Count - 1;
     end;
 
@@ -547,7 +548,7 @@ begin
   vstDicList.BeginUpdate();
 
   try
-    tokens := mBqEngine.DictionaryTokens;
+    tokens := mDataService.DictTokens;
     wordCount := tokens.Count - 1;
     vstDicList.Clear();
     mTokenNodes.Clear();
@@ -571,8 +572,8 @@ var
   nd: PVirtualNode;
 begin
   list_ix := DicSelectedItemIndex();
-  if (list_ix >= 0) and (list_ix < integer(mBqEngine.DictionariesCount)) and
-    (mBqEngine.DictionaryTokens[list_ix] = edtDic.Text) then
+  if (list_ix >= 0) and (list_ix < integer(mDataService.Dictionaries.Count)) and
+    (mDataService.DictTokens[list_ix] = edtDic.Text) then
   begin
     Result := list_ix;
     Exit;
@@ -585,7 +586,7 @@ begin
     DicScrollNode(nd);
   end;
 
-  if (mBqEngine.DictionaryTokens.Count = 0) then
+  if (mDataService.DictTokens.Count = 0) then
   begin
     Result := -1;
     Exit;
@@ -593,7 +594,7 @@ begin
 
   len := Length(s);
   repeat
-    list_ix := mBqEngine.DictionaryTokens.LocateLastStartedWith(s, 0);
+    list_ix := mDataService.DictTokens.LocateLastStartedWith(s, 0);
     if list_ix >= 0 then
     begin
       Result := list_ix;
@@ -650,9 +651,9 @@ begin
   try
     cbDicFilter.Items.Clear;
     cbDicFilter.Items.Add(Lang.Say('StrAllDictionaries'));
-    dicCount := mBqEngine.DictionariesCount - 1;
+    dicCount := mDataService.Dictionaries.Count - 1;
     for dicIx := 0 to dicCount do
-      cbDicFilter.Items.Add(mBqEngine.Dictionaries[dicIx].GetName());
+      cbDicFilter.Items.Add(mDataService.Dictionaries[dicIx].GetName());
 
     cbDicFilter.ItemIndex := 0;
   finally

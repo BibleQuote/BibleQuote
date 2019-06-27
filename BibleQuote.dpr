@@ -21,8 +21,6 @@ uses
   BibleQuoteConfig in 'Core\BibleQuoteConfig.pas',
   BibleQuoteUtils in 'Core\BibleQuoteUtils.pas',
   CommandProcessor in 'Core\CommandProcessor.pas',
-  Engine in 'Core\Engine.pas',
-  EngineInterfaces in 'Core\EngineInterfaces.pas',
   AppInfo in 'Utils\AppInfo.pas',
   SystemInfo in 'Utils\SystemInfo.pas',
   GfxRenderers in 'UI\GfxRenderers.pas',
@@ -38,7 +36,6 @@ uses
   Favorites in 'Core\Favorites.pas',
   PlainUtils in 'Utils\PlainUtils.pas',
   StringProcs in 'Utils\StringProcs.pas',
-  BackgroundServices in 'IO\BackgroundServices.pas',
   IOProcs in 'IO\IOProcs.pas',
   TagsDb in 'Data\TagsDb.pas' {TagsDbEngine: TDataModule},
   MultiLanguage in 'Core\MultiLanguage.pas',
@@ -91,7 +88,7 @@ uses
   DownloadModulesFrm in 'Forms\DownloadModulesFrm.pas' {DownloadModulesForm},
   ThirdPartModulesProcs in 'IO\ThirdPartModulesProcs.pas',
   JsonProcs in 'Utils\JsonProcs.pas',
-  ScanModules in 'IO\ScanModules.pas',
+  DataScanning in 'IO\DataScanning.pas',
   Types.Extensions in 'Utils\Types.Extensions.pas',
   HTMLParser in 'HTML\HTMLParser.pas',
   DOMCore in 'HTML\DOMCore.pas',
@@ -100,7 +97,9 @@ uses
   HtmlReader in 'HTML\HtmlReader.pas',
   HtmlTags in 'HTML\HtmlTags.pas',
   ScriptureProvider in 'Core\ScriptureProvider.pas',
-  AppStates in 'Core\AppStates.pas';
+  AppStates in 'Core\AppStates.pas',
+  DataServices in 'Core\DataServices.pas',
+  Jobs in 'Core\Jobs.pas';
 
 {$R *.res}
 

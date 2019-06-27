@@ -2,8 +2,8 @@ unit NativeDictLoader;
 
 interface
 
-uses Types, IOUtils, SysUtils, DictLoaderInterface, EngineInterfaces, NativeDict,
-     InfoSource;
+uses Types, IOUtils, SysUtils, DictLoaderInterface, NativeDict,
+     InfoSource, DictInterface;
 
 type
   TNativeDictLoader = class(TInterfacedObject, IDictLoader)
@@ -11,7 +11,7 @@ type
     function LoadDictionary(aDictIdxFilePath : String; aInfoSource: TInfoSource): TNativeDict;
 
   public
-    function LoadDictionaries(aFileEntryPath: String; aEngine: IbqEngineDicTraits): Boolean;
+    function LoadDictionaries(aFileEntryPath: String): IDict;
 
   end;
 
@@ -20,13 +20,13 @@ implementation
 { TNativeDictLoader }
 uses ExceptionFrm, NativeInfoSourceLoader;
 
-function TNativeDictLoader.LoadDictionaries(aFileEntryPath: String;
-  aEngine: IbqEngineDicTraits): Boolean;
+function TNativeDictLoader.LoadDictionaries(aFileEntryPath: String): IDict;
 var
   DictFileList: TStringDynArray;
   Dictionary: TNativeDict;
   InfoSource: TInfoSource;
 begin
+  Result := nil;
 
   InfoSource := TNativeInfoSourceLoader.LoadNativeInfoSource(aFileEntryPath);
   try
@@ -38,11 +38,9 @@ begin
       Dictionary := LoadDictionary(DictFileList[0], InfoSource);
 
       if Assigned(Dictionary) then
-        aEngine.AddDictionary(Dictionary);
+        Result := Dictionary;
 
     end;
-
-    Result := True;
   finally
     if Assigned(InfoSource) then
       FreeAndNil(InfoSource);

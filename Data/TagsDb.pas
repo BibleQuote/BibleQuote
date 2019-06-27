@@ -377,11 +377,10 @@ begin
       fdTagsConnection.Params.Values['Database'] := fromPath;
       fdTagsConnection.Open();
     end;
-    if not fdTagsConnection.Connected then
-    begin
 
-      exit;
-    end;
+    if not fdTagsConnection.Connected then
+      Exit;
+
     fdTagsConnection.ExecSQL('PRAGMA foreign_keys = true;');
 
     tlbTagNames.Open();
