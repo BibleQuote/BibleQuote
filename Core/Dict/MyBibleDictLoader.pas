@@ -8,8 +8,8 @@ uses Classes, DictLoaderInterface, IOUtils, Types, FireDAC.Comp.Client,
 type
   TMyBibleDictLoader = class(TInterfacedObject, IDictLoader)
   public
-    function LoadDictionaries(aFileEntryPath: String): IDict;
-    procedure LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String);
+    function LoadDictionary(aFileEntryPath: String): IDict; overload;
+    function LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String): Boolean; overload;
   end;
 
 implementation
@@ -18,19 +18,23 @@ implementation
 uses ExceptionFrm, SysUtils;
 
 
-function TMyBibleDictLoader.LoadDictionaries(aFileEntryPath: String): IDict;
+function TMyBibleDictLoader.LoadDictionary(aFileEntryPath: String): IDict;
 var
   Dictionary: TMyBibleDict;
 begin
   Result := nil;
   Dictionary := TMyBibleDict.Create;
-  LoadDictionary(Dictionary, aFileEntryPath);
 
-  if Assigned(Dictionary) then
-    Result := Dictionary;
+  try
+    if LoadDictionary(Dictionary, aFileEntryPath) then
+      Result := Dictionary;
+  except
+    // Error while loading the dictionary
+    // Return nil as the result
+  end;
 end;
 
-procedure TMyBibleDictLoader.LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String);
+function TMyBibleDictLoader.LoadDictionary(Dictionary: TMyBibleDict; aDictFilePath: String): Boolean;
 var
   SQLiteQuery: TFDQuery;
   DictName, Style: String;
@@ -46,22 +50,21 @@ begin
 
     SQLiteQuery := TFDQuery.Create(nil);
     SQLiteQuery.Connection := SQLiteConnection;
-    try
 
-      DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
-      Style := TMyBibleUtils.GetStyle(SQLiteQuery);
-
-      TMyBibleUtils.FillWords(Words, SQLiteQuery);
-
-      Dictionary.Initialize(DictName, Words, aDictFilePath, Style);
-
-    except
-      on e: Exception do
-      begin
-        BqShowException(e);
-      end;
+    if not TMyBibleUtils.IsTableExists(SQLiteQuery, 'dictionary') then
+    begin
+      Result := False;
+      Exit;
     end;
 
+    DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
+    Style := TMyBibleUtils.GetStyle(SQLiteQuery);
+
+    TMyBibleUtils.FillWords(Words, SQLiteQuery);
+
+    Dictionary.Initialize(DictName, Words, aDictFilePath, Style);
+
+    Result := True;
   finally
     if Assigned(SQLiteQuery) then
     begin

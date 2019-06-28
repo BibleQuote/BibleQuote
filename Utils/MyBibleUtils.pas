@@ -26,9 +26,8 @@ type
     class function FillCommentaryChapterNumbers(aSQLiteQuery: TFDQuery;
       aChapterNumberQuery: String): TArray<Integer>;
 
-    class function IsTableExists(aSQLiteQuery: TFDQuery; aTableName: String): Boolean;
-
   public
+    class function IsTableExists(aSQLiteQuery: TFDQuery; aTableName: String): Boolean;
     class function GetCommentaryBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
     class function GetBibleBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
     class function GetLanguage(aSQLiteQuery: TFDQuery): String;

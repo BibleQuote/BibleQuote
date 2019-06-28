@@ -8,10 +8,10 @@ uses Types, IOUtils, SysUtils, DictLoaderInterface, NativeDict,
 type
   TNativeDictLoader = class(TInterfacedObject, IDictLoader)
   protected
-    function LoadDictionary(aDictIdxFilePath : String; aInfoSource: TInfoSource): TNativeDict;
+    function LoadDictionary(aDictIdxFilePath : String; aInfoSource: TInfoSource): TNativeDict; overload;
 
   public
-    function LoadDictionaries(aFileEntryPath: String): IDict;
+    function LoadDictionary(aFileEntryPath: String): IDict; overload;
 
   end;
 
@@ -20,7 +20,7 @@ implementation
 { TNativeDictLoader }
 uses ExceptionFrm, NativeInfoSourceLoader;
 
-function TNativeDictLoader.LoadDictionaries(aFileEntryPath: String): IDict;
+function TNativeDictLoader.LoadDictionary(aFileEntryPath: String): IDict;
 var
   DictFileList: TStringDynArray;
   Dictionary: TNativeDict;

@@ -121,7 +121,7 @@ begin
         Continue;
       end;
 
-      Dict := DictLoader.LoadDictionaries(FileEntryPath);
+      Dict := DictLoader.LoadDictionary(FileEntryPath);
       if not Assigned(Dict) then
         Continue;
 
