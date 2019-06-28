@@ -89,9 +89,11 @@ begin
 
   FLock.Acquire;
   try
-    Loader.LoadDictionary(Dictionary, SqlitePath);
-
-    Result := True;
+    try
+      Result := Loader.LoadDictionary(Dictionary, SqlitePath);
+    except on E: Exception do
+      Result := False;
+    end;
   finally
     FLock.Release;
   end;
