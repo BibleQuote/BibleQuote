@@ -143,8 +143,6 @@ const
     'Откр. Откр Отк. Отк Откровен. Откровен Апок. Апок Откровение Апокалипсис Rev. Rev Re. Re Rv. Rv Revelation');
 
 const
-  MAX_BOOKQTY = 256;
-
   C_TotalPsalms = 150;
 
   // search params bits
@@ -261,19 +259,18 @@ type
     mShortNamesVars: TStringList;
     mModuleType: TbqModuleType;
 
-    ChapterQtys: array [1 .. MAX_BOOKQTY] of integer;
+    ChapterQtys: TList<Integer>;
     ChapterNumbers: TChapterNumbers;
-    FullNames: array [1 .. MAX_BOOKQTY] of string;
+    FullNames: TList<String>;
     // variants for shortening the title of the book
-    ShortNames: array [1 .. MAX_BOOKQTY] of string;
-    PathNames: array [1 .. MAX_BOOKQTY] of string;
+    ShortNames: TList<String>;
+    PathNames: TList<String>;
 
     procedure InitializeFields(aInfoSource: TInfoSource);
     procedure InitializeTraits(aInfoSource: TInfoSource);
     procedure InitializeChapterData(aInfoSource: TInfoSource);
     procedure InitializeAlphabet(aInfoSource: TInfoSource);
     procedure InitializePaths(aInfoSource: TInfoSource);
-    procedure InitChapterArrays();
 
     function SearchOK(Source: string; Words: TStrings; SearchOptions: TSearchOptions): Boolean;
     procedure SearchBook(Words: TStrings; SearchOptions: TSearchOptions; Book: Integer; RemoveStrongs: Boolean; Callback: IBookSearchCallback);
@@ -299,6 +296,7 @@ type
 
   public
     function GetChapterQtys(aBookNumber: Integer): Integer;
+    function GetChapterQtysSafe(aBookNumber: Integer): Integer;
     function GetShortNames(aBookNumber: Integer): String;
     function GetFullNames(aBookNumber: Integer): String;
     function GetTSKShortNames(aNativeBookNumber: Integer): String;
@@ -321,7 +319,8 @@ type
     function CorrectNewTestamentBookNumber(aNativeBookNumber: Integer): Integer;
 
     function GetFirstBookNumber(): Integer;
-    function GetFirstChapterNumber(): Integer;
+    function GetFirstChapterNumber(): Integer;  overload;
+    function GetFirstChapterNumber(Book: Integer): Integer; overload;
     function GetLastBookNumber(): Integer;
     function GetLastChapterNumber(): Integer;
 
@@ -494,6 +493,11 @@ begin
   mShortNamesVars := TStringList.Create();
   ChapterNumbers := TChapterNumbers.Create;
 
+  ChapterQtys := TList<Integer>.Create;
+  FullNames := TList<String>.Create;
+  ShortNames := TList<String>.Create;
+  PathNames := TList<String>.Create;
+
   FInfoSource := TInfoSource.Create;
 end;
 
@@ -503,9 +507,14 @@ begin
   FLines.Free;
   mCategories.Free();
   mShortNamesVars.Free();
-  FreeAndNil(ChapterNumbers);
 
+  FreeAndNil(ChapterNumbers);
   FreeAndNil(FInfoSource);
+
+  FreeAndNil(ChapterQtys);
+  FreeAndNil(FullNames);
+  FreeAndNil(ShortNames);
+  FreeAndNil(PathNames);
 
   inherited Destroy;
 end;
@@ -653,7 +662,7 @@ begin
   BookIndex := GetBookNumberIndex(aBookNumber);
 
   if BookIndex > -1 then
-    Result := ShortNames[BookIndex+1]
+    Result := ShortNames[BookIndex + 1]
   else
     Result := ShortNames[aBookNumber];
 
@@ -714,6 +723,26 @@ begin
 
 end;
 
+function TBible.GetChapterQtysSafe(aBookNumber: Integer): Integer;
+var
+  BookIndex: Integer;
+begin
+  BookIndex := GetBookNumberIndex(aBookNumber);
+  Result := 0;
+  if (BookIndex > -1) then
+  begin
+    if (BookIndex < ChapterNumbers.Count) then
+      Result := Length(ChapterNumbers[BookIndex].Value)
+  end
+  else
+  begin
+    if (aBookNumber < ChapterQtys.Count) then
+      Result := ChapterQtys[aBookNumber];
+  end;
+
+end;
+
+
 function TBible.GetStucture: string;
 var
   bookIx, bookCnt: integer;
@@ -773,11 +802,16 @@ begin
 end;
 
 function TBible.GetFirstChapterNumber: Integer;
+begin
+  Result := GetFirstChapterNumber(CurBook);
+end;
+
+function TBible.GetFirstChapterNumber(Book: Integer): Integer;
 var
   BookIndex: Integer;
 begin
-  BookIndex := GetBookNumberIndex(CurBook);
-  if Length(ChapterNumbers[BookIndex].Value)>0 then
+  BookIndex := GetBookNumberIndex(Book);
+  if Length(ChapterNumbers[BookIndex].Value) > 0 then
     Result := ChapterNumbers[BookIndex].Value[0]
   else
     raise Exception.Create('Unknown default chapter');
@@ -905,7 +939,7 @@ begin
   BookIndex := GetBookNumberIndex(aBookNumber);
 
   if BookIndex > -1 then
-    Result := FullNames[BookIndex+1]
+    Result := FullNames[BookIndex + 1]
   else
   begin
     if (aBookNumber <= 0) then
@@ -1619,10 +1653,9 @@ end;
 
 function TBible.isEnglish: boolean;
 begin
-  Result := ((not trait[bqmtOldCovenant] and trait[bqmtNewCovenant]) and
-    (ChapterQtys[6] = 16)) or (ChapterQtys[45] = 16);
+  Result := ((not trait[bqmtOldCovenant] and trait[bqmtNewCovenant]) and (GetChapterQtysSafe(6) = 16))
+         or (GetChapterQtysSafe(45) = 16);
 end;
-
 
 function TBible.GetIsMyBybleModule: Boolean;
 begin
@@ -2316,7 +2349,7 @@ begin
   end;
 
   newTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
-  englishbible := (newTestamentOnly and (ChapterQtys[6] = 16)) or (ChapterQtys[45] = 16);
+  englishbible := (newTestamentOnly and (GetChapterQtysSafe(6) = 16)) or (GetChapterQtysSafe(45) = 16);
 
   savebook := book;
   if newTestamentOnly then
@@ -2468,17 +2501,6 @@ begin
       FOnChangeModule(Self);
 end;
 
-procedure TBible.InitChapterArrays;
-var
-  i : Integer;
-begin
-  for i := 1 to MAX_BOOKQTY do
-    ChapterQtys[i] := 0; // clear
-
-  ChapterNumbers.Clear;
-
-end;
-
 procedure TBible.InitializeAlphabet(aInfoSource: TInfoSource);
 var
   i: Integer;
@@ -2495,6 +2517,7 @@ end;
 
 procedure TBible.InitializeChapterData(aInfoSource: TInfoSource);
 var
+  Count: Integer;
   i, index: Integer;
   ShortName: String;
   ChapterList: TIntegerDynArray;
@@ -2502,12 +2525,17 @@ var
   ChapterNumber: TChapterNumber;
 begin
 
-  InitChapterArrays();
+  ChapterNumbers.Clear;
+  Count := aInfoSource.ChapterDatas.Count;
 
-  for i := 0 to aInfoSource.ChapterDatas.Count -1 do
+  PathNames.Count := Count + 1;
+  FullNames.Count := Count + 1;
+  ShortNames.Count := Count + 1;
+  ChapterQtys.Count := Count + 1;
+
+  for i := 0 to aInfoSource.ChapterDatas.Count - 1 do
   begin
     index := i + 1;
-
     ChapterData := aInfoSource.ChapterDatas[i];
 
     PathNames[index] := ChapterData.PathName;
@@ -2619,7 +2647,7 @@ function TBible.InternalToReference(
   var book, chapter, verse: integer;
   checkShortNames: boolean = true): boolean;
 var
-  newCovenantOnly, oldCovenantOnly, englishbible: boolean;
+  newCovenantOnly, oldCovenantOnly: boolean;
   checkNamesResult, savebook: integer;
 begin
   Result := true;
@@ -2647,10 +2675,6 @@ begin
   end;
 
   newCovenantOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
-  // (not FHasOT) and FHasNT;
-
-  englishbible := (newCovenantOnly and (ChapterQtys[6] = 16)) or
-    (ChapterQtys[45] = 16);
 
   // in English Bible ROMANS (16 chaps) follows ACTS instead of JAMES (5 chaps)
 
@@ -2665,7 +2689,7 @@ begin
       Result := False;
       exit;
     end;
-    if englishbible or (trait[bqmtEnglishPsalms] and (book = 19)) then
+    if isEnglish or (trait[bqmtEnglishPsalms] and (book = 19)) then
       RUS2ENG(ibook, ichapter, iverse, book, chapter, verse)
     else
     begin
@@ -2676,7 +2700,7 @@ begin
   end
   else
   begin // если только нз
-    if englishbible then
+    if isEnglish then
     begin
       RUS2ENG(ibook, ichapter, iverse, book, chapter, verse);
       if book > 39 then
@@ -2729,7 +2753,7 @@ function TBible.ReferenceToEnglish(
   var ebook, echapter, everse: integer;
   checkShortNames: boolean = true): boolean;
 var
-  newTestamentOnly, englishbible: boolean;
+  newTestamentOnly: boolean;
   offset, savebook, checkNamesResult: integer;
   ShortName: String;
 
@@ -2754,9 +2778,6 @@ begin
   end;
 
   newTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
-  // (not FHasOT) and FHasNT;
-  englishbible := (newTestamentOnly and (ChapterQtys[6] = 16)) or
-    (ChapterQtys[45] = 16);
   // in English Bible ROMANS follows ACTS instead of JAMES
   savebook := book;
   if checkShortNames then
@@ -2769,7 +2790,7 @@ begin
     if checkNamesResult > 30 then
     begin
       book := ebook;
-      if englishbible then
+      if isEnglish then
       begin
         RUS2ENG(book, 1, 1, ebook, echapter, everse);
         book := ebook;
@@ -2778,7 +2799,7 @@ begin
   end;
   if not newTestamentOnly then
   begin
-    if englishbible then
+    if isEnglish then
     begin
       ebook := book;
       echapter := chapter - offset;
@@ -2791,7 +2812,7 @@ begin
   end
   else
   begin
-    if englishbible then
+    if isEnglish then
     begin
       ebook := book;
       echapter := chapter - offset;
@@ -2808,7 +2829,7 @@ function TBible.EnglishToReference(
   ebook, echapter, everse: integer;
   var book, chapter, verse: integer): boolean;
 var
-  newtestament, englishbible: boolean;
+  newtestament: boolean;
 begin
   Result := true;
 
@@ -2826,14 +2847,12 @@ begin
   end;
 
   newtestament := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
-  // (not FHasOT) and FHasNT;
-  englishbible := (newtestament and (ChapterQtys[6] = 16)) or
-    (ChapterQtys[45] = 16);
+
   // in English Bible ROMANS (16 chaps) follows ACTS instead of JAMES (5 chaps)
 
   if not newtestament then
   begin
-    if englishbible then
+    if isEnglish then
     begin
       book := ebook;
       chapter := echapter;
@@ -2846,7 +2865,7 @@ begin
   end
   else
   begin
-    if englishbible then
+    if isEnglish then
     begin
       book := ebook - 39;
       chapter := echapter;
