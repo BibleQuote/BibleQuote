@@ -532,11 +532,9 @@ begin
     Exit;
   end;
 
-  aSearch := UpperCase(aSearch);
-
-  if (Pos(aSearch, UpperCase(aModule.FCaption)) <> 0) then
+  if (ContainsText(aModule.FCaption, aSearch)) then
     Result := True
-  else if (Pos(aSearch, UpperCase(aModule.FTitle)) <> 0) then
+  else if (ContainsText(aModule.FTitle, aSearch)) then
     Result := True;
 
 end;
