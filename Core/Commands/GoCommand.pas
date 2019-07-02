@@ -37,7 +37,7 @@ var
   Value, ConcreteCmd, Path: String;
   Status: Integer;
   navRslt: TNavigateResult;
-  dup: String;
+  dup, S: String;
   ScripProvider: TScriptureProvider;
 begin
   dup := FCommand;
@@ -124,9 +124,14 @@ begin
             FBookTabInfo[vtisHighLightVerses] := false;
 
           if (CurBook >= 0) then
+          begin
+            S := GetShortNames(CurBook);
+            if (S.IsEmpty) then
+              S := Lang.SayDefault(Format('StrMyBibleBook%d', [CurBook]), '');
+
             FBookTabInfo.Title := Format(
-              '%.6s-%.6s:%d',
-              [ShortName, GetShortNames(CurBook), CurChapter - ord(Trait[bqmtZeroChapter])])
+              '%.6s-%.6s:%d', [ShortName, S, CurChapter - ord(Trait[bqmtZeroChapter])])
+          end
           else
             FBookTabInfo.Title := Format('%.6s', [ShortName])
 

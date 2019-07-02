@@ -438,7 +438,7 @@ begin
   begin
     bible := BookTabInfo.Bible;
     Data := Sender.GetNodeData(Node);
-    ChildCount := IfThen(Level = 0, bible.GetChapterQtys(Data.BookNumber), 0);
+    ChildCount := IfThen(Level = 0, bible.GetChapterQtysSafe(Data.BookNumber), 0);
   end
   else
   begin
@@ -2464,7 +2464,7 @@ begin
   if not bible.IsValidChapterNumber(book, chapter) then
   begin
     Result := nrChapterErr;
-    chapter := bible.GetFirstChapterNumber();
+    chapter := bible.GetFirstChapterNumber(book);
   end;
 
   if Result <> nrSuccess then

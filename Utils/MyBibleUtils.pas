@@ -253,8 +253,17 @@ begin
     if aSQLiteQuery.FindField('name') <> nil then
       BookName := aSQLiteQuery.FieldByName('name').AsString;
 
-    if (BookName.IsEmpty) then begin
-      BookName := Lang.Say(Format('StrMyBibleBook%d', [ChapterData.BookNumber]));
+    if (BookName.IsEmpty) then
+    begin
+      BookName := Lang.SayDefault(Format('StrMyBibleBook%d', [ChapterData.BookNumber]), '');
+      if BookName.IsEmpty then
+      begin
+        BookName := Lang.SayDefault(Format('StrMyBibleBookOther', [ChapterData.BookNumber]), '');
+        if not (BookName.IsEmpty) then
+          BookName := BookName + ' ' + IntToStr(ChapterData.BookNumber)
+        else
+          BookName := IntToStr(ChapterData.BookNumber);
+      end;
     end;
 
     ShortName := ChapterData.FullName;
