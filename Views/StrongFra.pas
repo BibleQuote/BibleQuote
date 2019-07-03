@@ -47,7 +47,7 @@ type
     mMainView: TMainForm;
 
     mCurrentBook: TBible;
-    mLoaded: boolean;
+    FShown: boolean;
     mScriptureProvider: TScriptureProvider;
     mDataService: TDataService;
 
@@ -274,7 +274,7 @@ constructor TStrongFrame.Create(AOwner: TComponent; AMainView: TMainForm; AWorks
 begin
   inherited Create(AOwner);
 
-  mLoaded := false;
+  FShown := false;
 
   mMainView := AMainView;
   mWorkspace := AWorkspace;
@@ -394,14 +394,18 @@ begin
   sword := FormatStrong(number, isHebrew);
 
   try
-    FStrongsConcordance.EnsureStrongLoaded;
+    if (FStrongsConcordance.IsAvailable) then
+    begin
+      if (FStrongsConcordance.EnsureStrongLoaded) then
+      begin
+        res := FStrongsConcordance.StrongDict.Lookup(sword);
+        letter := Copy(sword, 1, 1);
+        StrReplace(res, '<h4>', '<h4>' + letter, false);
 
-    res := FStrongsConcordance.StrongDict.Lookup(sword);
-    letter := Copy(sword, 1, 1);
-    StrReplace(res, '<h4>', '<h4>' + letter, false);
-
-    Copyright := FStrongsConcordance.StrongDict.GetName();
-    Style := FStrongsConcordance.StrongDict.Style;
+        Copyright := FStrongsConcordance.StrongDict.GetName();
+        Style := FStrongsConcordance.StrongDict.Style;
+      end;
+    end;
   except
     on e: Exception do
     begin
@@ -599,7 +603,7 @@ begin
   // load dictionaries on the first show
   if not (csDesigning in ComponentState) then begin
     if Showing then begin
-      if mLoaded then
+      if FShown then
         Exit;
 
       LoadStrongDictionaries();
@@ -609,15 +613,26 @@ begin
 end;
 
 procedure TStrongFrame.LoadStrongDictionaries();
+var
+  Count: Integer;
 begin
-  FStrongsConcordance.EnsureStrongLoaded;
-  vstStrong.BeginUpdate();
-  try
-    vstStrong.Clear;
-    vstStrong.RootNodeCount := FStrongsConcordance.GetTotalWords;
-  finally
-    vstStrong.EndUpdate();
-    mLoaded := true;
+  if (FStrongsConcordance.IsAvailable) then
+  begin
+    if (FStrongsConcordance.EnsureStrongLoaded) then
+      Count := FStrongsConcordance.GetTotalWords
+    else
+      Count := 0;
+
+    vstStrong.BeginUpdate();
+    try
+      vstStrong.Clear;
+
+      vstStrong.RootNodeCount := Count;
+    finally
+      vstStrong.EndUpdate();
+      FShown := True;
+    end;
+
   end;
 end;
 

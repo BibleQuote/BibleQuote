@@ -128,7 +128,6 @@ type
     imgCollection: TImageCollection;
     vimgIcons: TVirtualImageList;
     tbtnAddCommentsTab: TToolButton;
-    tbtnSep: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -1189,7 +1188,7 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
-  FStrongsConcordance := TStrongsConcordance.Create();
+  FStrongsConcordance := TStrongsConcordance.CreateDefault();
 
   mNotifier := TJclBaseNotifier.Create;
 
@@ -1207,8 +1206,6 @@ begin
   Lang := TMultiLanguage.Create(self);
 
   LoadConfiguration;
-  InitModuleScanner();
-  InitModules(false);
 
   InitHotkeysSupport();
   InitializeTaggedBookMarks();
@@ -1235,6 +1232,9 @@ begin
   InitHtmlTemplate();
 
   LoadLocalization();
+
+  InitModuleScanner();
+  InitModules(false);
 
   LoadWorkspaces();
   LoadHotModulesConfig();
@@ -2660,6 +2660,11 @@ begin
     end;
   end;
 
+  if not (FStrongsConcordance.IsAvailable) then
+  begin
+    tbtnAddStrongTab.Enabled := False;
+    tbtnAddStrongTab.Hint := Lang.SayDefault('bqStrongDictNotAvailable', '');
+  end;
 end;
 
 procedure TMainForm.cbLinksChange(Sender: TObject);
@@ -3343,6 +3348,9 @@ var
   strongTabInfo: TStrongTabInfo;
   strongView: TStrongFrame;
 begin
+  if not (FStrongsConcordance.IsAvailable) then
+    Exit;
+
   strongTabInfo := nil;
   ActivateTargetWorkspace();
 

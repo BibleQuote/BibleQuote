@@ -14,18 +14,23 @@ type
   private
     FStrongDict: TMyBibleDict;
     FLock: TCriticalSection;
+    FPath: String;
     FStrongLoaded: boolean;
-    function InitializeDictionary(Dictionary: TMyBibleDict; filename: string): boolean;
+    function InitializeDictionary(Dictionary: TMyBibleDict): boolean;
   public
-    constructor Create;
+    constructor Create(Path: String);
     destructor Destroy(); override;
 
     function EnsureStrongLoaded(): boolean;
     function GetTotalWords(): integer;
     function Lookup(number: string): string; overload;
+    function Lookup(number: string; var value: string): boolean; overload;
 
     property StrongDict: TMyBibleDict read FStrongDict;
     property TotalWords: integer read GetTotalWords;
+
+    function IsAvailable(): Boolean;
+    class function CreateDefault(): TStrongsConcordance;
   end;
 
 implementation
@@ -48,12 +53,21 @@ begin
     Result := inherited CompareStrings(S1, S2);
 end;
 
-constructor TStrongsConcordance.Create;
+class function TStrongsConcordance.CreateDefault(): TStrongsConcordance;
+var
+  DefaultPath: String;
+begin
+  DefaultPath := TPath.Combine(TLibraryDirectories.Strong, 'Лексикон.dictionary.SQLite3');
+  Result := TStrongsConcordance.Create(DefaultPath);
+end;
+
+constructor TStrongsConcordance.Create(Path: String);
 var
   Words: TStrongWordList;
 begin
   inherited Create;
 
+  FPath := Path;
   FLock := TCriticalSection.Create;
 
   Words := TStrongWordList.Create;
@@ -70,27 +84,31 @@ begin
   inherited;
 end;
 
+function TStrongsConcordance.IsAvailable(): Boolean;
+begin
+  Result := FStrongLoaded or TFile.Exists(FPath);
+end;
+
 function TStrongsConcordance.EnsureStrongLoaded(): boolean;
 begin
   if not FStrongLoaded then
-    FStrongLoaded := InitializeDictionary(FStrongDict, 'Лексикон.dictionary.SQLite3');
+    FStrongLoaded := InitializeDictionary(FStrongDict);
 
   Result := FStrongLoaded;
 end;
 
-function TStrongsConcordance.InitializeDictionary(Dictionary: TMyBibleDict; filename: string): boolean;
+function TStrongsConcordance.InitializeDictionary(Dictionary: TMyBibleDict): boolean;
 var
   SqlitePath: string;
   Loader: TMyBibleDictLoader;
 begin
   Result := False;
-  SqlitePath := TPath.Combine(TLibraryDirectories.Strong, filename);
   Loader := TMyBibleDictLoader.Create;
 
   FLock.Acquire;
   try
     try
-      Result := Loader.LoadDictionary(Dictionary, SqlitePath);
+      Result := Loader.LoadDictionary(Dictionary, FPath);
     except on E: Exception do
       Result := False;
     end;
@@ -113,6 +131,16 @@ function TStrongsConcordance.Lookup(number: string): string;
 begin
   EnsureStrongLoaded;
   Result := StrongDict.Lookup(number);
+end;
+
+function TStrongsConcordance.Lookup(number: string; var value: string): boolean;
+begin
+  Result := False;
+  if (EnsureStrongLoaded) then
+  begin
+    value := StrongDict.Lookup(number);
+    Result := True;
+  end;
 end;
 
 end.
