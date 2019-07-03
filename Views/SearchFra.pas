@@ -8,7 +8,8 @@ uses
   HTMLEmbedInterfaces, Htmlview, Vcl.StdCtrls, Vcl.ExtCtrls, Bible,
   StringProcs, LinksParser, MainFrm, LibraryFra, LayoutConfig, IOUtils,
   System.ImageList, Vcl.ImgList, LinksParserIntf, HintTools, Vcl.Menus,
-  Clipbrd, AppIni;
+  Clipbrd, AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection,
+  Vcl.ImageCollection;
 
 type
   TSearchFrame = class(TFrame, ISearchView, IBookSearchCallback)
@@ -27,11 +28,12 @@ type
     bwrSearch: THTMLViewer;
     btnBookSelect: TButton;
     lblBook: TLabel;
-    imgList: TImageList;
     pmRef: TPopupMenu;
     miRefCopy: TMenuItem;
     miOpenNewView: TMenuItem;
     miRefPrint: TMenuItem;
+    imgCollection: TImageCollection;
+    vimgList: TVirtualImageList;
     procedure bwrSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure bwrSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure bwrSearchHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
