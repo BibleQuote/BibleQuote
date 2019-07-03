@@ -643,11 +643,14 @@ begin
     scode := Copy(SRC, 2, Length(SRC) - 1);
     if (StrongVal(scode, num, isHebrew)) then
     begin
-      if (FStrongsConcordance.EnsureStrongLoaded) then
-      begin
-        res := FStrongsConcordance.Lookup(FormatStrong(num, isHebrew));
-        viewer.Hint := Trim(StripHtmlMarkup(res));
-      end;
+      if (FStrongsConcordance.IsAvailable) then
+        if (FStrongsConcordance.Lookup(FormatStrong(num, isHebrew), res)) then
+        begin
+          viewer.Hint := Trim(StripHtmlMarkup(res));
+          Exit;
+        end;
+
+      viewer.Hint := Lang.SayDefault('bqStrongDictNotAvailable', '');
       Exit;
     end;
   end;

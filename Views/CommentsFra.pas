@@ -190,10 +190,7 @@ begin
 
   CommentaryIdx := FDataService.Modules.IndexOf(cbCommentSource.Text);
   if CommentaryIdx < 0 then
-  begin
-    raise Exception.CreateFmt
-      ('Cannot locate module for comments, module name: %s', [cbCommentSource.Text])
-  end;
+    Exit;
 
   CommentaryModule := FDataService.Modules[CommentaryIdx];
   CommentaryBook := TBible.Create();
