@@ -73,7 +73,7 @@ commentsOpenChapterFail = Не удалось открыть главу
 HelpDocumentation = Документация
 SelectBook = Выберите книгу для поиска
 SelectDefaultBible = Выберите перевод по умолчанию в Файл -> Настройки -> Избранные модули
-SelectParaBible = Выберите вторичную библию
+SelectParaBible = Выберите вторичную Библию
 DeselectSec = Отменить выбор
 CollapseAll = Свернуть все
 QuickSearch = Быстрый ввод поисковой фразы
@@ -118,10 +118,10 @@ StrLibraryListView = Список
 FoundInSeveralDictionaries = найдено в нескольких словарях
 FoundInOneDictionary = найдено в одном словаре
 ;
-StrTPModulesStartRegistryDownloading = Начата загрузка реестра модулей. Пожалуйста подождите...
-StrTPModulesFinishRegistryDownloading = Завершена загрузка реестра модулей. Идет извелечение данных. Пожалуйста подождите...
+StrTPModulesStartRegistryDownloading = Загрузка реестра модулей. Пожалуйста, подождите...
+StrTPModulesFinishRegistryDownloading = Завершена загрузка реестра модулей. Идет извелечение данных. Пожалуйста, подождите...
 StrTPModulesUpdatingModulesInfoFinished = Обновление информации о модулях завершено
-StrModuleWasDownloaded = Модуль загруженю Идет копирование файлов...
+StrModuleWasDownloaded = Модуль загружен. Идет копирование файлов...
 StrModuleDownloadedSuccessfully = Модуль [%s] был загружен успешно
 ;
 StrTPModuleStatus = Статус
