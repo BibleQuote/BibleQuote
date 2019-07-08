@@ -298,8 +298,8 @@ begin
         if (IsLimit(Data)) then
           Exit;
       except
-        on E: TBQException do
-          // failed to load module, skip it
+        on E: Exception do
+          Data.FBrokenModules.Add(Directory + '\' + SearchRec.Name);
       end;
       SearchResult := FindNext(SearchRec);
     until (SearchResult <> 0);
@@ -364,7 +364,7 @@ begin
         end;
       except
         on E: Exception do
-          // failed to load module, skip it
+          Data.FBrokenModules.Add(ModulePath);
       end;
 
       SearchResult := FindNext(SearchRec);
