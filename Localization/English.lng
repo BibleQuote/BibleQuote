@@ -65,6 +65,9 @@ bqVerseTagNotUnique = Cannot rename tag, another on with same name already exist
 bqErrorUnknown = Unknown Error
 bqError = Error
 bqStrongBibleNotDefined = To perform a search, select the module with Strong's lexicons in the settings.
+bqStrongDictNotAvailable = Strong's dictionary is not available
+bqBrokenModulesFound = The following modules cannot be loaded because they are broken or do not meet the format:
+bqBrokenModulesFoundTitle = Warning
 
 commentsLoadFail = Failed to display commentary
 commentsCantFind = Cannot find matching comment

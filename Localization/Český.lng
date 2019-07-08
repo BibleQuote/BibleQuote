@@ -67,6 +67,9 @@ bqVerseTagNotUnique = Tag není možné přejmenovat, protože existuje jiný se
 bqErrorUnknown = Neznámá chyba
 bqError = Chyba
 bqStrongBibleNotDefined = Chcete-li provést vyhledávání, vyberte v nastavení modul s podporou Strongových čísel.
+bqStrongDictNotAvailable = Strong's dictionary is not available
+bqBrokenModulesFound = The following modules cannot be loaded because they are broken or do not meet the format:
+bqBrokenModulesFoundTitle = Error
 
 commentsLoadFail = Komentář se nepodařilo zobrazit
 commentsCantFind = Komentáře chybí

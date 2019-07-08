@@ -65,6 +65,9 @@ bqVerseTagNotUnique = Невозможно переименовать тег, д
 bqErrorUnknown = Неизвестная ошибка
 bqError = Ошибка
 bqStrongBibleNotDefined = Для осуществления поиска выберите в настройках модуль с поддержкой номеров Стронга.
+bqStrongDictNotAvailable = Словарь Стронга недоступен
+bqBrokenModulesFound = Следующие модули не могут быть загружены, так как повреждены или не соответствуют формату:
+bqBrokenModulesFoundTitle = Предупреждение
 
 commentsLoadFail = Не удалось отобразить комментарий
 commentsCantFind = Комментарии отсутствуют

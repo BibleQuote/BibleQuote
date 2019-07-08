@@ -172,8 +172,6 @@ type
     procedure OnTabsFormActivate(Sender: TObject);
     procedure OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
 
-    procedure ModulesScanComplete(Sender: TObject);
-    procedure DictScanComplete(Sender: TObject);
     procedure TogglePreview();
 
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
@@ -200,6 +198,9 @@ type
     function CreateBookTabInfo(book: TBible): TBookTabInfo;
     procedure InitModuleScanner();
     procedure InitHtmlTemplate;
+
+    procedure OnDictsLoaded(var Msg: TMessage); message PROCESS_DICTS_LOADED;
+    procedure OnModulesLoaded(var Msg: TMessage); message PROCESS_MODULES_LOADED;
   public
     SysHotKey: TSysHotKey;
 
@@ -663,6 +664,37 @@ begin
   end;
 end;
 
+procedure TMainForm.OnDictsLoaded(var Msg: TMessage);
+begin
+  mNotifier.Notify(TDictionariesLoadedMessage.Create);
+end;
+
+procedure TMainForm.OnModulesLoaded(var Msg: TMessage);
+var
+  WarnMessage: String;
+  I: Integer;
+begin
+  UpdateBookView();
+
+  imgLoadProgress.Hide();
+  if (DataService.BrokenModules.Count > 0) then
+  begin
+    WarnMessage := Lang.SayDefault('bqBrokenModulesFound', 'Следующие модули не могут быть загружены, так как повреждены или не соответствуют формату:');
+    AddLine(WarnMessage, '');
+
+    for I := 0 to DataService.BrokenModules.Count - 1 do
+      AddLine(WarnMessage, ExtractFileName(DataService.BrokenModules[I]));
+
+    MessageBox(
+        Self.Handle,
+        Pointer(WarnMessage),
+        Pointer(Lang.SayDefault('bqBrokenModulesFoundTitle', 'Предупреждение')),
+        MB_OK or MB_ICONWARNING);
+  end;
+
+  mNotifier.Notify(TModulesLoadedMessage.Create);
+end;
+
 procedure TMainForm.LoadFontFromFolder(awsFolder: string);
 var
   sr: TSearchRec;
@@ -750,19 +782,6 @@ begin
       BqShowException(E);
     end;
   end;
-end;
-
-procedure TMainForm.ModulesScanComplete(Sender: TObject);
-begin
-  UpdateBookView();
-
-  imgLoadProgress.Hide();
-  mNotifier.Notify(TModulesLoadedMessage.Create);
-end;
-
-procedure TMainForm.DictScanComplete(Sender: TObject);
-begin
-  mNotifier.Notify(TDictionariesLoadedMessage.Create);
 end;
 
 procedure TMainForm.SaveMru;
@@ -1258,10 +1277,7 @@ begin
 
   mDictScanner := TDictScanner.Create();
 
-  DataService := TDataService.Create(mScanner, mDictScanner);
-
-  DataService.OnScanModulesComplete := ModulesScanComplete;
-  DataService.OnScanDictsComplete := DictScanComplete;
+  DataService := TDataService.Create(mScanner, mDictScanner, Self.Handle);
 end;
 
 function TMainForm.GetIViewerBase(): IHtmlViewerBase;
