@@ -130,27 +130,18 @@ begin
   ChapterDatas := TList<TChapterData>.Create;
 
   try
-    try
+    Language := TMyBibleUtils.GetLanguage(SQLiteQuery);
+    aInfoSource.ChapterString := TMyBibleUtils.GetChapterString(SQLiteQuery);
+    aInfoSource.ChapterStringPs := TMyBibleUtils.GetChapterStringPs(SQLiteQuery);
 
-      Language := TMyBibleUtils.GetLanguage(SQLiteQuery);
-      aInfoSource.ChapterString := TMyBibleUtils.GetChapterString(SQLiteQuery);
-      aInfoSource.ChapterStringPs := TMyBibleUtils.GetChapterStringPs(SQLiteQuery);
+    BookQty := TMyBibleUtils.GetBibleBookQty(SQLiteQuery, ChapterDatas);
 
-      BookQty := TMyBibleUtils.GetBibleBookQty(SQLiteQuery, ChapterDatas);
+    aInfoSource.BookQty := BookQty;
+    aInfoSource.ChapterDatas := ChapterDatas;
+    aInfoSource.OldTestament := BookQty in [39, 66];
+    aInfoSource.NewTestament := BookQty in [27, 66];
 
-      aInfoSource.BookQty := BookQty;
-      aInfoSource.ChapterDatas := ChapterDatas;
-      aInfoSource.OldTestament := BookQty in [39, 66];
-      aInfoSource.NewTestament := BookQty in [27, 66];
-
-      aInfoSource.StrongNumbers := TMyBibleUtils.GetStrong(SQLiteQuery);
-
-    except
-      on e: Exception do
-      begin
-        BqShowException(e);
-      end;
-    end;
+    aInfoSource.StrongNumbers := TMyBibleUtils.GetStrong(SQLiteQuery);
 
   finally
     TMyBibleUtils.CloseQuery(SQLiteQuery);
@@ -172,25 +163,16 @@ begin
   ChapterDatas := TList<TChapterData>.Create;
 
   try
-    try
+    Language := TMyBibleUtils.GetLanguage(SQLiteQuery);
+    aInfoSource.ChapterString := GetChapterStr(Language);
+    aInfoSource.ChapterStringPs := GetChapterPsStr(Language);
 
-      Language := TMyBibleUtils.GetLanguage(SQLiteQuery);
-      aInfoSource.ChapterString := GetChapterStr(Language);
-      aInfoSource.ChapterStringPs := GetChapterPsStr(Language);
+    BookQty := TMyBibleUtils.GetCommentaryBookQty(SQLiteQuery, ChapterDatas);
 
-      BookQty := TMyBibleUtils.GetCommentaryBookQty(SQLiteQuery, ChapterDatas);
+    aInfoSource.BookQty := BookQty;
+    aInfoSource.ChapterDatas := ChapterDatas;
 
-      aInfoSource.BookQty := BookQty;
-      aInfoSource.ChapterDatas := ChapterDatas;
-
-      aInfoSource.StrongNumbers := TMyBibleUtils.GetStrong(SQLiteQuery);
-
-    except
-      on e: Exception do
-      begin
-        BqShowException(e);
-      end;
-    end;
+    aInfoSource.StrongNumbers := TMyBibleUtils.GetStrong(SQLiteQuery);
 
   finally
     TMyBibleUtils.CloseQuery(SQLiteQuery);

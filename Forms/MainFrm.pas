@@ -544,10 +544,10 @@ var
   bookView: TBookFrame;
   bookTabInfo: TBookTabInfo;
 begin
+  OpenNewWorkspace();
+
   bookView := GetBookView(self);
   bookTabInfo := bookView.BookTabInfo;
-
-  OpenNewWorkspace();
 
   if not Assigned(bookTabInfo) then
   begin
@@ -637,7 +637,10 @@ begin
     begin
       if (mWorkspaces[0] is TDockTabsForm) then
         OnTabsFormActivate(mWorkspaces[0] as TDockTabsForm);
-    end;
+    end
+    else
+      mWorkspace := nil;
+
   end;
 end;
 
@@ -1504,7 +1507,7 @@ end;
 procedure TMainForm.PrintCurrentPage();
 begin
   with PrintDialog do
-    if Execute then
+    if Execute and Assigned(mWorkspace) then
       mWorkspace.Browser.Print(MinPage, MaxPage);
 end;
 
@@ -1537,6 +1540,9 @@ end;
 
 procedure TMainForm.TogglePreview();
 begin
+  if not Assigned(mWorkspace) then
+    Exit;
+
   if sbxPreview.Visible then
   begin
     EnableToolbarMenus(true);
@@ -2174,6 +2180,9 @@ procedure TMainForm.FontChanged(delta: integer);
 var
   defFontSz, browserpos: integer;
 begin
+  if not Assigned(mWorkspace) then
+    Exit;
+
   defFontSz := mWorkspace.Browser.DefFontSize;
   if ((delta > 0) and (defFontSz > 48)) or ((delta < 0) and (defFontSz < 6))
   then
@@ -2435,6 +2444,9 @@ begin
 
     ActivateTargetWorkspace;
 
+    if not Assigned(mWorkspace) then
+      Exit;
+
     for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
     begin
       tabInfo := mWorkspace.GetTabInfo(i);
@@ -2610,6 +2622,9 @@ procedure TMainForm.tbtnAddSearchTabClick(Sender: TObject);
 var
   newTabInfo: TSearchTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TSearchTabInfo.Create();
   mWorkspace.AddSearchTab(newTabInfo);
 end;
@@ -2618,6 +2633,9 @@ procedure TMainForm.tbtnAddStrongTabClick(Sender: TObject);
 var
   newTabInfo: TStrongTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TStrongTabInfo.Create();
   mWorkspace.AddStrongTab(newTabInfo);
 end;
@@ -2634,6 +2652,10 @@ var
 begin
   if miDeteleBibleTab.tag < 0 then
     Exit;
+
+  if not Assigned(mWorkspace) then
+    Exit;
+
   try
     me := (mWorkspace.BibleTabs.Tabs.Objects[miDeteleBibleTab.tag]) as TModuleEntry;
     mFavorites.DeleteModule(me);
@@ -2745,6 +2767,9 @@ var
   cti: IViewTabInfo;
   bookTabInfo, bti: TBookTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    Exit;
+
   bookView := GetBookView(self);
   bookTabInfo := bookView.BookTabInfo;
   C := mWorkspace.ChromeTabs.Tabs.Count - 1;
@@ -2773,6 +2798,9 @@ var
   workspace: IWorkspace;
   bookView: TBookFrame;
 begin
+  if not Assigned(mWorkspace) then
+    Exit;
+
   try
     bookView := GetBookView(self);
     hotMenuItem := mWorkspace.BibleTabs.Tabs.Objects[moduleTabIx] as TMenuItem;
@@ -2896,6 +2924,9 @@ procedure TMainForm.tbtnAddTagsVersesTabClick(Sender: TObject);
 var
   newTabInfo: TTagsVersesTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TTagsVersesTabInfo.Create();
   mWorkspace.AddTagsVersesTab(newTabInfo);
 end;
@@ -2916,6 +2947,9 @@ end;
 
 procedure TMainForm.cbModulesCloseUp(Sender: TObject);
 begin
+  if not Assigned(mWorkspace) then
+    Exit;
+
   try
     MainForm.FocusControl(mWorkspace.Browser);
   except
@@ -3123,6 +3157,9 @@ procedure TMainForm.tbtnAddBookmarksTabClick(Sender: TObject);
 var
   newTabInfo: TBookmarksTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TBookmarksTabInfo.Create();
   mWorkspace.AddBookmarksTab(newTabInfo);
 end;
@@ -3131,6 +3168,9 @@ procedure TMainForm.tbtnAddCommentsTabClick(Sender: TObject);
 var
   newTabInfo: TCommentsTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TCommentsTabInfo.Create();
   mWorkspace.AddCommentsTab(newTabInfo);
 end;
@@ -3139,6 +3179,9 @@ procedure TMainForm.tbtnAddDictionaryTabClick(Sender: TObject);
 var
   newTabInfo: TDictionaryTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TDictionaryTabInfo.Create();
   mWorkspace.AddDictionaryTab(newTabInfo);
 end;
@@ -3147,6 +3190,9 @@ procedure TMainForm.tbtnAddLibraryTabClick(Sender: TObject);
 var
   newTabInfo: TLibraryTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TLibraryTabInfo.Create();
   mWorkspace.AddLibraryTab(newTabInfo);
 end;
@@ -3160,6 +3206,9 @@ procedure TMainForm.tbtnAddMemoTabClick(Sender: TObject);
 var
   newTabInfo: TMemoTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TMemoTabInfo.Create();
   mWorkspace.AddMemoTab(newTabInfo);
 end;
@@ -3258,6 +3307,9 @@ var
   end;
 
 begin
+  if not Assigned(mWorkspace) then
+    Exit;
+
   try
     vn := -1;
     ve := vn;
@@ -3370,6 +3422,9 @@ begin
   strongTabInfo := nil;
   ActivateTargetWorkspace();
 
+  if not Assigned(mWorkspace) then
+    Exit;
+
   for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
     tabInfo := mWorkspace.GetTabInfo(i);
@@ -3406,6 +3461,9 @@ var
 begin
   searchTabInfo := nil;
   ActivateTargetWorkspace;
+
+  if not Assigned(mWorkspace) then
+    Exit;
 
   for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
@@ -3456,6 +3514,9 @@ begin
   tskTabInfo := nil;
   ActivateTargetWorkspace();
 
+  if not Assigned(mWorkspace) then
+    Exit;
+
   for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
     tabInfo := mWorkspace.GetTabInfo(i);
@@ -3500,6 +3561,9 @@ begin
 
   ActivateTargetWorkspace;
 
+  if not Assigned(mWorkspace) then
+    Exit;
+
   for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
     tabInfo := mWorkspace.GetTabInfo(i);
@@ -3540,7 +3604,11 @@ var
 begin
   newTab := false;
   dicTabInfo := nil;
+
   ActivateTargetWorkspace();
+
+  if not Assigned(mWorkspace) then
+    Exit;
 
   for i := 0 to mWorkspace.ChromeTabs.Tabs.Count - 1 do
   begin
@@ -3597,6 +3665,9 @@ begin
 
   if (changeWorkspace) then
     ActivateTargetWorkspace;
+
+  if not Assigned(mWorkspace) then
+    Exit;
 
   try
     newBible := CreateNewBibleInstance();
@@ -3985,6 +4056,9 @@ procedure TMainForm.ShowSearchTab;
 var
   newTabInfo: TSearchTabInfo;
 begin
+  if not Assigned(mWorkspace) then
+    OpenNewWorkspace;
+
   newTabInfo := TSearchTabInfo.Create();
   mWorkspace.AddSearchTab(newTabInfo);
 end;
