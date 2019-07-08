@@ -132,8 +132,6 @@ begin
 end;
 
 procedure TJob<T>.WaitForComplete();
-var
-  wr: TWaitResult;
 begin
   FEvent.WaitFor(INFINITE);
 end;

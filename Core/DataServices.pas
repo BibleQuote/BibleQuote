@@ -3,30 +3,37 @@ unit DataServices;
 interface
 
 uses System.Classes, BibleQuoteUtils, DataScanning, Jobs, Bible, AppIni,
-  DictInterface, System.Generics.Collections, TagsDb, IOUtils, AppPaths;
+  DictInterface, System.Generics.Collections, TagsDb, IOUtils, AppPaths,
+  Messages, Windows;
+
+const
+  PROCESS_TAGS_LOADED    = WM_USER + 1;
+  PROCESS_DICTS_LOADED   = WM_USER + 2;
+  PROCESS_MODULES_LOADED = WM_USER + 3;
 
 type
   TDataService = class
   private
-    FScanModulesJob: TJob<TCachedModules>;
-    FOnScanModulesComplete: TNotifyEvent;
-
+    FScanModulesJob: TJob<TModulesData>;
     FScanDictsJob: TJob<TDictData>;
-    FOnScanDictsComplete: TNotifyEvent;
-
     FLoadTagsJob: TJob<Variant>;
-    FOnLoadTagsComplete: TNotifyEvent;
 
-    FModules: TCachedModules;
+    FModulesData: TModulesData;
     FDictData: TDictData;
 
     FScanner: TModulesScanner;
     FDictScanner: TDictScanner;
 
+    FCallbackWndHandle: HWND;
+
     function GetDictionaries(): TList<IDict>;
+    function GetBrokenDictionaries(): TList<String>;
+
     function GetDictTokens(): TBQStringList;
+    function GetModules(): TCachedModules;
+    function GetBrokenModules(): TList<String>;
   public
-    constructor Create(Scanner: TModulesScanner; DictScanner: TDictScanner); reintroduce;
+    constructor Create(Scanner: TModulesScanner; DictScanner: TDictScanner; CallbackWndHandle: HWND); reintroduce;
 
     procedure ScanModulesAsync();
     procedure ScanDictsAsync();
@@ -35,31 +42,30 @@ type
     procedure ScanFirstModules();
     function LoadCachedModules(): Boolean;
 
-    function ScanModulesAndWait(): TCachedModules;
+    function ScanModulesAndWait(): TModulesData;
     function ScanDictsAndWait(): TDictData;
     procedure LoadTagsAndWait();
 
-    property OnScanModulesComplete: TNotifyEvent read FOnScanModulesComplete write FOnScanModulesComplete;
-    property OnScanDictsComplete: TNotifyEvent read FOnScanDictsComplete write FOnScanDictsComplete;
-    property OnLoadTagsComplete: TNotifyEvent read FOnLoadTagsComplete write FOnLoadTagsComplete;
-
-    property Modules: TCachedModules read FModules;
+    property Modules: TCachedModules read GetModules;
+    property BrokenModules: TList<String> read GetBrokenModules;
     property Dictionaries: TList<IDict> read GetDictionaries;
+    property BrokenDictionaries: TList<String> read GetBrokenDictionaries;
     property DictTokens: TBQStringList read GetDictTokens;
   end;
 
 implementation
 
-constructor TDataService.Create(Scanner: TModulesScanner; DictScanner: TDictScanner);
+constructor TDataService.Create(Scanner: TModulesScanner; DictScanner: TDictScanner; CallbackWndHandle: HWND);
 begin
   inherited Create;
 
-  FModules := TCachedModules.Create;
+  FModulesData := TModulesData.Create;
   FDictData := TDictData.Create;
 
   FScanner := Scanner;
   FDictScanner := DictScanner;
 
+  FCallbackWndHandle := CallbackWndHandle;
   FLoadTagsJob := TJob<Variant>.Create(
     function(): Variant
     begin
@@ -68,17 +74,7 @@ begin
     procedure(Job: TJob<Variant>)
     begin
       if (Job.GetStatus = jsSucceed) then
-      begin
-        if Assigned(FOnLoadTagsComplete) then
-        begin
-          TThread.Synchronize(
-            TThread.CurrentThread,
-            procedure()
-            begin
-              FOnLoadTagsComplete(Self);
-            end);
-        end;
-      end;
+        PostMessage(CallbackWndHandle, PROCESS_TAGS_LOADED, 0, 0);
     end
   );
 
@@ -93,47 +89,46 @@ begin
       begin
         FDictData.Assign(Job.Result);
 
-        if Assigned(FOnScanDictsComplete) then
-        begin
-          TThread.Synchronize(
-            TThread.CurrentThread,
-            procedure()
-            begin
-              FOnScanDictsComplete(Self);
-            end);
-        end;
+        PostMessage(CallbackWndHandle, PROCESS_DICTS_LOADED, 0, 0);
       end;
     end
   );
 
-  FScanModulesJob := TJob<TCachedModules>.Create(
-    function(): TCachedModules
+  FScanModulesJob := TJob<TModulesData>.Create(
+    function(): TModulesData
     begin
       Result := Scanner.Scan();
     end,
-    procedure(Job: TJob<TCachedModules>)
+    procedure(Job: TJob<TModulesData>)
     begin
 
       if (Job.GetStatus = jsSucceed) then
       begin
-        FModules.Assign(Job.Result);
+        FModulesData.Assign(Job.Result);
 
-        if Assigned(FOnScanModulesComplete) then
-        begin
-          TThread.Synchronize(
-            TThread.CurrentThread,
-            procedure()
-            begin
-              FOnScanModulesComplete(Self);
-            end);
-        end;
+        PostMessage(CallbackWndHandle, PROCESS_MODULES_LOADED, 0, 0);
       end;
     end);
+end;
+
+function TDataService.GetModules(): TCachedModules;
+begin
+  Result := FModulesData.Modules;
+end;
+
+function TDataService.GetBrokenModules(): TList<String>;
+begin
+  Result := FModulesData.BrokenModules;
 end;
 
 function TDataService.GetDictionaries(): TList<IDict>;
 begin
   Result := FDictData.Dictionaries;
+end;
+
+function TDataService.GetBrokenDictionaries(): TList<String>;
+begin
+  Result := FDictData.BrokenDictionaries;
 end;
 
 function TDataService.GetDictTokens(): TBQStringList;
@@ -144,7 +139,7 @@ end;
 procedure TDataService.ScanModulesAsync();
 begin
   FScanModulesJob.Reset;
-  TJobExecutor.RunAsync<TCachedModules>(FScanModulesJob);
+  TJobExecutor.RunAsync<TModulesData>(FScanModulesJob);
 end;
 
 procedure TDataService.ScanDictsAsync();
@@ -168,15 +163,15 @@ begin
   Scanner := TModulesScanner.Create(LoadBook, 5 {Load max 5 books});
   Scanner.SecondDirectory := AppConfig.SecondPath;
 
-  FModules.CopyRange(Scanner.Scan());
+  Modules.CopyRange(Scanner.Scan().Modules);
 end;
 
 function TDataService.LoadCachedModules(): Boolean;
 begin
-  Result := FScanner.TryLoadCachedModules(FModules);
+  Result := FScanner.TryLoadCachedModules(FModulesData);
 end;
 
-function TDataService.ScanModulesAndWait(): TCachedModules;
+function TDataService.ScanModulesAndWait(): TModulesData;
 begin
   if (FScanModulesJob.Status = jsRunning) then
     FScanModulesJob.WaitForComplete

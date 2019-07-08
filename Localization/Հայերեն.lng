@@ -65,6 +65,9 @@ bqVerseTagNotUnique = Հնարավոր չէ անվանափոխել պիտակը,
 bqErrorUnknown = Անհայտ սխալ
 bqError = Սխալ
 bqStrongBibleNotDefined = Որոնում իրականացնելու համար կարգավորումների պարամետրերում ընտրեք Համաբարբառի բառարաններով մոդուլը
+bqStrongDictNotAvailable = Strong's dictionary is not available
+bqBrokenModulesFound = The following modules cannot be loaded because they are broken or do not meet the format:
+bqBrokenModulesFoundTitle = Warning
 
 commentsLoadFail = Մեկնաբանությունը ցուցադրելը չի ստացվում
 commentsCantFind = Cannot find matching comment (t)

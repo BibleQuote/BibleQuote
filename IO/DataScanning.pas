@@ -12,16 +12,33 @@ type
   TDictData = class
   private
     FDicts: TList<IDict>;
+    FBrokenDicts: TList<String>;
     FDictTokens: TBQStringList;
   public
     constructor Create(); overload;
-    constructor Create(Dicts: TList<IDict>; Tokens: TBQStringList); overload;
+    constructor Create(Dicts: TList<IDict>; BrokenDicts: TList<String>; Tokens: TBQStringList); overload;
 
     procedure Assign(DictData: TDictData);
     procedure Clear();
 
     property Dictionaries: TList<IDict> read FDicts;
+    property BrokenDictionaries: TList<String> read FBrokenDicts;
     property DictTokens: TBQStringList read FDictTokens;
+  end;
+
+  TModulesData = class
+  private
+    FModules: TCachedModules;
+    FBrokenModules: TList<String>;
+  public
+    constructor Create(); overload;
+    constructor Create(Modules: TCachedModules; BrokenModules: TList<String>); overload;
+
+    procedure Assign(Data: TModulesData);
+    procedure Clear();
+
+    property Modules: TCachedModules read FModules;
+    property BrokenModules: TList<String> read FBrokenModules;
   end;
 
 type
@@ -31,24 +48,24 @@ type
     FTempBook: TBible;
     FLimit: Integer;
 
-    procedure ScanArchives(Modules: TCachedModules; Directory: string; AsCommentaries: Boolean = False);
-    procedure ScanDirectory(Modules: TCachedModules; Directory: string; ModType: TModuleType);
-    function IsLimit(Modules: TCachedModules): Boolean;
+    procedure ScanArchives(Data: TModulesData; Directory: string; AsCommentaries: Boolean = False);
+    procedure ScanDirectory(Data: TModulesData; Directory: string; ModType: TModuleType);
+    function IsLimit(Data: TModulesData): Boolean;
   public
     constructor Create(TempBook: TBible; Limit: Integer = -1);
 
     property SecondDirectory: String read FSecondDirectory write FSecondDirectory;
     property Limit: Integer read FLimit;
 
-    function TryLoadCachedModules(var Modules: TCachedModules): Boolean;
+    function TryLoadCachedModules(var Data: TModulesData): Boolean;
 
-    function Scan(): TCachedModules;
+    function Scan(): TModulesData;
   end;
 
 type
   TDictScanner = class
   private
-    procedure LoadDictionaries(Path: String; var Dics: TList<IDict>);
+    procedure LoadDictionaries(Path: String; var Dics: TList<IDict>; var BrokedDicts: TList<String>);
     function InitDictionaryTokens(Dics: TList<IDict>): TBQStringList;
   public
     constructor Create();
@@ -63,28 +80,59 @@ begin
   inherited Create;
 
   FDicts := TList<IDict>.Create();
+  FBrokenDicts := TList<String>.Create();
   FDictTokens := TBQStringList.Create();
 end;
 
-constructor TDictData.Create(Dicts: TList<IDict>; Tokens: TBQStringList);
+constructor TDictData.Create(Dicts: TList<IDict>; BrokenDicts: TList<String>; Tokens: TBQStringList);
 begin
   inherited Create;
 
   FDictTokens := Tokens;
   FDicts := Dicts;
+  FBrokenDicts := BrokenDicts;
 end;
 
 procedure TDictData.Assign(DictData: TDictData);
 begin
   Clear();
   FDicts.AddRange(DictData.Dictionaries);
+  FBrokenDicts.AddRange(DictData.BrokenDictionaries);
   FDictTokens.AddStrings(DictData.DictTokens);
 end;
 
 procedure TDictData.Clear();
 begin
   FDicts.Clear;
+  FBrokenDicts.Clear;
   FDictTokens.Clear;
+end;
+
+constructor TModulesData.Create();
+begin
+  inherited Create;
+
+  FModules := TCachedModules.Create;
+  FBrokenModules := TList<String>.Create;
+end;
+
+constructor TModulesData.Create(Modules: TCachedModules; BrokenModules: TList<String>);
+begin
+  FModules := Modules;
+  FBrokenModules := BrokenModules;
+end;
+
+procedure TModulesData.Assign(Data: TModulesData);
+begin
+  FModules.Assign(Data.Modules);
+  FBrokenModules.Clear;
+  FBrokenModules.AddRange(Data.BrokenModules);
+end;
+
+procedure TModulesData.Clear();
+begin
+  FModules.Clear;
+  FBrokenModules.Clear;
 end;
 
 constructor TDictScanner.Create;
@@ -92,7 +140,7 @@ begin
   inherited Create();
 end;
 
-procedure TDictScanner.LoadDictionaries(Path: String; var Dics: TList<IDict>);
+procedure TDictScanner.LoadDictionaries(Path: String; var Dics: TList<IDict>; var BrokedDicts: TList<String>);
 var
   FileEntries: TStringDynArray;
   FileEntryPath: String;
@@ -116,14 +164,17 @@ begin
       if not Assigned(DictLoader) then
       begin
         if (IsDirectory(FileEntryPath) and DirectoryExists(FileEntryPath)) then
-          LoadDictionaries(FileEntryPath, Dics);
+          LoadDictionaries(FileEntryPath, Dics, BrokedDicts);
 
         Continue;
       end;
 
       Dict := DictLoader.LoadDictionary(FileEntryPath);
       if not Assigned(Dict) then
+      begin
+        BrokedDicts.Add(FileEntryPath);
         Continue;
+      end;
 
       Dics.Add(Dict);
 
@@ -156,13 +207,15 @@ end;
 function TDictScanner.Scan(): TDictData;
 var
   Dics: TList<IDict>;
+  BrokedDicts: TList<String>;
   Tokens: TBQStringList;
 begin
   Dics := TList<IDict>.Create();
-  LoadDictionaries(TLibraryDirectories.Dictionaries, Dics);
+  BrokedDicts := TList<String>.Create();
+  LoadDictionaries(TLibraryDirectories.Dictionaries, Dics, BrokedDicts);
   Tokens := InitDictionaryTokens(Dics);
 
-  Result := TDictData.Create(Dics, Tokens);
+  Result := TDictData.Create(Dics, BrokedDicts, Tokens);
 end;
 
 constructor TModulesScanner.Create(TempBook: TBible; Limit: Integer = -1);
@@ -171,42 +224,42 @@ begin
   FLimit := Limit;
 end;
 
-function TModulesScanner.Scan(): TCachedModules;
+function TModulesScanner.Scan(): TModulesData;
 var
-  Modules: TCachedModules;
+  Data: TModulesData;
 begin
-  Modules := TCachedModules.Create();
+  Data := TModulesData.Create;
 
-  ScanDirectory(Modules, TLibraryDirectories.Bibles, modtypeBible);
-  ScanDirectory(Modules, TLibraryDirectories.Books, modtypeBook);
+  ScanDirectory(Data, TLibraryDirectories.Bibles, modtypeBible);
+  ScanDirectory(Data, TLibraryDirectories.Books, modtypeBook);
 
-  ScanArchives(Modules, TLibraryDirectories.CompressedModules);
+  ScanArchives(Data, TLibraryDirectories.CompressedModules);
 
   if (SecondDirectory <> '') and (ExtractFilePath(SecondDirectory) <> ExtractFilePath(TLibraryDirectories.Root))
   then
   begin
-    ScanDirectory(Modules, TPath.Combine(SecondDirectory, C_BiblesSubDirectory), modtypeBible);
-    ScanDirectory(Modules, TPath.Combine(SecondDirectory, C_BooksSubDirectory), modtypeBook);
+    ScanDirectory(Data, TPath.Combine(SecondDirectory, C_BiblesSubDirectory), modtypeBible);
+    ScanDirectory(Data, TPath.Combine(SecondDirectory, C_BooksSubDirectory), modtypeBook);
   end;
 
-  ScanDirectory(Modules, TLibraryDirectories.Commentaries, modtypeComment);
-  ScanArchives(Modules, TPath.Combine(TLibraryDirectories.CompressedModules, C_CommentariesSubDirectory), True);
+  ScanDirectory(Data, TLibraryDirectories.Commentaries, modtypeComment);
+  ScanArchives(Data, TPath.Combine(TLibraryDirectories.CompressedModules, C_CommentariesSubDirectory), True);
 
-  ScanDirectory(Modules, TLibraryDirectories.Dictionaries, modtypeDictionary);
-  ScanArchives(Modules, TPath.Combine(TLibraryDirectories.CompressedModules, C_DictionariesSubDirectory), True);
+  ScanDirectory(Data, TLibraryDirectories.Dictionaries, modtypeDictionary);
+  ScanArchives(Data, TPath.Combine(TLibraryDirectories.CompressedModules, C_DictionariesSubDirectory), True);
 
-  Modules._Sort;
-  Result := Modules;
+  Data.Modules._Sort;
+  Result := Data;
 end;
 
-procedure TModulesScanner.ScanArchives(Modules: TCachedModules; Directory: string; AsCommentaries: Boolean = False);
+procedure TModulesScanner.ScanArchives(Data: TModulesData; Directory: string; AsCommentaries: Boolean = False);
 var
   ModType: TModuleType;
   ModEntry: TModuleEntry;
   SearchRec: TSearchRec;
   SearchResult: Integer;
 begin
-  if (IsLimit(Modules)) then
+  if (IsLimit(Data)) then
     Exit;
 
   if not DirectoryExists(Directory) then
@@ -241,8 +294,8 @@ begin
           FTempBook.ModuleImage,
           FTempBook.trait[bqmtStrongs]);
 
-        Modules.Add(ModEntry);
-        if (IsLimit(Modules)) then
+        Data.Modules.Add(ModEntry);
+        if (IsLimit(Data)) then
           Exit;
       except
         on E: TBQException do
@@ -255,7 +308,7 @@ begin
     FindClose(SearchRec);
 end;
 
-procedure TModulesScanner.ScanDirectory(Modules: TCachedModules; Directory: string; ModType: TModuleType);
+procedure TModulesScanner.ScanDirectory(Data: TModulesData; Directory: string; ModType: TModuleType);
 var
   ModEntry: TModuleEntry;
   ModulePath: string;
@@ -263,7 +316,7 @@ var
   SearchResult: Integer;
   IsDirectory: Boolean;
 begin
-  if (IsLimit(Modules)) then
+  if (IsLimit(Data)) then
     Exit;
 
   SearchResult := FindFirst(TPath.Combine(Directory, '*.*'), faAnyFile, SearchRec);
@@ -276,7 +329,6 @@ begin
 
         Continue;
       end;
-
 
       try
         ModulePath := TPath.Combine(Directory, SearchRec.Name);
@@ -297,8 +349,8 @@ begin
             FTempBook.ModuleImage,
             FTempBook.trait[bqmtStrongs]);
 
-          Modules.Add(ModEntry);
-          if (IsLimit(Modules)) then
+          Data.Modules.Add(ModEntry);
+          if (IsLimit(Data)) then
             Exit;
         end
         else
@@ -308,10 +360,10 @@ begin
           // scan subdirectory
           IsDirectory := (SearchRec.Attr and faDirectory) = faDirectory;
           if (IsDirectory) then
-            ScanDirectory(Modules, ModulePath, ModType);
+            ScanDirectory(Data, ModulePath, ModType);
         end;
       except
-        on E: TBQException do
+        on E: Exception do
           // failed to load module, skip it
       end;
 
@@ -323,12 +375,13 @@ begin
     FindClose(SearchRec);
 end;
 
-function TModulesScanner.IsLimit(Modules: TCachedModules): Boolean;
+function TModulesScanner.IsLimit(Data: TModulesData): Boolean;
 begin
-  Result := (FLimit > 0) and (FLimit < Modules.Count);
+  with Data.Modules do
+    Result := (FLimit > 0) and (FLimit < Count);
 end;
 
-function TModulesScanner.TryLoadCachedModules(var Modules: TCachedModules): Boolean;
+function TModulesScanner.TryLoadCachedModules(var Data: TModulesData): Boolean;
 var
   ModulesList: TStringList;
   I, LineCount, ModIx: Integer;
@@ -338,7 +391,9 @@ var
   BookNames: string;
   HasStrong: Boolean;
   CachedModsFilePath: string;
+  Modules: TCachedModules;
 begin
+  Modules := Data.Modules;
   try
     ModulesList := TStringList.Create();
     try

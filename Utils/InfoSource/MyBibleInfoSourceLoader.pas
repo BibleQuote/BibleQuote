@@ -255,24 +255,15 @@ begin
   SQLiteQuery := TMyBibleUtils.CreateQuery(aSQLiteConnection);
 
   try
-    try
+    DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
+    History := TMyBibleUtils.GetHistory(SQLiteQuery);
 
-      DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
-      History := TMyBibleUtils.GetHistory(SQLiteQuery);
+    aInfoSource.HTMLFilter := '<t <pb ';
+    aInfoSource.BibleName := DictName;
+    aInfoSource.BibleShortName := DictName;
+    aInfoSource.ModuleVersion := ExtractLastChangedDat(History);
 
-      aInfoSource.HTMLFilter := '<t <pb ';
-      aInfoSource.BibleName := DictName;
-      aInfoSource.BibleShortName := DictName;
-      aInfoSource.ModuleVersion := ExtractLastChangedDat(History);
-
-      aInfoSource.StrongNumbers := TMyBibleUtils.GetStrong(SQLiteQuery);
-
-    except
-      on e: Exception do
-      begin
-        BqShowException(e);
-      end;
-    end;
+    aInfoSource.StrongNumbers := TMyBibleUtils.GetStrong(SQLiteQuery);
 
   finally
     TMyBibleUtils.CloseQuery(SQLiteQuery);

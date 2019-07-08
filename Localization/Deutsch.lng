@@ -65,6 +65,9 @@ bqVerseTagNotUnique = Den Tag umbenennen ist unmöglich, ein anderer mit dem sel
 bqErrorUnknown = Unbekannter Fehler
 bqError = Fehler
 bqStrongBibleNotDefined = Um die Suche zu nutzen wählen Sie in den Einstellungen einen Modul mit der Strong's Nummern Unterstützung an
+bqStrongDictNotAvailable = Strong's dictionary is not available
+bqBrokenModulesFound = The following modules cannot be loaded because they are broken or do not meet the format:
+bqBrokenModulesFoundTitle = Warning
 
 commentsLoadFail = Kommentar konnte nicht angezeigt werden
 commentsCantFind = Cannot find matching comment (t)
