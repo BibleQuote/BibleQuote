@@ -13,7 +13,8 @@ uses
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
   Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
   StrongsConcordance, CommandInterface, CommandFactoryInterface,
-  ScriptureProvider, AppStates, ManageFonts, DataServices;
+  ScriptureProvider, AppStates, ManageFonts, DataServices, Vcl.VirtualImageList,
+  Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -44,7 +45,6 @@ type
     tbtnMatchWholeWord: TToolButton;
     pnlPaint: TPanel;
     dtsBible: TDockTabSet;
-    ilImages: TImageList;
     pmBrowser: TPopupMenu;
     miSearchWord: TMenuItem;
     miSearchWindow: TMenuItem;
@@ -75,6 +75,8 @@ type
     miStrictLogic: TMenuItem;
     miFuzzyLogic: TMenuItem;
     tbtnSound: TToolButton;
+    imgCollection: TImageCollection;
+    vimgIcons: TVirtualImageList;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure miCompareClick(Sender: TObject);
@@ -2833,10 +2835,12 @@ begin
     FuzzyLogic := BookTabInfo[vtisFuzzyResolveLinks];
     MemosOn := BookTabInfo[vtisShowNotes];
 
-    if ResolveLinks then
-      ImageIndex := IfThen(FuzzyLogic, 21, 20)
+    if not ResolveLinks then
+      ImageIndex := vimgIcons.GetIndexByName('links_off')
+    else if FuzzyLogic then
+      ImageIndex := vimgIcons.GetIndexByName('links_fuzzy')
     else
-      ImageIndex := 19;
+      ImageIndex := vimgIcons.GetIndexByName('links_strict');
 
     tbtnResolveLinks.ImageIndex := ImageIndex;
 
