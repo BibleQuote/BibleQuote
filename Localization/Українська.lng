@@ -1,4 +1,4 @@
-﻿
+
 ; СИСТЕМНІ ПОВІДОМЛЕННЯ ===================================
 
 ; Увага:
@@ -65,13 +65,13 @@ bqVerseTagNotUnique = Неможливо перейменувати тег, ін
 bqErrorUnknown = Невідома помилка
 bqError = Помилка
 bqStrongBibleNotDefined = Для здійснення пошуку виберіть в налаштуваннях модуль з підтримкою номерів Стронга.
-bqStrongDictNotAvailable = Strong's dictionary is not available
-bqBrokenModulesFound = The following modules cannot be loaded because they are broken or do not meet the format:
-bqBrokenModulesFoundTitle = Warning
+bqStrongDictNotAvailable = Словник Стронга недоступний
+bqBrokenModulesFound = Наступні модулі не можуть бути завантажені, так як пошкоджені або не відповідають формату:
+bqBrokenModulesFoundTitle = Попередження
 
 commentsLoadFail = Не вдалося відобразити коментар
-commentsCantFind = Комментарии отсутствуют (t)
-commentsOpenChapterFail = Не удалось открыть главу (t)
+commentsCantFind = Коментарі відсутні
+commentsOpenChapterFail = Не вдалося відкрити главу
 
 HelpDocumentation = Документація
 SelectBook = Виберіть книгу для пошуку
@@ -120,7 +120,22 @@ StrLibraryListView = Список
 FoundInSeveralDictionaries = знайдено в кількох словниках
 FoundInOneDictionary = знайдено в одному словнику
 ;
-
+StrTPModulesStartRegistryDownloading = Завантаження реєстру модулів. Будь ласка зачекайте...
+StrTPModulesFinishRegistryDownloading = Завершено завантаження реєстру модулів. Йде виймання даних. Будь ласка зачекайте...
+StrTPModulesUpdatingModulesInfoFinished = Оновлення інформації про модулі завершено
+StrModuleWasDownloaded = Модуль завантажений. Йде копіювання файлів...
+StrModuleDownloadedSuccessfully = Модуль [%s] був завантажений успішно
+;
+StrTPModuleStatus = Статус
+StrTPModuleCaption = Заголовок
+StrTPModuleTitle = Найменування
+StrTPModuleCommentary = Коментар
+StrTPModuleSize = Розмір
+StrTPModuleDate = Дата
+StrTPModuleStatusPending = Очікування...
+StrTPModuleStatusInstalled = Встановлений
+StrTPModuleStatusNotDownloaded = 
+;
 MainForm.JCRU_Home.Caption = JesusChrist.ru - сервер християнського спілкування
 MainForm.JCRU_Software.Caption = Безкоштовні християнські софт-тварі
 MainForm.JCRU_Bible.Caption = Біблія в Інтернеті
@@ -186,8 +201,10 @@ MainForm.tbtnAddTagsVersesTab.Caption = Тематичні закладки
 MainForm.tbtnAddTagsVersesTab.Hint = Тематичні закладки
 MainForm.tbtnAddTSKTab.Caption = Паралельні місця (TSK)
 MainForm.tbtnAddTSKTab.Hint = Паралельні місця (TSK)
-MainForm.tbtnNewForm.Caption = Нова форма
-MainForm.tbtnNewForm.Hint = Відкрити нову форму
+MainForm.tbtnNewForm.Caption = Нова робоча область
+MainForm.tbtnNewForm.Hint = Створити робочу область
+MainForm.tbtnDownloadModules.Caption = Завантаження сторонніх модулів
+MainForm.tbtnDownloadModules.Hint = Завантаження сторонніх модулів
 MainForm.trayIcon.Hint = BibleQuote
 
 DockTabsForm.btnBookSelect.Hint = Виберіть книгу для пошуку
@@ -330,3 +347,77 @@ ExceptionForm.btnDetails.Caption = Детальна інформація
 ExceptionForm.btnOk.Caption = OK
 ExceptionForm.Caption = Виявлена помилка!
 ExceptionForm.lblStacktrace.Caption = Протокол виключення:
+;
+DownloadModulesForm.Caption = Сторонні модулі
+DownloadModulesForm.tbtnDownloadModule.Caption =Завантажити модуль
+DownloadModulesForm.tbtnDownloadModule.Hint = Завантажити модуль
+DownloadModulesForm.edtSearch.TextHint = Пошук модулів...
+DownloadModulesForm.edtSearch.Hint = Пошук модулів по заголовку або назві
+;
+StrMyBibleBook10 = Буття
+StrMyBibleBook20 = Вихід
+StrMyBibleBook30 = Левит
+StrMyBibleBook40 = Числа
+StrMyBibleBook50 = Повторення Закону
+StrMyBibleBook60 = Iсус Навин
+StrMyBibleBook70 = Книга Суддiв
+StrMyBibleBook80 = Рут
+StrMyBibleBook90 = 1-а Самуїлова
+StrMyBibleBook100 = 2-а Самуїлова
+StrMyBibleBook110 = 1-а царiв
+StrMyBibleBook120 = 2-а царiв
+StrMyBibleBook130 = 1-а хронiки
+StrMyBibleBook140 = 2-а хронiки
+StrMyBibleBook150 = Ездра
+StrMyBibleBook160 = Неемія
+StrMyBibleBook190 = Естер
+StrMyBibleBook220 = Йов
+StrMyBibleBook230 = Псалми
+StrMyBibleBook240 = Приповiстi
+StrMyBibleBook250 = Екклезiяст
+StrMyBibleBook260 = Пiсня над пiснями
+StrMyBibleBook290 = Iсая
+StrMyBibleBook300 = Єремiя
+StrMyBibleBook310 = Плач Єремiї
+StrMyBibleBook330 = Єзекiїль
+StrMyBibleBook340 = Даниїл
+StrMyBibleBook350 = Осiя
+StrMyBibleBook360 = Йоїл
+StrMyBibleBook370 = Амос
+StrMyBibleBook380 = Овдiй
+StrMyBibleBook390 = Йона
+StrMyBibleBook400 = Михей
+StrMyBibleBook410 = Наум
+StrMyBibleBook420 = Авакум
+StrMyBibleBook430 = Софонія
+StrMyBibleBook440 = Огiй
+StrMyBibleBook450 = Захарія
+StrMyBibleBook460 = Малахія
+StrMyBibleBook470 = Вiд Матвiя
+StrMyBibleBook480 = Вiд Марка
+StrMyBibleBook490 = Вiд Луки
+StrMyBibleBook500 = Вiд Iвана
+StrMyBibleBook510 = Дiї
+StrMyBibleBook660 = Якова
+StrMyBibleBook670 = 1-е Петра
+StrMyBibleBook680 = 2-е Петра
+StrMyBibleBook690 = 1-е Iвана
+StrMyBibleBook700 = 2-е Iвана
+StrMyBibleBook710 = 3-е Iвана
+StrMyBibleBook720 = Юди
+StrMyBibleBook520 = До Римлян
+StrMyBibleBook530 = 1-е до Коринтян
+StrMyBibleBook540 = 2-е до Коринтян
+StrMyBibleBook550 = До Галатiв
+StrMyBibleBook560 = До Єфесян
+StrMyBibleBook570 = До Филип'ян
+StrMyBibleBook580 = До Колосян
+StrMyBibleBook590 = 1-е до Солунян
+StrMyBibleBook600 = 2-е до Солунян
+StrMyBibleBook610 = 1-е Тимофiю
+StrMyBibleBook620 = 2-е Тимофiю
+StrMyBibleBook630 = До Тита
+StrMyBibleBook640 = До Филимона
+StrMyBibleBook650 = До євреїв
+StrMyBibleBook730 = Об'явлення
+StrMyBibleBookOther = Книга
