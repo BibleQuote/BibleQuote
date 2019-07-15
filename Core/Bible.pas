@@ -1171,6 +1171,7 @@ function TBible.OpenChapter(
   forceResolveLinks: boolean = False): boolean;
 var
   recLnks: boolean;
+  ChapterPath: String;
 begin
   Result := False;
 
@@ -1195,9 +1196,16 @@ begin
 
   end
   else begin
+    ChapterPath := FPath + PathNames[book];
+    if not (FileExists(ChapterPath)) then
+    begin
+      ChapterPath := ExtractRelativePath(TAppDirectories.Root, ChapterPath);
+      raise EFileNotFoundException.Create(String.Format('File "%s" not found.', [ChapterPath]));
+    end;
+
     // todo: get data from InfoSource
     if not NativeGetChapter(chapter, FLines,
-      FPath + PathNames[book], DefaultEncoding, FChapterSign, FVerseSign,
+      ChapterPath, DefaultEncoding, FChapterSign, FVerseSign,
       trait[bqmtIncludeChapterHead], mChapterHead) then exit;
   end;
 
@@ -1810,12 +1818,8 @@ var
   j, k: Integer;
   BookLines: TStrings;
 begin
-
-
-
   BookLines := TStringList.Create;
   try
-
     ReadHtmlTo(aFilePath, BookLines, aDefaultEncoding);
 
     iChapter := 0;

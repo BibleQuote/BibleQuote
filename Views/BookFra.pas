@@ -2420,7 +2420,7 @@ end;
 
 function TBookFrame.GoAddress(bookTabInfo: TBookTabInfo; var book, chapter, fromverse, toverse: integer; var hlVerses: TbqHLVerseOption): TNavigateResult;
 var
-  Title, head, Text, Signature: string;
+  Title, head, Text, Signature, ErrorMsg: string;
   verse: integer;
   locVerseStart, locVerseEnd: integer;
   i: integer;
@@ -2486,61 +2486,50 @@ begin
     if not opened then
       raise Exception.CreateFmt('invaid chapter %d for book %d', [chapter, book]);
 
-  except
-    on E: EAbort do
+    // check and correct start verse
+    if fromverse > bible.VerseQty then
     begin
-      raise;
-    end;
-    else
-    begin
-      if Result = nrSuccess then
-        Result := nrChapterErr;
-
-      HighlightRange := Point(0, 0);
-      bible.OpenChapter(1, 1);
-      book := 1;
-      chapter := 1;
       fromverse := 0;
       locVerseStart := 1;
+      HighlightRange.X := 0;
+      if Result = nrSuccess then
+        Result := nrStartVerseErr;
+    end;
+
+    // check and correct target verse
+    if (toverse > bible.VerseQty) or (toverse < fromverse) then
+    begin
+      if (toverse < fromverse) and (toverse <= bible.VerseQty) then
+      begin
+        toverse := HighlightRange.Y;
+        HighlightRange.Y := HighlightRange.X;
+        HighlightRange.X := toverse;
+      end
+      else
+        HighlightRange.Y := HighlightRange.X;
       toverse := 0;
       locVerseEnd := 0;
+      if Result = nrSuccess then
+        Result := nrEndVerseErr;
     end;
-  end;
 
-  // check and correct start verse
-  if fromverse > bible.VerseQty then
-  begin
-    fromverse := 0;
-    locVerseStart := 1;
-    HighlightRange.X := 0;
-    if Result = nrSuccess then
-      Result := nrStartVerseErr;
-  end;
+    if (HighlightRange.X <= 0) and (HighlightRange.Y > 0) then
+      HighlightRange.X := HighlightRange.Y;
 
-  // check and correct target verse
-  if (toverse > bible.VerseQty) or (toverse < fromverse) then
-  begin
-    if (toverse < fromverse) and (toverse <= bible.VerseQty) then
+    if hlVerses = hlFalse then
     begin
-      toverse := HighlightRange.Y;
-      HighlightRange.Y := HighlightRange.X;
-      HighlightRange.X := toverse;
-    end
-    else
-      HighlightRange.Y := HighlightRange.X;
-    toverse := 0;
-    locVerseEnd := 0;
-    if Result = nrSuccess then
-      Result := nrEndVerseErr;
-  end;
-
-  if (HighlightRange.X <= 0) and (HighlightRange.Y > 0) then
-    HighlightRange.X := HighlightRange.Y;
-
-  if hlVerses = hlFalse then
-  begin
-    HighlightRange.X := -1;
-    HighlightRange.Y := -1;
+      HighlightRange.X := -1;
+      HighlightRange.Y := -1;
+    end;
+  except
+    on E: EAbort do
+      raise;
+    on E: Exception do
+    begin
+      ErrorMsg := E.Message;
+      if Result = nrSuccess then
+        Result := nrChapterErr;
+    end;
   end;
 
   head := GetBookHead(bible, book, chapter, fromverse, toverse);
@@ -2554,7 +2543,10 @@ begin
 
   head := '<font face="' + uiFontName + '">' + head + '</font>';
 
-  Text := GetChapterText(bookTabInfo, HighlightRange, locVerseStart, locVerseEnd, chapter);
+  if (ErrorMsg <> '') then
+    Text := String.Format('<div style="color:red;text-align:justify">%s</div>', [ErrorMsg])
+  else
+    Text := GetChapterText(bookTabInfo, HighlightRange, locVerseStart, locVerseEnd, chapter);
 
   dBrowserSource := FMainView.TextTemplate;
   StrReplace(dBrowserSource, '%HEAD%', head, false);

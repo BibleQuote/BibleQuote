@@ -57,7 +57,11 @@ begin
     Path := ResolveFullPath(TPath.Combine(FMainView.mDefaultLocation, C_ModuleIniName));
     if FBookView.bwrHtml.GetTextLen() <= 0 then
     begin
-      FBookView.ProcessCommand(FBookTabInfo, Format('go %s 1 1 1', [FMainView.mDefaultLocation]), hlFalse);
+      try
+        FBookView.ProcessCommand(FBookTabInfo, Format('go %s 1 1 1', [FMainView.mDefaultLocation]), hlFalse);
+      except
+        // skip error
+      end;
       Exit;
     end;
   end;

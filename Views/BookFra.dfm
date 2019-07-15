@@ -165,7 +165,6 @@ object BookFrame: TBookFrame
       GradientEndColor = clWindow
       Images = vimgIcons
       TabOrder = 0
-      ExplicitLeft = 1
       object tbtnToggle: TToolButton
         Left = 0
         Top = 0
