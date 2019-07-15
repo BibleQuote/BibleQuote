@@ -1200,7 +1200,8 @@ begin
     if not (FileExists(ChapterPath)) then
     begin
       ChapterPath := ExtractRelativePath(TAppDirectories.Root, ChapterPath);
-      raise EFileNotFoundException.Create(String.Format('File "%s" not found.', [ChapterPath]));
+      raise EFileNotFoundException.Create(
+        String.Format(Lang.SayDefault('FileNotFound', 'File "%s" not found.'), [ChapterPath]));
     end;
 
     // todo: get data from InfoSource
