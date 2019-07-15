@@ -3128,7 +3128,7 @@ begin
       if I > -1 then
       begin
         // found memo
-        MemoText := '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>' + Comment(AppState.Memos[Verse]) + '</font>' + paragraph;
+        MemoText := '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>' + Comment(AppState.Memos[I]) + '</font>' + paragraph;
 
         if bookTabInfo[vtisResolveLinks] then
           MemoText := ResolveLinks(MemoText, bookTabInfo[vtisFuzzyResolveLinks]);
