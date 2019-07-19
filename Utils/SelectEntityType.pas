@@ -49,8 +49,14 @@ end;
 
 class function TSelectEntityType.IsMyBibleBible(
   aFileEntryPath: String): Boolean;
+var
+  FileName: String;
 begin
-  Result := TRegEx.IsMatch(aFileEntryPath.ToLower(), '^[^\.]*(\.sqlite3)?$')
+  FileName := ExtractFileName(aFileEntryPath);
+  if (FileName = '') then
+    Result := False
+  else
+    Result := TRegEx.IsMatch(FileName.ToLower(), '^[^\.]*(\.sqlite3)?$');
 end;
 
 class function TSelectEntityType.IsMyBibleCommentary(
