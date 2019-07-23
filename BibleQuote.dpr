@@ -30,7 +30,7 @@ uses
   ICommandProcessor in 'Core\ICommandProcessor.pas',
   VDTEditLink in 'UI\VDTEditLink.pas',
   NativeDict in 'Core\Dict\NativeDict.pas',
-  SevenZipHelper in 'Utils\SevenZipHelper.pas',
+  ZipUtils in 'Utils\ZipUtils.pas',
   LinksParser in 'Core\LinksParser.pas',
   LinksParserIntf in 'Core\LinksParserIntf.pas',
   Favorites in 'Core\Favorites.pas',

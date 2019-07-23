@@ -57,7 +57,7 @@ begin
 
   result := false;
   // if not assigned(FiLines) then begin
-  if (FileExistsEx(IndexFile) < 0) or (FileExistsEx(DictFile) < 0) then
+  if (not FileExists(IndexFile)) or (not FileExists(DictFile)) then
     Exit;
 
   FIndex := IndexFile;

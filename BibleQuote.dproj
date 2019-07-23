@@ -57,7 +57,7 @@
         <VerInfo_Locale>1049</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=BibleQuote;FileDescription=Quote the Bible with confidence;FileVersion=7.0.0.538;InternalName=BibleQuote;LegalCopyright=MIT;LegalTrademarks=;OriginalFilename=BibleQuote;ProductName=BibleQuote;ProductVersion=7.0.0.538;Comments=Quote the Bible with confidence;PrivateBuild=Yes</VerInfo_Keys>
         <DCC_ExeOutput>.\Output\</DCC_ExeOutput>
-        <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\SevenZip;.\Components\VirtualTreeview\Source;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\Components\TChromeTabs\Lib;.\BqComponents;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\Components\TrayIcon\source;.\Components\SysHot;.\Components\VirtualTreeview\Source;.\Components\Jcl\source\windows;.\Components\Jcl\source\common;.\Components\Jcl\source\include;.\Components\GLibWmi\sources;.\Components\HtmlView;.\Components\TChromeTabs\Lib;.\BqComponents;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PostBuildEvent><![CDATA[xcopy "$(PROJECTDIR)\Localization\*.lng" "$(OUTPUTDIR)Localization\" /d /s /y
 xcopy "$(PROJECTDIR)\Libs\*.dll" "$(OUTPUTDIR)" /d /s /y
 $(PostBuildEvent)]]></PostBuildEvent>
@@ -121,9 +121,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.2.0.740;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.2.0.756;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <VerInfo_Build>740</VerInfo_Build>
+        <VerInfo_Build>756</VerInfo_Build>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
     </PropertyGroup>
@@ -714,7 +714,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\ICommandProcessor.pas"/>
         <DCCReference Include="UI\VDTEditLink.pas"/>
         <DCCReference Include="Core\Dict\NativeDict.pas"/>
-        <DCCReference Include="Utils\SevenZipHelper.pas"/>
+        <DCCReference Include="Utils\ZipUtils.pas"/>
         <DCCReference Include="Core\LinksParser.pas"/>
         <DCCReference Include="Core\LinksParserIntf.pas"/>
         <DCCReference Include="Core\Favorites.pas"/>

@@ -8,7 +8,7 @@ uses
   Vcl.ComCtrls, Vcl.ToolWin, HTMLEmbedInterfaces, Htmlview, Vcl.Tabs, Vcl.DockTabSet, Vcl.ExtCtrls,
   System.ImageList, Vcl.ImgList, MainFrm, TabData, HintTools,
   WinApi.ShellApi, StrUtils, BibleQuoteUtils, CommandProcessor, LinksParserIntf,
-  SevenZipHelper, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
+  ZipUtils, StringProcs, HTMLUn2, ExceptionFrm, ChromeTabs, Clipbrd,
   Bible, Math, IOUtils, BibleQuoteConfig, IOProcs, BibleLinkParser, PlainUtils,
   System.Types, LayoutConfig, LibraryFra, VirtualTrees, UITools, PopupFrm,
   Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
@@ -91,7 +91,6 @@ type
     procedure miMemoPasteClick(Sender: TObject);
     procedure bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
     procedure bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
-    procedure bwrHtmlImageRequest(Sender: TObject; const SRC: string; var Stream: TMemoryStream);
     procedure bwrHtmlKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure bwrHtmlKeyPress(Sender: TObject; var Key: Char);
     procedure bwrHtmlKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -698,35 +697,6 @@ end;
 procedure TBookFrame.bwrHtmlHotSpotCovered(Sender: TObject; const SRC: string);
 begin
   BrowserHotSpotCovered(Sender as THTMLViewer, SRC);
-end;
-
-procedure TBookFrame.bwrHtmlImageRequest(Sender: TObject; const SRC: string; var Stream: TMemoryStream);
-var
-  archive: string;
-  ix, sz: integer;
-{$J+}
-const
-  ms: TMemoryStream = nil;
-{$J-}
-begin
-  try
-    if not Assigned(BookTabInfo) then
-      Exit;
-    archive := BookTabInfo.Bible.InfoSource.FileName;
-    if (Length(archive) <= 0) or (archive[1] <> '?') then
-      Exit;
-    getSevenZ().SZFileName := Copy(GetArchiveFromSpecial(archive), 2, $FFFFFF);
-    ix := getSevenZ().GetIndexByFilename(SRC, @sz);
-    if ix = 0 then
-      Exit;
-    if not Assigned(ms) then
-      ms := TMemoryStream.Create;
-    ms.Size := sz;
-    getSevenZ().ExtracttoMem(ix, ms.Memory, ms.Size);
-    if getSevenZ().ErrCode = 0 then
-      Stream := ms;
-  except
-  end;
 end;
 
 procedure TBookFrame.bwrHtmlKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);

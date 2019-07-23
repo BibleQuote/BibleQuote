@@ -132,9 +132,9 @@ var
 implementation
 
 {$R *.dfm}
-uses BibleQuoteUtils, IOUtils, IOProcs, StrUtils, SevenZipHelper, SevenZipVCL,
-  System.JSON.Readers, StringProcs, RegularExpressions, SelectEntityType,
-  JsonProcs, AppPaths;
+uses BibleQuoteUtils, IOUtils, IOProcs, StrUtils, System.JSON.Readers,
+  StringProcs, RegularExpressions, SelectEntityType, JsonProcs, AppPaths,
+  ZipUtils;
 
 procedure TDownloadModulesForm.ClearThirdPartModules;
 begin

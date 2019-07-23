@@ -4,7 +4,6 @@ interface
 
 const
   C_ModuleIniName = 'bibleqt.ini';
-  C_PasswordPolicyFileName = 'bq.pol';
   C_CachedModsFileName = 'cached.lst';
   C_HotModulessFileName = 'hotmodules.lst';
   C_CategoriesFile = 'cats.cfg';

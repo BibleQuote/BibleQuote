@@ -3,7 +3,7 @@ unit ManageFonts;
 interface
 
 uses Controls, Classes, Windows, Forms, SysUtils, IOUtils, BibleQuoteUtils,
-     SevenZipHelper, AppIni;
+     ZipUtils, AppIni;
 
 type
   TBQInstalledFontInfo = class
@@ -235,7 +235,7 @@ begin
   if Result then
     Exit;
   fontFullPath := TPath.Combine(aFontPath, aFontName);
-  if FileExistsEx(fontFullPath + '.otf') >= 0 then
+  if FileExists(fontFullPath + '.otf') then
     fontFullPath := fontFullPath + '.otf'
   else
     fontFullPath := fontFullPath + '.ttf';
@@ -245,73 +245,20 @@ end;
 
 function TFontManager.ActivateFont(const fontPath: string): DWORD;
 var
-  tf: array [0 .. 1023] of Char;
-  fileIx, fileSz, tempPathLen: integer;
-  wsArchive, wsFile: string;
-  pFile: PChar;
-  fileHandle: THandle;
-  writeResult: BOOL;
+  wsFile: string;
   fileNeedsCleanUp: Boolean;
   fontHandle: HFont;
-  bytesWritten: DWORD;
 begin
-  Result := 0;
   fontHandle := 0;
   fileNeedsCleanUp := false;
-  wsArchive := fontPath;
-  if fontPath[1] = '?' then
-  begin
-    wsArchive := GetArchiveFromSpecial(fontPath, wsFile);
-    fileIx := getSevenZ().GetIndexByFilename(wsFile, @fileSz);
-    if (fileIx < 0) or (fileSz <= 0) then
-      Exit;
-    GetMem(pFile, fileSz);
-    try
-      getSevenZ().ExtracttoMem(fileIx, pFile, fileSz);
-      if getSevenZ().ErrCode <> 0 then
-        Exit;
-      if (Win32MajorVersion >= 5) and (Assigned(G_AddFontMemResourceEx)) then
-      begin
-        fontHandle := G_AddFontMemResourceEx(pFile, fileSz, nil, @Result);
-      end;
-      if Result = 0 then
-      begin // failed to load in memory
-        tempPathLen := GetTempPath(1023, tf);
-        if tempPathLen > 1024 then
-          Exit;
-        wsArchive := tf + wsFile;
-        if not FileExists(wsArchive) then
-        begin
-          fileHandle := CreateFile(
-            PChar(Pointer(wsArchive)),
-            GENERIC_WRITE, 0, nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 
-          if fileHandle = INVALID_HANDLE_VALUE then
-            Exit;
-          try
-            writeResult := WriteFile(fileHandle, pFile^, fileSz, bytesWritten, nil);
-          finally
-            CloseHandle(fileHandle);
-          end;
-          fileNeedsCleanUp := true;
-          if not writeResult then
-            Exit;
-        end;
-      end
-
-    finally
-      FreeMem(pFile);
-    end;
-  end
-  else
-    wsFile := FileRemoveExtension(ExtractFileName(fontPath));
-  if Result = 0 then
-    Result := AddFontResource(PChar(Pointer(wsArchive)));
+  wsFile := FileRemoveExtension(ExtractFileName(fontPath));
+  Result := AddFontResource(PChar(Pointer(fontPath)));
 
   if Result <> 0 then
   begin
     Screen.Fonts.Add(ExctractName(wsFile));
-    InstalledFonts.AddObject(ExctractName(wsFile), TBQInstalledFontInfo.Create(wsArchive, fileNeedsCleanUp, fontHandle));
+    InstalledFonts.AddObject(ExctractName(wsFile), TBQInstalledFontInfo.Create(fontPath, fileNeedsCleanUp, fontHandle));
   end;
 end;
 

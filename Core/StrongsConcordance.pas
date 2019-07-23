@@ -99,7 +99,6 @@ end;
 
 function TStrongsConcordance.InitializeDictionary(Dictionary: TMyBibleDict): boolean;
 var
-  SqlitePath: string;
   Loader: TMyBibleDictLoader;
 begin
   Result := False;

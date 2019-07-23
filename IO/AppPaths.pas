@@ -7,7 +7,6 @@ uses IOUtils, JclSysInfo, SystemInfo, StringProcs, SysUtils, Windows,
 
 const
   C_LibraryDirectory = 'Library';
-  C_CompressedLibraryDirectory = 'Library\Compressed';
   C_BiblesSubDirectory = 'Bibles';
   C_CommentariesSubDirectory = 'Commentaries';
   C_DictionariesSubDirectory = 'Dictionaries';
@@ -25,7 +24,6 @@ type
 
   TLibraryDirectories = class
     class function Root: string; static;
-    class function CompressedModules: string; static;
     class function Strong: string; static;
     class function TSK: string; static;
     class function Bibles: string; static;
@@ -59,11 +57,6 @@ end;
 class function TLibraryDirectories.Root: string;
 begin
   Result := TPath.Combine(TAppDirectories.Root, C_LibraryDirectory);
-end;
-
-class function TLibraryDirectories.CompressedModules: string;
-begin
-  Result := TPath.Combine(TAppDirectories.Root, C_CompressedLibraryDirectory);
 end;
 
 class function TLibraryDirectories.Strong: string;

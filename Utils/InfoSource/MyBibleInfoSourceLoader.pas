@@ -219,7 +219,6 @@ procedure TMyBibleInfoSourceLoader.LoadPathValues(aInfoSource: TInfoSource;
   aFileEntryPath: String);
 begin
   aInfoSource.FileName := aFileEntryPath;
-  aInfoSource.IsCompressed := false;
 
   // the cover image is supposed to be in the same folder as db file
   aInfoSource.ModuleImage := TPath.Combine(

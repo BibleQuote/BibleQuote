@@ -162,8 +162,7 @@ end;
 
 function DeleteStrongNumbers(S: String): String;
 var
-  I, Len, Code: Integer;
-  Buf: String;
+  I, Len: Integer;
 begin
   Result := '';
   Len := Length(S);

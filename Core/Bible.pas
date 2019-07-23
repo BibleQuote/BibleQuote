@@ -2456,28 +2456,17 @@ end;
 
 procedure TBible.InitializePaths(aInfoSource: TInfoSource);
 begin
-    if aInfoSource.IsCompressed then
+    if aInfoSource.InfoSourceType = isNative then
     begin
-      FPath := GetArchiveFromSpecial(aInfoSource.FileName) + '??';
-      FShortPath := ExtractRelativePath('?' + TAppDirectories.Root, FPath);
-      FShortPath := GetArchiveFromSpecial(FShortPath);
-      FShortPath := Copy(FShortPath, 1, length(FShortPath) - 4);
+      FPath := ExtractFilePath(aInfoSource.FileName);
+      FShortPath := ExtractRelativePath(TAppDirectories.Root, FPath);
+      FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
     end
-    else
-    begin
-
-      if aInfoSource.InfoSourceType = isNative then
-      begin
-        FPath := ExtractFilePath(aInfoSource.FileName);
-        FShortPath := ExtractRelativePath(TAppDirectories.Root, FPath);
-        FShortPath := ExcludeTrailingPathDelimiter(FShortPath);
-      end
-      else begin
-        FPath := aInfoSource.FileName;
-        FShortPath := TPath.Combine(
-                        ExtractRelativePath(TAppDirectories.Root, ExtractFilePath(FPath)),
-                        ExtractFileName(FPath));
-      end;
+    else begin
+      FPath := aInfoSource.FileName;
+      FShortPath := TPath.Combine(
+                      ExtractRelativePath(TAppDirectories.Root, ExtractFilePath(FPath)),
+                      ExtractFileName(FPath));
     end;
 
     if Self.FBible then
