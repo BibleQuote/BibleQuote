@@ -48,7 +48,6 @@ type
     FTempBook: TBible;
     FLimit: Integer;
 
-    procedure ScanArchives(Data: TModulesData; Directory: string; AsCommentaries: Boolean = False);
     procedure ScanDirectory(Data: TModulesData; Directory: string; ModType: TModuleType);
     function IsLimit(Data: TModulesData): Boolean;
   public
@@ -233,8 +232,6 @@ begin
   ScanDirectory(Data, TLibraryDirectories.Bibles, modtypeBible);
   ScanDirectory(Data, TLibraryDirectories.Books, modtypeBook);
 
-  ScanArchives(Data, TLibraryDirectories.CompressedModules);
-
   if (SecondDirectory <> '') and (ExtractFilePath(SecondDirectory) <> ExtractFilePath(TLibraryDirectories.Root))
   then
   begin
@@ -243,69 +240,10 @@ begin
   end;
 
   ScanDirectory(Data, TLibraryDirectories.Commentaries, modtypeComment);
-  ScanArchives(Data, TPath.Combine(TLibraryDirectories.CompressedModules, C_CommentariesSubDirectory), True);
-
   ScanDirectory(Data, TLibraryDirectories.Dictionaries, modtypeDictionary);
-  ScanArchives(Data, TPath.Combine(TLibraryDirectories.CompressedModules, C_DictionariesSubDirectory), True);
 
   Data.Modules._Sort;
   Result := Data;
-end;
-
-procedure TModulesScanner.ScanArchives(Data: TModulesData; Directory: string; AsCommentaries: Boolean = False);
-var
-  ModType: TModuleType;
-  ModEntry: TModuleEntry;
-  SearchRec: TSearchRec;
-  SearchResult: Integer;
-begin
-  if (IsLimit(Data)) then
-    Exit;
-
-  if not DirectoryExists(Directory) then
-    Exit;
-
-  SearchResult := FindFirst(TPath.Combine(Directory, '*.bqb'), faAnyFile, SearchRec);
-
-  if SearchResult = 0 then
-    repeat
-      try
-        FTempBook.SetInfoSource('?' + Directory + '\' + SearchRec.Name + '??' + C_ModuleIniName);
-        if (AsCommentaries) then
-          ModType := modtypeComment
-        else
-        begin
-          if FTempBook.isBible then
-            ModType := modtypeBible
-          else
-            ModType := modtypeBook;
-        end;
-
-        ModEntry := TModuleEntry.Create(
-          ModType,
-          FTempBook.Name,
-          FTempBook.ShortName,
-          FTempBook.ShortPath,
-          Directory + '\' + SearchRec.Name,
-          FTempBook.GetStucture(),
-          FTempBook.Categories,
-          FTempBook.Author,
-          FTempBook.ModuleVersion,
-          FTempBook.ModuleImage,
-          FTempBook.trait[bqmtStrongs]);
-
-        Data.Modules.Add(ModEntry);
-        if (IsLimit(Data)) then
-          Exit;
-      except
-        on E: Exception do
-          Data.FBrokenModules.Add(Directory + '\' + SearchRec.Name);
-      end;
-      SearchResult := FindNext(SearchRec);
-    until (SearchResult <> 0);
-
-  if SearchResult <> 0 then
-    FindClose(SearchRec);
 end;
 
 procedure TModulesScanner.ScanDirectory(Data: TModulesData; Directory: string; ModType: TModuleType);

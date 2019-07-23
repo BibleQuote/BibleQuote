@@ -65,7 +65,6 @@ object BookFrame: TBookFrame
       OnMouseWheel = bwrHtmlMouseWheel
       OnHotSpotClick = bwrHtmlHotSpotClick
       OnHotSpotCovered = bwrHtmlHotSpotCovered
-      OnImageRequest = bwrHtmlImageRequest
       OnMouseDouble = bwrHtmlMouseDouble
     end
     object pnlNav: TPanel

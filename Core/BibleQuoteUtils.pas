@@ -4,26 +4,11 @@ unit BibleQuoteUtils;
 
 interface
 
-uses SevenZipHelper, SevenZipVCL, MultiLanguage, IOUtils, JCLDebug, PlainUtils,
+uses ZipUtils, MultiLanguage, IOUtils, JCLDebug, PlainUtils,
   Contnrs, Windows, SysUtils, Classes, SystemInfo, CRC32, Vcl.Graphics,
   ImageUtils, SyncObjs, ShlObj, AppPaths, AppIni;
 
 type
-  TPasswordPolicy = class
-  protected
-    mPasswordList: TStrings;
-    mPath: string;
-    mUserHash: int64;
-    function GetUserHash(): int64;
-    function XorPassword(aPwd: string; produceHex: boolean = true): string;
-  public
-    function LoadFromFile(const filename: string): boolean;
-    procedure SaveToFile(const filename: string);
-    function GetPassword(aSender: TSevenZip; out aPassword: WideString) : boolean;
-    procedure InvalidatePassword(const aFile: string);
-    constructor Create(wsString: string);
-    destructor Destroy(); override;
-  end;
 
   TBQException = class(Exception)
     mErrCode: Cardinal;
@@ -32,12 +17,6 @@ type
   end;
 
   TbqHLVerseOption = (hlFalse, hlTrue, hlDefault);
-
-  TBQPasswordException = class(TBQException)
-    mArchive: string;
-    mWrongPassword: string;
-    constructor CreateFmt(const password, module: string; const Msg: string; const Args: array of const);
-  end;
 
   TModuleType = (
     modtypeBible,
@@ -162,7 +141,6 @@ type
 
     function GetItem(Index: integer): TModuleEntry;
     procedure SetItem(Index: integer; AObject: TModuleEntry);
-    function GetArchivedCount(): integer;
   public
     procedure Assign(source: TCachedModules);
     procedure CopyRange(source: TCachedModules);
@@ -179,7 +157,6 @@ type
 
     property Items[Index: integer]: TModuleEntry read GetItem write SetItem; default;
 
-    property ArchivedModulesCount: integer read GetArchivedCount;
     property ModTypedAsCount[modType: TModuleType]: integer read GetModTypedAsCount;
 
     property OnAssignEvent: TNotifyEvent read FOnAssignEvent write FOnAssignEvent;
@@ -232,10 +209,6 @@ resourcestring
   '-->'#13#10 +
     '</STYLE>';
 
-function GetArchiveFromSpecial(const aSpecial: string): string; overload;
-function GetArchiveFromSpecial(const aSpecial: string; out filename: string): string; overload;
-function FileExistsEx(aPath: string): integer;
-function ArchiveFileSize(path: string): integer;
 function SpecialIO(const fileName: string; strings: TStrings; obf: int64; read: boolean = true): boolean;
 function ExtractModuleName(aModuleSignature: string): string;
 function StrPosW(const Str, SubStr: PChar): PChar;
@@ -263,18 +236,6 @@ implementation
 uses JclSysInfo, MainFrm, Controls, Forms, Clipbrd, StrUtils, BibleQuoteConfig,
   StringProcs, JclBase;
 
-function GetArchiveFromSpecial(const aSpecial: string): string; overload;
-var
-  pz: integer;
-begin
-  // string like rststrong.bqb??bibleqt.ini in rststrong.bqb
-  pz := Pos('??', aSpecial);
-  if pz <= 0 then
-    result := EmptyStr
-  else
-    result := Copy(aSpecial, 1, pz - 1);
-end;
-
 function FileRemoveExtension(const path: string): string;
 var
   I: integer;
@@ -286,23 +247,6 @@ begin
   else
     result := path;
 end;
-
-function GetArchiveFromSpecial(const aSpecial: string; out filename: string): string; overload;
-var
-  pz: integer;
-  correct: integer;
-begin
-  // string like rststrong.bqb??bibleqt.ini in rststrong.bqb and bibleqt.ini
-  pz := Pos('??', aSpecial);
-  if pz <= 0 then
-    result := EmptyStr
-  else
-  begin
-    correct := Ord(aSpecial[1] = '?') + 1;
-    result := Copy(aSpecial, correct, pz - correct);
-    filename := Copy(aSpecial, pz + 2, $FFFFFF);
-  end; // else
-end; // fn
 
 function TokensToStr(Lst: TStrings; delim: string; addlastDelim: boolean = true): string;
 var
@@ -360,50 +304,6 @@ begin
   if p2 = 0 then
     p2 := $FFF;
   result := Copy(tknString, p, p2 - p);
-end;
-
-function ArchiveFileSize(path: string): integer;
-var
-  archive, aFile: string;
-begin
-  result := -1;
-  try
-    archive := GetArchiveFromSpecial(path, aFile);
-    getSevenZ().SZFileName := archive;
-    if getSevenZ().GetIndexByFilename(aFile, @result) < 0 then
-      result := -1;
-  except
-    on e: Exception do
-    begin
-      g_ExceptionContext.Add('BibleQuoteUtils.ArchiveFileSize.wsPath' + path);
-    end;
-  end;
-
-end;
-
-function FileExistsEx(aPath: string): integer;
-var
-  archive, aFile: string;
-begin
-  result := -1;
-  if Length(aPath) < 1 then
-    exit;
-  if aPath[1] <> '?' then
-  begin
-    result := Ord(FileExists(aPath)) - 1;
-    exit;
-  end;
-  archive := GetArchiveFromSpecial(aPath, aFile);
-  if (Length(archive) <= 0) or (Length(aFile) < 0) then
-    exit;
-  try
-    getSevenZ().SZFileName := archive;
-    result := getSevenZ().GetIndexByFilename(aFile);
-  except
-    g_ExceptionContext.Add('FileExistsEx.aPath=' + aPath);
-    raise;
-  end;
-
 end;
 
 function SpecialIO(const fileName: string; strings: TStrings; obf: int64; read: boolean = true): boolean;
@@ -508,209 +408,6 @@ begin
   end;
 end;
 
-{ TPasswordPolicy }
-
-constructor TPasswordPolicy.Create(wsString: string);
-
-begin
-  mPasswordList := TStringList.Create();
-  LoadFromFile(wsString);
-  mUserHash := GetUserHash();
-  writeln('TPasswordPolicy.Create õýø: ', mUserHash);
-  _S_SevenZipGetPasswordProc := GetPassword;
-end;
-
-destructor TPasswordPolicy.Destroy;
-begin
-  // nothing
-  getSevenZ().OnGetPassword := nil;
-  mPasswordList.Free();
-  inherited;
-end;
-
-function TPasswordPolicy.GetPassword(aSender: TSevenZip; out aPassword: WideString): boolean;
-var
-  filename: string;
-  ix, pwFormShowResult, pwdLength: integer;
-  blSavePwd: boolean;
-  s: string;
-  pwdEncoded: string;
-
-  function HexDigitVal(d: Char): byte;
-  begin
-    result := 0;
-    case d of
-      '0' .. '9':
-        result := Ord(d) - Ord('0');
-      'A' .. 'F':
-        result := Ord(d) - Ord('A') + 10;
-    else
-      abort;
-    end;
-  end;
-
-begin
-  filename := aSender.SZFileName;
-  ix := mPasswordList.IndexOfName(filename);
-  if (ix < 0) then
-  begin // requested password was not found in the cache
-    pwFormShowResult := MainForm.PassWordFormShowModal(aSender.SZFileName, aPassword, blSavePwd);
-    if (pwFormShowResult = mrOk) and (Length(aPassword) > 0) then
-    begin
-      s := XorPassword(aPassword);
-      writeln(filename, ' ', s);
-      mPasswordList.AddObject(Format('%s=%s', [filename, s]), TObject(Ord(blSavePwd)));
-    end
-    else if (pwFormShowResult = mrCancel) then
-    begin
-      result := false;
-      exit;
-    end;
-
-  end
-  else
-  begin // password is in the cache
-    s := mPasswordList[ix];
-    ix := Pos('=', s);
-    s := Copy(s, ix + 1, $FFFF);
-    pwdLength := Length(s) div 2;
-    SetLength(pwdEncoded, pwdLength);
-    for ix := 1 to pwdLength do
-    begin
-      pwdEncoded[ix] := chr(HexDigitVal(Char(s[(ix - 1) * 2 + 1])) * 16 + HexDigitVal(Char(s[ix * 2])));
-    end;
-    writeln('found  ', pwdEncoded);
-    pwdEncoded := XorPassword(pwdEncoded, false);
-    writeln('after xor  ', pwdEncoded);
-    Flush(output);
-    aPassword := pwdEncoded;
-  end;
-  result := true;
-end;
-
-function TPasswordPolicy.GetUserHash: int64;
-var
-  userFolder: string;
-  len: integer;
-  data: int64;
-begin
-  userFolder := UpperCase(TAppDirectories.UserSettings);
-  len := Length(userFolder);
-  if len <= 0 then
-  begin
-    result := 0;
-    exit;
-  end;
-  FillChar(data, 8, 0);
-
-  asm
-    pushad
-    mov ecx, [len]
-    mov eax, [userFolder]
-    xor edx, edx
-    xor esi, esi
-    xor edi, edi
-  @lp:
-    xor dl, byte ptr [eax];
-    shr edi, 1
-    rcl edx, 1
-    rcl esi, 1
-    rcl edx, 1
-    rcl esi, 1
-    rcl edx, 1
-    rcl esi, 1
-    adc edi, 0
-    inc eax
-    dec ecx
-    ja @lp
-
-  @done:
-    mov dword ptr [data], edx
-    mov dword ptr 4[data], esi
-    popad
-  end;
-  result := data;
-end;
-
-procedure TPasswordPolicy.InvalidatePassword(const aFile: string);
-var
-  ix: integer;
-begin
-  ix := mPasswordList.IndexOfName(aFile);
-  if ix >= 0 then
-    mPasswordList.Delete(ix);
-end;
-
-function TPasswordPolicy.LoadFromFile(const filename: string): boolean;
-var
-  I, count: integer;
-begin
-  try
-    if not assigned(mPasswordList) then
-      mPasswordList := TStringList.Create()
-    else
-      mPasswordList.Clear();
-    mPath := ExtractFilePath(filename);
-    result := SpecialIO(filename, mPasswordList, $1F6D35AC138E5311);
-    if not result then
-      exit;
-    count := mPasswordList.count - 1;
-    for I := 0 to count do
-      mPasswordList.Objects[I] := TObject(1);
-    result := true;
-  except
-    g_ExceptionContext.Add('TPasswordPolicy.LoadFromFile.fileName=' + filename);
-    raise;
-  end;
-
-end; // func LoadFile
-
-procedure TPasswordPolicy.SaveToFile(const filename: string);
-var
-  I, recordCount: integer;
-begin
-  recordCount := mPasswordList.count;
-  if recordCount <= 0 then
-    exit;
-  I := 0;
-  repeat
-    if integer(mPasswordList.Objects[I]) = 0 then
-    begin
-      mPasswordList.Delete(I);
-      dec(recordCount);
-    end
-    else
-      inc(I);
-  until I >= recordCount;
-  if recordCount <= 0 then
-    exit;
-  SpecialIO(filename, mPasswordList, $1F6D35AC138E5311, false);
-end;
-
-function TPasswordPolicy.XorPassword(aPwd: string; produceHex: boolean = true): string;
-var
-  I, j, pwdLength: integer;
-  charByte: byte;
-  pUserHash: PByteArray;
-begin
-  pwdLength := Length(aPwd);
-  pUserHash := @mUserHash;
-  I := 1;
-  j := 0;
-  repeat
-    charByte := Ord(aPwd[I]) xor pUserHash^[j];
-    inc(I);
-    inc(j);
-    if produceHex then
-      result := result + IntToHex(charByte, 2)
-    else
-      result := result + chr(charByte);
-    if j > 7 then
-      j := 0;
-  until I > pwdLength;
-
-end;
-
 { TBQException }
 
 constructor TBQException.CreateFmt(const Msg: string; const Args: array of const);
@@ -722,15 +419,6 @@ begin
     mMessage := Format(mMessage, Args);
   end; // if assigned
   inherited CreateFmt(mMessage, Args);
-end;
-
-{ TBQPasswordException }
-
-constructor TBQPasswordException.CreateFmt(const password, module: string; const Msg: string; const Args: array of const);
-begin
-  mArchive := module;
-  mWrongPassword := password;
-  inherited CreateFmt(Msg, Args);
 end;
 
 function ExtractModuleName(aModuleSignature: string): string;
@@ -1387,19 +1075,6 @@ begin
     result := I;
   end;
 
-  function TCachedModules.GetArchivedCount: integer;
-  var
-    I, c: integer;
-  begin
-    c := count - 1;
-    result := 0;
-    for I := c downto 0 do
-    begin
-      if Items[I].FullPath[1] = '?' then
-        inc(result);
-    end;
-  end;
-
   function TCachedModules.GetItem(Index: integer): TModuleEntry;
   begin
     result := TModuleEntry(inherited GetItem(index));
@@ -1787,36 +1462,29 @@ begin
 
   function ResolveFullPath(Path: String): String;
   var
-    Directory, ZipPath, FullPath, Root: string;
+    Directory, FullPath, Root: string;
     Roots: TArray<String>;
   begin
     Directory := ExtractFileDir(Path);
 
-    // compressed modules take precedence over other modules
-    ZipPath := TPath.Combine(TAppDirectories.Root, Directory + '.bqb');
-    if FileExists(ZipPath) then
-      Result := '?' + ZipPath + '??' + C_ModuleIniName
-    else
+    if TPath.IsPathRooted(Path) then
+      Result := Path;
+
+    Roots := [
+      TAppDirectories.Root,
+      TLibraryDirectories.Root,
+      TLibraryDirectories.Bibles,
+      TLibraryDirectories.Books,
+      TLibraryDirectories.Commentaries,
+      AppConfig.SecondPath];
+
+    for Root in Roots do
     begin
-      if TPath.IsPathRooted(Path) then
-        Result := Path;
-
-      Roots := [
-        TAppDirectories.Root,
-        TLibraryDirectories.Root,
-        TLibraryDirectories.Bibles,
-        TLibraryDirectories.Books,
-        TLibraryDirectories.Commentaries,
-        AppConfig.SecondPath];
-
-      for Root in Roots do
+      FullPath := TPath.Combine(Root, Path);
+      if FileExists(FullPath) then
       begin
-        FullPath := TPath.Combine(Root, Path);
-        if FileExists(FullPath) then
-        begin
-          Result := FullPath;
-          Exit;
-        end;
+        Result := FullPath;
+        Exit;
       end;
     end;
   end;

@@ -240,7 +240,6 @@ type
     TemplatePath: string;
     TextTemplate: string; // displaying passages
 
-    PasswordPolicy: TPasswordPolicy;
     LastLink: TBibleLink;
     LastBibleLink: TBibleLink;
     LastBiblePath: String;
@@ -343,7 +342,6 @@ type
     procedure InitializeTaggedBookMarks();
     procedure InitHotkeysSupport();
     procedure CheckModuleInstall();
-    function InstallModule(const path: string): integer;
     procedure TranslateConfigForm;
     procedure TranslateControl(form: TWinControl; fname: string = '');
     procedure GoReference();
@@ -375,7 +373,7 @@ implementation
 
 uses InputFrm, ConfigFrm, PasswordDlg,
   BibleQuoteConfig, ExceptionFrm, AboutFrm, ShellAPI, StrUtils, CommCtrl,
-  DockTabsFrm, HintTools, sevenZipHelper, BookFra, TSKFra, DictionaryFra,
+  DockTabsFrm, HintTools, BookFra, TSKFra, DictionaryFra,
   Types, BibleLinkParser, IniFiles, PlainUtils, GfxRenderers, CommandProcessor,
   StringProcs, LinksParser, StrongFra, SearchFra, AppPaths,
   DownloadModulesFrm, ScriptureProvider;
@@ -424,15 +422,6 @@ var
   fnt: TFont;
 begin
   try
-    try
-      PasswordPolicy := TPasswordPolicy.Create(TPath.Combine(TAppDirectories.UserSettings, C_PasswordPolicyFileName));
-    except
-      on E: Exception do
-      begin
-        BqShowException(E, '', true);
-      end;
-    end;
-
     try
       AppConfig.Load;
     except
@@ -1089,7 +1078,6 @@ begin
         BqShowException(E);
       end;
     end;
-    PasswordPolicy.SaveToFile(TPath.Combine(TAppDirectories.UserSettings, C_PasswordPolicyFileName));
 
     if MainForm.WindowState = wsMaximized then
       AppConfig.MainFormMaximized := true
@@ -2228,7 +2216,6 @@ begin
   try
     GfxRenderers.TbqTagsRenderer.Done();
 
-    FreeAndNil(PasswordPolicy);
     FreeAndNil(mFavorites);
 
     cleanUpInstalledFonts();
@@ -2314,28 +2301,6 @@ begin
   end;
 end;
 
-function TMainForm.InstallModule(const path: string): integer;
-var
-  shfOP: _SHFILEOPSTRUCTW;
-begin
-  Result := -1;
-  try
-    shfOP.Wnd := 0;
-    shfOP.wFunc := FO_COPY;
-    shfOP.pFrom := Pointer(path + #0);
-    shfOP.pTo := Pointer(TLibraryDirectories.CompressedModules + '\' + ExtractFileName(path) + #0);
-    shfOP.fFlags := FOF_ALLOWUNDO or FOF_FILESONLY;
-    shfOP.fAnyOperationsAborted := false;
-    shfOP.hNameMappings := nil;
-    shfOP.lpszProgressTitle := 'Module Installation';
-
-    Result := SHFileOperationW(shfOP);
-  except
-    on E: Exception do
-      BqShowException(E);
-  end;
-end;
-
 function TMainForm.LoadAnchor(wb: THTMLViewer; SRC, current, loc: string): Boolean;
 var
   i: integer;
@@ -2370,7 +2335,7 @@ begin
       begin { an html file }
         if Assigned(ti) and ti[vtisResolveLinks] then
         begin
-          if not FileExistsEx(SRC) >= 0 then
+          if not FileExists(SRC) then
             Exit;
           try
 
@@ -3760,7 +3725,7 @@ var
   pCommandLine, pCurrent: PChar;
   len: integer;
   cChar, saveChar: Char;
-  ws, ext: string;
+  ws: string;
   blQuoted: Boolean;
 begin
   pCommandLine := GetCommandLineW();
@@ -3782,11 +3747,6 @@ begin
     (pCurrent + len)^ := #0;
     ws := pCurrent;
     (pCurrent + len)^ := saveChar;
-    ext := ExtractFileExt(ws);
-    if ext = '.bqb' then
-    begin
-      InstallModule(ws);
-    end;
 
     inc(pCurrent, len + ord(blQuoted));
 

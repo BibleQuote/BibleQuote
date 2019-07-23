@@ -201,9 +201,8 @@ type
   PClass = ^TClass;
 begin
   // prevent message handling in the base class
+  oldClass := PClass(Self)^;
   try
-    oldClass := PClass(Self)^;
-
     // handle message in grandparent class (TCustomEdit)
     PClass(Self)^ := TCustomEdit;
     Self.Dispatch(Message);

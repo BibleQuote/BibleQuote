@@ -70,7 +70,7 @@ function IsFlagSet(const Flags, Mask: Integer): Boolean;
 
 implementation
 
-uses SevenZipVCL, sevenZipHelper, BibleQuoteUtils;
+uses ZipUtils, BibleQuoteUtils;
 
 class function TEncodingNoBOM.GetUTF8: TEncoding;
 var
@@ -107,68 +107,25 @@ begin
   end;
 end;
 
-function ParseArchived(filename: string; out fileIx, fileSz: Integer): boolean;
-var
-  fn: string;
-  filenameEndPos: Integer;
-begin
-  if (length(filename) <= 0) or (filename[1] <> '?') then
-  begin
-    result := false;
-    exit;
-  end;
-  filenameEndPos := Pos('??', filename);
-  if filenameEndPos <= 0 then
-    raise Exception.Create('Неверый путь к архиву');
-  fn := Copy(filename, 2, filenameEndPos - 2);
-  if getSevenZ().SZFileName <> fn then
-    getSevenZ().SZFileName := fn;
-  fn := Copy(filename, filenameEndPos + 2, $FFFFFF);
-  fileIx := getSevenZ().GetIndexByFilename(fn, @fileSz);
-  result := true;
-end;
-
 procedure ReadFileContent(aFileName: string; var rBuffer: TBytes);
 var
   dFile: TFileStream;
-  dSize, indexOfFile: Integer;
+  dSize: Integer;
 begin
   rBuffer := TBytes.Create();
-  dFile := nil;
-  if not ParseArchived(aFileName, indexOfFile, dSize) then
-  begin
-    try
-      dFile := TFileStream.Create(aFileName, fmOpenRead);
-      dSize := dFile.Size;
 
-      if dSize > 0 then
-      begin
-        SetLength(rBuffer, dSize);
-        dFile.ReadBuffer(Pointer(rBuffer)^, dSize);
-      end;
+  dFile := TFileStream.Create(aFileName, fmOpenRead);
+  try
+    dSize := dFile.Size;
 
-    finally
-      dFile.Free;
-    end;
-  end
-  else
-  begin
-    // the file is an archive
-    if dSize < 0 then
-      raise Exception.CreateFmt('Не найден в архиве: %s', [aFileName]);
-
-    SetLength(rBuffer, dSize);
-    getSevenZ().ExtracttoMem(indexOfFile, Pointer(rBuffer), dSize);
-    if getSevenZ().ErrCode <> 0 then
+    if dSize > 0 then
     begin
-      if (getSevenZ().mPasswordProtected) and (getSevenZ().ErrCode = 2) then
-      begin
-        aFileName := Copy(GetArchiveFromSpecial(aFileName), 2, $FFFF);
-        raise TBQPasswordException.CreateFmt(getSevenZ().Password, aFileName, '#1%s', [aFileName]);
-      end
-      else
-        abort;
+      SetLength(rBuffer, dSize);
+      dFile.ReadBuffer(Pointer(rBuffer)^, dSize);
     end;
+
+  finally
+    dFile.Free;
   end;
 
 end;

@@ -189,7 +189,6 @@ var
 begin
 
   aInfoSource.FileName := aNativeInfoPath;
-  aInfoSource.IsCompressed := aNativeInfoPath[1]='?';
   aInfoSource.IsCommentary := IsCommentary(aNativeInfoPath);
 
   ChapterDatas := TList<TChapterData>.Create;
@@ -338,7 +337,6 @@ end;
 
 class function TNativeInfoSourceLoader.TrimNameEvaluator(const Match: TMatch): String;
 var
-  gc: Integer;
   Name, Value: String;
 begin
   Result := Match.Value;

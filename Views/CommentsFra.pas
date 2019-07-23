@@ -213,16 +213,7 @@ begin
   // and it's chapter 1, show chapter 0, too :-)
   if CommentaryBook.Trait[bqmtZeroChapter] and (C = 2) then
   begin
-    IsSuccess := false;
-    try
-      IsSuccess := CommentaryBook.OpenChapter(B, 1, true);
-    except
-      on E: TBQPasswordException do
-      begin
-        FMainView.PasswordPolicy.InvalidatePassword(E.mArchive);
-        MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
-      end
-    end;
+    IsSuccess := CommentaryBook.OpenChapter(B, 1, true);
 
     if IsSuccess then
     begin
@@ -254,16 +245,7 @@ begin
     AddLine(Lines, '<hr>');
   end;
 
-  IsSuccess := false;
-  try
-    IsSuccess := CommentaryBook.OpenChapter(B, C, true);
-  except
-    on E: TBQPasswordException do
-    begin
-      FMainView.PasswordPolicy.InvalidatePassword(E.mArchive);
-      MessageBoxW(self.Handle, PWideChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
-    end
-  end;
+  IsSuccess := CommentaryBook.OpenChapter(B, C, true);
 
   if not IsSuccess then
   begin

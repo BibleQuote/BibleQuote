@@ -12,7 +12,7 @@ type
 
     FFileName: String;
     FBibleName, FBibleShortName, FCopyright: String;
-    FIsBible, FIsCompressed, FIsCommentary: Boolean;
+    FIsBible, FIsCommentary: Boolean;
     FChapterString, FChapterStringPs, FChapterZeroString: String;
     FDesiredUIFont, FDesiredFontName, FInstallFonts: String;
     FChapterSign, FVerseSign: String;
@@ -73,7 +73,6 @@ type
     property NoForcedLineBreaks: Boolean read FNoForcedLineBreaks write FNoForcedLineBreaks;
     property UseChapterHead: Boolean read FUseChapterHead write FUseChapterHead;
     property ChapterDatas: TList<TChapterData> read FChapterDatas write SetChapterDatas;
-    property IsCompressed: Boolean read FIsCompressed write FIsCompressed;
     property FileName: String read FFileName write FFileName;
     property IsCommentary: Boolean read FIsCommentary write FIsCommentary;
     property DefaultEncoding: TEncoding read FDefaultEncoding write FDefaultEncoding;
@@ -142,7 +141,6 @@ begin
     NoForcedLineBreaks := Self.FNoForcedLineBreaks;
     UseChapterHead := Self.FUseChapterHead;
     ChapterDatas := Self.FChapterDatas;
-    IsCompressed := Self.FIsCompressed;
     FileName := Self.FFileName;
     IsCommentary := Self.FIsCommentary;
   end;

@@ -159,12 +159,6 @@ begin
       AppConfig.LastBibleCommand := FCommand;
 
   except
-    on E: TBQPasswordException do
-    begin
-      FMainView.PasswordPolicy.InvalidatePassword(E.mArchive);
-      MessageBox(FBookView.Handle, PChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
-      RevertLocation(BibleLink);
-    end;
     on E: TBQException do
     begin
       MessageBox(FBookView.Handle, PChar(Pointer(E.mMessage)), nil, MB_ICONERROR or MB_OK);
