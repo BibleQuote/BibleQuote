@@ -1,7 +1,7 @@
 object MainForm: TMainForm
   Left = 0
   Top = 0
-  Caption = 'BibleQuote 7.2'
+  Caption = 'BibleQuote 7.3'
   ClientHeight = 356
   ClientWidth = 831
   Color = clBtnFace
