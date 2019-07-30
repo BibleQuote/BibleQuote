@@ -159,7 +159,7 @@ begin
   RefLines := '';
   Links := TStringList.Create;
 
-  secondBible.SetInfoSource( mainBible.InfoSource.FileName);
+  secondBible.SetInfoSource(mainBible.Info.FileName);
 
   if mainbible.IsMyBibleModule then
   begin
@@ -204,7 +204,7 @@ begin
     ('<a name=%d><a href="go %s %d %d %d"><font face=%s>%s%d:%d</font></a><br><font face="%s">%s</font><p>',
     [tmpverse, mainBible.ShortPath, mainBible.CurBook, mainBible.CurChapter,
     tmpverse, AppConfig.DefFontName, mainBible.GetShortNames(mainBible.CurBook),
-    mainBible.CurChapter, tmpverse, mainBible.fontName, s]);
+    mainBible.CurChapter, tmpverse, mainBible.Info.DesiredFontName, s]);
 
   slink := ti.ReadString(IntToStr(chapter), IntToStr(verse), '');
   if slink = '' then
@@ -270,12 +270,12 @@ begin
         RefText := RefText +
           Format
           ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, 0, passageSig, mainBible.fontName, s])
+          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, 0, passageSig, mainBible.Info.DesiredFontName, s])
       else
         RefText := RefText +
           Format
           ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, toverse, passageSig, mainBible.fontName, s]);
+          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, toverse, passageSig, mainBible.Info.DesiredFontName, s]);
     end;
 
     AddLine(RefLines, RefText);

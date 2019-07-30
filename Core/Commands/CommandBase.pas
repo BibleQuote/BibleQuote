@@ -37,7 +37,7 @@ begin
 
   with BookTabInfo.Bible do
   begin
-    FOldPath := InfoSource.FileName;
+    FOldPath := Info.FileName;
     FOldBook := CurBook;
     FoldChapter := CurChapter;
   end;

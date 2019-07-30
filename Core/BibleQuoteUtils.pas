@@ -1481,7 +1481,7 @@ begin
     for Root in Roots do
     begin
       FullPath := TPath.Combine(Root, Path);
-      if FileExists(FullPath) then
+      if FileExists(FullPath) or DirectoryExists(FullPath) then
       begin
         Result := FullPath;
         Exit;

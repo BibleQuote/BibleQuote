@@ -6,9 +6,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, IOUtils, Types,
-  Graphics, Controls, Forms, Dialogs, IOProcs,
+  Graphics, Controls, Forms, Dialogs, IOProcs, Sets,
   StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices, AppPaths,
-  InfoSource, StrUtils, Generics.Collections, ManageFonts;
+  InfoSource, StrUtils, Generics.Collections, ManageFonts, SourceReaderIntf;
 
 const
   RusToEngTable: array [1 .. 27] of integer = (1, 2, 3, 4, 5, 20, 21, 22, 23,
@@ -145,13 +145,9 @@ const
 const
   C_TotalPsalms = 150;
 
-  // search params bits
 type
   TSearchOption = (soWordParts, soContainAll, soFreeOrder, soIgnoreCase, soExactPhrase, soSkipSearch);
   TSearchOptions = set of TSearchOption;
-
-type
-  TBibleSet = set of 0 .. 255;
 
   // book_number + chapter number list
   TChapterNumber = TPair<Integer, TIntegerDynArray>;
@@ -196,44 +192,19 @@ type
     FInfoSource: TInfoSource;
     FPath: string;
     FShortPath: string;
-    FName: string; // full description (title) of the module
-    FShortName: string; // short abbreviation, like NIV, KJV
-    FCopyright: string; // short copyright notice; full page should be in copyright.html
 
-    FBible: boolean; // is this a Bible translation?
-    FBookQty: integer; // quantity of books in module (default = 66)
-    FChapterSign: string; // the beginning of a chapter
-    FVerseSign: string; // the beginning of a verse
-
-    FDefaultEncoding: TEncoding;
     // Default 8-bit encoding for all book files of TBible.
     FDesiredFontCharset: integer;
-    FUseRightAlignment: boolean;
 
-    FFontName: string;
     FAlphabet: string; // ALL letters that can be parts of text in the module
-
-    FSoundDir: string;
-    FStrongsPrefixed: boolean; // Gxxxx and Hxxx numbers or not?
-
-    FModuleName: string;
-    FModuleAuthor: string;
-    FModuleCompiler: string;
-    FModuleVersion: string;
-    FModuleImage: string;
 
     FHTML: string; // allowed HTML codes
     FFiltered: boolean;
-    FDefaultFilter: boolean; // using default filter
 
     FLines: TStrings; // these are verses when you open a chapter
 
-    BookLines: TStrings; // just a buffer
-
     FBook, FChapter, FVerseQty: integer;
     FRememberPlace: boolean;
-
-    FChapterString, FChapterStringPs, FChapterZeroString: string;
 
     FVersesFound: integer; // run-time counter of words found during search
     FStopSearching: boolean;
@@ -243,30 +214,28 @@ type
     FOnPasswordRequired: TBiblePasswordRequired;
 
     AlphabetArray: array [0 .. 2047] of Cardinal;
-    mModuleState: TbqModuleState;
-    mTraits: TbqModuleTraits;
-    mCategories: TStringList;
-    mChapterHead: string;
-    mInstallFontNames: string;
-    mDesiredUIFont: string;
+    FModuleState: TbqModuleState;
+    FTraits: TbqModuleTraits;
+    FCategories: TStringList;
+    FChapterHead: string;
     procedure ClearAlphabetBits();
     procedure SetAlphabetBit(aCode: integer; aValue: boolean);
     function GetAlphabetBit(aCode: integer): boolean;
 
   protected
-    mRecognizeBibleLinks: boolean;
-    mFuzzyResolveLinks: boolean;
-    mShortNamesVars: TStringList;
-    mModuleType: TbqModuleType;
+    FRecognizeBibleLinks: boolean;
+    FFuzzyResolveLinks: boolean;
+    FShortNamesVars: TStringList;
+    FModuleType: TbqModuleType;
 
-    ChapterQtys: TList<Integer>;
-    ChapterNumbers: TChapterNumbers;
-    FullNames: TList<String>;
+    FChapterQtys: TList<Integer>;
+    FChapterNumbers: TChapterNumbers;
+    FFullNames: TList<String>;
     // variants for shortening the title of the book
-    ShortNames: TList<String>;
-    PathNames: TList<String>;
+    FShortNames: TList<String>;
+    FPathNames: TList<String>;
 
-    procedure InitializeFields(aInfoSource: TInfoSource);
+    procedure InitializeFields();
     procedure InitializeTraits(aInfoSource: TInfoSource);
     procedure InitializeChapterData(aInfoSource: TInfoSource);
     procedure InitializeAlphabet(aInfoSource: TInfoSource);
@@ -274,7 +243,6 @@ type
 
     function SearchOK(Source: string; Words: TStrings; SearchOptions: TSearchOptions): Boolean;
     procedure SearchBook(Words: TStrings; SearchOptions: TSearchOptions; Book: Integer; RemoveStrongs: Boolean; Callback: IBookSearchCallback);
-    procedure SetHTMLFilter(value: string);
 
     function toInternal(
       const bl: TBibleLink;
@@ -286,7 +254,7 @@ type
     procedure SetShortNameVars(bookIx: integer; const Name: string);
     procedure InstallFonts();
     function GetVerse(i: Cardinal): string;
-    function getTraitState(trait: TbqModuleTrait): boolean;
+    function GetTraitState(trait: TbqModuleTrait): boolean;
     procedure setTraitState(trait: TbqModuleTrait; state: boolean);
     function GetIsMyBybleModule(): Boolean;
     function IsNativeEmptyParagraph(aBookLine: String): Boolean;
@@ -306,6 +274,9 @@ type
     function GetModuleName(): string;
     function GetAuthor(): string;
     function GetAllVerses(): string;
+    function GetIsBible(): Boolean;
+    function GetSearchSections(): TStrings;
+    function GetSourceReader(): ISourceReader;
 
     function GetBookNumberIndex(aBookNumber: Integer): Integer;
     function GetChapterNumberIndex(aBookNumber, aChapterNumber: Integer): Integer;
@@ -338,56 +309,36 @@ type
       internalAddr: boolean = true;
       checkverse: boolean = true): integer;
 
-
-
     function SyncToBible(const refBible: TBible; const bl: TBibleLink; out outBibleLink): integer;
     property IsMyBibleModule: Boolean read GetIsMyBybleModule;
-    property path: string read FPath;
+    property Path: string read FPath;
+    property PathNames: TList<String> read FPathNames;
     property ShortPath: string read FShortPath;
     property Name: string read GetModuleName;
-    property ShortName: string read FShortName;
-    property Categories: TStringList read mCategories;
-    property ChapterString: string read FChapterString;
-    property ChapterStringPs: string read FChapterStringPs;
-    property ChapterZeroString: string read FChapterZeroString;
+    property Categories: TStringList read FCategories;
 
     // new attributes
-    property InfoSource: TInfoSource read FInfoSource;
-    property ModuleName: string read FModuleName;
+    property Info: TInfoSource read FInfoSource;
     property Author: string read GetAuthor;
-    property ModuleVersion: string read FModuleVersion;
-    property ModuleCompiler: string read FModuleCompiler;
-    property ModuleImage: string read FModuleImage;
 
     property ShortNamesVars[ix: integer]: string read GetShortNameVars;
-    property Copyright: string read FCopyright;
 
-    property isBible: boolean read FBible;
-    property ModuleType: TbqModuleType read mModuleType;
-
-    property BookQty: integer read FBookQty;
-    property ChapterSign: string read FChapterSign;
-    property VerseSign: string read FVerseSign;
+    property IsBible: boolean read GetIsBible;
+    property ModuleType: TbqModuleType read FModuleType;
 
     property DefaultEncoding: TEncoding read GetDefaultEncoding;
     property DesiredCharset: integer read FDesiredFontCharset;
-    property DesiredUIFont: string read mDesiredUIFont;
-    property UseRightAlignment: boolean read FUseRightAlignment;
 
     property Alphabet: string read FAlphabet;
-    property FontName: string read FFontName;
 
     property CurBook: integer read FBook;
     property CurChapter: integer read FChapter;
     property VerseQty: integer read FVerseQty write FVerseQty;
-    property ChapterHead: string read mChapterHead;
+    property ChapterHead: string read FChapterHead write FChapterHead;
 
     property RememberPlace: boolean read FRememberPlace write FRememberPlace;
 
     property Verses[i: Cardinal]: string read GetVerse; default;
-
-    property SoundDirectory: string read FSoundDir;
-    property StrongsPrefixed: boolean read FStrongsPrefixed;
 
     function GetVerseByNumber(aVerseNumber: Integer): String;
 
@@ -403,7 +354,7 @@ type
     function OpenTSKReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
     function OpenRussianReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 
-    procedure Search(SearchText: string; SearchOptions: TSearchOptions; Bookset: TBibleSet; RemoveStrongs: boolean; Callback: IBookSearchCallback);
+    procedure Search(SearchText: string; SearchOptions: TSearchOptions; Bookset: TIntSet; RemoveStrongs: boolean; Callback: IBookSearchCallback);
     procedure StopSearching;
 
     procedure ClearBuffers;
@@ -445,32 +396,17 @@ type
     procedure _InternalSetContext(book, chapter: integer);
     procedure SetHTMLFilterX(value: string; forceUserFilter: boolean);
     function VerseCount(): integer;
-    property Traits: TbqModuleTraits read mTraits;
-    property trait[index: TbqModuleTrait]: boolean read getTraitState;
+    property Traits: TbqModuleTraits read FTraits;
+    property Trait[index: TbqModuleTrait]: boolean read GetTraitState;
 
   published
     property Filtered: boolean read FFiltered write FFiltered;
-    property HTMLFilter: string read FHTML write SetHTMLFilter;
     property VersesFound: integer read FVersesFound;
 
     property OnChangeModule: TNotifyEvent read FOnChangeModule write FOnChangeModule;
     property OnPasswordRequired: TBiblePasswordRequired read FOnPasswordRequired write FOnPasswordRequired;
-    property RecognizeBibleLinks: boolean read mRecognizeBibleLinks write mRecognizeBibleLinks;
-    property FuzzyResolve: boolean read mFuzzyResolveLinks write mFuzzyResolveLinks;
-
-  private
-    // extract to separate class on the basis Strategy pattern
-    // Native
-    class function NativeGetChapter(aChapter: Integer; aLines: TStrings;
-      aFilePath: String; aDefaultEncoding: TEncoding;
-      aChapterSign, aVerseSign: String; aIncludeChapterHeader: Boolean;
-      var aChapterHead: String): Boolean;
-
-    // MyBible
-    class function MyBibleCommentaryGetChapter(aBook, aChapter: Integer; aLines: TStrings;
-      aFilePath: String): Boolean;
-    class function MyBibleBibleGetChapter(aBook, aChapter: Integer; aLines: TStrings;
-      aFilePath: String): Boolean;
+    property RecognizeBibleLinks: boolean read FRecognizeBibleLinks write FRecognizeBibleLinks;
+    property FuzzyResolve: boolean read FFuzzyResolveLinks write FFuzzyResolveLinks;
 
   end;
 
@@ -483,38 +419,37 @@ implementation
 
 uses PlainUtils, bibleLinkParser, ExceptionFrm, SelectEntityType,
      InfoSourceLoaderFabric, InfoSourceLoaderInterface, FireDAC.Comp.Client,
-     MyBibleUtils, ChapterData, System.Masks, RegularExpressions;
+     MyBibleUtils, ChapterData, System.Masks, RegularExpressions,
+     SourceReader, MyBibleSourceReader, NativeSourceReader;
 
 constructor TBible.Create();
 begin
   FLines := TStringList.Create;
-  BookLines := TStringList.Create;
-  mCategories := TStringList.Create();
-  mShortNamesVars := TStringList.Create();
-  ChapterNumbers := TChapterNumbers.Create;
+  FCategories := TStringList.Create();
+  FShortNamesVars := TStringList.Create();
+  FChapterNumbers := TChapterNumbers.Create;
 
-  ChapterQtys := TList<Integer>.Create;
-  FullNames := TList<String>.Create;
-  ShortNames := TList<String>.Create;
-  PathNames := TList<String>.Create;
+  FChapterQtys := TList<Integer>.Create;
+  FFullNames := TList<String>.Create;
+  FShortNames := TList<String>.Create;
+  FPathNames := TList<String>.Create;
 
   FInfoSource := TInfoSource.Create;
 end;
 
 destructor TBible.Destroy;
 begin
-  BookLines.Free;
   FLines.Free;
-  mCategories.Free();
-  mShortNamesVars.Free();
+  FCategories.Free();
+  FShortNamesVars.Free();
 
-  FreeAndNil(ChapterNumbers);
+  FreeAndNil(FChapterNumbers);
   FreeAndNil(FInfoSource);
 
-  FreeAndNil(ChapterQtys);
-  FreeAndNil(FullNames);
-  FreeAndNil(ShortNames);
-  FreeAndNil(PathNames);
+  FreeAndNil(FChapterQtys);
+  FreeAndNil(FFullNames);
+  FreeAndNil(FShortNames);
+  FreeAndNil(FPathNames);
 
   inherited Destroy;
 end;
@@ -553,10 +488,10 @@ begin
 
   Result := -1;
 
-  if ChapterNumbers.Count = 0 then exit;
+  if FChapterNumbers.Count = 0 then exit;
 
-  for I := 0 to ChapterNumbers.Count - 1 do
-    if ChapterNumbers[i].Key = aBookNumber then
+  for I := 0 to FChapterNumbers.Count - 1 do
+    if FChapterNumbers[i].Key = aBookNumber then
     begin
       Result := i;
       exit;
@@ -636,21 +571,21 @@ function TBible.GetShortNameVars(bookIx: integer): string;
 begin
 
   dec(bookIx);
-  if (bookIx < 0) or (bookIx >= mShortNamesVars.Count) then
+  if (bookIx < 0) or (bookIx >= FShortNamesVars.Count) then
     raise ERangeError.CreateFmt
       ('Invalid request of shortNames property, invalid index=%d not in [1 - %d]',
-      [bookIx + 1, 0, mShortNamesVars.Count]);
+      [bookIx + 1, 0, FShortNamesVars.Count]);
 
-  Result := mShortNamesVars[bookIx];
+  Result := FShortNamesVars[bookIx];
 
 end;
 
 function TBible.GetModuleName: string;
 begin
-  if (FModuleName <> '') then
-    Result := FModuleName
+  if (FInfoSource.ModuleName <> '') then
+    Result := FInfoSource.ModuleName
   else
-    Result := FName;
+    Result := FInfoSource.BibleName;
 end;
 
 function TBible.GetShortNames(aBookNumber: Integer): String;
@@ -662,28 +597,28 @@ begin
   BookIndex := GetBookNumberIndex(aBookNumber);
 
   if BookIndex > -1 then
-    Result := ShortNames[BookIndex + 1]
+    Result := FShortNames[BookIndex + 1]
   else
-    Result := ShortNames[aBookNumber];
+    Result := FShortNames[aBookNumber];
 
 end;
 
 function TBible.GetAuthor: string;
 begin
-  if (FModuleAuthor <> '') then
-    Result := FModuleAuthor
+  if (FInfoSource.ModuleAuthor <> '') then
+    Result := FInfoSource.ModuleAuthor
   else
-    Result := FCopyright;
+    Result := FInfoSource.Copyright;
 end;
 
 function TBible.GetBookNumberAt(aIndex: Integer): Integer;
 begin
-  Result := ChapterNumbers[aIndex].Key
+  Result := FChapterNumbers[aIndex].Key
 end;
 
 function TBible.GetChapterNumberAt(aParentIndex, aIndex: Integer): Integer;
 begin
-  Result := ChapterNumbers[aParentIndex].Value[aIndex]
+  Result := FChapterNumbers[aParentIndex].Value[aIndex]
 end;
 
 function TBible.GetChapterNumberIndex(aBookNumber,
@@ -699,7 +634,7 @@ begin
   BookIndex:= GetBookNumberIndex(aBookNumber);
   if BookIndex = -1 then exit;
 
-  ChapterList := ChapterNumbers[BookIndex].Value;
+  ChapterList := FChapterNumbers[BookIndex].Value;
 
   for i := 0 to High(ChapterList) do
     if ChapterList[i] = aChapterNumber then
@@ -717,9 +652,9 @@ begin
   BookIndex := GetBookNumberIndex(aBookNumber);
 
   if (BookIndex > -1) then
-    Result := Length(ChapterNumbers[BookIndex].Value)
+    Result := Length(FChapterNumbers[BookIndex].Value)
   else
-    Result := ChapterQtys[aBookNumber];
+    Result := FChapterQtys[aBookNumber];
 
 end;
 
@@ -731,17 +666,16 @@ begin
   Result := 0;
   if (BookIndex > -1) then
   begin
-    if (BookIndex < ChapterNumbers.Count) then
-      Result := Length(ChapterNumbers[BookIndex].Value)
+    if (BookIndex < FChapterNumbers.Count) then
+      Result := Length(FChapterNumbers[BookIndex].Value)
   end
   else
   begin
-    if (aBookNumber < ChapterQtys.Count) then
-      Result := ChapterQtys[aBookNumber];
+    if (aBookNumber < FChapterQtys.Count) then
+      Result := FChapterQtys[aBookNumber];
   end;
 
 end;
-
 
 function TBible.GetStucture: string;
 var
@@ -749,12 +683,12 @@ var
   s: string;
 
 begin
-  bookCnt := FBookQty;
+  bookCnt := Info.BookQty;
   if not assigned(bookNames) then
     bookNames := TStringList.Create()
   else
     bookNames.Clear();
-  if FBible and not(bqmtOldCovenant in mTraits) then
+  if IsBible and not(bqmtOldCovenant in FTraits) then
   begin
     for bookIx := 1 to 66 do
       bookNames.Add('0');
@@ -762,7 +696,7 @@ begin
 
   for bookIx := 1 to bookCnt do
   begin
-    if not FBible then
+    if not IsBible then
     begin
       s := GetFullNames(bookIx);
       bookNames.Add(s);
@@ -775,8 +709,8 @@ end;
 
 function TBible.GetDefaultEncoding(): TEncoding;
 begin
-  if assigned(FDefaultEncoding) then
-    Result := FDefaultEncoding
+  if Assigned(Info.DefaultEncoding) then
+    Result := Info.DefaultEncoding
   else
     Result := TEncoding.GetEncoding(1251);
 end;
@@ -788,7 +722,7 @@ end;
 
 function TBible.GetLastBookNumber(): Integer;
 begin
-  Result := GetBookNumberAt(ChapterNumbers.Count - 1);
+  Result := GetBookNumberAt(FChapterNumbers.Count - 1);
 end;
 
 function TBible.GetLastChapterNumber(): Integer;
@@ -797,7 +731,7 @@ var
   TotalChapters: Integer;
 begin
   BookIndex := GetBookNumberIndex(CurBook);
-  TotalChapters := Length(ChapterNumbers[BookIndex].Value);
+  TotalChapters := Length(FChapterNumbers[BookIndex].Value);
   Result := GetChapterNumberAt(BookIndex, TotalChapters - 1);
 end;
 
@@ -811,8 +745,8 @@ var
   BookIndex: Integer;
 begin
   BookIndex := GetBookNumberIndex(Book);
-  if Length(ChapterNumbers[BookIndex].Value) > 0 then
-    Result := ChapterNumbers[BookIndex].Value[0]
+  if Length(FChapterNumbers[BookIndex].Value) > 0 then
+    Result := FChapterNumbers[BookIndex].Value[0]
   else
     raise Exception.Create('Unknown default chapter');
 end;
@@ -827,7 +761,7 @@ begin
   if (BookIndex >= 0) then
   begin
     BookIndex := BookIndex + 1;
-    if (BookIndex >= ChapterNumbers.Count) then
+    if (BookIndex >= FChapterNumbers.Count) then
       // we're behind the last book, go the first book
       Result := GetFirstBookNumber()
     else
@@ -849,7 +783,7 @@ begin
     if (BookIndex < 0) then
       // we're before the first book, go to the last book
       Result := GetLastBookNumber()
-    else if (BookIndex < ChapterNumbers.Count) then
+    else if (BookIndex < FChapterNumbers.Count) then
       Result := GetBookNumberAt(BookIndex);
   end;
 
@@ -863,20 +797,20 @@ begin
   BookIndex := GetBookNumberIndex(BookNumber);
   ChapterIndex := GetChapterNumberIndex(BookNumber, ChapterNumber);
   ChapterIndex := ChapterIndex + 1; // next chapter
-  if (ChapterIndex >= Length(ChapterNumbers[BookIndex].Value)) then
+  if (ChapterIndex >= Length(FChapterNumbers[BookIndex].Value)) then
   begin
     // we're behind the last chapter of the book, go next book
     BookIndex := BookIndex + 1;
-    if BookIndex >= ChapterNumbers.Count then
+    if BookIndex >= FChapterNumbers.Count then
     begin
       // we're behind the last chapter of the last book, go to the beggining of the first book
       NextBookNumber := GetBookNumberAt(0);
-      NextChapterNumber := ChapterNumbers[0].Value[0];
+      NextChapterNumber := FChapterNumbers[0].Value[0];
       Exit;
     end;
 
     NextBookNumber := GetBookNumberAt(BookIndex);
-    NextChapterNumber := ChapterNumbers[BookIndex].Value[0];
+    NextChapterNumber := FChapterNumbers[BookIndex].Value[0];
     Exit;
   end;
 
@@ -902,14 +836,14 @@ begin
       // we're before the first chapter of the first book, go to the end of the last book
       PrevBookNumber := GetLastBookNumber();
       BookIndex := GetBookNumberIndex(PrevBookNumber);
-      TotalChapters := Length(ChapterNumbers[BookIndex].Value);
+      TotalChapters := Length(FChapterNumbers[BookIndex].Value);
       PrevChapterNumber := GetChapterNumberAt(BookIndex, TotalChapters - 1);
       Exit;
     end;
 
     PrevBookNumber := GetBookNumberAt(BookIndex);
-    TotalChapters := Length(ChapterNumbers[BookIndex].Value);
-    PrevChapterNumber := ChapterNumbers[BookIndex].Value[TotalChapters - 1];
+    TotalChapters := Length(FChapterNumbers[BookIndex].Value);
+    PrevChapterNumber := FChapterNumbers[BookIndex].Value[TotalChapters - 1];
     Exit;
   end;
 
@@ -939,18 +873,18 @@ begin
   BookIndex := GetBookNumberIndex(aBookNumber);
 
   if BookIndex > -1 then
-    Result := FullNames[BookIndex + 1]
+    Result := FFullNames[BookIndex + 1]
   else
   begin
     if (aBookNumber <= 0) then
       Exit;
-    Result := FullNames[aBookNumber];
+    Result := FFullNames[aBookNumber];
   end;
 end;
 
-function TBible.getTraitState(trait: TbqModuleTrait): boolean;
+function TBible.GetTraitState(trait: TbqModuleTrait): boolean;
 begin
-  Result := trait in mTraits;
+  Result := trait in FTraits;
 end;
 
 function TBible.GetTSKShortNames(aNativeBookNumber: Integer): String;
@@ -980,6 +914,11 @@ begin
     sb.AppendLine(FLines[I]);
   end;
   Result := sb.ToString;
+end;
+
+function TBible.GetIsBible(): Boolean;
+begin
+  Result := Info.IsBible;
 end;
 
 function TBible.IsNativeEmptyParagraph(aBookLine: String): Boolean;
@@ -1016,7 +955,6 @@ begin
 
 end;
 
-
 function TBible.GetVerseByNumber(aVerseNumber: Integer): String;
 var
   ClearVerses: TStringList;
@@ -1041,19 +979,12 @@ begin
   end;
 end;
 
-procedure TBible.SetHTMLFilter(value: string);
-begin
-  FHTML := DefaultHTMLFilter + value;
-  FDefaultFilter := False;
-end;
-
 procedure TBible.SetHTMLFilterX(value: string; forceUserFilter: boolean);
 begin
   if forceUserFilter then
     FHTML := value
   else
     FHTML := DefaultHTMLFilter + value;
-  FDefaultFilter := False;
 end;
 
 function TBible.SetInfoSource(aInfoSource: TInfoSource): Boolean;
@@ -1069,7 +1000,7 @@ begin
   FInfoSource := aInfoSource.Clone();
   FInfoSource.InfoSourceType := aInfoSource.InfoSourceType;
 
-  InitializeFields(aInfoSource);
+  InitializeFields();
   InitializeTraits(aInfoSource);
   InitializeChapterData(aInfoSource);
   InitializeAlphabet(aInfoSource);
@@ -1119,26 +1050,26 @@ var
   i, countDiff: integer;
 begin
   dec(bookIx);
-  countDiff := bookIx - mShortNamesVars.Count - 1;
+  countDiff := bookIx - FShortNamesVars.Count - 1;
   if (bookIx < 0) or (countDiff > 255) then
     raise ERangeError.CreateFmt
       ('invalid attempt to set ShortNames property, index =%d', [bookIx + 1]);
 
   for i := 0 to countDiff do
-    mShortNamesVars.Add(''); // fill not used
+    FShortNamesVars.Add(''); // fill not used
   if countDiff = -1 then
-    mShortNamesVars.Add(name)
+    FShortNamesVars.Add(name)
   else
-    mShortNamesVars[bookIx] := name;
+    FShortNamesVars[bookIx] := name;
 
 end;
 
 procedure TBible.setTraitState(trait: TbqModuleTrait; state: boolean);
 begin
   if state then
-    Include(mTraits, trait)
+    Include(FTraits, trait)
   else
-    Exclude(mTraits, trait);
+    Exclude(FTraits, trait);
 end;
 
 function TBible.OpenCopyright(): Boolean;
@@ -1171,43 +1102,24 @@ function TBible.OpenChapter(
   forceResolveLinks: boolean = False): boolean;
 var
   recLnks: boolean;
-  ChapterPath: String;
+  SourceReader: ISourceReader;
 begin
   Result := False;
 
   FLines.Clear;
-  if bqmsFontsInstallPending in mModuleState then
+  if bqmsFontsInstallPending in FModuleState then
     InstallFonts();
 
-  mChapterHead := '';
+  FChapterHead := '';
   if ( not (IsValidBookNumber(book) and IsValidChapterNumber(book, chapter))) then exit;
+  SourceReader := GetSourceReader();
 
-  // read text dependence of source type: Native/MyBible, Bible/Commentary
-  if FInfoSource.InfoSourceType = isMyBible then
+  if Info.IsCommentary then
   begin
-
-    if InfoSource.IsCommentary then
-    begin
-      if not MyBibleCommentaryGetChapter(book, chapter, FLines, FPath) then exit;
-    end
-    else begin
-      if not MyBibleBibleGetChapter(book, chapter, FLines, FPath) then exit;
-    end;
-
+    if not SourceReader.GetCommentaryChapter(book, chapter, FLines) then exit;
   end
   else begin
-    ChapterPath := FPath + PathNames[book];
-    if not (FileExists(ChapterPath)) then
-    begin
-      ChapterPath := ExtractRelativePath(TAppDirectories.Root, ChapterPath);
-      raise EFileNotFoundException.Create(
-        String.Format(Lang.SayDefault('FileNotFound', 'File "%s" not found.'), [ChapterPath]));
-    end;
-
-    // todo: get data from InfoSource
-    if not NativeGetChapter(chapter, FLines,
-      ChapterPath, DefaultEncoding, FChapterSign, FVerseSign,
-      trait[bqmtIncludeChapterHead], mChapterHead) then exit;
+    if not SourceReader.GetBibleChapter(book, chapter, FLines) then exit;
   end;
 
   FBook := book;
@@ -1215,14 +1127,14 @@ begin
 
   if FFiltered and (FLines.Count <> 0) then
     FLines.Text := ParseHTML(FLines.Text, FHTML);
-  recLnks := (not FBible) or (InfoSource.IsCommentary);
-  if forceResolveLinks or (recLnks and mRecognizeBibleLinks) then
+  recLnks := (not IsBible) or (Info.IsCommentary);
+  if forceResolveLinks or (recLnks and FRecognizeBibleLinks) then
   begin
-    FLines.Text := ResolveLinks(FLines.Text, mFuzzyResolveLinks);
+    FLines.Text := ResolveLinks(FLines.Text, FFuzzyResolveLinks);
   end;
 
   if FFiltered and trait[bqmtIncludeChapterHead] then
-    mChapterHead := ParseHTML(mChapterHead, FHTML);
+    FChapterHead := ParseHTML(FChapterHead, FHTML);
   FVerseQty := FLines.Count;
 
   if FLines.Count = 0 then
@@ -1258,7 +1170,7 @@ begin
       if not GetAlphabetBit(Integer(Src[i])) then
         Src[i] := ' ';
 
-    if FBible then
+    if IsBible then
     begin
       Src := Trim(Src);
       StrDeleteFirstNumber(Src);
@@ -1357,9 +1269,12 @@ end;
 procedure TBible.SearchBook(Words: TStrings; SearchOptions: TSearchOptions; Book: Integer; RemoveStrongs: Boolean; Callback: IBookSearchCallback);
 var
   I, Chapter, Verse: Integer;
-  Btmp, TempWords: TStringList; // lines buffer from the book
+  TempWords: TStringList; // lines buffer from the book
   S, SNew: string;
   NewParams: TSearchOptions;
+  Verses: TStrings; // just a buffer
+  SourceReader: ISourceReader;
+  VerseMeta: TVerseMeta;
 begin
   Chapter := 0;
   Verse := 0;
@@ -1395,76 +1310,47 @@ begin
     TempWords.AddStrings(Words);
   end;
 
-  ReadHtmlTo(FPath + PathNames[book], BookLines, DefaultEncoding);
+  SourceReader := GetSourceReader();
+  Verses := SourceReader.GetBookVerses(book);
 
   // if the whole book doesn't have matches, just skip it
-  if not SearchOK(BookLines.Text, TempWords, NewParams + [soSkipSearch]) then
+  if not SearchOK(Verses.Text, TempWords, NewParams + [soSkipSearch]) then
     Exit;
 
   if not (soFreeOrder in SearchOptions) then
     NewParams := NewParams - [soFreeOrder];
 
-  // reformat BookLines to complete VERSES, because verses can go in several lines
-  Btmp := TStringList.Create;
-
-  S := '';
-
-  for I := 0 to BookLines.Count - 1 do
-  begin
-    if (Pos(FChapterSign, BookLines[I]) > 0) or (Pos(FVerseSign, BookLines[I]) > 0) then
-    begin
-      Btmp.Add(S);
-      S := BookLines[I];
-    end
-    else
-      S := S + ' ' + BookLines[I]; // concatenate paragraphs
-  end;
-
-  Btmp.Add(S);
-
-  BookLines.Clear;
-  BookLines.AddStrings(Btmp);
-
   // reformat finished
-
-  for I := 0 to BookLines.Count - 1 do
+  for I := 0 to Verses.Count - 1 do
   begin
     if FStopSearching then
       break;
 
-    if Pos(FChapterSign, BookLines[I]) <> 0 then
+    VerseMeta := TVerseMeta(Verses.Objects[I]);
+    Chapter := VerseMeta.ChapterNumber;
+    Verse := VerseMeta.VerseNumber;
+
+    if SearchOK(Verses[I], TempWords, NewParams) and (Chapter > 0) then
     begin
-      Inc(Chapter);
-      Verse := 0;
-      continue;
-    end;
+      if ((soExactPhrase in SearchOptions) and Trait[bqmtStrongs]) then
+        if (not SearchOK(DeleteStrongNumbers(Verses[I]), Words, SearchOptions)) then
+          Continue; // filter for exact phrases
 
-    if Pos(FVerseSign, BookLines[I]) <> 0 then
-    begin
-      Inc(Verse);
-
-      if SearchOK(BookLines[I], TempWords, NewParams) and (Chapter > 0) then
-      begin
-        if ((soExactPhrase in SearchOptions) and Trait[bqmtStrongs]) then
-          if (not SearchOK(DeleteStrongNumbers(BookLines[I]), Words, SearchOptions)) then
-            Continue; // filter for exact phrases
-
-        Inc(FVersesFound);
-        if Assigned(Callback) then
-          Callback.OnVerseFound(Self, FVersesFound, Book, Chapter, Verse, BookLines[I], RemoveStrongs);
-      end;
+      Inc(FVersesFound);
+      if Assigned(Callback) then
+        Callback.OnVerseFound(Self, FVersesFound, Book, Chapter, Verse, Verses[I], RemoveStrongs);
     end;
   end;
 
-  Btmp.Free;
   TempWords.Free;
 end;
 
-procedure TBible.Search(SearchText: string; SearchOptions: TSearchOptions; Bookset: TBibleSet; RemoveStrongs: boolean; Callback: IBookSearchCallback);
+procedure TBible.Search(SearchText: string; SearchOptions: TSearchOptions; Bookset: TIntSet; RemoveStrongs: boolean; Callback: IBookSearchCallback);
 var
   words: TStrings;
-  w: string;
-  i: integer;
+  w: String;
+  I: Integer;
+  BookNumber: Integer;
 begin
   words := TStringList.Create;
   w := SearchText;
@@ -1482,25 +1368,28 @@ begin
 
   if words.Count > 0 then
   begin
-    for i := 1 to FBookQty do
-      if (i - 1) in Bookset then
+    for I := 0 to Info.BookQty - 1 do
+    begin
+      BookNumber := GetBookNumberAt(I);
+      if Bookset.Contains(BookNumber) then
       begin
         if FStopSearching then
           break;
 
         if Assigned(Callback) then
-          Callback.OnVerseFound(Self, FVersesFound, i, 0, 0, '', RemoveStrongs);
+          Callback.OnVerseFound(Self, FVersesFound, BookNumber, 0, 0, '', RemoveStrongs);
         // just to know that there is a searching -- fire an event
         try
-          SearchBook(words, SearchOptions, i, RemoveStrongs, Callback);
+          SearchBook(words, SearchOptions, BookNumber, RemoveStrongs, Callback);
         except
           on e: Exception do
           begin
-            g_ExceptionContext.Add(Format('TBible.Search: s=%s | i(cbook)=%d', [SearchText, i]));
+            g_ExceptionContext.Add(Format('TBible.Search: s=%s | i(cbook)=%d', [SearchText, BookNumber]));
             BqShowException(e);
           end;
         end;
       end;
+    end;
   end;
 
   words.Free;
@@ -1559,6 +1448,33 @@ begin
   Result := FLines.Count;
 end;
 
+function TBible.GetSearchSections(): TStrings;
+var
+  I, BookNumber: Integer;
+  Items: TStrings;
+  SourceReader: ISourceReader;
+begin
+  Items := TStringList.Create;
+  SourceReader := GetSourceReader();
+  Items.AddStrings(SourceReader.GetSpecialSearchSections);
+
+  for I := 0 to Info.BookQty - 1 do
+  begin
+    BookNumber := GetBookNumberAt(I);
+    Items.AddObject(GetFullNames(BookNumber), TObject(BookNumber));
+  end;
+
+  Result := Items;
+end;
+
+function TBible.GetSourceReader(): ISourceReader;
+begin
+  if FInfoSource.InfoSourceType = isMyBible then
+    Result := TMyBibleSourceReader.Create(Self)
+  else
+    Result := TNativeSourceReader.Create(Self);
+end;
+
 procedure TBible._InternalSetContext(book, chapter: integer);
 begin
   FBook := book;
@@ -1608,11 +1524,10 @@ begin
   if not SplitValue(s, name, ichapter, ifromverse, itoverse) then
     exit;
 
-  name := ' ' + LowerCase(name) + ' ';
+  name := ' ' + name + ' ';
 
   for ibook := 1 to 66 do
-    if Pos(string(name), string(' ' + LowerCase(GetTSKShortNames(ibook)) + ' ')) <> 0
-    then
+    if ContainsText(' ' + GetTSKShortNames(ibook) + ' ', name) then
     begin
       book := ibook;
       chapter := ichapter;
@@ -1638,11 +1553,10 @@ begin
   if not SplitValue(s, name, ichapter, ifromverse, itoverse) then
     exit;
 
-  name := ' ' + LowerCase(name) + ' ';
+  name := ' ' + name + ' ';
 
-  for ibook := 1 to FBookQty do
-    if Pos(string(name), string(' ' + LowerCase(ShortNamesVars[ibook]) +
-      ' ')) <> 0 then
+  for ibook := 1 to Info.BookQty do
+    if ContainsText(' ' + ShortNamesVars[ibook] + ' ', name) then
     begin
       book := ibook;
       chapter := ichapter;
@@ -1656,7 +1570,6 @@ end;
 
 procedure TBible.ClearBuffers;
 begin
-  BookLines.Clear;
   FLines.Clear;
 end;
 
@@ -1668,21 +1581,21 @@ end;
 
 function TBible.GetIsMyBybleModule: Boolean;
 begin
-  Result := InfoSource.InfoSourceType = isMyBible;
+  Result := Info.InfoSourceType = isMyBible;
 end;
 
 function TBible.IsValidBookNumber(aBookNumber: Integer): Boolean;
 begin
-  if ChapterNumbers.Count = 0 then
-    Result:= (aBookNumber > 0) and (aBookNumber <= BookQty)
+  if FChapterNumbers.Count = 0 then
+    Result:= (aBookNumber > 0) and (aBookNumber <= Info.BookQty)
   else
     Result := GetBookNumberIndex(aBookNumber) <> -1;
 end;
 
 function TBible.IsValidChapterNumber(aBookNumber, aChapterNumber: Integer): Boolean;
 begin
-  if ChapterNumbers.Count = 0 then
-    Result:= (aBookNumber > 0) and (aBookNumber <= BookQty)
+  if FChapterNumbers.Count = 0 then
+    Result:= (aBookNumber > 0) and (aBookNumber <= Info.BookQty)
   else
     Result := GetChapterNumberIndex(aBookNumber, aChapterNumber) <> -1;
 end;
@@ -1723,7 +1636,7 @@ begin
         dec(Result, ord(effectiveLnk.vend > VerseQty));
     end
     else
-      openchapter_res := effectiveLnk.chapter <= ChapterQtys[effectiveLnk.book] - ord(trait[bqmtZeroChapter]);
+      openchapter_res := effectiveLnk.chapter <= FChapterQtys[effectiveLnk.book] - ord(trait[bqmtZeroChapter]);
 
     if not openchapter_res then
     begin
@@ -1737,60 +1650,6 @@ begin
     g_ExceptionContext.Add('TBible.LinkValidnessStatus.bl=' + bl.ToCommand(''));
   end;
 
-end;
-
-procedure ClearMyBibleTags(var aLines: TStrings);
-var
-  i: Integer;
-  RegEx: TRegEx;
-  Options: TRegExOptions;
-begin
-  Options := [roMultiLine];
-  RegEx := TRegEx.Create('<S>(?P<word>.*?)<\/S>', Options);
-
-  for I := 0 to aLines.Count-1 do
-    aLines[i] := RegEx.Replace(aLines[i], '');
-
-end;
-
-class function TBible.MyBibleBibleGetChapter(aBook, aChapter: Integer;
-  aLines: TStrings; aFilePath: String): Boolean;
-var
-  SQLiteQuery: TFDQuery;
-begin
-  Result := False;
-
-  SQLiteQuery := TMyBibleUtils.CreateQuery(aFilePath);
-  try
-
-    TMyBibleUtils.GetBibleChapter(SQLiteQuery, aBook, aChapter, aLines);
-
-    ClearMyBibleTags(aLines);
-
-    Result := True;
-  finally
-    TMyBibleUtils.CloseOpenConnection(SQLiteQuery);
-  end;
-
-
-end;
-
-class function TBible.MyBibleCommentaryGetChapter(aBook, aChapter: Integer;
-  aLines: TStrings; aFilePath: String): Boolean;
-var
-  SQLiteQuery: TFDQuery;
-begin
-  Result := False;
-
-  SQLiteQuery := TMyBibleUtils.CreateQuery(aFilePath);
-  try
-
-    TMyBibleUtils.GetCommentaryChapter(SQLiteQuery, aBook, aChapter, aLines);
-
-    Result := True;
-  finally
-    TMyBibleUtils.CloseOpenConnection(SQLiteQuery);
-  end;
 end;
 
 function TBible.MyBibleToNativeBookNumber(aMyBibleBookNumber: Integer): Integer;
@@ -1807,67 +1666,6 @@ begin
       exit;
     end;
 
-end;
-
-class function TBible.NativeGetChapter(aChapter: Integer; aLines: TStrings;
-  aFilePath: String; aDefaultEncoding: TEncoding;
-  aChapterSign, aVerseSign: String; aIncludeChapterHeader: Boolean;
-  var aChapterHead: String): Boolean;
-var
-  iChapter: Integer;
-  FoundChapter: Boolean;
-  j, k: Integer;
-  BookLines: TStrings;
-begin
-  BookLines := TStringList.Create;
-  try
-    ReadHtmlTo(aFilePath, BookLines, aDefaultEncoding);
-
-    iChapter := 0;
-
-    j := -1;
-
-    repeat
-      Inc(j);
-      if Pos(aChapterSign, BookLines[j]) > 0 then
-        Inc(iChapter);
-    until (j = BookLines.Count - 1) or (iChapter = aChapter);
-
-    FoundChapter := (iChapter = aChapter);
-
-    if iChapter = aChapter then
-    begin
-      if foundchapter then
-        k := j + 1
-      else
-        k := j;
-
-      for j := k to BookLines.Count - 1 do
-      begin
-        if Pos(aChapterSign, BookLines[j]) > 0 then
-          break;
-
-        if Pos(aVerseSign, BookLines[j]) > 0 then
-        begin
-          aLines.Add(BookLines[j]); // add newly found verse of this chapter
-        end
-        else if aLines.Count > 0 then
-          aLines[aLines.Count - 1] := aLines[aLines.Count - 1] + ' ' +
-            BookLines[j]
-        else if aIncludeChapterHeader then
-          aChapterHead := aChapterHead + BookLines[j];
-        // add to current verse (paragraph)
-      end;
-
-      Result := True;
-
-    end
-    else
-      Result := False;
-
-  finally
-    BookLines.Free;
-  end;
 end;
 
 function TBible.NativeToMyBibleBookNumber(aNativeBookNumber: Integer; WithNumberCorrection: Boolean): Integer;
@@ -1953,20 +1751,20 @@ begin
     Result := CountVerses(book, 1);
     exit;
   end
-  else if chapter > ChapterQtys[book] then
+  else if chapter > FChapterQtys[book] then
   begin
-    Result := CountVerses(book, ChapterQtys[book]);
+    Result := CountVerses(book, FChapterQtys[book]);
     exit;
   end;
 
   slines := nil;
   try
-    slines := ReadHtml(FPath + PathNames[book], DefaultEncoding);
+    slines := ReadHtml(FPath + FPathNames[book], DefaultEncoding);
 
     i := 0;
     Count := 0;
     repeat
-      if Pos(FChapterSign, slines[i]) > 0 then
+      if Pos(Info.ChapterSign, slines[i]) > 0 then
         Inc(Count);
       if Count = chapter then
         break;
@@ -1981,10 +1779,10 @@ begin
 
     Count := 0;
     repeat
-      if Pos(FVerseSign, slines[i]) > 0 then
+      if Pos(Info.VerseSign, slines[i]) > 0 then
         Inc(Count);
       Inc(i);
-    until (i = slines.Count) or (Pos(FChapterSign, slines[i]) > 0);
+    until (i = slines.Count) or (Pos(Info.ChapterSign, slines[i]) > 0);
 
   finally
     slines.Free;
@@ -2344,7 +2142,7 @@ begin
   ichapter := chapter - offset;
   iverse := verse;
 
-  if (not FBible) or (book > 66) then
+  if (not IsBible) or (book > 66) then
   begin
     ibook := 1;
     ichapter := 1;
@@ -2400,58 +2198,27 @@ begin
 
 end;
 
-procedure TBible.InitializeFields(aInfoSource: TInfoSource);
+procedure TBible.InitializeFields();
 begin
 
-  mModuleState := [];
-  mModuleType := bqmBook;
+  FModuleState := [];
+  FModuleType := bqmBook;
 
   FBook := 1;
   FChapter := 1;
 
-  FBookQty := aInfoSource.BookQty;
-  FDefaultEncoding := aInfoSource.DefaultEncoding;
-  FName := aInfoSource.BibleName;
-  FShortName := aInfoSource.BibleShortName;
-  FCopyright := aInfoSource.Copyright;
-  FModuleName := aInfoSource.ModuleName;
-  FModuleAuthor := aInfoSource.ModuleAuthor;
-  FModuleCompiler := aInfoSource.ModuleCompiler;
-  FModuleVersion := aInfoSource.ModuleVersion;
-  FModuleImage := aInfoSource.ModuleImage;
-
   FFiltered := true;
-  FHTML := DefaultHTMLFilter;
-  HTMLFilter := aInfoSource.HTMLFilter;
+  FHTML := DefaultHTMLFilter + Info.HTMLFilter;
 
-  FUseRightAlignment := aInfoSource.UseRightAlignment;
-
-  FDefaultFilter := true;
-
-  FFontName := aInfoSource.DesiredFontName;
   FStopSearching := False;
 
   FRememberPlace := true;
 
-  FSoundDir := aInfoSource.SoundDirectory;
-  FStrongsPrefixed := aInfoSource.StrongsPrefixed;
+  if not Info.InstallFonts.IsEmpty then
+    Include(FModuleState, bqmsFontsInstallPending);
 
-  FBible := aInfoSource.IsBible;
-
-  mDesiredUIFont := aInfoSource.DesiredUIFont;
-  mInstallFontNames := aInfoSource.InstallFonts;
-  if not mInstallFontNames.IsEmpty then
-    Include(mModuleState, bqmsFontsInstallPending);
-
-
-  FChapterSign := aInfoSource.ChapterSign;
-  FChapterString := aInfoSource.ChapterString;
-  FChapterStringPs := aInfoSource.ChapterStringPs;
-  FChapterZeroString := aInfoSource.ChapterZeroString;
-  FVerseSign := aInfoSource.VerseSign;
-
-  mCategories.Clear();
-  StrToTokens(aInfoSource.Categories, '|', mCategories);
+  FCategories.Clear();
+  StrToTokens(Info.Categories, '|', FCategories);
 end;
 
 procedure TBible.InitializePaths(aInfoSource: TInfoSource);
@@ -2469,27 +2236,27 @@ begin
                       ExtractFileName(FPath));
     end;
 
-    if Self.FBible then
+    if IsBible then
     begin
       if aInfoSource.IsCommentary then
-        mModuleType := bqmCommentary
+        FModuleType := bqmCommentary
       else
-        mModuleType := bqmBible;
+        FModuleType := bqmBible;
 
       if trait[bqmtOldCovenant] then
-        mCategories.Add(Lang.SayDefault('catOT', 'Old Covenant'));
+        FCategories.Add(Lang.SayDefault('catOT', 'Old Covenant'));
 
       if trait[bqmtNewCovenant] then
-        mCategories.Add(Lang.SayDefault('catNT', 'New Covenant'));
+        FCategories.Add(Lang.SayDefault('catNT', 'New Covenant'));
 
       if trait[bqmtApocrypha] then
-        mCategories.Add(Lang.SayDefault('catApocrypha', 'Apocrypha'));
+        FCategories.Add(Lang.SayDefault('catApocrypha', 'Apocrypha'));
     end
     else
     begin // not bible
-      Exclude(mTraits, bqmtOldCovenant);
-      Exclude(mTraits, bqmtNewCovenant);
-      Exclude(mTraits, bqmtApocrypha);
+      Exclude(FTraits, bqmtOldCovenant);
+      Exclude(FTraits, bqmtNewCovenant);
+      Exclude(FTraits, bqmtApocrypha);
     end;
     if Assigned(FOnChangeModule) then
       FOnChangeModule(Self);
@@ -2499,8 +2266,7 @@ procedure TBible.InitializeAlphabet(aInfoSource: TInfoSource);
 var
   i: Integer;
 begin
-  FAlphabet := aInfoSource.Alphabet;
-  FAlphabet := FAlphabet + '0123456789';
+  FAlphabet := aInfoSource.Alphabet + '0123456789';
 
   ClearAlphabetBits;
 
@@ -2519,27 +2285,27 @@ var
   ChapterNumber: TChapterNumber;
 begin
 
-  ChapterNumbers.Clear;
+  FChapterNumbers.Clear;
   Count := aInfoSource.ChapterDatas.Count;
 
-  PathNames.Count := Count + 1;
-  FullNames.Count := Count + 1;
-  ShortNames.Count := Count + 1;
-  ChapterQtys.Count := Count + 1;
+  FPathNames.Count := Count + 1;
+  FFullNames.Count := Count + 1;
+  FShortNames.Count := Count + 1;
+  FChapterQtys.Count := Count + 1;
 
   for i := 0 to aInfoSource.ChapterDatas.Count - 1 do
   begin
     index := i + 1;
     ChapterData := aInfoSource.ChapterDatas[i];
 
-    PathNames[index] := ChapterData.PathName;
-    FullNames[index] := ChapterData.FullName;
+    FPathNames[index] := ChapterData.PathName;
+    FFullNames[index] := ChapterData.FullName;
 
     ShortName := ChapterData.ShortName;
     SetShortNameVars(index, ShortName);
-    ShortNames[index] := FirstWord(ShortNamesVars[index]);
+    FShortNames[index] := FirstWord(ShortNamesVars[index]);
 
-    ChapterQtys[index] := Length(ChapterData.ChapterNumbers);
+    FChapterQtys[index] := Length(ChapterData.ChapterNumbers);
 
     if (ChapterData.BookNumber > 0) then
     begin
@@ -2549,17 +2315,14 @@ begin
       ChapterList := Copy(ChapterData.ChapterNumbers, 0, Length(ChapterData.ChapterNumbers));
 
       ChapterNumber := TChapterNumber.Create(ChapterData.BookNumber, ChapterList);
-      ChapterNumbers.Add(ChapterNumber);
+      FChapterNumbers.Add(ChapterNumber);
     end;
-
-
   end;
-
 end;
 
 procedure TBible.InitializeTraits(aInfoSource: TInfoSource);
 begin
-  mTraits := [bqmtOldCovenant, bqmtNewCovenant];
+  FTraits := [bqmtOldCovenant, bqmtNewCovenant];
 
   setTraitState(bqmtOldCovenant, aInfoSource.OldTestament);
   setTraitState(bqmtNewCovenant, aInfoSource.NewTestament);
@@ -2580,7 +2343,7 @@ var
   token: String;
 
 begin
-  pc := Pointer(mInstallFontNames);
+  pc := Pointer(Info.InstallFonts);
   if (pc = nil) then
     exit;
 
@@ -2621,7 +2384,7 @@ var
 begin
   maxMatchValue := -1;
   maxMatchIx := -1;
-  modBookCount := bibleModule.FBookQty;
+  modBookCount := bibleModule.Info.BookQty;
   for i := 1 to modBookCount do
   begin
     currentMatchValue := CompareTokenStrings(RussianShortNames[bookIx],
@@ -2654,7 +2417,7 @@ begin
   if ichapter > C_TotalPsalms then
     chapter := 1;
 
-  if (not FBible) then
+  if (not IsBible) then
   begin
     book := 1;
     chapter := 1;
@@ -2762,7 +2525,7 @@ begin
   echapter := chapter - offset;
   everse := verse;
 
-  if (not FBible) or (book > 66) then
+  if (not IsBible) or (book > 66) then
   begin
     ebook := 1;
     echapter := 1;
@@ -2831,7 +2594,7 @@ begin
   chapter := echapter;
   verse := everse;
 
-  if (not FBible) or (ebook > 66) then
+  if (not IsBible) or (ebook > 66) then
   begin
     book := 1;
     chapter := 1;

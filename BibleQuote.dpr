@@ -71,12 +71,7 @@ uses
   MyBibleDictLoader in 'Core\Dict\MyBibleDictLoader.pas',
   DictLoaderFabric in 'Core\Dict\DictLoaderFabric.pas',
   ChapterData in 'Core\ChapterData.pas',
-  InfoSourceLoaderInterface in 'Utils\InfoSource\InfoSourceLoaderInterface.pas',
-  InfoSourceLoaderFabric in 'Utils\InfoSource\InfoSourceLoaderFabric.pas',
   SelectEntityType in 'Utils\SelectEntityType.pas',
-  NativeInfoSourceLoader in 'Utils\InfoSource\NativeInfoSourceLoader.pas',
-  InfoSource in 'Utils\InfoSource\InfoSource.pas',
-  MyBibleInfoSourceLoader in 'Utils\InfoSource\MyBibleInfoSourceLoader.pas',
   MyBibleUtils in 'Utils\MyBibleUtils.pas',
   GoCommand in 'Core\Commands\GoCommand.pas',
   FileCommand in 'Core\Commands\FileCommand.pas',
@@ -99,7 +94,17 @@ uses
   ScriptureProvider in 'Core\ScriptureProvider.pas',
   AppStates in 'Core\AppStates.pas',
   DataServices in 'Core\DataServices.pas',
-  Jobs in 'Core\Jobs.pas';
+  Jobs in 'Core\Jobs.pas',
+  InfoSource in 'Core\InfoSource\InfoSource.pas',
+  InfoSourceLoaderFabric in 'Core\InfoSource\InfoSourceLoaderFabric.pas',
+  InfoSourceLoaderInterface in 'Core\InfoSource\InfoSourceLoaderInterface.pas',
+  MyBibleInfoSourceLoader in 'Core\InfoSource\MyBibleInfoSourceLoader.pas',
+  NativeInfoSourceLoader in 'Core\InfoSource\NativeInfoSourceLoader.pas',
+  SourceReader in 'Core\Readers\SourceReader.pas',
+  MyBibleSourceReader in 'Core\Readers\MyBibleSourceReader.pas',
+  NativeSourceReader in 'Core\Readers\NativeSourceReader.pas',
+  SourceReaderIntf in 'Core\Readers\SourceReaderIntf.pas',
+  Sets in 'Utils\Sets.pas';
 
 {$R *.res}
 

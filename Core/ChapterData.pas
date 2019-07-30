@@ -24,6 +24,14 @@ type
     function Clone(): TChapterData;
   end;
 
+  TVerseMeta = class(TObject)
+  private
+    FChapterNumber, FVerseNumber: Integer;
+  public
+    property ChapterNumber: Integer read FChapterNumber write FChapterNumber;
+    property VerseNumber: Integer read FVerseNumber write FVerseNumber;
+  end;
+
 implementation
 
 { TChapterData }

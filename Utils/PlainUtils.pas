@@ -2,7 +2,7 @@ unit PlainUtils;
 
 interface
 
-uses SysUtils, Windows, Classes, Character;
+uses SysUtils, Windows, Classes, Character, Generics.Collections;
 
 function PChar2Int(pwc: PChar; out val: integer): PChar;
 function StrToTokens(const str: string; const delim: string; strLst: TStrings; useQuotes: boolean = false): integer;
@@ -13,6 +13,7 @@ function UpperPosCI(const substr: string; str: string): integer;
 function NowDateTimeString(): string;
 function ParamStartedWith(const token: string; out param: string): boolean;
 function OmegaCompareTxt(const str1, str2: string; len: integer = -1; strict: boolean = false): integer;
+function GetIntSequence(const First, Last: Integer; Increment: Integer = 1): TList<Integer>;
 
 implementation
 
@@ -246,6 +247,19 @@ begin
 {$ENDIF}
 
   if (result = 0) and strict then result := str1len - str2len;
+end;
+
+function GetIntSequence(const First, Last: Integer; Increment: Integer = 1): TList<Integer>;
+var
+  List: TList<Integer>;
+  I: Integer;
+begin
+  I := First;
+  while I <= Last do begin
+    List.Add(I);
+    Inc(I, Increment);
+  end;
+  Result := List;
 end;
 
 end.

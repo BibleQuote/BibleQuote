@@ -277,14 +277,14 @@ begin
           ModEntry := TModuleEntry.Create(
             ModType,
             FTempBook.Name,
-            FTempBook.ShortName,
+            FTempBook.Info.BibleShortName,
             FTempBook.ShortPath,
             EmptyWideStr,
             FTempBook.GetStucture(),
             FTempBook.Categories,
             FTempBook.Author,
-            FTempBook.ModuleVersion,
-            FTempBook.ModuleImage,
+            FTempBook.Info.ModuleVersion,
+            FTempBook.Info.ModuleImage,
             FTempBook.trait[bqmtStrongs]);
 
           Data.Modules.Add(ModEntry);

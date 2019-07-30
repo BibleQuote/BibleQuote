@@ -109,6 +109,7 @@ begin
 
   with InfoSource do begin
     IsBible := Self.FIsBible;
+    DefaultEncoding := Self.DefaultEncoding.Clone;
     BibleName := Self.FBibleName;
     BibleShortName := Self.FBibleShortName;
     Copyright := Self.FCopyright;

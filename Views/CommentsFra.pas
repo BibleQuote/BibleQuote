@@ -230,14 +230,14 @@ begin
 
           AddLine(
             Lines, Format('<a name=%d>%d <font face="%s">%s</font><br>',
-            [VerseIdx + 1, VerseIdx + 1, CommentaryBook.FontName, S])
+            [VerseIdx + 1, VerseIdx + 1, CommentaryBook.Info.DesiredFontName, S])
           );
 
         end // if not commentary
         else
         begin // if it's commentary
           Aname := StrGetFirstNumber(S);
-          AddLine(Lines, Format('<a name=%s><font face="%s">%s</font><br>', [Aname, CommentaryBook.FontName, S]));
+          AddLine(Lines, Format('<a name=%s><font face="%s">%s</font><br>', [Aname, CommentaryBook.Info.DesiredFontName, S]));
         end;
       end;
     end;
@@ -264,13 +264,13 @@ begin
         S := DeleteStrongNumbers(S);
 
       AddLine(Lines, Format('<a name=%d>%d <font face="%s">%s</font><br>',
-        [VerseIdx + 1, VerseIdx + 1, CommentaryBook.FontName, S]));
+        [VerseIdx + 1, VerseIdx + 1, CommentaryBook.Info.DesiredFontName, S]));
 
     end
     else
     begin
       Aname := StrGetFirstNumber(S);
-      AddLine(Lines, Format('<a name=%s><font face="%s">%s</font><br>', [Aname, CommentaryBook.fontName, S]));
+      AddLine(Lines, Format('<a name=%s><font face="%s">%s</font><br>', [Aname, CommentaryBook.Info.DesiredFontName, S]));
     end;
   end;
 
@@ -318,7 +318,7 @@ begin
         RefBook := TBible.Create();
         RefBook.SetInfoSource(CommentaryModule.GetInfoPath());
 
-        LinkStatus := RefBook.LinkValidnessStatus(RefBook.InfoSource.FileName, InternalBibleLink, true, false);
+        LinkStatus := RefBook.LinkValidnessStatus(RefBook.Info.FileName, InternalBibleLink, true, false);
         if (LinkStatus > -2) or (not Address) or (not doFilter) then
         begin
           AddIndex := cbCommentSource.Items.Add(CommentaryModule.FullName);
