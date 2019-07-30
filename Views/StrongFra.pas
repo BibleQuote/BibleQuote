@@ -139,7 +139,7 @@ begin
     word := Copy(word, 1, 100); // reduce text to search
     searchText := word;
 
-    if book.StrongsPrefixed then
+    if book.Info.StrongsPrefixed then
       bookTypeIndex := 0 // full book
     else
     begin
@@ -153,7 +153,7 @@ begin
       bookTypeIndex := IfThen(isHebrew, 1 {old testament}, 2 {new testament});
     end;
 
-    mMainView.OpenOrCreateSearchTab(book.path, searchText, bookTypeIndex, [soFreeOrder, soIgnoreCase]);
+    mMainView.OpenOrCreateSearchTab(book.Path, searchText, bookTypeIndex, [soFreeOrder, soIgnoreCase]);
   end
   else
   begin

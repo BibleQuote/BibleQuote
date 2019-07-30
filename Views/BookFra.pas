@@ -14,7 +14,7 @@ uses
   Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
   StrongsConcordance, CommandInterface, CommandFactoryInterface,
   ScriptureProvider, AppStates, ManageFonts, DataServices, Vcl.VirtualImageList,
-  Vcl.BaseImageCollection, Vcl.ImageCollection;
+  Vcl.BaseImageCollection, Vcl.ImageCollection, SourceReaderIntf;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -488,18 +488,18 @@ begin
 
       chapterIndex := bible.GetChapterNumberAt(node.Parent.Index, Node.Index);
 
-      if (bible.Trait[bqmtZeroChapter]) and (chapterIndex = 1) and (Length(Trim(bible.ChapterZeroString)) > 0) then
+      if (bible.Trait[bqmtZeroChapter]) and (chapterIndex = 1) and (Length(Trim(bible.Info.ChapterZeroString)) > 0) then
       begin
-        chapterString := Trim(bible.ChapterZeroString);
+        chapterString := Trim(bible.Info.ChapterZeroString);
       end
       else
       begin
         bookIndex := bible.GetBookNumberAt(node.Parent.Index);
 
         if (IsPsalms(bible, bookIndex)) then
-          chapterString := Trim(bible.ChapterStringPs)
+          chapterString := Trim(bible.Info.ChapterStringPs)
         else
-          chapterString := Trim(bible.ChapterString);
+          chapterString := Trim(bible.Info.ChapterString);
 
         if (Length(chapterString) > 0) then
           chapterString := chapterString + ' ';
@@ -594,7 +594,7 @@ begin
       HistoryAdd(Format('go %s %d %d %d %d $$$%s %s',
         [ShortPath, CurBook, CurChapter, verse, 0,
         // history comment
-        FullPassageSignature(CurBook, CurChapter, verse, 0), ShortName]));
+        FullPassageSignature(CurBook, CurChapter, verse, 0), Info.BibleShortName]));
     end;
 
     FMainView.OpenOrCreateTSKTab(BookTabInfo, verse);
@@ -1093,7 +1093,7 @@ begin
         begin
           me := TModuleEntry(FDataService.Modules.Items[modIx]);
           FMainView.mFavorites.AddModule(me);
-          AdjustBibleTabs(bookTabInfo.Bible.ShortName);
+          AdjustBibleTabs(bookTabInfo.Bible.Info.BibleShortName);
         end;
         Exit;
       end;
@@ -1107,7 +1107,7 @@ begin
         Exit;
 
       FMainView.mFavorites.ReplaceModule(TModuleEntry(dtsBible.Tabs.Objects[TabIndex]), me);
-      AdjustBibleTabs(BookTabInfo.Bible.ShortName);
+      AdjustBibleTabs(BookTabInfo.Bible.Info.BibleShortName);
     except
     end;
   end
@@ -1124,7 +1124,7 @@ begin
     me := TModuleEntry(dtsBible.Tabs.Objects[sourceTabIx]);
     FMainView.mFavorites.MoveItem(me, TabIndex);
 
-    AdjustBibleTabs(bookTabInfo.Bible.ShortName);
+    AdjustBibleTabs(bookTabInfo.Bible.Info.BibleShortName);
     FMainView.SetFavouritesShortcuts();
   end;
 end;
@@ -1234,7 +1234,7 @@ var
   MyBibleBookNumber: Integer;
 begin
 
-  if (TSelectEntityType.IsMyBibleFileEntry(aBible.InfoSource.FileName)) then
+  if (TSelectEntityType.IsMyBibleFileEntry(aBible.Info.FileName)) then
   begin
     MyBibleBookNumber := aBible.NativeToMyBibleBookNumber(aBibleLnk.book);
     aBibleLnk.book := MyBibleBookNumber;
@@ -1988,7 +1988,7 @@ var
 begin
 
   if Length(moduleName) = 0 then
-    moduleName := BookTabInfo.Bible.ShortName;
+    moduleName := BookTabInfo.Bible.Info.BibleShortName;
 
   offset := ord(FMainView.mBibleTabsInCtrlKeyDownState) shl 1;
   tabCount := dtsBible.Tabs.Count - 1;
@@ -2024,7 +2024,7 @@ begin
     if ix >= 0 then
     begin
       ini := ResolveFullPath(TPath.Combine(FDataService.Modules[ix].ShortPath, 'bibleqt.ini'));
-      if ini <> BookTabInfo.SecondBible.InfoSource.FileName then
+      if ini <> BookTabInfo.SecondBible.Info.FileName then
         BookTabInfo.SecondBible.SetInfoSource(ini);
 
     end;
@@ -2056,8 +2056,8 @@ procedure TBookFrame.UpdateModuleTreeFont(book: TBible);
 var
   uifont: string;
 begin
-  if (Length(book.DesiredUIFont) > 0) then
-    uifont := FontManager.SuggestFont(book.DesiredUIFont, book.path, $7F)
+  if (Length(book.Info.DesiredUIFont) > 0) then
+    uifont := FontManager.SuggestFont(book.Info.DesiredUIFont, book.Path, $7F)
   else
     uifont := FMainView.Font.Name;
 
@@ -2070,7 +2070,7 @@ begin
   vdtModules.Clear;
   UpdateModuleTreeFont(book);
 
-  vdtModules.RootNodeCount := book.BookQty;
+  vdtModules.RootNodeCount := book.Info.BookQty;
 end;
 
 procedure TBookFrame.UpdateModuleTreeSelection(book: TBible);
@@ -2255,7 +2255,7 @@ begin
       FNotifier.Notify(TActiveBibleChangedMessage.Create());
 
     Result := true;
-    tbtnSatellite.Enabled := not bookTabInfo.Bible.InfoSource.IsCommentary;
+    tbtnSatellite.Enabled := not bookTabInfo.Bible.Info.IsCommentary;
 
     if not (bookTabInfo.LocationType = vtlFile) then
       AdjustBibleTabs();
@@ -2418,10 +2418,10 @@ begin
       fromverse := 0;
       toverse := 0; // reset verse on chapter err
 
-      bwrHtml.Base := bible.path;
+      bwrHtml.Base := bible.Path;
       bwrHtml.LoadFromString(bible.GetAllVerses());
 
-      DisplayTitle(bookTabInfo, bible.ShortName, GetBibleFont(bible));
+      DisplayTitle(bookTabInfo, bible.Info.BibleShortName, GetBibleFont(bible));
       DisplayCopyrightNotice(bookTabInfo);
 
       Exit;
@@ -2506,8 +2506,8 @@ begin
 
   Title := '<head>'#13#10'<title>' + head + '</title>'#13#10 + bqPageStyle + #13#10'</head>';
 
-  if Length(bible.DesiredUIFont) > 0 then
-    uiFontName := bible.DesiredUIFont
+  if Length(bible.Info.DesiredUIFont) > 0 then
+    uiFontName := bible.Info.DesiredUIFont
   else
     uiFontName := AppConfig.DefFontName;
 
@@ -2522,8 +2522,8 @@ begin
   StrReplace(dBrowserSource, '%HEAD%', head, false);
   StrReplace(dBrowserSource, '%TEXT%', Text, false);
 
-  if ((Length(bible.fontName) > 0) and (bible.fontName = bwrHtml.DefFontName)) then
-    fontName := bible.fontName
+  if ((Length(bible.Info.DesiredFontName) > 0) and (bible.Info.DesiredFontName = bwrHtml.DefFontName)) then
+    fontName := bible.Info.DesiredFontName
   else
     fontName := '';
 
@@ -2535,7 +2535,7 @@ begin
   StrReplace(dBrowserSource, '</F>', '</font>', true);
 
   dBrowserSource := '<HTML>' + Title + dBrowserSource + '</HTML>';
-  bwrHtml.Base := bible.path;
+  bwrHtml.Base := bible.Path;
 
   for i := 1 downto 0 do
   begin
@@ -2568,7 +2568,7 @@ begin
 
   FVersePosition := verse;
 
-  Signature := bible.ShortName + ' ' + bible.FullPassageSignature(book, chapter, fromverse, toverse);
+  Signature := bible.Info.BibleShortName + ' ' + bible.FullPassageSignature(book, chapter, fromverse, toverse);
 
   DisplayTitle(bookTabInfo, Signature, fontName);
   DisplayCopyrightNotice(bookTabInfo);
@@ -2576,17 +2576,24 @@ end;
 
 procedure TBookFrame.GoRandomPlace;
 var
-  bookIndex, chapterIndex, verseIndex: integer;
+  bookIndex, bookNumber: Integer;
+  chapterIndex, chapterNumber, verseIndex: integer;
   book: TBible;
+  SourceReader: ISourceReader;
 begin
   book := BookTabInfo.Bible;
 
   Randomize();
-  bookIndex := Random(book.BookQty) + 1;
-  chapterIndex := Random(book.GetChapterQtys(bookIndex)) + 1;
-  verseIndex := Random(book.CountVerses(bookIndex, chapterIndex)) + 1;
 
-  ProcessCommand(BookTabInfo, Format('go %s %d %d %d', [book.ShortPath, bookIndex, chapterIndex, verseIndex]), hlTrue);
+  SourceReader := book.GetSourceReader();
+  bookIndex := Random(book.Info.BookQty);
+  bookNumber := book.GetBookNumberAt(bookIndex);
+
+  chapterIndex := Random(book.GetChapterQtys(bookNumber));
+  chapterNumber := book.GetChapterNumberAt(bookIndex, chapterIndex);
+  verseIndex := Random(SourceReader.CountVerses(bookNumber, chapterNumber)) + 1;
+
+  ProcessCommand(BookTabInfo, Format('go %s %d %d %d', [book.ShortPath, bookNumber, chapterNumber, verseIndex]), hlTrue);
 end;
 
 procedure TBookFrame.LoadBibleToXref(cmd: string; const id: string);
@@ -2832,7 +2839,7 @@ begin
   // search for a secondary Bible if the first module is bible
   if Bible.isBible then
   begin
-    IsCommentary := Bible.InfoSource.IsCommentary;
+    IsCommentary := Bible.Info.IsCommentary;
     Satellite := bookTabInfo.SatelliteName;
     if (Satellite = '------') or IsCommentary then
       Result := False
@@ -2902,17 +2909,17 @@ var
 begin
   Bible := bookTabInfo.Bible;
   SecondBible := bookTabInfo.SecondBible;
-  rightAligned := bible.UseRightAlignment;
+  rightAligned := bible.Info.UseRightAlignment;
 
   showStrongs  := bible.isBible and bookTabInfo[vtisShowStrongs];
-  isCommentary := bible.isBible and bible.InfoSource.IsCommentary;
+  isCommentary := bible.isBible and bible.Info.IsCommentary;
 
   UseParaBible := IsParabibleUsed(bookTabInfo);
   paragraph := GetParagraphTag(bible);
 
   secondRightAligned := False;
   if (UseParaBible) then
-    secondRightAligned := secondBible.UseRightAlignment;
+    secondRightAligned := secondBible.Info.UseRightAlignment;
 
   TextBuilder := TStringBuilder.Create;
   if locVerseStart = 0 then
@@ -3086,7 +3093,7 @@ begin
       // if notes are enabled
       with bible do
         // search for 'Быт.1:1 RST $$$' in Memos.
-        I := FindString(AppState.Memos, ShortPassageSignature(CurBook, CurChapter, Verse, Verse) + ' ' + ShortName + ' $$$');
+        I := FindString(AppState.Memos, ShortPassageSignature(CurBook, CurChapter, Verse, Verse) + ' ' + Info.BibleShortName + ' $$$');
       if I > -1 then
       begin
         // found memo
@@ -3114,8 +3121,8 @@ end;
 
 function TBookFrame.GetBibleFont(Bible: TBible): String;
 begin
-  if ((Length(Bible.fontName) > 0)) or (Bible.desiredCharset > 2) then
-    Result := FontManager.SuggestFont(Bible.fontName, Bible.path, Bible.desiredCharset)
+  if ((Length(Bible.Info.DesiredFontName) > 0)) or (Bible.desiredCharset > 2) then
+    Result := FontManager.SuggestFont(Bible.Info.DesiredFontName, Bible.Path, Bible.desiredCharset)
   else
     Result := AppConfig.DefFontName;
 end;
@@ -3158,8 +3165,8 @@ begin
     Exit;
 
   Book := bookTabInfo.Bible;
-  if Book.Copyright <> '' then
-    Notice := '; © ' + Book.Copyright
+  if Book.Info.Copyright <> '' then
+    Notice := '; © ' + Book.Info.Copyright
   else
     Notice := '; ' + Lang.Say('PublicDomainText');
 
@@ -3188,15 +3195,15 @@ begin
 
   bible.InternalToReference(bible.CurBook, bible.CurChapter, 1, book, chapter, verse);
 
-  if bible.SoundDirectory = '' then
+  if bible.Info.SoundDirectory = '' then
   begin // 3 digits
     fname3 := Format('Sounds\%.2d\%.3d', [book, chapter]);
     fname2 := Format('Sounds\%.2d\%.2d', [book, chapter]);
   end
   else
   begin // 2 digits
-    fname3 := Format('%s\%.2d\%.3d', [bible.SoundDirectory, book, chapter]);
-    fname2 := Format('%s\%.2d\%.2d', [bible.SoundDirectory, book, chapter]);
+    fname3 := Format('%s\%.2d\%.3d', [bible.Info.SoundDirectory, book, chapter]);
+    fname2 := Format('%s\%.2d\%.2d', [bible.Info.SoundDirectory, book, chapter]);
   end;
 
   find := ResolveFullPath(fname3 + '.wav');
@@ -3239,7 +3246,7 @@ begin
     with bible do
       newstring :=
         ShortPassageSignature(CurBook, CurChapter, FCurVerseNumber, FCurVerseNumber) + ' ' +
-        ShortName + ' ' +
+        Info.BibleShortName + ' ' +
         inputForm.GetValue;
 
     StrReplace(newstring, #13#10, ' ', true);
@@ -3253,7 +3260,7 @@ end;
 function TBookFrame.GetCurrentBookPassage(): String;
 begin
   with BookTabInfo.Bible do
-    Result := ShortName + ' ' + FullPassageSignature(CurBook, CurChapter, FCurFromVerse, FCurToVerse);
+    Result := Info.BibleShortName + ' ' + FullPassageSignature(CurBook, CurChapter, FCurFromVerse, FCurToVerse);
 end;
 
 procedure TBookFrame.GoPrevChapter;
@@ -3386,9 +3393,9 @@ begin
     Format
     ('<tr><td valign=top><a href="go %s %d %d %d 0">%s&nbsp;%s</a>&nbsp;</td><td valign=top><font face="%s">%s</font></td>'#13#10,
     [bible.ShortPath, bible.CurBook, bible.CurChapter, FCurVerseNumber,
-    bible.ShortName, bible.ShortPassageSignature(bible.CurBook,
+    bible.Info.BibleShortName, bible.ShortPassageSignature(bible.CurBook,
     bible.CurChapter, FCurVerseNumber, FCurVerseNumber),
-    bible.fontName, s]));
+    bible.Info.DesiredFontName, s]));
 
   AddLine(dBrowserSource, '<tr><td></td><td><hr width=100%></td></tr>'#13#10);
   bibleModuleEntry := FDataService.Modules.ModTypedAsFirst(modtypeBible);
@@ -3426,10 +3433,10 @@ begin
     if not (vtisShowStrongs in bookTabInfo.State) then
       s := DeleteStrongNumbers(s);
 
-    if Length(secBible.fontName) > 0 then
+    if Length(secBible.Info.DesiredFontName) > 0 then
     begin
-      fontFound := FontManager.PrepareFont(secBible.fontName, secBible.path);
-      fontName := secBible.fontName;
+      fontFound := FontManager.PrepareFont(secBible.Info.DesiredFontName, secBible.Path);
+      fontName := secBible.Info.DesiredFontName;
     end
     else
       fontFound := false;
@@ -3437,8 +3444,8 @@ begin
     if not fontFound and (secBible.desiredCharset >= 2) then
     begin
       // find the font with the desired encoding
-      if Length(secBible.fontName) > 0 then
-        fontName := secBible.fontName
+      if Length(secBible.Info.DesiredFontName) > 0 then
+        fontName := secBible.Info.DesiredFontName
       else
         fontName := AppConfig.DefFontName;
       fontName := FontFromCharset(secBible.desiredCharset, fontName);
@@ -3447,7 +3454,7 @@ begin
     AddLine(dBrowserSource,
       Format('<tr><td valign=top><a href="go %s %d %d %d 0">%s&nbsp;%s</a>&nbsp;' +
       '<BR><SPAN STYLE="font-size:67%%">%s</SPAN></td><td valign=top><font face="%s">%s</font></td></tr>'#13#10,
-      [secBible.ShortPath, ib, ic, iv, secBible.ShortName,
+      [secBible.ShortPath, ib, ic, iv, secBible.Info.BibleShortName,
       secBible.ShortPassageSignature(ib, ic, iv, iv), secBible.Name,
       fontName, s]));
   LoopTail:
@@ -3470,7 +3477,7 @@ begin
   Result := false;
 
   with BookTabInfo.Bible do
-    signature := ShortPassageSignature(CurBook, CurChapter, FCurVerseNumber, FCurVerseNumber) + ' ' + ShortName + ' $$$';
+    signature := ShortPassageSignature(CurBook, CurChapter, FCurVerseNumber, FCurVerseNumber) + ' ' + Info.BibleShortName + ' $$$';
 
   // search for 'Быт.1:1 RST $$$' in Memos.
   i := FindString(AppState.Memos, signature);
@@ -3527,7 +3534,7 @@ begin
           s := ShortPassageSignature(CurBook, CurChapter, i, i) + ' ' + s;
 
         if AppConfig.AddModuleName then
-          s := bible.ShortName + ' ' + s;
+          s := bible.Info.BibleShortName + ' ' + s;
       end
       else
       begin
@@ -3561,7 +3568,7 @@ begin
       Result := Result + '(';
 
     if AppConfig.AddModuleName then
-      Result := Result + bible.ShortName + ' ';
+      Result := Result + bible.Info.BibleShortName + ' ';
 
     with bible do
       if AppConfig.AddReferenceChoice = 1 then
@@ -3609,8 +3616,8 @@ begin
     reClipboard := TRichEdit.Create(Self);
 
     try
-      if bible.fontName <> '' then
-        reClipboard.Font.Name := bible.fontName
+      if bible.Info.DesiredFontName <> '' then
+        reClipboard.Font.Name := bible.Info.DesiredFontName
       else
         reClipboard.Font.Name := AppConfig.DefFontName;
 

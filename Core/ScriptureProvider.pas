@@ -86,7 +86,7 @@ begin
         text := ConcreteCmd + ''#13''#10'' + Lang.SayDefault('HintNotFound', '--not found--')
       else
       begin
-        passage := passage + ' (' + RefBible.ShortName + ')'#13''#10'';
+        passage := passage + ' (' + RefBible.Info.BibleShortName + ')'#13''#10'';
         if text <> '' then
           text := passage + text
         else
@@ -207,7 +207,7 @@ var
   MyBibleBookNumber: Integer;
 begin
 
-  if (TSelectEntityType.IsMyBibleFileEntry(aBible.InfoSource.FileName)) then
+  if (TSelectEntityType.IsMyBibleFileEntry(aBible.Info.FileName)) then
   begin
     MyBibleBookNumber := aBible.NativeToMyBibleBookNumber(aBibleLnk.book);
     aBibleLnk.book := MyBibleBookNumber;
@@ -283,7 +283,7 @@ begin
       else
         effectiveLnk := ibl;
 
-      status_valid := refBook.LinkValidnessStatus(refBook.InfoSource.FileName, effectiveLnk, false);
+      status_valid := refBook.LinkValidnessStatus(refBook.Info.FileName, effectiveLnk, false);
       effectiveLnk.AssignTo(bl);
       if status_valid < -1 then
         goto lblErrNotFnd;
@@ -359,10 +359,10 @@ begin
       if addEllipsis then
         txt := txt + '...';
 
-      if Length(refBook.fontName) > 0 then
+      if Length(refBook.Info.DesiredFontName) > 0 then
       begin
-        fontFound := FontManager.PrepareFont(refBook.fontName, refBook.path);
-        fontName := refBook.fontName;
+        fontFound := FontManager.PrepareFont(refBook.Info.DesiredFontName, refBook.Path);
+        fontName := refBook.Info.DesiredFontName;
       end
       else
         fontFound := false;
@@ -370,8 +370,8 @@ begin
       if not fontFound and (refBook.desiredCharset >= 2) then
       begin
         // find the font with the desired encoding, take into account default font
-        if Length(refBook.fontName) > 0 then
-          fontName := refBook.fontName
+        if Length(refBook.Info.DesiredFontName) > 0 then
+          fontName := refBook.Info.DesiredFontName
         else
           fontName := '';
 

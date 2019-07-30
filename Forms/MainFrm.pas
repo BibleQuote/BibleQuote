@@ -23,7 +23,8 @@ uses
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, ManageFonts, BroadcastList, JclNotify, NotifyMessages,
   AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
-  StrongsConcordance, DataScanning, AppStates, DictInterface, DataServices;
+  StrongsConcordance, DataScanning, AppStates, DictInterface, DataServices,
+  InfoSource;
 
 const
 
@@ -1415,6 +1416,7 @@ var
   workspace: IWorkspace;
   tabsForm: TDockTabsForm;
   bookView: TBookFrame;
+  InfoSource: TInfoSource;
 begin
   TranslateControl(ExceptionForm);
   TranslateControl(AboutForm);
@@ -1448,14 +1450,15 @@ begin
 
   if Assigned(bookView.BookTabInfo) then
   begin
-    if Assigned(bookView.BookTabInfo.Bible.InfoSource) then
+    InfoSource := bookView.BookTabInfo.Bible.Info;
+    if Assigned(InfoSource) then
     begin
       try
         with bookView.BookTabInfo.Bible do
           s := bookView.GetCurrentBookPassage;
 
-        if bookView.BookTabInfo.Bible.Copyright <> '' then
-          s := s + '; © ' + bookView.BookTabInfo.Bible.Copyright
+        if InfoSource.Copyright <> '' then
+          s := s + '; © ' + InfoSource.Copyright
         else
           s := s + '; ' + Lang.Say('PublicDomainText');
 
@@ -2781,7 +2784,7 @@ begin
     end;
 
     hotMenuItem.Free();
-    bookView.AdjustBibleTabs(bookView.BookTabInfo.Bible.ShortName);
+    bookView.AdjustBibleTabs(bookView.BookTabInfo.Bible.Info.BibleShortName);
     SetFavouritesShortcuts();
   except
     on E: Exception do
@@ -3007,7 +3010,7 @@ begin
 
           if openSuccess then
           begin
-            bible.SetInfoSource(tempBook.InfoSource);
+            bible.SetInfoSource(tempBook.Info);
             break;
           end;
         except
@@ -3028,7 +3031,7 @@ begin
             openSuccess := tempBook.OpenReference(bookView.tedtReference.Text, book, chapter, fromverse, toverse);
             if openSuccess then
             begin
-              bible.SetInfoSource(tempBook.InfoSource);
+              bible.SetInfoSource(tempBook.Info);
               break;
             end;
           except
@@ -3199,7 +3202,7 @@ begin
     if not Assigned(tabInfo) then
       Exit;
 
-    bookView.AdjustBibleTabs(tabInfo.Bible.ShortName);
+    bookView.AdjustBibleTabs(tabInfo.Bible.Info.BibleShortName);
     bookView.tbtnStrongNumbers.Down := tabInfo[vtisShowStrongs];
     bookView.tbtnSatellite.Down := (Length(tabInfo.SatelliteName) > 0) and (tabInfo.SatelliteName <> '------');
 
@@ -3364,7 +3367,7 @@ begin
     end;
     if (vn > 0) and (ve > 0) then
       bible := bookTabInfo.Bible;
-      lblTitle.Caption := bible.ShortName + ' ' + bible.FullPassageSignature(bible.CurBook, bible.CurChapter, vn, ve);
+      lblTitle.Caption := bible.Info.BibleShortName + ' ' + bible.FullPassageSignature(bible.CurBook, bible.CurChapter, vn, ve);
 
   except
     on E: EAccessViolation do
@@ -3502,7 +3505,7 @@ begin
   tskView := mWorkspace.TSKView as TTSKFrame;
   if Assigned(bookTabInfo) then
   begin
-    InfoPath := bookTabInfo.Bible.InfoSource.FileName;
+    InfoPath := bookTabInfo.Bible.Info.FileName;
 
     tskView.ShowXref(InfoPath, bookTabInfo.Bible.CurBook, bookTabInfo.Bible.CurChapter, goverse);
     mWorkspace.UpdateCurrentTabContent(false);
@@ -3783,7 +3786,7 @@ begin
         workspace.BibleTabs.Tabs.Delete(i);
       bookView := GetBookView(self);
       if Assigned(bookView.BookTabInfo) then
-        bookView.AdjustBibleTabs(bookView.BookTabInfo.Bible.ShortName);
+        bookView.AdjustBibleTabs(bookView.BookTabInfo.Bible.Info.BibleShortName);
     end;
   except
     on E: Exception do
@@ -3919,7 +3922,7 @@ begin
   if Assigned(bookView.BookTabInfo) then
   begin
     bible := bookView.BookTabInfo.Bible;
-    bookView.AdjustBibleTabs(bible.ShortName);
+    bookView.AdjustBibleTabs(bible.Info.BibleShortName);
   end;
 
   if Assigned(ConfigForm.PrimaryFont) then

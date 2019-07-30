@@ -121,9 +121,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.3.0.756;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=7.3.0.757;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <VerInfo_Build>756</VerInfo_Build>
+        <VerInfo_Build>757</VerInfo_Build>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
         <VerInfo_MinorVer>3</VerInfo_MinorVer>
     </PropertyGroup>
@@ -792,12 +792,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\Dict\MyBibleDictLoader.pas"/>
         <DCCReference Include="Core\Dict\DictLoaderFabric.pas"/>
         <DCCReference Include="Core\ChapterData.pas"/>
-        <DCCReference Include="Utils\InfoSource\InfoSourceLoaderInterface.pas"/>
-        <DCCReference Include="Utils\InfoSource\InfoSourceLoaderFabric.pas"/>
         <DCCReference Include="Utils\SelectEntityType.pas"/>
-        <DCCReference Include="Utils\InfoSource\NativeInfoSourceLoader.pas"/>
-        <DCCReference Include="Utils\InfoSource\InfoSource.pas"/>
-        <DCCReference Include="Utils\InfoSource\MyBibleInfoSourceLoader.pas"/>
         <DCCReference Include="Utils\MyBibleUtils.pas"/>
         <DCCReference Include="Core\Commands\GoCommand.pas"/>
         <DCCReference Include="Core\Commands\FileCommand.pas"/>
@@ -824,6 +819,15 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="Core\AppStates.pas"/>
         <DCCReference Include="Core\DataServices.pas"/>
         <DCCReference Include="Core\Jobs.pas"/>
+        <DCCReference Include="Core\InfoSource\InfoSource.pas"/>
+        <DCCReference Include="Core\InfoSource\InfoSourceLoaderFabric.pas"/>
+        <DCCReference Include="Core\InfoSource\InfoSourceLoaderInterface.pas"/>
+        <DCCReference Include="Core\InfoSource\MyBibleInfoSourceLoader.pas"/>
+        <DCCReference Include="Core\InfoSource\NativeInfoSourceLoader.pas"/>
+        <DCCReference Include="Core\Readers\SourceReader.pas"/>
+        <DCCReference Include="Core\Readers\MyBibleSourceReader.pas"/>
+        <DCCReference Include="Core\Readers\NativeSourceReader.pas"/>
+        <DCCReference Include="Core\Readers\SourceReaderIntf.pas"/>
         <RcItem Include="Resources\generic-book-cover.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>CoverDefault</ResourceId>

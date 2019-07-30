@@ -77,7 +77,7 @@ begin
   end;
 
   // try to load module
-  if Path <> ResolveFullPath(FBookTabInfo.Bible.InfoSource.FileName) then
+  if Path <> ResolveFullPath(FBookTabInfo.Bible.Info.FileName) then
     try
       FBookTabInfo.Bible.SetInfoSource(Path);
     except // revert to old location if something goes wrong
@@ -97,12 +97,12 @@ begin
         FCommand := Format('go %s %d %d %d 0 $$$%s %s',
           [ShortPath, CurBook, CurChapter, 0,
           // history comment
-          FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, 0), ShortName])
+          FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, 0), Info.BibleShortName])
       else
         FCommand := Format('go %s %d %d %d %d $$$%s %s',
           [ShortPath, CurBook, CurChapter, bibleLink.vstart, bibleLink.vend,
           // history comment
-          FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, bibleLink.vend), ShortName]);
+          FullPassageSignature(CurBook, CurChapter, bibleLink.vstart, bibleLink.vend), Info.BibleShortName]);
 
     FBookView.HistoryAdd(FCommand);
 
@@ -130,10 +130,10 @@ begin
               S := Lang.SayDefault(Format('StrMyBibleBook%d', [CurBook]), '');
 
             FBookTabInfo.Title := Format(
-              '%.6s-%.6s:%d', [ShortName, S, CurChapter - ord(Trait[bqmtZeroChapter])])
+              '%.6s-%.6s:%d', [Info.BibleShortName, S, CurChapter - ord(Trait[bqmtZeroChapter])])
           end
           else
-            FBookTabInfo.Title := Format('%.6s', [ShortName])
+            FBookTabInfo.Title := Format('%.6s', [Info.BibleShortName])
 
         except
           on E: Exception do

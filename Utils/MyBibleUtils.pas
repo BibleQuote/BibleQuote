@@ -14,7 +14,7 @@ type
   TMyBibleUtils = class
   private
     class function GetSingleValue(aSQLiteQuery: TFDQuery; aSqlQuery: String): String;
-    class procedure GetMultiValues(aSQLiteQuery: TFDQuery; aSqlQuert:String; aLines: TStrings);
+    class procedure GetMultiValues(aSQLiteQuery: TFDQuery; aSqlQuery:String; aLines: TStrings);
     class function GetInfoValue(aSQLiteQuery: TFDQuery; aKey: String): String;
     class function GetBookNumber(aSQLiteQuery: TFDQuery; aSourceTable: String; aBook: Integer): Integer;
 
@@ -41,7 +41,9 @@ type
                     aSQLiteQuery: TFDQuery);
     class procedure GetCommentaryChapter(aSQLiteQuery: TFDQuery; aBook, aChapter: Integer; aLines: TStrings);
     class procedure GetBibleChapter(aSQLiteQuery: TFDQuery; aBook, aChapter: Integer; aLines: TStrings);
-
+    class function GetVersesCount(aSQLiteQuery: TFDQuery; aBook, aChapter: Integer): Integer;
+    class function GetBookVerses(aSQLiteQuery: TFDQuery; aBook: Integer): TStrings;
+    class function GetCommentaryVerses(aSQLiteQuery: TFDQuery; aBook: Integer): TStrings;
 
     class function OpenDatabase(aFileEntryPath: String): TFDConnection;
     class procedure CloseDatabase(aSQLiteConnection: TFDConnection);
@@ -112,6 +114,97 @@ begin
   ChapterNumberQueryTempl := 'select chapter as chapter_number, count(*) from verses where book_number=%d group by chapter';
   FillAllChapterNumbers(aSQLiteQuery, aChapterDatas, ChapterNumberQueryTempl);
 
+end;
+
+class function TMyBibleUtils.GetVersesCount(aSQLiteQuery: TFDQuery; aBook, aChapter: Integer): Integer;
+var
+  Query: String;
+  CountStr: String;
+begin
+  Query := Format('SELECT count(verse) FROM [verses] where book_number=%d and chapter=%d order by verse', [aBook, aChapter]);
+  CountStr := GetSingleValue(aSQLiteQuery, Query);
+  Result := StrToInt(CountStr);
+end;
+
+class function TMyBibleUtils.GetBookVerses(aSQLiteQuery: TFDQuery; aBook: Integer): TStrings;
+var
+  Query: String;
+  Verses: TStringList;
+  VerseText: String;
+  VerseMeta: TVerseMeta;
+begin
+  Verses := TStringList.Create();
+  Query := Format('SELECT text, chapter, verse FROM [verses] where book_number=%d order by chapter, verse', [aBook]);
+
+  aSQLiteQuery.SQL.Text := Query;
+  aSQLiteQuery.Open();
+  aSQLiteQuery.FetchAll();
+
+  try
+
+    while not aSQLiteQuery.Eof do
+    begin
+      try
+        VerseText := aSQLiteQuery.Fields[0].AsString;
+
+        VerseMeta := TVerseMeta.Create;
+        VerseMeta.ChapterNumber := aSQLiteQuery.Fields[1].AsInteger;
+        VerseMeta.VerseNumber   := aSQLiteQuery.Fields[2].AsInteger;
+
+        Verses.AddObject(VerseText, VerseMeta);
+      except
+        // failed to read/parse verse, skip it
+      end;
+
+      aSQLiteQuery.Next;
+    end;
+
+  finally
+    aSQLiteQuery.Close;
+  end;
+
+  Result := Verses;
+end;
+
+class function TMyBibleUtils.GetCommentaryVerses(aSQLiteQuery: TFDQuery; aBook: Integer): TStrings;
+var
+  Query: String;
+  Verses: TStringList;
+  VerseText: String;
+  VerseMeta: TVerseMeta;
+  MyClass: TComponent;
+begin
+  Verses := TStringList.Create();
+  Query := Format('SELECT text, chapter_number_from, verse_number_from FROM [commentaries] where book_number=%d', [aBook]);
+
+  aSQLiteQuery.SQL.Text := Query;
+  aSQLiteQuery.Open();
+  aSQLiteQuery.FetchAll();
+
+  try
+
+    while not aSQLiteQuery.Eof do
+    begin
+      try
+        VerseText := aSQLiteQuery.Fields[0].AsString;
+
+        VerseMeta := TVerseMeta.Create;
+        VerseMeta.ChapterNumber := aSQLiteQuery.Fields[1].AsInteger;
+        VerseMeta.VerseNumber   := aSQLiteQuery.Fields[2].AsInteger;
+
+        Verses.AddObject(VerseText, VerseMeta);
+      finally
+        // failed to read/parse verse, skip it
+      end;
+
+      aSQLiteQuery.Next;
+    end;
+
+  finally
+    aSQLiteQuery.Close;
+  end;
+
+  Result := Verses;
 end;
 
 class procedure TMyBibleUtils.GetBibleChapter(aSQLiteQuery: TFDQuery; aBook,
@@ -192,10 +285,10 @@ begin
 end;
 
 class procedure TMyBibleUtils.GetMultiValues(aSQLiteQuery: TFDQuery;
-  aSqlQuert: String; aLines: TStrings);
+  aSqlQuery: String; aLines: TStrings);
 begin
 
-  aSQLiteQuery.SQL.Text := aSqlQuert;
+  aSQLiteQuery.SQL.Text := aSqlQuery;
   aSQLiteQuery.Open();
   aSQLiteQuery.FetchAll();
 

@@ -12,7 +12,7 @@ uses
   ChromeTabsLog, BookFra, MemoFra, LibraryFra, LayoutConfig, BookmarksFra,
   SearchFra, TSKFra, TagsVersesFra, DictionaryFra, StrongFra, AppIni,
   JclNotify, NotifyMessages, Vcl.VirtualImageList, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, IOUtils, ImageUtils, CommentsFra;
+  Vcl.ImageCollection, IOUtils, ImageUtils, CommentsFra, InfoSource;
 
 const
   bsText = 0;
@@ -252,13 +252,15 @@ var
   thumbnailImage: TWICImage;
   imageIndex: integer;
   defCoverImage: TWICImage;
+  InfoSource: TInfoSource;
 begin
   imageIndex := -1;
 
+  InfoSource := newTabInfo.Bible.Info;
   // check if book has cover image
-  if (newTabInfo.Bible.ModuleImage <> '') then
+  if (InfoSource.ModuleImage <> '') then
   begin
-    coverImagePath := TPath.Combine(newTabInfo.Bible.ShortPath, newTabInfo.Bible.ModuleImage);
+    coverImagePath := TPath.Combine(newTabInfo.Bible.ShortPath, InfoSource.ModuleImage);
     coverName := coverImagePath;
     try
       // check if image already cached

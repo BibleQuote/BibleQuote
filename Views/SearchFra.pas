@@ -9,7 +9,7 @@ uses
   StringProcs, LinksParser, MainFrm, LibraryFra, LayoutConfig, IOUtils,
   System.ImageList, Vcl.ImgList, LinksParserIntf, HintTools, Vcl.Menus,
   Clipbrd, AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection,
-  Vcl.ImageCollection;
+  Vcl.ImageCollection, Sets, SourceReaderIntf;
 
 type
   TSearchFrame = class(TFrame, ISearchView, IBookSearchCallback)
@@ -144,111 +144,13 @@ end;
 
 procedure TSearchFrame.btnFindClick(Sender: TObject);
 var
-  S: set of 0 .. 255;
-  SearchText, Wrd, Wrdnew, Books: string;
+  BookSet, S: TIntSet;
+  SearchSource, SearchText, Wrd, Wrdnew, BooksQuery: string;
   SearchOptions: TSearchOptions;
   Lnks: TStringList;
-  Book, Chapter, V1, V2, LinksCnt, I: integer;
-
-  function Metabook(const Bible: TBible; const Str: string): Boolean;
-  var
-    Wl: string;
-  label success;
-  begin
-    Wl := LowerCase(Str);
-    if (Pos('нз', Wl) = 1) or (Pos('nt', Wl) = 1) then
-    begin
-
-      if Bible.Trait[bqmtNewCovenant] and Bible.InternalToReference(40, 1, 1, Book, Chapter, V1) then
-      begin
-        S := S + [39 .. 65];
-      end;
-      goto Success;
-    end
-    else if (Pos('вз', Wl) = 1) or (Pos('ot', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtOldCovenant] and Bible.InternalToReference(1, 1, 1, Book, Chapter, V1) then
-      begin
-        S := S + [0 .. 38];
-      end;
-      goto Success;
-    end
-    else if (Pos('пят', Wl) = 1) or (Pos('pent', Wl) = 1) or
-      (Pos('тор', Wl) = 1) or (Pos('tor', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtOldCovenant] and Bible.InternalToReference(1, 1, 1, Book, Chapter, V1) then
-      begin
-        S := S + [0 .. 4];
-      end;
-      goto Success;
-    end
-    else if (Pos('ист', Wl) = 1) or (Pos('hist', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtOldCovenant] then
-      begin
-        S := S + [0 .. 15];
-      end;
-      goto Success;
-    end
-    else if (Pos('уч', Wl) = 1) or (Pos('teach', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtOldCovenant] then
-      begin
-        S := S + [16 .. 21];
-      end;
-      goto Success;
-    end
-    else if (Pos('бпрор', Wl) = 1) or (Pos('bproph', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtOldCovenant] then
-      begin
-        S := S + [22 .. 26];
-      end;
-      goto Success;
-    end
-    else if (Pos('мпрор', Wl) = 1) or (Pos('mproph', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtOldCovenant] then
-      begin
-        S := S + [27 .. 38];
-      end;
-      goto Success;
-    end
-    else if (Pos('прор', Wl) = 1) or (Pos('proph', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtOldCovenant] then
-      begin
-        S := S + [22 .. 38];
-        if Bible.Trait[bqmtNewCovenant] and Bible.InternalToReference(66, 1, 1, Book, Chapter, V1) then
-        begin
-          Include(S, 65);
-        end;
-        goto Success;
-      end
-    end
-    else if (Pos('ева', Wl) = 1) or (Pos('gos', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtNewCovenant] then
-      begin
-        S := S + [39 .. 42];
-      end;
-      goto Success;
-    end
-    else if (Pos('пав', Wl) = 1) or (Pos('paul', Wl) = 1) then
-    begin
-      if Bible.Trait[bqmtNewCovenant] and Bible.InternalToReference(52, 1, 1, Book, Chapter, V1) then
-      begin
-        S := S + [Book - 1 .. Book + 12];
-      end;
-      goto Success;
-    end;
-
-    Result := false;
-    Exit;
-  Success:
-    Result := true;
-  end;
-
+  LinksCnt, I: integer;
+  FirstBook, LastBook, SectionIndex: Integer;
+  SourceReader: ISourceReader;
 begin
   if not Assigned(mCurrentBook) then
     Exit;
@@ -270,24 +172,22 @@ begin
   try
     mSearchState.IsSearching := true;
 
-    S := [];
+    BookSet := TIntSet.Create;
+    SourceReader := mCurrentBook.GetSourceReader();
 
-    if (not mCurrentBook.isBible)
-    then
+    if (not mCurrentBook.isBible) then
     begin
-      if (cbList.ItemIndex <= 0) then
-        S := [0 .. mCurrentBook.BookQty - 1]
-      else
-        S := [cbList.ItemIndex - 1];
+      SectionIndex := Integer(cbList.Items.Objects[cbList.ItemIndex]);
+      BookSet.IncludeSet(SourceReader.GetSectionBooks(SectionIndex));
     end
     else
     begin // FULL BIBLE SEARCH
-      SearchText := Trim(cbList.Text);
+      SearchSource := Trim(cbList.Text);
       LinksCnt := cbList.Items.Count - 1;
       if not mSearchState.SearchBooksDDAltered then
         if (cbList.ItemIndex < 0) then
           for I := 0 to LinksCnt do
-            if CompareText(cbList.Items[I], SearchText) = 0 then
+            if CompareText(cbList.Items[I], SearchSource) = 0 then
             begin
               cbList.ItemIndex := I;
               break;
@@ -295,69 +195,19 @@ begin
 
       if (cbList.ItemIndex < 0) or (mSearchState.SearchBooksDDAltered) then
       begin
-        Lnks := TStringList.Create;
-        try
-          Books := '';
-          StrToLinks(SearchText, Lnks);
-          LinksCnt := Lnks.Count - 1;
-          for I := 0 to LinksCnt do
-          begin
-            if Metabook(mCurrentBook, Lnks[I]) then
-            begin
+        S := SourceReader.ParseLisks(SearchSource, BooksQuery);
+        if (S.HasAny) then
+          BookSet.IncludeSet(S);
 
-              Books := Books + FirstWord(Lnks[I]) + ' ';
-              continue
-            end
-            else if mCurrentBook.OpenReference(Lnks[I], Book, Chapter, V1, V2) and
-              (Book > 0) and (Book < 77) then
-            begin
-              Include(S, Book - 1);
-              if Pos(mCurrentBook.GetShortNames(Book), Books) <= 0 then
-              begin
-
-                Books := Books + mCurrentBook.GetShortNames(Book) + ' ';
-              end;
-
-            end;
-
-          end;
-          Books := Trim(Books);
-          if (Length(Books) > 0) and (mSearchState.SearchBooksCache.IndexOf(Books) < 0) then
-            mSearchState.SearchBooksCache.Add(Books);
-
-        finally
-          Lnks.Free();
-        end;
+        BooksQuery := Trim(BooksQuery);
+        if (Length(BooksQuery) > 0) and (mSearchState.SearchBooksCache.IndexOf(BooksQuery) < 0) then
+          mSearchState.SearchBooksCache.Add(BooksQuery);
       end
       else
-        case integer(cbList.Items.Objects[cbList.ItemIndex]) of
-          0:
-            S := [0 .. 65];
-          -1:
-            S := [0 .. 38];
-          -2:
-            S := [39 .. 65];
-          -3:
-            S := [0 .. 4];
-          -4:
-            S := [5 .. 21];
-          -5:
-            S := [22 .. 38];
-          -6:
-            S := [39 .. 43];
-          -7:
-            S := [44 .. 65];
-          -8:
-            begin
-              if mCurrentBook.Trait[bqmtApocrypha] then
-                S := [66 .. mCurrentBook.BookQty - 1]
-              else
-                S := [0];
-            end;
-        else
-          S := [cbList.ItemIndex - 8 - ord(mCurrentBook.Trait[bqmtApocrypha])];
-          // search in single book
-        end;
+      begin
+        SectionIndex := Integer(cbList.Items.Objects[cbList.ItemIndex]);
+        BookSet.IncludeSet(SourceReader.GetSectionBooks(SectionIndex));
+      end;
     end;
 
     SearchText := Trim(cbSearch.Text);
@@ -414,7 +264,7 @@ begin
         Exclude(SearchOptions, soWordParts);
 
       // TODO: fix search with strongs, currently false
-      mCurrentBook.Search(SearchText, SearchOptions, S, False, Self);
+      mCurrentBook.Search(SearchText, SearchOptions, BookSet, False, Self);
       //mCurrentBook.Search(searchText, params, s, not (vtisShowStrongs in bookView.BookTabInfo.State), Self);
     end;
   finally
@@ -642,7 +492,6 @@ end;
 
 procedure TSearchFrame.SetCurrentBook(shortPath: string);
 var
-  iniPath: string;
   caption: string;
 begin
   if (shortPath = '') then
@@ -654,16 +503,10 @@ begin
 
   mCurrentBook := TBible.Create();
 
-  iniPath := TPath.Combine(shortPath, 'bibleqt.ini');
-  mCurrentBook.SetInfoSource(ResolveFullPath(iniPath));
+  mCurrentBook.SetInfoSource(ResolveFullPath(shortPath));
   SearchListInit;
 
-  if (mCurrentBook.isBible) then
-    cbList.Style := csDropDownList
-  else
-    cbList.Style := csDropDown;
-
-  caption := Format('%s, %s', [mCurrentBook.Name, mCurrentBook.ShortName]);
+  caption := Format('%s, %s', [mCurrentBook.Name, mCurrentBook.Info.BibleShortName]);
   lblBook.Caption := caption.Trim([',', ' ']);
 end;
 
@@ -688,7 +531,7 @@ begin
 
   mSearchState.SearchPage := page;
 
-  dSource := Format('<b>"<font face="%s">%s</font>"</b> (%d) <p>', [mCurrentBook.fontName, cbSearch.Text, mSearchState.SearchResults.Count]);
+  dSource := Format('<b>"<font face="%s">%s</font>"</b> (%d) <p>', [mCurrentBook.Info.DesiredFontName, cbSearch.Text, mSearchState.SearchResults.Count]);
 
   limit := mSearchState.SearchResults.Count div mSearchState.SearchPageSize + 1;
   if mSearchState.SearchPageSize * (limit - 1) = mSearchState.SearchResults.Count then
@@ -765,7 +608,7 @@ begin
       Format('<a href="go %s %d %d %d 0">%s</a> <font face="%s">%s</font><br>',
       [bible.ShortPath, book, chapter, verse,
       bible.ShortPassageSignature(book, chapter, verse, verse),
-      bible.fontName, s]));
+      bible.Info.DesiredFontName, s]));
   end;
 
   Application.ProcessMessages;
@@ -791,48 +634,12 @@ begin
   if not Assigned(mCurrentBook) then
     Exit;
 
-  if (not mCurrentBook.isBible) then
-    with cbList do
-    begin
-      Items.BeginUpdate;
-      Items.Clear;
-
-      Items.AddObject(Lang.Say('SearchAllBooks'), TObject(0));
-
-      for i := 1 to mCurrentBook.BookQty do
-        Items.AddObject(mCurrentBook.GetFullNames(i), TObject(i));
-
-      Items.EndUpdate;
-      ItemIndex := 0;
-      Exit;
-    end;
-
   with cbList do
   begin
     Items.BeginUpdate;
     Items.Clear;
 
-    Items.AddObject(Lang.Say('SearchWholeBible'), TObject(0));
-    if mCurrentBook.Trait[bqmtOldCovenant] and mCurrentBook.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchOT'), TObject(-1)); // Old Testament
-    if mCurrentBook.Trait[bqmtNewCovenant] and mCurrentBook.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchNT'), TObject(-2)); // New Testament
-    if mCurrentBook.Trait[bqmtOldCovenant] then
-      Items.AddObject(Lang.Say('SearchPT'), TObject(-3)); // Pentateuch
-    if mCurrentBook.Trait[bqmtOldCovenant] then
-      Items.AddObject(Lang.Say('SearchHP'), TObject(-4));
-    // Historical and Poetical
-    if mCurrentBook.Trait[bqmtOldCovenant] then
-      Items.AddObject(Lang.Say('SearchPR'), TObject(-5)); // Prophets
-    if mCurrentBook.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchGA'), TObject(-6)); // Gospels and Acts
-    if mCurrentBook.Trait[bqmtNewCovenant] then
-      Items.AddObject(Lang.Say('SearchER'), TObject(-7)); // Epistles and Revelation
-    if mCurrentBook.Trait[bqmtApocrypha] then
-      Items.AddObject(Lang.Say('SearchAP'), TObject(-8)); // Apocrypha
-
-    for i := 1 to mCurrentBook.BookQty do
-      Items.AddObject(mCurrentBook.GetFullNames(i), TObject(i));
+    Items.AddStrings(mCurrentBook.GetSearchSections);
 
     Items.EndUpdate;
     ItemIndex := 0;

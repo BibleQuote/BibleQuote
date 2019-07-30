@@ -51,7 +51,7 @@ begin
     j := Pos('$$$', dup);
     value := ResolveFullPath(TPath.Combine(Copy(dup, i + 3, j - i - 4), 'bibleqt.ini'));
 
-    if FBookTabInfo.Bible.InfoSource.FileName <> value then
+    if FBookTabInfo.Bible.Info.FileName <> value then
       FBookTabInfo.Bible.SetInfoSource(value);
 
     wasSearchHistory := true;
