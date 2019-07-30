@@ -147,9 +147,8 @@ var
   BookSet, S: TIntSet;
   SearchSource, SearchText, Wrd, Wrdnew, BooksQuery: string;
   SearchOptions: TSearchOptions;
-  Lnks: TStringList;
   LinksCnt, I: integer;
-  FirstBook, LastBook, SectionIndex: Integer;
+  SectionIndex: Integer;
   SourceReader: ISourceReader;
 begin
   if not Assigned(mCurrentBook) then
@@ -265,7 +264,6 @@ begin
 
       // TODO: fix search with strongs, currently false
       mCurrentBook.Search(SearchText, SearchOptions, BookSet, False, Self);
-      //mCurrentBook.Search(searchText, params, s, not (vtisShowStrongs in bookView.BookTabInfo.State), Self);
     end;
   finally
     Screen.Cursor := crDefault;
@@ -628,8 +626,6 @@ begin
 end;
 
 procedure TSearchFrame.SearchListInit;
-var
-  i: integer;
 begin
   if not Assigned(mCurrentBook) then
     Exit;

@@ -1276,9 +1276,6 @@ var
   SourceReader: ISourceReader;
   VerseMeta: TVerseMeta;
 begin
-  Chapter := 0;
-  Verse := 0;
-
   TempWords := TStringList.Create;
 
   {

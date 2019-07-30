@@ -77,21 +77,4 @@ begin
   FDict.Clear;
 end;
 
-//procedure TIntSet.IncludeRange(const MinValue, MaxValue: Integer);
-//var
-//  K: Integer;
-//begin
-//  if MinValue > MaxValue then
-//    Exit;
-//
-//  for K := MinValue to MaxValue do
-//    Include(K);
-//end;
-//
-//procedure TIntSet.SetRange(const MinValue, MaxValue: Integer);
-//begin
-//  Clear;
-//  IncludeRange(MinValue, MaxValue);
-//end;
-
 end.

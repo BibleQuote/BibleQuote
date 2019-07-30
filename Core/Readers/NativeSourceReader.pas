@@ -242,7 +242,6 @@ end;
 
 function TNativeSourceReader.GetSectionBooks(SectionIndex: Integer): TIntSet;
 var
-  Book: Integer;
   BookSet: TIntSet;
   procedure IncludeRange(MinBookIndex, MaxBookIndex: Integer);
   var

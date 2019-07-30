@@ -172,7 +172,6 @@ var
   Verses: TStringList;
   VerseText: String;
   VerseMeta: TVerseMeta;
-  MyClass: TComponent;
 begin
   Verses := TStringList.Create();
   Query := Format('SELECT text, chapter_number_from, verse_number_from FROM [commentaries] where book_number=%d', [aBook]);
