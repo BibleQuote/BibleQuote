@@ -254,6 +254,7 @@ var
   List: TList<Integer>;
   I: Integer;
 begin
+  List := TList<Integer>.Create;
   I := First;
   while I <= Last do begin
     List.Add(I);

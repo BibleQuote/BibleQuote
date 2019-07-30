@@ -82,8 +82,6 @@ function TMyBibleSourceReader.CountVerses(aBook, aChapter: Integer): Integer;
 var
   SQLiteQuery: TFDQuery;
 begin
-  Result := 0;
-
   SQLiteQuery := TMyBibleUtils.CreateQuery(FBible.Path);
   try
 
