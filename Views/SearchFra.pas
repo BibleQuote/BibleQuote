@@ -49,6 +49,9 @@ type
     procedure miRefCopyClick(Sender: TObject);
     procedure miOpenNewViewClick(Sender: TObject);
     procedure miRefPrintClick(Sender: TObject);
+    procedure chkAllClick(Sender: TObject);
+    procedure chkPartsClick(Sender: TObject);
+    procedure chkPhraseClick(Sender: TObject);
   private
     mMainView: TMainForm;
     mWorkspace: IWorkspace;
@@ -154,11 +157,7 @@ begin
   if not Assigned(mCurrentBook) then
     Exit;
 
-  if cbQty.ItemIndex < cbQty.Items.Count - 1 then
-    mSearchState.SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex])
-  else
-    mSearchState.SearchPageSize := 50000;
-
+  mSearchState.SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex]);
   if mSearchState.IsSearching then
   begin
     mSearchState.IsSearching := false;
@@ -367,10 +366,7 @@ end;
 
 procedure TSearchFrame.cbQtyChange(Sender: TObject);
 begin
-  if cbQty.ItemIndex < cbQty.Items.Count - 1 then
-    mSearchState.SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex])
-  else
-    mSearchState.SearchPageSize := 50000;
+  mSearchState.SearchPageSize := StrToInt(cbQty.Items[cbQty.ItemIndex]);
   DisplaySearchResults(1);
 end;
 
@@ -386,15 +382,32 @@ begin
   end;
 end;
 
+procedure TSearchFrame.chkAllClick(Sender: TObject);
+begin
+  if chkAll.Checked then
+    chkExactPhrase.Checked := False;
+end;
+
 procedure TSearchFrame.chkExactPhraseClick(Sender: TObject);
 begin
   if chkExactPhrase.Checked then
   begin
-    chkAll.Checked := false;
-    chkPhrase.Checked := false;
-    chkParts.Checked := false;
-    chkCase.Checked := false;
+    chkAll.Checked := False;
+    chkPhrase.Checked := False;
+    chkParts.Checked := False;
   end;
+end;
+
+procedure TSearchFrame.chkPartsClick(Sender: TObject);
+begin
+  if chkParts.Checked then
+    chkExactPhrase.Checked := False;
+end;
+
+procedure TSearchFrame.chkPhraseClick(Sender: TObject);
+begin
+  if chkPhrase.Checked then
+    chkExactPhrase.Checked := False;
 end;
 
 procedure TSearchFrame.Translate();
