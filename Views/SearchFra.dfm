@@ -1,19 +1,20 @@
 object SearchFrame: TSearchFrame
   Left = 0
   Top = 0
-  Width = 349
+  Width = 356
   Height = 418
   TabOrder = 0
   object pnlSearch: TPanel
     Left = 0
     Top = 0
-    Width = 349
+    Width = 356
     Height = 220
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 349
     DesignSize = (
-      349
+      356
       220)
     object lblSearch: TLabel
       Left = 8
@@ -25,20 +26,22 @@ object SearchFrame: TSearchFrame
     object lblBook: TLabel
       Left = 47
       Top = 11
-      Width = 4
+      Width = 305
       Height = 18
       Anchors = [akLeft, akTop, akRight]
+      AutoSize = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
+      ExplicitWidth = 298
     end
     object cbSearch: TComboBox
       Left = 8
       Top = 42
-      Width = 277
+      Width = 284
       Height = 21
       Hint = 'enter word or expression to search'
       AutoCloseUp = True
@@ -46,11 +49,12 @@ object SearchFrame: TSearchFrame
       DropDownCount = 10
       TabOrder = 0
       OnKeyUp = cbSearchKeyUp
+      ExplicitWidth = 277
     end
     object cbList: TComboBox
       Left = 33
       Top = 69
-      Width = 252
+      Width = 259
       Height = 21
       Hint = 'Search scope'
       Anchors = [akLeft, akTop, akRight]
@@ -60,10 +64,11 @@ object SearchFrame: TSearchFrame
       Items.Strings = (
         #1042#1089#1077' '#1082#1085#1080#1075#1080
         #1053#1077' '#1074#1089#1077' '#1082#1085#1080#1075#1080)
+      ExplicitWidth = 252
     end
     object btnFind: TButton
       AlignWithMargins = True
-      Left = 291
+      Left = 298
       Top = 69
       Width = 54
       Height = 22
@@ -72,58 +77,64 @@ object SearchFrame: TSearchFrame
       Default = True
       TabOrder = 2
       OnClick = btnFindClick
+      ExplicitLeft = 291
     end
     object chkAll: TCheckBox
       Left = 8
       Top = 97
-      Width = 346
+      Width = 353
       Height = 16
       Anchors = [akLeft, akTop, akRight]
       Caption = #1083#1102#1073#1086#1077' '#1080#1079' '#1089#1083#1086#1074
       TabOrder = 3
       OnClick = chkAllClick
+      ExplicitWidth = 346
     end
     object chkPhrase: TCheckBox
       Left = 8
       Top = 116
-      Width = 345
+      Width = 352
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = #1089#1086#1073#1083#1102#1076#1072#1090#1100' '#1087#1086#1088#1103#1076#1086#1082' '#1089#1083#1086#1074
       TabOrder = 4
       OnClick = chkPhraseClick
+      ExplicitWidth = 345
     end
     object chkParts: TCheckBox
       Left = 8
       Top = 157
-      Width = 345
+      Width = 352
       Height = 16
       Anchors = [akLeft, akTop, akRight]
       Caption = #1080#1097#1077#1084' '#1089#1083#1086#1074#1072' '#1094#1077#1083#1080#1082#1086#1084
       TabOrder = 6
       OnClick = chkPartsClick
+      ExplicitWidth = 345
     end
     object chkCase: TCheckBox
       Left = 8
       Top = 176
-      Width = 345
+      Width = 352
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = #1088#1072#1079#1083#1080#1095#1072#1090#1100' '#1088#1077#1075#1080#1089#1090#1088#1099
       TabOrder = 7
+      ExplicitWidth = 345
     end
     object chkExactPhrase: TCheckBox
       Left = 8
       Top = 134
-      Width = 345
+      Width = 352
       Height = 20
       Anchors = [akLeft, akTop, akRight]
       Caption = #1080#1097#1077#1084' '#1090#1086#1095#1085#1091#1102' '#1092#1088#1072#1079#1091
       TabOrder = 5
       OnClick = chkExactPhraseClick
+      ExplicitWidth = 345
     end
     object cbQty: TComboBox
-      Left = 291
+      Left = 298
       Top = 42
       Width = 54
       Height = 21
@@ -140,6 +151,7 @@ object SearchFrame: TSearchFrame
         '200'
         '300'
         '500')
+      ExplicitLeft = 291
     end
     object btnSearchOptions: TButton
       Left = 8
@@ -164,7 +176,7 @@ object SearchFrame: TSearchFrame
   object bwrSearch: THTMLViewer
     Left = 0
     Top = 220
-    Width = 349
+    Width = 356
     Height = 198
     TabOrder = 1
     Align = alClient
@@ -185,6 +197,7 @@ object SearchFrame: TSearchFrame
     OnKeyUp = bwrSearchKeyUp
     OnHotSpotClick = bwrSearchHotSpotClick
     OnHotSpotCovered = bwrSearchHotSpotCovered
+    ExplicitWidth = 349
   end
   object pmRef: TPopupMenu
     AutoHotkeys = maManual

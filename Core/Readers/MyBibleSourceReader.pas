@@ -3,7 +3,8 @@ unit MyBibleSourceReader;
 interface
 
 uses SourceReader, System.Classes, InfoSource, MyBibleUtils, Sets,
-     FireDAC.Comp.Client, System.RegularExpressions, Bible, BibleQuoteUtils;
+     FireDAC.Comp.Client, System.RegularExpressions, Bible, BibleQuoteUtils,
+     LinksParser, SysUtils;
 
 type
   TMyBibleSourceReader = class(TSourceReader)
@@ -144,10 +145,39 @@ begin
 end;
 
 function TMyBibleSourceReader.ParseLisks(Query: String; var FormattedQuery: String): TIntSet;
+var
+  Lnks: TStrings;
+  I, LinksCnt: Integer;
+  S: TIntSet;
+  Book, Chapter, V1, V2: Integer;
 begin
-  // TODO: implement it!
-  FormattedQuery := Query;
-  Result := TIntSet.Create;
+  S := TIntSet.Create;
+  Lnks := TStringList.Create;
+  try
+    FormattedQuery := '';
+
+    try
+      StrToLinks(Query, Lnks);
+    except
+      // skip error
+    end;
+
+    LinksCnt := Lnks.Count - 1;
+    for I := 0 to LinksCnt do
+    begin
+      if FBible.OpenReference(Lnks[I], Book, Chapter, V1, V2) and (Book > 0) and (Book < 77) then
+      begin
+        S.Include(Book);
+        if Pos(FBible.GetShortNames(Book), FormattedQuery) <= 0 then
+          FormattedQuery := FormattedQuery + FBible.GetShortNames(Book) + ' ';
+      end;
+    end;
+
+    FormattedQuery := Trim(FormattedQuery);
+    Result := S;
+  finally
+    Lnks.Free();
+  end;
 end;
 
 end.
