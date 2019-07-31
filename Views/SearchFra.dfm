@@ -81,6 +81,7 @@ object SearchFrame: TSearchFrame
       Anchors = [akLeft, akTop, akRight]
       Caption = #1083#1102#1073#1086#1077' '#1080#1079' '#1089#1083#1086#1074
       TabOrder = 3
+      OnClick = chkAllClick
     end
     object chkPhrase: TCheckBox
       Left = 8
@@ -90,6 +91,7 @@ object SearchFrame: TSearchFrame
       Anchors = [akLeft, akTop, akRight]
       Caption = #1089#1086#1073#1083#1102#1076#1072#1090#1100' '#1087#1086#1088#1103#1076#1086#1082' '#1089#1083#1086#1074
       TabOrder = 4
+      OnClick = chkPhraseClick
     end
     object chkParts: TCheckBox
       Left = 8
@@ -99,6 +101,7 @@ object SearchFrame: TSearchFrame
       Anchors = [akLeft, akTop, akRight]
       Caption = #1080#1097#1077#1084' '#1089#1083#1086#1074#1072' '#1094#1077#1083#1080#1082#1086#1084
       TabOrder = 6
+      OnClick = chkPartsClick
     end
     object chkCase: TCheckBox
       Left = 8
@@ -136,7 +139,7 @@ object SearchFrame: TSearchFrame
         '100'
         '200'
         '300'
-        '*')
+        '500')
     end
     object btnSearchOptions: TButton
       Left = 8
