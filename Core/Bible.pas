@@ -25,35 +25,49 @@ const
 const
 
   TSKShortNames: array [1 .. 66] of string = // used to translate TSK references
-    ('Ge. Ge Gen. Gen Gn. Gn Genesis', 'Ex. Ex Exo. Exo Exod. Exod Exodus',
+    ('Ge. Ge Gen. Gen Gn. Gn Genesis',
+    'Ex. Ex Exo. Exo Exod. Exod Exodus',
     'Lev. Lev Le. Le Lv. Lv Levit. Levit Leviticus',
     'Nu. Nu Num. Num Nm. Nm Numb. Numb Numbers',
     'De. De Deut. Deut Deu. Deu Dt. Dt  Deuteron. Deuteron Deuteronomy',
-    'Jos. Jos Josh. Josh Joshua', 'Jdg. Jdg Judg. Judg Judge. Judge Judges',
+    'Jos. Jos Josh. Josh Joshua',
+    'Jdg. Jdg Judg. Judg Judge. Judge Judges',
     'Ru. Ru Ruth Rth. Rth Rt. Rt',
     '1Sa. 1Sa 1S. 1S 1Sam. 1Sam 1Sm. 1Sm 1Sml. 1Sml 1Samuel',
     '2Sa. 2Sa 2S. 2S 2Sam. 2Sam 2Sm. 2Sm 2Sml. 2Sml 2Samuel',
     '1Ki. 1Ki 1K. 1K 1Kn. 1Kn 1Kg. 1Kg 1King. 1King 1Kng. 1Kng 1Kings',
     '2Ki. 2Ki 2K. 2K 2Kn. 2Kn 2Kg. 2Kg 2King. 2King 2Kng. 2Kng 2Kings',
-    '1Chr. 1Chr 1Ch. 1Ch 1Chron. 1Chron', '2Chr. 2Chr 2Ch. 2Ch 2Chron. 2Chron',
-    'Ezr. Ezr Ezra', 'Ne. Ne Neh. Neh Nehem. Nehem Nehemiah',
-    'Esth. Esth Est. Est Esther Es Es.', 'Job. Job Jb. Jb',
+    '1Chr. 1Chr 1Ch. 1Ch 1Chron. 1Chron',
+    '2Chr. 2Chr 2Ch. 2Ch 2Chron. 2Chron',
+    'Ezr. Ezr Ezra',
+    'Ne. Ne Neh. Neh Nehem. Nehem Nehemiah',
+    'Esth. Esth Est. Est Esther Es Es.',
+    'Job. Job Jb. Jb',
     'Ps. Ps Psa. Psa Psal. Psal Psalm Psalms',
     'Pr. Pr Prov. Prov Pro. Pro Proverb Proverbs',
     'Ec. Ec Eccl. Eccl Ecc. Ecc Ecclesia. Ecclesia',
-    'Song. Song Songs SS. SS Sol. Sol', 'Isa. Isa Is. Is Isaiah',
+    'Song. Song Songs SS. SS Sol. Sol',
+    'Isa. Isa Is. Is Isaiah',
     'Je. Je Jer. Jer Jerem. Jerem Jeremiah',
     'La. La Lam. Lam Lament. Lament Lamentation Lamentations',
-    'Ez. Ez Eze. Eze Ezek. Ezek Ezekiel', 'Da. Da Dan. Dan Daniel',
-    'Hos. Hos Ho. Ho Hosea', 'Joel. Joel Joe. Joe', 'Am. Am Amos Amo. Amo',
+    'Ez. Ez Eze. Eze Ezek. Ezek Ezekiel',
+    'Da. Da Dan. Dan Daniel',
+    'Hos. Hos Ho. Ho Hosea',
+    'Joel. Joel Joe. Joe', 'Am. Am Amos Amo. Amo',
     'Ob. Ob Obad. Obad. Obadiah Oba. Oba',
-    'Jon. Jon Jnh. Jnh. Jona. Jona Jonah', 'Mi. Mi Mic. Mic Micah',
-    'Na. Na Nah. Nah Nahum', 'Hab. Hab Habak. Habak Habakkuk',
-    'Zeph. Zeph  Zep. Zep Zephaniah', 'Hag. Hag Haggai',
-    'Ze. Ze Zec. Zec Zech. Zech Zechariah', 'Mal. Mal Malachi',
+    'Jon. Jon Jnh. Jnh. Jona. Jona Jonah',
+    'Mi. Mi Mic. Mic Micah',
+    'Na. Na Nah. Nah Nahum',
+    'Hab. Hab Habak. Habak Habakkuk',
+    'Zeph. Zeph  Zep. Zep Zephaniah',
+    'Hag. Hag Haggai',
+    'Ze. Ze Zec. Zec Zech. Zech Zechariah',
+    'Mal. Mal Malachi',
     'Mt. Mt Ma. Ma Matt. Matt Mat. Mat Matthew',
-    'Mk. Mk Mar. Mar Mr. Mr Mrk. Mrk Mark', 'Lk. Lk Lu. Lu Luk. Luk Luke',
-    'Jn. Jn Jno. Jno Joh. Joh John', 'Ac. Ac Act. Act Acts',
+    'Mk. Mk Mar. Mar Mr. Mr Mrk. Mrk Mark',
+    'Lk. Lk Lu. Lu Luk. Luk Luke',
+    'Jn. Jn Jno. Jno Joh. Joh John',
+    'Ac. Ac Act. Act Acts',
     'Ro. Ro Rom. Rom Romans',
     '1Co. 1Co 1Cor. 1Cor 1Corinth. 1Corinth 1Corinthians',
     '2Co. 2Co 2Cor. 2Cor 2Corinth. 2Corinth 2Corinthians',
@@ -63,14 +77,18 @@ const
     'Col. Col Colos. Colos Colossians',
     '1Th. 1Th 1Thes. 1Thes 1Thess. 1Thess 1Thessalonians',
     '2Th. 2Th 2Thes. 2Thes 2Thess. 2Thess 2Thessalonians',
-    '1Ti. 1Ti 1Tim. 1Tim 1Timothy', '2Ti. 2Ti 2Tim. 2Tim 2Timothy',
-    'Tit. Tit Ti. Ti Titus', 'Phm. Phm Phile. Phile Phlm. Phlm Philemon',
+    '1Ti. 1Ti 1Tim. 1Tim 1Timothy',
+    '2Ti. 2Ti 2Tim. 2Tim 2Timothy',
+    'Tit. Tit Ti. Ti Titus',
+    'Phm. Phm Phile. Phile Phlm. Phlm Philemon',
     'He. He Heb. Heb Hebr. Hebr Hebrews',
-    'Jas. Jas Ja. Ja Jam. Jam Jms. Jms James', '1Pe. 1Pe 1Pet. 1Pet 1Peter',
+    'Jas. Jas Ja. Ja Jam. Jam Jms. Jms James',
+    '1Pe. 1Pe 1Pet. 1Pet 1Peter',
     '2Pe. 2Pe 2Pet. 2Pet 2Peter',
     '1Jn. 1Jn 1Jo. 1Jo 1Joh. 1Joh 1Jno. 1Jno 1John',
     '2Jn. 2Jn 2Jo. 2Jo 2Joh. 2Joh 2Jno. 2Jno 2John',
-    '3Jn. 3Jn 3Jo. 3Jo 3Joh. 3Joh 3Jno. 3Jno 3John', 'Jud. Jud Jude Jd. Jd',
+    '3Jn. 3Jn 3Jo. 3Jo 3Joh. 3Joh 3Jno. 3Jno 3John',
+    'Jud. Jud Jude Jd. Jd',
     'Rev. Rev Re. Re Rv. Rv Revelation');
 
   RussianShortNames: array [1 .. 66] of string =
@@ -1510,7 +1528,7 @@ end;
 function TBible.OpenTSKReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 var
   Name: string;
-  ibook, ichapter, ifromverse, itoverse: integer;
+  BookIndex, ichapter, ifromverse, itoverse: integer;
 begin
   Result := False;
   book := 1;
@@ -1523,10 +1541,10 @@ begin
 
   name := ' ' + name + ' ';
 
-  for ibook := 1 to 66 do
-    if ContainsText(' ' + GetTSKShortNames(ibook) + ' ', name) then
+  for BookIndex := 0 to 65 do
+    if ContainsText(' ' + GetTSKShortNames(BookIndex + 1) + ' ', name) then
     begin
-      book := ibook;
+      book := GetBookNumberAt(BookIndex);
       chapter := ichapter;
       fromverse := ifromverse;
       toverse := itoverse;
@@ -1539,7 +1557,7 @@ end;
 function TBible.OpenReference(s: string; var book, chapter, fromverse, toverse: integer): boolean;
 var
   Name: string;
-  ibook, ichapter, ifromverse, itoverse: integer;
+  BookIndex, ichapter, ifromverse, itoverse: integer;
 begin
   Result := False;
   book := 1;
@@ -1552,10 +1570,10 @@ begin
 
   name := ' ' + name + ' ';
 
-  for ibook := 1 to Info.BookQty do
-    if ContainsText(' ' + ShortNamesVars[ibook] + ' ', name) then
+  for BookIndex := 0 to Info.BookQty - 1 do
+    if ContainsText(' ' + ShortNamesVars[BookIndex + 1] + ' ', name) then
     begin
-      book := ibook;
+      book := GetBookNumberAt(BookIndex);
       chapter := ichapter;
       fromverse := ifromverse;
       toverse := itoverse;

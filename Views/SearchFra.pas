@@ -175,8 +175,13 @@ begin
 
     if (not mCurrentBook.isBible) then
     begin
-      SectionIndex := Integer(cbList.Items.Objects[cbList.ItemIndex]);
-      BookSet.IncludeSet(SourceReader.GetSectionBooks(SectionIndex));
+      if (cbList.ItemIndex >= 0) then
+      begin
+        SectionIndex := Integer(cbList.Items.Objects[cbList.ItemIndex]);
+        BookSet.IncludeSet(SourceReader.GetSectionBooks(SectionIndex));
+      end
+      else
+        BookSet.IncludeSet(SourceReader.GetSectionBooks(0));
     end
     else
     begin // FULL BIBLE SEARCH
@@ -517,7 +522,16 @@ begin
   mCurrentBook.SetInfoSource(ResolveFullPath(shortPath));
   SearchListInit;
 
-  caption := Format('%s, %s', [mCurrentBook.Name, mCurrentBook.Info.BibleShortName]);
+  if (mCurrentBook.isBible) then
+    cbList.Style := csDropDown
+  else
+    cbList.Style := csDropDownList;
+
+  if CompareText(mCurrentBook.Name, mCurrentBook.Info.BibleShortName) = 0 then
+    caption := mCurrentBook.Name
+  else
+    caption := Format('%s, %s', [mCurrentBook.Name, mCurrentBook.Info.BibleShortName]);
+
   lblBook.Caption := caption.Trim([',', ' ']);
 end;
 
