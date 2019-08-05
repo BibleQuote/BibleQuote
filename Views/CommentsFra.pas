@@ -161,6 +161,7 @@ var
   CommentaryModule: TModuleEntry;
   CommentaryBook: TBible;
   SourceBible: TBible;
+  NativeBookNumber: Integer;
 
   function FailedToLoadComment(const Key: string; const DefReason: string): string;
   begin
@@ -172,6 +173,12 @@ var
 
 label lblSetOutput;
 begin
+  if not FMainView.LastIsBible then
+  begin
+    Lines := FailedToLoadComment('commentsCantFind', 'Cannot find matching comment');
+    goto lblSetOutput;
+  end;
+
   SourceBible := GetSourceBible();
   Lines := '';
   if Length(Trim(cbCommentSource.Text)) = 0 then
@@ -198,6 +205,7 @@ begin
 
   SourceBible.ReferenceToInternal(SourceBible.CurBook, SourceBible.CurChapter, 1, IntBook, IntChapter, IntVerse);
   IsSuccess := CommentaryBook.InternalToReference(IntBook, IntChapter, IntVerse, B, C, V);
+
   if not IsSuccess then
   begin
     Lines := FailedToLoadComment('commentsCantFind', 'Cannot find matching comment');

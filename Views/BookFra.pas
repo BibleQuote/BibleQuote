@@ -203,7 +203,6 @@ type
     procedure AddBookmarkTagged(tagName: string);
     procedure AddThemedBookmarkClick(Sender: TObject);
     procedure NotifyFontChanged(delta: integer);
-    procedure FixBookNumberForLink(var aBibleLnk: TBibleLink; aBible: TBible);
     procedure DisplayCopyrightNotice(bookTabInfo: TBookTabInfo);
     procedure DisplayTitle(bookTabInfo: TBookTabInfo; title: string; fontName: string);
     function GetBookHead(bible: TBible; book: Integer; chapter: Integer; fromverse: Integer; toverse: Integer): String;
@@ -392,7 +391,7 @@ begin
     end
     else
     begin
-      bookIndex :=  GetBookNumber( data, node.Parent.Index + 1);
+      bookIndex :=  GetBookNumber(data, node.Parent.Index + 1);
       chapterIndex := GetChapterNumber(data, node.Index + 1);
     end;
 
@@ -1226,20 +1225,6 @@ end;
 
 procedure TBookFrame.EventFrameKeyDown(var Key: Char);
 begin
-
-end;
-
-procedure TBookFrame.FixBookNumberForLink(var aBibleLnk: TBibleLink; aBible: TBible);
-var
-  MyBibleBookNumber: Integer;
-begin
-
-  if (TSelectEntityType.IsMyBibleFileEntry(aBible.Info.FileName)) then
-  begin
-    MyBibleBookNumber := aBible.NativeToMyBibleBookNumber(aBibleLnk.book);
-    aBibleLnk.book := MyBibleBookNumber;
-  end;
-
 
 end;
 
@@ -2250,9 +2235,7 @@ begin
       Exit;
 
     FWorkspace.UpdateBookTabHeader();
-
-    if (bookTabInfo.Bible.isBible) then
-      FNotifier.Notify(TActiveBibleChangedMessage.Create());
+    FNotifier.Notify(TActiveBibleChangedMessage.Create());
 
     Result := true;
     tbtnSatellite.Enabled := not bookTabInfo.Bible.Info.IsCommentary;

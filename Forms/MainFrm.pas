@@ -243,6 +243,7 @@ type
 
     LastLink: TBibleLink;
     LastBibleLink: TBibleLink;
+    LastIsBible: Boolean;
     LastBiblePath: String;
 
     G_XRefVerseCmd: string;

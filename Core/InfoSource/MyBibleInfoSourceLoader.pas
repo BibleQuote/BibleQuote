@@ -131,6 +131,7 @@ begin
 
   try
     Language := TMyBibleUtils.GetLanguage(SQLiteQuery);
+
     aInfoSource.ChapterString := TMyBibleUtils.GetChapterString(SQLiteQuery);
     aInfoSource.ChapterStringPs := TMyBibleUtils.GetChapterStringPs(SQLiteQuery);
 
@@ -164,6 +165,7 @@ begin
 
   try
     Language := TMyBibleUtils.GetLanguage(SQLiteQuery);
+
     aInfoSource.ChapterString := GetChapterStr(Language);
     aInfoSource.ChapterStringPs := GetChapterPsStr(Language);
 
@@ -196,8 +198,8 @@ begin
 
   try
 
-    aInfoSource.IsBible := TSelectEntityType.IsMyBibleBible(aFileEntryPath);
     aInfoSource.IsCommentary := TSelectEntityType.IsMyBibleCommentary(aFileEntryPath);
+    aInfoSource.IsBible := aInfoSource.IsCommentary or TSelectEntityType.IsMyBibleBible(aFileEntryPath);
 
     LoadRegularValues(aInfoSource, SQLiteConnection);
     LoadPathValues(aInfoSource, aFileEntryPath);
@@ -239,7 +241,7 @@ begin
     DictName := TMyBibleUtils.GetDictName(SQLiteQuery);
     History := TMyBibleUtils.GetHistory(SQLiteQuery);
 
-    aInfoSource.HTMLFilter := '<t <pb ';
+    aInfoSource.HTMLFilter := '<p/><t <pb ';
     aInfoSource.BibleName := DictName;
     aInfoSource.BibleShortName := DictName;
     aInfoSource.ModuleVersion := ExtractLastChangedDat(History);

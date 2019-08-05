@@ -56,8 +56,7 @@ function RepeatString(const s: string; count: cardinal): string;
 function StreamToString(const aStream: TStream; const Encoding: TEncoding): String;
 
 const
-  DefaultHTMLFilter
-    : string =
+  DefaultHTMLFilter: string =
     '<b></b><i></i><u></u><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6>';
 
 implementation

@@ -6,7 +6,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, IOUtils, Types,
-  Graphics, Controls, Forms, Dialogs, IOProcs, Sets,
+  Graphics, Controls, Forms, Dialogs, IOProcs, Sets, Math,
   StringProcs, BibleQuoteUtils, LinksParserIntf, WinUIServices, AppPaths,
   InfoSource, StrUtils, Generics.Collections, ManageFonts, SourceReaderIntf;
 
@@ -17,7 +17,7 @@ const
   EngToRusTable: array [1 .. 27] of integer = (1, 2, 3, 4, 5, 13, 14, 15, 16,
     17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 6, 7, 8, 9, 10, 11, 12, 27);
 
-  NativeToMyBibleMap: array[1..66] of Integer = (10, 20,30, 40, 50, 60, 70, 80, 90, 100, 110,
+  NativeToMyBibleMap: array[1..66] of Integer = (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110,
   120, 130, 140, 150, 160, 190, 220, 230, 240, 250, 260, 290, 300, 310, 330, 340, 350, 360, 370, 380, 390,
   400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 660, 670, 680, 690, 700, 710, 720, 520, 530,
   540, 550, 560, 570, 580, 590, 600, 610, 620, 630, 640, 650, 730);
@@ -1590,8 +1590,10 @@ end;
 
 function TBible.isEnglish: boolean;
 begin
-  Result := ((not trait[bqmtOldCovenant] and trait[bqmtNewCovenant]) and (GetChapterQtysSafe(6) = 16))
-         or (GetChapterQtysSafe(45) = 16);
+  if (IsMyBibleModule) then
+    Result := False
+  else
+    Result := ((not trait[bqmtOldCovenant] and trait[bqmtNewCovenant]) and (GetChapterQtysSafe(6) = 16)) or (GetChapterQtysSafe(45) = 16);
 end;
 
 function TBible.GetIsMyBybleModule: Boolean;
@@ -1651,7 +1653,7 @@ begin
         dec(Result, ord(effectiveLnk.vend > VerseQty));
     end
     else
-      openchapter_res := effectiveLnk.chapter <= FChapterQtys[effectiveLnk.book] - ord(trait[bqmtZeroChapter]);
+      openchapter_res := effectiveLnk.chapter <= GetChapterQtys(effectiveLnk.book) - ord(trait[bqmtZeroChapter]);
 
     if not openchapter_res then
     begin
@@ -2146,6 +2148,9 @@ var
   newTestamentOnly, englishbible: boolean;
   offset, checkNamesResult, savebook: integer;
 begin
+  if IsMyBibleModule then
+    book := MyBibleToNativeBookNumber(book);
+
   Result := true;
 
   if trait[bqmtZeroChapter] then
@@ -2167,7 +2172,7 @@ begin
   end;
 
   newTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
-  englishbible := (newTestamentOnly and (GetChapterQtysSafe(6) = 16)) or (GetChapterQtysSafe(45) = 16);
+  englishbible := isEnglish();
 
   savebook := book;
   if newTestamentOnly then
@@ -2402,8 +2407,7 @@ begin
   modBookCount := bibleModule.Info.BookQty;
   for i := 1 to modBookCount do
   begin
-    currentMatchValue := CompareTokenStrings(RussianShortNames[bookIx],
-      bibleModule.ShortNamesVars[i], ' ');
+    currentMatchValue := CompareTokenStrings(RussianShortNames[bookIx], bibleModule.ShortNamesVars[i], ' ');
     if currentMatchValue > maxMatchValue then
     begin
       maxMatchValue := currentMatchValue;
@@ -2421,6 +2425,13 @@ function TBible.InternalToReference(
 var
   newCovenantOnly, oldCovenantOnly: boolean;
   checkNamesResult, savebook: integer;
+
+  procedure ResetLink();
+  begin
+    book := IfThen(IsMyBibleModule, 10, 1);
+    chapter := 1;
+    verse := 1;
+  end;
 begin
   Result := true;
 
@@ -2434,16 +2445,15 @@ begin
 
   if (not IsBible) then
   begin
-    book := 1;
-    chapter := 1;
-    verse := 1;
+    ResetLink();
     Result := False;
-    exit;
+    Exit;
   end;
+
   if (ibook > 66) then
   begin
-    Result := true;
-    exit;
+    Result := True;
+    Exit;
   end;
 
   newCovenantOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
@@ -2453,14 +2463,14 @@ begin
   if not newCovenantOnly then // если не НЗ
   begin
     oldCovenantOnly := not trait[bqmtNewCovenant] and trait[bqmtOldCovenant];
+
     if oldCovenantOnly and (book >= 40) then
     begin
-      book := 1;
-      chapter := 1;
-      verse := 1;
+      ResetLink();
       Result := False;
-      exit;
+      Exit;
     end;
+
     if isEnglish or (trait[bqmtEnglishPsalms] and (book = 19)) then
       RUS2ENG(ibook, ichapter, iverse, book, chapter, verse)
     else
@@ -2479,11 +2489,9 @@ begin
         book := book - 39
       else
       begin
-        book := 1;
-        chapter := 1;
-        verse := 1;
+        ResetLink();
         Result := False;
-        exit;
+        Exit;
       end;
     end
     else
@@ -2496,9 +2504,7 @@ begin
       end
       else
       begin
-        book := 1;
-        chapter := 1;
-        verse := 1;
+        ResetLink();
         Result := False;
         exit;
       end;
@@ -2507,7 +2513,7 @@ begin
   end;
   if trait[bqmtZeroChapter] then
     chapter := chapter + 1;
-  if checkShortNames then
+  if checkShortNames and not IsMyBibleModule then
   begin
     checkNamesResult := RussianBibleBookToModuleBook(savebook, Self, ibook);
     if checkNamesResult > 30 then
@@ -2518,6 +2524,9 @@ begin
 
   if (chapter = 0) and (not trait[bqmtZeroChapter]) then
     chapter := 1;
+
+  if IsMyBibleModule then
+    book := NativeToMyBibleBookNumber(book);
 end;
 
 function TBible.ReferenceToEnglish(
@@ -2557,8 +2566,7 @@ begin
 
     ShortName := GetShortNameVarByBookNumber( savebook );
 
-    checkNamesResult := BookShortNamesToRussianBible
-      (ShortName, ebook);
+    checkNamesResult := BookShortNamesToRussianBible(ShortName, ebook);
     if checkNamesResult > 30 then
     begin
       book := ebook;
