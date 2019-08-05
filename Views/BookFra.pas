@@ -2702,7 +2702,6 @@ var
   path: string;
   hlVerses: TbqHLVerseOption;
   R: integer;
-  iniPath: string;
   bible: TBible;
 begin
   i := FDataService.Modules.FindByName(moduleName);
@@ -2749,8 +2748,7 @@ begin
 
   bible := TBible.Create();
 
-  iniPath := TPath.Combine(me.ShortPath, 'bibleqt.ini');
-  bible.SetInfoSource(ResolveFullPath(iniPath));
+  bible.SetInfoSource(me.GetInfoPath());
 
   if bible.isBible and wasBible and not fromBeginning then
   begin

@@ -431,7 +431,7 @@ end;
 procedure TConfigForm.FillFavourites();
 var
   I: Integer;
-  allModules: TStringList;
+  availableModules: TStringList;
 begin
   cbAvailableModules.Clear;
   lbFavourites.Clear;
@@ -443,29 +443,26 @@ begin
   if not Assigned(FModules) then
     Exit;
 
-  allModules := TStringList.Create;
+  availableModules := TStringList.Create;
   try
-    allModules.Sorted := true;
-    allModules.BeginUpdate;
+    availableModules.Sorted := true;
+    availableModules.BeginUpdate;
     try
       for I := 0 to FModules.Count - 1 do
-      begin
-        allModules.Add(FModules[I].FullName);
-      end;
+        if (FModules[I].ModType in [modtypeBible, modtypeBook, modtypeComment]) then
+          availableModules.Add(FModules[I].FullName);
     finally
-      allModules.EndUpdate;
+      availableModules.EndUpdate;
     end;
     cbAvailableModules.Items.BeginUpdate;
     try
-      for I := 0 to allModules.Count - 1 do
-      begin
-        cbAvailableModules.Items.Add(allModules[I]);
-      end;
+      for I := 0 to availableModules.Count - 1 do
+        cbAvailableModules.Items.Add(availableModules[I]);
     finally
       cbAvailableModules.Items.EndUpdate;
     end;
   finally
-    allModules.Free;
+    availableModules.Free;
   end;
 
   if cbAvailableModules.Items.Count > 0 then

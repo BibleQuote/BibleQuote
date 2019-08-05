@@ -2178,7 +2178,7 @@ begin
   if newTestamentOnly then
     Inc(book, 39);
 
-  if checkShortNames then
+  if checkShortNames and not IsMyBibleModule then
   begin
     checkNamesResult := BookShortNamesToRussianBible(ShortNamesVars[savebook], ibook);
     if checkNamesResult > 30 then
@@ -2561,7 +2561,7 @@ begin
   newTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
   // in English Bible ROMANS follows ACTS instead of JAMES
   savebook := book;
-  if checkShortNames then
+  if checkShortNames and not IsMyBibleModule then
   begin
 
     ShortName := GetShortNameVarByBookNumber( savebook );
