@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, IOUtils, Forms,
   FileCtrl, ExtCtrls, Buttons, StdCtrls, ComCtrls, Vcl.Dialogs,
   AppIni, PlainUtils, Favorites, BibleQuoteUtils, AppPaths, StringProcs,
-  System.UITypes;
+  System.UITypes, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
+  Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 type
   TConfigForm = class(TForm)
@@ -31,11 +32,11 @@ type
     lblAvailableModules: TLabel;
     lblFavourites: TLabel;
     lbFavourites: TListBox;
-    bbtnUp: TBitBtn;
-    bbtnDown: TBitBtn;
+    btnUp: TButton;
+    btnDown: TButton;
     cbAvailableModules: TComboBox;
-    bbtnDelete: TBitBtn;
-    btnAddHotModule: TBitBtn;
+    btnDelete: TButton;
+    btnAddHotModule: TButton;
     chkFullContextOnRestrictedLinks: TCheckBox;
     chkHighlightVerseHits: TCheckBox;
     lblDefaultBible: TLabel;
@@ -69,11 +70,13 @@ type
     lblLanguage: TLabel;
     btnRestoreDefaults: TButton;
     chkShowVerseSignatures: TCheckBox;
+    imgCollection: TImageCollection;
+    vimgList: TVirtualImageList;
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure btnCancelClick(Sender: TObject);
     procedure btnSelectPathClick(Sender: TObject);
     procedure btnDeletePathClick(Sender: TObject);
-    procedure favouritesBitBtnClick(Sender: TObject);
+    procedure favouritesBtnClick(Sender: TObject);
     procedure btnAddHotModuleClick(Sender: TObject);
     procedure btnDialogsFontClick(Sender: TObject);
     procedure btnSecondaryFontClick(Sender: TObject);
@@ -122,7 +125,7 @@ begin
     ModalResult := mrCancel;
 end;
 
-procedure TConfigForm.favouritesBitBtnClick(Sender: TObject);
+procedure TConfigForm.favouritesBtnClick(Sender: TObject);
 var
   itemIx, newItemIx, itemCount: integer;
   op: integer;
@@ -131,7 +134,7 @@ begin
   itemCount := lbFavourites.Count - 1;
   if (itemIx < 0) or (itemIx > itemCount) then
     exit;
-  op := (Sender as TBitBtn).Tag;
+  op := (Sender as TButton).Tag;
   if op = 0 then
   begin
     lbFavourites.Items.Delete(itemIx);
