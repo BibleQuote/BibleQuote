@@ -31,6 +31,7 @@ type
     class function GetCommentaryBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
     class function GetBibleBookQty(aSQLiteQuery: TFDQuery; aChapterDatas: TList<TChapterData>): Integer;
     class function GetLanguage(aSQLiteQuery: TFDQuery): String;
+    class function GetIsRussianNumbering(aSQLiteQuery: TFDQuery): Boolean;
     class function GetChapterString(aSQLiteQuery: TFDQuery): String;
     class function GetChapterStringPs(aSQLiteQuery: TFDQuery): String;
     class function GetDictName(aSQLiteQuery: TFDQuery): String;
@@ -505,6 +506,11 @@ begin
     'order by chapter_number_from', [aBook, aChapter]);
 
   GetMultiValues(aSQLiteQuery, Query, aLines);
+end;
+
+class function TMyBibleUtils.GetIsRussianNumbering(aSQLiteQuery: TFDQuery): Boolean;
+begin
+  Result := GetInfoValue(aSQLiteQuery, 'russian_numbering') = 'true';
 end;
 
 class function TMyBibleUtils.GetChapterString(aSQLiteQuery: TFDQuery): String;

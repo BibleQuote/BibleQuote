@@ -151,6 +151,7 @@ begin
           FMainView.LastBiblePath := FBookTabInfo.Bible.ShortPath;
           ReferenceToInternal(bibleLink, FMainView.LastBibleLink);
         end;
+        FMainView.LastIsBible := FBookTabInfo.Bible.isBible;
       end;
     end;
 

@@ -166,7 +166,6 @@ begin
     NativeBookNumber := mainBible.MyBibleToNativeBookNumber(mainBible.CurBook);
     mainBible.ReferenceToEnglish(NativeBookNumber, mainBible.CurChapter, goverse, book, chapter, verse);
     OriginalBookNumber := mainBible.NativeToMyBibleBookNumber(book);
-
   end
   else begin
     mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, goverse, book, chapter, verse);
