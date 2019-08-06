@@ -1544,7 +1544,14 @@ begin
   for BookIndex := 0 to 65 do
     if ContainsText(' ' + GetTSKShortNames(BookIndex + 1) + ' ', name) then
     begin
-      book := GetBookNumberAt(BookIndex);
+      if (IsMyBibleModule) then
+      begin
+        book := NativeToMyBibleBookNumber(BookIndex + 1);
+        book := MyBibleToNativeBookNumber(book);
+      end
+      else
+        book := GetBookNumberAt(BookIndex);
+
       chapter := ichapter;
       fromverse := ifromverse;
       toverse := itoverse;
@@ -2145,7 +2152,7 @@ function TBible.ReferenceToInternal(
   var ibook, ichapter, iverse: integer;
   checkShortNames: boolean = true): boolean;
 var
-  newTestamentOnly, englishbible: boolean;
+  newTestamentOnly, englishbible, convertToRus: boolean;
   offset, checkNamesResult, savebook: integer;
 begin
   if IsMyBibleModule then
@@ -2153,11 +2160,7 @@ begin
 
   Result := true;
 
-  if trait[bqmtZeroChapter] then
-    offset := 1
-  else
-    offset := 0;
-
+  offset := IfThen(trait[bqmtZeroChapter], 1, 0);
   ibook := book;
   ichapter := chapter - offset;
   iverse := verse;
@@ -2171,12 +2174,17 @@ begin
     exit;
   end;
 
-  newTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
+  if IsMyBibleModule then
+    newTestamentOnly := False
+  else
+    newTestamentOnly := not trait[bqmtOldCovenant] and trait[bqmtNewCovenant];
+
+  if newTestamentOnly then
+    Inc(book, 39);
+
   englishbible := isEnglish();
 
   savebook := book;
-  if newTestamentOnly then
-    Inc(book, 39);
 
   if checkShortNames and not IsMyBibleModule then
   begin
@@ -2193,27 +2201,14 @@ begin
   end;
   // in English Bible ROMANS follows ACTS instead of JAMES
 
-  if not newTestamentOnly then
-  begin
-    if englishbible or (trait[bqmtEnglishPsalms] and (book = 19)) then
-      ENG2RUS(book, chapter - offset, verse, ibook, ichapter, iverse)
-    else
-    begin
-      ibook := book;
-      ichapter := chapter - offset;
-      iverse := verse;
-    end;
-  end
+  convertToRus := englishbible or (not newTestamentOnly and (trait[bqmtEnglishPsalms] and (book = 19)));
+  if convertToRus then
+    ENG2RUS(book, chapter - offset, verse, ibook, ichapter, iverse)
   else
   begin
-    if englishbible then
-      ENG2RUS(book, chapter - offset, verse, ibook, ichapter, iverse)
-    else
-    begin
-      ibook := book;
-      ichapter := chapter - offset;
-      iverse := verse;
-    end;
+    ibook := book;
+    ichapter := chapter - offset;
+    iverse := verse;
   end;
 
 end;
@@ -2517,16 +2512,14 @@ begin
   begin
     checkNamesResult := RussianBibleBookToModuleBook(savebook, Self, ibook);
     if checkNamesResult > 30 then
-    begin
       book := ibook;
-    end;
   end;
 
   if (chapter = 0) and (not trait[bqmtZeroChapter]) then
     chapter := 1;
 
   if IsMyBibleModule then
-    book := NativeToMyBibleBookNumber(book);
+    book := NativeToMyBibleBookNumber(book, True);
 end;
 
 function TBible.ReferenceToEnglish(

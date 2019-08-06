@@ -134,7 +134,7 @@ var
   diff: integer;
   path: string;
   mainBible, secondBible: TBible;
-  NativeBookNumber, OriginalBookNumber: Integer;
+  NativeBookNumber: Integer;
 begin
   if aInfoPath = '' then
     Exit;
@@ -165,12 +165,9 @@ begin
   begin
     NativeBookNumber := mainBible.MyBibleToNativeBookNumber(mainBible.CurBook);
     mainBible.ReferenceToEnglish(NativeBookNumber, mainBible.CurChapter, goverse, book, chapter, verse);
-    OriginalBookNumber := mainBible.NativeToMyBibleBookNumber(book);
   end
-  else begin
+  else
     mainBible.ReferenceToEnglish(mainBible.CurBook, mainBible.CurChapter, goverse, book, chapter, verse);
-    OriginalBookNumber := book;
-  end;
 
   s := IntToStr(book);
 
@@ -234,13 +231,8 @@ begin
       if toverse < fromverse then
         toverse := fromverse; // if one verse
 
-      if secondBible.IsMyBibleModule then
-        OriginalBookNumber := secondBible.NativeToMyBibleBookNumber(book, True)
-      else
-        OriginalBookNumber := book;
-
       try
-        secondBible.OpenChapter( OriginalBookNumber, chapter);
+        secondBible.OpenChapter(book, chapter);
       except
         continue;
       end;
@@ -264,17 +256,17 @@ begin
 
       StrDeleteFirstNumber(s);
       passageSig := Format('<font face="%s">%s</font>',
-        [AppConfig.DefFontName, secondBible.ShortPassageSignature(OriginalBookNumber, chapter, fromverse, toverse)]);
+        [AppConfig.DefFontName, secondBible.ShortPassageSignature(book, chapter, fromverse, toverse)]);
       if toverse = fromverse then
         RefText := RefText +
           Format
           ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, 0, passageSig, mainBible.Info.DesiredFontName, s])
+          [mainBible.ShortPath, book, chapter, fromverse, 0, passageSig, mainBible.Info.DesiredFontName, s])
       else
         RefText := RefText +
           Format
           ('<a href="go %s %d %d %d %d">%s</a> <font face="%s">%s</font><br>',
-          [mainBible.ShortPath, OriginalBookNumber{book}, chapter, fromverse, toverse, passageSig, mainBible.Info.DesiredFontName, s]);
+          [mainBible.ShortPath, book, chapter, fromverse, toverse, passageSig, mainBible.Info.DesiredFontName, s]);
     end;
 
     AddLine(RefLines, RefText);
