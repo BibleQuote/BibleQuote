@@ -364,7 +364,7 @@ begin
       ShortName := aSQLiteQuery.FieldByName('short_name').AsString;
 
     ChapterData.FullName := BookName;
-    ChapterData.ShortName := ShortName;
+    ChapterData.ShortName := StringReplace(ShortName, ' ', '', [rfReplaceAll]);
 
     aChapterDatas.Add(ChapterData);
 
