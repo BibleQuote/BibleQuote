@@ -10,7 +10,7 @@ uses
   Htmlview, Clipbrd, Bible, BookFra, StringProcs, BibleQuoteConfig, IOUtils,
   ExceptionFrm, NativeDict, System.Threading, VirtualTrees, AppPaths, AppIni, StrUtils,
   StrongsConcordance, Math, Character, HtmlParser, DOMCore, Formatter,
-  HtmlTags, BibleLinkParser, ScriptureProvider, DataServices;
+  HtmlTags, BibleLinkParser, ScriptureProvider, DataServices, PreviewUtils;
 
 type
   TStrongFrame = class(TFrame, IStrongView)
@@ -340,9 +340,7 @@ end;
 
 procedure TStrongFrame.miRefPrintClick(Sender: TObject);
 begin
-  with mMainView.PrintDialog do
-    if Execute then
-      (pmRef.PopupComponent as THTMLViewer).Print(MinPage, MaxPage)
+  ShowPrintPreview(Self, pmRef.PopupComponent as THTMLViewer);
 end;
 
 procedure TStrongFrame.SearchText(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);

@@ -9,7 +9,7 @@ uses
   StringProcs, LinksParser, MainFrm, LibraryFra, LayoutConfig, IOUtils,
   System.ImageList, Vcl.ImgList, LinksParserIntf, HintTools, Vcl.Menus,
   Clipbrd, AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, Sets, SourceReaderIntf;
+  Vcl.ImageCollection, Sets, SourceReaderIntf, PreviewUtils;
 
 type
   TSearchFrame = class(TFrame, ISearchView, IBookSearchCallback)
@@ -501,9 +501,7 @@ end;
 
 procedure TSearchFrame.miRefPrintClick(Sender: TObject);
 begin
-  with mMainView.PrintDialog do
-    if Execute then
-      (pmRef.PopupComponent as THTMLViewer).Print(MinPage, MaxPage)
+  ShowPrintPreview(Self, pmRef.PopupComponent as THTMLViewer);
 end;
 
 procedure TSearchFrame.SetCurrentBook(shortPath: string);

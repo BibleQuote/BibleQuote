@@ -96,6 +96,15 @@ DeleteBookmarkTextPrompt = Удалить закладку?
 DeleteBookmarkTitle = Подтвердите удаление
 ResetSettingsTextPrompt = Вы уверены, что хотите сбросить настройки?
 
+PrintStatusFormatting = Форматирование...
+PrintStatusPage = Страница %d
+ZoomFitToPage = Вписать в страницу
+ZoomFitToWidth = По ширине
+ZoomCustom = Пользоват.
+UnitsInches = Дюймы
+UnitsCentimeters = Сантиметры
+PageOfPage = Страница %d из %d
+
 ; ЭЛЕМЕНТЫ ФОРМЫ И МЕНЮ =================================
 
 CBAllNotCaption = искомое содержит все введенные слова
@@ -356,6 +365,42 @@ DownloadModulesForm.tbtnDownloadModule.Caption = Загрузить модуль
 DownloadModulesForm.tbtnDownloadModule.Hint = Загрузить модуль
 DownloadModulesForm.edtSearch.TextHint = Поиск модулей...
 DownloadModulesForm.edtSearch.Hint = Поиск модулей по заголовку или названию
+;
+Gopage.Caption = Перейти к номеру страницы
+Gopage.btnOK.Caption = OK
+Gopage.btnCancel.Caption = Отмена
+;
+PrnStatusForm.Caption = Состояние печати
+PrnStatusForm.lblStatus.Caption = Состояние
+PrnStatusForm.lblStatus.btnCancel = Отмена
+;
+PreviewForm.Caption = Предварительный просмотр
+PreviewForm.btnGrid.Hint = Показать/Скрыть сетку
+PreviewForm.btnZoomCursor.Hint = Выбирает инструмент Zoom для увеличения или уменьшения масштаба
+PreviewForm.btnHandCursor.Hint = Выбирает инструмент Hand для перемещения по странице
+PreviewForm.btnOnePage.Hint = Показывать одну страницу
+PreviewForm.btnTwoPage.Hint = Показать две страницы рядом
+PreviewForm.btnFitPage.Hint = Вписать в страницу
+PreviewForm.btnFitWidth.Hint = По ширине
+PreviewForm.btnPrint.Hint = Распечатать текущий документ
+PreviewForm.btnPrint.Caption = &Печать...
+PreviewForm.btnNextPage.Hint = Перейти к следующей странице в документе
+PreviewForm.btnNextPage.Caption = &След.
+PreviewForm.btnPrevPage.Hint = Перейти к предыдущей странице в документе
+PreviewForm.btnPrevPage.Caption = Пре&д
+PreviewForm.btnClose.Hint = Закрыть окно предварительного просмотра
+PreviewForm.btnClose.Caption = &Закрыть
+PreviewForm.lblCurPage.Hint = Отображает текущую страницу документа
+PreviewForm.lblZoom.Hint = Отображает текущий уровень масштабирования
+PreviewForm.Panel1.Hint = Отображает подсказку для объекта под указателем мыши
+PreviewForm.lblHint.Hint = Отображает подсказку для объекта под указателем мыши
+PreviewForm.spdFirstPage.Hint = Перейти на первую страницу в документе
+PreviewForm.spdPrevPage.Hint = Перейти на предыдущую страницу в документе
+PreviewForm.spdNextPage.Hint = Перейти на следующую страницу в документе
+PreviewForm.spdLastPage.Hint = Перейти на последнюю страницу в документе
+PreviewForm.spdPageNum.Hint = Перейти на страницу по номеру страницы
+PreviewForm.PB1.Hint = Просмотр страницы. С инструментом Zoom, щелкните левой или правой кнопкой мыши, чтобы увеличить/уменьшить масштаб. С инструментом Hand, щелкните и перетащите указатель мыши для перемещения.
+PreviewForm.PB2.Hint = Просмотр страницы. С инструментом Zoom, щелкните левой или правой кнопкой мыши, чтобы увеличить/уменьшить масштаб. С инструментом Hand, щелкните и перетащите указатель мыши для перемещения.
 ;
 StrMyBibleBook10 = Бытие
 StrMyBibleBook20 = Исход

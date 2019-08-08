@@ -17,18 +17,17 @@ uses
   Buttons, DockTabSet, Htmlview, SysUtils, SysHot, HTMLViewerSite,
   Bible, BibleQuoteUtils, ICommandProcessor, WinUIServices, TagsDb,
   VdtEditlink, bqGradientPanel, MultiLanguage, LinksParserIntf, HTMLEmbedInterfaces,
-  MetaFilePrinter, NativeDict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
+  NativeDict, Vcl.Tabs, System.ImageList, HTMLUn2, FireDAC.DatS,
   TabData, Favorites, ThinCaptionedDockTree,
   Vcl.CaptionedDockTree, LayoutConfig,
   ChromeTabs, ChromeTabsTypes, ChromeTabsUtils, ChromeTabsControls, ChromeTabsClasses,
   ChromeTabsLog, ManageFonts, BroadcastList, JclNotify, NotifyMessages,
   AppIni, Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
   StrongsConcordance, DataScanning, AppStates, DictInterface, DataServices,
-  InfoSource;
+  InfoSource, PreviewUtils;
 
 const
 
-  ZOOMFACTOR = 1.5;
   MAXHISTORY = 100;
   {
     такие увеличенные размеры позволяют сохранять ПРОПОРЦИИ окна
@@ -80,33 +79,16 @@ type
     OpenDialog: TOpenDialog;
     SaveFileDialog: TSaveDialog;
     pnlModules: TPanel;
-    PrintDialog: TPrintDialog;
     ColorDialog: TColorDialog;
     FontDialog: TFontDialog;
-    sbxPreview: TScrollBox;
-    pnlContainer: TPanel;
-    pnlPage: TPanel;
-    pbPreview: TPaintBox;
     pmRef: TPopupMenu;
     miRefCopy: TMenuItem;
     miRefPrint: TMenuItem;
     pmEmpty: TPopupMenu;
     trayIcon: TCoolTrayIcon;
-    mmGeneral: TMainMenu;
-    miFile: TMenuItem;
-    miFavorites: TMenuItem;
-    miHelpMenu: TMenuItem;
-    miPrint: TMenuItem;
-    miPrintPreview: TMenuItem;
-    miFileSep1: TMenuItem;
-    miOptions: TMenuItem;
-    miExit: TMenuItem;
-    miHotKey: TMenuItem;
-    miAbout: TMenuItem;
     ilImages: TImageList;
     tlbPanel: TGradientPanel;
     tlbMain: TToolBar;
-    miFileSep2: TMenuItem;
     tbtnLastSeparator: TToolButton;
     cbLinks: TComboBox;
     miDeteleBibleTab: TMenuItem;
@@ -129,26 +111,20 @@ type
     imgCollection: TImageCollection;
     vimgIcons: TVirtualImageList;
     tbtnAddCommentsTab: TToolButton;
+    tbtnOptions: TToolButton;
+    tbtnPreviewPrint: TToolButton;
+    tbtnAbout: TToolButton;
     procedure FormCreate(Sender: TObject);
-    procedure miPrintClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure miExitClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure miHotkeyClick(Sender: TObject);
-    procedure sbxPreviewResize(Sender: TObject);
-    procedure pbPreviewPaint(Sender: TObject);
-    procedure pbPreviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure miPrintPreviewClick(Sender: TObject);
 
     procedure FormShow(Sender: TObject);
     procedure cbLinksChange(Sender: TObject);
     procedure bwrDicHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
-    procedure miAboutClick(Sender: TObject);
     procedure miRefPrintClick(Sender: TObject);
     procedure miRefCopyClick(Sender: TObject);
-    procedure miOptionsClick(Sender: TObject);
     procedure trayIconClick(Sender: TObject);
     procedure SysHotKeyHotKey(Sender: TObject; Index: integer);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -173,7 +149,6 @@ type
     procedure OnTabsFormActivate(Sender: TObject);
     procedure OnTabsFormClose(Sender: TObject; var Action: TCloseAction);
 
-    procedure TogglePreview();
 
     procedure bwrDicHotSpotCovered(Sender: TObject; const SRC: string);
     procedure tbtnNewFormClick(Sender: TObject);
@@ -188,6 +163,9 @@ type
     procedure tbtnAddLibraryTabClick(Sender: TObject);
     procedure tbtnAddCommentsTabClick(Sender: TObject);
     procedure tbtnDownloadModulesClick(Sender: TObject);
+    procedure tbtnOptionsClick(Sender: TObject);
+    procedure tbtnPreviewPrintClick(Sender: TObject);
+    procedure tbtnAboutClick(Sender: TObject);
   private
     FStrongsConcordance: TStrongsConcordance;
 
@@ -199,15 +177,12 @@ type
     function CreateBookTabInfo(book: TBible): TBookTabInfo;
     procedure InitModuleScanner();
     procedure InitHtmlTemplate;
+    procedure ShowCurrentModulePrintPreview();
 
     procedure OnDictsLoaded(var Msg: TMessage); message PROCESS_DICTS_LOADED;
     procedure OnModulesLoaded(var Msg: TMessage); message PROCESS_MODULES_LOADED;
   public
     SysHotKey: TSysHotKey;
-
-    FCurPreviewPage: integer;
-    ZoomIndex: integer;
-    Zoom: double;
 
     mTaggedBookmarksLoaded: Boolean;
     mDefaultLocation: string;
@@ -250,7 +225,6 @@ type
 
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
 
-    procedure DrawMetaFile(PB: TPaintBox; mf: TMetaFile);
     function CreateNewBibleInstance(): TBible;
 
     procedure UpdateBookView();
@@ -281,19 +255,15 @@ type
     procedure OpenOrCreateStrongTab(bookTabInfo: TBookTabInfo; number: Integer; isHebrew: Boolean);
     procedure OpenOrCreateSearchTab(bookPath: string; searchText: string; bookTypeIndex: integer = -1; SearchOptions: TSearchOptions = []);
 
-    function FindTaggedTopMenuItem(tag: integer): TMenuItem;
-
     procedure StartScanModules();
     function LoadHotModulesConfig(): Boolean;
     procedure SaveHotModulesConfig();
     function AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
-    function FavoriteItemFromModEntry(const me: TModuleEntry): TMenuItem;
     function FavoriteTabFromModEntry(workspace: IWorkspace; const me: TModuleEntry): integer;
     procedure DeleteHotModule(moduleTabIx: integer); overload;
     function DeleteHotModule(const me: TModuleEntry): Boolean; overload;
     function ReplaceHotModule(const oldMe, newMe: TModuleEntry): Boolean;
     function InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
-    procedure SetFavouritesShortcuts();
 
     procedure SaveMru();
     procedure LoadMru();
@@ -327,7 +297,6 @@ type
 
     procedure ShowConfigDialog;
     procedure ShowQuickSearch;
-    procedure PrintCurrentPage;
 
     procedure SetVScrollTracker(aBrwsr: THTMLViewer);
     procedure VSCrollTracker(Sender: TObject);
@@ -354,9 +323,7 @@ type
     mHandCur: TCursor;
 
     procedure MouseWheelHandler(var Message: TMessage); override;
-    procedure SetCurPreviewPage(Val: integer);
     function PassWordFormShowModal(const aModule: WideString; out Pwd: WideString; out savePwd: Boolean): integer;
-    property CurPreviewPage: integer read FCurPreviewPage write SetCurPreviewPage;
 
     function GetAutoTxt(
       btInfo: TBookTabInfo;
@@ -368,7 +335,6 @@ type
 
 var
   MainForm: TMainForm;
-  MFPrinter: TMetaFilePrinter;
   G_ControlKeyDown: Boolean;
 
 implementation
@@ -1293,20 +1259,11 @@ end;
 
 function TMainForm.AddHotModule(const modEntry: TModuleEntry; tag: integer; addBibleTab: Boolean = true): integer;
 var
-  favouriteMenuItem, hotMenuItem: TMenuItem;
   ix: integer;
   workspace: IWorkspace;
 begin
   Result := -1;
   try
-    favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    if not Assigned(favouriteMenuItem) then
-      Exit;
-    hotMenuItem := TMenuItem.Create(self);
-    hotMenuItem.tag := tag;
-    hotMenuItem.Caption := modEntry.FullName;
-    hotMenuItem.OnClick := OnHotModuleClick;
-    favouriteMenuItem.Add(hotMenuItem);
     if not addBibleTab then
       Exit;
 
@@ -1491,18 +1448,6 @@ begin
   Translate();
 end;
 
-procedure TMainForm.miPrintClick(Sender: TObject);
-begin
-  PrintCurrentPage();
-end;
-
-procedure TMainForm.PrintCurrentPage();
-begin
-  with PrintDialog do
-    if Execute and Assigned(mWorkspace) then
-      mWorkspace.Browser.Print(MinPage, MaxPage);
-end;
-
 procedure TMainForm.EnableToolbarMenus(aEnabled: Boolean);
 var
   i: integer;
@@ -1528,131 +1473,6 @@ begin
   begin
     aToolBar.Buttons[i].Enabled := aEnabled;
   end;
-end;
-
-procedure TMainForm.TogglePreview();
-begin
-  if not Assigned(mWorkspace) then
-    Exit;
-
-  if sbxPreview.Visible then
-  begin
-    EnableToolbarMenus(true);
-    EnableToolbars(true);
-
-    sbxPreview.Visible := false;
-
-    GetDockWorkspace(self).pnlMain.Visible := true;
-    Windows.SetFocus(mWorkspace.Browser.Handle);
-
-    Screen.Cursor := crDefault;
-  end
-  else
-  begin
-    MFPrinter := TMetaFilePrinter.Create(self);
-    mWorkspace.Browser.PrintPreview(MFPrinter);
-
-    ZoomIndex := 0;
-    CurPreviewPage := 0;
-
-    sbxPreview.OnResize := nil;
-
-    GetDockWorkspace(self).pnlMain.Visible := false;
-    sbxPreview.OnResize := sbxPreviewResize;
-    sbxPreview.Align := alClient;
-
-    EnableToolbarMenus(false);
-    EnableToolbars(false);
-
-    miFile.Enabled := true;
-    miPrintPreview.Enabled := true;
-    sbxPreview.Visible := true;
-
-    pbPreview.Cursor := crHandPoint;
-  end;
-end;
-
-procedure TMainForm.sbxPreviewResize(Sender: TObject);
-const
-  BORD = 20;
-var
-  z: double;
-  tmp, TotWid: integer;
-begin
-  case ZoomIndex of
-    0:
-      z := ((sbxPreview.ClientHeight - BORD) / PixelsPerInch) /
-        (MFPrinter.PaperHeight / MFPrinter.PixelsPerInchY);
-    1:
-      z := ((sbxPreview.ClientWidth - BORD) / PixelsPerInch) /
-        (MFPrinter.PaperWidth / MFPrinter.PixelsPerInchX);
-    2:
-      z := Zoom;
-    3:
-      z := 0.25;
-    4:
-      z := 0.50;
-    5:
-      z := 0.75;
-    6:
-      z := 1.00;
-    7:
-      z := 1.25;
-    8:
-      z := 1.50;
-    9:
-      z := 2.00;
-    10:
-      z := 3.00;
-    11:
-      z := 4.00;
-  else
-    z := 1;
-  end;
-
-  pnlPage.Height := TRUNC(PixelsPerInch * z * MFPrinter.PaperHeight /
-    MFPrinter.PixelsPerInchY);
-  pnlPage.Width := TRUNC(PixelsPerInch * z * MFPrinter.PaperWidth /
-    MFPrinter.PixelsPerInchX);
-
-  TotWid := pnlPage.Width + BORD;
-
-  // Resize the Contain Panel
-  tmp := pnlPage.Height + BORD;
-  if tmp < sbxPreview.ClientHeight then
-    tmp := sbxPreview.ClientHeight - 1;
-  pnlContainer.Height := tmp;
-
-  tmp := TotWid;
-  if tmp < sbxPreview.ClientWidth then
-    tmp := sbxPreview.ClientWidth - 1;
-  pnlContainer.Width := tmp;
-
-  // Center the Page Panel
-  if pnlPage.Height + BORD < pnlContainer.Height then
-    pnlPage.Top := pnlContainer.Height div 2 - pnlPage.Height div 2
-  else
-    pnlPage.Top := BORD div 2;
-
-  if TotWid < pnlContainer.Width then
-    pnlPage.Left := pnlContainer.Width div 2 - (TotWid - BORD) div 2
-  else
-    pnlPage.Left := BORD div 2;
-
-  { Make sure the scroll bars are hidden if not needed }
-  if (pnlPage.Width + BORD <= sbxPreview.Width) and
-    (pnlPage.Height + BORD <= sbxPreview.Height) then
-  begin
-    sbxPreview.HorzScrollBar.Visible := false;
-    sbxPreview.VertScrollBar.Visible := false;
-  end
-  else
-  begin
-    sbxPreview.HorzScrollBar.Visible := true;
-    sbxPreview.VertScrollBar.Visible := true;
-  end;
-
-  Zoom := z;
 end;
 
 procedure TMainForm.SetBibleTabsHintsState(showHints: Boolean);
@@ -1709,40 +1529,6 @@ begin
   mBibleTabsInCtrlKeyDownState := showHints;
 end;
 
-procedure TMainForm.SetCurPreviewPage(Val: integer);
-begin
-  FCurPreviewPage := Val;
-  pbPreview.Invalidate;
-end;
-
-procedure TMainForm.SetFavouritesShortcuts();
-var
-  favouriteMenuItem, hotMenuItem: TMenuItem;
-  i, j, hotCount: integer;
-begin
-  try
-    favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    hotCount := favouriteMenuItem.Count - 1;
-    j := 0;
-    for i := 0 to hotCount do
-    begin
-      hotMenuItem := favouriteMenuItem.Items[i] as TMenuItem;
-      if hotMenuItem.tag < 7000 then
-        continue;
-      if j < 9 then
-        hotMenuItem.ShortCut := ShortCut($31 + j, [ssCtrl])
-      else if j = 9 then
-        hotMenuItem.ShortCut := ShortCut($30, [ssCtrl])
-      else
-        hotMenuItem.ShortCut := 0;
-      inc(j)
-    end;
-
-  except
-    // do nothing
-  end;
-end;
-
 procedure TMainForm.SetFirstTabInitialLocation(
   wsCommand, wsSecondaryView: string;
   const Title: string;
@@ -1791,31 +1577,6 @@ begin
     on E: Exception do
       BqShowException(E)
   end;
-end;
-
-procedure TMainForm.DrawMetaFile(PB: TPaintBox; mf: TMetaFile);
-begin
-  PB.Canvas.Draw(0, 0, mf);
-end;
-
-procedure TMainForm.pbPreviewPaint(Sender: TObject);
-var
-  PB: TPaintBox;
-  Draw: Boolean;
-  page: integer;
-begin
-  PB := Sender as TPaintBox;
-
-  Draw := CurPreviewPage < MFPrinter.LastAvailablePage;
-  page := CurPreviewPage;
-
-  SetMapMode(PB.Canvas.Handle, MM_ANISOTROPIC);
-  SetWindowExtEx(PB.Canvas.Handle, MFPrinter.PaperWidth, MFPrinter.PaperHeight, nil);
-  SetViewportExtEx(PB.Canvas.Handle, PB.Width, PB.Height, nil);
-  SetWindowOrgEx(PB.Canvas.Handle, -MFPrinter.OffsetX, -MFPrinter.OffsetY, nil);
-
-  if Draw then
-    DrawMetaFile(PB, MFPrinter.MetaFiles[page]);
 end;
 
 procedure TMainForm.pmRecLinksOptionsChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
@@ -1876,28 +1637,6 @@ begin
 
 end;
 
-procedure TMainForm.pbPreviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-var
-  sx, sy: single;
-  nx, ny: integer;
-begin
-  sx := X / pnlPage.Width;
-  sy := Y / pnlPage.Height;
-
-  if (ssLeft in Shift) and (Zoom < 20.0) then
-    Zoom := Zoom * ZOOMFACTOR;
-  if (ssRight in Shift) and (Zoom > 0.1) then
-    Zoom := Zoom / ZOOMFACTOR;
-
-  ZoomIndex := 2;
-  sbxPreviewResize(nil);
-
-  nx := TRUNC(sx * pnlPage.Width);
-  ny := TRUNC(sy * pnlPage.Height);
-  sbxPreview.HorzScrollBar.Position := nx - sbxPreview.Width div 2;
-  sbxPreview.VertScrollBar.Position := ny - sbxPreview.Height div 2;
-end;
-
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   OldKey: Word;
@@ -1906,78 +1645,6 @@ label
   exitlabel;
 begin
   hotMenuItem := nil;
-  if sbxPreview.Visible then
-  begin
-    if Key = VK_NEXT then
-    begin
-      if CurPreviewPage < MFPrinter.LastAvailablePage - 1 then
-        CurPreviewPage := CurPreviewPage + 1;
-    end
-    else if Key = VK_PRIOR then
-    begin
-      if CurPreviewPage > 0 then
-        CurPreviewPage := CurPreviewPage - 1;
-    end
-    else if Key = VK_HOME then
-    begin
-      sbxPreview.VertScrollBar.Position := 0;
-    end
-    else if Key = VK_END then
-    begin
-      sbxPreview.VertScrollBar.Position := sbxPreview.VertScrollBar.Range;
-    end
-    else if Key = VK_UP then
-    begin
-      if sbxPreview.VertScrollBar.Position > 50 then
-        sbxPreview.VertScrollBar.Position :=
-          sbxPreview.VertScrollBar.Position - 50
-      else
-        sbxPreview.VertScrollBar.Position := 0;
-    end
-    else if Key = VK_DOWN then
-    begin
-      if sbxPreview.VertScrollBar.Position < sbxPreview.VertScrollBar.Range - 50
-      then
-        sbxPreview.VertScrollBar.Position :=
-          sbxPreview.VertScrollBar.Position + 50
-      else
-        sbxPreview.VertScrollBar.Position := sbxPreview.VertScrollBar.Range;
-    end
-    else if Key = VK_LEFT then
-    begin
-      if sbxPreview.HorzScrollBar.Position > 50 then
-        sbxPreview.HorzScrollBar.Position :=
-          sbxPreview.HorzScrollBar.Position - 50
-      else
-        sbxPreview.HorzScrollBar.Position := 0;
-    end
-    else if Key = VK_RIGHT then
-    begin
-      if sbxPreview.HorzScrollBar.Position < sbxPreview.HorzScrollBar.Range - 50
-      then
-        sbxPreview.HorzScrollBar.Position :=
-          sbxPreview.HorzScrollBar.Position + 50
-      else
-        sbxPreview.HorzScrollBar.Position := sbxPreview.HorzScrollBar.Range;
-    end
-    else if (Key = ord('Z')) and (Shift = [ssCtrl]) then
-    begin
-      if (GetBookView(Self) <> nil) then
-        GetBookView(Self).GoPrevChapter;
-    end
-    else if (Key = ord('X')) and (Shift = [ssCtrl]) then
-    begin
-      if (GetBookView(Self) <> nil) then
-        GetBookView(Self).GoNextChapter;
-    end
-    else if (Key = ord('V')) and (Shift = [ssCtrl]) then
-      miPrintPreview.Click
-    else if (Key = ord('P')) and (Shift = [ssCtrl]) then
-      miPrint.Click;
-
-    Key := 0;
-    goto exitlabel;
-  end; // if sbxPreview visible
 
   if Key = VK_CONTROL then
   begin
@@ -2031,9 +1698,7 @@ begin
           end; // if webbr
         end;
       ord('P'):
-        PrintCurrentPage;
-      ord('W'):
-        miPrintPreview.Click;
+        ShowCurrentModulePrintPreview();
       ord('R'):
         GetBookView(self).GoRandomPlace;
       ord('F'):
@@ -2056,23 +1721,25 @@ begin
         if GetBookView(self) <> nil then
           GetBookView(self).PlaySound;
       VK_F11:
-        miPrintPreview.Click;
-      ord('0'):
-        begin
-          if mFavorites.mModuleEntries.Count > 9 then
-            hotMenuItem := FavoriteItemFromModEntry(TModuleEntry(mFavorites.mModuleEntries[10]));
-          if Assigned(hotMenuItem) then
-            hotMenuItem.Click();
-        end;
+        ShowCurrentModulePrintPreview();
+//      ord('0'):
+// Navigate to favorite tab
+//        begin
+//          if mFavorites.mModuleEntries.Count > 9 then
+//            hotMenuItem := FavoriteItemFromModEntry(TModuleEntry(mFavorites.mModuleEntries[10]));
+//          if Assigned(hotMenuItem) then
+//            hotMenuItem.Click();
+//        end;
 
-      ord('1') .. ord('9'):
-        begin
-          if mFavorites.mModuleEntries.Count >= (ord(OldKey) - ord('0')) then
-            hotMenuItem := FavoriteItemFromModEntry(TModuleEntry(mFavorites.mModuleEntries[ord(OldKey) - ord('0') - 1]));
-
-          if Assigned(hotMenuItem) then
-            hotMenuItem.Click();
-        end;
+//      ord('1') .. ord('9'):
+// Navigate to favorite tab
+//        begin
+//          if mFavorites.mModuleEntries.Count >= (ord(OldKey) - ord('0')) then
+//            hotMenuItem := FavoriteItemFromModEntry(TModuleEntry(mFavorites.mModuleEntries[ord(OldKey) - ord('0') - 1]));
+//
+//          if Assigned(hotMenuItem) then
+//            hotMenuItem.Click();
+//        end;
     else
       Key := OldKey;
     end;
@@ -2096,12 +1763,13 @@ begin
       NavigeTSKTab;
     VK_F8:
       tbtnAddMemoTab.Click;
-    VK_F9:
-      miHotKey.Click;
+    //VK_F9:
+      // TODO: Open favorites dialog
+      //miHotKey.Click;
     VK_F10:
-      miOptions.Click;
+      tbtnOptions.Click;
     VK_F11:
-      miPrint.Click;
+      ShowCurrentModulePrintPreview();
 
   end;
 
@@ -2109,46 +1777,9 @@ exitlabel:
 end;
 
 procedure TMainForm.FormKeyPress(Sender: TObject; var Key: Char);
-var
-  workspace: TDockTabsForm;
 begin
-  if Key = #27 then
-  begin
-    workspace := GetDockWorkspace(self);
-    Key := #0;
-    if not workspace.pnlMain.Visible then
-      miPrintPreview.Click; // this turns preview off
-    Exit;
-  end;
-
-  // else pass a key to active Library
+  // pass a key to active Library
   PassKeyToActiveLibrary(Key);
-
-end;
-
-function TMainForm.FavoriteItemFromModEntry(const me: TModuleEntry): TMenuItem;
-var
-  favoriteMenuItem: TMenuItem;
-  cnt, i: integer;
-begin
-  Result := nil;
-  try
-    favoriteMenuItem := FindTaggedTopMenuItem(3333);
-    cnt := favoriteMenuItem.Count - 1;
-    i := 0;
-    while i <= cnt do
-    begin
-      Result := TMenuItem(favoriteMenuItem.Items[i]);
-      if Result.tag = integer(me) then
-        break;
-      inc(i);
-    end;
-    if i > cnt then
-      Result := nil;
-  except
-    on E: Exception do
-      BqShowException(E);
-  end;
 end;
 
 function TMainForm.FavoriteTabFromModEntry(workspace: IWorkspace; const me: TModuleEntry): integer;
@@ -2231,11 +1862,6 @@ begin
   end;
 end;
 
-procedure TMainForm.miExitClick(Sender: TObject);
-begin
-  Close;
-end;
-
 procedure TMainForm.imgLoadProgressClick(Sender: TObject);
 begin
   //
@@ -2264,32 +1890,10 @@ end;
 
 function TMainForm.InsertHotModule(newMe: TModuleEntry; ix: integer): integer;
 var
-  favouriteMenuItem, hotMenuItem: TMenuItem;
-  cnt, i: integer;
   workspace: IWorkspace;
 begin
   Result := -1;
   try
-    favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    if not Assigned(favouriteMenuItem) then
-      Exit;
-    i := 0;
-    cnt := favouriteMenuItem.Count;
-    while (i < cnt) do
-    begin
-      if (favouriteMenuItem.Items[i].tag > 65536) then
-        break;
-      inc(i);
-    end;
-    if i >= cnt then
-      Exit;
-
-    hotMenuItem := TMenuItem.Create(self);
-    hotMenuItem.tag := integer(newMe);
-    hotMenuItem.Caption := newMe.FullName;
-    hotMenuItem.OnClick := OnHotModuleClick;
-
-    favouriteMenuItem.Insert(ix + i, hotMenuItem);
     for workspace in mWorkspaces do
     begin
       workspace.BibleTabs.Tabs.Insert(ix, newMe.VisualSignature());
@@ -2609,12 +2213,6 @@ begin
   mWorkspace.AddStrongTab(newTabInfo);
 end;
 
-procedure TMainForm.miHotkeyClick(Sender: TObject);
-begin
-  ConfigForm.pgcOptions.ActivePageIndex := 2;
-  ShowConfigDialog;
-end;
-
 procedure TMainForm.miDeteleBibleTabClick(Sender: TObject);
 var
   me: TModuleEntry;
@@ -2630,11 +2228,6 @@ begin
     mFavorites.DeleteModule(me);
   except
   end;
-end;
-
-procedure TMainForm.miPrintPreviewClick(Sender: TObject);
-begin
-  TogglePreview();
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
@@ -2763,7 +2356,6 @@ end;
 
 procedure TMainForm.DeleteHotModule(moduleTabIx: integer);
 var
-  hotMenuItem, favouriteMenuItem: TMenuItem;
   workspace: IWorkspace;
   bookView: TBookFrame;
 begin
@@ -2772,21 +2364,13 @@ begin
 
   try
     bookView := GetBookView(self);
-    hotMenuItem := mWorkspace.BibleTabs.Tabs.Objects[moduleTabIx] as TMenuItem;
-
-    favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    if not Assigned(favouriteMenuItem) then
-      Exit;
-    favouriteMenuItem.Remove(hotMenuItem);
 
     for workspace in mWorkspaces do
     begin
       workspace.BibleTabs.Tabs.Delete(moduleTabIx);
     end;
 
-    hotMenuItem.Free();
     bookView.AdjustBibleTabs(bookView.BookTabInfo.Bible.Info.BibleShortName);
-    SetFavouritesShortcuts();
   except
     on E: Exception do
     begin
@@ -2923,15 +2507,6 @@ begin
     MainForm.FocusControl(mWorkspace.Browser);
   except
   end;
-end;
-
-procedure TMainForm.miAboutClick(Sender: TObject);
-begin
-  if not Assigned(AboutForm) then
-    AboutForm := TAboutForm.Create(self);
-
-  AboutForm.Position := poScreenCenter;
-  AboutForm.ShowModal();
 end;
 
 procedure TMainForm.AppOnHintHandler(Sender: TObject);
@@ -3081,9 +2656,7 @@ end;
 
 procedure TMainForm.miRefPrintClick(Sender: TObject);
 begin
-  with PrintDialog do
-    if Execute then
-      (pmRef.PopupComponent as THTMLViewer).Print(MinPage, MaxPage)
+  ShowCurrentModulePrintPreview;
 end;
 
 procedure TMainForm.miRefCopyClick(Sender: TObject);
@@ -3169,6 +2742,32 @@ end;
 procedure TMainForm.tbtnNewFormClick(Sender: TObject);
 begin
   AddNewWorkspace;
+end;
+
+procedure TMainForm.tbtnOptionsClick(Sender: TObject);
+begin
+  ConfigForm.pgcOptions.ActivePageIndex := 0;
+  ShowConfigDialog;
+end;
+
+procedure TMainForm.tbtnPreviewPrintClick(Sender: TObject);
+begin
+  ShowCurrentModulePrintPreview();
+end;
+
+procedure TMainForm.ShowCurrentModulePrintPreview();
+begin
+  if Assigned(mWorkspace) and Assigned(mWorkspace.Browser) then
+    ShowPrintPreview(Self, mWorkspace.Browser);
+end;
+
+procedure TMainForm.tbtnAboutClick(Sender: TObject);
+begin
+  if not Assigned(AboutForm) then
+    AboutForm := TAboutForm.Create(self);
+
+  AboutForm.Position := poScreenCenter;
+  AboutForm.ShowModal();
 end;
 
 procedure TMainForm.tbtnAddMemoTabClick(Sender: TObject);
@@ -3761,24 +3360,11 @@ end;
 
 function TMainForm.DeleteHotModule(const me: TModuleEntry): Boolean;
 var
-  hotMenuItem, favouriteMenuItem: TMenuItem;
   i: integer;
   workspace: IWorkspace;
   bookView: TBookFrame;
 begin
-  try
-    favouriteMenuItem := FindTaggedTopMenuItem(3333);
-    hotMenuItem := FavoriteItemFromModEntry(me);
-    if Assigned(hotMenuItem) then
-    begin
-      favouriteMenuItem.Remove(hotMenuItem);
-      hotMenuItem.Free();
-    end;
-    SetFavouritesShortcuts();
-  except
-    on E: Exception do
-      BqShowException(E);
-  end;
+
   try
     for workspace in mWorkspaces do
     begin
@@ -3794,22 +3380,6 @@ begin
       BqShowException(E);
   end;
   Result := true;
-end;
-
-function TMainForm.FindTaggedTopMenuItem(tag: integer): TMenuItem;
-var
-  menuItemCount, i: integer;
-begin
-  Result := nil;
-  menuItemCount := mmGeneral.Items.Count - 1;
-  for i := 0 to menuItemCount do
-  begin
-    if (mmGeneral.Items[i].tag = tag) then
-    begin
-      Result := mmGeneral.Items[i] as TMenuItem;
-      break
-    end // if
-  end; // for
 end;
 
 procedure TMainForm.miOpenNewViewClick(Sender: TObject);
@@ -3842,12 +3412,6 @@ begin
     GoReference();
   end;
 
-end;
-
-procedure TMainForm.miOptionsClick(Sender: TObject);
-begin
-  ConfigForm.pgcOptions.ActivePageIndex := 0;
-  ShowConfigDialog;
 end;
 
 procedure TMainForm.ShowConfigDialog;
@@ -3918,7 +3482,6 @@ begin
       AppConfig.DefaultStrongBible := '';
   end;
 
-  SetFavouritesShortcuts();
   bookView := GetBookView(self);
   if Assigned(bookView.BookTabInfo) then
   begin
@@ -4084,12 +3647,6 @@ var
   workspace: IWorkspace;
 begin
   Result := true;
-  hotMi := FavoriteItemFromModEntry(oldMe);
-  if Assigned(hotMi) then
-  begin
-    hotMi.Caption := newMe.FullName;
-    hotMi.tag := integer(newMe);
-  end;
 
   for workspace in mWorkspaces do
   begin
@@ -4127,8 +3684,9 @@ end;
 
 procedure TMainForm.EnableBookTools(enable: boolean);
 begin
-  miPrint.Enabled := enable;
-  miPrintPreview.Enabled := enable;
+  // TODO: enable/disable print menu items
+  //miPrint.Enabled := enable;
+  //miPrintPreview.Enabled := enable;
 end;
 
 procedure TMainForm.ModifyControl(const AControl: TControl; const ARef: TControlProc);
