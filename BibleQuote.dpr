@@ -104,7 +104,11 @@ uses
   MyBibleSourceReader in 'Core\Readers\MyBibleSourceReader.pas',
   NativeSourceReader in 'Core\Readers\NativeSourceReader.pas',
   SourceReaderIntf in 'Core\Readers\SourceReaderIntf.pas',
-  Sets in 'Utils\Sets.pas';
+  Sets in 'Utils\Sets.pas',
+  PreviewFrm in 'Forms\PreviewFrm.pas' {PreviewForm},
+  PrintStatusFrm in 'Forms\PrintStatusFrm.pas' {PrnStatusForm},
+  Gopage in 'Forms\Gopage.pas' {GoPageForm},
+  PreviewUtils in 'Utils\PreviewUtils.pas';
 
 {$R *.res}
 
@@ -145,6 +149,8 @@ begin
   Application.CreateForm(TAboutForm, AboutForm);
   Application.CreateForm(TPasswordBox, PasswordBox);
   Application.CreateForm(TConfigForm, ConfigForm);
+  Application.CreateForm(TPrnStatusForm, PrnStatusForm);
+  Application.CreateForm(TGoPageForm, GoPageForm);
   Application.Run;
   try
     Close(Output);

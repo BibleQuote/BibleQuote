@@ -823,13 +823,6 @@ var
   text: string;
   hebrew: boolean;
 begin
- // FDataService.ScanDictsAndWait;
-// TODO: ensure dictionaries are loaded
-//  if not FMainView.mDictionariesFullyInitialized then
-//  begin
-//    FMainView.LoadDictionaries(true);
-//  end;
-
   text := Trim(bwrHtml.SelText);
   if StrongVal(text, num, hebrew) then
     FMainView.OpenOrCreateStrongTab(BookTabInfo, num, hebrew)
@@ -1124,7 +1117,6 @@ begin
     FMainView.mFavorites.MoveItem(me, TabIndex);
 
     AdjustBibleTabs(bookTabInfo.Bible.Info.BibleShortName);
-    FMainView.SetFavouritesShortcuts();
   end;
 end;
 
@@ -3250,12 +3242,6 @@ var
   PrevBook, PrevChapter: Integer;
 begin
   FMainView.mScrollAcc := 0;
-  if FMainView.sbxPreview.Visible then
-  begin
-    if FMainView.CurPreviewPage > 0 then
-      FMainView.CurPreviewPage := FMainView.CurPreviewPage - 1;
-    Exit;
-  end;
 
   if not tbtnPrevChapter.Enabled then
     Exit;
@@ -3279,12 +3265,6 @@ var
   NextBook, NextChapter: Integer;
 begin
   FMainView.mScrollAcc := 0;
-  if FMainView.sbxPreview.Visible then
-  begin
-    if FMainView.CurPreviewPage < MFPrinter.LastAvailablePage - 1 then
-      FMainView.CurPreviewPage := FMainView.CurPreviewPage + 1;
-    Exit;
-  end;
 
   if not tbtnNextChapter.Enabled then
     Exit;

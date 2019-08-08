@@ -49,7 +49,6 @@ object SearchFrame: TSearchFrame
       DropDownCount = 10
       TabOrder = 0
       OnKeyUp = cbSearchKeyUp
-      ExplicitWidth = 277
     end
     object cbList: TComboBox
       Left = 33

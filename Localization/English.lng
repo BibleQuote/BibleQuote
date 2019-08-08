@@ -96,6 +96,15 @@ DeleteBookmarkTextPrompt = Delete bookmark?
 DeleteBookmarkTitle = Confirm deletion
 ResetSettingsTextPrompt = Are you sure you want to reset settings?
 
+PrintStatusFormatting = Formatting...
+PrintStatusPage = Page Number %d
+ZoomFitToPage = Fit To Page
+ZoomFitToWidth = Fit To Width
+ZoomCustom = Custom
+UnitsInches = Inches
+UnitsCentimeters = Centimeters
+PageOfPage = Page %d of %d
+
 ; FORM ELEMENTS AND MENU ITEMS =================================
 
 CBAllNotCaption = results contain all given words
@@ -356,6 +365,42 @@ DownloadModulesForm.tbtnDownloadModule.Caption = Download module
 DownloadModulesForm.tbtnDownloadModule.Hint = Download module
 DownloadModulesForm.edtSearch.TextHint = Search modules...
 DownloadModulesForm.edtSearch.Hint = Search modules by caption or title
+;
+Gopage.Caption = Go to Page Number
+Gopage.btnOK.Caption = OK
+Gopage.btnCancel.Caption = Cancel
+;
+PrnStatusForm.Caption = Print Status
+PrnStatusForm.lblStatus.Caption = Status
+PrnStatusForm.lblStatus.btnCancel = Cancel
+;
+PreviewForm.Caption = Print preview
+PreviewForm.btnGrid.Hint = Show/Hide Grid
+PreviewForm.btnZoomCursor.Hint = Selects the Zoom Tool to zoom in or out
+PreviewForm.btnHandCursor.Hint = Selects the Hand Tool to pan across the Page
+PreviewForm.btnOnePage.Hint = Display One page at a time
+PreviewForm.btnTwoPage.Hint = Display Two pages side by side
+PreviewForm.btnFitPage.Hint = Fit to Page
+PreviewForm.btnFitWidth.Hint = Fit to Width
+PreviewForm.btnPrint.Hint = Print the Current Document
+PreviewForm.btnPrint.Caption = &Print...
+PreviewForm.btnNextPage.Hint = Advance to Next Page in Document
+PreviewForm.btnNextPage.Caption = &Next
+PreviewForm.btnPrevPage.Hint = Move to Previous Page in Document
+PreviewForm.btnPrevPage.Caption = Pre&v
+PreviewForm.btnClose.Hint = Close the Print Preview window
+PreviewForm.btnClose.Caption = &Close
+PreviewForm.lblCurPage.Hint = Displays the Current Page of the Document
+PreviewForm.lblZoom.Hint = Displays the Current Zoom Level (100% = normal)
+PreviewForm.Panel1.Hint = Displays Help for the object beneath the mouse
+PreviewForm.lblHint.Hint = Displays Help for the object beneath the mouse
+PreviewForm.spdFirstPage.Hint = Go to First Page in Document
+PreviewForm.spdPrevPage.Hint = Move to Previous Page in Document
+PreviewForm.spdNextPage.Hint = Advance to Next Page in Document
+PreviewForm.spdLastPage.Hint = Go to Last Page in Document
+PreviewForm.spdPageNum.Hint = Go to Page by Page Number
+PreviewForm.PB1.Hint = Page View. With Zoom Tool, left or right click to zoom in/out. Click && drag with Hand Tool to pan.
+PreviewForm.PB2.Hint = Page View. With Zoom Tool, left or right click to zoom in/out. Click && drag with Hand Tool to pan.
 ;
 StrMyBibleBook10 = Genesis
 StrMyBibleBook20 = Exodus

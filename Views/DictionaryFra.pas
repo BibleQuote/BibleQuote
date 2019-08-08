@@ -9,7 +9,8 @@ uses
   Vcl.Menus, System.UITypes, BibleQuoteUtils, MainFrm, Htmlview, VirtualTrees,
   HTMLEmbedInterfaces, DictInterface, Bible, ExceptionFrm, BibleQuoteConfig,
   StringProcs, BibleLinkParser, Clipbrd, JclNotify, NotifyMessages,
-  System.Contnrs, AppIni, Character, ScriptureProvider, DataServices;
+  System.Contnrs, AppIni, Character, ScriptureProvider, DataServices,
+  PreviewUtils;
 
 type
   TDictionaryFrame = class(TFrame, IDictionaryView, IJclListener)
@@ -638,9 +639,7 @@ end;
 
 procedure TDictionaryFrame.miRefPrintClick(Sender: TObject);
 begin
-  with mMainView.PrintDialog do
-    if Execute then
-      (pmRef.PopupComponent as THTMLViewer).Print(MinPage, MaxPage)
+  ShowPrintPreview(Self, pmRef.PopupComponent as THTMLViewer);
 end;
 
 procedure TDictionaryFrame.UpdateDictionariesCombo;

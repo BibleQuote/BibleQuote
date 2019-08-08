@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = 'BibleQuote 7.3'
-  ClientHeight = 356
+  ClientHeight = 376
   ClientWidth = 831
   Color = clBtnFace
   Constraints.MinHeight = 414
@@ -13,7 +13,6 @@ object MainForm: TMainForm
   Font.Name = 'Arial Unicode MS'
   Font.Style = []
   KeyPreview = True
-  Menu = mmGeneral
   OldCreateOrder = True
   Position = poDefault
   ShowHint = True
@@ -27,58 +26,15 @@ object MainForm: TMainForm
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 14
+  TextHeight = 15
   object pnlModules: TPanel
     Left = 0
     Top = 34
     Width = 831
-    Height = 301
+    Height = 321
     Align = alClient
     DockSite = True
     TabOrder = 0
-  end
-  object sbxPreview: TScrollBox
-    Left = 299
-    Top = 219
-    Width = 100
-    Height = 180
-    HorzScrollBar.Tracking = True
-    VertScrollBar.Tracking = True
-    BorderStyle = bsNone
-    Color = clBtnFace
-    ParentColor = False
-    TabOrder = 1
-    Visible = False
-    object pnlContainer: TPanel
-      Left = 0
-      Top = 0
-      Width = 93
-      Height = 160
-      BevelOuter = bvNone
-      Color = clBtnShadow
-      TabOrder = 0
-      object pnlPage: TPanel
-        Left = 11
-        Top = 4
-        Width = 68
-        Height = 146
-        BevelOuter = bvNone
-        Color = clWindow
-        TabOrder = 0
-        object pbPreview: TPaintBox
-          Left = 0
-          Top = 0
-          Width = 68
-          Height = 146
-          Cursor = crArrow
-          Align = alClient
-          OnMouseDown = pbPreviewMouseDown
-          OnPaint = pbPreviewPaint
-          ExplicitLeft = 32
-          ExplicitTop = -41
-        end
-      end
-    end
   end
   object tlbPanel: TGradientPanel
     Left = 0
@@ -88,15 +44,15 @@ object MainForm: TMainForm
     Align = alTop
     BevelEdges = [beBottom]
     ParentBackground = False
-    TabOrder = 2
+    TabOrder = 1
     GradientDirection = gdVertical
     GradientStartColor = clWindow
     GradientEndColor = clBtnFace
     object lblTitle: TLabel
       AlignWithMargins = True
-      Left = 466
+      Left = 562
       Top = 4
-      Width = 37
+      Width = 38
       Height = 26
       Margins.Right = 7
       Align = alLeft
@@ -110,12 +66,12 @@ object MainForm: TMainForm
       ParentFont = False
       Transparent = True
       Layout = tlCenter
-      ExplicitHeight = 14
+      ExplicitHeight = 15
     end
     object tlbMain: TToolBar
       Left = 1
       Top = 1
-      Width = 326
+      Width = 422
       Margins.Top = 2
       Margins.Bottom = 0
       Align = alLeft
@@ -199,8 +155,23 @@ object MainForm: TMainForm
         ImageIndex = 10
         OnClick = tbtnDownloadModulesClick
       end
-      object tbtnLastSeparator: TToolButton
+      object tbtnOptions: TToolButton
         Left = 320
+        Top = 0
+        OnClick = tbtnOptionsClick
+      end
+      object tbtnPreviewPrint: TToolButton
+        Left = 352
+        Top = 0
+        OnClick = tbtnPreviewPrintClick
+      end
+      object tbtnAbout: TToolButton
+        Left = 384
+        Top = 0
+        OnClick = tbtnAboutClick
+      end
+      object tbtnLastSeparator: TToolButton
+        Left = 416
         Top = 0
         Width = 6
         Caption = 'tbtnLastSeparator'
@@ -208,7 +179,7 @@ object MainForm: TMainForm
       end
     end
     object tbLinksToolBar: TToolBar
-      Left = 327
+      Left = 423
       Top = 1
       Width = 136
       Margins.Top = 2
@@ -227,7 +198,7 @@ object MainForm: TMainForm
         Left = 0
         Top = 0
         Width = 136
-        Height = 22
+        Height = 23
         Margins.Top = 0
         Margins.Bottom = 0
         Align = alClient
@@ -253,17 +224,17 @@ object MainForm: TMainForm
     Lines.Strings = (
       'TRE')
     ParentFont = False
-    TabOrder = 3
+    TabOrder = 2
     Visible = False
     Zoom = 100
   end
   object pnlStatusBar: TPanel
     Left = 0
-    Top = 335
+    Top = 355
     Width = 831
     Height = 21
     Align = alBottom
-    TabOrder = 4
+    TabOrder = 3
     object imgLoadProgress: TImage
       Tag = 1
       AlignWithMargins = True
@@ -293,15 +264,6 @@ object MainForm: TMainForm
     Options = [ofOverwritePrompt, ofHideReadOnly]
     Left = 129
     Top = 113
-  end
-  object PrintDialog: TPrintDialog
-    FromPage = 1
-    MinPage = 1
-    MaxPage = 9999
-    Options = [poPageNums]
-    ToPage = 1
-    Left = 144
-    Top = 200
   end
   object ColorDialog: TColorDialog
     Left = 275
@@ -3560,59 +3522,6 @@ object MainForm: TMainForm
     OnClick = trayIconClick
     Left = 16
     Top = 200
-  end
-  object mmGeneral: TMainMenu
-    AutoHotkeys = maManual
-    Images = ilImages
-    Left = 221
-    Top = 46
-    object miFile: TMenuItem
-      Caption = #1060#1072#1081#1083
-      object miPrint: TMenuItem
-        Caption = #1055#1077#1095#1072#1090#1100
-        ImageIndex = 0
-        ShortCut = 122
-        OnClick = miPrintClick
-      end
-      object miPrintPreview: TMenuItem
-        Caption = #1055#1088#1077#1076#1074#1072#1088#1080#1090#1077#1083#1100#1085#1099#1081' '#1087#1088#1086#1089#1084#1086#1090#1088
-        ImageIndex = 1
-        ShortCut = 16506
-        OnClick = miPrintPreviewClick
-      end
-      object miFileSep1: TMenuItem
-        Caption = '-'
-      end
-      object miOptions: TMenuItem
-        Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
-        ShortCut = 16499
-        OnClick = miOptionsClick
-      end
-      object miFileSep2: TMenuItem
-        Caption = '-'
-      end
-      object miExit: TMenuItem
-        Caption = #1042#1099#1093#1086#1076
-        ShortCut = 32883
-        OnClick = miExitClick
-      end
-    end
-    object miFavorites: TMenuItem
-      Tag = 3333
-      Caption = #1051#1102#1073#1080#1084#1099#1077' '#1084#1086#1076#1091#1083#1080
-      object miHotKey: TMenuItem
-        Caption = #1042#1099#1073#1088#1072#1090#1100' '#1083#1102#1073#1080#1084#1099#1077' '#1084#1086#1076#1091#1083#1080'...'
-        ShortCut = 120
-        OnClick = miHotkeyClick
-      end
-    end
-    object miHelpMenu: TMenuItem
-      Caption = #1057#1087#1088#1072#1074#1082#1072
-      object miAbout: TMenuItem
-        Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
-        OnClick = miAboutClick
-      end
-    end
   end
   object ilImages: TImageList
     Left = 56

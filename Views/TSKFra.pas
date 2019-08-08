@@ -7,7 +7,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TabData, BibleQuoteUtils,
   HTMLEmbedInterfaces, Htmlview, Vcl.Menus, MainFrm, StringProcs,
   MultiLanguage, Bible, IOUtils, BibleQuoteConfig, LinksParser, Clipbrd,
-  AppPaths, AppIni, DataServices;
+  AppPaths, AppIni, DataServices, PreviewUtils;
 
 type
   TTSKFrame = class(TFrame, ITSKView)
@@ -107,9 +107,7 @@ end;
 
 procedure TTSKFrame.miRefPrintClick(Sender: TObject);
 begin
-  with mMainView.PrintDialog do
-    if Execute then
-      (pmRef.PopupComponent as THTMLViewer).Print(MinPage, MaxPage)
+  ShowPrintPreview(Self, pmRef.PopupComponent as THTMLViewer);
 end;
 
 procedure TTSKFrame.pmRefPopup(Sender: TObject);
