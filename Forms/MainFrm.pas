@@ -86,7 +86,6 @@ type
     miRefPrint: TMenuItem;
     pmEmpty: TPopupMenu;
     trayIcon: TCoolTrayIcon;
-    ilImages: TImageList;
     tlbPanel: TGradientPanel;
     tlbMain: TToolBar;
     tbtnLastSeparator: TToolButton;
@@ -100,6 +99,7 @@ type
     tbtnDownloadModules: TToolButton;
     pnlStatusBar: TPanel;
     imgLoadProgress: TImage;
+    ilImages: TImageList;
     tbtnNewForm: TToolButton;
     tbtnAddMemoTab: TToolButton;
     tbtnAddLibraryTab: TToolButton;
@@ -112,7 +112,6 @@ type
     vimgIcons: TVirtualImageList;
     tbtnAddCommentsTab: TToolButton;
     tbtnOptions: TToolButton;
-    tbtnPreviewPrint: TToolButton;
     tbtnAbout: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -164,7 +163,6 @@ type
     procedure tbtnAddCommentsTabClick(Sender: TObject);
     procedure tbtnDownloadModulesClick(Sender: TObject);
     procedure tbtnOptionsClick(Sender: TObject);
-    procedure tbtnPreviewPrintClick(Sender: TObject);
     procedure tbtnAboutClick(Sender: TObject);
   private
     FStrongsConcordance: TStrongsConcordance;
@@ -729,7 +727,7 @@ var
 begin
   try
     icn := TIcon.Create;
-    ilImages.GetIcon(33, icn);
+    ilImages.GetIcon(0, icn);
     imgLoadProgress.Picture.Graphic := icn;
     imgLoadProgress.Show();
 
@@ -1640,11 +1638,10 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   OldKey: Word;
-  hotMenuItem: TMenuItem;
+  TabIndex: Integer;
 label
   exitlabel;
 begin
-  hotMenuItem := nil;
 
   if Key = VK_CONTROL then
   begin
@@ -1722,24 +1719,27 @@ begin
           GetBookView(self).PlaySound;
       VK_F11:
         ShowCurrentModulePrintPreview();
-//      ord('0'):
-// Navigate to favorite tab
-//        begin
-//          if mFavorites.mModuleEntries.Count > 9 then
-//            hotMenuItem := FavoriteItemFromModEntry(TModuleEntry(mFavorites.mModuleEntries[10]));
-//          if Assigned(hotMenuItem) then
-//            hotMenuItem.Click();
-//        end;
+      ord('0'):
+        begin
+          if Assigned(mWorkspace) then
+          begin
+            if mFavorites.mModuleEntries.Count > 9 then
+              TabIndex := FavoriteTabFromModEntry(mWorkspace, TModuleEntry(mFavorites.mModuleEntries[10]));
+            if (TabIndex >= 0) and (TabIndex < mWorkspace.BibleTabs.Tabs.Count) then
+              mWorkspace.BibleTabs.TabIndex := TabIndex;
+          end;
+        end;
 
-//      ord('1') .. ord('9'):
-// Navigate to favorite tab
-//        begin
-//          if mFavorites.mModuleEntries.Count >= (ord(OldKey) - ord('0')) then
-//            hotMenuItem := FavoriteItemFromModEntry(TModuleEntry(mFavorites.mModuleEntries[ord(OldKey) - ord('0') - 1]));
-//
-//          if Assigned(hotMenuItem) then
-//            hotMenuItem.Click();
-//        end;
+      ord('1') .. ord('9'):
+        begin
+          if Assigned(mWorkspace) then
+          begin
+            if mFavorites.mModuleEntries.Count >= (ord(OldKey) - ord('0')) then
+              TabIndex := FavoriteTabFromModEntry(mWorkspace, TModuleEntry(mFavorites.mModuleEntries[ord(OldKey) - ord('0') - 1]));
+            if (TabIndex >= 0) and (TabIndex < mWorkspace.BibleTabs.Tabs.Count) then
+              mWorkspace.BibleTabs.TabIndex := TabIndex;
+          end;
+        end;
     else
       Key := OldKey;
     end;
@@ -1751,8 +1751,8 @@ begin
   OldKey := Key;
   case OldKey of
 
-//    VK_F1:
-//      miHelp.Click;
+    VK_F1:
+      tbtnAbout.Click;
     VK_F3:
       ShowSearchTab;
     VK_F4:
@@ -1763,9 +1763,11 @@ begin
       NavigeTSKTab;
     VK_F8:
       tbtnAddMemoTab.Click;
-    //VK_F9:
-      // TODO: Open favorites dialog
-      //miHotKey.Click;
+    VK_F9:
+    begin
+      ConfigForm.pgcOptions.ActivePageIndex := 2;
+      ShowConfigDialog;
+    end;
     VK_F10:
       tbtnOptions.Click;
     VK_F11:
@@ -2750,11 +2752,6 @@ begin
   ShowConfigDialog;
 end;
 
-procedure TMainForm.tbtnPreviewPrintClick(Sender: TObject);
-begin
-  ShowCurrentModulePrintPreview();
-end;
-
 procedure TMainForm.ShowCurrentModulePrintPreview();
 begin
   if Assigned(mWorkspace) and Assigned(mWorkspace.Browser) then
@@ -3684,9 +3681,7 @@ end;
 
 procedure TMainForm.EnableBookTools(enable: boolean);
 begin
-  // TODO: enable/disable print menu items
-  //miPrint.Enabled := enable;
-  //miPrintPreview.Enabled := enable;
+  // Enable/disable module view specific tools, if any
 end;
 
 procedure TMainForm.ModifyControl(const AControl: TControl; const ARef: TControlProc);

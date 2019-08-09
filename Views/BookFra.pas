@@ -14,7 +14,7 @@ uses
   Vcl.Menus, SearchFra, TagsDb, InputFrm, AppIni, JclNotify, NotifyMessages,
   StrongsConcordance, CommandInterface, CommandFactoryInterface,
   ScriptureProvider, AppStates, ManageFonts, DataServices, Vcl.VirtualImageList,
-  Vcl.BaseImageCollection, Vcl.ImageCollection, SourceReaderIntf;
+  Vcl.BaseImageCollection, Vcl.ImageCollection, SourceReaderIntf, PreviewUtils;
 
 type
   TBookFrame = class(TFrame, IBookView)
@@ -77,6 +77,7 @@ type
     tbtnSound: TToolButton;
     imgCollection: TImageCollection;
     vimgIcons: TVirtualImageList;
+    btnPrintPreview: TToolButton;
     procedure miSearchWordClick(Sender: TObject);
     procedure miSearchWindowClick(Sender: TObject);
     procedure miCompareClick(Sender: TObject);
@@ -157,6 +158,7 @@ type
     procedure miChangeLogicClick(Sender: TObject);
     procedure tbtnResolveLinksClick(Sender: TObject);
     procedure tbtnSoundClick(Sender: TObject);
+    procedure btnPrintPreviewClick(Sender: TObject);
   private
     { Private declarations }
     FMainView: TMainForm;
@@ -513,6 +515,11 @@ begin
       Data.ChapterNumber := bible.GetChapterNumberAt(Node.Parent.Index, Node.Index)
     end;
   end;
+end;
+
+procedure TBookFrame.btnPrintPreviewClick(Sender: TObject);
+begin
+  ShowPrintPreview(Self, bwrHtml);
 end;
 
 procedure TBookFrame.bwrHtmlHotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
