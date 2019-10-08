@@ -6,7 +6,6 @@
 </p>
 
 # BibleQuote 7
-
 Quote the Bible with confidence.
 
 ![BibleQuote screenshot](./Resources/screenshot.png "BibleQuote")
@@ -15,6 +14,5 @@ Quote the Bible with confidence.
 
 
 ## Code contribution
-
 Please contribute your change following
 [Object Pascal Style Guide](http://edn.embarcadero.com/article/10280) by Embarcadero.
