@@ -4,7 +4,7 @@ interface
 
 uses
   Inifiles, Classes, Graphics, SysUtils, Forms, StringProcs, SystemInfo,
-  AppPaths, IOUtils, Types.Extensions, UITools;
+  AppPaths, IOUtils, Types.Extensions, UITools, UITypes;
 
 const
   C_SectionMainForm = 'MainForm';
@@ -258,7 +258,7 @@ begin
   RefFontSize := 12;
   RefFontColor := clWindowText;
 
-  HotSpotColor := clHotLight;
+  HotSpotColor := TColors.Red;
   BackgroundColor := clWhite;
   SelTextColor := clRed;
   VerseHighlightColor := clInfoBk;
