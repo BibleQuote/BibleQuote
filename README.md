@@ -7,14 +7,9 @@
 
 # BibleQuote 7
 
-Quote the Bible with confidence.
+Quote the Bible with confidence | Цитируй Библию уверенно
 
 ![BibleQuote screenshot](./Resources/screenshot.png "BibleQuote")
 
-&copy; BibleQuote.org 2017-2019
+&copy; BibleQuote.org 2017-2020
 
-
-## Code contribution
-
-Please contribute your change following
-[Object Pascal Style Guide](http://edn.embarcadero.com/article/10280) by Embarcadero.
