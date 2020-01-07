@@ -44,7 +44,7 @@ begin
      'Олег Дорошенко, Александр Сосновченко, Олег Чупа',
      '',
      'Версия ' + GetAppVersionStr(),
-     '© 2017-2019 Команда BibleQuote.org',
+     '© 2017-2020 Команда BibleQuote.org',
      'www.biblequote.org'
     ]);
 end;
