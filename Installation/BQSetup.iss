@@ -2,11 +2,13 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BibleQuote"
-#define MyAppVersion "7.0.0"
+#define MyAppVersion "7.3.0.800"
 #define MyAppPublisher "BibleQuote"
 #define MyAppURL "http://biblequote.org/"
 #define MyAppExeName "BibleQuote.exe"
 
+[ThirdParty]
+UseRelativePaths=True
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -24,7 +26,7 @@ DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=Installation
 OutputBaseFilename=BibleQuote
-SetupIconFile=BibleQuote_Icon.ico
+SetupIconFile=Installation\logo.ico
 Compression=lzma
 SolidCompression=yes
 AllowRootDirectory=True
@@ -35,41 +37,37 @@ LicenseFile=Installation\license.txt
 WizardSmallImageFile=Installation\BQlogo.bmp
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "german"; MessagesFile: "compiler:Languages\German.isl"
-Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
+Name: english; MessagesFile: compiler:Default.isl
+Name: german; MessagesFile: compiler:Languages\German.isl
+Name: russian; MessagesFile: compiler:Languages\Russian.isl
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
+Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked
+Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "Output\BibleQuote.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "Localization\English.lng"; DestDir: "{app}\Localization"; Flags: ignoreversion
-Source: "Localization\Deutsch.lng"; DestDir: "{app}\Localization"; Flags: ignoreversion
-Source: "Localization\Русский.lng"; DestDir: "{app}\Localization"; Flags: ignoreversion
-Source: "Localization\Українська.lng"; DestDir: "{app}\Localization"; Flags: ignoreversion
-Source: "Localization\Հայերեն.lng"; DestDir: "{app}\Localization"; Flags: ignoreversion
-Source: "Output\7za.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "Output\BQsqlite3.dll"; DestDir: "{app}"; Flags: ignoreversion; Permissions: authusers-modify
-Source: "Installation\Bible_ONT_Russian_RBO2011_0.1.0\*"; DestDir: "{app}\Library\Bibles\Bible_ONT_Russian_RBO2011_0.1.0"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: Output\BibleQuote.exe; DestDir: {app}; Flags: ignoreversion
+Source: Localization\English.lng; DestDir: {app}\Localization; Flags: ignoreversion
+Source: Localization\Deutsch.lng; DestDir: {app}\Localization; Flags: ignoreversion
+Source: Localization\Русский.lng; DestDir: {app}\Localization; Flags: ignoreversion
+Source: Localization\Český.lng; DestDir: {app}\Localization; Flags: ignoreversion
+Source: Localization\Українська.lng; DestDir: {app}\Localization; Flags: ignoreversion
+Source: Localization\Հայերեն.lng; DestDir: {app}\Localization; Flags: ignoreversion
+Source: Output\BQsqlite3.dll; DestDir: {app}; Flags: ignoreversion; Permissions: authusers-modify
+Source: Output\Library\Bibles\Bible_Russian_RST_0.1.2\*; DestDir: {app}\Library\Bibles\Bible_Russian_RST_0.1.2; Flags: onlyifdoesntexist ignoreversion createallsubdirs recursesubdirs
 
 [Dirs]
-Name: "{app}\Library\Bibles"
-Name: "{app}\Library\Books"
-Name: "{app}\Library\Commentaries"
-Name: "{app}\Library\Compressed"
-Name: "{app}\Library\Dictionaries"
-Name: "{app}\Library\System"
-Name: "{app}\Localization"
+Name: {app}\Library\Bibles
+Name: {app}\Library\Books
+Name: {app}\Library\Commentaries
+Name: {app}\Library\Dictionaries
+Name: {app}\Library\System
+Name: {app}\Localization
 
 [Icons]
-Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
+Name: {commonprograms}\{#MyAppName}; Filename: {app}\{#MyAppExeName}
+Name: {commondesktop}\{#MyAppName}; Filename: {app}\{#MyAppExeName}; Tasks: desktopicon
+Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}; Filename: {app}\{#MyAppExeName}; Tasks: quicklaunchicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
-[ThirdParty]
-UseRelativePaths=True
+Filename: {app}\{#MyAppExeName}; Description: {cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}; Flags: nowait postinstall skipifsilent
