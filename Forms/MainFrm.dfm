@@ -1,7 +1,7 @@
 object MainForm: TMainForm
   Left = 0
   Top = 0
-  Caption = 'BibleQuote 7.3'
+  Caption = 'BibleQuote 7.4'
   ClientHeight = 376
   ClientWidth = 831
   Color = clBtnFace
@@ -213,7 +213,7 @@ object MainForm: TMainForm
     Top = 40
     Width = 95
     Height = 129
-    Font.Charset = RUSSIAN_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Arial Unicode MS'
