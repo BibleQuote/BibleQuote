@@ -558,7 +558,7 @@ end;
 
 procedure TDownloadModulesForm.tbtnDownloadModuleClick(Sender: TObject);
 begin
-  miDownloadModule.Click();
+  miDownloadModuleClick(Sender);
 end;
 
 procedure TDownloadModulesForm.tcModulesChange(Sender: TObject);
