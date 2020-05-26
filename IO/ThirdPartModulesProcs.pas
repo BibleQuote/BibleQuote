@@ -168,18 +168,18 @@ begin
   PostMessage( FCallbackWndHandle, ERROR_DOWNLOADING, Integer(ErrorDownloadRec), 0);
 end;
 
-function TThirdPartModulesDownload.TryLoadFile(aUrl,
-  aFilePath: String): Boolean;
+function TThirdPartModulesDownload.TryLoadFile(aUrl, aFilePath: String): Boolean;
+var
+  _res :integer;
 begin
 
-
   try
-    URLDownloadToFile(nil,
+    _res := URLDownloadToFile(nil,
                       PChar(aUrl),
                       PChar(aFilePath ),
                       0,
                       nil);
-    Result := True;
+    Result := (_res=0);
   except
     Result := False;
   end;
