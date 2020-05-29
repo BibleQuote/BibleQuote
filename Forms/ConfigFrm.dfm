@@ -271,6 +271,7 @@ object ConfigForm: TConfigForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'chkAddReference'
         TabOrder = 2
+        OnClick = chkAddReferenceClick
       end
       object rgAddReference: TRadioGroup
         Left = 12

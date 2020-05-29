@@ -3495,7 +3495,9 @@ begin
       s := DeleteStrongNumbers(s);
      { TODO : reference before for 1 verse }
     if (AppConfig.AddVerseNumbers xor (IsDown(VK_CONTROL))) and
-      (fromverse > 0) and (fromverse <> toverse) then
+      (fromverse > 0)
+//      and (fromverse <> toverse)
+      then
     begin
       if AppConfig.AddReference and (AppConfig.AddReferenceChoice = 0) then
       begin
