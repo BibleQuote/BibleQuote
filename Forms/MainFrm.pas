@@ -1063,13 +1063,14 @@ begin
         BqShowException(E)
     end;
 
-    AppConfig.AddVerseNumbers := ConfigForm.chkCopyVerseNumbers.Checked;
-    AppConfig.AddFontParams := ConfigForm.chkCopyFontParams.Checked;
-    AppConfig.AddReference := ConfigForm.chkCopyFontParams.Checked;
-    AppConfig.AddReferenceChoice := ConfigForm.rgAddReference.ItemIndex;
-    AppConfig.AddLineBreaks := ConfigForm.chkAddLineBreaks.Checked;
-    AppConfig.AddModuleName := ConfigForm.chkAddModuleName.Checked;
-    AppConfig.ShowVerseSignatures := ConfigForm.chkShowVerseSignatures.Checked;
+   //reason because settings not saved
+//    AppConfig.AddVerseNumbers := ConfigForm.chkCopyVerseNumbers.Checked;
+//    AppConfig.AddFontParams := ConfigForm.chkCopyFontParams.Checked;
+//    AppConfig.AddReference := ConfigForm.chkCopyFontParams.Checked;
+//    AppConfig.AddReferenceChoice := ConfigForm.rgAddReference.ItemIndex;
+//    AppConfig.AddLineBreaks := ConfigForm.chkAddLineBreaks.Checked;
+//    AppConfig.AddModuleName := ConfigForm.chkAddModuleName.Checked;
+//    AppConfig.ShowVerseSignatures := ConfigForm.chkShowVerseSignatures.Checked;
 
     AppConfig.MinimizeToTray := trayIcon.MinimizeToTray;
     AppConfig.SaveDirectory := SaveFileDialog.InitialDir;
