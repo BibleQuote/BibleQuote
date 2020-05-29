@@ -413,10 +413,12 @@ object BookFrame: TBookFrame
     end
     object miCopyPassage: TMenuItem
       Caption = 'miCopyPassage'
+      ShortCut = 8259
       OnClick = miCopyPassageClick
     end
     object miCopyVerse: TMenuItem
       Caption = 'miCopyVerse'
+      ShortCut = 32835
       OnClick = miCopyVerseClick
     end
     object N2: TMenuItem

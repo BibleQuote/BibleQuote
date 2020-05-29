@@ -83,6 +83,7 @@ type
     procedure btnPrimaryFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnRestoreDefaultsClick(Sender: TObject);
+    procedure chkAddReferenceClick(Sender: TObject);
   private
     FPrimaryFont: TFont;
     FSecondaryFont: TFont;
@@ -182,6 +183,13 @@ begin
 
     edtSelectPath.Text := s;
   end;
+end;
+
+procedure TConfigForm.chkAddReferenceClick(Sender: TObject);
+begin
+if chkAddReference.Checked then
+    if rgAddReference.ItemIndex=-1 then
+        rgAddReference.ItemIndex:=0;
 end;
 
 procedure TConfigForm.btnDeletePathClick(Sender: TObject);
