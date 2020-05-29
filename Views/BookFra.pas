@@ -1301,6 +1301,7 @@ end;
 
 procedure TBookFrame.miCopySelectionClick(Sender: TObject);
 begin
+     { TODO : Change simple copy }
   CopyBrowserSelectionToClipboard();
 end;
 
@@ -3492,9 +3493,11 @@ begin
 
     if bible.Trait[bqmtStrongs] and not (vtisShowStrongs in bookTabInfo.State) then
       s := DeleteStrongNumbers(s);
-
+     { TODO : reference before for 1 verse }
     if (AppConfig.AddVerseNumbers xor (IsDown(VK_CONTROL))) and
-      (fromverse > 0) and (fromverse <> toverse) then
+      (fromverse > 0)
+//      and (fromverse <> toverse)
+      then
     begin
       if AppConfig.AddReference and (AppConfig.AddReferenceChoice = 0) then
       begin
