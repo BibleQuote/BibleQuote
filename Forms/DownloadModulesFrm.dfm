@@ -1123,6 +1123,7 @@ object DownloadModulesForm: TDownloadModulesForm
       Top = 6
       Width = 828
       Height = 428
+      Hint = 'Removed to avoid a potential copyright problem'
       Align = alClient
       Columns = <
         item
@@ -1157,7 +1158,9 @@ object DownloadModulesForm: TDownloadModulesForm
       PopupMenu = pmModules
       TabOrder = 0
       ViewStyle = vsReport
+      OnCustomDrawItem = lvModulesCustomDrawItem
       OnData = lvModulesData
+      OnSelectItem = lvModulesSelectItem
     end
   end
   object tlbMain: TToolBar
