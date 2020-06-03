@@ -3,24 +3,25 @@ unit DownloadModulesFrm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, ThirdPartModulesProcs, SyncObjs,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, ThirdPartModulesProcs,
+  SyncObjs,
   System.JSON, Generics.Collections, System.ImageList, Vcl.ImgList,
   Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
   Vcl.ToolWin, Vcl.Menus, Vcl.StdCtrls, UITools;
 
 const
-  MYBIBLE_URLS: TArray<String> = [
-    'https://dl.dropbox.com/s/peatcjj6azrnj0u/registry.zip',
+  MYBIBLE_URLS: TArray<String> =
+    ['https://dl.dropbox.com/s/peatcjj6azrnj0u/registry.zip',
     'http://mybible.interbiblia.org/registry.zip',
     'http://m.ph4.ru/registry.zip',
-    'http://files.redhost.info/files/609/registry.zip'
-  ];
-
+    'http://files.redhost.info/files/609/registry.zip'];
 
 type
 
-  TThirdPartyModuleTypes = (tpmtUnknown, tpmtBible, tpmtCommentary, tpmtDictionary);
+  TThirdPartyModuleTypes = (tpmtUnknown, tpmtBible, tpmtCommentary,
+    tpmtDictionary);
   TThirdPartyStatuses = (tpsInstalled, tpsNotDownloaded, tpsPending);
 
   TThirdPartyModule = class
@@ -34,11 +35,13 @@ type
     FFileName: String;
     FUrls: TArray<String>;
     FModuleType: TThirdPartyModuleTypes;
+    FHid: boolean;
 
     function GetModuleType(aFileName: String): TThirdPartyModuleTypes;
     function StatusToString(): String;
   public
-    constructor Create(aCaption, aTitle, aComment, aDate, aSize, aFileName: String; aUrls: TArray<String>);
+    constructor Create(aCaption, aTitle, aComment, aDate, aSize,
+      aFileName: String; aUrls: TArray<String>; aHid: boolean);
 
     property Status: TThirdPartyStatuses read FStatus write FStatus;
     property StatusStr: String read StatusToString;
@@ -49,6 +52,7 @@ type
     property Date: String read FDate;
     property FileName: String read FFileName;
     property Urls: TArray<String> read FUrls;
+    property Hid: boolean read FHid write FHid;
 
     property ModuleType: TThirdPartyModuleTypes read FModuleType;
 
@@ -78,6 +82,10 @@ type
     procedure tcModulesChange(Sender: TObject);
     procedure tbtnDownloadModuleClick(Sender: TObject);
     procedure miDownloadModuleClick(Sender: TObject);
+    procedure lvModulesCustomDrawItem(Sender: TCustomListView; Item: TListItem;
+      State: TCustomDrawState; var DefaultDraw: boolean);
+    procedure lvModulesSelectItem(Sender: TObject; Item: TListItem;
+      Selected: boolean);
   private
     { Private declarations }
     FUpdateModuleListCriticalSection: TCriticalSection;
@@ -94,33 +102,48 @@ type
     procedure TryLoadModuleInfo(aUrls: TArray<String>; aDestFile: String);
     procedure TryDownloadModule(aModule: TThirdPartyModule);
     procedure UpdateModuleListFromRegistry(aDownloadedFile: String);
-    procedure OnProcessedDownloadedRegistryMessage(var Msg: TMessage); message PROCESS_DOWNLOADED_REESTRY;
-    procedure OnProcessDownloadedModuleMessage(var Msg: TMessage); message PROCESS_DOWNLOADED_MODULE;
-    procedure OnSetStatusPendingMessage(var Msg: TMessage); message SET_STATUS_PENDING;
-    procedure OnSetStatusNotDownloadedMessage(var Msg: TMessage); message SET_STATUS_NOTDOWNLOADED;
+    procedure OnProcessedDownloadedRegistryMessage(var Msg: TMessage);
+      message PROCESS_DOWNLOADED_REESTRY;
+    procedure OnProcessDownloadedModuleMessage(var Msg: TMessage);
+      message PROCESS_DOWNLOADED_MODULE;
+    procedure OnSetStatusPendingMessage(var Msg: TMessage);
+      message SET_STATUS_PENDING;
+    procedure OnSetStatusNotDownloadedMessage(var Msg: TMessage);
+      message SET_STATUS_NOTDOWNLOADED;
     function ExtractRegisterJson(aDownloadedFile: String): TJsonObject;
     procedure ExtractSqliteFile(aDownloadedFile, aDestFilePath: String);
     procedure UploadRegisterJsonDataToList(aJson: TJsonObject);
     procedure UploadModuleJsonDataToList(aModuleJson: TJsonObject);
-    procedure ProcessDownloadedModule(aCaption: String; aModuleType: TThirdPartyModuleTypes; aDownloadedFilePath: String);
-    procedure SetModuleStatus(aCaption: String; aModuleType: TThirdPartyModuleTypes;
-                        aStatus: TThirdPartyStatuses);
+    procedure ProcessDownloadedModule(aCaption: String;
+      aModuleType: TThirdPartyModuleTypes; aDownloadedFilePath: String);
+    procedure SetModuleStatus(aCaption: String;
+      aModuleType: TThirdPartyModuleTypes; aStatus: TThirdPartyStatuses);
     procedure ClearThirdPartModules(); overload;
-    procedure ClearThirdPartModules(aThirdPartyModules: TThirdPartyModules); overload;
-    function SelectModules(aModuleType: TThirdPartyModuleTypes): TThirdPartyModules;
+    procedure ClearThirdPartModules(aThirdPartyModules
+      : TThirdPartyModules); overload;
+    function SelectModules(aModuleType: TThirdPartyModuleTypes)
+      : TThirdPartyModules;
     procedure UpdateActiveModules(aModuleType: TThirdPartyModuleTypes);
-    function FilterModules(aModules: TThirdPartyModules; aSearchText: String): TThirdPartyModules;
-    function MatchesFilter(aModule: TThirdPartyModule; aSearch: String): Boolean;
+    function FilterModules(aModules: TThirdPartyModules; aSearchText: String)
+      : TThirdPartyModules;
+    function MatchesFilter(aModule: TThirdPartyModule; aSearch: String)
+      : boolean;
     procedure UpdateCurrentModules();
     function GetCurrentDisplayedModuleType(): TThirdPartyModuleTypes;
-    function FormModuleUrl(aModuleUrls: TArray<String>; aHosts: THosts): TArray<String>;
-    function FindModule(aCaption: String; aModuleType: TThirdPartyModuleTypes): TThirdPartyModule; overload;
-    function FindModule(aIndex: Integer; aModuleType: TThirdPartyModuleTypes): TThirdPartyModule; overload;
+    function FormModuleUrl(aModuleUrls: TArray<String>; aHosts: THosts)
+      : TArray<String>;
+    function FindModule(aCaption: String; aModuleType: TThirdPartyModuleTypes)
+      : TThirdPartyModule; overload;
+    function FindModule(aIndex: Integer; aModuleType: TThirdPartyModuleTypes)
+      : TThirdPartyModule; overload;
     function GetModuleDir(aModuleType: TThirdPartyModuleTypes): String;
     function GetModulePath(aModule: TThirdPartyModule): String;
     function AppendSQLiteExt(aFileName: String): String;
-    function FindOutModuleStatus(aModule: TThirdPartyModule): TThirdPartyStatuses;
+    function FindOutModuleStatus(aModule: TThirdPartyModule)
+      : TThirdPartyStatuses;
     procedure ApplyFilter(Sender: TObject);
+    procedure ViewCopyrightPermisison(Item: TListItem; Sender: TCustomListView);
+    function CheckPermission(Item: TListItem): boolean;
   public
     { Public declarations }
 
@@ -132,9 +155,10 @@ var
 implementation
 
 {$R *.dfm}
+
 uses BibleQuoteUtils, IOUtils, IOProcs, StrUtils, System.JSON.Readers,
   StringProcs, RegularExpressions, SelectEntityType, JsonProcs, AppPaths,
-  ZipUtils;
+  ZipUtils, System.UITypes;
 
 procedure TDownloadModulesForm.ClearThirdPartModules;
 begin
@@ -156,8 +180,8 @@ begin
 
 end;
 
-procedure TDownloadModulesForm.ClearThirdPartModules(
-  aThirdPartyModules: TThirdPartyModules);
+procedure TDownloadModulesForm.ClearThirdPartModules(aThirdPartyModules
+  : TThirdPartyModules);
 var
   Pair: TThirdPartyPair;
 begin
@@ -172,13 +196,34 @@ begin
   lvModules.Refresh;
 end;
 
-function TDownloadModulesForm.ExtractRegisterJson(
-  aDownloadedFile: String): TJsonObject;
+procedure TDownloadModulesForm.ViewCopyrightPermisison(Item: TListItem;
+  Sender: TCustomListView);
+var
+  Permission: boolean;
+begin
+  Permission := CheckPermission(Item);
+  if not Permission then
+    Sender.Canvas.Font.Style := [System.UITypes.TFontStyle.fsStrikeOut]
+  else
+    Sender.Canvas.Font.Style := [];
+  Sender.ShowHint := not Permission;
+end;
+
+function TDownloadModulesForm.CheckPermission(Item: TListItem): boolean;
+var
+  Module: TThirdPartyModule;
+begin
+  Module := FindModule(Item.Index, GetCurrentDisplayedModuleType);
+  Result := Assigned(Module) and not Module.Hid;
+end;
+
+function TDownloadModulesForm.ExtractRegisterJson(aDownloadedFile: String)
+  : TJsonObject;
 const
   RegistryJson = 'registry.json';
 var
   Stream: TMemoryStream;
-  JsonString : String;
+  JsonString: String;
 begin
 
   Stream := TMemoryStream.Create;
@@ -186,7 +231,7 @@ begin
     ExtractZipToStream(aDownloadedFile, RegistryJson, Stream);
 
     JsonString := StreamToString(Stream, TEncoding.UTF8);
-    Result := TJSONObject.ParseJSONValue(JsonString) as TJsonObject;
+    Result := TJsonObject.ParseJSONValue(JsonString) as TJsonObject;
 
   finally
     Stream.Free;
@@ -195,10 +240,8 @@ begin
 
 end;
 
-
-
-procedure TDownloadModulesForm.ExtractSqliteFile(
-  aDownloadedFile, aDestFilePath: String);
+procedure TDownloadModulesForm.ExtractSqliteFile(aDownloadedFile,
+  aDestFilePath: String);
 const
   SqliteFile = '.SQLite3';
 var
@@ -229,7 +272,8 @@ begin
 
   Modules := SelectModules(aModuleType);
 
-  if not Assigned(Modules) then exit;
+  if not Assigned(Modules) then
+    exit;
 
   for Pair in Modules do
     if Pair.Key = aCaption then
@@ -246,18 +290,20 @@ begin
 
   Result := nil;
 
-  if not Assigned(FActiveModules) then exit;
+  if not Assigned(FActiveModules) then
+    exit;
 
-  if aIndex >= FActiveModules.Count then exit;
+  if aIndex >= FActiveModules.Count then
+    exit;
 
   Result := FActiveModules[aIndex].Value;
 
 end;
 
-function TDownloadModulesForm.FindOutModuleStatus(
-  aModule: TThirdPartyModule): TThirdPartyStatuses;
+function TDownloadModulesForm.FindOutModuleStatus(aModule: TThirdPartyModule)
+  : TThirdPartyStatuses;
 var
-  ProspectiveModulePath : String;
+  ProspectiveModulePath: String;
 begin
   ProspectiveModulePath := GetModulePath(aModule);
 
@@ -276,8 +322,8 @@ end;
 
 procedure TDownloadModulesForm.FormCreate(Sender: TObject);
 begin
-  FUpdateModuleListCriticalSection:= TCriticalSection.Create();
-  FUpdateModuleStatusCriticalSection:= TCriticalSection.Create();
+  FUpdateModuleListCriticalSection := TCriticalSection.Create();
+  FUpdateModuleStatusCriticalSection := TCriticalSection.Create();
   FBibleModules := TThirdPartyModules.Create();
   FCommentaryModules := TThirdPartyModules.Create();
   FDictionaryModules := TThirdPartyModules.Create();
@@ -318,10 +364,11 @@ begin
 
   RegEx := TRegEx.Create('^{(?P<alias>.*?)}(?P<file>.*?)$', Options);
 
-  for I := 0 to Length(aModuleUrls) -1  do
+  for i := 0 to Length(aModuleUrls) - 1 do
   begin
     Url := aModuleUrls[i];
-    if not RegEx.IsMatch(Url) then exit;
+    if not RegEx.IsMatch(Url) then
+      exit;
 
     MatchCollection := RegEx.Matches(aModuleUrls[i]);
 
@@ -342,11 +389,13 @@ begin
   UpdateModuleList();
 end;
 
-function TDownloadModulesForm.GetCurrentDisplayedModuleType: TThirdPartyModuleTypes;
+function TDownloadModulesForm.GetCurrentDisplayedModuleType
+  : TThirdPartyModuleTypes;
 begin
   Result := tpmtUnknown;
 
-  if tcModules.TabIndex < 0  then exit;
+  if tcModules.TabIndex < 0 then
+    exit;
 
   Result := TThirdPartyModuleTypes(tcModules.Tabs.Objects[tcModules.TabIndex]);
 
@@ -357,34 +406,48 @@ var
   ModuleDir: String;
   Match: TMatch;
 begin
-  ModuleDir := TPath.Combine(GetModuleDir(aModule.ModuleType), ExtractFileName(aModule.FileName));
+  ModuleDir := TPath.Combine(GetModuleDir(aModule.ModuleType),
+    ExtractFileName(aModule.FileName));
 
   // remove module type suffix
-  Match := TRegEx.Match(ModuleDir, '^(?P<dir>.*?)\.(commentaries|dictionary)$', [roIgnoreCase]);
+  Match := TRegEx.Match(ModuleDir, '^(?P<dir>.*?)\.(commentaries|dictionary)$',
+    [roIgnoreCase]);
   if (Match.Success) then
     ModuleDir := Match.Groups['dir'].Value;
 
   Result := TPath.Combine(ModuleDir, AppendSQLiteExt(aModule.FileName));
 end;
 
-function TDownloadModulesForm.GetModuleDir(
-  aModuleType: TThirdPartyModuleTypes): String;
+function TDownloadModulesForm.GetModuleDir(aModuleType
+  : TThirdPartyModuleTypes): String;
 begin
   Result := GetTempDirectory();
 
   case aModuleType of
-  tpmtBible: Result := TLibraryDirectories.Bibles;
-  tpmtCommentary: Result := TLibraryDirectories.Commentaries;
-  tpmtDictionary: Result := TLibraryDirectories.Dictionaries;
+    tpmtBible:
+      Result := TLibraryDirectories.Bibles;
+    tpmtCommentary:
+      Result := TLibraryDirectories.Commentaries;
+    tpmtDictionary:
+      Result := TLibraryDirectories.Dictionaries;
   end;
 
 end;
 
 procedure TDownloadModulesForm.InitTabs();
 begin
-  tcModules.Tabs.AddObject(Lang.Say('StrBibleTranslations'), Pointer(tpmtBible));
-  tcModules.Tabs.AddObject(Lang.Say('StrCommentaries'), Pointer(tpmtCommentary));
-  tcModules.Tabs.AddObject(Lang.Say('StrAllDictionaries'), Pointer(tpmtDictionary));
+  tcModules.Tabs.AddObject(Lang.Say('StrBibleTranslations'),
+    Pointer(tpmtBible));
+  tcModules.Tabs.AddObject(Lang.Say('StrCommentaries'),
+    Pointer(tpmtCommentary));
+  tcModules.Tabs.AddObject(Lang.Say('StrAllDictionaries'),
+    Pointer(tpmtDictionary));
+end;
+
+procedure TDownloadModulesForm.lvModulesCustomDrawItem(Sender: TCustomListView;
+  Item: TListItem; State: TCustomDrawState; var DefaultDraw: boolean);
+begin
+  ViewCopyrightPermisison(Item, Sender);
 end;
 
 procedure TDownloadModulesForm.lvModulesData(Sender: TObject; Item: TListItem);
@@ -394,7 +457,8 @@ begin
 
   Module := FindModule(Item.Index, GetCurrentDisplayedModuleType());
 
-  if not Assigned(Module) then exit;
+  if not Assigned(Module) then
+    exit;
 
   Item.Caption := Module.StatusStr;
   Item.SubItems.Add(Module.Caption);
@@ -403,24 +467,40 @@ begin
   Item.SubItems.Add(Module.Size);
   Item.SubItems.Add(Module.Date);
 
+  // miDownloadModule.Enabled := not Module.Hid;
+  // tbtnDownloadModule.Enabled := not Module.Hid;
+end;
 
+procedure TDownloadModulesForm.lvModulesSelectItem(Sender: TObject;
+  Item: TListItem; Selected: boolean);
+var
+  Permission: boolean;
+
+begin
+  if not Selected then
+    exit;
+  Permission := CheckPermission(Item);
+  miDownloadModule.Enabled := Permission;
+  tbtnDownloadModule.Enabled := Permission;
 end;
 
 procedure TDownloadModulesForm.miDownloadModuleClick(Sender: TObject);
 var
   Module: TThirdPartyModule;
 begin
-  if lvModules.ItemIndex < 0 then exit;
+  if lvModules.ItemIndex < 0 then
+    exit;
 
   Module := FindModule(lvModules.ItemIndex, GetCurrentDisplayedModuleType());
-  if not Assigned(Module) then exit;
+  if not Assigned(Module) then
+    exit;
 
   TryDownloadModule(Module);
 
 end;
 
-procedure TDownloadModulesForm.OnProcessedDownloadedRegistryMessage(
-  var Msg: TMessage);
+procedure TDownloadModulesForm.OnProcessedDownloadedRegistryMessage
+  (var Msg: TMessage);
 var
   DownloadedFileRec: PDownloadedFileRec;
 begin
@@ -434,11 +514,10 @@ begin
     Dispose(DownloadedFileRec);
   end;
 
-
 end;
 
-procedure TDownloadModulesForm.OnSetStatusNotDownloadedMessage(
-  var Msg: TMessage);
+procedure TDownloadModulesForm.OnSetStatusNotDownloadedMessage
+  (var Msg: TMessage);
 var
   UpdateModuleRec: PUpdateModuleRec;
 begin
@@ -446,7 +525,8 @@ begin
   UpdateModuleRec := PUpdateModuleRec(Msg.WParam);
   try
     with UpdateModuleRec^ do
-      SetModuleStatus(Caption, TThirdPartyModuleTypes(ModuleType), tpsNotDownloaded);
+      SetModuleStatus(Caption, TThirdPartyModuleTypes(ModuleType),
+        tpsNotDownloaded);
 
   finally
     Dispose(UpdateModuleRec);
@@ -468,7 +548,8 @@ begin
   end;
 end;
 
-procedure TDownloadModulesForm.OnProcessDownloadedModuleMessage(var Msg: TMessage);
+procedure TDownloadModulesForm.OnProcessDownloadedModuleMessage
+  (var Msg: TMessage);
 var
   UpdateModuleRec: PUpdateModuleRec;
 begin
@@ -476,7 +557,8 @@ begin
   UpdateModuleRec := PUpdateModuleRec(Msg.WParam);
   try
     with UpdateModuleRec^ do
-      ProcessDownloadedModule(Caption, TThirdPartyModuleTypes(ModuleType), FilePath);
+      ProcessDownloadedModule(Caption, TThirdPartyModuleTypes(ModuleType),
+        FilePath);
 
   finally
     Dispose(UpdateModuleRec);
@@ -489,19 +571,23 @@ begin
   UpdateActiveModules(GetCurrentDisplayedModuleType());
 end;
 
-function TDownloadModulesForm.SelectModules(
-  aModuleType: TThirdPartyModuleTypes): TThirdPartyModules;
+function TDownloadModulesForm.SelectModules(aModuleType: TThirdPartyModuleTypes)
+  : TThirdPartyModules;
 begin
   Result := nil;
 
   case aModuleType of
-    tpmtBible: Result := FBibleModules;
-    tpmtCommentary: Result := FCommentaryModules;
-    tpmtDictionary: Result := FDictionaryModules;
+    tpmtBible:
+      Result := FBibleModules;
+    tpmtCommentary:
+      Result := FCommentaryModules;
+    tpmtDictionary:
+      Result := FDictionaryModules;
   end;
 end;
 
-procedure TDownloadModulesForm.UpdateActiveModules(aModuleType: TThirdPartyModuleTypes);
+procedure TDownloadModulesForm.UpdateActiveModules
+  (aModuleType: TThirdPartyModuleTypes);
 var
   Modules: TThirdPartyModules;
 begin
@@ -509,27 +595,29 @@ begin
   FActiveModules := FilterModules(Modules, edtSearch.Text)
 end;
 
-function TDownloadModulesForm.FilterModules(aModules: TThirdPartyModules; aSearchText: String): TThirdPartyModules;
+function TDownloadModulesForm.FilterModules(aModules: TThirdPartyModules;
+  aSearchText: String): TThirdPartyModules;
 var
   Modules: TThirdPartyModules;
-  I: Integer;
+  i: Integer;
 begin
   Modules := TThirdPartyModules.Create();
-  for I := 0 to aModules.Count - 1 do
-    if (MatchesFilter(aModules[I].Value, aSearchText)) then
-      Modules.Add(aModules[I]);
+  for i := 0 to aModules.Count - 1 do
+    if (MatchesFilter(aModules[i].Value, aSearchText)) then
+      Modules.Add(aModules[i]);
 
   Result := Modules;
 end;
 
-function TDownloadModulesForm.MatchesFilter(aModule: TThirdPartyModule; aSearch: String): Boolean;
+function TDownloadModulesForm.MatchesFilter(aModule: TThirdPartyModule;
+  aSearch: String): boolean;
 begin
   Result := False;
 
   if (aSearch = '') then
   begin
     Result := True;
-    Exit;
+    exit;
   end;
 
   if (ContainsText(aModule.FCaption, aSearch)) then
@@ -542,17 +630,18 @@ end;
 procedure TDownloadModulesForm.SetModuleStatus(aCaption: String;
   aModuleType: TThirdPartyModuleTypes; aStatus: TThirdPartyStatuses);
 var
-    Module: TThirdPartyModule;
+  Module: TThirdPartyModule;
 
 begin
-    Module := FindModule(aCaption, aModuleType);
+  Module := FindModule(aCaption, aModuleType);
 
-    if not Assigned(Module) then exit;
+  if not Assigned(Module) then
+    exit;
 
-    Module.Status := aStatus;
+  Module.Status := aStatus;
 
-    if aModuleType = GetCurrentDisplayedModuleType() then
-      lvModules.Refresh;
+  if aModuleType = GetCurrentDisplayedModuleType() then
+    lvModules.Refresh;
 
 end;
 
@@ -565,8 +654,9 @@ procedure TDownloadModulesForm.tcModulesChange(Sender: TObject);
 begin
   UpdateCurrentModules();
 
-  if not Assigned(FActiveModules) then exit;
-  
+  if not Assigned(FActiveModules) then
+    exit;
+
   lvModules.Items.Count := FActiveModules.Count;
   lvModules.Refresh;
 end;
@@ -589,15 +679,17 @@ var
 begin
   ModuleUrls := FormModuleUrl(aModule.FUrls, FHosts);
 
-  with TThirdPartModuleDownload.Create(True, ModuleUrls, ChangeFileExt(aModule.FileName, '.zip'),
-          aModule.Caption, Integer(aModule.ModuleType), Self.Handle) do
+  with TThirdPartModuleDownload.Create(True, ModuleUrls,
+    ChangeFileExt(aModule.FileName, '.zip'), aModule.Caption,
+    Integer(aModule.ModuleType), Self.Handle) do
   begin
     FreeOnTerminate := True;
     Resume;
   end;
 end;
 
-procedure TDownloadModulesForm.TryLoadModuleInfo(aUrls: TArray<String>; aDestFile: String);
+procedure TDownloadModulesForm.TryLoadModuleInfo(aUrls: TArray<String>;
+  aDestFile: String);
 begin
 
   with TThirdPartModulesDownload.Create(True, aUrls, aDestFile, Self.Handle) do
@@ -618,24 +710,24 @@ begin
   TryLoadModuleInfo(MYBIBLE_URLS, RegistryFileName);
 end;
 
-procedure TDownloadModulesForm.UpdateModuleListFromRegistry(
-  aDownloadedFile: String);
+procedure TDownloadModulesForm.UpdateModuleListFromRegistry
+  (aDownloadedFile: String);
 const
   CREATE_SUBDIR = True;
 var
-  Json: TJsonObject;
+  JSON: TJsonObject;
 
 begin
   FUpdateModuleListCriticalSection.Enter;
   try
     sbModules.SimpleText := Lang.Say('StrTPModulesFinishRegistryDownloading');
 
-    Json := ExtractRegisterJson(aDownloadedFile);
+    JSON := ExtractRegisterJson(aDownloadedFile);
 
     try
-      UploadRegisterJsonDataToList(Json);
+      UploadRegisterJsonDataToList(JSON);
     finally
-      Json.Free;
+      JSON.Free;
     end;
 
     sbModules.SimpleText := Lang.Say('StrTPModulesUpdatingModulesInfoFinished');
@@ -659,7 +751,8 @@ begin
 
     Module := FindModule(aCaption, aModuleType);
 
-    if not Assigned(Module) then exit;
+    if not Assigned(Module) then
+      exit;
 
     DestFilePath := GetModulePath(Module);
 
@@ -671,14 +764,14 @@ begin
       lvModules.Refresh;
 
     sbModules.SimpleText := Format(Lang.Say('StrModuleDownloadedSuccessfully'),
-                              [Module.Title]);
+      [Module.Title]);
   finally
     FUpdateModuleStatusCriticalSection.Leave;
   end;
 end;
 
-procedure TDownloadModulesForm.UploadModuleJsonDataToList(
-  aModuleJson: TJsonObject);
+procedure TDownloadModulesForm.UploadModuleJsonDataToList
+  (aModuleJson: TJsonObject);
 var
   abr: String;
   des: String;
@@ -686,9 +779,10 @@ var
   upd: String;
   siz: String;
   fil: String;
-  url: TArray<String>;
+  Url: TArray<String>;
   ThirdPartModule: TThirdPartyModule;
   Modules: TThirdPartyModules;
+  Hid: boolean;
 begin
 
   with aModuleJson do
@@ -699,10 +793,12 @@ begin
     upd := ReadString('upd');
     siz := ReadString('siz');
     fil := ReadString('fil');
-    url := ReadStringArray('url');
+    Url := ReadStringArray('url');
+    Hid := GetValue<boolean>('hid', False);
   end;
 
-  ThirdPartModule:= TThirdPartyModule.Create(abr, des, cmt, upd, siz, fil, url);
+  ThirdPartModule := TThirdPartyModule.Create(abr, des, cmt, upd, siz, fil,
+    Url, Hid);
 
   ThirdPartModule.Status := FindOutModuleStatus(ThirdPartModule);
 
@@ -743,8 +839,8 @@ end;
 
 { TThirdPartModule }
 
-
-constructor TThirdPartyModule.Create(aCaption, aTitle, aComment, aDate, aSize, aFileName: String; aUrls: TArray<String>);
+constructor TThirdPartyModule.Create(aCaption, aTitle, aComment, aDate, aSize,
+  aFileName: String; aUrls: TArray<String>; aHid: boolean);
 begin
   FStatus := tpsNotDownloaded;
 
@@ -755,11 +851,12 @@ begin
   FDate := aDate;
   FFileName := aFileName;
   FUrls := aUrls;
-
   FModuleType := GetModuleType(aFileName);
+  FHid := aHid;
 end;
 
-function TThirdPartyModule.GetModuleType(aFileName: String): TThirdPartyModuleTypes;
+function TThirdPartyModule.GetModuleType(aFileName: String)
+  : TThirdPartyModuleTypes;
 begin
 
   Result := tpmtUnknown;
@@ -771,7 +868,6 @@ begin
   else if TSelectEntityType.IsMyBibleCommentary(aFileName) then
     Result := tpmtCommentary;
 
-
 end;
 
 function TThirdPartyModule.StatusToString: String;
@@ -779,9 +875,12 @@ begin
   Result := '';
 
   case FStatus of
-    tpsInstalled: Result := Lang.Say('StrTPModuleStatusInstalled');
-    tpsPending: Result := Lang.Say('StrTPModuleStatusPending');
-    tpsNotDownloaded: Result := Lang.Say('StrTPModuleStatusNotDownloaded');
+    tpsInstalled:
+      Result := Lang.Say('StrTPModuleStatusInstalled');
+    tpsPending:
+      Result := Lang.Say('StrTPModuleStatusPending');
+    tpsNotDownloaded:
+      Result := Lang.Say('StrTPModuleStatusNotDownloaded');
   end;
 end;
 
