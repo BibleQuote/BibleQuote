@@ -214,7 +214,9 @@ var
   Module: TThirdPartyModule;
 begin
   Module := FindModule(Item.Index, GetCurrentDisplayedModuleType);
-  Result := Assigned(Module) and not Module.Hid;
+  if not Assigned(Module) then
+  exit(false);
+  Result := not Module.Hid;
 end;
 
 function TDownloadModulesForm.ExtractRegisterJson(aDownloadedFile: String)
