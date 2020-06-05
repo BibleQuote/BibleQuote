@@ -1,4 +1,4 @@
-
+﻿
 ; СИСТЕМНІ ПОВІДОМЛЕННЯ ===================================
 
 ; Увага:
@@ -359,6 +359,7 @@ DownloadModulesForm.tbtnDownloadModule.Caption =Завантажити моду�
 DownloadModulesForm.tbtnDownloadModule.Hint = Завантажити модуль
 DownloadModulesForm.edtSearch.TextHint = Пошук модулів...
 DownloadModulesForm.edtSearch.Hint = Пошук модулів по заголовку або назві
+DownloadModulesForm.lvModules.Hint =Ми видалили модуль, щоб уникнути потенцiйного порушення авторських прав.
 ;
 Gopage.Caption = Перейти до номеру сторінки
 Gopage.btnOK.Caption = OK

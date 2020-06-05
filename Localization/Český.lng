@@ -361,6 +361,7 @@ DownloadModulesForm.tbtnDownloadModule.Caption = Download module
 DownloadModulesForm.tbtnDownloadModule.Hint = Download module
 DownloadModulesForm.edtSearch.TextHint = Search modules...
 DownloadModulesForm.edtSearch.Hint = Search modules by caption or title
+DownloadModulesForm.lvModules.Hint = Removed to avoid a potential copyright problem
 ;
 Gopage.Caption = Go to Page Number
 Gopage.btnOK.Caption = OK

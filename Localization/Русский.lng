@@ -359,7 +359,7 @@ DownloadModulesForm.tbtnDownloadModule.Caption = Загрузить модуль
 DownloadModulesForm.tbtnDownloadModule.Hint = Загрузить модуль
 DownloadModulesForm.edtSearch.TextHint = Поиск модулей...
 DownloadModulesForm.edtSearch.Hint = Поиск модулей по заголовку или названию
-DownloadModulesForm.lvModules.Hint =Удалено, чтобы избежать потенциальной проблемы с авторским правом
+DownloadModulesForm.lvModules.Hint = Удалён во избежание нарушения авторских прав
 ;
 Gopage.Caption = Перейти к номеру страницы
 Gopage.btnOK.Caption = OK
