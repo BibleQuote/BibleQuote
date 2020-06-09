@@ -50,6 +50,7 @@ type
     vimgCover: TVirtualImageList;
     lblModuleCount: TLabel;
     miListViewStyle: TMenuItem;
+    Panel1: TPanel;
 
     procedure btnClearClick(Sender: TObject);
     procedure cmbBookTypeChange(Sender: TObject);

@@ -1,72 +1,18 @@
 object LibraryFrame: TLibraryFrame
   Left = 0
   Top = 0
-  Width = 441
-  Height = 357
+  Width = 615
+  Height = 466
   TabOrder = 0
   OnResize = FrameResize
   DesignSize = (
-    441
-    357)
-  object lblModuleCount: TLabel
-    Left = 120
-    Top = 8
-    Width = 29
-    Height = 13
-    Alignment = taCenter
-    Anchors = [akTop, akRight]
-    AutoSize = False
-    Caption = 'CNT'
-  end
-  object edtFilter: TEdit
-    Left = 4
-    Top = 5
-    Width = 109
-    Height = 21
-    Anchors = [akLeft, akTop, akRight]
-    HideSelection = False
-    TabOrder = 0
-    OnChange = edtFilterChange
-    OnEnter = edtFilterEnter
-  end
-  object cmbBookType: TComboBox
-    Left = 155
-    Top = 5
-    Width = 150
-    Height = 21
-    Style = csDropDownList
-    Anchors = [akTop, akRight]
-    TabOrder = 1
-    OnChange = cmbBookTypeChange
-  end
-  object btnClear: TButton
-    Left = 310
-    Top = 3
-    Width = 75
-    Height = 25
-    Anchors = [akTop, akRight]
-    Caption = 'Clear'
-    TabOrder = 2
-    OnClick = btnClearClick
-  end
-  object btnViewStyle: TButton
-    Left = 388
-    Top = 3
-    Width = 49
-    Height = 25
-    Anchors = [akTop, akRight]
-    DropDownMenu = pmViewStyle
-    ImageAlignment = iaCenter
-    ImageIndex = 0
-    Images = imgViewStyle
-    Style = bsSplitButton
-    TabOrder = 3
-  end
+    615
+    466)
   object pcViews: TPageControl
     Left = 0
-    Top = 27
-    Width = 441
-    Height = 330
+    Top = 29
+    Width = 615
+    Height = 437
     Margins.Left = 0
     Margins.Top = 0
     Margins.Right = 0
@@ -74,7 +20,7 @@ object LibraryFrame: TLibraryFrame
     ActivePage = tsCoverDetailView
     Anchors = [akLeft, akTop, akRight, akBottom]
     Style = tsFlatButtons
-    TabOrder = 4
+    TabOrder = 0
     object tsCoverDetailView: TTabSheet
       Margins.Left = 0
       Margins.Top = 0
@@ -85,8 +31,8 @@ object LibraryFrame: TLibraryFrame
       object lvBooks: TListView
         Left = 0
         Top = 0
-        Width = 433
-        Height = 320
+        Width = 607
+        Height = 427
         Align = alClient
         Columns = <
           item
@@ -126,15 +72,11 @@ object LibraryFrame: TLibraryFrame
       Caption = 'List view'
       ImageIndex = 1
       TabVisible = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object vdtBooks: TVirtualDrawTree
         Left = 0
         Top = 0
-        Width = 433
-        Height = 320
+        Width = 607
+        Height = 427
         Cursor = crHandPoint
         Align = alClient
         BevelInner = bvNone
@@ -166,10 +108,87 @@ object LibraryFrame: TLibraryFrame
       end
     end
   end
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 615
+    Height = 32
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'Panel1'
+    ShowCaption = False
+    TabOrder = 1
+    DesignSize = (
+      615
+      32)
+    object lblModuleCount: TLabel
+      AlignWithMargins = True
+      Left = 286
+      Top = 8
+      Width = 29
+      Height = 20
+      Alignment = taCenter
+      Anchors = [akTop, akRight]
+      AutoSize = False
+      Caption = 'CNT'
+    end
+    object btnClear: TButton
+      AlignWithMargins = True
+      Left = 485
+      Top = 4
+      Width = 75
+      Height = 23
+      Anchors = [akTop, akRight]
+      Caption = 'Clear'
+      TabOrder = 0
+      OnClick = btnClearClick
+    end
+    object btnViewStyle: TButton
+      AlignWithMargins = True
+      Left = 561
+      Top = 4
+      Width = 49
+      Height = 23
+      Anchors = [akTop, akRight]
+      DropDownMenu = pmViewStyle
+      ImageAlignment = iaCenter
+      ImageIndex = 0
+      Images = imgViewStyle
+      Style = bsSplitButton
+      TabOrder = 1
+    end
+    object cmbBookType: TComboBox
+      AlignWithMargins = True
+      Left = 317
+      Top = 5
+      Width = 148
+      Height = 21
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      Style = csDropDownList
+      Anchors = [akTop, akRight]
+      TabOrder = 2
+      OnChange = cmbBookTypeChange
+    end
+    object edtFilter: TEdit
+      AlignWithMargins = True
+      Left = 3
+      Top = 5
+      Width = 279
+      Height = 21
+      Anchors = [akLeft, akTop, akRight]
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      HideSelection = False
+      TabOrder = 3
+      OnChange = edtFilterChange
+      OnEnter = edtFilterEnter
+    end
+  end
   object pmViewStyle: TPopupMenu
     Images = imgViewStyle
-    Left = 400
-    Top = 48
+    Left = 352
+    Top = 120
     object miCoverViewStyle: TMenuItem
       AutoCheck = True
       Caption = 'Cover view'
