@@ -77,8 +77,6 @@ type
     FullContextLinks: boolean;
     HighlightVerseHits: boolean;
 
-    LastSearchModule:string;
-
     ShowVerseSignatures: boolean;
 
     procedure RestoreDefaults();
@@ -152,10 +150,6 @@ begin
   FullContextLinks := ini.ReadBool(C_SectionDefaults, 'FullContextLinks', DefaultAppConfig.FullContextLinks);
   HighlightVerseHits := ini.ReadBool(C_SectionDefaults, 'HighlightVerseHits', DefaultAppConfig.HighlightVerseHits);
   ShowVerseSignatures := ini.ReadBool(C_SectionDefaults, 'ShowVerseSignatures', DefaultAppConfig.ShowVerseSignatures);
-
-  //Search module
-  LastSearchModule := ini.ReadString(C_SectionDefaults, 'LastSearchModule',  DefaultAppConfig.LastSearchModule);
-
 end;
 
 procedure TAppConfig.SaveTo(ini: TMemIniFile);
@@ -211,9 +205,6 @@ begin
   ini.WriteBool(C_SectionDefaults, 'FullContextLinks', FullContextLinks);
   ini.WriteBool(C_SectionDefaults, 'HighlightVerseHits', HighlightVerseHits);
   ini.WriteBool(C_SectionDefaults, 'ShowVerseSignatures', ShowVerseSignatures);
-
-  //Search module
-  ini.WriteString(C_SectionDefaults, 'LastSearchModule', LastSearchModule);
 end;
 
 procedure TAppConfig.Save;
@@ -286,9 +277,6 @@ begin
   FullContextLinks := true;
   HighlightVerseHits := true;
   ShowVerseSignatures := false;
-
-  LastSearchModule:='Library\Bibles\Bible_Russian_RST_2019-05-30';
-
 end;
 
 procedure TAppConfig.Load;

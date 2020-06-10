@@ -2197,14 +2197,12 @@ end;
 procedure TMainForm.tbtnAddSearchTabClick(Sender: TObject);
 var
   newTabInfo: TSearchTabInfo;
-  searchView: TSearchFrame;
 begin
   if not Assigned(mWorkspace) then
     OpenNewWorkspace;
+
   newTabInfo := TSearchTabInfo.Create();
   mWorkspace.AddSearchTab(newTabInfo);
-  searchView := mWorkspace.SearchView as TSearchFrame;
-  searchView.SetCurrentBook(AppConfig.LastSearchModule);
 end;
 
 procedure TMainForm.tbtnAddStrongTabClick(Sender: TObject);

@@ -12,6 +12,7 @@ object SearchFrame: TSearchFrame
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 349
     DesignSize = (
       356
       220)
@@ -62,6 +63,7 @@ object SearchFrame: TSearchFrame
       Items.Strings = (
         #1042#1089#1077' '#1082#1085#1080#1075#1080
         #1053#1077' '#1074#1089#1077' '#1082#1085#1080#1075#1080)
+      ExplicitWidth = 252
     end
     object btnFind: TButton
       AlignWithMargins = True
@@ -74,6 +76,7 @@ object SearchFrame: TSearchFrame
       Default = True
       TabOrder = 2
       OnClick = btnFindClick
+      ExplicitLeft = 291
     end
     object chkAll: TCheckBox
       Left = 8
@@ -84,6 +87,7 @@ object SearchFrame: TSearchFrame
       Caption = #1083#1102#1073#1086#1077' '#1080#1079' '#1089#1083#1086#1074
       TabOrder = 3
       OnClick = chkAllClick
+      ExplicitWidth = 346
     end
     object chkPhrase: TCheckBox
       Left = 8
@@ -94,6 +98,7 @@ object SearchFrame: TSearchFrame
       Caption = #1089#1086#1073#1083#1102#1076#1072#1090#1100' '#1087#1086#1088#1103#1076#1086#1082' '#1089#1083#1086#1074
       TabOrder = 4
       OnClick = chkPhraseClick
+      ExplicitWidth = 345
     end
     object chkParts: TCheckBox
       Left = 8
@@ -104,6 +109,7 @@ object SearchFrame: TSearchFrame
       Caption = #1080#1097#1077#1084' '#1089#1083#1086#1074#1072' '#1094#1077#1083#1080#1082#1086#1084
       TabOrder = 6
       OnClick = chkPartsClick
+      ExplicitWidth = 345
     end
     object chkCase: TCheckBox
       Left = 8
@@ -113,6 +119,7 @@ object SearchFrame: TSearchFrame
       Anchors = [akLeft, akTop, akRight]
       Caption = #1088#1072#1079#1083#1080#1095#1072#1090#1100' '#1088#1077#1075#1080#1089#1090#1088#1099
       TabOrder = 7
+      ExplicitWidth = 345
     end
     object chkExactPhrase: TCheckBox
       Left = 8
@@ -123,6 +130,7 @@ object SearchFrame: TSearchFrame
       Caption = #1080#1097#1077#1084' '#1090#1086#1095#1085#1091#1102' '#1092#1088#1072#1079#1091
       TabOrder = 5
       OnClick = chkExactPhraseClick
+      ExplicitWidth = 345
     end
     object cbQty: TComboBox
       Left = 298
@@ -142,6 +150,7 @@ object SearchFrame: TSearchFrame
         '200'
         '300'
         '500')
+      ExplicitLeft = 291
     end
     object btnSearchOptions: TButton
       Left = 8
@@ -187,6 +196,7 @@ object SearchFrame: TSearchFrame
     OnKeyUp = bwrSearchKeyUp
     OnHotSpotClick = bwrSearchHotSpotClick
     OnHotSpotCovered = bwrSearchHotSpotCovered
+    ExplicitWidth = 349
   end
   object pmRef: TPopupMenu
     AutoHotkeys = maManual
