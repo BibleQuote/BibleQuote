@@ -178,7 +178,7 @@ type
     procedure OnDictsLoaded(var Msg: TMessage); message PROCESS_DICTS_LOADED;
     procedure OnModulesLoaded(var Msg: TMessage);
       message PROCESS_MODULES_LOADED;
-    function GetCurrentBible: TBible;
+    function GetCurrentModuleShortPath: String;
   public
     SysHotKey: TSysHotKey;
 
@@ -437,19 +437,19 @@ begin
     Result := BookView.GetAutoTxt(btInfo, cmd, maxWords, fnt, passageSignature);
 end;
 
-function TMainForm.GetCurrentBible: TBible;
+function TMainForm.GetCurrentModuleShortPath: String;
 var
   activeTabInfo: IViewTabInfo;
   bookTabInfo: TBookTabInfo;
 begin
-  Result:=nil;
+  Result:='';
   activeTabInfo := mWorkspace.GetActiveTabInfo;
-  // activeTabInfo := mWorkspace.GetActiveTabInfo;
+
   if (activeTabInfo is TBookTabInfo) then
   begin
-    bookTabInfo := activeTabInfo as TBookTabInfo;
-    Result:= bookTabInfo.Bible;
+    Result:= (activeTabInfo as TBookTabInfo).Bible.ShortPath;
   end;
+
 end;
 
 procedure TMainForm.InitHtmlTemplate;
@@ -2251,17 +2251,17 @@ var
   newTabInfo: TSearchTabInfo;
   searchView: TSearchFrame;
   BookView: TBookFrame;
-  CurrBible: TBible;
+  ShortPath: String;
 begin
   if not Assigned(mWorkspace) then
     OpenNewWorkspace;
-    CurrBible:=GetCurrentBible();
+    ShortPath:=GetCurrentModuleShortPath();
     newTabInfo := TSearchTabInfo.Create();
     mWorkspace.AddSearchTab(newTabInfo);
-    if Assigned(CurrBible) and CurrBible.IsBible then
+    if ShortPath<>'' then
     begin
     searchView := mWorkspace.searchView as TSearchFrame;
-    searchView.SetCurrentBook(CurrBible.ShortPath);
+    searchView.SetCurrentBook(ShortPath);
     end;
 end;
 
