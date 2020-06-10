@@ -531,6 +531,7 @@ begin
     caption := Format('%s, %s', [mCurrentBook.Name, mCurrentBook.Info.BibleShortName]);
 
   lblBook.Caption := caption.Trim([',', ' ']);
+  AppConfig.LastSearchModule:=shortPath;
 end;
 
 procedure TSearchFrame.DisplaySearchResults(page: integer);
