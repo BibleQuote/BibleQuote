@@ -248,7 +248,12 @@ var
     I: Integer;
   begin
     for I := MinBookIndex to MaxBookIndex do
+     try
       BookSet.Include(FBible.GetBookNumberAt(I));
+     except
+     on e:EArgumentOutOfRangeException  do
+       continue;
+     end;
   end;
 begin
   BookSet := TIntSet.Create();

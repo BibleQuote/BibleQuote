@@ -100,7 +100,8 @@ begin
   SQLiteQuery := TMyBibleUtils.CreateQuery(FBible.Path);
   try
 
-    if FBible.IsBible then
+//    if FBible.IsBible then
+  if not FBible.Info.IsCommentary then
       Verses := TMyBibleUtils.GetBookVerses(SQLiteQuery, aBook)
     else
       Verses := TMyBibleUtils.GetCommentaryVerses(SQLiteQuery, aBook);

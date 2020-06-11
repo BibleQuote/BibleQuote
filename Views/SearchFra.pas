@@ -69,6 +69,8 @@ type
     procedure BookSearchComplete(bible: TBible);
     procedure OnBookSelectFormDeactivate(Sender: TObject);
     procedure OnBookSelect(Sender: TObject; modEntry: TModuleEntry);
+    function FillSearchOptions:TSearchOptions;
+    procedure ReplaceNotUsedSymbols(var SearchText: string);
   public
     constructor Create(AOwner: TComponent; mainView: TMainForm; workspace: IWorkspace); reintroduce;
     destructor Destroy; override;
@@ -173,7 +175,7 @@ begin
     BookSet := TIntSet.Create;
     SourceReader := mCurrentBook.GetSourceReader();
 
-    if (not mCurrentBook.isBible) then
+    if not (mCurrentBook.IsBible) then
     begin
       if (cbList.ItemIndex >= 0) then
       begin
@@ -213,13 +215,7 @@ begin
       end;
     end;
 
-    SearchText := Trim(cbSearch.Text);
-    StrReplace(SearchText, '.', ' ', true);
-    StrReplace(SearchText, ',', ' ', true);
-    StrReplace(SearchText, ';', ' ', true);
-    StrReplace(SearchText, '?', ' ', true);
-    StrReplace(SearchText, '"', ' ', true);
-    SearchText := Trim(SearchText);
+    ReplaceNotUsedSymbols(SearchText);
 
     if SearchText <> '' then
     begin
@@ -245,26 +241,7 @@ begin
         Wrdnew := Trim(Wrd);
         mSearchState.SearchWords.Add(Wrdnew);
       end;
-
-      SearchOptions := [];
-
-      if not chkParts.Checked then
-        Include(SearchOptions, soWordParts);
-
-      if not chkAll.Checked then
-        Include(SearchOptions, soContainAll);
-
-      if not chkPhrase.Checked then
-        Include(SearchOptions, soFreeOrder);
-
-      if not chkCase.Checked then
-        Include(SearchOptions, soIgnoreCase);
-
-      if chkExactPhrase.Checked then
-        Include(SearchOptions, soExactPhrase);
-
-      if (SearchOptions >= [soExactPhrase, soWordParts]) then
-        Exclude(SearchOptions, soWordParts);
+     SearchOptions:= FillSearchOptions;
 
       // TODO: fix search with strongs, currently false
       mCurrentBook.Search(SearchText, SearchOptions, BookSet, False, Self);
@@ -584,14 +561,15 @@ begin
 
   AddLine(dSource, '<a name="endofsearchresults"><p>' + s + '<br><p>');
 
+  // on large search result sometimes very freezen
   StrReplace(dSource, '<*>', '<font color=' + Color2Hex(AppConfig.SelTextColor) + '>', true);
+
   StrReplace(dSource, '</*>', '</font>', true);
 
   bwrSearch.LoadFromString(dSource);
 
   mSearchState.LastSearchResultsPage := page;
   Screen.Cursor := crDefault;
-
   try
     bwrSearch.SetFocus;
   except
@@ -648,6 +626,34 @@ end;
 procedure TSearchFrame.OnSearchComplete(bible: TBible);
 begin
   BookSearchComplete(bible);
+end;
+
+procedure TSearchFrame.ReplaceNotUsedSymbols(var SearchText: string);
+begin
+  SearchText := Trim(cbSearch.Text);
+  StrReplace(SearchText, '.', ' ', true);
+  StrReplace(SearchText, ',', ' ', true);
+  StrReplace(SearchText, ';', ' ', true);
+  StrReplace(SearchText, '?', ' ', true);
+  StrReplace(SearchText, '"', ' ', true);
+  SearchText := Trim(SearchText);
+end;
+
+Function TSearchFrame.FillSearchOptions: TSearchOptions;
+begin
+  Result := [];
+  if not chkParts.Checked then
+    Include(Result, soWordParts);
+  if not chkAll.Checked then
+    Include(Result, soContainAll);
+  if not chkPhrase.Checked then
+    Include(Result, soFreeOrder);
+  if not chkCase.Checked then
+    Include(Result, soIgnoreCase);
+  if chkExactPhrase.Checked then
+    Include(Result, soExactPhrase);
+  if (Result >= [soExactPhrase, soWordParts]) then
+    Exclude(Result, soWordParts);
 end;
 
 procedure TSearchFrame.SearchListInit;
