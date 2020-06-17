@@ -10,6 +10,7 @@ type
   TMyBibleSourceReader = class(TSourceReader)
   private
     procedure ClearMyBibleTags(var aLines: TStrings);
+    procedure ClearMyBibleTagNote(var aLines: TStrings);
   public
     constructor Create(Bible: TBible);
 
@@ -40,7 +41,11 @@ begin
 
     TMyBibleUtils.GetBibleChapter(SQLiteQuery, aBook, aChapter, aLines);
 
-    ClearMyBibleTags(aLines);
+//    remove strong tags from html
+//    ClearMyBibleTags(aLines);
+//     remove note tag(f) from html
+      ClearMyBibleTagNote(aLines);
+
 
     Result := True;
   finally
@@ -73,6 +78,19 @@ var
 begin
   Options := [roMultiLine];
   RegEx := TRegEx.Create('<S>(?P<word>.*?)<\/S>', Options);
+
+  for I := 0 to aLines.Count-1 do
+    aLines[i] := RegEx.Replace(aLines[i], '');
+
+end;
+procedure TMyBibleSourceReader.ClearMyBibleTagNote(var aLines: TStrings);
+var
+  i: Integer;
+  RegEx: TRegEx;
+  Options: TRegExOptions;
+begin
+  Options := [roMultiLine];
+  RegEx := TRegEx.Create('<f>(?P<word>.*?)<\/f>', Options);
 
   for I := 0 to aLines.Count-1 do
     aLines[i] := RegEx.Replace(aLines[i], '');
