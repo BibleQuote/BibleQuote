@@ -40,7 +40,8 @@ begin
 
     TMyBibleUtils.GetBibleChapter(SQLiteQuery, aBook, aChapter, aLines);
 
-    ClearMyBibleTags(aLines);
+//    remove strong tags from html
+//    ClearMyBibleTags(aLines);
 
     Result := True;
   finally

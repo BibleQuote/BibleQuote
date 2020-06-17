@@ -50,7 +50,7 @@ function FindPosition(const sourceString, findString: string; const startPos: in
 function StripHtmlMarkup(const source: string): string;
 function IsValidStrong(const source: string): boolean;
 function FormatStrong(const number: Integer; const isHebrew: Boolean): String;
-function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
+function StrongVal(const source: string; var num: integer; var isHebrew: boolean;const DefaultHebrew:boolean=false): boolean;
 function RepeatString(const s: string; count: cardinal): string;
 
 function StreamToString(const aStream: TStream; const Encoding: TEncoding): String;
@@ -801,7 +801,7 @@ begin
   Result := IfThen(isHebrew, 'H', 'G') + IntToStr(number);
 end;
 
-function StrongVal(const source: string; var num: integer; var isHebrew: boolean): boolean;
+function StrongVal(const source: string; var num: integer; var isHebrew: boolean;const DefaultHebrew:boolean=false): boolean;
 var
   code: Integer;
   s: string;
@@ -810,7 +810,8 @@ begin
 
   if StartsText('0', s) then
     isHebrew := true
-  else if StartsText('H', s) then
+  else
+   if StartsText('H', s) then
   begin
     isHebrew := true;
     s := Copy(s, 2, Length(s) - 1);
@@ -821,12 +822,13 @@ begin
     s := Copy(s, 2, Length(s) - 1);
   end
   else
-    isHebrew := false;
-
+    isHebrew :=DefaultHebrew;
   Val(s, num, code);
 
   Result := code = 0;
 end;
+
+
 
 function RepeatString(const s: string; count: cardinal): string;
 var
