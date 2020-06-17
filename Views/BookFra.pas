@@ -2989,7 +2989,7 @@ begin
         if (not showStrongs) then
           s := DeleteStrongNumbers(s)
         else
-          s := FormatStrongNumbers(s, true);
+          s := FormatStrongNumbers(s, true,BookTabInfo.Bible.OldTestament.ToInteger);
       end;
     end;
     // if the module is non bible or there is no secondary Bible
@@ -3056,7 +3056,7 @@ begin
           StrDeleteFirstNumber(ss);
           if SecondBible.Trait[bqmtStrongs] then
             if showStrongs then
-              ss := FormatStrongNumbers(ss, true)
+              ss := FormatStrongNumbers(ss, true,BookTabInfo.Bible.OldTestament.ToInteger)
             else
               ss := DeleteStrongNumbers(ss);
           if secondRightAligned then

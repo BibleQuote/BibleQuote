@@ -38,7 +38,7 @@ function Get_ANAME_VerseNumber(const s: string; start, iPos: integer): integer;
 function Get_AHREF_VerseCommand(const s: string; iPos: integer): string;
 
 function DeleteStrongNumbers(S: String): String;
-function FormatStrongNumbers(s: string; supercase: boolean): string;
+function FormatStrongNumbers(s: string; supercase: boolean;const Hebrew: integer=-1): string;
 
 // find string in SORTED list, maybe partial match
 function FindString(List: TStringList; s: string): integer;
@@ -89,7 +89,7 @@ begin
     Result := e;
 end;
 
-function FormatStrongNumbers(s: string; supercase: boolean): string;
+function FormatStrongNumbers(s: string; supercase: boolean;const Hebrew: integer=-1): string;
 var
   i, len: integer;
   isNum: boolean;
@@ -102,11 +102,13 @@ begin
   for i := 1 to len do
   begin
     if ((integer(s[i]) >= integer('0')) and (integer(s[i]) <= integer('9')))
+//      and not (s[i-1]='[')
     then
     begin
       if isNum then // если сейчас идет число, то удлинем ссылку
         link := link + s[i]
       else
+
       begin
         isNum := true;
         link := s[i]; // start the number link
@@ -127,11 +129,18 @@ begin
           // if link <> '0' then
           // begin
           // if hebrew and (link <> '0') then link := '0' + link;
+          if not (link.StartsWith('H') or link.StartsWith('G')) then
+               begin
+               if Hebrew=1 then
+              link:= 'H'+link;
+               if Hebrew=0 then
+              link:= 'G'+link;
+               end;
           if supercase then
             Result := Result + '<SUP><font size=0><a href=s' + link + '>' + link
-              + '</a></font></SUP>'
+              + ' </a></font></SUP>'
           else
-            Result := Result + '<a href=s' + link + '>' + link + '</a>'
+            Result := Result + '<a href=s' + link + '>' + link + ' </a>'
             // end;
         end;
         Result := Result + s[i];
