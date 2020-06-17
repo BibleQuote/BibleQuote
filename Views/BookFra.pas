@@ -834,7 +834,7 @@ begin
   text := Trim(bwrHtml.SelText);
 
   //
-  book:=BookTabInfo.Bible.CurBook;
+
   if StrongVal(text, num, hebrew,BookTabInfo.Bible.OldTestament) then
     FMainView.OpenOrCreateStrongTab(BookTabInfo, num, hebrew)
   else
