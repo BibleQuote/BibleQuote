@@ -532,10 +532,10 @@ var
   bookTabState: TBookTabInfoState;
   strongNum: Integer;
   isHebrew: Boolean;
-
 begin
   unicodeSRC := SRC;
   iscontrolDown := IsDown(VK_CONTROL);
+
   if GetCommandType(SRC) = bqctGoCommand then
   // verse hyperlink
   begin
@@ -608,8 +608,7 @@ begin
   else if Pos('s', unicodeSRC) = 1 then
   begin
     scode := Copy(unicodeSRC, 2, Length(unicodeSRC) - 1);
-
-    if (StrongVal(scode, strongNum, isHebrew,BookTabInfo.Bible.OldTestament)) then
+    if (StrongVal(scode, strongNum, isHebrew)) then
       FMainView.OpenOrCreateStrongTab(BookTabInfo, strongNum, isHebrew);
   end
   else
@@ -649,7 +648,7 @@ begin
   if Pos('s', SRC) = 1 then
   begin
     scode := Copy(SRC, 2, Length(SRC) - 1);
-    if (StrongVal(scode, num, isHebrew,BookTabInfo.Bible.OldTestament)) then
+    if (StrongVal(scode, num, isHebrew)) then
     begin
       if (FStrongsConcordance.IsAvailable) then
         if (FStrongsConcordance.Lookup(FormatStrong(num, isHebrew), res)) then
@@ -832,10 +831,7 @@ var
   hebrew: boolean;
 begin
   text := Trim(bwrHtml.SelText);
-
-  //
-
-  if StrongVal(text, num, hebrew,BookTabInfo.Bible.OldTestament) then
+  if StrongVal(text, num, hebrew) then
     FMainView.OpenOrCreateStrongTab(BookTabInfo, num, hebrew)
   else
   begin
@@ -2989,7 +2985,7 @@ begin
         if (not showStrongs) then
           s := DeleteStrongNumbers(s)
         else
-          s := FormatStrongNumbers(s, true,BookTabInfo.Bible.OldTestament.ToInteger);
+          s := FormatStrongNumbers(s, true);
       end;
     end;
     // if the module is non bible or there is no secondary Bible
@@ -3056,7 +3052,7 @@ begin
           StrDeleteFirstNumber(ss);
           if SecondBible.Trait[bqmtStrongs] then
             if showStrongs then
-              ss := FormatStrongNumbers(ss, true,BookTabInfo.Bible.OldTestament.ToInteger)
+              ss := FormatStrongNumbers(ss, true)
             else
               ss := DeleteStrongNumbers(ss);
           if secondRightAligned then

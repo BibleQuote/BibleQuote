@@ -312,9 +312,7 @@ end;
 
 class function TMyBibleUtils.GetStrong(aSQLiteQuery: TFDQuery): Boolean;
 begin
-// wrong property name
-//  Result := GetInfoValue(aSQLiteQuery, 'is_strong') = 'true';
-  Result := GetInfoValue(aSQLiteQuery, 'strong_numbers') = 'true';
+  Result := GetInfoValue(aSQLiteQuery, 'is_strong') = 'true';
 end;
 
 class function TMyBibleUtils.GetHistory(aSQLiteQuery: TFDQuery): String;

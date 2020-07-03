@@ -416,12 +416,8 @@ type
     function VerseCount(): integer;
     property Traits: TbqModuleTraits read FTraits;
     property Trait[index: TbqModuleTrait]: boolean read GetTraitState;
-    ///Testment
-    Function GetTestament:string;
-   Function CheckOldTestament:Boolean;
 
-  published 
-    property OldTestament:Boolean read CheckOldTestament;
+  published
     property Filtered: boolean read FFiltered write FFiltered;
     property VersesFound: integer read FVersesFound;
 
@@ -580,7 +576,7 @@ begin
   if IsMyBibleModule and NewTestamentOnly then
   begin
     index := aBookNumber - 39;
-
+    
   end
   else
     index := aBookNumber;
@@ -904,24 +900,6 @@ begin
   end;
 end;
 
-function TBible.GetTestament: string;
-var
-  BookNum: Integer;
-begin
-    if not self.isMyBibleModule then
-    try
-     BookNum:= self.NativeToMyBibleBookNumber(Self.CurBook)
-    Except
-      Exit('New');
-    end
-     else
-     BookNum:=Self.CurBook;
-   if BookNum<470 then
-   Result:='Old'      //old testament
-   else
-   Result:='New';     //new testament
-end;
-
 function TBible.GetTraitState(trait: TbqModuleTrait): boolean;
 begin
   Result := trait in FTraits;
@@ -1137,11 +1115,6 @@ begin
     end;
 end;
 
-function TBible.CheckOldTestament: Boolean;
-begin
-Result:=GetTestament.Equals('Old');
-end;
-
 function TBible.OpenChapter(
   book, chapter: integer;
   forceResolveLinks: boolean = False): boolean;
@@ -1170,9 +1143,8 @@ begin
   FBook := book;
   FChapter := chapter;
 
-//  for test
-//  if FFiltered and (FLines.Count <> 0) then
-//    FLines.Text := ParseHTML(FLines.Text, FHTML);
+  if FFiltered and (FLines.Count <> 0) then
+    FLines.Text := ParseHTML(FLines.Text, FHTML);
   recLnks := (not IsBible) or (Info.IsCommentary);
   if forceResolveLinks or (recLnks and FRecognizeBibleLinks) then
   begin
