@@ -1171,8 +1171,8 @@ begin
   FChapter := chapter;
 
 //  for test
-//  if FFiltered and (FLines.Count <> 0) then
-//    FLines.Text := ParseHTML(FLines.Text, FHTML);
+  if FFiltered and (FLines.Count <> 0) then
+    FLines.Text := ParseHTML(FLines.Text, FHTML);
   recLnks := (not IsBible) or (Info.IsCommentary);
   if forceResolveLinks or (recLnks and FRecognizeBibleLinks) then
   begin
