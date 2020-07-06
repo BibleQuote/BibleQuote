@@ -630,7 +630,8 @@ begin
         str := FirstWord(LowerCase(Tokens[i]));
      var test:=   Pos(str, HTML);
          test:= integer(Tokens.Objects[i]);
-      if (integer(Tokens.Objects[i]) = 1) and (Pos(str, HTML) = 0)then
+    //if few strongs links add spaces
+      if (Pos('</s>',str) <> 0)then
         Result := Result +' ';
       if (integer(Tokens.Objects[i]) <> 1) or (Pos(str, HTML) <> 0) then
         Result := Result + Tokens[i];
