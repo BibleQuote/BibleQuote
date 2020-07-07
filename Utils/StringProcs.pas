@@ -89,6 +89,20 @@ begin
     Result := e;
 end;
 
+procedure AddHorGtoLink(var link: string; const Hebrew: Integer);
+begin
+  // if link <> '0' then
+  // begin
+  // if hebrew and (link <> '0') then link := '0' + link;
+  if not (link.StartsWith('H') or link.StartsWith('G')) then
+  begin
+    if Hebrew = 1 then
+      link := 'H' + link;
+    if Hebrew = 0 then
+      link := 'G' + link;
+  end;
+end;
+
 function FormatStrongNumbers(s: string; supercase: boolean;const Hebrew: integer=-1): string;
 var
   i, len: integer;
@@ -126,16 +140,7 @@ begin
         else
         begin
           isNum := false;
-          // if link <> '0' then
-          // begin
-          // if hebrew and (link <> '0') then link := '0' + link;
-          if not (link.StartsWith('H') or link.StartsWith('G')) then
-               begin
-               if Hebrew=1 then
-              link:= 'H'+link;
-               if Hebrew=0 then
-              link:= 'G'+link;
-               end;
+          AddHorGtoLink(link, Hebrew);
           if supercase then
             Result := Result + '<SUP><font size=0><a href=s' + link + '>' + link
               + ' </a></font></SUP>'
@@ -159,9 +164,12 @@ begin
 
   if isNum then // if a link was in the end, close it
   begin
+  AddHorGtoLink(link, Hebrew);
     if supercase then
-      Result := Result + '<font size=1><a href=s' + link + '>' + link +
-        '</a></font> '
+//      Result := Result + '<font size=1><a href=s' + link + '>' + link +
+//        '</a></font> '
+     Result := Result +  '<SUP><font size=0><a href=s' + link + '>' + link
+              + ' </a></font></SUP>'
     else
       Result := Result + '<a href=s' + link + '>' + link + '</a> '
   end;
@@ -620,7 +628,11 @@ begin
         str := LowerCase(Tokens[i])
       else
         str := FirstWord(LowerCase(Tokens[i]));
-
+     var test:=   Pos(str, HTML);
+         test:= integer(Tokens.Objects[i]);
+    //if few strongs links add spaces
+      if (Pos('</s>',str) <> 0)then
+        Result := Result +' ';
       if (integer(Tokens.Objects[i]) <> 1) or (Pos(str, HTML) <> 0) then
         Result := Result + Tokens[i];
     end;

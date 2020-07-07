@@ -1171,8 +1171,8 @@ begin
   FChapter := chapter;
 
 //  for test
-//  if FFiltered and (FLines.Count <> 0) then
-//    FLines.Text := ParseHTML(FLines.Text, FHTML);
+  if FFiltered and (FLines.Count <> 0) then
+    FLines.Text := ParseHTML(FLines.Text, FHTML);
   recLnks := (not IsBible) or (Info.IsCommentary);
   if forceResolveLinks or (recLnks and FRecognizeBibleLinks) then
   begin
@@ -2216,8 +2216,10 @@ begin
 
   if checkShortNames and not IsMyBibleModule then
   begin
-    checkNamesResult := BookShortNamesToRussianBible(ShortNamesVars[savebook], ibook);
-    if checkNamesResult > 30 then
+   { TODO : Catch Exception when commentary book open module }
+//  try
+     checkNamesResult := BookShortNamesToRussianBible(ShortNamesVars[savebook], ibook);
+     if checkNamesResult > 30 then
     begin
       book := ibook;
       if englishbible then
@@ -2226,6 +2228,9 @@ begin
         book := ibook;
       end;
     end;
+//  except
+//
+//  end;
   end;
   // in English Bible ROMANS follows ACTS instead of JAMES
 
